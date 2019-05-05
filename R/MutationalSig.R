@@ -54,7 +54,7 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
   ID_prefix = paste(" ", patientID, "-", sep = "")
   
   # get branch infomation
-  branch_input <- gsub("∩", ID_prefix, readLines(branch_file))
+  branch_input <- gsub("∩", ID_prefix, readLines(branch_file), encoding = 'UTF-8')
   branches <- strsplit(as.character(paste(patientID, "-", branch_input, sep = "")), split=" ")
   
   # output collection
@@ -120,8 +120,8 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
     sigs.max <- colnames(sigs.which[["weights"]][which.max(sigs.which[["weights"]])])
   }
   
-  # vectorize branch name
-  branch <- gsub(paste(patientID,"-",sep=""), "", branch)
+  # # vectorize branch name
+  # branch <- gsub(paste(patientID,"-",sep=""), "", branch)
   
   # figure out putative driver genes
   if (typeof(driver_genes_dir) == "character"){
@@ -141,8 +141,8 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
 }
 
 
-###### putative driver genes ######
-driver_genes_dir <- "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/putative_driver_genes.txt"
+# how to extract sampleID from result
+result[x,1][[1]][y]
 
 ###### output test ######
 setwd("/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/results")
@@ -152,6 +152,9 @@ for (counter in 1:length(branch_file_ls)){
   result <- Mutational_sigs_tree(maf_file_ls[counter], branch_file_ls[counter], mut.threshold = 30)
   write.table(result, file=paste("output", counter,".txt", sep = ""), quote=F, row.names=F)
 }
+
+###### putative driver genes ######
+driver_genes_dir <- "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/putative_driver_genes.txt"
 
 # sigs <- read.table("/home/ninomoriaty/Nutstore Files/Nutstore/VAF_plot_beta/Mutation_sign/output2.txt", stringsAsFactors=F, quote = "", header = TRUE, fill = TRUE, sep = ' ')
 #
