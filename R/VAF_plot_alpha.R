@@ -3,12 +3,14 @@
 #' frequency distribution curve with ggplot2 as well as ggridges. We could use different parameters to control output 
 #' images from different samples or conclude all samples' VAF information in one image.
 #' 
+#' @import ggplot2 maftools ggridges ggsci dplyr
+#' 
 #' @param maf_file specify a maf document/directory as the input of the function
 #' @param sample_option specify single/all sample names (Tumor_Sample_Barcodes, tsb). Default "OFA".
 #' @param theme_option select a coloring scheme from ggsci. Default "aaas".
 #' @param file_format choose an output file format accessable for ggsave. Default "png".
 #' @return Images of selected samples' VAF
-
+#'
 #' @examples
 #' \dontrun{
 #' VAF_plot(maf_file, sample_option = "OFA", theme_option = "aaas") # draw a VAF image that contains all samples' VAF distribution curves with different themes.
@@ -186,7 +188,7 @@ VAF_vline_ofa <- function(cluster_all, tsb_ls, sample_option)
 
 ########## Directory #######
 # maf_dir = "/home/ninomoriaty/R_Project/patients_snv_indel.imputed.maf"
-maf_file = "/home/ninomoriaty/R_Project/311252_snv_indel.imputed.maf"
+# maf_file = "/home/ninomoriaty/R_Project/311252_snv_indel.imputed.maf"
 # sample_option = "311252-S"
 # theme_option = "aaas"
 # file_format = "png"
