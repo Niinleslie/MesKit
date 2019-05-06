@@ -3,6 +3,9 @@
 #' barcode from the smallest set. Calcualte each branch's mutational signature weight according to cosmic reference
 #' and pick the maxium. Return a data frame of each set/branch's mutational signature.
 #' 
+#' @import reshape2 BSgenome BSgenome.Hsapiens.UCSC.hg19 GenomeInfoDb grDevices graphics utils deconstructSigs
+#' @import plyr
+#' 
 #' @param maf_file specify a maf document/directory as the input of the function
 #' @param branch_file specify a txt document/directory as the input of the branches (needed to be refined)
 #' @return data frame of each set/branch's mutational signature.
@@ -10,6 +13,8 @@
 #' @examples
 #' \dontrun{
 #' Mutational_sigs_tree(maf_file, branch_file)
+#' Mutational_sigs_tree(maf_file, branch_file, driver_genes_dir)
+#' Mutational_sigs_tree(maf_file, branch_file, driver_genes_dir, mut.threshold = 30)
 #'}
 
 
@@ -49,23 +54,24 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
   ID_prefix = paste(" ", patientID, "-", sep = "")
   
   # get branch infomation
-  branch_input <- gsub("∩", ID_prefix, readLines(branch_file))
+  branch_input <- gsub("∩", ID_prefix, readLines(branch_file), encoding = 'UTF-8')
   branches <- strsplit(as.character(paste(patientID, "-", branch_input, sep = "")), split=" ")
   
   # output collection
   mut.sigs.output <- data.frame()
-  
+  mut.branches <- data.frame()
   # generate mutational signautres for different branches
   for (branch_counter in length(branches):1){
     # generate a single branch
     branch <- Filter(Negate(is.na), branches[[branch_counter]])
     mut.branch <- mut.sig.ref[which(mut.sig.ref$Sample %in% branch), ]
-    
+
     for (tsb in branch){
-      # generate the intersection(set) of the branch
+      # generate the intersection(set) of the branch(different from duplication)
       mut.tsb <- mut.sig.ref[which(mut.sig.ref$Sample %in% tsb), ]
       mut.branch <- match_df(mut.branch, mut.tsb, on = c("chr", "pos", "pos_end", "ref", "alt"))
     }
+    
     # generate the branch name
     branch_name <- paste(branch, collapse = "+")
     
@@ -75,9 +81,17 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
     } else{
       # label the intersection(set) of the branch
       mut.sig.ref[which(mut.sig.ref[,1] %in% mut.branch[,1]), 2] <- branch_name
+      # duplicate the same mutation
+      mut.branch.intersection <- mut.sig.ref[which(mut.sig.ref$Sample == branch_name 
+                                      & (!duplicated(mut.sig.ref$chr) 
+                                      | !duplicated(mut.sig.ref$pos)
+                                      | !duplicated(mut.sig.ref$pos_end)
+                                      | !duplicated(mut.sig.ref$ref)
+                                      | !duplicated(mut.sig.ref$ alt))),]
+      mut.branches <- rbind(mut.branches, mut.branch.intersection)
       # get the mutational signature of the branch
       ### However, this part could be optimized as sigs.input should be just calculated once. ###
-      mut.sigs.output <- Mutational_sigs_branch(mut.sig.ref, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold)
+      mut.sigs.output <- Mutational_sigs_branch(mut.branches, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold)
     }
     
   }
@@ -89,7 +103,7 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
 # Weight mutational Signature of each branch
 Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold){
   if (length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]) < mut.threshold){
-    sigs.max <- "No Signature"
+    sigs.max <- "No.Signature"
   }else{
     # deconstructSigs
     sigs.input <- suppressWarnings(mut.to.sigs.input(mut.ref = mut.sig.ref, 
@@ -106,8 +120,8 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
     sigs.max <- colnames(sigs.which[["weights"]][which.max(sigs.which[["weights"]])])
   }
   
-  # vectorize branch name
-  branch <- gsub(paste(patientID,"-",sep=""), "", branch)
+  # # vectorize branch name
+  # branch <- gsub(paste(patientID,"-",sep=""), "", branch)
   
   # figure out putative driver genes
   if (typeof(driver_genes_dir) == "character"){
@@ -118,64 +132,64 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
                                    as.character(mut.sig.ref$Hugo_Symbol) %in% driver_genes),]
     pdg.branch <- as.character(pdg.mut$Hugo_Symbol)
     # collect branches' mutataional signature and potative driver genes information
-    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max, putative_driver_genes = I(list(pdg.branch)))
+    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), putative_driver_genes = I(list(pdg.branch)))
   } else{
-    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max)
+    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]))
   }
   # collect branches' mutataional signature information
   rbind(mut.sigs.output, mut.sigs.branch)
 }
 
 
+# how to extract sampleID from result
+result[x,1][[1]][y]
+
+###### output test ######
+setwd("/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/results")
+maf_file_ls = c(maf_file1, maf_file2, maf_file3, maf_file4, maf_file5, maf_file6, maf_file7)
+branch_file_ls = c(branch_file1, branch_file2, branch_file3, branch_file4, branch_file5, branch_file6, branch_file7)
+for (counter in 1:length(branch_file_ls)){
+  result <- Mutational_sigs_tree(maf_file_ls[counter], branch_file_ls[counter], mut.threshold = 30)
+  write.table(result, file=paste("output", counter,".txt", sep = ""), quote=F, row.names=F)
+}
+
 ###### putative driver genes ######
 driver_genes_dir <- "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/putative_driver_genes.txt"
 
-###### output test ######
-# setwd("/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/results")
-# maf_file_ls = c(maf_file1, maf_file2, maf_file3, maf_file4, maf_file5, maf_file6, maf_file7)
-# branch_file_ls = c(branch_file1, branch_file2, branch_file3, branch_file4, branch_file5, branch_file6, branch_file7)
-# for (counter in 1:length(branch_file_ls)){
-#   result <- Mutational_sigs_tree(maf_file_ls[counter], branch_file_ls[counter])
-#   write.table(result, file=paste("output", counter,".txt", sep = ""))
-# }
-
 # sigs <- read.table("/home/ninomoriaty/Nutstore Files/Nutstore/VAF_plot_beta/Mutation_sign/output2.txt", stringsAsFactors=F, quote = "", header = TRUE, fill = TRUE, sep = ' ')
-# 
-# maf_file1 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/311252.snv_indel.imputed.maf"
-# branch_file1 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/311252.NJtree.edges"
-# 
-# maf_file2 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313544.snv_indel.imputed.maf"
-# branch_file2 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313544.NJtree.edges"
-# 
-# maf_file3 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313935.snv_indel.imputed.maf"
-# branch_file3 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313935.NJtree.edges"
-# 
+#
+maf_file1 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/311252.snv_indel.imputed.maf"
+branch_file1 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/311252.NJtree.edges"
+#
+maf_file2 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313544.snv_indel.imputed.maf"
+branch_file2 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313544.NJtree.edges"
+#
+maf_file3 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313935.snv_indel.imputed.maf"
+branch_file3 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313935.NJtree.edges"
+#
 maf_file4 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313953.snv_indel.imputed.maf"
 branch_file4 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/313953.NJtree.edges"
-# 
-# maf_file5 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314007.snv_indel.imputed.maf"
-# branch_file5 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314007.NJtree.edges"
-# 
-# maf_file6 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314069.snv_indel.imputed.maf"
-# branch_file6 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314069.NJtree.edges"
-# 
-# maf_file7 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314155.snv_indel.imputed.maf"
-# branch_file7 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314155.NJtree.edges"
+#
+maf_file5 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314007.snv_indel.imputed.maf"
+branch_file5 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314007.NJtree.edges"
+#
+maf_file6 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314069.snv_indel.imputed.maf"
+branch_file6 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314069.NJtree.edges"
+#
+maf_file7 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314155.snv_indel.imputed.maf"
+branch_file7 = "/home/ninomoriaty/Nutstore Files/Nutstore/edges_mafs/314155.NJtree.edges"
 
-# Confirm sets of mutation
-# Mutation_sets <- function(mut.sig.ref, branches){
-#   # generate branch name
-#   for (branch_counter in 1:length(branches)){
-#     branch <- Filter(Negate(is.na), branches[,branch_counter])
-#     mut.branch <- mut.sig.ref[which(mut.sig.ref$Sample %in% branch), ]
-#     for (tsb in branch){
-#       mut.tsb <- mut.sig.ref[which(mut.sig.ref$Sample %in% tsb), ]
-#       mut.branch <- match_df(mut.branch, mut.tsb, on = c("chr", "pos", "pos_end", "ref", "alt"))
-#     }
-#     branch_name <- paste(branch, collapse = "+")
-#     Mutational_sigs_branch(mut.branch, branch_name)
-#     mut.sig.ref[which(mut.sig.ref[,1] %in% mut.branch[,1]), 2] <- branch_name
-#   }
-#   mut.sig.ref
-# }
+# dir
+maf_file = maf_file1
+branch_file = branch_file1
 
+# data.mini
+data.name1 = c("wang","cheng","wei")
+data.power1 = c("end","end","promoter")
+minidata1 = data.frame(name=data.name1, power=data.power1)
+data.name2 = c("wang","cheng","wei")
+data.power2 = c("end","cheng2","wei")
+data.power3 = c("wang","wang","wei")
+minidata2 = data.frame(name=data.name2, power = data.power2, power3 = data.power3)
+match_df(minidata1, minidata2, on = c("name"))
+minidata2[which(minidata2$Spower3 == "wang" & !duplicated(minidata2[,1])),]
