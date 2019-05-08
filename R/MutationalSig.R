@@ -135,9 +135,9 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
                                    as.character(mut.sig.ref$Hugo_Symbol) %in% driver_genes),]
     pdg.branch <- as.character(pdg.mut$Hugo_Symbol)
     # collect branches' mutataional signature and potative driver genes information
-    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max.name, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), sig.prob = sigs.max.prob, putative_driver_genes = I(list(pdg.branch)))
+    mut.sigs.branch <- data.frame(branch = I(list(branch)), sig = sigs.max.name, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), sig.prob = sigs.max.prob, putative_driver_genes = I(list(pdg.branch)))
   } else{
-    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max.name, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), sig.prob = sigs.max.prob)
+    mut.sigs.branch <- data.frame(branch = I(list(branch)), sig = sigs.max.name, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), sig.prob = sigs.max.prob)
   }
   # collect branches' mutataional signature information
   rbind(mut.sigs.output, mut.sigs.branch)
