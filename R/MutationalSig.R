@@ -54,7 +54,7 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
   ID_prefix = paste(" ", patientID, "-", sep = "")
   
   # get branch infomation
-  branch_input <- gsub("∩", ID_prefix, readLines(branch_file), encoding = 'UTF-8')
+  branch_input <- gsub("∩", ID_prefix, readLines(branch_file))
   branches <- strsplit(as.character(paste(patientID, "-", branch_input, sep = "")), split=" ")
   
   # output collection
@@ -103,7 +103,8 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
 # Weight mutational Signature of each branch
 Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold){
   if (length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]) < mut.threshold){
-    sigs.max <- "No.Signature"
+    sigs.max.name <- "No.Signature"
+    sigs.max.prob <- 0
   }else{
     # deconstructSigs
     sigs.input <- suppressWarnings(mut.to.sigs.input(mut.ref = mut.sig.ref, 
@@ -117,7 +118,9 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
                                   sample.id = branch_name,
                                   contexts.needed = TRUE)
     # get mutational signature with max weight
-    sigs.max <- colnames(sigs.which[["weights"]][which.max(sigs.which[["weights"]])])
+    sigs.max <- sigs.which[["weights"]][which.max(sigs.which[["weights"]])]
+    sigs.max.name <- colnames(sigs.max)
+    sigs.max.prob <- sigs.max[,1]
   }
   
   # # vectorize branch name
@@ -132,9 +135,9 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
                                    as.character(mut.sig.ref$Hugo_Symbol) %in% driver_genes),]
     pdg.branch <- as.character(pdg.mut$Hugo_Symbol)
     # collect branches' mutataional signature and potative driver genes information
-    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), putative_driver_genes = I(list(pdg.branch)))
+    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max.name, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), sig.prob = sigs.max.prob, putative_driver_genes = I(list(pdg.branch)))
   } else{
-    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]))
+    mut.sigs.branch <- data.frame(branch = I(list(branch)), mut.sig = sigs.max.name, mut.num = length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]), sig.prob = sigs.max.prob)
   }
   # collect branches' mutataional signature information
   rbind(mut.sigs.output, mut.sigs.branch)
