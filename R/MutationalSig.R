@@ -54,7 +54,7 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
   ID_prefix = paste(" ", patientID, "-", sep = "")
   
   # get branch infomation
-  branch_input <- gsub("∩", ID_prefix, readLines(branch_file))
+  branch_input <- gsub("∩", ID_prefix, readLines(branch_file, encoding = 'UTF-8'))
   branches <- strsplit(as.character(paste(patientID, "-", branch_input, sep = "")), split=" ")
   
   # output collection
