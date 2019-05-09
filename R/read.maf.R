@@ -12,15 +12,16 @@
 #' read.maf(patientID, maf.dir = "./data/maf", SampleInfo.dir = "./data/") 
 
 library(maftools)
-MAF <- maftools:::MAF
-MAF2 <- setClass(Class = "MAF2", contains = "MAF", slots =  c(ccf.cluster.tsv = 'data.table', ccf.loci.tsv = 'data.table'))
+library(ggplot2)
+
+Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster.tsv = 'data.table', ccf.loci.tsv = 'data.table'))
 
 # directories
 setwd("/home/ninomoriaty/R_Project")
 patientID = "311252"
 
 # read.maf main function
-read.maf2 <- function(patientID, dat.dir = "./data", use.ccf = FALSE){
+read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE){
   # read maf file
   maf_input <- read.table(paste(dat.dir,'/maf/',patientID,'.maf',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
@@ -29,6 +30,9 @@ read.maf2 <- function(patientID, dat.dir = "./data", use.ccf = FALSE){
   if (use.ccf) {
     ccf.cluster.tsv_input <- read.table(paste(dat.dir,'/ccf/',patientID,'.cluster.tsv',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
     ccf.loci.tsv_input <- read.table(paste(dat.dir,'/ccf/',patientID,'.loci.tsv',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
+  } else {
+    ccf.cluster.tsv_input <- NULL
+    ccf.loci.tsv_input <- NULL
   }
   # Generate patient,lesion and time information in the last three columns of the maf file
   maf_input$patient = ""
@@ -36,8 +40,8 @@ read.maf2 <- function(patientID, dat.dir = "./data", use.ccf = FALSE){
   maf_input$time = ""
   
   # combine sample_info_input with maf_input
-  tsb_ls_total <- unique(sample_info_input$sample)
-  tsb_ls <- tsb_ls_total[which(tsb_ls_total %in% maf_input$Tumor_Sample_Barcode)]
+  tsb_SampleInfo <- unique(sample_info_input$sample)
+  tsb_ls <- tsb_SampleInfo[which(tsb_SampleInfo %in% maf_input$Tumor_Sample_Barcode)]
   for (tsb in tsb_ls) {
     patient <- sample_info_input[which(sample_info_input$sample == tsb),]$patient
     lesion <- as.character(sample_info_input[which(sample_info_input$sample == tsb),]$lesion)
@@ -50,12 +54,8 @@ read.maf2 <- function(patientID, dat.dir = "./data", use.ccf = FALSE){
   # transform data.frame to data.table
   maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
   maf.data <- data.table::setDT(maf_input)
-  
-  if (use.ccf) {
-    ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
-    ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
-  }
-
+  ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
+  ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
   
   vc.nonSilent =  c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", "Translation_Start_Site",
                     "Nonsense_Mutation", "Nonstop_Mutation", "In_Frame_Del",
@@ -72,20 +72,18 @@ read.maf2 <- function(patientID, dat.dir = "./data", use.ccf = FALSE){
   }
   
   maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
-  if (use.ccf) {
-    m2 <- MAF2(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
-               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
-               summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
-  } else {
-    m2 <- MAF(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
-               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
-               summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno)
+  maf <- Maf(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
+              variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
+              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
+  
+  if (plot.mafSummary) {
+    ggsave(plotmafSummary(maf=maf, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE), filename = paste(patientID, ".png", sep=""), width = 12, height = 9, dpi = 300)
   }
-
-  return(m2)
+  
+  return(maf)
 }
 
-plotmafSummary(maf=m2, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
+
 
 
 # # Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
