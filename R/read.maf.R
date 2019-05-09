@@ -22,7 +22,7 @@ patientID = "311252"
 SampleInfo.dir = "/home/ninomoriaty/R_Project/MesKit/inst/extdata/multi_lesion/sample_info.txt"
 
 # read.maf main function
-read.maf <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
+read.maf2 <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
   # read maf file
   maf_input <- read.table(paste(maf.dir,'/',patientID,'.maf',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
@@ -47,6 +47,7 @@ read.maf <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
     maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$time <- time
   }
   
+  maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
   maf.data <- data.table::setDT(maf_input)
   ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
   ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
@@ -67,6 +68,8 @@ read.maf <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
   
   maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
   
+  
+  
   m2 <- MAF2(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
              variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
@@ -77,9 +80,15 @@ read.maf <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
 plotmafSummary(maf=m2, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
 
 
-# maftools comparasion
-maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
-plotmafSummary(maf=maftools.result, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
+# # Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
+# gs.dat = getGeneSummary(m2)
+# data.table::setDF(gs.dat)
+# rownames(gs.dat) = as.character(gs.dat$Hugo_Symbol)
+# 
+# 
+# # maftools comparasion
+# maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
+# plotmafSummary(maf=maftools.result, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
 
 
 
