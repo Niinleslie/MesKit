@@ -12,24 +12,24 @@
 #' read.maf(patientID, maf.dir = "./data/maf", SampleInfo.dir = "./data/") 
 
 library(maftools)
-
-MAF2 <- setClass(Class = "MAF2", contains="MAF", slots =  c(ccf.cluster.tsv = 'data.table', ccf.loci.tsv = 'data.table'))
+MAF <- maftools:::MAF
+MAF2 <- setClass(Class = "MAF2", contains = "MAF", slots =  c(ccf.cluster.tsv = 'data.table', ccf.loci.tsv = 'data.table'))
 
 # directories
-maf.dir = "/home/ninomoriaty/R_Project/MesKit/inst/extdata/multi_lesion/maf"
-ccf.dir = "/home/ninomoriaty/R_Project/MesKit/inst/extdata/multi_lesion/ccf"
+setwd("/home/ninomoriaty/R_Project")
 patientID = "311252"
-SampleInfo.dir = "/home/ninomoriaty/R_Project/MesKit/inst/extdata/multi_lesion/sample_info.txt"
 
 # read.maf main function
-read.maf2 <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
+read.maf2 <- function(patientID, dat.dir = "./data", use.ccf = FALSE){
   # read maf file
-  maf_input <- read.table(paste(maf.dir,'/',patientID,'.maf',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t')
+  maf_input <- read.table(paste(dat.dir,'/maf/',patientID,'.maf',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
-  sample_info_input <-  read.table(SampleInfo.dir, quote = "", header = TRUE, fill = TRUE, sep = '')
+  sample_info_input <-  read.table(paste(dat.dir, '/sample_info.txt',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '')
   # read ccf file
-  ccf.cluster.tsv_input <- read.table(paste(ccf.dir,'/',patientID,'.cluster.tsv',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
-  ccf.loci.tsv_input <- read.table(paste(ccf.dir,'/',patientID,'.loci.tsv',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
+  if (use.ccf) {
+    ccf.cluster.tsv_input <- read.table(paste(dat.dir,'/ccf/',patientID,'.cluster.tsv',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
+    ccf.loci.tsv_input <- read.table(paste(dat.dir,'/ccf/',patientID,'.loci.tsv',sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
+  }
   # Generate patient,lesion and time information in the last three columns of the maf file
   maf_input$patient = ""
   maf_input$lesion = ""
@@ -47,10 +47,15 @@ read.maf2 <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
     maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$time <- time
   }
   
+  # transform data.frame to data.table
   maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
   maf.data <- data.table::setDT(maf_input)
-  ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
-  ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
+  
+  if (use.ccf) {
+    ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
+    ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
+  }
+
   
   vc.nonSilent =  c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", "Translation_Start_Site",
                     "Nonsense_Mutation", "Nonstop_Mutation", "In_Frame_Del",
@@ -67,13 +72,16 @@ read.maf2 <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
   }
   
   maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
-  
-  
-  
-  m2 <- MAF2(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
-             variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
-             summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
-  
+  if (use.ccf) {
+    m2 <- MAF2(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
+               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
+               summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
+  } else {
+    m2 <- MAF(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
+               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
+               summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno)
+  }
+
   return(m2)
 }
 
