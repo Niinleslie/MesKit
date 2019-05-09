@@ -1,19 +1,21 @@
 #' Output an new maf document with information of sample_info 
 #' @description Add sample_info to the original maf file to get a new maf.The new maf file adds three pieces of information:lesion,patient and time
 #'
-#' @import maftools
+#' @import maftools ggplot2
 #'
 #' @param patientID patient/sample name
-#' @param maf.dir specify a maf document/directory as the input of the function
-#' @param sample_info_file specify a txt document/directory as the input of the sample_info (Created by yourself)
-#' @return the new maf file includes information of sample_info and mut.id
+#' @param dat.dir specify a data directory as the input of the function
+#' @param use.ccf = Default FALSE. TRUE if ccf data is provided
+#' @param plot.mafSummary Default TRUE. FALSE if the summary figure is unnecessary
+#' @return a Maf object/class includes information of sample_info and mut.id and summary figure of it
 #'
 #' @examples
-#' read.maf(patientID, maf.dir = "./data/maf", SampleInfo.dir = "./data/") 
+#' read.maf(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE) 
 
 library(maftools)
 library(ggplot2)
 
+# Maf class
 Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster.tsv = 'data.table', ccf.loci.tsv = 'data.table'))
 
 # directories
@@ -51,12 +53,16 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
     maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$time <- time
   }
   
-  # transform data.frame to data.table
+  
+  # fix: Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
   maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
+  
+  # transform data.frame to data.table
   maf.data <- data.table::setDT(maf_input)
   ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
   ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
   
+  # generate maf.silent and filter maf.data
   vc.nonSilent =  c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", "Translation_Start_Site",
                     "Nonsense_Mutation", "Nonstop_Mutation", "In_Frame_Del",
                     "In_Frame_Ins", "Missense_Mutation")
@@ -71,11 +77,13 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
     maf.data = maf.data[Variant_Classification %in% vc.nonSilent] #Choose only non-silent variants from main table
   }
   
+  # summarize sample_info and mut.id with summarizeMaf
   maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
   maf <- Maf(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
               summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
   
+  # print the summary plot
   if (plot.mafSummary) {
     ggsave(plotmafSummary(maf=maf, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE), filename = paste(patientID, ".png", sep=""), width = 12, height = 9, dpi = 300)
   }
