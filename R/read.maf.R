@@ -50,7 +50,6 @@ read.maf <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
   maf.data <- data.table::setDT(maf_input)
   ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
   ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
-  maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
   
   vc.nonSilent =  c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", "Translation_Start_Site",
                     "Nonsense_Mutation", "Nonstop_Mutation", "In_Frame_Del",
@@ -66,25 +65,21 @@ read.maf <- function(patientID, maf.dir, ccf.dir, SampleInfo.dir){
     maf.data = maf.data[Variant_Classification %in% vc.nonSilent] #Choose only non-silent variants from main table
   }
   
+  maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
+  
   m2 <- MAF2(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
              variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
-             summary = maf.summary$summary, maf.silent = maf.silent, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
+             summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster.tsv = ccf.cluster.tsv, ccf.loci.tsv = ccf.loci.tsv)
   
   return(m2)
 }
 
-plotmafSummary(maf = m2, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+plotmafSummary(maf=m2, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
 
 
 # maftools comparasion
-# maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
-# # vcs = getSampleSummary(maftools.result)
-# maftools.result@summary
-# maftools.result@variant.classification.summary
-#  m <- MAF(data = maftools.result@data, variants.per.sample = maftools.result@variants.per.sample, variant.type.summary = maftools.result@variant.type.summary,
-#           variant.classification.summary = maftools.result@variant.classification.summary, gene.summary = maftools.result@gene.summary,
-#           summary = maftools.result@summary, maf.silent = maftools.result@maf.silent)
-
+maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
+plotmafSummary(maf=maftools.result, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
 
 
 
