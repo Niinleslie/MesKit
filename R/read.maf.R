@@ -92,8 +92,6 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
 }
 
 
-
-
 # # Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
 # gs.dat = getGeneSummary(m2)
 # data.table::setDF(gs.dat)

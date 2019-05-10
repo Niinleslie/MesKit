@@ -37,13 +37,13 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
   # read .maf file
   maf_input <- read.table(maf_file, quote = "", header = TRUE, fill = TRUE, sep = '\t')
   # get mutationalSigs-related  infomation
-  dat.sample <- data.frame(as.character(maf_input[,ncol(maf_input)]), stringsAsFactors=FALSE)
-  dat.chr <- data.frame(as.character(maf_input[,2]), stringsAsFactors=FALSE)
+  dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), stringsAsFactors=FALSE)
+  dat.chr <- data.frame(as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
   dat.chr[,1] <- paste("chr", dat.chr[,1], sep="")
-  dat.pos.start <- maf_input[,3]
-  dat.pos.end <- maf_input[,4]
-  dat.ref <- maf_input[,7]
-  dat.alt <- maf_input[,9]
+  dat.pos.start <- maf_input$Start_Position
+  dat.pos.end <- maf_input$End_Position
+  dat.ref <- maf_input$Reference_Allele
+  dat.alt <- maf_input$Tumor_Seq_Allele2
   dat.num <- 1:length(dat.alt)
   dat.mutgene <-  maf_input$Hugo_Symbol
   mut.sig.ref <- data.frame(dat.num, dat.sample, dat.chr, dat.pos.start, dat.pos.end, dat.ref, dat.alt, dat.mutgene)
