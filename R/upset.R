@@ -19,7 +19,9 @@ rm(list=ls())
 #' @examples
 #' result<-upset_analysis(maf,311525,TRUE)
 
+maf<-read.table(Arg[1],sep = "\t",header = TRUE)
 
+paramater2<-as.character(Arg[2])
 
 for (i in 1:length(maf$Hugo_Symbol)){
   
@@ -603,6 +605,6 @@ upset_analysis<-function(dataframe=NULL,patientID=NULL,text_show=FALSE){
     
   }
   
-  upsetanalysis(maf.used_patient_n,patientID = patientID,text_show = text_show)
+  upsetanalysis(maf.used_patient_n,patientID = patientID,text_show = paramater2)
   
 }
