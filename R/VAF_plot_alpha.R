@@ -237,9 +237,15 @@ VAF_vline_ofa <- function(cluster_all, tsb_ls, sample_option)
 
 
 ########## Directory #######
-# maf_dir = "/home/ninomoriaty/R_Project/patients_snv_indel.imputed.maf"
-maf_file = "/home/ninomoriaty/R_Project/data/maf/314155.maf"
-# sample_option = "311252-S"
-# theme_option = "aaas"
-# file_format = "png"
-
+maf_file1 = "/home/ninomoriaty/R_Project/data/maf/311252.maf"
+maf_file2 = "/home/ninomoriaty/R_Project/data/maf/313544.maf"
+maf_file3 = "/home/ninomoriaty/R_Project/data/maf/313935.maf"
+maf_file4 = "/home/ninomoriaty/R_Project/data/maf/313953.maf"
+maf_file5 = "/home/ninomoriaty/R_Project/data/maf/314007.maf"
+maf_file6 = "/home/ninomoriaty/R_Project/data/maf/314069.maf"
+maf_file7 = "/home/ninomoriaty/R_Project/data/maf/314155.maf"
+maf_file_ls = c(maf_file1, maf_file2, maf_file3, maf_file4, maf_file5, maf_file6, maf_file7)
+for (counter in maf_file_ls){
+  VAF_plot(counter, "OFA")
+  VAF_plot(counter, "All")
+}
