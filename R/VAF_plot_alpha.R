@@ -27,7 +27,7 @@ library(ggridges)
 library(ggsci)
 library(dplyr)
 
-# MATH score
+# source MATH_score function
 setwd("/home/ninomoriaty/R_Project/MesKit/R")
 source("MATH_Score.R")
 
