@@ -59,8 +59,8 @@ VAF_plot <-function(maf_file, sample_option = "OFA", theme_option = "aaas", file
       {
       # calculate MATH_score
       if (show.MATH){
-        MATH.score <- MATH_score(maf_file, c(sample_name_mt))
-        MATH.score <- MATH.score[which(MATH.score$Tumor_Sample_Barcode == sample_name_mt), ]$MATH_score
+        MATH.score <- MATH_score(maf_file, c(as.character(sample_name_mt)[counter_mt]))
+        MATH.score <- MATH.score[which(MATH.score$Tumor_Sample_Barcode == as.character(sample_name_mt)[counter_mt]), ]$MATH_score
       } else {
         MATH.score <- NA
       }
@@ -68,7 +68,7 @@ VAF_plot <-function(maf_file, sample_option = "OFA", theme_option = "aaas", file
       cluster_mt = inferHeterogeneity(maf = laml, tsb = as.character(sample_mt[1,3]), vafCol = 'VAF', useSyn = TRUE)$"clusterData"
       colnames(cluster_mt)[6] = "VAF"
       # print VAF pictures for all samples
-      pic <- VAF_draw(cluster_mt, theme_option, sample_option, MATH.score)
+      pic <- VAF_draw(cluster_mt, theme_option, as.character(sample_name_mt)[counter_mt], MATH.score)
       ggsave(pic, filename =  paste(as.character(sample_name_mt)[counter_mt], "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9)
       }
     }
