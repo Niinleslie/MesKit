@@ -37,16 +37,16 @@ MATH_score <- function(maf_file, tsb = c("OFA"), minvaf = 0, maxvaf = 1){
     if (any(tsb == c("OFA"))){
       # list all samples' MATH scores
       math_ofa <- math_msp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
-      print(math_ofa)
       math_all <- math_patient(vaf_input_mt, minvaf, maxvaf)
-      cat("ITH MATH score:", as.character(math_all))
+      math_all <- data.frame(Tumor_Sample_Barcode = c("ITH MATH score"), MATH_score = c(math_all))
+      return(rbind(math_ofa, math_all))
     } else{
       # calculate specific samples' MATH score
       tsb_ls <- data.frame(tsb)
       math_sp <- math_msp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
-      print(math_sp)
       math_all <- math_patient(vaf_input_mt, minvaf, maxvaf)
-      cat("ITH MATH score:", as.character(math_all))
+      math_all <- data.frame(Tumor_Sample_Barcode = c("ITH MATH score"), MATH_score = c(math_all))
+      return(rbind(math_sp, math_all))
     }
 }
 
