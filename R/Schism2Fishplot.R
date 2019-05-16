@@ -13,6 +13,21 @@
 #' prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
 #'}
 
+<<<<<<< HEAD
+=======
+# directorys
+setwd("/home/ninomoriaty/R_Project/EvolCancer/Meskit")
+
+dir.cluster.tsv = "./data/tempschism/hu.cluster.tsv"
+dir.loci.tsv = "./data/tempschism/hu.loci.tsv"
+dir.output = "./data/tempschism"
+
+dir.GA.consensusTree = "./data/tempschism/E1.GA.consensusTree"
+dir.cluster.cellularity = "./data/tempschism/E1.cluster.cellularity"
+
+
+
+>>>>>>> 4efd87d3fb7554c11df72b0bed97d2640207d2e3
 ## prepare Schism input
 prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
   # read mutations in cluster.tsv from PyClone and get targeted clusters
@@ -113,6 +128,7 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
 }
 
 
+<<<<<<< HEAD
 # # directorys
 # dir.cluster.tsv = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/hu.cluster.tsv"
 # dir.loci.tsv = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/hu.loci.tsv"
@@ -120,6 +136,9 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
 # 
 # dir.GA.consensusTree = "/home/ninomoriaty/R_Project/EvolCancer/E2/sample-output/E2.GA.consensusTree"
 # dir.cluster.cellularity = "/home/ninomoriaty/R_Project/EvolCancer/E2/sample-output/E2.cluster.cellularity"
+=======
+
+>>>>>>> 4efd87d3fb7554c11df72b0bed97d2640207d2e3
 
 
 # # test: separate the first 3 sample and the next 4 sample to genrate a more proper result
