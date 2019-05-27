@@ -56,7 +56,7 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   
   # transform data.frame to data.table
   maf.data <- data.table::setDT(maf_input)
-  ccf.cluster.tsv <- data.table::setDT(ccf.cluster.tsv_input)
+  ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
   ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
   
   # generate maf.silent and filter maf.data
@@ -169,7 +169,7 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   
   # transform data.frame to data.table
   maf.data <- data.table::setDT(maf_input)
-  ccf.cluster.tsv <- data.table::setDT(ccf.cluster.tsv_input)
+  ccf.cluster.tsv <- data.table::setDT(ccf.loci.tsv_input)
   ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
   
   # generate maf.silent and filter maf.data
