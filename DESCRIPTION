@@ -1,20 +1,20 @@
-Package: MesKit
+Package: Meskit
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Analysis and visualize multi-region whole-exome sequencing data
 Version: 0.1.0
 Author: Mengni Liu <niinleslie@gmail.com>
 Maintainer: Mengni Liu <niinleslie@gmail.com>
 Description: Analysis and visualize multi-region whole-exome sequencing data.This package provides various functions to perform most commonly used analyses in cancer genomics and to create feature rich customizable visualzations with minimal effort.
-    Use four spaces when indenting paragraphs within the Description.
-URL:
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.3)
-Imports: maftools,  data.table, ggplot2(>= 2.0), cowplot, cometExactTest,
-        RColorBrewer, NMF, ggrepel, methods, ComplexHeatmap, mclust,
-        Biostrings, rjson, grid, wordcloud, grDevices, gridExtra,
-        survival, BSgenome
+Imports: 
+    utils, ape,  methods, plotrix, grDevices, gridExtra,
+    BSgenome, BSgenome.Hsapiens.UCSC.hg19, GenomeInfoDb, 
+    reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel,
+    ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, fishplot, png,    
+    maftools, deconstructSigs
+
 RoxygenNote: 6.1.0
 Encoding: UTF-8
 Suggests: knitr, rmarkdown
@@ -23,10 +23,10 @@ biocViews: DataRepresentation, DNASeq, Visualization, DriverMutation,
         VariantAnnotation, FeatureExtraction, Classification,
         SomaticMutation, Sequencing, FunctionalGenomics, Survival
 NeedsCompilation: no
-Packaged: 2018-10-31 01:24:30 UTC; biocbuild
-git_url: https://git.bioconductor.org/packages/maftools
+Packaged: 2019-6-1 01:24:30 UTC; biocbuild
+git_url: https://github.com/Niinleslie/MesKit
 git_branch: RELEASE_3_8
 git_last_commit: 4078933
-git_last_commit_date: 2018-10-30
-Date/Publication: 2018-10-30
-
+git_last_commit_date: 2019-6-1
+Date/Publication: 2019-6-1
+      
