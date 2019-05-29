@@ -38,7 +38,7 @@ prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
   # read mutations within targeted clusters in loc.tsv file from PyClone 
   loci.tsv = read.table(dir.loci.tsv, sep="\t", stringsAsFactors=F, header=T)
   loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
-  loci_filtered <- na.omit(loci_filtered)
+  #loci_filtered <- na.omit(loci_filtered)
   
   # generate two outputs for SCHISM: clusterEstimates.tsv, mutation_to_cluster.tsv
   clusterEstimates.tsv <- data.frame(loci_filtered$sample_id, loci_filtered$mutation_id, 
