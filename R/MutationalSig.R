@@ -54,7 +54,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
   ID_prefix = paste(" ", patientID, "-", sep = "")
   
   # get branch infomation
-  branches <- strsplit(branch,split='âˆ©')
+  branches <- strsplit(branch,split='âˆ?')
   
   # output collection
   mut.sigs.output <- data.frame()
@@ -95,7 +95,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
     
   }
   # return the data frame of mutational signature for all branches
-  mut.sigs.output
+  return(list(mut.sigs.output, mut.sig.ref))
 }
 
 
@@ -198,7 +198,7 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
   ID_prefix = paste(" ", patientID, "-", sep = "")
   
   # get branch infomation
-  branch_input <- gsub("âˆ©", ID_prefix, readLines(branch_file, encoding = 'UTF-8'))
+  branch_input <- gsub("âˆ?", ID_prefix, readLines(branch_file, encoding = 'UTF-8'))
   branches <- strsplit(as.character(paste(patientID, "-", branch_input, sep = "")), split=" ")
   
   # output collection
@@ -239,8 +239,8 @@ Mutational_sigs_tree <- function(maf_file, branch_file, driver_genes_dir = FALSE
     }
     
   }
-  # return the data frame of mutational signature for all branches
-  mut.sigs.output
+  # return the data frame of mutational signature for all branches and mutation intersection of each branch.
+  return(list(mut.sigs.output, mut.sig.ref))
 }
 
   
