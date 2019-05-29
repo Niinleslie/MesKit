@@ -56,6 +56,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
   # get branch infomation
   branches <- strsplit(branch,split='∩')
   
+  
   # output collection
   mut.sigs.output <- data.frame()
   mut.branches <- data.frame()
@@ -95,7 +96,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
     
   }
   # return the data frame of mutational signature for all branches
-  mut.sigs.output
+  return(list(mut.sigs.output, mut.sig.ref))
 }
 
 
