@@ -37,6 +37,7 @@ read.NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature =
                         sig.min.mut.number = 50, ccf.mutation.id, ccf.mutation.sep){
   maf.dat <- maf@data
   ccf <- maf@ccf.loci
+  patientID <- maf@patientID
   if(use.ccf){
     mut_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = ccf, use.indel, ccf.mutation.id, ccf.mutation.sep)
     if(is.null(ccf)){
@@ -48,7 +49,7 @@ read.NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature =
   }
   mat.nj = nj(dist.gene(t(mut_sort)))
   branch <- read.njtree(mat.nj)
-  list.sig <- Mutational_sigs_tree(maf.dat = maf.dat, branch, mut.threshold = sig.min.mut.number)
+  list.sig <- Mutational_sigs_tree(maf.dat = maf.dat, branch, patientID, mut.threshold = sig.min.mut.number)
   signature <- list.sig[[1]]
   mut.branches <- list.sig[[2]]
   njtree <- new('NJtree', nj = mat.nj, mut_sort = mut_sort, signature = signature, mut_branches = mut.branches)
@@ -57,7 +58,7 @@ read.NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature =
 #Prevent class 'phylo' from not existing
 setClass('phylo')
 #Class NJtree
-setClass('NJtree', slots = c(nj = 'phylo', mut_sort = 'matrix', signature = 'data.frame', mut_branches = 'data.frame'))
+setClass('NJtree', slots = c(nj = 'phylo', mut_sort = 'matrix', signature = 'data.frame', mut_branches = 'list'))
 #extract mut_sort from NJtree object
 setGeneric("getMutSort", function(x, signature){standardGeneric("getMutSort")})
 setMethod("getMutSort", 'NJtree', function(x){x@mut_sort})
