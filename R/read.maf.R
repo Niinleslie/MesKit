@@ -78,7 +78,7 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
   maf <- Maf(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
-              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster = ccf.cluster.tsv, ccf.loci = ccf.loci.tsv,patientID = patientID)
+              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster = ccf.cluster.tsv, ccf.loci = ccf.loci.tsv, patientID = patientID)
   
   # print the summary plot
   if (plot.mafSummary) {
