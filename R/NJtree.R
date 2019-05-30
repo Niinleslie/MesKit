@@ -57,7 +57,7 @@ read.NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature =
 #Prevent class 'phylo' from not existing
 setClass('phylo')
 #Class NJtree
-setClass('NJtree', slots = c(nj = 'phylo', mut_sort = 'matrix', signature = 'data.frame', mut_branches = 'data.frame'))
+setClass('NJtree', slots = c(nj = 'phylo', mut_sort = 'matrix', signature = 'data.frame', mut_branches = 'list'))
 #extract mut_sort from NJtree object
 setGeneric("getMutSort", function(x, signature){standardGeneric("getMutSort")})
 setMethod("getMutSort", 'NJtree', function(x){x@mut_sort})

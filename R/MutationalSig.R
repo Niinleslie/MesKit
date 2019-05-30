@@ -61,6 +61,8 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
   # output collection
   mut.sigs.output <- data.frame()
   mut.branches <- data.frame()
+  mut.branches.output <- list()
+  list.branch_name <- c()
   # generate mutational signautres for different branches
   for (branch_counter in length(branches):1){
     # generate a single branch
@@ -74,7 +76,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
     }
     
     # generate the branch name
-    branch_name <- paste(branch, collapse = "+")
+    branch_name <- paste(branch, collapse = "∩")
     
     if (length(mut.branch[,1]) == 0){
       # fix the problem when no intersection found
@@ -90,14 +92,17 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
                                                       | !duplicated(mut.sig.ref$ref)
                                                       | !duplicated(mut.sig.ref$ alt))),]
       mut.branches <- rbind(mut.branches, mut.branch.intersection)
+      mut.branches.output[[branch_counter]] <- subset(mut.branch.intersection,select=-c(Sample))
+      list.branch_name <- c(branch_name, list.branch_name)
       # get the mutational signature of the branch
       ### However, this part could be optimized as sigs.input should be just calculated once. ###
       mut.sigs.output <- Mutational_sigs_branch(mut.branches, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold)
     }
     
   }
+  names(mut.branches.output) <- list.branch_name
   # return the data frame of mutational signature for all branches
-  return(list(mut.sigs.output, mut.branches))
+  return(list(mut.sigs.output, mut.branches.output))
 }
 
 
