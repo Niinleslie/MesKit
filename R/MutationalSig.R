@@ -1,4 +1,4 @@
-`#' Check Mutational Signature for each branch of phylogenetic tree
+#' Check Mutational Signature for each branch of phylogenetic tree
 #' @description Read maf file as data.frame. Define branches' set relationship by re-labeling their tumor sample 
 #' barcode from the smallest set. Calcualte each branch's mutational signature weight according to cosmic reference
 #' and pick the maxium. Return a data frame of each set/branch's mutational signature.
@@ -33,7 +33,7 @@ library(plyr)
 
 # main function
 # Usage: Mutational_Sigs_branch(maf_file, samples_vector)
-Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.threshold = 50){
+Mutational_sigs_tree <- function(maf.dat, branch, patientID, driver_genes_dir = FALSE, mut.threshold = 50){
   maf_input <- maf.dat
   # get mutationalSigs-related  infomation
   dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), stringsAsFactors=FALSE)
@@ -47,10 +47,6 @@ Mutational_sigs_tree <- function(maf.dat, branch, driver_genes_dir = FALSE, mut.
   dat.mutgene <-  maf_input$Hugo_Symbol
   mut.sig.ref <- data.frame(dat.num, dat.sample, dat.chr, dat.pos.start, dat.pos.end, dat.ref, dat.alt, dat.mutgene)
   colnames(mut.sig.ref) <- c("ID", "Sample", "chr", "pos", "pos_end", "ref", "alt", "Hugo_Symbol")
-  
-  # Synchronize sample name with mut.sig.ref
-  patientID = strsplit(as.character(maf_input$Tumor_Sample_Barcode[1]), "-")[[1]][1]
-  ID_prefix = paste(" ", patientID, "-", sep = "")
   
   # get branch infomation
   branches <- strsplit(branch,split='∩')
