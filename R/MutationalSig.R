@@ -22,7 +22,7 @@
 # dependencies of deconstructSigs
 library(reshape2)
 library(BSgenome)
-library(BSgenome.Hsapiens.UCSC.hg19)
+library(BSgenome.Hsapiens.UCSC.hg38)
 library(GenomeInfoDb)
 library(grDevices)
 library(graphics)
@@ -112,7 +112,8 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
                                                      chr = "chr", 
                                                      pos = "pos", 
                                                      ref = "ref", 
-                                                     alt = "alt"))
+                                                     alt = "alt",
+                                                     bsg = BSgenome.Hsapiens.UCSC.hg38))
     sigs.which <- whichSignatures(tumor.ref = sigs.input, 
                                   signatures.ref = signatures.cosmic, 
                                   sample.id = branch_name,
