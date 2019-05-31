@@ -100,3 +100,4 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
 # maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
 # plotmafSummary(maf=maftools.result, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
 
+# setwd("/home/ninomoriaty/R_Project")
