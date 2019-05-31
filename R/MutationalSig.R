@@ -22,6 +22,7 @@
 # dependencies of deconstructSigs
 library(reshape2)
 library(BSgenome)
+library(BSgenome.Hsapiens.UCSC.hg19)
 library(BSgenome.Hsapiens.UCSC.hg38)
 library(GenomeInfoDb)
 library(grDevices)
@@ -33,7 +34,7 @@ library(plyr)
 
 # main function
 # Usage: Mutational_Sigs_branch(maf_file, samples_vector)
-Mutational_sigs_tree <- function(maf.dat, branch, patientID, driver_genes_dir = FALSE, mut.threshold = 50){
+Mutational_sigs_tree <- function(maf.dat, branch, patientID, BSG, driver_genes_dir = FALSE, mut.threshold = 50){
   maf_input <- maf.dat
   # get mutationalSigs-related  infomation
   dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), stringsAsFactors=FALSE)
@@ -90,7 +91,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, driver_genes_dir = 
       list.branch_name <- c(branch_name, list.branch_name)
       # get the mutational signature of the branch
       ### However, this part could be optimized as sigs.input should be just calculated once. ###
-      mut.sigs.output <- Mutational_sigs_branch(mut.branches, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold)
+      mut.sigs.output <- Mutational_sigs_branch(mut.branches, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold, BSG)
     }
     
   }
@@ -101,7 +102,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, driver_genes_dir = 
 
 
 # Weight mutational Signature of each branch
-Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold){
+Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold, BSG){
   if (length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]) < mut.threshold){
     sigs.max.name <- "No.Signature"
     sigs.max.prob <- 0
@@ -113,7 +114,7 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
                                                      pos = "pos", 
                                                      ref = "ref", 
                                                      alt = "alt",
-                                                     bsg = BSgenome.Hsapiens.UCSC.hg38))
+                                                     bsg = get(BSG)))
     sigs.which <- whichSignatures(tumor.ref = sigs.input, 
                                   signatures.ref = signatures.cosmic, 
                                   sample.id = branch_name,
