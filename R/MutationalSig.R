@@ -29,6 +29,7 @@ library(grDevices)
 library(graphics)
 library(utils)
 library(deconstructSigs)
+library(tidyr)
 # data frame needed
 library(plyr)
 
@@ -46,11 +47,12 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, BSG, driver_genes_d
   dat.alt <- maf_input$Tumor_Seq_Allele2
   dat.num <- 1:length(dat.alt)
   dat.mutgene <-  maf_input$Hugo_Symbol
-  mut.sig.ref <- data.frame(dat.num, dat.sample, dat.chr, dat.pos.start, dat.pos.end, dat.ref, dat.alt, dat.mutgene)
-  colnames(mut.sig.ref) <- c("ID", "Sample", "chr", "pos", "pos_end", "ref", "alt", "Hugo_Symbol")
+  mut.id <- select(tidyr::unite(maf_input, "mut.id", Hugo_Symbol, Chromosome, Start_Position, Reference_Allele, Tumor_Seq_Allele2, sep = ":"), mut.id)
+  mut.sig.ref <- data.frame(dat.num, dat.sample, dat.chr, dat.pos.start, dat.pos.end, dat.ref, dat.alt, dat.mutgene, mut.id)
+  colnames(mut.sig.ref) <- c("ID", "Sample", "chr", "pos", "pos_end", "ref", "alt", "Hugo_Symbol", "mut_id")
   
   # get branch infomation
-  branches <- strsplit(branch,split='∩')
+  branches <- strsplit(branch, split='∩')
   
   
   # output collection
@@ -79,13 +81,15 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, BSG, driver_genes_d
     } else{
       # label the intersection(set) of the branch
       mut.sig.ref[which(mut.sig.ref[,1] %in% mut.branch[,1]), 2] <- branch_name
+      
       # duplicate the same mutation
-      mut.branch.intersection <- mut.sig.ref[which(mut.sig.ref$Sample == branch_name 
-                                                   & (!duplicated(mut.sig.ref$chr) 
-                                                      | !duplicated(mut.sig.ref$pos)
-                                                      | !duplicated(mut.sig.ref$pos_end)
-                                                      | !duplicated(mut.sig.ref$ref)
-                                                      | !duplicated(mut.sig.ref$ alt))),]
+        # mut.branch.intersection <- mut.sig.ref[which(mut.sig.ref$Sample == branch_name 
+        #                                              & (!duplicated(mut.sig.ref$chr) 
+        #                                                 | !duplicated(mut.sig.ref$pos)
+        #                                                 | !duplicated(mut.sig.ref$pos_end)
+        #                                                 | !duplicated(mut.sig.ref$ref)
+        #                                                 | !duplicated(mut.sig.ref$ alt))),]
+      mut.branch.intersection <- mut.sig.ref[which(mut.sig.ref$Sample == branch_name & (!duplicated(mut.sig.ref$mut_id))), ]
       mut.branches <- rbind(mut.branches, mut.branch.intersection)
       mut.branches.output[[branch_counter]] <- subset(mut.branch.intersection,select=-c(Sample))
       list.branch_name <- c(branch_name, list.branch_name)
