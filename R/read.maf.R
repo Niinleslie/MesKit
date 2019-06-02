@@ -23,7 +23,7 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   # read maf file
   maf_input <- read.table(paste(dat.dir,'/maf/',patientID,'.maf',sep = ""), quot = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
-  sample_info_input <-  read.table(paste(dat.dir, '/sample_info.txt',sep = ""), quot = "", header = TRUE, fill = TRUE, sep = '')
+  sample_info_input <-  read.table(paste(dat.dir, '/sample_info.txt',sep = ""), quot = "", header = TRUE, fill = TRUE, sep = '', stringsAsFactors = F)
   # read ccf file
   if (use.ccf) {
     ccf.cluster.tsv_input <- read.table(paste(dat.dir, '/ccf/', patientID, '.cluster.tsv', sep = ""), quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
