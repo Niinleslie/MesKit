@@ -16,10 +16,10 @@ library(maftools)
 library(ggplot2)
 
 # Maf class
-Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character'))
+Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', BSG='character'))
 
 # read.maf main function
-read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE){
+read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE, BSG = "BSgenome.Hsapiens.UCSC.hg19"){
   # read maf file
   maf_input <- read.table(paste(dat.dir,'/maf/',patientID,'.maf',sep = ""), quot = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
@@ -77,7 +77,7 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
   maf <- Maf(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
-              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster = ccf.cluster.tsv, ccf.loci = ccf.loci.tsv,patientID = patientID)
+              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster = ccf.cluster.tsv, ccf.loci = ccf.loci.tsv, patientID = patientID, BSG = BSG)
   
   # print the summary plot
   if (plot.mafSummary) {
@@ -86,6 +86,9 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   
   return(maf)
 }
+
+
+
 
 # # Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
 # gs.dat = getGeneSummary(m2)
@@ -97,9 +100,4 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
 # maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
 # plotmafSummary(maf=maftools.result, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
 
-
-
-
-
-
-
+# setwd("/home/ninomoriaty/R_Project")
