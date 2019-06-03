@@ -68,7 +68,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       colnames(cluster_mt)[6] = "VAF"
       # print VAF pictures for all samples
       pic <- VAF_draw(cluster_mt, theme_option, as.character(sample_name_mt)[counter_mt], MATH.score)
-      ggsave(pic, filename =  paste(as.character(sample_name_mt)[counter_mt], "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9)
+      #ggsave(pic, filename = paste(as.character(sample_name_mt)[counter_mt], "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
       }
     }
   } else if (sample_option == "OFA")
@@ -99,7 +99,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     colnames(cluster_all)[6] = "VAF"
     
     pic <- eval(parse(text = VAF_OFA(cluster_all, theme_option, tsb_ls, sample_option, MATH.score)))
-    ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9)
+    #ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9, dpi = 800, path = "./output")
   } else 
   {
   # specific sample
@@ -115,7 +115,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     colnames(cluster_mt)[6] = "VAF"
     
     pic <- VAF_draw(cluster_mt, theme_option, sample_option, MATH.score)
-    ggsave(pic, filename =  paste(sample_option,"_VAF_Cluster",".", file_format,sep=""), width = 12, height = 9)
+    #ggsave(pic, filename =  paste(sample_option,"_VAF_Cluster",".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
   }
 }
 

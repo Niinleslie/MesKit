@@ -7,7 +7,7 @@
 #' @param dat.dir specify a data directory as the input of the function
 #' @param use.ccf = Default FALSE. TRUE if ccf data is provided
 #' @param plot.mafSummary Default TRUE. FALSE if the summary figure is unnecessary
-#' @param BSG Default hg19. specify a referential genome including BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
+#' @param ref.build Default hg19. specify a referential genome including BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
 #' @return a Maf object/class includes information of sample_info and mut.id and summary figure of it
 #'
 #' @examples
@@ -17,10 +17,10 @@ library(maftools)
 library(ggplot2)
 
 # Maf class
-Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', BSG='character'))
+Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', ref.build='character'))
 
 # read.maf main function
-read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE, BSG = "hg19"){
+read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE, ref.build = "hg19"){
   # read maf file
   maf_input <- read.table(paste(dat.dir,'/maf/',patientID,'.maf',sep = ""), quot = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
@@ -75,14 +75,15 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   }
   
   # summarize sample_info and mut.id with summarizeMaf
-  maf.summary <- maftools:::summarizeMaf(maf = maf.data, chatty = TRUE)
+  maf.summary <- suppressMessages(maftools:::summarizeMaf(maf = maf.data, chatty = TRUE))
   maf <- Maf(data = maf.data, variants.per.sample = maf.summary$variants.per.sample, variant.type.summary = maf.summary$variant.type.summary,
               variant.classification.summary = maf.summary$variant.classification.summary, gene.summary = maf.summary$gene.summary,
-              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster = ccf.cluster.tsv, ccf.loci = ccf.loci.tsv, patientID = patientID, BSG = BSG)
+              summary = maf.summary$summary, maf.silent = maf.silent, clinical.data = maf.summary$sample.anno, ccf.cluster = ccf.cluster.tsv, ccf.loci = ccf.loci.tsv, patientID = patientID, ref.build = ref.build)
   
   # print the summary plot
   if (plot.mafSummary) {
-    ggsave(plotmafSummary(maf=maf, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE), filename = paste(patientID, ".png", sep=""), width = 12, height = 9, dpi = 300)
+    pic <- plotmafSummary(maf=maf, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
+    #ggsave(plotmafSummary(maf=maf, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE), filename = paste(patientID, ".VariantSummary.png", sep=""), width = 12, height = 9, dpi = 800, path = "./output")
   }
   
   return(maf)
