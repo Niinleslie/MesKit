@@ -19,9 +19,9 @@
 
 
 ######## MATH Score ##########
-MATH_score <- function(maf_file, tsb = c("OFA"), minvaf = 0, maxvaf = 1){
+MATH_score <- function(maf_data, tsb = c("OFA"), minvaf = 0, maxvaf = 1){
   # read .maf file
-  maf_input <- read.table(maf_file, quote = "", header = TRUE, fill = TRUE, sep = '\t')
+  maf_input <- maf_data
   # get vaf-related infomation
   dat.hugo_symbol <- maf_input[,1]
   dat.vaf <- maf_input[,ncol(maf_input)-3]
