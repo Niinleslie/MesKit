@@ -38,7 +38,7 @@ read.NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature =
   maf.dat <- maf@data
   ccf <- maf@ccf.loci
   patientID <- maf@patientID
-  BSG <- maf@BSG
+  BSG <- paste("BSgenome.Hsapiens.UCSC.", maf@BSG, sep = "") 
   if(use.ccf){
     mut_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = ccf, use.indel, ccf.mutation.id, ccf.mutation.sep)
     if(is.null(ccf)){

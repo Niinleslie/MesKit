@@ -19,7 +19,7 @@ library(ggplot2)
 Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', BSG='character'))
 
 # read.maf main function
-read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE, BSG = "BSgenome.Hsapiens.UCSC.hg19"){
+read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE, BSG = "hg19"){
   # read maf file
   maf_input <- read.table(paste(dat.dir,'/maf/',patientID,'.maf',sep = ""), quot = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
@@ -100,4 +100,4 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
 # maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
 # plotmafSummary(maf=maftools.result, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
 
-# setwd("/home/ninomoriaty/R_Project")
+setwd("/home/ninomoriaty/R_Project")
