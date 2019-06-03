@@ -7,6 +7,7 @@
 #' @param dat.dir specify a data directory as the input of the function
 #' @param use.ccf = Default FALSE. TRUE if ccf data is provided
 #' @param plot.mafSummary Default TRUE. FALSE if the summary figure is unnecessary
+#' @param BSG Default hg19. specify a referential genome including BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
 #' @return a Maf object/class includes information of sample_info and mut.id and summary figure of it
 #'
 #' @examples
