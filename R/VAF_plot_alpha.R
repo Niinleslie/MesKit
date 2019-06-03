@@ -26,6 +26,7 @@ library(maftools)
 library(ggridges)
 library(ggsci)
 library(dplyr)
+library(cowplot)
 
 # source MATH_score function
 setwd("/home/ninomoriaty/R_Project/MesKit/R")
@@ -56,19 +57,21 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     {
     for (sample_name_mt in tsb_ls)
       {
+      sample.name <- as.character(sample_name_mt)[counter_mt]
       # calculate MATH_score
       if (show.MATH){
-        MATH.score <- MATH_score(maf_input, c(as.character(sample_name_mt)[counter_mt]))
-        MATH.score <- MATH.score[which(MATH.score$Tumor_Sample_Barcode == as.character(sample_name_mt)[counter_mt]), ]$MATH_score
+        MATH.score <- MATH_score(maf_input, c(sample.name))
+        MATH.score <- MATH.score[which(MATH.score$Tumor_Sample_Barcode == sample.name), ]$MATH_score
       } else {
         MATH.score <- NA
       }
-      sample_mt <- vaf_input_mt[which(vaf_input_mt$Samples %in% as.character(sample_name_mt)[counter_mt]),]
+      sample_mt <- vaf_input_mt[which(vaf_input_mt$Samples %in% sample.name),]
       cluster_mt = inferHeterogeneity(maf = laml, tsb = as.character(sample_mt[1,3]), vafCol = 'VAF', useSyn = TRUE)$"clusterData"
       colnames(cluster_mt)[6] = "VAF"
       # print VAF pictures for all samples
-      pic <- VAF_draw(cluster_mt, theme_option, as.character(sample_name_mt)[counter_mt], MATH.score)
-      #ggsave(pic, filename = paste(as.character(sample_name_mt)[counter_mt], "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
+      pic <- VAF_draw(cluster_mt, theme_option, sample.name, MATH.score)
+      #ggsave(pic, filename = paste(sample.name, "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
+      plot_grid(pic, labels = c(), ncol = 2)
       }
     }
   } else if (sample_option == "OFA")
@@ -80,6 +83,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       {
       for (sample_name_mt in tsb_ls)
         {
+        sample.name <- as.character(sample_name_mt)[counter_mt]
         # calculate MATH_score
         if (show.MATH){
           MATH.score <- MATH_score(maf_input, c(sample_name_mt))
@@ -87,7 +91,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
         } else {
           MATH.score <- NA
         }
-        sample_mt <- vaf_input_mt[which(vaf_input_mt$Samples %in% as.character(sample_name_mt)[counter_mt]),]
+        sample_mt <- vaf_input_mt[which(vaf_input_mt$Samples %in% sample.name),]
         cluster_mt_cha <- paste("cluster_mt_", counter_mt," <- inferHeterogeneity(maf = laml, tsb = as.character(sample_mt[1,3]), vafCol = \'VAF\', useSyn = TRUE)$\"clusterData\"", sep ="")
         eval(parse(text = cluster_mt_cha))
         cluster_mt_cha <- paste("colnames(cluster_mt_", counter_mt, ")[6] = \"VAF\"",sep ="")

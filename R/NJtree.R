@@ -73,9 +73,9 @@ setMethod("getNJtreeSignature", 'NJtree', function(x){x@signature})
 
 ###### output test ######
 patientID = "311252"
-dat.dir = "./data/multi_lesion"
+# dat.dir = "./data/multi_lesion"
 # NJtree object
-maf <- read.Maf(patientID, dat.dir)
+maf <- read.Maf(patientID)
 njtree <- read.NJtree(maf, use.indel = T, use.ccf = F)
 getMutSort(njtree)
 getPhyloTree(njtree)

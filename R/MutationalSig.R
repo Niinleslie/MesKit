@@ -47,7 +47,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, ref.build, driver_g
   dat.alt <- maf_input$Tumor_Seq_Allele2
   dat.num <- 1:length(dat.alt)
   dat.mutgene <-  maf_input$Hugo_Symbol
-  mut.id <- select(tidyr::unite(maf_input, "mut.id", Hugo_Symbol, Chromosome, Start_Position, Reference_Allele, Tumor_Seq_Allele2, sep = ":"), mut.id)
+  mut.id <- select(tidyr::unite(maf_input, "mut.id", Hugo_Symbol, Chromosome, Start_Position, End_Position Reference_Allele, Tumor_Seq_Allele2, sep = ":"), mut.id)
   mut.sig.ref <- data.frame(dat.num, dat.sample, dat.chr, dat.pos.start, dat.pos.end, dat.ref, dat.alt, dat.mutgene, mut.id)
   colnames(mut.sig.ref) <- c("ID", "Sample", "chr", "pos", "pos_end", "ref", "alt", "Hugo_Symbol", "mut_id")
   
