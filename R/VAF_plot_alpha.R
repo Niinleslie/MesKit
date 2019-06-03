@@ -114,7 +114,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     pic <- VAF_draw(cluster_mt, theme_option, sample_option, MATH.score)
     #ggsave(pic, filename =  paste(sample_option,"_VAF_Cluster",".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
   }
-  return(pic)
+  pic
 }
 
 ############ General Toolbox ############
