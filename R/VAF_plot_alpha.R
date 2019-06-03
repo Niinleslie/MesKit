@@ -55,9 +55,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
   # print all samples respectively
   for (counter_mt in 1:length(tsb_ls[,1]))
     {
-    for (sample_name_mt in tsb_ls)
-      {
-      sample.name <- as.character(sample_name_mt)[counter_mt]
+      sample.name <- as.character(tsb_ls[,1][counter_mt])
       # calculate MATH_score
       if (show.MATH){
         MATH.score <- MATH_score(maf_input, c(sample.name))
@@ -72,7 +70,6 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       pic <- VAF_draw(cluster_mt, theme_option, sample.name, MATH.score)
       #ggsave(pic, filename = paste(sample.name, "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
       #plot_grid(pic, labels = c(), ncol = 2)
-      }
     }
   } else if (sample_option == "OFA")
   {
@@ -81,12 +78,10 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     # collect all samples' cluster results
     for (counter_mt in 1:length(tsb_ls[,1]))
       {
-      for (sample_name_mt in tsb_ls)
-        {
-        sample.name <- as.character(sample_name_mt)[counter_mt]
+      sample.name <- as.character(tsb_ls[,1][counter_mt])
         # calculate MATH_score
         if (show.MATH){
-          MATH.score <- MATH_score(maf_input, c(sample_name_mt))
+          MATH.score <- MATH_score(maf_input, c(sample.name))
           MATH.score <- MATH.score[which(MATH.score$Tumor_Sample_Barcode == "ITH MATH score"), ]$MATH_score
         } else {
           MATH.score <- NA
@@ -98,7 +93,6 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
         eval(parse(text = cluster_mt_cha))
         cluster_mt_cha <- paste("cluster_all <- rbind(cluster_all, cluster_mt_", counter_mt, ")",sep ="")
         eval(parse(text = cluster_mt_cha))
-        }
       }
     colnames(cluster_all)[6] = "VAF"
     
@@ -121,6 +115,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     pic <- VAF_draw(cluster_mt, theme_option, sample_option, MATH.score)
     #ggsave(pic, filename =  paste(sample_option,"_VAF_Cluster",".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
   }
+  return(pic)
 }
 
 ############ General Toolbox ############
