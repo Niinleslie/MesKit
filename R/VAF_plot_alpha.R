@@ -71,7 +71,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       # print VAF pictures for all samples
       pic <- VAF_draw(cluster_mt, theme_option, sample.name, MATH.score)
       #ggsave(pic, filename = paste(sample.name, "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
-      plot_grid(pic, labels = c(), ncol = 2)
+      #plot_grid(pic, labels = c(), ncol = 2)
       }
     }
   } else if (sample_option == "OFA")
