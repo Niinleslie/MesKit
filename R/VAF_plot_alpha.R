@@ -38,6 +38,8 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
   # read .maf file
   maf_input <- maf@data[,-c("patient", "lesion", "time")]
   laml <- read.maf(maf_input)
+  # specify patienID
+  patientID <- maf@patientID
   # extract vaf info
   n <- length(maf_input$Hugo_Symbol)
   vaf_input_mt <- data.frame(maf_input$Hugo_Symbol, maf_input$VAF, maf_input$Tumor_Sample_Barcode)
@@ -46,9 +48,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
   # extract all tumor sample barcode
   tsb_ls <- data.frame(unique(vaf_input_mt$Samples))
   colnames(tsb_ls) <- c("samples")
-  
 
-  
   # sample options
   if (sample_option == "All")
   {
@@ -74,7 +74,6 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
   } else if (sample_option == "OFA")
   {
     # one pic for all sample
-    patientID <- maf@patientID
     # collect all samples' cluster results
     for (counter_mt in 1:length(tsb_ls[,1]))
       {
