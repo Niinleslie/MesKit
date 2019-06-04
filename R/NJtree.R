@@ -33,7 +33,7 @@ library(plyr)
 
 
 # set NJtree object
-read.NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE, 
+NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE, 
                         sig.min.mut.number = 50, ccf.mutation.id, ccf.mutation.sep){
   maf.dat <- maf@data
   ccf <- maf@ccf.loci
@@ -72,11 +72,8 @@ setMethod("getNJtreeSignature", 'NJtree', function(x){x@signature})
 
 
 ###### output test ######
-patientID = "311252"
-dat.dir = "./data/multi_lesion"
-# NJtree object
-maf <- read.Maf(patientID, dat.dir)
-njtree <- read.NJtree(maf, use.indel = T, use.ccf = F)
+maf <- read.Maf('311252',dat.dir = './data/multi_lesion',BSG = 'BSgenome.Hsapiens.UCSC.hg19')
+njtree <- NJtree(maf, use.indel = F, use.ccf = F)
 getMutSort(njtree)
 getPhyloTree(njtree)
 getNJtreeSignature(njtree)
