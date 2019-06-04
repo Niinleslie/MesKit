@@ -50,11 +50,9 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
   colnames(tsb_ls) <- c("samples")
 
   # sample options
-  if (sample_option == "All")
-  {
+  if (sample_option == "All"){
   # print all samples respectively
-  for (counter_mt in 1:length(tsb_ls[,1]))
-    {
+  for (counter_mt in 1:length(tsb_ls[,1])){
       sample.name <- as.character(tsb_ls[,1][counter_mt])
       # calculate MATH_score
       if (show.MATH){
@@ -71,12 +69,10 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       #ggsave(pic, filename = paste(sample.name, "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
       #plot_grid(pic, labels = c(), ncol = 2)
     }
-  } else if (sample_option == "OFA")
-  {
+  } else if (sample_option == "OFA"){
     # one pic for all sample
     # collect all samples' cluster results
-    for (counter_mt in 1:length(tsb_ls[,1]))
-      {
+    for (counter_mt in 1:length(tsb_ls[,1])){
       sample.name <- as.character(tsb_ls[,1][counter_mt])
         # calculate MATH_score
         if (show.MATH){
@@ -94,7 +90,6 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
         eval(parse(text = cluster_mt_cha))
       }
     colnames(cluster_all)[6] = "VAF"
-    
     pic <- eval(parse(text = VAF_OFA(cluster_all, theme_option, tsb_ls, sample_option, MATH.score)))
     #ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9, dpi = 800, path = "./output")
   } else 
@@ -110,7 +105,6 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     sample_mt <- vaf_input_mt[which(vaf_input_mt$Samples %in% sample_option),]
     cluster_mt = inferHeterogeneity(maf = laml, tsb = as.character(sample_mt[1,3]), vafCol = 'VAF', useSyn = TRUE)$"clusterData"
     colnames(cluster_mt)[6] = "VAF"
-    
     pic <- VAF_draw(cluster_mt, theme_option, sample_option, MATH.score)
     #ggsave(pic, filename =  paste(sample_option,"_VAF_Cluster",".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
   }
@@ -128,25 +122,21 @@ VAF_vline <- function(cluster_mt, pic, tsb_ls, sample_option, tsb, ingredients =
   density_info <- data.frame(layer_data(pic))
   
   # OFA specific: get scaling ratio
-  if (typeof(ingredients) == "list")
-  {
+  if (typeof(ingredients) == "list"){
     iscale <- ingredients$iscale[1]
     scale <- ingredients$scale[1]
   }
   
   # Obtain vline Coordinate(x, xend, y, yend)
-  for (cluster_name in cluster_ls)
-  {
+  for (cluster_name in cluster_ls){
     x_end <- max(cluster_mt[which(cluster_mt$cluster == cluster_name)]$VAF)
     x_end_alter <- density_info$x[which.min(abs(outer(density_info$x,x_end,FUN="-")))]
     y_end <- density_info$y[which(density_info$x == x_end_alter)]
-    if (sample_option == "OFA")
-    {
+    if (sample_option == "OFA"){
       # Scale and draw lines
       density <- density_info$density[which(density_info$x == x_end_alter)]
       VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(data = cluster_mt_", which(tsb_ls == tsb)," ,aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = ", which(tsb_ls == tsb),", yend = ", which(tsb_ls == tsb) + density*iscale*scale,"), size = 0.3, colour=\"#00AAFF\", linetype=\"dashed\") + ",sep="")
-    }else
-    {
+    }else{
       VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = 0, yend = ", y_end,"), size = 0.3, colour=\"#00AAFF\", linetype=\"dashed\") + ",sep="")
     }
   }
