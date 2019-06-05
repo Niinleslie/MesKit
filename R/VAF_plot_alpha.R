@@ -91,7 +91,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       }
     colnames(cluster_all)[6] = "VAF"
     pic <- eval(parse(text = VAF_OFA(cluster_all, theme_option, tsb_ls, sample_option, MATH.score)))
-    #ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9, dpi = 800, path = "./output")
+    #ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9, dpi = 1200)
   } else 
   {
   # specific sample
@@ -106,7 +106,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     cluster_mt = inferHeterogeneity(maf = laml, tsb = as.character(sample_mt[1,3]), vafCol = 'VAF', useSyn = TRUE)$"clusterData"
     colnames(cluster_mt)[6] = "VAF"
     pic <- VAF_draw(cluster_mt, theme_option, sample_option, MATH.score)
-    #ggsave(pic, filename =  paste(sample_option,"_VAF_Cluster",".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
+    #ggsave(pic, filename =  paste(sample_option,"_VAF_Cluster",".", file_format,sep=""), width = 12, height = 9)
   }
   pic
 }
@@ -135,9 +135,9 @@ VAF_vline <- function(cluster_mt, pic, tsb_ls, sample_option, tsb, ingredients =
     if (sample_option == "OFA"){
       # Scale and draw lines
       density <- density_info$density[which(density_info$x == x_end_alter)]
-      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(data = cluster_mt_", which(tsb_ls == tsb)," ,aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = ", which(tsb_ls == tsb),", yend = ", which(tsb_ls == tsb) + density*iscale*scale,"), size = 0.3, colour=\"#00AAFF\", linetype=\"dashed\") + ",sep="")
+      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(data = cluster_mt_", which(tsb_ls == tsb)," ,aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = ", which(tsb_ls == tsb),", yend = ", which(tsb_ls == tsb) + density*iscale*scale,"), size = 0.2, colour=\"grey\", linetype=\"dashed\") + ",sep="")
     }else{
-      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = 0, yend = ", y_end,"), size = 0.3, colour=\"#00AAFF\", linetype=\"dashed\") + ",sep="")
+      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = 0, yend = ", y_end,"), size = 0.2, colour=\"grey\", linetype=\"dashed\") + ",sep="")
     }
   }
   VAF_vline_cha
@@ -147,13 +147,13 @@ VAF_vline <- function(cluster_mt, pic, tsb_ls, sample_option, tsb, ingredients =
 # VAF painter
 VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score){
   # A draft for density infomation(density_info) of ggplot
-  picv <- ggplot(cluster_mt, aes(x = VAF)) + geom_line(size = 1, colour = "#00AAFF", stat = "density")
+  picv <- ggplot(cluster_mt, aes(x = VAF)) + geom_line(size = 1, colour = "#00C0EB", stat = "density")
   if (is.na(MATH.score)){
     # generate character/string for ggplot and paint the picture
     VAF_draw_cha = paste("ggplot(cluster_mt, aes(x = VAF)) + 
                        theme_bw() + 
                        theme(title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + 
-                       geom_line(size = 1, colour = \"#00AAFF\", stat = \"density\") + geom_rug(aes(y = 0, colour = cluster), sides = \"b\") + ", 
+                       geom_line(size = 1, colour = \"#00C0EB\", stat = \"density\") + geom_rug(aes(y = 0, colour = cluster), sides = \"b\") + ", 
                          VAF_vline(cluster_mt, picv, tsb_ls, sample_option),
                          "scale_color_", theme_option, "() + scale_fill_", theme_option, "()", sep="")
     eval(parse(text = VAF_draw_cha))
@@ -162,7 +162,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score){
                        theme_bw() + 
                        theme(plot.title = element_text(size=18, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + 
                        ggtitle(\"MATH Score: ", as.character(MATH.score), "\") + 
-                       geom_line(size = 1, colour = \"#00AAFF\", stat = \"density\") + geom_rug(aes(y = 0, colour = cluster), sides = \"b\") + ", 
+                       geom_line(size = 1, colour = \"#00C0EB\", stat = \"density\") + geom_rug(aes(y = 0, colour = cluster), sides = \"b\") + ", 
                          VAF_vline(cluster_mt, picv, tsb_ls, sample_option),
                          "scale_color_", theme_option, "() + scale_fill_", theme_option, "()", sep="")
     eval(parse(text = VAF_draw_cha))
@@ -175,18 +175,20 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
   if (is.na(MATH.score)){
     VAF_ofa_cha = paste("ggplot(cluster_all, aes(x=VAF, y=Tumor_Sample_Barcode)) +
                       theme_bw() + 
-                      theme(title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + 
-                      geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5) +
-                      geom_density_ridges(color = \"#00AAFF\", fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
+                      theme(title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + ",
+                        "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
+                        "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5) + ",
+                        "geom_density_ridges(color = \"#00C0EB\", fill = NA, calc_ecdf = TRUE, alpha = 0.5) + ",
                         VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
                         "scale_color_", theme_option, "() + scale_fill_", theme_option, "()", sep="")
   } else {
     VAF_ofa_cha = paste("ggplot(cluster_all, aes(x=VAF, y=Tumor_Sample_Barcode)) +
                       theme_bw() + 
-                      theme(plot.title = element_text(size=18, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + 
-                      ggtitle(\"MATH Score: ", as.character(MATH.score), "\") + 
-                      geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5) +
-                      geom_density_ridges(color = \"#00AAFF\", fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
+                      theme(plot.title = element_text(size=18, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.125)) + ", 
+                      "ggtitle(\"MATH Score: ", as.character(MATH.score), "\") + ", 
+                      "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
+                      "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5) + ",
+                      "geom_density_ridges(color = \"#00C0EB\", fill = NA, calc_ecdf = TRUE, alpha = 0.5) + ",
                         VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
                         "scale_color_", theme_option, "() + scale_fill_", theme_option, "()", sep="")
   }
@@ -212,7 +214,7 @@ VAF_vline_ofa <- function(cluster_all, tsb_ls, sample_option)
     colnames(cluster_mt)[6] = "VAF"
     cluster_ls <- unique(cluster_mt$cluster)
     # A draft for density infomation(density_info) of ggplot
-    picv <- ggplot(cluster_mt, aes(x = VAF)) + geom_line(size = 1, colour = "#00AAFF", stat = "density")
+    picv <- ggplot(cluster_mt, aes(x = VAF)) + geom_line(size = 1, colour = "#00C0EB", stat = "density")
     density_info <- data.frame(layer_data(picv))
     # collect vlines for a single tsb
     VAF_vline_cha <- VAF_vline(cluster_mt, picv, tsb_ls, sample_option, tsb, ingredients)
