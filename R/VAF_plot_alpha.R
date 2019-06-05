@@ -176,7 +176,7 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
     VAF_ofa_cha = paste("ggplot(cluster_all, aes(x=VAF, y=Tumor_Sample_Barcode)) +
                       theme_bw() + 
                       theme(title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + ",
-                        "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
+                        "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.8) + ",
                         "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5, show.legend = F) + ",
                         "geom_density_ridges(color = \"#00C0EB\", fill = NA, calc_ecdf = TRUE, alpha = 0.5) + ",
                         VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
@@ -184,9 +184,9 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
   } else {
     VAF_ofa_cha = paste("ggplot(cluster_all, aes(x=VAF, y=Tumor_Sample_Barcode)) +
                       theme_bw() + 
-                      theme(plot.title = element_text(size=18, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.125)) + ", 
+                      theme(plot.title = element_text(size=18, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + ", 
                       "ggtitle(\"MATH Score: ", as.character(MATH.score), "\") + ", 
-                      "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
+                      "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.8) + ",
                       "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5, show.legend = F) + ",
                       "geom_density_ridges(color = \"#00C0EB\", fill = NA, calc_ecdf = TRUE, alpha = 0.5) + ",
                         VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
