@@ -91,7 +91,7 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       }
     colnames(cluster_all)[6] = "VAF"
     pic <- eval(parse(text = VAF_OFA(cluster_all, theme_option, tsb_ls, sample_option, MATH.score)))
-    #ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9, dpi = 1200)
+    ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9, dpi = 1200)
   } else 
   {
   # specific sample
@@ -135,9 +135,9 @@ VAF_vline <- function(cluster_mt, pic, tsb_ls, sample_option, tsb, ingredients =
     if (sample_option == "OFA"){
       # Scale and draw lines
       density <- density_info$density[which(density_info$x == x_end_alter)]
-      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(data = cluster_mt_", which(tsb_ls == tsb)," ,aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = ", which(tsb_ls == tsb),", yend = ", which(tsb_ls == tsb) + density*iscale*scale,"), size = 0.2, colour=\"grey\", linetype=\"dashed\") + ",sep="")
+      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(data = cluster_mt_", which(tsb_ls == tsb)," ,aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = ", which(tsb_ls == tsb),", yend = ", which(tsb_ls == tsb) + density*iscale*scale,"), size = 0.5, colour=\"grey\", linetype=\"dashed\") + ",sep="")
     }else{
-      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = 0, yend = ", y_end,"), size = 0.2, colour=\"grey\", linetype=\"dashed\") + ",sep="")
+      VAF_vline_cha <- paste(VAF_vline_cha, "geom_segment(aes(x = ", x_end_alter,", xend = ", x_end_alter, ", y = 0, yend = ", y_end,"), size = 0.5, colour=\"grey\", linetype=\"dashed\") + ",sep="")
     }
   }
   VAF_vline_cha
