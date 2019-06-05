@@ -177,7 +177,7 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
                       theme_bw() + 
                       theme(title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + ",
                         "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
-                        "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5) + ",
+                        "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5, show.legend = F) + ",
                         "geom_density_ridges(color = \"#00C0EB\", fill = NA, calc_ecdf = TRUE, alpha = 0.5) + ",
                         VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
                         "scale_color_", theme_option, "() + scale_fill_", theme_option, "()", sep="")
@@ -187,7 +187,7 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
                       theme(plot.title = element_text(size=18, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.125)) + ", 
                       "ggtitle(\"MATH Score: ", as.character(MATH.score), "\") + ", 
                       "geom_density_ridges(fill = \"whitesmoke\", calc_ecdf = TRUE, alpha = 0.5) + ",
-                      "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5) + ",
+                      "geom_point(aes(x=VAF, y=Tumor_Sample_Barcode, color = cluster), alpha = 0.5, show.legend = F) + ",
                       "geom_density_ridges(color = \"#00C0EB\", fill = NA, calc_ecdf = TRUE, alpha = 0.5) + ",
                         VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
                         "scale_color_", theme_option, "() + scale_fill_", theme_option, "()", sep="")
