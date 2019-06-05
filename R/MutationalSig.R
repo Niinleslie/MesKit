@@ -35,7 +35,7 @@ library(plyr)
 
 # main function
 # Usage: Mutational_Sigs_branch(maf_file, samples_vector)
-Mutational_sigs_tree <- function(maf.dat, branch, patientID, BSG, driver_genes_dir = FALSE, mut.threshold = 50){
+Mutational_sigs_tree <- function(maf.dat, branch, patientID, ref.build, driver_genes_dir = FALSE, mut.threshold = 50){
   maf_input <- maf.dat
   # get mutationalSigs-related  infomation
   dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), stringsAsFactors=FALSE)
@@ -47,7 +47,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, BSG, driver_genes_d
   dat.alt <- maf_input$Tumor_Seq_Allele2
   dat.num <- 1:length(dat.alt)
   dat.mutgene <-  maf_input$Hugo_Symbol
-  mut.id <- select(tidyr::unite(maf_input, "mut.id", Hugo_Symbol, Chromosome, Start_Position, Reference_Allele, Tumor_Seq_Allele2, sep = ":"), mut.id)
+  mut.id <- select(tidyr::unite(maf_input, "mut.id", Hugo_Symbol, Chromosome, Start_Position, End_Position Reference_Allele, Tumor_Seq_Allele2, sep = ":"), mut.id)
   mut.sig.ref <- data.frame(dat.num, dat.sample, dat.chr, dat.pos.start, dat.pos.end, dat.ref, dat.alt, dat.mutgene, mut.id)
   colnames(mut.sig.ref) <- c("ID", "Sample", "chr", "pos", "pos_end", "ref", "alt", "Hugo_Symbol", "mut_id")
   
@@ -95,7 +95,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, BSG, driver_genes_d
       list.branch_name <- c(branch_name, list.branch_name)
       # get the mutational signature of the branch
       ### However, this part could be optimized as sigs.input should be just calculated once. ###
-      mut.sigs.output <- Mutational_sigs_branch(mut.branches, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold, BSG)
+      mut.sigs.output <- Mutational_sigs_branch(mut.branches, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold, ref.build)
     }
     
   }
@@ -106,7 +106,7 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, BSG, driver_genes_d
 
 
 # Weight mutational Signature of each branch
-Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold, BSG){
+Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_name, patientID, driver_genes, driver_genes_dir, mut.threshold, ref.build){
   if (length(mut.sig.ref[which(mut.sig.ref$Sample == branch_name), 1]) < mut.threshold){
     sigs.max.name <- "No.Signature"
     sigs.max.prob <- 0
@@ -118,7 +118,7 @@ Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, branch, branch_
                                                      pos = "pos", 
                                                      ref = "ref", 
                                                      alt = "alt",
-                                                     bsg = get(BSG)))
+                                                     bsg = get(ref.build)))
     sigs.which <- whichSignatures(tumor.ref = sigs.input, 
                                   signatures.ref = signatures.cosmic, 
                                   sample.id = branch_name,
