@@ -42,18 +42,15 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   tsb_SampleInfo <- unique(sample_info_input$sample)
   tsb_ls <- tsb_SampleInfo[which(tsb_SampleInfo %in% maf_input$Tumor_Sample_Barcode)]
   for (tsb in tsb_ls) {
-    patient <- sample_info_input[which(sample_info_input$sample == tsb),]$patient
+    patient <- as.character(sample_info_input[which(sample_info_input$sample == tsb),]$patient) 
     lesion <- as.character(sample_info_input[which(sample_info_input$sample == tsb),]$lesion)
     time <- as.character(sample_info_input[which(sample_info_input$sample == tsb),]$time)
     maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$patient <- patient
     maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$lesion <- lesion
     maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$time <- time
   }
-  
-  
   # fix: Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
   maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
-  
   # transform data.frame to data.table
   maf.data <- data.table::setDT(maf_input)
   ccf.cluster.tsv <- data.table::setDT(ccf.cluster.tsv_input)
@@ -88,8 +85,6 @@ read.Maf<- function(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSumm
   
   return(maf)
 }
-
-
 
 
 # # Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
