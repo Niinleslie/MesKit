@@ -1,5 +1,6 @@
 ## 7 Visualization
 
+
 ### 7.1 MATH score
 According to published researches, using MATH score to quantify tumor heterogeneity has certain clinical significance.
 We can calculate MATH score through VAF of samples and present the results. Parameter `tsb` is set to select samples.
@@ -34,12 +35,12 @@ With information of cluster and locus, fishplot could provide customers with an 
 In addition, fish plot may also find inches outside of cancer biology and could represent the changing landscapes of microbial populations.
 A clusterEstimates.tsv and a mutation_to_cluster.tsv files would be produced after processing the data input,
 
-(```)
+```
 	prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
 	write.table(clusterEstimates.tsv)
 	write.table(mutation_to_cluster.tsv)
 	schism2Fishplot(clusterEstimates.tsv, mutation_to_cluster.tsv)
-(```)
+```
 
 
 ### 7.6 GO anaysis
@@ -58,7 +59,7 @@ Also, `pval` and `qval` can be controlled to meet different needs.
 
 
 ### 7.8 Mutational Signature
-In order to get a phyligenetic tree, this function can define branches' set relationship by re-labeling their tumor sample barcode from the smallest set. 
+In order to get a phylogenetic tree, this function can define branches' set relationship by re-labeling their tumor sample barcode from the smallest set. 
 And it will calcualte each branch's mutational signature weight according to cosmic reference and pick the maxium. 
 Finally, a data frame includes each set/branch's mutational signature will be offered.
 
@@ -66,15 +67,16 @@ Finally, a data frame includes each set/branch's mutational signature will be of
 
 
 ### 7.9 NJtree plot
-According to researches, constructing a cancer phyligenetic tree with mutation information could help people understand more about the heterogeneity of cancer in samples of certain petient. 
-In a phyligenetic tree, the trunk represents shared mutations and the thinner branches represents private and low frequency muatations of different samples. Besides, the distances between branches show how close these samples are.
-This function uses the method of Neighbor-joining to construct the phyligenetic tree.
-This method minimizes the total distance of the phyligenetic tree by determining the nearest or adjacent paired classification units.
+According to researches, constructing a cancer phylogenetic tree with mutation information could help people understand more about the heterogeneity of cancer in samples of certain petient. 
+In a phylogenetic tree, the trunk represents shared mutations and the thinner branches represents private and low frequency muatations of different samples. Besides, the distances between branches show how close these samples are.
+This function uses the method of Neighbor-joining to construct the phylogenetic tree.
+This method minimizes the total distance of the phylogenetic tree by determining the nearest or adjacent paired classification units.
 The maf_file would be sorted and transformed into an NJtree object before plotting NJtree. Apart from that, the trunk and branches are colored differently, in order to better show the signatures.
-(```)
+
+```
 	maf <- read.Maf(patientID, dat.dir)
 	njtree <- read.NJtree(maf_file, use.indel = T, use.ccf = F,mut.signature = TRUE, sig.min.mut.number = 50,)
 	getMutSort(njtree)
 	getPhyloTree(njtree)
 	getNJtreeSignature(njtree)
-(```)
+```
