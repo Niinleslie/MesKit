@@ -176,35 +176,34 @@ PhyloTree.input <-function(njtree){
   plot.data$y2[row_normal] <- -plot.data$distance[row_normal]
   plot.data <- plot.data[-1,]
   #Adjust Angle of non-normal sample and internal nodes
-  t=1
-  while(t<= length(plot.data[, 1])){
+     t=1
+    while(t<= length(plot.data[, 1])){
     if(all(plot.data$end_num[t] <= length(njtree@nj$tip.label), plot.data$sample[t] != 'internal node', plot.data$sample[t] != 'normal'
-           ,plot.data$horizon_angle[t] != plot.data$horizon[t]))
-    {
+           ,plot.data$horizon_angle[t] != plot.data$horizon[t])){
       #the angles less than ninety degrees are adjust to thirty degrees
       if(plot.data$horizon[t]<pi/2){
         plot.data$horizon[t] <- pi/6
         angle=plot.data$horizon[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle)+plot.data$x1[t]
-        plot.data$y2[t] <- plot.data$distance[t]*sin(angle)+plot.data$y1[t]
-      }
+        plot.data$y2[t] <- plot.data$distance[t]*sin(angle)+plot.data$y1[t]}
       # above 90 are adjusted to 150
       else if(plot.data$horizon[t]>pi/2){
         plot.data$horizon[t] <- pi*5/6
         angle=plot.data$horizon[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle)+plot.data$x1[t]
-        plot.data$y2[t] <- plot.data$distance[t]*sin(angle)+plot.data$y1[t]
-      }
+        plot.data$y2[t] <- plot.data$distance[t]*sin(angle)+plot.data$y1[t]}
     }
     t=t+1
   }
+  
+ 
   #Adjust the Angle again
   t=1
   adjust_node_list <- c()
   while(t <= length(plot.data[,1])){
     row <- ''
     row1 <- ''
-    if(all(plot.data$end_num[t] <= length(njtree@nj$tip.label),plot.data$sample[t] != '',plot.data$sample[t] != 'normal'
+    if(all(plot.data$end_num[t] <= length(njtree@nj$tip.label),plot.data$sample[t] != 'internal node',plot.data$sample[t] != 'normal'
            ,plot.data$horizon_angle[t] != plot.data$horizon[t])){
       internal_node <- plot.data$node[t]
       row1 <- which(plot.data$end_num == internal_node)
@@ -355,6 +354,16 @@ PhyloTree.input <-function(njtree){
   }
   plot.data <- Bisect_branche_angle(list_left, plot.data)
   plot.data <- Bisect_branche_angle(list_right, plot.data)
+  # Adjust the Angle of data with only two samples
+  if(nrow(plot.data) == 3){
+    angle_list <- c(pi/6, 5*pi/6)
+    for(i in 2:nrow(plot.data)){
+      angle <- angle_list[i-1]
+      plot.data$horizon[i] <- angle
+      plot.data$x2[i] <- plot.data$distance[i]*cos(angle)
+      plot.data$y2[i] <- plot.data$distance[i]*sin(angle)
+    }
+  }
   plot.data <- add_signature(plot.data,njtree)
   return(plot.data)
 }
@@ -543,5 +552,14 @@ plot.NJtree <- function(maf, use.indel = FALSE, show.mutSig = TRUE, sig.min.mut.
   
 }
 
-
-
+## test
+maf <- read.Maf("314155",dat.dir = './data/multi_lesion', BSG = "BSgenome.Hsapiens.UCSC.hg19")
+plot.NJtree(maf,use.indel = T,show.mutSig = T)
+plot.NJtree(maf,use.indel = T,show.mutSig = F)
+plot.NJtree(maf,use.indel = F,show.mutSig = F)
+plot.NJtree(maf,use.indel = F,show.mutSig = T)
+# CCF
+plot.NJtree(maf,use.indel = T,show.mutSig = T,show.heatmap = '')
+plot.NJtree(maf,use.indel = T,show.mutSig = F,show.heatmap = '')
+plot.NJtree(maf,use.indel = F,show.mutSig = F,show.heatmap = '')
+plot.NJtree(maf,use.indel = F,show.mutSig = T,show.heatmap = '')
