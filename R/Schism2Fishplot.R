@@ -13,21 +13,18 @@
 #' prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
 #'}
 
-<<<<<<< HEAD
-=======
 # directorys
-setwd("/home/ninomoriaty/R_Project/EvolCancer/Meskit")
+setwd("/home/ninomoriaty/R_Project/")
 
 dir.cluster.tsv = "./data/tempschism/hu.cluster.tsv"
 dir.loci.tsv = "./data/tempschism/hu.loci.tsv"
 dir.output = "./data/tempschism"
 
-dir.GA.consensusTree = "./data/tempschism/E1.GA.consensusTree"
-dir.cluster.cellularity = "./data/tempschism/E1.cluster.cellularity"
+dir.GA.consensusTree = "./data/tempschism/0_W_results.GA.consensusTree"
+dir.cluster.cellularity = "./data/tempschism/0_W_results.cluster.cellularity"
 
 
 
->>>>>>> 4efd87d3fb7554c11df72b0bed97d2640207d2e3
 ## prepare Schism input
 prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
   # read mutations in cluster.tsv from PyClone and get targeted clusters
@@ -38,7 +35,7 @@ prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
   # read mutations within targeted clusters in loc.tsv file from PyClone 
   loci.tsv = read.table(dir.loci.tsv, sep="\t", stringsAsFactors=F, header=T)
   loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
-  #loci_filtered <- na.omit(loci_filtered)
+  loci_filtered <- na.omit(loci_filtered)
   
   # generate two outputs for SCHISM: clusterEstimates.tsv, mutation_to_cluster.tsv
   clusterEstimates.tsv <- data.frame(loci_filtered$sample_id, loci_filtered$mutation_id, 
@@ -128,17 +125,29 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
 }
 
 
-<<<<<<< HEAD
-# # directorys
-# dir.cluster.tsv = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/hu.cluster.tsv"
-# dir.loci.tsv = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/hu.loci.tsv"
-# dir.output = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/Schism"
-# 
-# dir.GA.consensusTree = "/home/ninomoriaty/R_Project/EvolCancer/E2/sample-output/E2.GA.consensusTree"
-# dir.cluster.cellularity = "/home/ninomoriaty/R_Project/EvolCancer/E2/sample-output/E2.cluster.cellularity"
-=======
 
->>>>>>> 4efd87d3fb7554c11df72b0bed97d2640207d2e3
+## Timescape method
+## dependency of timescape
+library(timescape)
+
+schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree){
+  # get cellularity infomation
+  cluster.cellularity = read.table(dir.cluster.cellularity, sep="\t", stringsAsFactors=F, header=T)
+  names(cluster.cellularity) <- c("timepoint", "clone_id", "clonal_prev", "sd")
+  clonal_prev <- cluster.cellularity[c("timepoint", "clone_id", "clonal_prev")]
+  
+  # read the evolution relationship of different subclones
+  GA.consensusTree = read.table(dir.GA.consensusTree, sep="\t", stringsAsFactors=F, header=T)
+  names(GA.consensusTree) <- c("source", "target")
+  tree_edges <- GA.consensusTree
+  
+  timescape(clonal_prev, tree_edges, mutations = "NA", clone_colours = "NA",
+            xaxis_title = "Time Point", yaxis_title = "Clonal Prevalence",
+            phylogeny_title = "Clonal Phylogeny", alpha = 50,
+            genotype_position = "stack", perturbations = "NA", sort = FALSE,
+            show_warnings = TRUE, width = 900, height = NULL)
+  
+}
 
 
 # # test: separate the first 3 sample and the next 4 sample to genrate a more proper result
