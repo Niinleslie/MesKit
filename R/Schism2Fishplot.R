@@ -125,16 +125,25 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
 }
 
 
-
 ## Timescape method
 ## dependency of timescape
 library(timescape)
 
-schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree){
+schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree, timepoints = NULL){
   # get cellularity infomation
   cluster.cellularity = read.table(dir.cluster.cellularity, sep="\t", stringsAsFactors=F, header=T)
   names(cluster.cellularity) <- c("timepoint", "clone_id", "clonal_prev", "sd")
   clonal_prev <- cluster.cellularity[c("timepoint", "clone_id", "clonal_prev")]
+  
+  # make sure the timepoint is specific for the real data.
+  if (!is.na(timepoints[1])){
+    clonal_prev_temp <- data.frame()
+    for (timepoint in timepoints){
+      clonal_prev_timepoint <- clonal_prev[which(clonal_prev$timepoint == timepoint), ]
+      clonal_prev_temp <- rbind(clonal_prev_temp, clonal_prev_timepoint)
+    }
+    clonal_prev <- clonal_prev_temp
+  }
   
   # read the evolution relationship of different subclones
   GA.consensusTree = read.table(dir.GA.consensusTree, sep="\t", stringsAsFactors=F, header=T)
