@@ -136,7 +136,7 @@ schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree, time
   clonal_prev <- cluster.cellularity[c("timepoint", "clone_id", "clonal_prev")]
   
   # make sure the timepoint is specific for the real data.
-  if (!is.na(timepoints[1])){
+  if (!is.null(timepoints[1])){
     clonal_prev_temp <- data.frame()
     for (timepoint in timepoints){
       clonal_prev_timepoint <- clonal_prev[which(clonal_prev$timepoint == timepoint), ]
