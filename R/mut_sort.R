@@ -41,7 +41,7 @@ mut_ccf_sort <- function(maf.dat, ccf, use.indel, ccf.mutation.id , ccf.mutation
   mut_samples <- dcast(M, mut.id~sample, value.var = "CCF")[,-1]
   #mut_samples[mut_samples == 0 ] <- 2
   mut_samples[is.na(mut_samples)] <- 0
-  mut_samples$normal <- 0
+  mut_samples$NORMAL <- 0
 
   mut_samples<- apply(mut_samples, 2, as.numeric)
   mut_sort <- mut_samples[index_row_col[[1]], index_row_col[[2]]]
@@ -53,7 +53,7 @@ mut_binary_sort <- function(maf.dat, use.indel = FALSE, returnOrder = FALSE){
   mut_samples <- dcast(M, mut.id~sample)[,-1]
   mut_samples[!is.na(mut_samples)] <- 1
   mut_samples[is.na(mut_samples)] <- 0
-  mut_samples$normal <- 0
+  mut_samples$NORMAL <- 0
   mut_binary<- apply(mut_samples, 2, as.numeric)
 
   mut_binary <- t(mut_binary)
