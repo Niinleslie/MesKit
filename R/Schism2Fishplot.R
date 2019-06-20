@@ -16,13 +16,14 @@
 # directorys
 setwd("/home/ninomoriaty/R_Project/")
 
+
 dir.cluster.tsv = "./data/tempschism/hu.cluster.tsv"
 dir.loci.tsv = "./data/tempschism/hu.loci.tsv"
 dir.output = "./data/tempschism"
 
-dir.GA.consensusTree = "./data/tempschism/0_W_results.GA.consensusTree"
-dir.cluster.cellularity = "./data/tempschism/0_W_results.cluster.cellularity"
-
+dir.GA.consensusTree = "./data/tempschism/E1.GA.consensusTree"
+dir.cluster.cellularity = "./data/tempschism/E1.cluster.cellularity"
+dir.sample_info = "./data2/sample_info.txt"
 
 
 ## prepare Schism input
@@ -124,26 +125,96 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
            vlines=seq(1, length(ls.sample)), vlab=ls.sample, pad.left=0.5)
 }
 
+## clonevol method
+## dependency of clonevol
+library(clonevol)
+library(gridBase)
+library(gridExtra)
+library(ggplot2)
+library(igraph)
+library(packcircles)
+library(trees)
+
+inferByClonevol <- function(dir.){
+  # read mutations in cluster.tsv from PyClone and get targeted clusters
+  cluster.tsv = read.table(dir.cluster.tsv, sep="\t", stringsAsFactors=F, header=T)
+  cluster_filter = cluster.tsv[!is.na(cluster.tsv$cluster_id) & cluster.tsv$size >= 5 & cluster.tsv$mean >= 0.1,]
+  cluster_ls  = unique(cluster_filter$cluster_id)
+  
+  # read mutations within targeted clusters in loc.tsv file from PyClone 
+  loci.tsv = read.table(dir.loci.tsv, sep="\t", stringsAsFactors=F, header=T)
+  loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
+  
+  #loci_filtered <- na.omit(loci_filtered)
+  ls.sample_names <- unique(loci_filtered$sample_id)
+  ls.cluster_id <- unique(loci_filtered$cluster_id)
+  
+  # make sure the cluster id is continuous integer.
+  for (cluster_newid in 1:length(ls.cluster_id)){
+    loci_filtered$cluster_id[loci_filtered$cluster_id == ls.cluster_id[cluster_newid]] <- cluster_newid
+  }
+  
+  # separate each sample column
+  dat.final <- data.frame()
+  for (cluster in ls.cluster_id){
+    dat.cluster <- loci_filtered[which(loci_filtered$cluster_id == cluster),]
+    dat.samples <- data.frame(row.names=1:length(dat.cluster[which(dat.cluster$sample_id == sample_names[1]),]$cellular_prevalence))
+    for (sample in sample_names){
+      col.sample <- data.frame(dat.cluster[which(dat.cluster$sample_id == sample),]$cellular_prevalence)
+      names(col.sample) <- sample
+      dat.samples <- cbind(dat.samples, col.sample)
+    }
+    dat.samples <- cbind(cluster, dat.samples)
+    dat.final <- rbind(dat.final, dat.samples)
+  }
+  
+  
+}
+
+x <- aml1$variants
+
+
+
+  y = infer.clonal.models(variants = dat.final,
+                          cluster.col.name = 'cluster',
+                          ccf.col.names = ls.sample_names,
+                          cancer.initiation.model='monoclonal',
+                          subclonal.test = 'bootstrap',
+                          subclonal.test.model = 'non-parametric',
+                          founding.cluster = 4,
+                          num.boots = 1000,
+                          cluster.center = 'mean',
+                          ignore.clusters = NULL,
+                          min.cluster.vaf = 0.01,
+                          # min probability that CCF(clone) is non-negative
+                          sum.p = 0.05,
+                          # alpha level in confidence interval estimate for CCF(clone)
+                          alpha = 0.05)
 
 ## Timescape method
 ## dependency of timescape
 library(timescape)
 
-schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree, timepoints = NULL){
+schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree, dir.sample_info = NULL){
   # get cellularity infomation
   cluster.cellularity = read.table(dir.cluster.cellularity, sep="\t", stringsAsFactors=F, header=T)
   names(cluster.cellularity) <- c("timepoint", "clone_id", "clonal_prev", "sd")
   clonal_prev <- cluster.cellularity[c("timepoint", "clone_id", "clonal_prev")]
   
   # make sure the timepoint is specific for the real data.
-  if (!is.null(timepoints[1])){
+  if (!is.null(dir.sample_info)){
+    # read info file
+    sample_info_input <- read.table(dir.sample_info, quot = "", header = TRUE, fill = TRUE, sep = '', stringsAsFactors = F)
+    sample_info_input <- sample_info_input[order(sample_info_input$time),]
+    timepoints <- sample_info_input$sample
+    
     clonal_prev_temp <- data.frame()
     for (timepoint in timepoints){
       clonal_prev_timepoint <- clonal_prev[which(clonal_prev$timepoint == timepoint), ]
       clonal_prev_temp <- rbind(clonal_prev_temp, clonal_prev_timepoint)
     }
     clonal_prev <- clonal_prev_temp
-  }
+  } 
   
   # read the evolution relationship of different subclones
   GA.consensusTree = read.table(dir.GA.consensusTree, sep="\t", stringsAsFactors=F, header=T)
