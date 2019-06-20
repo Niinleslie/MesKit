@@ -147,12 +147,14 @@ inferByClonevol <- function(dir.){
   
   #loci_filtered <- na.omit(loci_filtered)
   ls.sample_names <- unique(loci_filtered$sample_id)
-  ls.cluster_id <- unique(loci_filtered$cluster_id)
+  
   
   # make sure the cluster id is continuous integer.
   for (cluster_newid in 1:length(ls.cluster_id)){
     loci_filtered$cluster_id[loci_filtered$cluster_id == ls.cluster_id[cluster_newid]] <- cluster_newid
   }
+  
+  ls.cluster_id <- unique(loci_filtered$cluster_id)
   
   # separate each sample column
   dat.final <- data.frame()
@@ -160,28 +162,20 @@ inferByClonevol <- function(dir.){
     dat.cluster <- loci_filtered[which(loci_filtered$cluster_id == cluster),]
     dat.samples <- data.frame(row.names=1:length(dat.cluster[which(dat.cluster$sample_id == sample_names[1]),]$cellular_prevalence))
     for (sample in sample_names){
-      col.sample <- data.frame(dat.cluster[which(dat.cluster$sample_id == sample),]$cellular_prevalence)
+      col.sample <- data.frame(dat.cluster[which(dat.cluster$sample_id == sample),]$cellular_prevalence*100)
       names(col.sample) <- sample
       dat.samples <- cbind(dat.samples, col.sample)
     }
     dat.samples <- cbind(cluster, dat.samples)
     dat.final <- rbind(dat.final, dat.samples)
   }
-  
-  
-}
-
-x <- aml1$variants
-
-
-
-  y = infer.clonal.models(variants = dat.final,
+  consensusTree = infer.clonal.models(variants = dat.final,
                           cluster.col.name = 'cluster',
                           ccf.col.names = ls.sample_names,
                           cancer.initiation.model='monoclonal',
                           subclonal.test = 'bootstrap',
                           subclonal.test.model = 'non-parametric',
-                          founding.cluster = 4,
+                          founding.cluster = length(ls.cluster_id),
                           num.boots = 1000,
                           cluster.center = 'mean',
                           ignore.clusters = NULL,
@@ -190,6 +184,9 @@ x <- aml1$variants
                           sum.p = 0.05,
                           # alpha level in confidence interval estimate for CCF(clone)
                           alpha = 0.05)
+  
+}
+
 
 ## Timescape method
 ## dependency of timescape
