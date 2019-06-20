@@ -38,23 +38,23 @@ PhyloTree.input <-function(njtree){
   #Add the third column of the matrix to the node distance
   distance <- njtree@nj$edge.length
   edge <- matrix(c(edge, distance), nrow = length(edge[,1]))
-  #num of normal 
-  NO_normal <- which(njtree@nj$tip.label == 'normal')
-  #the position of normal in edge 
-  normal_row <- which(edge[,2] == NO_normal)
-  # the  Node connected to normal
-  normal_node <- edge[normal_row, 1]
+  #num of NORMAL 
+  NO_NORMAL <- which(njtree@nj$tip.label == 'NORMAL')
+  #the position of NORMAL in edge 
+  NORMAL_row <- which(edge[,2] == NO_NORMAL)
+  # the  Node connected to NORMAL
+  NORMAL_node <- edge[NORMAL_row, 1]
   #store the sample name or node in a list
   name_list <- c('')
   #Store the list of nodes by plot order
-  node_list <- c(normal_node)
+  node_list <- c(NORMAL_node)
   #X1, y1 are the starting point, x2 and y2 are the end point.Horizon stands for the Angle between the line and the positive x axis;W stands for the Angle occupied by branches (explained in the paper)
   #Distance means distance;Node is the internal node with the start;End_num is the number of each node in edge;
   plot.data <- data.frame('x1'=0, 'y1' = 0, 'x2' = 0, 'y2' = 0, 'horizon' = pi/2,
                           'w' = 1/6*pi, 'distance' = 0, 'node' = 0,'end_num' = 0,
                           'horizon_angle' = 0)
   Set.PhyloTree <- function(sub_edge, x0, y0, w, horizon, name_list,
-                            plot.data, point_list, target_node, normal_node, edge_left){
+                            plot.data, point_list, target_node, NORMAL_node, edge_left){
     #total vertex of tree
     vertex_total=0
     #Stores a list of angles
@@ -101,7 +101,7 @@ PhyloTree.input <-function(njtree){
       angle_list2 <- append(angle_list2,angle)
     }
     #Angle adjustment (select a branch Angle to align with the previous internal node)
-    if(target_node != normal_node){
+    if(target_node != NORMAL_node){
       a <- which(vertex_list == max(vertex_list))
       angle_list2[a[1]] <- horizon
     }
@@ -131,9 +131,9 @@ PhyloTree.input <-function(njtree){
   }
   t=1
   while(t <= njtree@nj$Nnode){
-    #The first diagram is of the internal node connected to normal
+    #The first diagram is of the internal node connected to NORMAL
     target_node <- node_list[t]
-    #he position of the target t node in the matrix (the first data point is to find the normal)
+    #he position of the target t node in the matrix (the first data point is to find the NORMAL)
     row_list <- c()
     for(i1 in 1:length(edge[, 1])){
       if(target_node %in% edge[i1, ]){
@@ -150,9 +150,9 @@ PhyloTree.input <-function(njtree){
       point <- sub_edge[i2,1:2][sub_edge[i2,1:2] != target_node]
       point_list <- append(point_list,point)
     }
-    #first internal node(normal)
+    #first internal node(NORMAL)
     if(t == 1){
-      p_n<- Set.PhyloTree(sub_edge,0,0,pi*2/3,pi/2,name_list,plot.data,point_list,target_node,normal_node,edge)#º¯Êý·µ»ØµÄÁÐ±í
+      p_n<- Set.PhyloTree(sub_edge,0,0,pi*2/3,pi/2,name_list,plot.data,point_list,target_node,NORMAL_node,edge)#º¯Êý·µ»ØµÄÁÐ±í
       plot.data <- p_n[[1]]
       name_list <- p_n[[2]]
     }
@@ -161,7 +161,7 @@ PhyloTree.input <-function(njtree){
       row_num <- which(plot.data$end_num == target_node)
       p_n <- Set.PhyloTree(sub_edge, plot.data$x2[row_num], plot.data$y2[row_num]
                            ,plot.data$w[row_num], plot.data$horizon[row_num], name_list, plot.data, point_list,
-                           target_node, normal_node, edge)
+                           target_node, NORMAL_node, edge)
       plot.data <- p_n[[1]]
       name_list <- p_n[[2]]
     }
@@ -170,15 +170,15 @@ PhyloTree.input <-function(njtree){
   }
   #Add the sample_name to the plot data
   plot.data <- cbind(plot.data, sample=name_list)
-  #Transform normal branches into vertical roots
-  row_normal<- which(plot.data$sample == 'normal')
-  plot.data$x2 [row_normal] <- 0
-  plot.data$y2[row_normal] <- -plot.data$distance[row_normal]
+  #Transform NORMAL branches into vertical roots
+  row_NORMAL<- which(plot.data$sample == 'NORMAL')
+  plot.data$x2 [row_NORMAL] <- 0
+  plot.data$y2[row_NORMAL] <- -plot.data$distance[row_NORMAL]
   plot.data <- plot.data[-1,]
-  #Adjust Angle of non-normal sample and internal nodes
+  #Adjust Angle of non-NORMAL sample and internal nodes
      t=1
     while(t<= length(plot.data[, 1])){
-    if(all(plot.data$end_num[t] <= length(njtree@nj$tip.label), plot.data$sample[t] != 'internal node', plot.data$sample[t] != 'normal'
+    if(all(plot.data$end_num[t] <= length(njtree@nj$tip.label), plot.data$sample[t] != 'internal node', plot.data$sample[t] != 'NORMAL'
            ,plot.data$horizon_angle[t] != plot.data$horizon[t])){
       #the angles less than ninety degrees are adjust to thirty degrees
       if(plot.data$horizon[t]<pi/2){
@@ -196,6 +196,67 @@ PhyloTree.input <-function(njtree){
     t=t+1
   }
   
+     #right part of tree
+     t=1
+     sample_order_data_right <- plot.data[which(plot.data$sample != 'internal node' & plot.data$sample != 'NORMAL'
+                                                 & plot.data$horizon <= pi/2 & plot.data$horizon > 0),]
+     while(t <= length(sample_order_data_right[, 1])){
+       u=1
+       while(u <= (length(sample_order_data_right[, 1])-1)){
+         if(sample_order_data_right$y1[u] == sample_order_data_right$y1[(u+1)]){
+           if(sample_order_data_right$horizon[u] < sample_order_data_right$horizon[(u+1)]){
+             u <- u+1;next
+           }
+           else{
+             data_1 <- sample_order_data_right[u,]
+             data_2 <- sample_order_data_right[(u+1),]
+             sample_order_data_right[(u+1),] <- data_1
+             sample_order_data_right[(u),] <- data_2
+             u <- u+1; next
+           }
+         }
+         else if(sample_order_data_right$y1[u]>sample_order_data_right$y1[(u+1)]){
+           data_1 <- sample_order_data_right[u,]
+           data_2 <- sample_order_data_right[(u+1),]
+           sample_order_data_right[(u+1),] <- data_1
+           sample_order_data_right[(u),] <- data_2
+           u <- u+1;next
+         }
+         else{u <- u+1;next}
+         u <- u+1
+       }
+       t <- t+1
+     }
+     list_right <- as.character(sample_order_data_right$sample)
+     #left part of tree
+     t <- 1
+     sample_order_data_left <- plot.data[which(plot.data$sample!='internal node'&plot.data$sample!='NORMAL' & plot.data$horizon>=pi/2&plot.data$horizon<pi),]
+     while(t<=length(sample_order_data_left[,1])){
+       u=1
+       while(u<=(length(sample_order_data_left[,1])-1)){
+         if(sample_order_data_left$y1[u] == sample_order_data_left$y1[(u+1)]){
+           if(sample_order_data_left$horizon[u]<sample_order_data_left$horizon[(u+1)]){u=u+1;next}
+           else{
+             data_1 <- sample_order_data_left[u,]
+             data_2 <- sample_order_data_left[(u+1),]
+             sample_order_data_left[(u+1),] <- data_1
+             sample_order_data_left[(u),] <- data_2
+             u <- u+1;next
+           }
+         }
+         else if(sample_order_data_left$y1[u] < sample_order_data_left$y1[(u+1)]){
+           data_1 <- sample_order_data_left[u,]
+           data_2 <- sample_order_data_left[(u+1),]
+           sample_order_data_left[(u+1),] <- data_1
+           sample_order_data_left[(u),] <- data_2
+           u <- u+1;next
+         }
+         else{u <- u+1;next}
+         u <- u+1
+       }
+       t <- t+1
+     }
+     list_left <- as.character(sample_order_data_left$sample)
  
   #Adjust the Angle again
   t=1
@@ -203,29 +264,32 @@ PhyloTree.input <-function(njtree){
   while(t <= length(plot.data[,1])){
     row <- ''
     row1 <- ''
-    if(all(plot.data$end_num[t] <= length(njtree@nj$tip.label),plot.data$sample[t] != 'internal node',plot.data$sample[t] != 'normal'
+    if(all(plot.data$end_num[t] <= length(njtree@nj$tip.label),plot.data$sample[t] != 'internal node',plot.data$sample[t] != 'NORMAL'
            ,plot.data$horizon_angle[t] != plot.data$horizon[t])){
       internal_node <- plot.data$node[t]
       row1 <- which(plot.data$end_num == internal_node)
       if(length(row1)!=0){
         adjust_node <- plot.data$node[row1]
-        if(adjust_node == normal_node){t <- t+1;next}
+        if(adjust_node == NORMAL_node){t <- t+1;next}
         if(adjust_node %in% adjust_node_list){t <- t+1;next}
         else{
           if(plot.data$distance[row1] < 10){
             row <- which(plot.data$node == adjust_node&plot.data$end_num <= length(njtree@nj$tip.label))
             if(length(row)!=0){
-              if(plot.data$horizon[row] < pi/2){
+              if(plot.data$horizon[row] < pi/2 & plot.data$sample[row] == list_right[1]){
                 plot.data$horizon[row] <- plot.data$horizon[row]-pi/18
                 angle=plot.data$horizon[row]
                 plot.data$x2[row] <- plot.data$distance[row]*cos(angle)+plot.data$x1[row]
                 plot.data$y2[row] <- plot.data$distance[row]*sin(angle)+plot.data$y1[row]
-              }
-              else if(plot.data$horizon[row]>pi/2){
+                }
+              else if(plot.data$horizon[row]>pi/2 & plot.data$sample[row] == list_left[length(list_left)]){
+                if(plot.data$horizon[row] == max(plot.data$horizon)){
                 plot.data$horizon[row] <- plot.data$horizon[row]+pi/18
                 angle <- plot.data$horizon[row]
                 plot.data$x2[row] <- plot.data$distance[row]*cos(angle)+plot.data$x1[row]
                 plot.data$y2[row] <- plot.data$distance[row]*sin(angle)+plot.data$y1[row]
+                }
+
               }
             }
           }
@@ -236,67 +300,6 @@ PhyloTree.input <-function(njtree){
     t=t+1
   }
   ##Bisect the branches angle
-  #right part of tree
-  t=1
-  sample_order_data <- plot.data[which(plot.data$sample != 'internal node' & plot.data$sample != 'normal'
-                                       & plot.data$horizon <= pi/2 & plot.data$horizon > 0),]
-  while(t <= length(sample_order_data[, 1])){
-    u=1
-    while(u <= (length(sample_order_data[, 1])-1)){
-      if(sample_order_data$y1[u] == sample_order_data$y1[(u+1)]){
-        if(sample_order_data$horizon[u] < sample_order_data$horizon[(u+1)]){
-          u <- u+1;next
-        }
-        else{
-          data_1 <- sample_order_data[u,]
-          data_2 <- sample_order_data[(u+1),]
-          sample_order_data[(u+1),] <- data_1
-          sample_order_data[(u),] <- data_2
-          u <- u+1; next
-        }
-      }
-      else if(sample_order_data$y1[u]>sample_order_data$y1[(u+1)]){
-        data_1 <- sample_order_data[u,]
-        data_2 <- sample_order_data[(u+1),]
-        sample_order_data[(u+1),] <- data_1
-        sample_order_data[(u),] <- data_2
-        u <- u+1;next
-      }
-      else{u <- u+1;next}
-      u <- u+1
-    }
-    t <- t+1
-  }
-  list_right <- as.character(sample_order_data$sample)
-  #left part of tree
-  t <- 1
-  sample_order_data <- plot.data[which(plot.data$sample!='internal node'&plot.data$sample!='normal'&plot.data$horizon>=pi/2&plot.data$horizon<pi),]
-  while(t<=length(sample_order_data[,1])){
-    u=1
-    while(u<=(length(sample_order_data[,1])-1)){
-      if(sample_order_data$y1[u] == sample_order_data$y1[(u+1)]){
-        if(sample_order_data$horizon[u]<sample_order_data$horizon[(u+1)]){u=u+1;next}
-        else{
-          data_1 <- sample_order_data[u,]
-          data_2 <- sample_order_data[(u+1),]
-          sample_order_data[(u+1),] <- data_1
-          sample_order_data[(u),] <- data_2
-          u <- u+1;next
-        }
-      }
-      else if(sample_order_data$y1[u] < sample_order_data$y1[(u+1)]){
-        data_1 <- sample_order_data[u,]
-        data_2 <- sample_order_data[(u+1),]
-        sample_order_data[(u+1),] <- data_1
-        sample_order_data[(u),] <- data_2
-        u <- u+1;next
-      }
-      else{u <- u+1;next}
-      u <- u+1
-    }
-    t <- t+1
-  }
-  list_left <- as.character(sample_order_data$sample)
   Bisect_branche_angle <- function(list_part, plot.data){
     t=F
     while(t == F){
@@ -387,14 +390,14 @@ add_signature <- function(plot.data, njtree){
       row_list <- append(row_list,row)
     }
     # the sample in sample_list share one common node(previous node  to the lowest row )
-    # signature of normal
+    # signature of NORMAL
     if(length(njtree@signature$branch[[t]]) == length(njtree@nj$tip.label )-1){
-      row <- which(plot.data$sample == 'normal')
+      row <- which(plot.data$sample == 'NORMAL')
       plot.data$signature[row] <-  as.character(njtree@signature$sig[(t)]) 
       t <- t+1
       next
     }
-    #Internal nodes connected to normal
+    #Internal nodes connected to NORMAL
     else if(length(njtree@signature$branch[[t]]) == length(njtree@nj$tip.label )-2){
       for(i in 1:length(plot.data$sample)){
         if(plot.data$end_num[i] > length(njtree@nj$tip.label )){
@@ -406,7 +409,7 @@ add_signature <- function(plot.data, njtree){
       t=t+1
       next
     }
-    # if signature does not belong to non- normal sample
+    # if signature does not belong to non- NORMAL sample
     if(length(njtree@signature$branch[[t]]) != 1){
       lowest_row <- min(row_list)
       commnode_row <- which(plot.data$end_num == plot.data$node[lowest_row]) 
@@ -420,8 +423,8 @@ add_signature <- function(plot.data, njtree){
     }
     t=t+1
   }
-  if(plot.data$signature[which(plot.data$sample == 'normal')] == ''){
-    plot.data$signature[which(plot.data$sample == 'normal')] = as.character(njtree@signature$sig[1]) 
+  if(plot.data$signature[which(plot.data$sample == 'NORMAL')] == ''){
+    plot.data$signature[which(plot.data$sample == 'NORMAL')] = as.character(njtree@signature$sig[1]) 
   }
   plot.data <- plot.data[order(plot.data$signature),]
   plot.data$signature <- gsub('No.Signature', 'No signature', plot.data$signature)
@@ -463,10 +466,10 @@ PhyloTree <- function(plot.data, color_scale, show.mutSig){
   }
   else{
     p <- p+geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
-                        data = plot.data[plot.data$sample != 'normal'&plot.data$sample != 'internal node',], 
+                        data = plot.data[plot.data$sample != 'NORMAL'&plot.data$sample != 'internal node',], 
                         size=1.5, show.legend = T)
     p <- p+geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
-                        data = plot.data[plot.data$sample == 'normal',], 
+                        data = plot.data[plot.data$sample == 'NORMAL',], 
                         size = 1.5, show.legend = F )
     p <- p+geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
                         data = plot.data[plot.data$sample == 'internal node',], 
@@ -486,16 +489,16 @@ PhyloTree <- function(plot.data, color_scale, show.mutSig){
                legend.title = element_text(face="bold")
                )
   p <- p+geom_text_repel(aes(x = x2*0.95, y = y2, label = sample),vjust = 1 , nudge_y = text_just/7, segment.alpha = 0,
-                         data = plot.data[(plot.data$sample != 'internal node'&plot.data$sample != 'normal'),],
+                         data = plot.data[(plot.data$sample != 'internal node'&plot.data$sample != 'NORMAL'),],
                          fontface = 'bold', size = 4)
   p <- p+geom_text_repel(aes(x = x2,y = y2), label = 'NORMAL', vjust = 0, nudge_y = -text_just/7, segment.alpha = 0,
-                         data = plot.data[(plot.data$sample == 'normal'),], fontface = 'bold', size = 4)
+                         data = plot.data[(plot.data$sample == 'NORMAL'),], fontface = 'bold', size = 4)
   #Leaf nodes and internal nodes are distinguished by point size
   p <- p+geom_point(aes(x = x2,y = y2), data = plot.data[plot.data$sample == 'internal node',],
                     size = 1.7, color = "#67001F", fill = '#67001F', shape = 21, stroke = 0.5)
   p <- p+geom_point(aes(x = x2, y = y2), data = plot.data[plot.data$sample != 'internal node',],
                     size = 3, color = "#67001F", fill = 'white', shape = 21, stroke = 1)
-  if(plot.data$distance[which(plot.data$sample == 'normal')] != 0){
+  if(plot.data$distance[which(plot.data$sample == 'NORMAL')] != 0){
       p <- p+geom_point(aes(x =0 , y = 0), size = 1.7, color = "#67001F",
                     fill = '#67001F', shape = 21, stroke = 0.5)
     }
@@ -517,7 +520,7 @@ plot.NJtree <- function(maf, use.indel = FALSE, show.mutSig = TRUE, sig.min.mut.
   # PhyloTree input data
   PhyloTree.input_data<- PhyloTree.input(njtree)
   PhyloTree.input_data <- PhyloTree.input_data[(PhyloTree.input_data$distance!=0|
-                                                  PhyloTree.input_data$sample == 'normal'),]
+                                                  PhyloTree.input_data$sample == 'NORMAL'),]
   #Set the color
   color_scale <- color_set(unique(PhyloTree.input_data$signature))
   tree <- PhyloTree(PhyloTree.input_data, color_scale ,show.mutSig)
@@ -549,12 +552,12 @@ plot.NJtree <- function(maf, use.indel = FALSE, show.mutSig = TRUE, sig.min.mut.
   else{
     return(tree)
   }
-  
+  maf <- read.Maf("P06",dat.dir = './data/multi_lesion', BSG = "BSgenome.Hsapiens.UCSC.hg19")
+plot.NJtree(maf,use.indel = T,show.mutSig = T)
 }
 
 ## test
-maf <- read.Maf("314155",dat.dir = './data/multi_lesion', BSG = "BSgenome.Hsapiens.UCSC.hg19")
-plot.NJtree(maf,use.indel = T,show.mutSig = T)
+
 plot.NJtree(maf,use.indel = T,show.mutSig = F)
 plot.NJtree(maf,use.indel = F,show.mutSig = F)
 plot.NJtree(maf,use.indel = F,show.mutSig = T)
