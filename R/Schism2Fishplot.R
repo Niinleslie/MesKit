@@ -169,23 +169,68 @@ inferByClonevol <- function(dir.){
     dat.samples <- cbind(cluster, dat.samples)
     dat.final <- rbind(dat.final, dat.samples)
   }
+  
   consensusTree = infer.clonal.models(variants = dat.final,
                           cluster.col.name = 'cluster',
-                          ccf.col.names = ls.sample_names,
+                          ccf.col.names = ccf.col.names,
                           cancer.initiation.model='monoclonal',
                           subclonal.test = 'bootstrap',
                           subclonal.test.model = 'non-parametric',
                           founding.cluster = length(ls.cluster_id),
                           num.boots = 1000,
                           cluster.center = 'mean',
-                          ignore.clusters = NULL,
                           min.cluster.vaf = 0.01,
                           # min probability that CCF(clone) is non-negative
                           sum.p = 0.05,
                           # alpha level in confidence interval estimate for CCF(clone)
                           alpha = 0.05)
-  
 }
+
+x <- aml1$variants
+# preparation
+# shorten vaf column names as they will be
+vaf.col.names <- grep('.vaf', colnames(x), value=TRUE)
+sample.names <- gsub('.vaf', '', vaf.col.names)
+x[, sample.names] <- x[, vaf.col.names]
+vaf.col.names <- sample.names
+
+# prepare sample grouping
+sample.groups <- c('P', 'R');
+names(sample.groups) <- vaf.col.names
+
+# setup the order of clusters to display in various plots (later)
+x <- x[order(x$cluster),]
+clone.colors <- c('#999793', '#8d4891', '#f8e356', '#fe9536', '#d7352e')
+#clone.colors <- NULL
+
+y = infer.clonal.models(variants = x,
+                                    cluster.col.name = 'cluster',
+                                    vaf.col.names = vaf.col.names,
+                                    cancer.initiation.model='monoclonal',
+                                    subclonal.test = 'bootstrap',
+                                    subclonal.test.model = 'non-parametric',
+                                    founding.cluster = 1,
+                                    num.boots = 1000,
+                                    cluster.center = 'mean',
+                                    min.cluster.vaf = 0.01,
+                                    # min probability that CCF(clone) is non-negative
+                                    sum.p = 0.05,
+                                    # alpha level in confidence interval estimate for CCF(clone)
+                                    alpha = 0.05)
+
+
+z <- transfer.events.to.consensus.trees(y,
+                                             x[x$is.driver,],
+                                             cluster.col.name = 'cluster',
+                                             event.col.name = 'gene')
+
+
+a <- 
+
+
+ccf <- rbind(x$P.ccf, x$R.ccf)
+
+schism2Timescape(loci.tsv, z$all[[1]][,1:2])
 
 
 ## Timescape method
