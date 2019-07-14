@@ -36,6 +36,7 @@ source("MATH_Score.R")
 ############ Major function ############
 VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_format = "png", show.MATH = T)
 {
+  ## original data preparation
   # read .maf file
   maf_input <- maf@data[,-c("patient", "lesion", "time")]
   laml <- read.maf(maf_input)
@@ -50,12 +51,12 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
   tsb_ls <- data.frame(unique(vaf_input_mt$Samples))
   colnames(tsb_ls) <- c("samples")
 
-  # sample options
+  ## print all samples respectively
   if (sample_option == "All"){
-  # print all samples respectively
   for (counter_mt in 1:length(tsb_ls[,1])){
       sample.name <- as.character(tsb_ls[,1][counter_mt])
       # calculate MATH_score
+      
       if (show.MATH){
         MATH.score <- MATH_score(maf_input, c(sample.name))
         MATH.score <- MATH.score[which(MATH.score$Tumor_Sample_Barcode == sample.name), ]$MATH_score
@@ -69,8 +70,10 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       pic <- VAF_draw(cluster_mt, theme_option, sample.name, MATH.score)
       ggsave(pic, filename = paste(sample.name, "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
     }
-  } else if (sample_option == "MIX"){
-    # draw all figures in one file
+  } 
+  
+  ## draw all figures in one file
+  else if (sample_option == "MIX"){
     ls.pic_name <- c()
     # draw each pictures and name them rescpectively
     for (counter_mt in 1:length(tsb_ls[,1])){
@@ -95,8 +98,10 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     pic <- eval(parse(text = paste("plot_grid(", paste(ls.pic_name, collapse = ","), ", nrow=", ceiling(length(ls.pic_name)/2), ", ncol = 2, align = \"v\")" , sep = "")))
     # save the cowplot picure
     ggsave(pic, filename = paste(sample.name, "_VAF_Cluster_MIX", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
-    } else if (sample_option == "OFA"){
-    # one pic for all sample
+    } 
+  
+  ## one pic for all sample
+  else if (sample_option == "OFA"){
     # collect all samples' cluster results
     for (counter_mt in 1:length(tsb_ls[,1])){
       sample.name <- as.character(tsb_ls[,1][counter_mt])
@@ -118,9 +123,11 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
     colnames(cluster_all)[6] = "VAF"
     pic <- eval(parse(text = VAF_OFA(cluster_all, theme_option, tsb_ls, sample_option, MATH.score)))
     ggsave(pic, filename =  paste(patientID, "_VAF_Cluster",".", file_format, sep=""), width = 12, height = 9, dpi = 1200)
-  } else 
+  } 
+  
+  ## specific sample
+  else 
   {
-  # specific sample
     # calculate MATH_score
     if (show.MATH){
       MATH.score <- MATH_score(maf_input, c(sample_option))
