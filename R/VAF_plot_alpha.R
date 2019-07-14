@@ -14,7 +14,8 @@
 #' @examples
 #' \dontrun{
 #' VAF_plot(maf_file, sample_option = "OFA", theme_option = "aaas") # draw a VAF image that contains all samples' VAF distribution curves with different themes.
-#' VAF_plot(maf_file, sample_option = "All") # draw VAF images for every sample respectively
+#' VAF_plot(maf_file, sample_option = "All") # draw VAF images for every sample respectively.
+#' VAF_plot(maf_file, sample_option = "MIX") # draw VAF images for every sample in one picture.
 #' VAF_plot(maf_file, sample_option = "tsb1", file_format = "pdf") # draw a VAF image for sample tsb1 and save as a pdf file.
 #' 
 #'}
@@ -69,8 +70,8 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       ggsave(pic, filename = paste(sample.name, "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
     }
   } else if (sample_option == "MIX"){
+    # draw all figures in one file
     ls.pic_name <- c()
-    # print all samples respectively
     for (counter_mt in 1:length(tsb_ls[,1])){
       sample.name <- as.character(tsb_ls[,1][counter_mt])
       # calculate MATH_score
