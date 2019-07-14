@@ -14,7 +14,8 @@
 #' @examples
 #' \dontrun{
 #' VAF_plot(maf_file, sample_option = "OFA", theme_option = "aaas") # draw a VAF image that contains all samples' VAF distribution curves with different themes.
-#' VAF_plot(maf_file, sample_option = "All") # draw VAF images for every sample respectively
+#' VAF_plot(maf_file, sample_option = "All") # draw VAF images for every sample respectively.
+#' VAF_plot(maf_file, sample_option = "MIX") # draw VAF images for every sample in one picture.
 #' VAF_plot(maf_file, sample_option = "tsb1", file_format = "pdf") # draw a VAF image for sample tsb1 and save as a pdf file.
 #' 
 #'}
@@ -69,8 +70,9 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       ggsave(pic, filename = paste(sample.name, "_VAF_Cluster", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
     }
   } else if (sample_option == "MIX"){
+    # draw all figures in one file
     ls.pic_name <- c()
-    # print all samples respectively
+    # draw each pictures and name them rescpectively
     for (counter_mt in 1:length(tsb_ls[,1])){
       sample.name <- as.character(tsb_ls[,1][counter_mt])
       # calculate MATH_score
@@ -89,7 +91,9 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
       pic_name <- paste("all", patientID, ".", counter_mt, sep = "")
       ls.pic_name <- c(ls.pic_name, pic_name)
     }
+    # set the columns of the picture and generate all single pictures above
     pic <- eval(parse(text = paste("plot_grid(", paste(ls.pic_name, collapse = ","), ", nrow=", ceiling(length(ls.pic_name)/2), ", ncol = 2, align = \"v\")" , sep = "")))
+    # save the cowplot picure
     ggsave(pic, filename = paste(sample.name, "_VAF_Cluster_MIX", ".", file_format,sep=""), width = 12, height = 9, dpi = 800, path = "./output")
     } else if (sample_option == "OFA"){
     # one pic for all sample
@@ -172,7 +176,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score, MIX_op
   picv <- ggplot(cluster_mt, aes(x = VAF)) + geom_line(size = 1, colour = "#00C0EB", stat = "density")
   if (is.na(MATH.score)){
     if (MIX_option == "MIX"){
-      # generate character/string for ggplot and paint the picture
+      # generate character/string for ggplot and specific titles for minifigures
       VAF_draw_cha = paste("ggplot(cluster_mt, aes(x = VAF)) + 
                        theme_bw() + 
                        theme(legend.position = \'none\', title=element_text(size = 10), text = element_text(size = 10), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + 
@@ -193,6 +197,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score, MIX_op
   }
   else {
     if (MIX_option == "MIX"){
+    # generate character/string for ggplot and specific titles for minifigures
     VAF_draw_cha = paste("ggplot(cluster_mt, aes(x = VAF)) + 
                        theme_bw() + 
                        theme(legend.position = \'none\', plot.title = element_text(size=10, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 10), text = element_text(size = 10), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + 
@@ -202,6 +207,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score, MIX_op
                          "scale_color_", theme_option, "() + scale_fill_", theme_option, "()", sep="")
     eval(parse(text = VAF_draw_cha))
     } else {
+      # generate character/string for ggplot and paint the picture
       VAF_draw_cha = paste("ggplot(cluster_mt, aes(x = VAF)) + 
                        theme_bw() + 
                        theme(plot.title = element_text(size=18, hjust=1, vjust=0.5, face='bold'), title=element_text(size = 18), text = element_text(size = 18), panel.grid=element_blank(),panel.border=element_blank(), axis.line=element_line(size=0.25)) + 
