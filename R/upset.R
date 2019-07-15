@@ -8,8 +8,6 @@ rm(list=ls())
 
 #'Use R code to find the intersect mutations and their types in several samples of one patient
 #'
-#'The samples of the first patient in your maf file will be chosen to analyze
-#'
 #' @param dataframe a dataframe transferred from a maf file,which contains information going to be analyzed
 #' @param patientID the ID of a patient whose cancer information is going to be analyzed
 #' @param text_show a logic parameter to determine whether to show the number of each mutations in the stack plot
@@ -17,7 +15,7 @@ rm(list=ls())
 #' @return a stack plot
 #' @export
 #' @examples
-#' result<-upset_analysis(maf,311525,TRUE)
+#' supset_analysis(maf,311525,TRUE)
 
 maf<-read.table(Arg[1],sep = "\t",header = TRUE)
 
