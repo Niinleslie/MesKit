@@ -13,10 +13,9 @@
 #' prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
 #'}
 
-<<<<<<< HEAD
-=======
 # directorys
-setwd("/home/ninomoriaty/R_Project/EvolCancer/Meskit")
+setwd("/home/ninomoriaty/R_Project/")
+
 
 dir.cluster.tsv = "./data/tempschism/hu.cluster.tsv"
 dir.loci.tsv = "./data/tempschism/hu.loci.tsv"
@@ -24,10 +23,9 @@ dir.output = "./data/tempschism"
 
 dir.GA.consensusTree = "./data/tempschism/E1.GA.consensusTree"
 dir.cluster.cellularity = "./data/tempschism/E1.cluster.cellularity"
+dir.sample_info = "./data2/sample_info.txt"
 
 
-
->>>>>>> 4efd87d3fb7554c11df72b0bed97d2640207d2e3
 ## prepare Schism input
 prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
   # read mutations in cluster.tsv from PyClone and get targeted clusters
@@ -127,18 +125,151 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
            vlines=seq(1, length(ls.sample)), vlab=ls.sample, pad.left=0.5)
 }
 
+## clonevol method
+## dependency of clonevol
+library(clonevol)
+library(gridBase)
+library(gridExtra)
+library(ggplot2)
+library(igraph)
+library(packcircles)
+library(trees)
 
-<<<<<<< HEAD
-# # directorys
-# dir.cluster.tsv = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/hu.cluster.tsv"
-# dir.loci.tsv = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/hu.loci.tsv"
-# dir.output = "/home/ninomoriaty/R_Project/EvolCancer/EvolCancer/Schism"
-# 
-# dir.GA.consensusTree = "/home/ninomoriaty/R_Project/EvolCancer/E2/sample-output/E2.GA.consensusTree"
-# dir.cluster.cellularity = "/home/ninomoriaty/R_Project/EvolCancer/E2/sample-output/E2.cluster.cellularity"
-=======
+inferByClonevol <- function(dir.){
+  # read mutations in cluster.tsv from PyClone and get targeted clusters
+  cluster.tsv = read.table(dir.cluster.tsv, sep="\t", stringsAsFactors=F, header=T)
+  cluster_filter = cluster.tsv[!is.na(cluster.tsv$cluster_id) & cluster.tsv$size >= 5 & cluster.tsv$mean >= 0.1,]
+  cluster_ls  = unique(cluster_filter$cluster_id)
+  
+  # read mutations within targeted clusters in loc.tsv file from PyClone 
+  loci.tsv = read.table(dir.loci.tsv, sep="\t", stringsAsFactors=F, header=T)
+  loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
+  
+  #loci_filtered <- na.omit(loci_filtered)
+  ls.sample_names <- unique(loci_filtered$sample_id)
+  
+  
+  # make sure the cluster id is continuous integer.
+  for (cluster_newid in 1:length(ls.cluster_id)){
+    loci_filtered$cluster_id[loci_filtered$cluster_id == ls.cluster_id[cluster_newid]] <- cluster_newid
+  }
+  
+  ls.cluster_id <- unique(loci_filtered$cluster_id)
+  
+  # separate each sample column
+  dat.final <- data.frame()
+  for (cluster in ls.cluster_id){
+    dat.cluster <- loci_filtered[which(loci_filtered$cluster_id == cluster),]
+    dat.samples <- data.frame(row.names=1:length(dat.cluster[which(dat.cluster$sample_id == sample_names[1]),]$cellular_prevalence))
+    for (sample in sample_names){
+      col.sample <- data.frame(dat.cluster[which(dat.cluster$sample_id == sample),]$cellular_prevalence*100)
+      names(col.sample) <- sample
+      dat.samples <- cbind(dat.samples, col.sample)
+    }
+    dat.samples <- cbind(cluster, dat.samples)
+    dat.final <- rbind(dat.final, dat.samples)
+  }
+  
+  consensusTree = infer.clonal.models(variants = dat.final,
+                          cluster.col.name = 'cluster',
+                          ccf.col.names = ccf.col.names,
+                          cancer.initiation.model='monoclonal',
+                          subclonal.test = 'bootstrap',
+                          subclonal.test.model = 'non-parametric',
+                          founding.cluster = length(ls.cluster_id),
+                          num.boots = 1000,
+                          cluster.center = 'mean',
+                          min.cluster.vaf = 0.01,
+                          # min probability that CCF(clone) is non-negative
+                          sum.p = 0.05,
+                          # alpha level in confidence interval estimate for CCF(clone)
+                          alpha = 0.05)
+}
 
->>>>>>> 4efd87d3fb7554c11df72b0bed97d2640207d2e3
+x <- aml1$variants
+# preparation
+# shorten vaf column names as they will be
+vaf.col.names <- grep('.vaf', colnames(x), value=TRUE)
+sample.names <- gsub('.vaf', '', vaf.col.names)
+x[, sample.names] <- x[, vaf.col.names]
+vaf.col.names <- sample.names
+
+# prepare sample grouping
+sample.groups <- c('P', 'R');
+names(sample.groups) <- vaf.col.names
+
+# setup the order of clusters to display in various plots (later)
+x <- x[order(x$cluster),]
+clone.colors <- c('#999793', '#8d4891', '#f8e356', '#fe9536', '#d7352e')
+#clone.colors <- NULL
+
+y = infer.clonal.models(variants = x,
+                                    cluster.col.name = 'cluster',
+                                    vaf.col.names = vaf.col.names,
+                                    cancer.initiation.model='monoclonal',
+                                    subclonal.test = 'bootstrap',
+                                    subclonal.test.model = 'non-parametric',
+                                    founding.cluster = 1,
+                                    num.boots = 1000,
+                                    cluster.center = 'mean',
+                                    min.cluster.vaf = 0.01,
+                                    # min probability that CCF(clone) is non-negative
+                                    sum.p = 0.05,
+                                    # alpha level in confidence interval estimate for CCF(clone)
+                                    alpha = 0.05)
+
+
+z <- transfer.events.to.consensus.trees(y,
+                                             x[x$is.driver,],
+                                             cluster.col.name = 'cluster',
+                                             event.col.name = 'gene')
+
+
+a <- 
+
+
+ccf <- rbind(x$P.ccf, x$R.ccf)
+
+schism2Timescape(loci.tsv, z$all[[1]][,1:2])
+
+
+## Timescape method
+## dependency of timescape
+library(timescape)
+
+schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree, dir.sample_info = NULL){
+  # get cellularity infomation
+  cluster.cellularity = read.table(dir.cluster.cellularity, sep="\t", stringsAsFactors=F, header=T)
+  names(cluster.cellularity) <- c("timepoint", "clone_id", "clonal_prev", "sd")
+  clonal_prev <- cluster.cellularity[c("timepoint", "clone_id", "clonal_prev")]
+  
+  # make sure the timepoint is specific for the real data.
+  if (!is.null(dir.sample_info)){
+    # read info file
+    sample_info_input <- read.table(dir.sample_info, quot = "", header = TRUE, fill = TRUE, sep = '', stringsAsFactors = F)
+    sample_info_input <- sample_info_input[order(sample_info_input$time),]
+    timepoints <- sample_info_input$sample
+    
+    clonal_prev_temp <- data.frame()
+    for (timepoint in timepoints){
+      clonal_prev_timepoint <- clonal_prev[which(clonal_prev$timepoint == timepoint), ]
+      clonal_prev_temp <- rbind(clonal_prev_temp, clonal_prev_timepoint)
+    }
+    clonal_prev <- clonal_prev_temp
+  } 
+  
+  # read the evolution relationship of different subclones
+  GA.consensusTree = read.table(dir.GA.consensusTree, sep="\t", stringsAsFactors=F, header=T)
+  names(GA.consensusTree) <- c("source", "target")
+  tree_edges <- GA.consensusTree
+  
+  timescape(clonal_prev, tree_edges, mutations = "NA", clone_colours = "NA",
+            xaxis_title = "Time Point", yaxis_title = "Clonal Prevalence",
+            phylogeny_title = "Clonal Phylogeny", alpha = 50,
+            genotype_position = "stack", perturbations = "NA", sort = FALSE,
+            show_warnings = TRUE, width = 900, height = NULL)
+  
+}
 
 
 # # test: separate the first 3 sample and the next 4 sample to genrate a more proper result
