@@ -44,18 +44,21 @@ A clusterEstimates.tsv and a mutation_to_cluster.tsv files would be produced aft
 
 
 ### 7.6 GO anaysis
-The GO database standardizes the gene products from functions, participating biological pathways and cell localization.
+The GO database standardizes the gene products from functions, biological pathways and cell localization.
 Through GO enrichment analysis, we can roughly understand where the differenal genes enrich, in what biological functions, pathways or cell localizations.
-This function can offer a barplot and a dotplot to visualize the result of the GO enrichment. You can get all/seleted type of analysis by setting the `type` parameter.
+This function can offer a barplot and a dotplot to visualize the result of the GO enrichment, as well as some branch information extracted from the input njtree. You can get all/seleted type of analysis by setting the `type` parameter.
 Also, `pval` and `qval` can be controlled to meet different needs.
 
-`GO_analysis(maf_file , patientID , type = "ALL", pval = 0.01, qval = 0.05)`
+`GO.njtree(njtree, GO.type = "BP", savePlot = T)`
 
 
 ### 7.7 Pathway analysis
+This function enables you to get metabolic pathway results and maps, which are analyzed based on the enriched genes.
+The KEGG database links gene lists obtained from genomes that have been completely sequenced to higher levels of system functions at the cellular, species, and ecosystem levels.
+And the Pathway analysis will offer you a clear plot showing enriched pathways.
+You can choose between the kEGG analysis and Pathway analysis by controlling the `pathway.type` paramater.
 
-
-
+`Pathway.njtree(njtree, pathway.type = "KEGG", savePlot = T)`
 
 
 ### 7.8 Mutational Signature
