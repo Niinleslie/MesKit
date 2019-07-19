@@ -18,29 +18,31 @@
 #' readMaf(patientID, dat.dir="./data", use.ccf=FALSE, 
 #' plot.maf(Summary=TRUE) 
 
+
+## dependencies of read.maf
 library(maftools)
 library(ggplot2)
 
-# mafClass class
+## mafClass class
 mafClass <- setClass(Class="mafClass", contains="MAF", 
                 slots= c(ccf.cluster='data.table', 
                            ccf.loci='data.table', 
                          patientID='character', 
                          ref.build='character'))
 
-# read.maf main function
+## read.maf main function
 readMaf <- function(patientID, 
                     maf.dir, 
                     sample_info.dir, 
                     ccf.dir=NULL, 
                     plot.mafSummary=TRUE, 
                     ref.build="hg19"){
-    # read maf file
+    ## read maf file
     maf_input <- read.table(maf.dir, quot="", header=TRUE, fill=TRUE, sep='\t')
-    # read info file
+    ## read info file
     sample_info_input <-  read.table(sample_info.dir, quot="", header=TRUE, 
                                      fill=TRUE, sep='', stringsAsFactors=F)
-    # read ccf file
+    ## read ccf file
     if (!is.null(ccf.dir)) {
         ccf.cluster.tsv_input <- read.table(ccf.dir, quote="", header=TRUE, 
                                             fill=TRUE, sep='\t', 
@@ -52,12 +54,12 @@ readMaf <- function(patientID,
         ccf.cluster.tsv_input <- NULL
         ccf.loci.tsv_input <- NULL
     }
-    # Generate patient,lesion and time information
+    ## Generate patient,lesion and time information
     maf_input$patient=""
     maf_input$lesion=""
     maf_input$time=""
     
-    # combine sample_info_input with maf_input
+    ## combine sample_info_input with maf_input
     tsb_SampleInfo <- unique(sample_info_input$sample)
     tsb_ls <- tsb_SampleInfo[which(tsb_SampleInfo %in% maf_input$Tumor_Sample_Barcode)]
     for (tsb in tsb_ls) {
@@ -71,14 +73,14 @@ readMaf <- function(patientID,
         maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$lesion <- lesion
         maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$time <- time
     }
-    # fix: Error in setattr(x, "row.names", rn)
+    ## fix: Error in setattr(x, "row.names", rn)
     maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
-    # transform data.frame to data.table
+    ## transform data.frame to data.table
     maf.data <- data.table::setDT(maf_input)
     ccf.cluster.tsv <- data.table::setDT(ccf.cluster.tsv_input)
     ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
     
-    # generate maf.silent and filter maf.data
+    ## generate maf.silent and filter maf.data
     vc.nonSilent= c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
                     "Translation_Start_Site", "Nonsense_Mutation", 
                     "Nonstop_Mutation", "In_Frame_Del",
@@ -102,10 +104,10 @@ readMaf <- function(patientID,
                                                             maf.silent.vc.cast[,2:ncol(
                                                                 maf.silent.vc.cast), with=FALSE])))
         
-        #maf.data=maf.data[Variant_Classification %in% vc.nonSilent] #Choose only non-silent variants from main table
+        ## maf.data=maf.data[Variant_Classification %in% vc.nonSilent] #Choose only non-silent variants from main table
     }
     
-    # summarize sample_info and mut.id with summarizeMaf
+    ## summarize sample_info and mut.id with summarizeMaf
     maf.summary <- suppressMessages(maftools:::summarizeMaf(
         maf=maf.data, chatty=TRUE))
     maf <- mafClass(data=maf.data, 
@@ -121,7 +123,7 @@ readMaf <- function(patientID,
                patientID=patientID, 
                ref.build=ref.build)
     
-    # print the summary plot
+    ## print the summary plot
     if (plot.mafSummary) {
         pic <- plotmafSummary(maf=maf, rmOutlier=TRUE, 
                               addStat='median', dashboard=T, titvRaw=FALSE)

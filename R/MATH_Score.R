@@ -18,28 +18,28 @@
 #'}
 
 
-######## MATH Score ##########
+## MATH Score
 scoreMATH <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
-    # get vaf-related infomation
+    ## get vaf-related infomation
     dat.hugo_symbol <- maf_input$Hugo_Symbol
     dat.vaf <- maf_input$VAF
     dat.tsb <- data.frame(maf_input$Tumor_Sample_Barcode)
     vaf_input_mt <- data.frame(dat.hugo_symbol, dat.vaf, dat.tsb)
     colnames(vaf_input_mt) <- c("Hugo_Symbol", "VAF", "Tumor_Sample_Barcode")
-    # get all sample names
+    ## get all sample names
     tsb_ls <- data.frame(unique(vaf_input_mt$Tumor_Sample_Barcode))
     
-    # MATH main function
-    # MATH results for one/all sample
+    ## MATH main function
+    ## MATH results for one/all sample
     if (any(tsb == c("OFA"))){
-        # list all samples' MATH scores
+        ## list all samples' MATH scores
         math_ofa <- .mathMsp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
         math_all <- .mathPatient(vaf_input_mt, minvaf, maxvaf)
         math_all <- data.frame(Tumor_Sample_Barcode=c("ITH MATH score"), 
                                scoreMATH=c(math_all))
         return(rbind(math_ofa, math_all))
     } else{
-        # calculate specific samples' MATH score
+        ## calculate specific samples' MATH score
         tsb_ls <- data.frame(tsb)
         math_sp <- .mathMsp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
         math_all <- .mathPatient(vaf_input_mt, minvaf, maxvaf)
@@ -50,7 +50,7 @@ scoreMATH <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
 }
 
 
-# Data cleaning
+## Data cleaning
 .dataClean <- function(vaf_input_mt, tsb, minvaf, maxvaf){
     VAF_column=vaf_input_mt[which(
         vaf_input_mt$Tumor_Sample_Barcode == tsb),]$VAF
@@ -61,7 +61,7 @@ scoreMATH <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
     VAF_column
 }
 
-# MATH Caculation
+## MATH Caculation
 .mathCal <- function(VAF_column){
     MAD_fac=1.4826*median(abs(
         VAF_column - median(VAF_column)))
@@ -70,7 +70,7 @@ scoreMATH <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
     MATH
 }
 
-# MATH multi-sample process
+## MATH multi-sample process
 .mathMsp <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
     samples_math <- data.frame()
     for (counter_mt in 1:length(tsb_ls[,1])){
@@ -88,7 +88,7 @@ scoreMATH <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
     samples_math
 }
 
-# MATH patient calcualtion
+## MATH patient calcualtion
 .mathPatient <- function(vaf_input_mt, minvaf, maxvaf){
     VAF_column=vaf_input_mt$VAF
     VAF_column=VAF_column[which(

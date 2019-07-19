@@ -15,7 +15,7 @@
 #' prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
 #'}
 
-# directorys
+## directorys
 setwd("/home/ninomoriaty/R_Project/")
 
 
@@ -30,9 +30,9 @@ dir.sample_info="./data2/sample_info.txt"
 
 ## SCHISM method
 
-# prepare Schism input
+## prepare Schism input
 prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
-    # read mutations in cluster.tsv from PyClone and get targeted clusters
+    ## read mutations in cluster.tsv from PyClone and get targeted clusters
     cluster.tsv=read.table(dir.cluster.tsv, sep="\t", 
                              stringsAsFactors=F, header=T)
     cluster_filter=cluster.tsv[!is.na(cluster.tsv$cluster_id) 
@@ -40,12 +40,12 @@ prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
                                  & cluster.tsv$mean >= 0.1,]
     cluster_ls =unique(cluster_filter$cluster_id)
     
-    # read mutations within targeted clusters in loc.tsv file from PyClone 
+    ## read mutations within targeted clusters in loc.tsv file from PyClone 
     loci.tsv=read.table(dir.loci.tsv, sep="\t", stringsAsFactors=F, header=T)
     loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
-    #loci_filtered <- na.omit(loci_filtered)
+    # loci_filtered <- na.omit(loci_filtered)
     
-    # generate two outputs for SCHISM: clusterEstimates.tsv, mutation_to_cluster.tsv
+    ## generate two outputs for SCHISM: clusterEstimates.tsv, mutation_to_cluster.tsv
     clusterEstimates.tsv <- data.frame(
         loci_filtered$sample_id, loci_filtered$mutation_id, 
         loci_filtered$cellular_prevalence, 
@@ -60,7 +60,7 @@ prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
     names(mutation_to_cluster.tsv)=c("mutationID", 
                                        "clusterID")
     
-    # set the directory of outputs and make two SCHISM-needed files 
+    ## set the directory of outputs and make two SCHISM-needed files 
     setwd(dir.output)
     write.table(clusterEstimates.tsv, file="W.clusterEstimates.tsv", 
                 sep="\t", quote=F, row.names=F)
@@ -89,15 +89,15 @@ library(fishplot)
 
 ## generate results for createFishPlotObjects
 schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
-    # get cellularity infomation
+    ## get cellularity infomation
     cluster.cellularity=read.table(dir.cluster.cellularity, 
                                      sep="\t", stringsAsFactors=F, header=T)
     
-    # get the list of samples and clusters in this function
+    ## get the list of samples and clusters in this function
     ls.sample=unique(cluster.cellularity$sampleID)
     ls.cluster=unique(cluster.cellularity$clusterID)
     
-    # build the cancer celluarity/fraction table for fishplot
+    ## build the cancer celluarity/fraction table for fishplot
     frac.c=c()
     for (sample_name in ls.sample) {
         sample <- cluster.cellularity[which(
@@ -108,15 +108,15 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
     rownames(frac.table) <- ls.cluster
     colnames(frac.table) <- ls.sample
     
-    # read the evolution relationship of different subclones
+    ## read the evolution relationship of different subclones
     GA.consensusTree=read.table(dir.GA.consensusTree, sep="\t", 
                                   stringsAsFactors=F, header=T)
     
-    # figure out clusters which will be first nodes of the evolution tree
+    ## figure out clusters which will be first nodes of the evolution tree
     ls.ends=unique(GA.consensusTree[which(
         !GA.consensusTree$parent %in% GA.consensusTree$child), 1])
     
-    # make sure the first node of the tree would be first in parents
+    ## make sure the first node of the tree would be first in parents
     if (!rownames(frac.table)[1] %in% ls.ends){
         frac.end=frac.table[which(
             rownames(frac.table) == ls.ends[1]),]
@@ -126,7 +126,7 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
         rownames(frac.table)[1] <- ls.ends[1]
     }
     
-    # rearrange subclonal evolution relationship as a vector(parents)
+    ## rearrange subclonal evolution relationship as a vector(parents)
     parents <- c(1:length(ls.cluster))
     for (cluster_name in ls.cluster){
         parent_cluster <- GA.consensusTree[which(
@@ -139,7 +139,7 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
         }
     }
     
-    # fishplot printing
+    ## fishplot printing
     fish=createFishObject(frac.table, parents, timepoints=c(
         1:length(ls.sample)), fix.missing.clones=TRUE)
     if (length(ls.cluster) > 10) {
@@ -270,12 +270,12 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
 #     ccf <- rbind(x$P.ccf, x$R.ccf)
 
 ## Timescape method
-# dependency of timescape
+## dependency of timescape
 library(timescape)
 
 schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree, 
                              dir.sample_info=NULL){
-    # get cellularity infomation
+    ## get cellularity infomation
     cluster.cellularity=read.table(dir.cluster.cellularity, 
                                      sep="\t", 
                                      stringsAsFactors=F, 
@@ -285,9 +285,9 @@ schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree,
     clonal_prev <- cluster.cellularity[c("timepoint", "clone_id", 
                                          "clonal_prev")]
     
-    # make sure the timepoint is specific for the real data.
+    ## make sure the timepoint is specific for the real data.
     if (!is.null(dir.sample_info)){
-        # read info file  
+        ## read info file  
         sample_info_input <- read.table(dir.sample_info, quot="", 
                                         header=TRUE, fill=TRUE, 
                                         sep='', stringsAsFactors=F)
@@ -304,7 +304,7 @@ schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree,
         clonal_prev <- clonal_prev_temp
     } 
     
-    # read the evolution relationship of different subclones
+    ## read the evolution relationship of different subclones
     GA.consensusTree=read.table(
         dir.GA.consensusTree, 
         sep="\t", stringsAsFactors=F, header=T)

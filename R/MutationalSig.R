@@ -25,8 +25,8 @@
 #'}
 
 
-# import pkgs
-# dependencies of deconstructSigs
+## import pkgs
+## dependencies of deconstructSigs
 library(reshape2)
 library(BSgenome)
 library(BSgenome.Hsapiens.UCSC.hg19)
@@ -37,17 +37,16 @@ library(graphics)
 library(utils)
 library(deconstructSigs)
 library(tidyr)
-# data frame needed
+## data frame needed
 library(plyr)
 
-# main function
-# Usage: Mutational_Sigs_branch(maf_file, samples_vector)
+## main function
 mutationalSigsTree <- function(maf.dat, branch, 
                                  patientID, ref.build, 
                                  driver_genes_dir=FALSE, 
                                  mut.threshold=50){
     maf_input <- maf.dat
-    # get mutationalSigs-related  infomation
+    ## get mutationalSigs-related  infomation
     dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
                              stringsAsFactors=FALSE)
     dat.chr <- data.frame(as.character(maf_input$Chromosome), 
@@ -72,41 +71,41 @@ mutationalSigsTree <- function(maf.dat, branch,
     colnames(mut.sig.ref) <- c("ID", "Sample", "chr", "pos", "pos_end", 
                                "ref", "alt", "Hugo_Symbol", "mut_id")
     
-    # get branch infomation
+    ## get branch infomation
     branches <- strsplit(branch, split='∩')
     
     
-    # output collection
+    ## output collection
     mut.sigs.output <- data.frame()
     mut.branches <- data.frame()
     mut.branches.output <- list()
     list.branch_name <- c()
-    # generate mutational signautres for different branches
+    ## generate mutational signautres for different branches
     for (branch_counter in length(branches):1){
-        # generate a single branch
+        ## generate a single branch
         branch <- Filter(Negate(is.na), branches[[branch_counter]])
         mut.branch <- mut.sig.ref[which(mut.sig.ref$Sample %in% branch), ]
         
         for (tsb in branch){
-            # generate the intersection(set) of the branch
+            ## generate the intersection(set) of the branch
             mut.tsb <- mut.sig.ref[which(mut.sig.ref$Sample %in% tsb), ]
             mut.branch <- match_df(
                 mut.branch, mut.tsb, 
                 on=c("chr", "pos", "pos_end", "ref", "alt"))
         }
         
-        # generate the branch name
+        ## generate the branch name
         branch_name <- paste(branch, collapse="∩")
         
         if (length(mut.branch[,1]) == 0){
-            # fix the problem when no intersection found
+            ## fix the problem when no intersection found
             next()
         } else{
-            # label the intersection(set) of the branch
+            ## label the intersection(set) of the branch
             mut.sig.ref[which(
                 mut.sig.ref[,1] %in% mut.branch[,1]), 2] <- branch_name
             
-            # duplicate the same mutation
+            ## duplicate the same mutation
             # mut.branch.intersection <- mut.sig.ref[which(
             #                                   \mut.sig.ref$Sample == branch_name 
                                               # & (!duplicated(mut.sig.ref$chr) 
@@ -121,7 +120,7 @@ mutationalSigsTree <- function(maf.dat, branch,
             mut.branches.output[[branch_counter]] <- subset(
                 mut.branch.intersection,select=-c(Sample))
             list.branch_name <- c(branch_name, list.branch_name)
-            # get the mutational signature of the branch
+            ## get the mutational signature of the branch
             mut.sigs.output <- mutationalSigsBranch(mut.branches, 
                                                       mut.sigs.output, 
                                                       branch, branch_name, 
@@ -134,12 +133,12 @@ mutationalSigsTree <- function(maf.dat, branch,
         
     }
     names(mut.branches.output) <- list.branch_name
-    # return the data frame of mutational signature for all branches
+    ## return the data frame of mutational signature for all branches
     return(list(mut.sigs.output, mut.branches.output))
 }
 
 
-# Weight mutational Signature of each branch
+## Weight mutational Signature of each branch
 mutationalSigsBranch <- function(mut.sig.ref, mut.sigs.output, 
                                    branch, branch_name, 
                                    patientID, driver_genes, 
@@ -150,7 +149,7 @@ mutationalSigsBranch <- function(mut.sig.ref, mut.sigs.output,
         sigs.max.name <- "No.Signature"
         sigs.max.prob <- 0
     }else{
-        # deconstructSigs
+        ## deconstructSigs
         sigs.input <- suppressWarnings(
             mut.to.sigs.input(mut.ref=mut.sig.ref, 
                               sample.id="Sample", 
@@ -163,27 +162,27 @@ mutationalSigsBranch <- function(mut.sig.ref, mut.sigs.output,
                                       signatures.ref=signatures.cosmic, 
                                       sample.id=branch_name,
                                       contexts.needed=TRUE)
-        # get mutational signature with max weight
+        ## get mutational signature with max weight
         sigs.max <- sigs.which[["weights"]][which.max(
             sigs.which[["weights"]])]
         sigs.max.name <- colnames(sigs.max)
         sigs.max.prob <- sigs.max[,1]
     }
     
-    # # vectorize branch name
+    ## vectorize branch name
     # branch <- gsub(paste(patientID,"-",sep=""), "", branch)
     
-    # figure out putative driver genes
+    ## figure out putative driver genes
     if (typeof(driver_genes_dir) == "character"){
-        # read putative driver genes' list
+        ## read putative driver genes' list
         driver_genes <- as.character(
             read.table(driver_genes_dir, quote="")[,1])
-        # filter potative driver genes of each branch
+        ## filter potative driver genes of each branch
         pdg.mut <- mut.sig.ref[which(
             mut.sig.ref$Sample == branch_name 
             & as.character(mut.sig.ref$Hugo_Symbol) %in% driver_genes),]
         pdg.branch <- as.character(pdg.mut$Hugo_Symbol)
-        # collect branches' mutataional signature and potative driver genes
+        ## collect branches' mutataional signature and potative driver genes
         mut.sigs.branch <- data.frame(
             branch=I(list(branch)), 
             sig=sigs.max.name, 
@@ -199,6 +198,6 @@ mutationalSigsBranch <- function(mut.sig.ref, mut.sigs.output,
                 mut.sig.ref$Sample == branch_name), 1]), 
             sig.prob=sigs.max.prob)
     }
-    # collect branches' mutataional signature information
+    ## collect branches' mutataional signature information
     rbind(mut.sigs.output, mut.sigs.branch)
 }
