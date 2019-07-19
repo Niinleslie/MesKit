@@ -18,14 +18,14 @@
 #'
 #' @examples
 #' \dontrun{
-#' VAF_plot(maf_file, sample_option="OFA", theme_option="aaas") # draw a 
+#' vafPlot(maf_file, sample_option="OFA", theme_option="aaas") # draw a 
 #' VAF image that contains all samples' VAF distribution curves with 
 #' different themes.
-#' VAF_plot(maf_file, sample_option="All") # draw VAF images for every 
+#' vafPlot(maf_file, sample_option="All") # draw VAF images for every 
 #' sample respectively.
-#' VAF_plot(maf_file, sample_option="MIX") # draw VAF images for every 
+#' vafPlot(maf_file, sample_option="MIX") # draw VAF images for every 
 #' sample in one picture.
-#' VAF_plot(maf_file, sample_option="tsb1", file_format="pdf") # draw a 
+#' vafPlot(maf_file, sample_option="tsb1", file_format="pdf") # draw a 
 #' VAF image for sample tsb1 and save as a pdf file.
 #' 
 #'}
@@ -39,12 +39,12 @@ library(ggsci)
 library(dplyr)
 library(cowplot)
 
-# source MATH_score function
+# source scoreMATH function
 setwd("/home/ninomoriaty/R_Project/MesKit/R")
 source("MATH_Score.R")
 
 ############ Major function ############
-VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas", 
+vafPlot <-function(maf, sample_option="OFA", theme_option="aaas", 
                     file_format="png", show.MATH=T)
 {
     ## original data preparation
@@ -68,10 +68,10 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
     if (sample_option == "All"){
         for (counter_mt in 1:length(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
-            # calculate MATH_score
+            # calculate scoreMATH
             
             if (show.MATH){
-                MATH.score <- MATH_score(maf_input, c(sample.name))
+                MATH.score <- scoreMATH(maf_input, c(sample.name))
                 MATH.score <- MATH.score[which(
                     MATH.score$Tumor_Sample_Barcode == sample.name), 
                     ]$MATH_score
@@ -85,7 +85,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
                     sample_mt[1,3]), vafCol='VAF', useSyn=TRUE)$"clusterData"
             colnames(cluster_mt)[6]="VAF"
             # print VAF pictures for all samples
-            pic <- VAF_draw(cluster_mt, theme_option, sample.name, MATH.score)
+            pic <- .vafDraw(cluster_mt, theme_option, sample.name, MATH.score)
             ggsave(pic, 
                    filename=paste(
                 sample.name, "_VAF_Cluster", ".", file_format,sep=""), 
@@ -99,9 +99,9 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
         # draw each pictures and name them rescpectively
         for (counter_mt in 1:length(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
-            # calculate MATH_score
+            # calculate scoreMATH
             if (show.MATH){
-                MATH.score <- MATH_score(maf_input, c(sample.name))
+                MATH.score <- scoreMATH(maf_input, c(sample.name))
                 MATH.score <- MATH.score[which(
                     MATH.score$Tumor_Sample_Barcode == sample.name), 
                     ]$MATH_score
@@ -120,7 +120,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
                              patientID, 
                              ".", 
                              counter_mt, 
-                             "<-VAF_draw(
+                             "<-.vafDraw(
                              cluster_mt, 
                              theme_option, 
                              sample.name, 
@@ -150,9 +150,9 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
         # collect all samples' cluster results
         for (counter_mt in 1:length(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
-            # calculate MATH_score
+            # calculate scoreMATH
             if (show.MATH){
-                MATH.score <- MATH_score(maf_input, c(sample.name))
+                MATH.score <- scoreMATH(maf_input, c(sample.name))
                 MATH.score <- MATH.score[which(
                     MATH.score$Tumor_Sample_Barcode == "ITH MATH score"), 
                     ]$MATH_score
@@ -182,7 +182,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
             eval(parse(text=cluster_mt_cha))
         }
         colnames(cluster_all)[6]="VAF"
-        pic <- eval(parse(text=VAF_OFA(cluster_all, 
+        pic <- eval(parse(text=.vafOFA(cluster_all, 
                                        theme_option, 
                                        tsb_ls, 
                                        sample_option, 
@@ -198,9 +198,9 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
     ## specific sample
     else 
     {
-        # calculate MATH_score
+        # calculate scoreMATH
         if (show.MATH){
-            MATH.score <- MATH_score(
+            MATH.score <- scoreMATH(
                 maf_input, c(sample_option))
             MATH.score <- MATH.score[which(
                 MATH.score$Tumor_Sample_Barcode == sample_option), 
@@ -214,7 +214,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
             maf=laml, tsb=as.character(
                 sample_mt[1,3]), vafCol='VAF', useSyn=TRUE)$"clusterData"
         colnames(cluster_mt)[6]="VAF"
-        pic <- VAF_draw(cluster_mt, theme_option, sample_option, MATH.score)
+        pic <- .vafDraw(cluster_mt, theme_option, sample_option, MATH.score)
         ggsave(pic, filename= paste(
             sample_option,"_VAF_Cluster",".", file_format,sep=""), 
             width=12, height=9)
@@ -224,7 +224,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas",
 
 ############ General Toolbox ############
 # VAF main draw vlines for all sample_option
-VAF_vline <- function(cluster_mt, pic, tsb_ls, sample_option, tsb, 
+.vafVline <- function(cluster_mt, pic, tsb_ls, sample_option, tsb, 
                       ingredients=NULL){
     # data prepare
     VAF_vline_cha <- ""
@@ -281,7 +281,7 @@ VAF_vline <- function(cluster_mt, pic, tsb_ls, sample_option, tsb,
 
 ############ Functions for specific sample_option: "All","tsb" ############
 # VAF painter
-VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score, 
+.vafDraw <- function(cluster_mt, theme_option, sample_option, MATH.score, 
                      MIX_option=""){
     # A draft for density infomation(density_info) of ggplot
     picv <- ggplot(cluster_mt, aes(x=VAF)) + geom_line(
@@ -301,7 +301,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score,
             + geom_line(size=1, colour=\"#00C0EB\", stat=\"density\") 
             + geom_rug(aes(y=0, colour=cluster), sides=\"b\") 
             + ", 
-            VAF_vline(cluster_mt, picv, tsb_ls, sample_option), 
+            .vafVline(cluster_mt, picv, tsb_ls, sample_option), 
             "scale_color_", 
             theme_option, "() + scale_fill_", 
             theme_option, "()", sep="")
@@ -318,7 +318,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score,
             axis.line=element_line(size=0.25)) 
             + geom_line(size=1, colour=\"#00C0EB\", stat=\"density\") 
             + geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
-            VAF_vline(cluster_mt, picv, tsb_ls, sample_option),
+            .vafVline(cluster_mt, picv, tsb_ls, sample_option),
             "scale_color_", theme_option, "() + scale_fill_", 
             theme_option, "()", sep="")
             eval(parse(text=VAF_draw_cha))
@@ -342,7 +342,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score,
             as.character(MATH.score), "\") 
             + geom_line(size=1, colour=\"#00C0EB\", stat=\"density\")
             + geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
-            VAF_vline(cluster_mt, picv, tsb_ls, sample_option),
+            .vafVline(cluster_mt, picv, tsb_ls, sample_option),
             "scale_color_", theme_option, "() + scale_fill_", 
             theme_option, "()", sep="")
             eval(parse(text=VAF_draw_cha))
@@ -359,7 +359,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score,
             + ggtitle(\"MATH Score: ", as.character(MATH.score), "\") 
             + geom_line(size=1, colour=\"#00C0EB\", stat=\"density\") 
             + geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
-            VAF_vline(cluster_mt, picv, tsb_ls, sample_option),
+            .vafVline(cluster_mt, picv, tsb_ls, sample_option),
             "scale_color_", theme_option, "() + scale_fill_", 
             theme_option, "()", sep="")
             eval(parse(text=VAF_draw_cha))
@@ -369,7 +369,7 @@ VAF_draw <- function(cluster_mt, theme_option, sample_option, MATH.score,
 
 ############ Functions for specific sample_option: "OFA" ############
 # VAF drawer for OFA: generate character/string for follow-up painting with ggplot. 
-VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score){
+.vafOFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score){
     if (is.na(MATH.score)){
         VAF_ofa_cha=paste(
         "ggplot(cluster_all, aes(x=VAF, y=Tumor_Sample_Barcode))
@@ -387,7 +387,7 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
             alpha=0.5, show.legend=F) ",
         "+ geom_density_ridges(
             color=\"#00C0EB\", fill=NA, calc_ecdf=TRUE, alpha=0.5) + ",
-        VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
+        .vafVlineOFA(cluster_all, tsb_ls, sample_option), 
         "scale_color_", theme_option, "() + scale_fill_", 
         theme_option, "()", sep="")
     } else {
@@ -408,7 +408,7 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
             color=cluster), alpha=0.5, show.legend=F) ",
         "+ geom_density_ridges(color=\"#00C0EB\", fill=NA, 
             calc_ecdf=TRUE, alpha=0.5) ",
-        VAF_vline_ofa(cluster_all, tsb_ls, sample_option), 
+        .vafVlineOFA(cluster_all, tsb_ls, sample_option), 
         "scale_color_", theme_option, "() + scale_fill_", 
         theme_option, "()", sep="")
     }
@@ -416,10 +416,10 @@ VAF_OFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score
 }
 
 # VAF draw vlines for ofa
-VAF_vline_ofa <- function(cluster_all, tsb_ls, sample_option)
+.vafVlineOFA <- function(cluster_all, tsb_ls, sample_option)
 {
     # data prepare
-    VAF_vline_ofa <- ""
+    .vafVlineOFA <- ""
     # density information of the curve for all tsbs
     gr <- ggplot(cluster_all, aes(
         x=VAF, y=Tumor_Sample_Barcode)) + geom_density_ridges() 
@@ -440,12 +440,12 @@ VAF_vline_ofa <- function(cluster_all, tsb_ls, sample_option)
             + geom_line(size=1, colour="#00C0EB", stat="density")
         density_info <- data.frame(layer_data(picv))
         # collect vlines for a single tsb
-        VAF_vline_cha <- VAF_vline(cluster_mt, picv, tsb_ls, 
+        VAF_vline_cha <- .vafVline(cluster_mt, picv, tsb_ls, 
                                    sample_option, tsb, ingredients)
         # collect vlines for all tsbs
-        VAF_vline_ofa <- paste(VAF_vline_ofa, VAF_vline_cha)
+        .vafVlineOFA <- paste(.vafVlineOFA, VAF_vline_cha)
     }
-    VAF_vline_ofa
+    .vafVlineOFA
 }
 
 
@@ -463,8 +463,8 @@ maf_file_ls=c(maf_file1, maf_file2, maf_file3, maf_file4,
               maf_file5, maf_file6, maf_file7)
 for (counter in maf_file_ls){
     patientID <- strsplit(counter, ".maf")[[1]][1]
-    maf <- read.Maf(patientID , counter, sample_info.dir)
-    # VAF_plot(maf, "OFA", file_format="pdf")
-    # VAF_plot(maf, "All", file_format="pdf")
-    VAF_plot(maf, "MIX", file_format="pdf")
+    maf <- readMaf(patientID , counter, sample_info.dir)
+    # vafPlot(maf, "OFA", file_format="pdf")
+    # vafPlot(maf, "All", file_format="pdf")
+    vafPlot(maf, "MIX", file_format="pdf")
 }

@@ -18,9 +18,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' Mutational_sigs_tree(maf_file, branch_file)
-#' Mutational_sigs_tree(maf_file, branch_file, driver_genes_dir)
-#' Mutational_sigs_tree(maf_file, branch_file, driver_genes_dir, 
+#' mutationalSigsTree(maf_file, branch_file)
+#' mutationalSigsTree(maf_file, branch_file, driver_genes_dir)
+#' mutationalSigsTree(maf_file, branch_file, driver_genes_dir, 
 #' mut.threshold=30)
 #'}
 
@@ -42,7 +42,7 @@ library(plyr)
 
 # main function
 # Usage: Mutational_Sigs_branch(maf_file, samples_vector)
-Mutational_sigs_tree <- function(maf.dat, branch, 
+mutationalSigsTree <- function(maf.dat, branch, 
                                  patientID, ref.build, 
                                  driver_genes_dir=FALSE, 
                                  mut.threshold=50){
@@ -122,7 +122,7 @@ Mutational_sigs_tree <- function(maf.dat, branch,
                 mut.branch.intersection,select=-c(Sample))
             list.branch_name <- c(branch_name, list.branch_name)
             # get the mutational signature of the branch
-            mut.sigs.output <- Mutational_sigs_branch(mut.branches, 
+            mut.sigs.output <- mutationalSigsBranch(mut.branches, 
                                                       mut.sigs.output, 
                                                       branch, branch_name, 
                                                       patientID, 
@@ -140,7 +140,7 @@ Mutational_sigs_tree <- function(maf.dat, branch,
 
 
 # Weight mutational Signature of each branch
-Mutational_sigs_branch <- function(mut.sig.ref, mut.sigs.output, 
+mutationalSigsBranch <- function(mut.sig.ref, mut.sigs.output, 
                                    branch, branch_name, 
                                    patientID, driver_genes, 
                                    driver_genes_dir, mut.threshold, 
