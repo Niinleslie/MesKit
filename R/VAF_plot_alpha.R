@@ -79,14 +79,13 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
             }
             sample_mt <- vaf_input_mt[which(
                 vaf_input_mt$Samples %in% sample.name),]
-            cluster_mt=inferHeterogeneity(
+            cluster_mt <- inferHeterogeneity(
                 maf=laml, tsb=as.character(
                     sample_mt[1,3]), vafCol='VAF', useSyn=TRUE)$"clusterData"
             colnames(cluster_mt)[6]="VAF"
             ## print VAF pictures for all samples
             pic <- .vafDraw(cluster_mt, theme_option, sample.name, MATH.score)
-            ggsave(pic, 
-                   filename=paste(
+            ggsave(pic, filename=paste(
                 sample.name, "_VAF_Cluster", ".", file_format,sep=""), 
                 width=12, height=9, dpi=800, path="./output")
         }
@@ -109,7 +108,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
             }
             sample_mt <- vaf_input_mt[which(
                 vaf_input_mt$Samples %in% sample.name),]
-            cluster_mt=inferHeterogeneity(
+            cluster_mt <- inferHeterogeneity(
                 maf=laml, 
                 tsb=as.character(sample_mt[1,3]), 
                 vafCol='VAF', useSyn=TRUE)$"clusterData"
@@ -209,8 +208,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
         }
         sample_mt <- vaf_input_mt[which(
             vaf_input_mt$Samples %in% sample_option),]
-        cluster_mt=inferHeterogeneity(
-            maf=laml, tsb=as.character(
+        cluster_mt <- inferHeterogeneity(maf=laml, tsb=as.character(
                 sample_mt[1,3]), vafCol='VAF', useSyn=TRUE)$"clusterData"
         colnames(cluster_mt)[6]="VAF"
         pic <- .vafDraw(cluster_mt, theme_option, sample_option, MATH.score)
@@ -288,7 +286,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
     if (is.na(MATH.score)){
         if (MIX_option == "MIX"){
             ## generate character/string for ggplot and specific titles for minifigures
-            VAF_draw_cha=paste(
+            VAF_draw_cha <- paste(
             "ggplot(cluster_mt, aes(x=VAF)) 
             + theme_bw() 
             + theme(legend.position=\'none\', 
@@ -307,7 +305,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
             eval(parse(text=VAF_draw_cha))
         } else {
             ## generate character/string for ggplot and paint the picture
-            VAF_draw_cha=paste(
+            VAF_draw_cha <- paste(
             "ggplot(cluster_mt, aes(x=VAF)) 
             + theme_bw() 
             + theme(title=element_text(size=18), 
@@ -326,7 +324,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
     else {
         if (MIX_option == "MIX"){
             ## generate character/string for ggplot and specific titles for minifigures
-            VAF_draw_cha=paste(
+            VAF_draw_cha <- paste(
             "ggplot(cluster_mt, aes(x=VAF)) 
             + theme_bw() 
             + theme(legend.position=\'none\', 
@@ -347,7 +345,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
             eval(parse(text=VAF_draw_cha))
         } else {
             ## generate character/string for ggplot and paint the picture
-            VAF_draw_cha=paste(
+            VAF_draw_cha <- paste(
             "ggplot(cluster_mt, aes(x=VAF)) 
             + theme_bw() 
             + theme(plot.title=element_text(size=18, 
@@ -370,7 +368,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
 ## VAF drawer for OFA: generate character/string for follow-up painting with ggplot. 
 .vafOFA <- function(cluster_all, theme_option, tsb_ls, sample_option, MATH.score){
     if (is.na(MATH.score)){
-        VAF_ofa_cha=paste(
+        VAF_ofa_cha <- paste(
         "ggplot(cluster_all, aes(x=VAF, y=Tumor_Sample_Barcode))
         + theme_bw() 
         + theme(title=element_text(size=18), 
@@ -390,7 +388,7 @@ vafPlot <-function(maf, sample_option="OFA", theme_option="aaas",
         "scale_color_", theme_option, "() + scale_fill_", 
         theme_option, "()", sep="")
     } else {
-        VAF_ofa_cha=paste(
+        VAF_ofa_cha <- paste(
         "ggplot(cluster_all, 
         aes(x=VAF, y=Tumor_Sample_Barcode))
         + theme_bw() 

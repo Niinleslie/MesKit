@@ -19,13 +19,13 @@
 setwd("/home/ninomoriaty/R_Project/")
 
 
-dir.cluster.tsv="./data/tempschism/hu.cluster.tsv"
-dir.loci.tsv="./data/tempschism/hu.loci.tsv"
-dir.output="./data/tempschism"
+dir.cluster.tsv <- "./data/tempschism/hu.cluster.tsv"
+dir.loci.tsv <- "./data/tempschism/hu.loci.tsv"
+dir.output <- "./data/tempschism"
 
-dir.GA.consensusTree="./data/tempschism/E1.GA.consensusTree"
-dir.cluster.cellularity="./data/tempschism/E1.cluster.cellularity"
-dir.sample_info="./data2/sample_info.txt"
+dir.GA.consensusTree <- "./data/tempschism/E1.GA.consensusTree"
+dir.cluster.cellularity <- "./data/tempschism/E1.cluster.cellularity"
+dir.sample_info <- "./data2/sample_info.txt"
 
 
 ## SCHISM method
@@ -33,15 +33,15 @@ dir.sample_info="./data2/sample_info.txt"
 ## prepare Schism input
 prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
     ## read mutations in cluster.tsv from PyClone and get targeted clusters
-    cluster.tsv=read.table(dir.cluster.tsv, sep="\t", 
+    cluster.tsv <- read.table(dir.cluster.tsv, sep="\t", 
                              stringsAsFactors=F, header=T)
-    cluster_filter=cluster.tsv[!is.na(cluster.tsv$cluster_id) 
+    cluster_filter <- cluster.tsv[!is.na(cluster.tsv$cluster_id) 
                                  & cluster.tsv$size >= 5 
                                  & cluster.tsv$mean >= 0.1,]
-    cluster_ls =unique(cluster_filter$cluster_id)
+    cluster_ls <- unique(cluster_filter$cluster_id)
     
     ## read mutations within targeted clusters in loc.tsv file from PyClone 
-    loci.tsv=read.table(dir.loci.tsv, sep="\t", stringsAsFactors=F, header=T)
+    loci.tsv <- read.table(dir.loci.tsv, sep="\t", stringsAsFactors=F, header=T)
     loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
     # loci_filtered <- na.omit(loci_filtered)
     
@@ -50,14 +50,14 @@ prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
         loci_filtered$sample_id, loci_filtered$mutation_id, 
         loci_filtered$cellular_prevalence, 
         loci_filtered$cellular_prevalence_std)
-    names(clusterEstimates.tsv)=c("sampleID",	
+    names(clusterEstimates.tsv) <- c("sampleID",	
                                     "mutationID", 
                                     "cellularity", 
                                     "sd")
     
     mutation_to_cluster.tsv <- data.frame(loci_filtered$mutation_id, 
                                           loci_filtered$cluster_id)
-    names(mutation_to_cluster.tsv)=c("mutationID", 
+    names(mutation_to_cluster.tsv) <- c("mutationID", 
                                        "clusterID")
     
     ## set the directory of outputs and make two SCHISM-needed files 
@@ -90,35 +90,35 @@ library(fishplot)
 ## generate results for createFishPlotObjects
 schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
     ## get cellularity infomation
-    cluster.cellularity=read.table(dir.cluster.cellularity, 
+    cluster.cellularity <- read.table(dir.cluster.cellularity, 
                                      sep="\t", stringsAsFactors=F, header=T)
     
     ## get the list of samples and clusters in this function
-    ls.sample=unique(cluster.cellularity$sampleID)
-    ls.cluster=unique(cluster.cellularity$clusterID)
+    ls.sample <- unique(cluster.cellularity$sampleID)
+    ls.cluster <- unique(cluster.cellularity$clusterID)
     
     ## build the cancer celluarity/fraction table for fishplot
-    frac.c=c()
+    frac.c <- c()
     for (sample_name in ls.sample) {
         sample <- cluster.cellularity[which(
             cluster.cellularity$sampleID == sample_name), ]$cellularity
         frac.c <- c(frac.c,sample)
     }
-    frac.table=matrix(frac.c*100, ncol=length(ls.sample))
+    frac.table <- matrix(frac.c*100, ncol=length(ls.sample))
     rownames(frac.table) <- ls.cluster
     colnames(frac.table) <- ls.sample
     
     ## read the evolution relationship of different subclones
-    GA.consensusTree=read.table(dir.GA.consensusTree, sep="\t", 
+    GA.consensusTree <- read.table(dir.GA.consensusTree, sep="\t", 
                                   stringsAsFactors=F, header=T)
     
     ## figure out clusters which will be first nodes of the evolution tree
-    ls.ends=unique(GA.consensusTree[which(
+    ls.ends <- unique(GA.consensusTree[which(
         !GA.consensusTree$parent %in% GA.consensusTree$child), 1])
     
     ## make sure the first node of the tree would be first in parents
     if (!rownames(frac.table)[1] %in% ls.ends){
-        frac.end=frac.table[which(
+        frac.end <- frac.table[which(
             rownames(frac.table) == ls.ends[1]),]
         frac.table <- frac.table[-which(
             rownames(frac.table) == ls.ends[1]),]
@@ -140,12 +140,12 @@ schism2Fishplot <- function(dir.cluster.cellularity, dir.GA.consensusTree){
     }
     
     ## fishplot printing
-    fish=createFishObject(frac.table, parents, timepoints=c(
+    fish <- createFishObject(frac.table, parents, timepoints=c(
         1:length(ls.sample)), fix.missing.clones=TRUE)
     if (length(ls.cluster) > 10) {
-        fish=setCol(fish, as.character(ls.cluster))
+        fish <- setCol(fish, as.character(ls.cluster))
     }
-    fish=layoutClones(fish)
+    fish <- layoutClones(fish)
     fishPlot(fish, shape="spline", title.btm="PatientID", cex.title=0.5,
              vlines=seq(1, length(ls.sample)), vlab=ls.sample, pad.left=0.5)
 }
@@ -276,7 +276,7 @@ library(timescape)
 schism2Timescape <- function(dir.cluster.cellularity, dir.GA.consensusTree, 
                              dir.sample_info=NULL){
     ## get cellularity infomation
-    cluster.cellularity=read.table(dir.cluster.cellularity, 
+    cluster.cellularity <- read.table(dir.cluster.cellularity, 
                                      sep="\t", 
                                      stringsAsFactors=F, 
                                      header=T)

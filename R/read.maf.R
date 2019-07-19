@@ -40,7 +40,7 @@ readMaf <- function(patientID,
     ## read maf file
     maf_input <- read.table(maf.dir, quot="", header=TRUE, fill=TRUE, sep='\t')
     ## read info file
-    sample_info_input <-  read.table(sample_info.dir, quot="", header=TRUE, 
+    sample_info_input <- read.table(sample_info.dir, quot="", header=TRUE, 
                                      fill=TRUE, sep='', stringsAsFactors=F)
     ## read ccf file
     if (!is.null(ccf.dir)) {
@@ -55,9 +55,9 @@ readMaf <- function(patientID,
         ccf.loci.tsv_input <- NULL
     }
     ## Generate patient,lesion and time information
-    maf_input$patient=""
-    maf_input$lesion=""
-    maf_input$time=""
+    maf_input$patient <- ""
+    maf_input$lesion <- ""
+    maf_input$time <- ""
     
     ## combine sample_info_input with maf_input
     tsb_SampleInfo <- unique(sample_info_input$sample)
@@ -81,20 +81,20 @@ readMaf <- function(patientID,
     ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
     
     ## generate maf.silent and filter maf.data
-    vc.nonSilent= c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+    vc.nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
                     "Translation_Start_Site", "Nonsense_Mutation", 
                     "Nonstop_Mutation", "In_Frame_Del",
                       "In_Frame_Ins", "Missense_Mutation")
     
-    maf.silent=maf.data[!Variant_Classification %in% vc.nonSilent]
+    maf.silent <- maf.data[!Variant_Classification %in% vc.nonSilent]
     if(nrow(maf.silent) > 0){
-        maf.silent.vc=maf.silent[,.N, .(Tumor_Sample_Barcode, Variant_Classification)]
-        maf.silent.vc.cast=data.table::dcast(
+        maf.silent.vc <- maf.silent[,.N, .(Tumor_Sample_Barcode, Variant_Classification)]
+        maf.silent.vc.cast <- data.table::dcast(
             data=maf.silent.vc, 
             formula=Tumor_Sample_Barcode ~ Variant_Classification, 
             fill=0, 
             value.var='N')
-        summary.silent=data.table::data.table(ID=c('Samples', 
+        summary.silent <- data.table::data.table(ID=c('Samples', 
                                                    colnames(
                                                        maf.silent.vc.cast)[2:ncol(
                                                            maf.silent.vc.cast)]),

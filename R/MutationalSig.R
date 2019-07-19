@@ -57,7 +57,7 @@ mutationalSigsTree <- function(maf.dat, branch,
     dat.ref <- maf_input$Reference_Allele
     dat.alt <- maf_input$Tumor_Seq_Allele2
     dat.num <- 1:length(dat.alt)
-    dat.mutgene <-  maf_input$Hugo_Symbol
+    dat.mutgene <- maf_input$Hugo_Symbol
     mut.id <- select(tidyr::unite(maf_input, "mut.id", 
                                   Hugo_Symbol, Chromosome, 
                                   Start_Position, End_Position, 
