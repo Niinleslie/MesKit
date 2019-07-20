@@ -7,9 +7,9 @@
 #' @param patientID patient/sample name
 #' @param dat.dir specify a data directory as the input of the function
 #' @param use.ccf=Default FALSE. TRUE if ccf data is provided
-#' @param plot.mafSummary Default TRUE. FALSE if the summary figure is 
+#' @param plotMafSummary Default TRUE. FALSE if the summary figure is 
 #' unnecessary
-#' @param ref.build Default hg19. specify a referential genome including
+#' @param refBuild Default hg19. specify a referential genome including
 #'  BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
 #' @return a mafClass object/class includes information of sample_info and 
 #' mut.id and summary figure of it
@@ -32,99 +32,99 @@ mafClass <- setClass(Class="mafClass", contains="MAF",
 
 ## read.maf main function
 readMaf <- function(patientID, 
-                    maf.dir, 
-                    sample_info.dir, 
-                    ccf.dir=NULL, 
-                    plot.mafSummary=TRUE, 
-                    ref.build="hg19"){
+                    mafDir, 
+                    sampleInfoDir, 
+                    ccfDir=NULL, 
+                    plotMafSummary=TRUE, 
+                    refBuild="hg19"){
     ## read maf file
-    maf_input <- read.table(maf.dir, quot="", header=TRUE, fill=TRUE, sep='\t')
+    mafInput <- read.table(mafDir, quot="", header=TRUE, fill=TRUE, sep='\t')
     ## read info file
-    sample_info_input <- read.table(sample_info.dir, quot="", header=TRUE, 
+    sampleInfoInput <- read.table(sampleInfoDir, quot="", header=TRUE, 
                                      fill=TRUE, sep='', stringsAsFactors=F)
     ## read ccf file
-    if (!is.null(ccf.dir)) {
-        ccf.cluster.tsv_input <- read.table(ccf.dir, quote="", header=TRUE, 
+    if (!is.null(ccfDir)) {
+        ccfClusterTsvInput <- read.table(ccfDir, quote="", header=TRUE, 
                                             fill=TRUE, sep='\t', 
                                             stringsAsFactors=F)
-        ccf.loci.tsv_input <- read.table(ccf.dir, quote="", header=TRUE, 
+        ccfLociTsvInput <- read.table(ccfDir, quote="", header=TRUE, 
                                          fill=TRUE, sep='\t', 
                                          stringsAsFactors=F)
     } else {
-        ccf.cluster.tsv_input <- NULL
-        ccf.loci.tsv_input <- NULL
+        ccfClusterTsvInput <- NULL
+        ccfLociTsvInput <- NULL
     }
     ## Generate patient,lesion and time information
-    maf_input$patient <- ""
-    maf_input$lesion <- ""
-    maf_input$time <- ""
+    mafInput$patient <- ""
+    mafInput$lesion <- ""
+    mafInput$time <- ""
     
-    ## combine sample_info_input with maf_input
-    tsb_SampleInfo <- unique(sample_info_input$sample)
-    tsb_ls <- tsb_SampleInfo[which(tsb_SampleInfo %in% maf_input$Tumor_Sample_Barcode)]
-    for (tsb in tsb_ls) {
+    ## combine sampleInfoInput with mafInput
+    tsbSampleInfo <- unique(sampleInfoInput$sample)
+    tsbLs <- tsbSampleInfo[which(tsbSampleInfo %in% mafInput$Tumor_Sample_Barcode)]
+    for (tsb in tsbLs) {
         patient <- as.character(
-            sample_info_input[which(sample_info_input$sample == tsb),]$patient)
+            sampleInfoInput[which(sampleInfoInput$sample == tsb),]$patient)
         lesion <- as.character(
-            sample_info_input[which(sample_info_input$sample == tsb),]$lesion)
+            sampleInfoInput[which(sampleInfoInput$sample == tsb),]$lesion)
         time <- as.character(
-            sample_info_input[which(sample_info_input$sample == tsb),]$time)
-        maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$patient <- patient
-        maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$lesion <- lesion
-        maf_input[which(maf_input$Tumor_Sample_Barcode == tsb),]$time <- time
+            sampleInfoInput[which(sampleInfoInput$sample == tsb),]$time)
+        mafInput[which(mafInput$Tumor_Sample_Barcode == tsb),]$patient <- patient
+        mafInput[which(mafInput$Tumor_Sample_Barcode == tsb),]$lesion <- lesion
+        mafInput[which(mafInput$Tumor_Sample_Barcode == tsb),]$time <- time
     }
     ## fix: Error in setattr(x, "row.names", rn)
-    maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
+    mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
     ## transform data.frame to data.table
-    maf.data <- data.table::setDT(maf_input)
-    ccf.cluster.tsv <- data.table::setDT(ccf.cluster.tsv_input)
-    ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
+    mafData <- data.table::setDT(mafInput)
+    ccfClusterTsv <- data.table::setDT(ccfClusterTsvInput)
+    ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
-    ## generate maf.silent and filter maf.data
-    vc.nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+    ## generate mafSilent and filter mafData
+    vcNonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
                     "Translation_Start_Site", "Nonsense_Mutation", 
                     "Nonstop_Mutation", "In_Frame_Del",
                       "In_Frame_Ins", "Missense_Mutation")
     
-    maf.silent <- maf.data[!Variant_Classification %in% vc.nonSilent]
-    if(nrow(maf.silent) > 0){
-        maf.silent.vc <- maf.silent[,.N, .(Tumor_Sample_Barcode, Variant_Classification)]
-        maf.silent.vc.cast <- data.table::dcast(
-            data=maf.silent.vc, 
+    mafSilent <- mafData[!Variant_Classification %in% vcNonSilent]
+    if(nrow(mafSilent) > 0){
+        mafSilentVc <- mafSilent[,.N, .(Tumor_Sample_Barcode, Variant_Classification)]
+        mafSilentVcCast <- data.table::dcast(
+            data=mafSilentVc, 
             formula=Tumor_Sample_Barcode ~ Variant_Classification, 
             fill=0, 
             value.var='N')
-        summary.silent <- data.table::data.table(ID=c('Samples', 
+        summarySilent <- data.table::data.table(ID=c('Samples', 
                                                    colnames(
-                                                       maf.silent.vc.cast)[2:ncol(
-                                                           maf.silent.vc.cast)]),
+                                                       mafSilentVcCast)[2:ncol(
+                                                           mafSilentVcCast)]),
                                                 N=c(
                                                     nrow(
-                                                        maf.silent.vc.cast), colSums(
-                                                            maf.silent.vc.cast[,2:ncol(
-                                                                maf.silent.vc.cast), with=FALSE])))
+                                                        mafSilentVcCast), colSums(
+                                                            mafSilentVcCast[,2:ncol(
+                                                                mafSilentVcCast), with=FALSE])))
         
-        ## maf.data=maf.data[Variant_Classification %in% vc.nonSilent] #Choose only non-silent variants from main table
+        ## mafData=mafData[Variant_Classification %in% vcNonSilent] #Choose only non-silent variants from main table
     }
     
     ## summarize sample_info and mut.id with summarizeMaf
-    maf.summary <- suppressMessages(maftools:::summarizeMaf(
-        maf=maf.data, chatty=TRUE))
-    maf <- mafClass(data=maf.data, 
-               variants.per.sample=maf.summary$variants.per.sample, 
-               variant.type.summary=maf.summary$variant.type.summary,
-               variant.classification.summary=maf.summary$variant.classification.summary, 
-               gene.summary=maf.summary$gene.summary,
-               summary=maf.summary$summary, 
-               maf.silent=maf.silent, 
-               clinical.data=maf.summary$sample.anno, 
-               ccf.cluster=ccf.cluster.tsv, 
-               cf.loci=ccf.loci.tsv, 
+    mafSummary <- suppressMessages(maftools:::summarizeMaf(
+        maf=mafData, chatty=TRUE))
+    maf <- mafClass(data=mafData, 
+               variants.per.sample=mafSummary$variants.per.sample, 
+               variant.type.summary=mafSummary$variant.type.summary,
+               variant.classification.summary=mafSummary$variant.classification.summary, 
+               gene.summary=mafSummary$gene.summary,
+               summary=mafSummary$summary, 
+               maf.silent=mafSilent, 
+               clinical.data=mafSummary$sample.anno, 
+               ccf.cluster=ccfClusterTsv, 
+               ccf.loci=ccfLociTsv, 
                patientID=patientID, 
-               ref.build=ref.build)
+               ref.build=refBuild)
     
     ## print the summary plot
-    if (plot.mafSummary) {
+    if (plotMafSummary) {
         pic <- plotmafSummary(maf=maf, rmOutlier=TRUE, 
                               addStat='median', dashboard=T, titvRaw=FALSE)
         ggsave(plotmafSummary(maf=maf, rmOutlier=TRUE, 

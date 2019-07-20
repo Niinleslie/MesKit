@@ -1,6 +1,7 @@
 #' A Multifunctional MATH Calculator
-#' @description read maf file as data.frame, calculate MATH score and present results in different ways determined by parameters.
-#' This function requires VAF for MATH score calculation and Tumor_sample_Barcode for selection.
+#' @description read maf file as data.frame, calculate MATH score and present 
+#' results in different ways determined by parameters. This function requires 
+#' VAF for MATH score calculation and Tumor_sample_Barcode for selection.
 #' VAF can be on the scale 0-1 and you could filter VAF with minvaf and maxvaf.
 #' 
 #' @param maf_file specify a maf document/directory as the input of the function
