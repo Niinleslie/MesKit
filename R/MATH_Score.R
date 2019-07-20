@@ -18,27 +18,26 @@
 #'}
 
 
-######## MATH Score ##########
+## MATH Score main function
 MATH_score <- function(maf_input, tsb = c("OFA"), minvaf = 0, maxvaf = 1){
-    # get vaf-related infomation
+    ## get vaf-related infomation
     dat.hugo_symbol <- maf_input$Hugo_Symbol
     dat.vaf <- maf_input$VAF
     dat.tsb <- data.frame(maf_input$Tumor_Sample_Barcode)
     vaf_input_mt <- data.frame(dat.hugo_symbol, dat.vaf, dat.tsb)
     colnames(vaf_input_mt) <- c("Hugo_Symbol", "VAF", "Tumor_Sample_Barcode")
-    # get all sample names
+    ## get all sample names
     tsb_ls <- data.frame(unique(vaf_input_mt$Tumor_Sample_Barcode))
     
-    # MATH main function
-    # MATH results for one/all sample
+    ## MATH results for one/all sample
     if (any(tsb == c("OFA"))){
-        # list all samples' MATH scores
+        ## list all samples' MATH scores
         math_ofa <- math_msp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
         math_all <- math_patient(vaf_input_mt, minvaf, maxvaf)
         math_all <- data.frame(Tumor_Sample_Barcode = c("ITH MATH score"), MATH_score = c(math_all))
         return(rbind(math_ofa, math_all))
     } else{
-        # calculate specific samples' MATH score
+        ## calculate specific samples' MATH score
         tsb_ls <- data.frame(tsb)
         math_sp <- math_msp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
         math_all <- math_patient(vaf_input_mt, minvaf, maxvaf)
@@ -48,7 +47,7 @@ MATH_score <- function(maf_input, tsb = c("OFA"), minvaf = 0, maxvaf = 1){
 }
 
 
-# Data cleaning
+## Data cleaning
 data_clean <- function(vaf_input_mt, tsb, minvaf, maxvaf){
     VAF_column = vaf_input_mt[which(vaf_input_mt$Tumor_Sample_Barcode == tsb),]$VAF
     VAF_column = VAF_column[which(!is.na(VAF_column))][which(VAF_column > minvaf & VAF_column < maxvaf)]
@@ -56,14 +55,14 @@ data_clean <- function(vaf_input_mt, tsb, minvaf, maxvaf){
     VAF_column
 }
 
-# MATH Caculation
+## MATH Caculation
 math_cal <- function(VAF_column){
     MAD_fac = 1.4826*median(abs(VAF_column - median(VAF_column)))
     MATH = 100 * MAD_fac / median(VAF_column)
     MATH
 }
 
-# MATH multi-sample process
+## MATH multi-sample process
 math_msp <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
     samples_math <- data.frame()
     for (counter_mt in 1:length(tsb_ls[,1])){
@@ -77,26 +76,10 @@ math_msp <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
     samples_math
 }
 
-# MATH patient calcualtion
+## MATH patient calcualtion
 math_patient <- function(vaf_input_mt, minvaf, maxvaf){
     VAF_column = vaf_input_mt$VAF
     VAF_column = VAF_column[which(!is.na(VAF_column))][which(VAF_column > minvaf & VAF_column < maxvaf)]
     VAF_column = as.numeric(as.character(VAF_column))[which(!is.na(VAF_column))]
     math_cal(VAF_column)
 }
-
-######### Compare with maftools ###############
-# testing
-# library(maftools)
-# laml = read.maf(maf = maf_file)
-# tcga.ab.2972.het = inferHeterogeneity(maf = laml, tsb = '311252-V', vafCol = 'VAF', useSyn = TRUE)
-# VAF_column2 <- tcga.ab.2972.het$"clusterData"$t_vaf
-# plotClusters(clusters = tcga.ab.2972.het)
-
-
-
-
-
-
-
-
