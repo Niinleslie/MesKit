@@ -65,7 +65,7 @@ math_cal <- function(VAF_column){
 ## MATH multi-sample process
 math_msp <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
     samples_math <- data.frame()
-    for (counter_mt in 1:length(tsb_ls[,1])){
+    for (counter_mt in seq_along(tsb_ls[,1])){
         for (sample_name_mt in tsb_ls){
             VAF_column <- data_clean(vaf_input_mt, as.character(sample_name_mt)[counter_mt], minvaf, maxvaf)
             sample_math <- data.frame(as.character(sample_name_mt)[counter_mt], math_cal(VAF_column))

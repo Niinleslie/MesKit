@@ -34,7 +34,7 @@ setwd("/home/ninomoriaty/R_Project/MesKit/R")
 source("MATH_Score.R")
 
 ## VAF plot Major function
-VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas", file_format="png", show.MATH=T)
+VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas", file_format="png", show.MATH=TRUE)
 {
     ## original data preparation
     ## read .maf file
@@ -53,7 +53,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas", file_format="
     
     ## print all samples respectively
     if (sample_option == "All"){
-        for (counter_mt in 1:length(tsb_ls[,1])){
+        for (counter_mt in seq_along(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
             ## calculate MATH_score
             
@@ -76,7 +76,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas", file_format="
     else if (sample_option == "MIX"){
         ls.pic_name <- c()
         ## draw each pictures and name them rescpectively
-        for (counter_mt in 1:length(tsb_ls[,1])){
+        for (counter_mt in seq_along(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
             ## calculate MATH_score
             if (show.MATH){
@@ -103,7 +103,7 @@ VAF_plot <-function(maf, sample_option="OFA", theme_option="aaas", file_format="
     ## one pic for all sample
     else if (sample_option == "OFA"){
         ## collect all samples' cluster results
-        for (counter_mt in 1:length(tsb_ls[,1])){
+        for (counter_mt in seq_along(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
             ## calculate MATH_score
             if (show.MATH){

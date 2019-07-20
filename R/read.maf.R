@@ -30,11 +30,11 @@ read.Maf<- function(patientID, maf.dir, sample_info.dir, ccf.dir=NULL, plot.mafS
     ## read maf file
     maf_input <- read.table(maf.dir, quot="", header=TRUE, fill=TRUE, sep='\t')
     ## read info file
-    sample_info_input <-  read.table(sample_info.dir, quot="", header=TRUE, fill=TRUE, sep='', stringsAsFactors=F)
+    sample_info_input <-  read.table(sample_info.dir, quot="", header=TRUE, fill=TRUE, sep='', stringsAsFactors=FALSE)
     ## read ccf file
     if (!is.null(ccf.dir)) {
-        ccf.cluster.tsv_input <- read.table(ccf.dir, quote="", header=TRUE, fill=TRUE, sep='\t', stringsAsFactors=F)
-        ccf.loci.tsv_input <- read.table(ccf.dir, quote="", header=TRUE, fill=TRUE, sep='\t', stringsAsFactors=F)
+        ccf.cluster.tsv_input <- read.table(ccf.dir, quote="", header=TRUE, fill=TRUE, sep='\t', stringsAsFactors=FALSE)
+        ccf.loci.tsv_input <- read.table(ccf.dir, quote="", header=TRUE, fill=TRUE, sep='\t', stringsAsFactors=FALSE)
     } else {
         ccf.cluster.tsv_input <- NULL
         ccf.loci.tsv_input <- NULL
@@ -85,7 +85,7 @@ read.Maf<- function(patientID, maf.dir, sample_info.dir, ccf.dir=NULL, plot.mafS
     
     ## print the summary plot
     if (plot.mafSummary) {
-        pic <- plotmafSummary(maf=maf, rmOutlier=TRUE, addStat='median', dashboard=T, titvRaw=FALSE)
+        pic <- plotmafSummary(maf=maf, rmOutlier=TRUE, addStat='median', dashboard=TRUE, titvRaw=FALSE)
         # ggsave(plotmafSummary(maf=maf, rmOutlier=TRUE, addStat='median', dashboard=T, titvRaw=FALSE), filename=paste(patientID, ".VariantSummary.png", sep=""), width=12, height=9, dpi=800, path="./output")
     }
     
