@@ -49,16 +49,16 @@ MATH_score <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
 
 ## Data cleaning
 data_clean <- function(vaf_input_mt, tsb, minvaf, maxvaf){
-    VAF_column=vaf_input_mt[which(vaf_input_mt$Tumor_Sample_Barcode == tsb),]$VAF
-    VAF_column=VAF_column[which(!is.na(VAF_column))][which(VAF_column > minvaf & VAF_column < maxvaf)]
-    VAF_column=as.numeric(as.character(VAF_column))[which(!is.na(VAF_column))]
+    VAF_column <- vaf_input_mt[which(vaf_input_mt$Tumor_Sample_Barcode == tsb),]$VAF
+    VAF_column <- VAF_column[which(!is.na(VAF_column))][which(VAF_column > minvaf & VAF_column < maxvaf)]
+    VAF_column <- as.numeric(as.character(VAF_column))[which(!is.na(VAF_column))]
     VAF_column
 }
 
 ## MATH Caculation
 math_cal <- function(VAF_column){
-    MAD_fac=1.4826*median(abs(VAF_column - median(VAF_column)))
-    MATH=100 * MAD_fac / median(VAF_column)
+    MAD_fac <- 1.4826*median(abs(VAF_column - median(VAF_column)))
+    MATH <- 100 * MAD_fac / median(VAF_column)
     MATH
 }
 
@@ -78,8 +78,8 @@ math_msp <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
 
 ## MATH patient calcualtion
 math_patient <- function(vaf_input_mt, minvaf, maxvaf){
-    VAF_column=vaf_input_mt$VAF
-    VAF_column=VAF_column[which(!is.na(VAF_column))][which(VAF_column > minvaf & VAF_column < maxvaf)]
-    VAF_column=as.numeric(as.character(VAF_column))[which(!is.na(VAF_column))]
+    VAF_column <- vaf_input_mt$VAF
+    VAF_column <- VAF_column[which(!is.na(VAF_column))][which(VAF_column > minvaf & VAF_column < maxvaf)]
+    VAF_column <- as.numeric(as.character(VAF_column))[which(!is.na(VAF_column))]
     math_cal(VAF_column)
 }
