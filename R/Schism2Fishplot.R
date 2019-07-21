@@ -1,6 +1,8 @@
 #' Prepare inputs for SCHISM
-#' @description read tsv documents from PyClone and figure out the list of filtered clusters. According to those 
-#' targeted clusters, filter targeted mutations and reorganize data as two outputs: clusterEstimates.tsv and 
+#' @description read tsv documents from PyClone and figure 
+#' out the list of filtered clusters. According to those 
+#' targeted clusters, filter targeted mutations and reorganize 
+#' data as two outputs: clusterEstimates.tsv and 
 #' mutation_to_cluster.tsv, which are the input of SCHISM.
 #' 
 #' @param dir.cluster.tsv specify the directory of cluster.tsv document
@@ -13,7 +15,7 @@
 #' prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
 #'}
 
-# directorys
+## directorys
 setwd("/home/ninomoriaty/R_Project/")
 
 
@@ -25,6 +27,8 @@ dir.GA.consensusTree="./data/tempschism/E1.GA.consensusTree"
 dir.cluster.cellularity="./data/tempschism/E1.cluster.cellularity"
 dir.sample_info="./data/sample_info.txt"
 
+
+## SCHISM method
 
 ## prepare Schism input
 prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
@@ -53,8 +57,8 @@ prepareSchismInput <- function(dir.cluster.tsv, dir.loci.tsv, dir.output){
 }
 
 #' Get outputs from SCHISM and draw the fishplot
-#' @description read cluster.cellularity and GA.consensusTree documents from SCHISM. Construct fraction table and
-#' parents vector for drawing fishplot.
+#' @description read cluster.cellularity and GA.consensusTree documents 
+#' from SCHISM. Construct fraction table and parents vector for drawing fishplot.
 #' 
 #' @param dir.cluster.cellularity specify the directory of cluster.cellularity document
 #' @param dir.GA.consensusTree specify the directory of GA.consensusTree document
