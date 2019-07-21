@@ -1,25 +1,31 @@
 #' Check Mutational Signature for each branch of phylogenetic tree
-#' @description Read maf file as data.frame. Define branches' set relationship by re-labeling their tumor sample 
-#' barcode from the smallest set. Calcualte each branch's mutational signature weight according to cosmic reference
-#' and pick the maxium. Return a data frame of each set/branch's mutational signature.
+#' @description Read maf file as data.frame. Define branches' set relationship
+#'  by re-labeling their tumor sample barcode from the smallest set. Calcualte 
+#'  each branch's mutational signature weight according to cosmic reference and
+#'  pick the maxium. Return a data frame of each set/branch's mutational 
+#'  signature.
 #' 
-#' @import reshape2 BSgenome BSgenome.Hsapiens.UCSC.hg19 GenomeInfoDb grDevices graphics utils deconstructSigs
+#' @import reshape2 BSgenome BSgenome.Hsapiens.UCSC.hg19 GenomeInfoDb grDevices
+#' graphics utils deconstructSigs
 #' @import plyr
 #' 
-#' @param maf_file specify a maf document/directory as the input of the function
-#' @param branch_file specify a txt document/directory as the input of the branches (needed to be refined)
+#' @param maf_file specify a maf document/directory as the input of the 
+#' function
+#' @param branch_file specify a txt document/directory as the input of 
+#' the branches (needed to be refined)
 #' @return data frame of each set/branch's mutational signature.
 #'
 #' @examples
 #' \dontrun{
 #' Mutational_sigs_tree(maf_file, branch_file)
 #' Mutational_sigs_tree(maf_file, branch_file, driver_genes_dir)
-#' Mutational_sigs_tree(maf_file, branch_file, driver_genes_dir, mut.threshold=30)
+#' Mutational_sigs_tree(maf_file, branch_file, 
+#' driver_genes_dir, mut.threshold=30)
 #'}
 
 
-# import pkgs
-# dependencies of deconstructSigs
+## import pkgs
+## dependencies of deconstructSigs
 library(reshape2)
 library(BSgenome)
 library(BSgenome.Hsapiens.UCSC.hg19)
@@ -30,16 +36,20 @@ library(graphics)
 library(utils)
 library(deconstructSigs)
 library(tidyr)
-# data frame needed
+## data frame needed
 library(plyr)
 
-# main function
-# Usage: Mutational_Sigs_branch(maf_file, samples_vector)
-Mutational_sigs_tree <- function(maf.dat, branch, patientID, ref.build, driver_genes_dir=FALSE, mut.threshold=50){
+## main function
+## Usage: Mutational_Sigs_branch(maf_file, samples_vector)
+Mutational_sigs_tree <- function(maf.dat, branch, 
+                                 patientID, ref.build, 
+                                 driver_genes_dir=FALSE, mut.threshold=50){
     maf_input <- maf.dat
     # get mutationalSigs-related  infomation
-    dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), stringsAsFactors=FALSE)
-    dat.chr <- data.frame(as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
+    dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
+                             stringsAsFactors=FALSE)
+    dat.chr <- data.frame(as.character(maf_input$Chromosome), 
+                          stringsAsFactors=FALSE)
     dat.chr[,1] <- paste("chr", dat.chr[,1], sep="")
     dat.pos.start <- maf_input$Start_Position
     dat.pos.end <- maf_input$End_Position
@@ -47,9 +57,21 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, ref.build, driver_g
     dat.alt <- maf_input$Tumor_Seq_Allele2
     dat.num <- seq_along(dat.alt)
     dat.mutgene <-  maf_input$Hugo_Symbol
-    mut.id <- select(tidyr::unite(maf_input, "mut.id", Hugo_Symbol, Chromosome, Start_Position, End_Position Reference_Allele, Tumor_Seq_Allele2, sep=":"), mut.id)
-    mut.sig.ref <- data.frame(dat.num, dat.sample, dat.chr, dat.pos.start, dat.pos.end, dat.ref, dat.alt, dat.mutgene, mut.id)
-    colnames(mut.sig.ref) <- c("ID", "Sample", "chr", "pos", "pos_end", "ref", "alt", "Hugo_Symbol", "mut_id")
+    mut.id <- select(tidyr::unite(maf_input, "mut.id", 
+                                  Hugo_Symbol, Chromosome, 
+                                  Start_Position, End_Position, 
+                                  Reference_Allele, Tumor_Seq_Allele2, 
+                                  sep=":"), mut.id)
+    mut.sig.ref <- data.frame(dat.num, dat.sample, 
+                              dat.chr, dat.pos.start, 
+                              dat.pos.end, dat.ref, 
+                              dat.alt, dat.mutgene, 
+                              mut.id)
+    colnames(mut.sig.ref) <- c("ID", "Sample", 
+                               "chr", "pos", 
+                               "pos_end", "ref", 
+                               "alt", "Hugo_Symbol", 
+                               "mut_id")
     
     # get branch infomation
     branches <- strsplit(branch, split='∩')
@@ -63,13 +85,16 @@ Mutational_sigs_tree <- function(maf.dat, branch, patientID, ref.build, driver_g
     # generate mutational signautres for different branches
     for (branch_counter in length(branches):1){
         # generate a single branch
-        branch <- Filter(Negate(is.na), branches[[branch_counter]])
+        branch <- Filter(Negate(is.na), 
+                         branches[[branch_counter]])
         mut.branch <- mut.sig.ref[which(mut.sig.ref$Sample %in% branch), ]
         
         for (tsb in branch){
-            # generate the intersection(set) of the branch(different from duplication)
+            # generate the intersection of the branch
             mut.tsb <- mut.sig.ref[which(mut.sig.ref$Sample %in% tsb), ]
-            mut.branch <- match_df(mut.branch, mut.tsb, on=c("chr", "pos", "pos_end", "ref", "alt"))
+            mut.branch <- match_df(mut.branch, mut.tsb, on=c("chr", "pos", 
+                                                             "pos_end", "ref", 
+                                                             "alt"))
         }
         
         # generate the branch name

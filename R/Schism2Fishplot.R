@@ -23,7 +23,7 @@ dir.output="./data/tempschism"
 
 dir.GA.consensusTree="./data/tempschism/E1.GA.consensusTree"
 dir.cluster.cellularity="./data/tempschism/E1.cluster.cellularity"
-dir.sample_info="./data2/sample_info.txt"
+dir.sample_info="./data/sample_info.txt"
 
 
 ## prepare Schism input
