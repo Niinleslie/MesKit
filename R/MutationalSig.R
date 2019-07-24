@@ -48,9 +48,9 @@ Mutational_sigs_tree <- function(maf.dat, branch,
     ## get mutationalSigs-related  infomation
     dat.sample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
                              stringsAsFactors=FALSE)
-    dat.chr <- data.frame(as.character(maf_input$Chromosome), 
+    dat.chr <- data.frame(chr=as.character(maf_input$Chromosome), 
                           stringsAsFactors=FALSE)
-    dat.chr[,1] <- paste("chr", dat.chr[,1], sep="")
+    dat.chr$chr <- paste("chr", dat.chr$chr, sep="")
     dat.pos.start <- maf_input$Start_Position
     dat.pos.end <- maf_input$End_Position
     dat.ref <- maf_input$Reference_Allele

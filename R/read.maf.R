@@ -11,7 +11,7 @@
 #' unnecessary
 #' @param ref.build Default hg19. specify a referential genome including 
 #' BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
-#' @return a Maf object/class includes information of sample_info and 
+#' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
 #'
 #' @examples
@@ -22,8 +22,8 @@
 library(maftools)
 library(ggplot2)
 
-## Maf class
-Maf <- setClass(Class="Maf", contains="MAF", 
+## classMaf class
+classMaf <- setClass(Class="classMaf", contains="MAF", 
                 slots= c(ccf.cluster='data.table', ccf.loci='data.table', 
                          patientID='character', ref.build='character'))
 
@@ -111,7 +111,7 @@ read.Maf<- function(patientID, maf.dir,
     ## summarize sample_info and mut.id with summarizeMaf
     maf.summary <- suppressMessages(maftools:::summarizeMaf(maf=maf.data, 
                                                             chatty=TRUE))
-    maf <- Maf(data=maf.data, 
+    maf <- classMaf(data=maf.data, 
                variants.per.sample=maf.summary$variants.per.sample, 
                variant.type.summary=maf.summary$variant.type.summary,
                variant.classification.summary=maf.summary$
