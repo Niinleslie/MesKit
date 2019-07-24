@@ -16,14 +16,14 @@
 #' @examples
 #' \dontrun{
 #' maf_file="/home/ninomoriaty/R_Project/311252_snv_indel.imputed.maf"
-#' MATH_score(maf_file)
-#' MATH_score(maf_file, tsb=c("tsb1"))
-#' MATH_score(maf_file, tsb=c("tsb1", "tsb2", "tsb3"))
+#' (maf_file)
+#' (maf_file, tsb=c("tsb1"))
+#' (maf_file, tsb=c("tsb1", "tsb2", "tsb3"))
 #'}
 
 
 ## MATH Score main function
-MATH_score <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
+ScoreMATH <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
     ## get vaf-related infomation
     dat.hugo_symbol <- maf_input$Hugo_Symbol
     dat.vaf <- maf_input$VAF
@@ -36,16 +36,16 @@ MATH_score <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
     ## MATH results for one/all sample
     if (any(tsb == c("OFA"))){
         ## list all samples' MATH scores
-        math_ofa <- math_msp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
-        math_all <- math_patient(vaf_input_mt, minvaf, maxvaf)
+        math_ofa <- .multiSampleMATH(vaf_input_mt, tsb_ls, minvaf, maxvaf)
+        math_all <- .patientMATH(vaf_input_mt, minvaf, maxvaf)
         math_all <- data.frame(Tumor_Sample_Barcode=c("ITH MATH score"), 
                                MATH_score=c(math_all))
         return(rbind(math_ofa, math_all))
     } else{
         ## calculate specific samples' MATH score
         tsb_ls <- data.frame(tsb)
-        math_sp <- math_msp(vaf_input_mt, tsb_ls, minvaf, maxvaf)
-        math_all <- math_patient(vaf_input_mt, minvaf, maxvaf)
+        math_sp <- .multiSampleMATH(vaf_input_mt, tsb_ls, minvaf, maxvaf)
+        math_all <- .patientMATH(vaf_input_mt, minvaf, maxvaf)
         math_all <- data.frame(Tumor_Sample_Barcode=c("ITH MATH score"), 
                                MATH_score=c(math_all))
         return(rbind(math_sp, math_all))
@@ -54,7 +54,7 @@ MATH_score <- function(maf_input, tsb=c("OFA"), minvaf=0, maxvaf=1){
 
 
 ## Data cleaning
-data_clean <- function(vaf_input_mt, tsb, minvaf, maxvaf){
+.dataClean <- function(vaf_input_mt, tsb, minvaf, maxvaf){
     VAF_column <- vaf_input_mt[which(
         vaf_input_mt$Tumor_Sample_Barcode == tsb), ]$VAF
     VAF_column <- VAF_column[which(
@@ -66,24 +66,24 @@ data_clean <- function(vaf_input_mt, tsb, minvaf, maxvaf){
 }
 
 ## MATH Caculation
-math_cal <- function(VAF_column){
+.calMATH <- function(VAF_column){
     MAD_fac <- 1.4826*median(abs(VAF_column - median(VAF_column)))
     MATH <- 100 * MAD_fac / median(VAF_column)
     MATH
 }
 
 ## MATH multi-sample process
-math_msp <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
+.multiSampleMATH <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
     samples_math <- data.frame()
     for (counter_mt in seq_along(tsb_ls[,1])){
         for (sample_name_mt in tsb_ls){
-            VAF_column <- data_clean(
+            VAF_column <- .dataClean(
                 vaf_input_mt, 
                 as.character(sample_name_mt)[counter_mt], 
                 minvaf, maxvaf)
             sample_math <- data.frame(
                 as.character(sample_name_mt)[counter_mt], 
-                math_cal(VAF_column))
+                .calMATH(VAF_column))
             samples_math <- rbind(samples_math, sample_math)
         }
     }
@@ -92,7 +92,7 @@ math_msp <- function(vaf_input_mt, tsb_ls, minvaf, maxvaf){
 }
 
 ## MATH patient calcualtion
-math_patient <- function(vaf_input_mt, minvaf, maxvaf){
+.patientMATH <- function(vaf_input_mt, minvaf, maxvaf){
     VAF_column <- vaf_input_mt$VAF
     VAF_column <- VAF_column[which(
         !is.na(VAF_column))][which(
@@ -100,5 +100,5 @@ math_patient <- function(vaf_input_mt, minvaf, maxvaf){
     VAF_column <- as.numeric(
         as.character(VAF_column))[which(
             !is.na(VAF_column))]
-    math_cal(VAF_column)
+    .calMATH(VAF_column)
 }
