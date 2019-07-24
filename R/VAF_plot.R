@@ -66,14 +66,7 @@ plotVAF <-function(maf, sample_option="OFA",
         for (counter_mt in seq_along(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
             ## calculate ScoreMATH
-            if (show.MATH){
-                MATH.score <- ScoreMATH(maf_input, c(sample.name))
-                MATH.score <- MATH.score[which(
-                    MATH.score$Tumor_Sample_Barcode == sample.name), 
-                    ]$MATH_score
-            } else {
-                MATH.score <- NA
-            }
+            MATH.score <- .mathCal(maf_input, show.MATH, sample_option, sample.name)
             sample_mt <- vaf_input_mt[which(
                 vaf_input_mt$Samples %in% sample.name),]
             cluster_mt <- inferHeterogeneity(maf=laml, 
@@ -97,14 +90,7 @@ plotVAF <-function(maf, sample_option="OFA",
         for (counter_mt in seq_along(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
             ## calculate ScoreMATH
-            if (show.MATH){
-                MATH.score <- ScoreMATH(maf_input, c(sample.name))
-                MATH.score <- MATH.score[which(
-                    MATH.score$Tumor_Sample_Barcode == sample.name), 
-                    ]$MATH_score
-            } else {
-                MATH.score <- NA
-            }
+            MATH.score <- .mathCal(maf_input, show.MATH, sample_option, sample.name)
             sample_mt <- vaf_input_mt[which(
                 vaf_input_mt$Samples %in% sample.name),]
             cluster_mt <- inferHeterogeneity(maf=laml, 
@@ -140,14 +126,7 @@ plotVAF <-function(maf, sample_option="OFA",
         for (counter_mt in seq_along(tsb_ls[,1])){
             sample.name <- as.character(tsb_ls[,1][counter_mt])
             ## calculate ScoreMATH
-            if (show.MATH){
-                MATH.score <- ScoreMATH(maf_input, c(sample.name))
-                MATH.score <- MATH.score[which(
-                    MATH.score$Tumor_Sample_Barcode == "ITH MATH score"), 
-                    ]$MATH_score
-            } else {
-                MATH.score <- NA
-            }
+            MATH.score <- .mathCal(maf_input, show.MATH, sample_option, sample.name)
             sample_mt <- vaf_input_mt[which(
                 vaf_input_mt$Samples %in% sample.name),]
             cluster_mt_cha <- paste("cluster_mt_", counter_mt, 
@@ -175,14 +154,9 @@ plotVAF <-function(maf, sample_option="OFA",
     else 
     {
         ## calculate ScoreMATH
-        if (show.MATH){
-            MATH.score <- ScoreMATH(maf_input, c(sample_option))
-            MATH.score <- MATH.score[which(
-                MATH.score$Tumor_Sample_Barcode == sample_option), 
-                ]$MATH_score
-        } else {
-            MATH.score <- NA
-        }
+        MATH.score <- .mathCal(maf_input, show.MATH, sample_option)
+        
+        # data preparation
         sample_mt <- vaf_input_mt[which(
             vaf_input_mt$Samples %in% sample_option),]
         cluster_mt <- inferHeterogeneity(
@@ -199,6 +173,35 @@ plotVAF <-function(maf, sample_option="OFA",
 
 
 ## General Toolbox
+## calculate ScoreMATH
+.mathCal <- function(maf_input, show.MATH,  
+                     sample_option, sample.name = ""){
+    if (show.MATH){
+        if ((sample_option == "All") | (sample_option == "MIX")){
+            MATH.score <- ScoreMATH(maf_input, c(sample.name))
+            MATH.score <- MATH.score[which(
+                MATH.score$Tumor_Sample_Barcode == sample.name), 
+                ]$MATH_score
+        }
+        else if (sample_option == "OFA"){
+            MATH.score <- ScoreMATH(maf_input, c(sample.name))
+            MATH.score <- MATH.score[which(
+                MATH.score$Tumor_Sample_Barcode == "ITH MATH score"), 
+                ]$MATH_score
+        }
+        else {
+            MATH.score <- ScoreMATH(maf_input, c(sample_option))
+            MATH.score <- MATH.score[which(
+                MATH.score$Tumor_Sample_Barcode == sample_option), 
+                ]$MATH_score
+        }
+    } else {
+        MATH.score <- NA
+    }
+    MATH.score
+}
+
+
 ## VAF main draw vlines for all sample_option
 .vlineVAF <- function(cluster_mt, pic, 
                       tsb_ls, sample_option, 
