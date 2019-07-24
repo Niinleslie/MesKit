@@ -28,23 +28,23 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
                          patientID='character', ref.build='character'))
 
 ## read.maf main function
-readMaf<- function(patientID, maf.dir, 
-                    sample_info.dir, ccf.dir=NULL, 
-                    plot.mafSummary=TRUE, ref.build="hg19"){
+readMaf<- function(patientID, mafDir, 
+                    sampleInfoDir, ccfDir=NULL, 
+                    plotMafSummary=TRUE, refBuild="hg19"){
     ## read maf file
-    mafInput <- read.table(maf.dir, quot="", 
+    mafInput <- read.table(mafDir, quot="", 
                             header=TRUE, fill=TRUE, 
                             sep='\t')
     ## read info file
-    sampleInfoInput <-  read.table(sample_info.dir, quot="", 
+    sampleInfoInput <-  read.table(sampleInfoDir, quot="", 
                                      header=TRUE, fill=TRUE, 
                                      sep='', stringsAsFactors=FALSE)
     ## read ccf file
-    if (!is.null(ccf.dir)) {
-        ccfClusterTsvInput <- read.table(ccf.dir, quote="", 
+    if (!is.null(ccfDir)) {
+        ccfClusterTsvInput <- read.table(ccfDir, quote="", 
                                             header=TRUE, fill=TRUE, 
                                             sep='\t', stringsAsFactors=FALSE)
-        ccfLociTsvInput <- read.table(ccf.dir, quote="", 
+        ccfLociTsvInput <- read.table(ccfDir, quote="", 
                                          header=TRUE, fill=TRUE, 
                                          sep='\t', stringsAsFactors=FALSE)
     } else {
@@ -123,10 +123,10 @@ readMaf<- function(patientID, maf.dir,
                ccf.cluster=ccfClusterTsv, 
                ccf.loci=ccfLociTsv, 
                patientID=patientID, 
-               ref.build=ref.build)
+               ref.build=refBuild)
     
     ## print the summary plot
-    if (plot.mafSummary) {
+    if (plotMafSummary) {
         pic <- plotmafSummary(maf=maf, rmOutlier=TRUE, 
                               addStat='median', dashboard=TRUE, 
                               titvRaw=FALSE)
