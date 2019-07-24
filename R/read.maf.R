@@ -32,96 +32,96 @@ readMaf<- function(patientID, maf.dir,
                     sample_info.dir, ccf.dir=NULL, 
                     plot.mafSummary=TRUE, ref.build="hg19"){
     ## read maf file
-    maf_input <- read.table(maf.dir, quot="", 
+    mafInput <- read.table(maf.dir, quot="", 
                             header=TRUE, fill=TRUE, 
                             sep='\t')
     ## read info file
-    sample_info_input <-  read.table(sample_info.dir, quot="", 
+    sampleInfoInput <-  read.table(sample_info.dir, quot="", 
                                      header=TRUE, fill=TRUE, 
                                      sep='', stringsAsFactors=FALSE)
     ## read ccf file
     if (!is.null(ccf.dir)) {
-        ccf.cluster.tsv_input <- read.table(ccf.dir, quote="", 
+        ccfClusterTsvInput <- read.table(ccf.dir, quote="", 
                                             header=TRUE, fill=TRUE, 
                                             sep='\t', stringsAsFactors=FALSE)
-        ccf.loci.tsv_input <- read.table(ccf.dir, quote="", 
+        ccfLociTsvInput <- read.table(ccf.dir, quote="", 
                                          header=TRUE, fill=TRUE, 
                                          sep='\t', stringsAsFactors=FALSE)
     } else {
-        ccf.cluster.tsv_input <- NULL
-        ccf.loci.tsv_input <- NULL
+        ccfClusterTsvInput <- NULL
+        ccfLociTsvInput <- NULL
     }
     ## Generate patient,lesion and time information
-    maf_input$patient <- ""
-    maf_input$lesion <- ""
-    maf_input$time <- ""
+    mafInput$patient <- ""
+    mafInput$lesion <- ""
+    mafInput$time <- ""
     
     ## combine sample_info_input with maf_input
-    tsb_SampleInfo <- unique(sample_info_input$sample)
-    tsb_ls <- tsb_SampleInfo[which(
-        tsb_SampleInfo %in% maf_input$Tumor_Sample_Barcode)]
-    for (tsb in tsb_ls) {
+    tsbSampleInfo <- unique(sampleInfoInput$sample)
+    tsbLs <- tsbSampleInfo[which(
+        tsbSampleInfo %in% mafInput$Tumor_Sample_Barcode)]
+    for (tsb in tsbLs) {
         patient <- as.character(
-            sample_info_input[which(
-                sample_info_input$sample == tsb),]$patient) 
+            sampleInfoInput[which(
+                sampleInfoInput$sample == tsb),]$patient) 
         lesion <- as.character(
-            sample_info_input[which(
-                sample_info_input$sample == tsb),]$lesion)
+            sampleInfoInput[which(
+                sampleInfoInput$sample == tsb),]$lesion)
         time <- as.character(
-            sample_info_input[which(
-                sample_info_input$sample == tsb),]$time)
-        maf_input[which(
-            maf_input$Tumor_Sample_Barcode == tsb),]$patient <- patient
-        maf_input[which(
-            maf_input$Tumor_Sample_Barcode == tsb),]$lesion <- lesion
-        maf_input[which(
-            maf_input$Tumor_Sample_Barcode == tsb),]$time <- time
+            sampleInfoInput[which(
+                sampleInfoInput$sample == tsb),]$time)
+        mafInput[which(
+            mafInput$Tumor_Sample_Barcode == tsb),]$patient <- patient
+        mafInput[which(
+            mafInput$Tumor_Sample_Barcode == tsb),]$lesion <- lesion
+        mafInput[which(
+            mafInput$Tumor_Sample_Barcode == tsb),]$time <- time
     }
     ## fix: Error in setattr(x, "row.names", rn)
-    maf_input$Hugo_Symbol <- as.character(maf_input$Hugo_Symbol)
+    mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
     ## transform data.frame to data.table
-    maf.data <- data.table::setDT(maf_input)
-    ccf.cluster.tsv <- data.table::setDT(ccf.cluster.tsv_input)
-    ccf.loci.tsv <- data.table::setDT(ccf.loci.tsv_input)
+    mafData <- data.table::setDT(mafInput)
+    ccfClusterTsv <- data.table::setDT(ccfClusterTsvInput)
+    ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
     ## generate maf.silent and filter maf.data
-    vc.nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", 
+    vcNonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", 
                       "Splice_Site", "Translation_Start_Site",
                       "Nonsense_Mutation", "Nonstop_Mutation", 
                       "In_Frame_Del", "In_Frame_Ins", 
                       "Missense_Mutation")
     
-    maf.silent=maf.data[!Variant_Classification %in% vc.nonSilent]
-    if(nrow(maf.silent) > 0){
-        maf.silent.vc <- maf.silent[,.N, .(
+    mafSilent=mafData[!Variant_Classification %in% vcNonSilent]
+    if(nrow(mafSilent) > 0){
+        mafSilentVc <- mafSilent[,.N, .(
             Tumor_Sample_Barcode, Variant_Classification)]
-        maf.silent.vc.cast <- data.table::dcast(
-            data=maf.silent.vc, formula=Tumor_Sample_Barcode ~ Variant_Classification, 
+        mafSilentVcCast <- data.table::dcast(
+            data=mafSilentVc, formula=Tumor_Sample_Barcode ~ Variant_Classification, 
             fill=0, value.var='N')
-        summary.silent <- data.table::data.table(
+        summarySilent <- data.table::data.table(
             ID=c('Samples', 
-                 colnames(maf.silent.vc.cast)[2:ncol(maf.silent.vc.cast)]),
-            N=c(nrow(maf.silent.vc.cast), 
-                colSums(maf.silent.vc.cast[,2:ncol(maf.silent.vc.cast), 
+                 colnames(mafSilentVcCast)[2:ncol(mafSilentVcCast)]),
+            N=c(nrow(mafSilentVcCast), 
+                colSums(mafSilentVcCast[,2:ncol(mafSilentVcCast), 
                                            with=FALSE])))
         
         # maf.data=maf.data[Variant_Classification %in% vc.nonSilent]
     }
     
     ## summarize sample_info and mut.id with summarizeMaf
-    maf.summary <- suppressMessages(maftools:::summarizeMaf(maf=maf.data, 
+    mafSummary <- suppressMessages(maftools:::summarizeMaf(maf=mafData, 
                                                             chatty=TRUE))
-    maf <- classMaf(data=maf.data, 
-               variants.per.sample=maf.summary$variants.per.sample, 
-               variant.type.summary=maf.summary$variant.type.summary,
-               variant.classification.summary=maf.summary$
+    maf <- classMaf(data=mafData, 
+               variants.per.sample=mafSummary$variants.per.sample, 
+               variant.type.summary=mafSummary$variant.type.summary,
+               variant.classification.summary=mafSummary$
                    variant.classification.summary, 
-               gene.summary=maf.summary$gene.summary,
-               summary=maf.summary$summary, 
-               maf.silent=maf.silent, 
-               clinical.data=maf.summary$sample.anno, 
-               ccf.cluster=ccf.cluster.tsv, 
-               ccf.loci=ccf.loci.tsv, 
+               gene.summary=mafSummary$gene.summary,
+               summary=mafSummary$summary, 
+               maf.silent=mafSilent, 
+               clinical.data=mafSummary$sample.anno, 
+               ccf.cluster=ccfClusterTsv, 
+               ccf.loci=ccfLociTsv, 
                patientID=patientID, 
                ref.build=ref.build)
     
