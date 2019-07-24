@@ -50,6 +50,7 @@ ScoreMATH <- function(mafData, tsb=c("OFA"), minvaf=0, maxvaf=1){
                                MATH_score=c(mathAll))
         return(rbind(mathSp, mathAll))
     }
+    message("MATH Score Calculation Done!")
 }
 
 

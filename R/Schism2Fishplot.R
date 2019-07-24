@@ -191,7 +191,7 @@ schism2Timescape <- function(dirClusterCellularity,
               phylogeny_title="Clonal Phylogeny", alpha=50,
               genotype_position="stack", perturbations="NA", sort=FALSE,
               show_warnings=TRUE, width=900, height=NULL)
-    
+    message("Timescape Plot Done!")
 }
 
 ## clonevol method

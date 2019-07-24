@@ -137,4 +137,5 @@ readMaf<- function(patientID, maf.dir,
     }
     
     return(maf)
+    message("Class Maf Generation Done!")
 }

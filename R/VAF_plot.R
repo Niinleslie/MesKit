@@ -162,6 +162,7 @@ plotVAF <-function(maf, sampleOption="OFA",
                                    fileFormat,sep=""), 
                width=12, height=9)
     }
+    message("VAF Plot Generation Done!")
 }
 
 
