@@ -196,113 +196,190 @@ schism2Timescape <- function(dirClusterCellularity,
 
 ## clonevol method
 ## dependency of clonevol
-# library(clonevol)
-# library(gridBase)
-# library(gridExtra)
-# library(ggplot2)
-# library(igraph)
-# library(packcircles)
-# library(trees)
-# 
-# inferByClonevol <- function(dir.){
-#     ## read mutations in cluster.tsv from PyClone and get targeted clusters
-#     cluster.tsv=read.table(dir.cluster.tsv, sep="\t", 
-#                            stringsAsFactors=FALSE, header=TRUE)
-#     cluster_filter=cluster.tsv[!is.na(cluster.tsv$cluster_id) & 
-#                                    cluster.tsv$size >= 5 & 
-#                                    cluster.tsv$mean >= 0.1,]
-#     cluster_ls =unique(cluster_filter$cluster_id)
-#     
-#     ## read mutations within targeted clusters in loc.tsv file from PyClone 
-#     loci.tsv=read.table(dir.loci.tsv, sep="\t", 
-#                         stringsAsFactors=FALSE, header=TRUE)
-#     loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
-#     
-#     # loci_filtered <- na.omit(loci_filtered)
-#     ls.sample_names <- unique(loci_filtered$sample_id)
-#     
-#     
-#     ## make sure the cluster id is continuous integer.
-#     for (cluster_newid in seq_along(ls.cluster_id)){
-#         loci_filtered$cluster_id[loci_filtered$cluster_id == ls.cluster_id[cluster_newid]] <- cluster_newid
-#     }
-#     
-#     ls.cluster_id <- unique(loci_filtered$cluster_id)
-#     
-#     ## separate each sample column
-#     dat.final <- data.frame()
-#     for (cluster in ls.cluster_id){
-#         dat.cluster <- loci_filtered[which(loci_filtered$cluster_id == cluster),]
-#         dat.samples <- data.frame(row.names=seq_along(dat.cluster[which(dat.cluster$sample_id == sample_names[1]),]$cellular_prevalence))
-#         for (sample in sample_names){
-#             col.sample <- data.frame(dat.cluster[which(dat.cluster$sample_id == sample),]$cellular_prevalence*100)
-#             names(col.sample) <- sample
-#             dat.samples <- cbind(dat.samples, col.sample)
-#         }
-#         dat.samples <- cbind(cluster, dat.samples)
-#         dat.final <- rbind(dat.final, dat.samples)
-#     }
-#     
-#     consensusTree=infer.clonal.models(variants=dat.final,
-#                                         cluster.col.name='cluster',
-#                                         ccf.col.names=ccf.col.names,
-#                                         cancer.initiation.model='monoclonal',
-#                                         subclonal.test='bootstrap',
-#                                         subclonal.test.model='non-parametric',
-#                                         founding.cluster=length(ls.cluster_id),
-#                                         num.boots=1000,
-#                                         cluster.center='mean',
-#                                         min.cluster.vaf=0.01,
-#                                         # min probability that CCF(clone) is non-negative
-#                                         sum.p=0.05,
-#                                         # alpha level in confidence interval estimate for CCF(clone)
-#                                         alpha=0.05)
-# }
-# 
-# x <- aml1$variants
-# # preparation
-# # shorten vaf column names as they will be
-# vaf.col.names <- grep('.vaf', colnames(x), value=TRUE)
-# sample.names <- gsub('.vaf', '', vaf.col.names)
-# x[, sample.names] <- x[, vaf.col.names]
-# vaf.col.names <- sample.names
-# 
-# # prepare sample grouping
-# sample.groups <- c('P', 'R');
-# names(sample.groups) <- vaf.col.names
-# 
-# # setup the order of clusters to display in various plots (later)
-# x <- x[order(x$cluster),]
-# clone.colors <- c('#999793', '#8d4891', '#f8e356', '#fe9536', '#d7352e')
-# #clone.colors <- NULL
-# 
-# y=infer.clonal.models(variants=x,
-#                         cluster.col.name='cluster',
-#                         vaf.col.names=vaf.col.names,
-#                         cancer.initiation.model='monoclonal',
-#                         subclonal.test='bootstrap',
-#                         subclonal.test.model='non-parametric',
-#                         founding.cluster=1,
-#                         num.boots=1000,
-#                         cluster.center='mean',
-#                         min.cluster.vaf=0.01,
-#                         # min probability that CCF(clone) is non-negative
-#                         sum.p=0.05,
-#                         # alpha level in confidence interval estimate for CCF(clone)
-#                         alpha=0.05)
-# 
-# 
-# z <- transfer.events.to.consensus.trees(y,
-#                                         x[x$is.driver,],
-#                                         cluster.col.name='cluster',
-#                                         event.col.name='gene')
-# 
-# 
-# a <- 
-#     
-#     
-#     ccf <- rbind(x$P.ccf, x$R.ccf)
-# 
-# schism2Timescape(loci.tsv, z$all[[1]][,1:2])
+library(clonevol)
+library(gridBase)
+library(gridExtra)
+library(ggplot2)
+library(igraph)
+library(packcircles)
+library(trees)
+
+inferByClonevol <- function(dir.){
+    ## read mutations in cluster.tsv from PyClone and get targeted clusters
+    cluster.tsv=read.table(dir.cluster.tsv, sep="\t",
+                           stringsAsFactors=FALSE, header=TRUE)
+    cluster_filter=cluster.tsv[!is.na(cluster.tsv$cluster_id) &
+                                   cluster.tsv$size >= 5 &
+                                   cluster.tsv$mean >= 0.1,]
+    cluster_ls =unique(cluster_filter$cluster_id)
+    
+    ## read mutations within targeted clusters in loc.tsv file from PyClone
+    loci.tsv=read.table(dir.loci.tsv, sep="\t",
+                        stringsAsFactors=FALSE, header=TRUE)
+    loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
+    
+    # loci_filtered <- na.omit(loci_filtered)
+    sample.names <- unique(loci_filtered$sample_id)
+    
+    
+    ## make sure the cluster id is continuous integer.
+    for (cluster_newid in seq_along(ls.cluster_id)){
+        loci_filtered$cluster_id[loci_filtered$cluster_id == ls.cluster_id[cluster_newid]] <- cluster_newid
+    }
+    
+    ls.cluster_id <- unique(loci_filtered$cluster_id)
+    
+    ## separate each sample column
+    dat.final <- data.frame()
+    for (cluster in ls.cluster_id){
+        dat.cluster <- loci_filtered[which(loci_filtered$cluster_id == cluster),]
+        dat.samples <- data.frame(row.names=seq_along(dat.cluster[which(dat.cluster$sample_id == sample.names[1]),]$cellular_prevalence))
+        for (sample in sample.names){
+            col.sample <- data.frame(dat.cluster[which(dat.cluster$sample_id == sample),]$cellular_prevalence)
+            names(col.sample) <- sample
+            dat.samples <- cbind(dat.samples, col.sample)
+        }
+        dat.samples <- cbind(cluster, dat.samples)
+        dat.final <- rbind(dat.final, dat.samples)
+    }
+    
+    consensusTree=infer.clonal.models(variants=dat.final,
+                                      cluster.col.name='cluster',
+                                      ccf.col.names=sample.names,
+                                      cancer.initiation.model='monoclonal',
+                                      subclonal.test='bootstrap',
+                                      subclonal.test.model='non-parametric',
+                                      founding.cluster=length(ls.cluster_id),
+                                      num.boots=1000,
+                                      cluster.center='mean',
+                                      min.cluster.vaf=0.01,
+                                      # min probability that CCF(clone) is non-negative
+                                      sum.p=0.05,
+                                      # alpha level in confidence interval estimate for CCF(clone)
+                                      alpha=0.05)
+    
+    f <- generateFishplotInputs(results=consensusTree)
+    
+    pdf('FISH.pdf', width=8, height=5)
+    fishes = createFishPlotObjects(f)
+    for (i in 1:length(fishes)){
+        fish = layoutClones(fishes[[i]])
+        fish = setCol(fish,f$clonevol.clone.colors)
+        fishPlot(fish,shape="spline", title.btm="Patient", cex.title=0.5,
+                 vlines=seq(1, length(sample.names)), vlab=sample.names, pad.left=0.5)
+    }
+    dev.off()
+    
+}
+
+x <- aml1$variants
+# preparation
+# shorten vaf column names as they will be
+vaf.col.names <- grep('.vaf', colnames(x), value=TRUE)
+sample.names <- gsub('.vaf', '', vaf.col.names)
+x[, sample.names] <- x[, vaf.col.names]
+vaf.col.names <- sample.names
+
+# prepare sample grouping
+sample.groups <- c('P', 'R');
+names(sample.groups) <- vaf.col.names
+
+# setup the order of clusters to display in various plots (later)
+x <- x[order(x$cluster),]
+clone.colors <- c('#999793', '#8d4891', '#f8e356', '#fe9536', '#d7352e')
+#clone.colors <- NULL
+
+y=infer.clonal.models(variants=x,
+                        cluster.col.name='cluster',
+                        vaf.col.names=vaf.col.names,
+                        cancer.initiation.model='monoclonal',
+                        subclonal.test='bootstrap',
+                        subclonal.test.model='non-parametric',
+                        founding.cluster=1,
+                        num.boots=1000,
+                        cluster.center='mean',
+                        min.cluster.vaf=0.01,
+                        # min probability that CCF(clone) is non-negative
+                        sum.p=0.05,
+                        # alpha level in confidence interval estimate for CCF(clone)
+                        alpha=0.05)
+
+
+# map driver events onto the trees
+y <- transfer.events.to.consensus.trees(y,
+                                        x[x$is.driver,],
+                                        cluster.col.name = 'cluster',
+                                        event.col.name = 'gene')
+
+
+# prepare branch-based trees
+y <- convert.consensus.tree.clone.to.branch(y, branch.scale = 'sqrt')
+
+# plot variant clusters, bell plots, cell populations, and trees
+plot.clonal.models(y,
+                   # box plot parameters
+                   box.plot = TRUE,
+                   fancy.boxplot = TRUE,
+                   fancy.variant.boxplot.highlight = 'is.driver',
+                   fancy.variant.boxplot.highlight.shape = 21,
+                   fancy.variant.boxplot.highlight.fill.color = 'red',
+                   fancy.variant.boxplot.highlight.color = 'black',
+                   fancy.variant.boxplot.highlight.note.col.name = 'gene',
+                   fancy.variant.boxplot.highlight.note.color = 'blue',
+                   fancy.variant.boxplot.highlight.note.size = 2,
+                   fancy.variant.boxplot.jitter.alpha = 1,
+                   fancy.variant.boxplot.jitter.center.color = 'grey50',
+                   fancy.variant.boxplot.base_size = 12,
+                   fancy.variant.boxplot.plot.margin = 1,
+                   fancy.variant.boxplot.vaf.suffix = '.VAF',
+                   # bell plot parameters
+                   clone.shape = 'bell',
+                   bell.event = TRUE,
+                   bell.event.label.color = 'blue',
+                   bell.event.label.angle = 60,
+                   clone.time.step.scale = 1,
+                   bell.curve.step = 2,
+                   # node-based consensus tree parameters
+                   merged.tree.plot = TRUE,
+                   tree.node.label.split.character = NULL,
+                   tree.node.shape = 'circle',
+                   tree.node.size = 30,
+                   tree.node.text.size = 0.5,
+                   merged.tree.node.size.scale = 1.25,
+                   merged.tree.node.text.size.scale = 2.5,
+                   merged.tree.cell.frac.ci = FALSE,
+                   # branch-based consensus tree parameters
+                   merged.tree.clone.as.branch = TRUE,
+                   mtcab.event.sep.char = ',',
+                   mtcab.branch.text.size = 1,
+                   mtcab.branch.width = 0.75,
+                   mtcab.node.size = 3,
+                   mtcab.node.label.size = 1,
+                   mtcab.node.text.size = 1.5,
+                   # cellular population parameters
+                   cell.plot = TRUE,
+                   num.cells = 100,
+                   cell.border.size = 0.25,
+                   cell.border.color = 'black',
+                   clone.grouping = 'horizontal',
+                   #meta-parameters
+                   scale.monoclonal.cell.frac = TRUE,
+                   show.score = FALSE,
+                   cell.frac.ci = TRUE,
+                   disable.cell.frac = FALSE,
+                   # output figure parameters
+                   out.dir = 'output',
+                   out.format = 'pdf',
+                   overwrite.output = TRUE,
+                   width = 8,
+                   height = 4,
+                   # vector of width scales for each panel from left to right
+                   panel.widths = c(3,4,2,4,2))
+
+# plot trees only
+pdf('trees.pdf', width = 3, height = 5, useDingbats = FALSE)
+plot.all.trees.clone.as.branch(y, branch.width = 0.5,
+                               node.size = 1, node.label.size = 0.5)
+dev.off()
 
 
