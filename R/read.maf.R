@@ -135,7 +135,7 @@ readMaf<- function(patientID, mafDir,
                filename=paste(patientID, ".VariantSummary.png", sep=""), 
                width=12, height=9, dpi=800, path="./output")
     }
-    
-    return(maf)
     message("Class Maf Generation Done!")
+    return(maf)
+    
 }
