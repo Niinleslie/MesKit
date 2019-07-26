@@ -12,7 +12,7 @@ read.njtree <- function(mat.nj){
   tips <- mat.nj$tip.label
   leaf_nodes <- seq(1, length(tips))
   mid_nodes <- seq(length(tips)+1, max(edges))
-  root <- which(tips == "normal")
+  root <- which(tips == "NORMAL")
   
   #return the adjacent nodes of the specific node
   get_adjacent_node <- function(node){
