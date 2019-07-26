@@ -50,7 +50,7 @@ NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE
   }
   mat.nj = nj(dist.gene(t(mut_sort)))
   branch <- read.njtree(mat.nj)
-  list.sig <- Mutational_sigs_tree(maf.dat = maf.dat, branch, patientID, ref.build, mut.threshold = sig.min.mut.number)
+  list.sig <- treeMutationalSig(mafDat = maf.dat, branch, patientID, ref.build, mutThreshold = sig.min.mut.number)
   signature <- list.sig[[1]]
   mut.branches <- list.sig[[2]]
   njtree <- new('NJtree', nj = mat.nj, mut_sort = mut_sort, patientID = patientID, signature = signature, mut_branches = mut.branches)
@@ -72,7 +72,7 @@ setMethod("getNJtreeSignature", 'NJtree', function(x){x@signature})
 
 
 ###### output test ######
-maf <- read.Maf('311252',dat.dir = './data/multi_lesion',BSG = 'BSgenome.Hsapiens.UCSC.hg19')
+maf <- read.Maf("314007", "/home/ninomoriaty/R_Project/data/maf/314007.maf", "/home/ninomoriaty/R_Project/data/sample_info.txt", ccf.dir = NULL, plot.mafSummary = TRUE, ref.build = "hg19")
 njtree <- NJtree(maf, use.indel = F, use.ccf = F)
 getMutSort(njtree)
 getPhyloTree(njtree)

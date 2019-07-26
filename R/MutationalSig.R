@@ -42,7 +42,7 @@ library(plyr)
 ## main function
 ## Usage: Mutational_Sigs_branch(maf_file, samples_vector)
 treeMutationalSig <- function(mafData, branch, 
-                                 patientID, ref.build, 
+                                 patientID, refBuild, 
                                  driverGenesDir=FALSE, mutThreshold=50){
     maf_input <- mafData
     ## get mutationalSigs-related  infomation
@@ -61,7 +61,7 @@ treeMutationalSig <- function(mafData, branch,
                                   Hugo_Symbol, Chromosome, 
                                   Start_Position, End_Position, 
                                   Reference_Allele, Tumor_Seq_Allele2, 
-                                  sep=":"), mutId)
+                                  sep=":"), mut.id)
     mutSigRef <- data.frame(datNum, datSample, 
                               datChr, datPosStart, 
                               datPosEnd, datRef, 
@@ -122,7 +122,7 @@ treeMutationalSig <- function(mafData, branch,
                                                       branch, branchName, 
                                                       patientID, driver_genes, 
                                                       driverGenesDir, mutThreshold, 
-                                                      ref.build)
+                                                      refBuild)
         }
         
     }
@@ -151,7 +151,7 @@ treeMutationalSig <- function(mafData, branch,
                                                          ref="ref", 
                                                          alt="alt",
                                                          bsg=get(refBuild)))
-        sigsWhich <- whichSignatures(tumor.ref=sigs.input, 
+        sigsWhich <- whichSignatures(tumor.ref=sigsInput, 
                                       signatures.ref=signatures.cosmic, 
                                       sample.id=branchName,
                                       contexts.needed=TRUE)
