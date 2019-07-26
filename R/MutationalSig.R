@@ -74,6 +74,7 @@ treeMutationalSig <- function(mafData, branch,
                                "mut_id")
     
     ## get branch infomation
+    branch <- branch[order(nchar(branch), branch)]
     branches <- strsplit(branch, split='∩')
     
     
