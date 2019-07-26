@@ -295,22 +295,25 @@ inferByClonevol <- function(dir., plotOption="fishplot"){
         
         ## preparation for timscape input: clonalPrev
         fishPlotClonalPrev <- as.data.frame(fishPlotInput$cell.fractions[[1]])
-        ClonalPrev <- data.frame(matrix(ncol = 3, nrow = 0))
-        ClonalPrevTemp <- data.frame(matrix(ncol = 3, nrow = 0))
+        clonalPrev <- data.frame(matrix(ncol = 3, nrow = 0))
+        clonalPrevTemp <- data.frame(matrix(ncol = 3, nrow = 0))
         for (timepoint in colnames(fishPlotClonalPrev)){
             for (cloneIdCounter in seq_along(cloneList)){
-                ClonalPrevTemp <- 
+                clonalPrevTemp <- 
                     data.frame(timepoint, cloneList[cloneIdCounter], 
                                fishPlotClonalPrev[, which(colnames(fishPlotClonalPrev) == timepoint)][cloneIdCounter])
-                ClonalPrev <- rbind(ClonalPrev, ClonalPrevTemp)
+                clonalPrev <- rbind(clonalPrev, clonalPrevTemp)
             }
         }
-        colnames(ClonalPrev) <- c("timepoint", "clone_id", "clonal_prev")
-        
+        colnames(clonalPrev) <- c("timepoint", "clone_id", "clonal_prev")
+        ## print 
+        timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
+                  xaxis_title="Time Point", yaxis_title="Clonal Prevalence",
+                  phylogeny_title="Clonal Phylogeny", alpha=50,
+                  genotype_position="stack", perturbations="NA", sort=FALSE,
+                  show_warnings=TRUE, width=900, height=NULL)
+        message("Timescape Plot Done!")
     }
-    
-
-    
 }
 
 x <- aml1$variants
