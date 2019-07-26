@@ -204,7 +204,7 @@ library(igraph)
 library(packcircles)
 library(trees)
 
-inferByClonevol <- function(dir.){
+inferByClonevol <- function(dir., plotOption="fishplot"){
     ## read mutations in cluster.tsv from PyClone and get targeted clusters
     cluster.tsv=read.table(dir.cluster.tsv, sep="\t",
                            stringsAsFactors=FALSE, header=TRUE)
@@ -243,6 +243,7 @@ inferByClonevol <- function(dir.){
         dat.final <- rbind(dat.final, dat.samples)
     }
     
+    ##################### must be used ##################################
     consensusTree=infer.clonal.models(variants=dat.final,
                                       cluster.col.name='cluster',
                                       ccf.col.names=sample.names,
@@ -253,22 +254,62 @@ inferByClonevol <- function(dir.){
                                       num.boots=1000,
                                       cluster.center='mean',
                                       min.cluster.vaf=0.01,
-                                      # min probability that CCF(clone) is non-negative
+                                      # min probability of CCF is non-negative
                                       sum.p=0.05,
-                                      # alpha level in confidence interval estimate for CCF(clone)
+                                      # confidence interval estimate for CCF
                                       alpha=0.05)
     
-    f <- generateFishplotInputs(results=consensusTree)
+    fishPlotInput <- generateFishplotInputs(results=consensusTree)
     
-    pdf('FISH.pdf', width=8, height=5)
-    fishes = createFishPlotObjects(f)
-    for (i in 1:length(fishes)){
-        fish = layoutClones(fishes[[i]])
-        fish = setCol(fish,f$clonevol.clone.colors)
-        fishPlot(fish,shape="spline", title.btm="Patient", cex.title=0.5,
-                 vlines=seq(1, length(sample.names)), vlab=sample.names, pad.left=0.5)
+    if (plotOption == "fishplot"){
+        pdf('FISH.pdf', width=8, height=5)
+        fishes = createFishPlotObjects(fishPlotInput)
+        for (i in seq_along(fishes)){
+            fish = layoutClones(fishes[[i]])
+            fish = setCol(fish,f$clonevol.clone.colors)
+            fishPlot(fish,shape="spline", 
+                     title.btm="Patient", 
+                     cex.title=0.5,
+                     vlines=seq(1, length(sample.names)), 
+                     vlab=sample.names, pad.left=0.5)
+        }
+        dev.off()
+    } else if (plotOption == "timescape"){
+        ## preparation for timscape input: treeEdges
+        fishPlotTreeEdges <- fishPlotInput$parents[[1]]
+        fishPlotTreeEdges <- 
+            c(fishPlotTreeEdges[which(fishPlotTreeEdges == 0)], 
+              fishPlotTreeEdges[which(fishPlotTreeEdges > 0)]-1)
+        branchEdge <- data.frame(matrix(ncol = 2, nrow = 0))
+        treeEdges <- data.frame(matrix(ncol = 2, nrow = 0))
+        cloneList <- 0:(length(fishPlotTreeEdges)-1)
+        for (counter in seq_along(fishPlotTreeEdges)){
+            if (cloneList[counter] == 0){
+                next()
+            }
+            branchEdge <- data.frame(fishPlotTreeEdges[counter], 
+                                     cloneList[counter])
+            treeEdges <- rbind(treeEdges, branchEdge)
+        }
+        colnames(treeEdges) <- c("source", "target")
+        
+        ## preparation for timscape input: clonalPrev
+        fishPlotClonalPrev <- as.data.frame(fishPlotInput$cell.fractions[[1]])
+        ClonalPrev <- data.frame(matrix(ncol = 3, nrow = 0))
+        ClonalPrevTemp <- data.frame(matrix(ncol = 3, nrow = 0))
+        for (timepoint in colnames(fishPlotClonalPrev)){
+            for (cloneIdCounter in seq_along(cloneList)){
+                ClonalPrevTemp <- 
+                    data.frame(timepoint, cloneList[cloneIdCounter], 
+                               fishPlotClonalPrev[, which(colnames(fishPlotClonalPrev) == timepoint)][cloneIdCounter])
+                ClonalPrev <- rbind(ClonalPrev, ClonalPrevTemp)
+            }
+        }
+        colnames(ClonalPrev) <- c("timepoint", "clone_id", "clonal_prev")
+        
     }
-    dev.off()
+    
+
     
 }
 
@@ -336,7 +377,7 @@ plot.clonal.models(y,
                    clone.shape = 'bell',
                    bell.event = TRUE,
                    bell.event.label.color = 'blue',
-                   bell.event.label.angle = 60,
+                       bell.event.label.angle = 60,
                    clone.time.step.scale = 1,
                    bell.curve.step = 2,
                    # node-based consensus tree parameters
