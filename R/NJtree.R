@@ -72,7 +72,6 @@ setMethod("getNJtreeSignature", 'NJtree', function(x){x@signature})
 
 
 ###### output test ######
-maf <- read.Maf('311252',dat.dir = './data/multi_lesion',BSG = 'BSgenome.Hsapiens.UCSC.hg19')
 njtree <- NJtree(maf, use.indel = F, use.ccf = F)
 getMutSort(njtree)
 getPhyloTree(njtree)
