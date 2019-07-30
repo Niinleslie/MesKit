@@ -114,7 +114,7 @@ bodyITH <- tabItem("ITH",
                          tabPanel(
                            title = div(icon("table"), "VAF plot"),
                            value = "caInput03",
-                           withSpinner(plotOutput("vaf.cluster",height = 600,width = 7)),
+                           withSpinner(plotOutput("vaf.cluster",height = "100%")),
                            radioButtons('DownloadVafPlotCheck','Choose file type to download:',
                                         c('png' ='png','pdf' = 'pdf'),inline = T),
                            downloadBttn('DownloadVafPlot', 'Download')

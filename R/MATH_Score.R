@@ -19,15 +19,17 @@
 
 
 ######## MATH Score ##########
-MATH_score <- function(maf_input, tsb = c("OFA"), minvaf = 0, maxvaf = 1){
-  # get vaf-related infomation
+MATH_score <- function(maf, tsb = c("OFA"), minvaf = 0, maxvaf = 1){
+  maf_input <- maf@data
+    # get vaf-related infomation
   dat.hugo_symbol <- maf_input$Hugo_Symbol
   dat.vaf <- maf_input$VAF
-  dat.tsb <- data.frame(maf_input$Tumor_Sample_Barcode)
+  dat.tsb <- maf_input$Tumor_Sample_Barcode
   vaf_input_mt <- data.frame(dat.hugo_symbol, dat.vaf, dat.tsb)
   colnames(vaf_input_mt) <- c("Hugo_Symbol", "VAF", "Tumor_Sample_Barcode")
   # get all sample names
-  tsb_ls <- data.frame(unique(vaf_input_mt$Tumor_Sample_Barcode))
+  samples <- data.frame(maf_input$Tumor_Sample_Barcode)
+  tsb_ls <- as.data.frame(as.data.frame(table(samples))["samples"][which(as.data.frame(table(samples))["samples"]$samples != ""),])
 
   # MATH main function
    # MATH results for one/all sample

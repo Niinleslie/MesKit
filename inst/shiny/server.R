@@ -59,7 +59,8 @@ shinyServer(function(input, output){
   })
   output$vaf.cluster <- renderPlot({
     maf <- upload_maf()
-    VAF_plot(maf)}, 
+    VAF_plot(maf)
+    }, 
     width = width1,
     height = height1
   )
