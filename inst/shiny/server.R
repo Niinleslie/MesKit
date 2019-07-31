@@ -26,20 +26,6 @@ shinyServer(function(input, output){
   height3 <- reactive({
     return(input$height3)
   })
-  
-  maf_file <- reactive({input$maf})
-  sample_info_file <- reactive({input$sampleInfo})
-  maf_input <-  reactive({read.table(maf_file()$datapath, quot = "", header = TRUE, fill = TRUE, sep = '\t')}) 
-  sample_info_input <-  reactive({read.table(sample_info_file()$datapath , quot = "", header = TRUE, fill = TRUE, sep = '')}) 
-  patientID <-  reactive({strsplit(maf_file()$name,'.maf')[[1]]}) 
-  ccf.cluster.tsv_file <- reactive({input$ccf.cluster}) 
-  ccf.loci.tsv_file <- reactive({input$ccf.loci})
-  ccf.cluster.tsv_input <-  reactive({read.table(ccf.cluster.tsv_file()$datapath, quot = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)}) 
-  ccf.loci.tsv_input <- reactive({read.table(ccf.loci.tsv_file()$datapath, quot = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)})
-  phylotree.dir <- reactive({
-    infile <- input$phylotree.dir
-    phylotree.dir <- input
-  })
 
   upload_maf <- eventReactive(input$submit1,{
     if(input$useccf){
@@ -50,6 +36,7 @@ shinyServer(function(input, output){
       read.Maf(patientID = input$patientid,maf.dir = input$maf$datapath, sample_info.dir = input$sampleInfo$datapath)
     }
     })
+  
   upload_njtree <- eventReactive(input$submit3,{
     maf <- upload_maf()
     njtree <- NJtree(maf,use.indel = input$use.indel,use.ccf = input$useccf )
@@ -223,12 +210,4 @@ output$DownloadPhyloTree <- downloadHandler(
   },
   contentType = paste('image/',input$DownloadPhyloTreeCheck,sep="")
 )
-})
-
-
-upload_maf <- eventReactive(input$submit1,{
-  read.Maf.Shiny(maf_input =  maf_input(), 
-                 sample_info_input =  sample_info_input(), use.ccf = input$useccf,
-                 ccf.cluster.tsv_input = ccf.cluster.tsv_input(),
-                 ccf.loci.tsv_input = ccf.loci.tsv_input(),ref.build = input$ref)
 })
