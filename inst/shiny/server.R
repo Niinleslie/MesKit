@@ -124,21 +124,20 @@ shinyServer(function(input, output){
   output$DownloadMafSummary <- downloadHandler(
     
     filename = function() {
-      paste("MafSummary", Sys.time(), '.',input$DownloadMafSummaryCheck, sep='')
+      paste("MafSummary",'.',input$DownloadMafSummaryCheck, sep='')
     },
     content = function(file) {
-
       if (input$DownloadMafSummaryCheck == "png"){
-        png(file,width = 14 , height = 8)
+        png(file,width = width1() , height = height1())
       }
       else if (input$DownloadMafSummaryCheck == "pdf"){
-        pdf(file,width = 14 , height = 8)
+        pdf(file,width = 14 , height = 14)
       }
       maf <- upload_maf()
       plotmafSummary(maf = maf)
       dev.off()
     },
-    contentType = paste('image/',input$DownloadMafSummaryPlotCheck,sep="")
+    contentType = paste('image/',input$DownloadMafSummaryCheck,sep="")
   )
   
   output$DownloadVafPlot <- downloadHandler(
@@ -147,10 +146,10 @@ shinyServer(function(input, output){
     },
     content = function(file) {
       if (input$DownloadVafPlotCheck == "png"){
-        png(file,width = 14 , height = 8)
+        png(file,width = width1() , height = width1())
       }
       else if (input$DownloadVafPlotCheck == "pdf"){
-        pdf(file,width = 14 , height = 8)
+        pdf(file,width = 12 , height = 9)
       }
       maf <- upload_maf()
       VAF_plot(maf = maf)
@@ -165,16 +164,14 @@ shinyServer(function(input, output){
     },
     content = function(file) {
       if (input$DownloadSharedPlotCheck == "png"){
-        png(file,width = 14 , height = 8)
+        png(file,width = width1() , height = height1())
+        
       }
       else if (input$DownloadSharedPlotCheck == "pdf"){
-        pdf(file,width = 14 , height = 8)
+        pdf(file,width = 13 , height = 10)
       }
-      maf <- upload_maf()
-      mutSharedPrivate(maf = maf)
       dev.off()
-    },
-    contentType = paste('image/',input$DownloadSharedPlotCheck,sep="")
+    }
   )
   output$DownloadClonePlot <- downloadHandler(
     filename = function() {
@@ -182,10 +179,10 @@ shinyServer(function(input, output){
     },
     content = function(file) {
       if (input$DownloadClonePlotCheck == "png"){
-        png(file,width = 14 , height = 8)
+        png(file,width = width2() , height = height2())
       }
       else if (input$DownloadClonePlotCheck == "pdf"){
-        pdf(file,width = 14 , height = 8)
+        pdf(file,width = 9 , height = 6.5)
       }
       maf <- upload_maf()
       TumorClones_plot(maf = maf)
@@ -199,10 +196,10 @@ output$DownloadPhyloTree <- downloadHandler(
   },
   content = function(file) {
     if (input$DownloadPhyloTreeCheck == "png"){
-      png(file,width = 14 , height = 8)
+      png(file,width = "1100px", height = "850px")
     }
     else if (input$DownloadPhyloTreeCheck == "pdf"){
-      pdf(file,width = 14 , height = 8)
+      pdf(file,width = 14, height = 8)
     }
     maf <- upload_maf()
     plot.PhyloTree(maf = maf)
@@ -210,4 +207,41 @@ output$DownloadPhyloTree <- downloadHandler(
   },
   contentType = paste('image/',input$DownloadPhyloTreeCheck,sep="")
 )
+
+output$DownloadGOPlot <- downloadHandler(
+  filename = function() {
+    paste("GOPlot", Sys.time(), '.',input$DownloadGOPlotCheck, sep='')
+  },
+  content = function(file) {
+    if (input$DownloadGOPlotCheck == "png"){
+      png(file,width = width3(), height = width3())
+    }
+    else if (input$DownloadGOPlotCheck == "pdf"){
+      pdf(file,width = width3()/100, height = height3()/100)
+    }
+    njtree <- upload_njtree()
+    GO.njtree.shiny(njtree, savePlot = F, qval = input$qval ,pval = input$pval)
+    dev.off()
+  },
+  contentType = paste('image/',input$DownloadGOPlotCheck,sep="")
+)
+output$DownloadPathPlot <- downloadHandler(
+  filename = function() {
+    paste("EnrichPlot",'.',input$DownloadGOPlotCheck, sep='')
+  },
+  content = function(file) {
+    if (input$DownloadPathPlotCheck == "png"){
+      png(file,width = width3(), height = width3())
+    }
+    else if (input$DownloadPathPlotCheck == "pdf"){
+      pdf(file,width = width3()/100, height = height3()/100)
+    }
+    njtree <- upload_njtree()
+    Pathway.njtree.shiny(njtree, savePlot = F, qval = input$qval ,pval = input$pval)
+    dev.off()
+  },
+  contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
+)
+
+
 })

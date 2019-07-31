@@ -71,7 +71,7 @@ bodyITH <- tabItem("ITH",
                        status = 'primary',
                        width = NULL,
                        id = 'upload',
-                       h3(strong('Adjust Upload/Setting')),
+                       h3(strong('Upload file /Setting parameters')),
                        fileInput('maf','Upload your maf file'),
                        fileInput('sampleInfo','Upload sampleInfo' ),
                        textInput('patientid','Input patient ID'),
@@ -108,7 +108,7 @@ bodyITH <- tabItem("ITH",
                          selected = "caInput01",
                          side = "left",
                          tabPanel(
-                           title = div(icon("table"), "MafSummary"),
+                           title = "MafSummary",
                            value = "caInput01",
                            withSpinner(plotOutput('mafSummary',height = '100%')),
                            radioButtons('DownloadMafSummaryCheck','Choose file type to download:',
@@ -116,22 +116,22 @@ bodyITH <- tabItem("ITH",
                            downloadBttn('DownloadMafSummary', 'Download')
                          ),
                          tabPanel(
-                           title = div(icon("table"), "Math.Score"),
+                           title = "Math.Score",
                            value = "caInput02",
                            withSpinner(dataTableOutput('mathScore'))                 
                          ),
                          tabPanel(
-                           title = div(icon("table"), "VAF plot"),
+                           title = "VAF plot",
                            value = "caInput03",
-                           withSpinner(plotOutput("vaf.cluster",height = "100%")),
+                           plotOutput("vaf.cluster",height = "100%",width = "100%"),
                            radioButtons('DownloadVafPlotCheck','Choose file type to download:',
                                         c('png' ='png','pdf' = 'pdf'),inline = T),
                            downloadBttn('DownloadVafPlot', 'Download')
                          ),
                          tabPanel(
-                           title = div(icon("table"), "SharePrivate"),
+                           title = "SharePrivate",
                            value = "caInput04",
-                           withSpinner(plotOutput("mut.share_private")),
+                           plotOutput("mut.share_private",height = "100%"),
                            radioButtons('DownloadSharePlotCheck','Choose file type to download:',
                                         c('png' ='png','pdf' = 'pdf'),inline = T),
                            downloadBttn('DownloadSharePlot', 'Download')
@@ -178,7 +178,7 @@ bodyclone <- tabItem('clone',
                           width = "100%",
                           tabPanel(
                             value = 'c01',
-                            title = div(icon("table"), "TumorClonePlot"),
+                            title = "TumorClonePlot",
                             withSpinner(plotOutput('cloneplot',height = "100%")),
                            radioButtons('DownloadClonePlotCheck','Choose file type to download:',
                                      c('png' ='png','pdf' = 'pdf'),inline = T),
@@ -215,6 +215,7 @@ bodyfunction <- tabItem('function',
                           column(
                            width = 9,
                            box(
+                             h3(strong('Visuliaztion')),
                             width = NULL,
                             height = 2100,
                             tabBox(
@@ -225,12 +226,18 @@ bodyfunction <- tabItem('function',
                               tabPanel(
                                 title = 'GO analysis',
                                 value = 'F01',
-                                withSpinner(plotOutput('GOplot',height = "100%",width = "100%"))
+                                withSpinner(plotOutput('GOplot',height = "100%",width = "100%")),
+                                radioButtons('DownloadGOPlotCheck','Choose file type to download:',
+                                             c('png' ='png','pdf' = 'pdf'),inline = T),
+                                  downloadBttn('DownloadGOPlot', 'Download')
                               ),
                               tabPanel(
                                 title = 'pathway analysis',
                                 value = 'F02',
-                                withSpinner(plotOutput('Pathwayplot',height = "100%",width = "100%"))
+                                withSpinner(plotOutput('Pathwayplot',height = "100%",width = "100%")),
+                                radioButtons('DownloadPathPlotCheck','Choose file type to download:',
+                                             c('png' ='png','pdf' = 'pdf'),inline = T),
+                                downloadBttn('DownloadPathPlot', 'Download')
                               )
                             )
                           )
@@ -270,8 +277,8 @@ bodySurvival <- tabItem('Survival',
                             width = 9,
                             box(
                             width = NULL,
-                            height = 950 ,
-                            withSpinner(plotOutput("phylotree",height = 800)) ,    
+                            height = 1100 ,
+                            withSpinner(plotOutput("phylotree",height = 900)) ,    
                             radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
                                          c('png' ='png','pdf' = 'pdf'),inline = T),
                             downloadBttn('DownloadPhyloTree', 'Download')
