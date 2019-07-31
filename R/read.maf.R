@@ -20,15 +20,15 @@ library(ggplot2)
 Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', ref.build='character'))
 
 # read.maf main function
-read.Maf<- function(patientID, maf.dir, sample_info.dir, ccf.dir = NULL, plot.mafSummary = TRUE, ref.build = "hg19"){
+read.Maf <- function(patientID, maf.dir, sample_info.dir, ccf.cluster.dir = NULL, ccf.loci.dir = NULL, plot.mafSummary = TRUE, ref.build = "hg19"){
   # read maf file
   maf_input <- read.table(maf.dir, quot = "", header = TRUE, fill = TRUE, sep = '\t')
   # read info file
   sample_info_input <-  read.table(sample_info.dir, quot = "", header = TRUE, fill = TRUE, sep = '', stringsAsFactors = F)
   # read ccf file
-  if (!is.null(ccf.dir)) {
-    ccf.cluster.tsv_input <- read.table(ccf.dir, quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
-    ccf.loci.tsv_input <- read.table(ccf.dir, quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
+  if (!is.null(ccf.cluster.dir)&!is.null(ccf.loci.dir)) {
+    ccf.cluster.tsv_input <- read.table(ccf.cluster.dir, quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
+    ccf.loci.tsv_input <- read.table(ccf.loci.dir, quote = "", header = TRUE, fill = TRUE, sep = '\t', stringsAsFactors=F)
   } else {
     ccf.cluster.tsv_input <- NULL
     ccf.loci.tsv_input <- NULL

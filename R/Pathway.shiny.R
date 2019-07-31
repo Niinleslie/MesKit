@@ -26,7 +26,7 @@ options(warn = -1)
 #' Pathway.njtree(njtree, pathway.type = "KEGG", savePlot = T)
 
 
-Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, outdir = NULL, 
+Pathway_analysis.shiny <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, outdir = NULL, 
                              patientID = patientID, Name = Name, savePlot = TRUE, plotType = plotType, showCategory = showCategory){
   
   trans = suppressMessages(bitr(genes, fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db"))
@@ -91,7 +91,7 @@ Pathway.njtree.shiny <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAd
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
     
-    Pathway.branch <- Pathway_analysis(geneSymbol, pathway.type, pval, pAdjustMethod,
+    Pathway.branch <- Pathway_analysis.shiny(geneSymbol, pathway.type, pval, pAdjustMethod,
                                 qval, outdir, patientID, sampleID, savePlot, plotType, showCategory)
     if (is.null(showCategory) || showCategory > nrow(Pathway.branch@result)){
       showCategory = nrow(Pathway.branch@result)
@@ -100,32 +100,35 @@ Pathway.njtree.shiny <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAd
     
     str_length = max(nchar(Pathway.branch@result$Description))      
     str_height = showCategory
-    
     if (str_height > 15){
       fig.height = str_height/3
     }else{
       fig.height = 5
     }
-    if(nrow(Pathway.branch@result) !=0){
+    if(nrow(Pathway.branch@result) != 0){
+      print(Pathway.branch@result)
       if (plotType == "dot"){
-      Pathplot <- dotplot(Pathway.branch, showCategory = showCategory)
+      print(i)
+      Pathplot <- dotplot(Pathway.branch, showCategory = showCategory)+ggtitle(sampleID)
       if(savePlot){
-        ggsave(filename =paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_", "enrich_dotplot.pdf", sep = ""),plot = Pathplot,width = 3+(str_length)/10, height = fig.height)
+        ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_", "enrich_dotplot.pdf", sep = ""),plot = Pathplot,width = 3+(str_length)/10, height = fig.height)
       }
     }
       else if (plotType == "bar"){
-      Pathplot <- barplot(Pathway.branch, showCategory = showCategory)
+      Pathplot <- barplot(Pathway.branch, showCategory = showCategory)+ggtitle(sampleID)
       if(savePlot){
         ggsave(filename =paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_","enrich_barplot.pdf", sep = ""),plot = Pathplot,width = 3+(str_length)/10, height = fig.height)
       }
-    }      
-      grob.list[[x]] <- Pathplot
-      x <- x+1
+      }
+      if(!is.na(Pathplot$data$ID)){
+        grob.list[[x]] <- Pathplot
+        x <- x+1 
+      }
     }
     Pathway.branch.result <- rbind(Pathway.branch.result, Pathway.branch@result)
   }
   
-  Pathway.all <- Pathway_analysis(geneSymbol, pathway.type, pval, pAdjustMethod,
+  Pathway.all <- Pathway_analysis.shiny(all.genes, pathway.type, pval, pAdjustMethod,
                                      qval, outdir, patientID, Name = "All", savePlot, plotType, showCategory)
   Pathway.all.result <- Pathway.all@result
   if (is.null(showCategory)){
@@ -141,13 +144,13 @@ Pathway.njtree.shiny <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAd
   
   if(nrow(Pathway.all.result) != 0){
     if (plotType == "dot"){
-    Pathplot <- dotplot(Pathway.all, showCategory = showCategory)
+    Pathplot <- dotplot(Pathway.all, showCategory = showCategory)+ggtitle('All gene')
      if(savePlot){
       ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_","enrich_barplot.pdf", sep = ""),plot = Pathplot, width = 3+(str_length)/10, height = fig.height)
     }
    }
     else if (plotType == "bar"){
-    Pathplot <- barplot(Pathway.all, showCategory = showCategory)
+    Pathplot <- barplot(Pathway.all, showCategory = showCategory)+ggtitle('All gene')
     if(savePlot){
       ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_", pathway.type, "enrich_barplot.pdf", sep = ""),plot = Pathplot ,width = 3+(str_length)/10, height = fig.height)
     }

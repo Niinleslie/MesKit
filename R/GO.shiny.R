@@ -27,7 +27,7 @@ options(warn = -1)
 #' GO.njtree(njtree, GO.type = "BP", savePlot = T)
 #' 
 
-GO_analysis <- function(genes = NULL, GO.type = GO.type, pval = pval, pAdjustMethod = pAdjustMethod,
+GO_analysis.shiny <- function(genes = NULL, GO.type = GO.type, pval = pval, pAdjustMethod = pAdjustMethod,
                         qval = qval, outdir = outdir, patientID = patientID, Name = Name, savePlot = savePlot, 
                         plotType = plotType, showCategory = showCategory){
   GO.type <- toupper(GO.type)
@@ -76,7 +76,7 @@ GO.njtree.shiny <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod 
     #split the gene symbol by ","
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
-    ego.branch <- GO_analysis(geneSymbol, GO.type, pval, pAdjustMethod,
+    ego.branch <- GO_analysis.shiny(geneSymbol, GO.type, pval, pAdjustMethod,
                 qval, outdir, patientID, sampleID, savePlot, plotType, showCategory)
       if (is.null(showCategory)){
         showCategory = nrow(ego.branch@result)
@@ -91,6 +91,7 @@ GO.njtree.shiny <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod 
       else{fig.height = 5}
       # plot result
       if(nrow(ego.branch@result)!=0){
+        print(ego.branch@result)
         if (plotType == "dot"){
         GO.plot <- dotplot(ego.branch, showCategory = showCategory)+ggtitle(sampleID)
         if(savePlot){
@@ -109,7 +110,7 @@ GO.njtree.shiny <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod 
     ego.branch.result <- rbind(GO.branch.result, ego.branch@result)
   }
   
-  ego.all <- GO_analysis(all.genes, GO.type, pval, pAdjustMethod,
+  ego.all <- GO_analysis.shiny(all.genes, GO.type, pval, pAdjustMethod,
                            qval, outdir, patientID, Name = "All", savePlot, plotType, showCategory)
   ego.all.result <- ego.all@result
   if (is.null(showCategory)){
@@ -125,12 +126,12 @@ GO.njtree.shiny <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod 
   
   if(nrow(ego.all.result) != 0){
     if (plotType == "dot"){
-    GO.plot <- dotplot(ego.all, showCategory = showCategory) + ggtitle(sampleID)
+    GO.plot <- dotplot(ego.all, showCategory = showCategory) + ggtitle(ego.all.result$branch)
     if(savePlot){
       ggsave(paste(outdir, "/", patientID, "_", Name, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = GO.plot,width = 3+(str_length)/10, height = fig.height)
     }
   }else if (plotType == "bar"){
-    GO.plot <- barplot(ego.all, showCategory = showCategory)+ ggtitle(sampleID)
+    GO.plot <- barplot(ego.all, showCategory = showCategory)+ ggtitle(ego.all.result$branch)
     if(savePlot){
       ggsave(paste(outdir, "/", patientID, "_", Name, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = GO.plot , width = 3+(str_length)/10, height = fig.height)
     }
