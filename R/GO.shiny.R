@@ -95,7 +95,7 @@ GO.njtree.shiny <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod 
         if (plotType == "dot"){
         GO.plot <- dotplot(ego.branch, showCategory = showCategory)+ggtitle(sampleID)
         if(savePlot){
-          ggsave(paste(outdir, "/", patientID, "_", Name, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = GO.plot,width = 3+(str_length)/10, height = fig.height)
+          ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = GO.plot,width = 3+(str_length)/10, height = fig.height)
         }
       }
         else if (plotType == "bar"){

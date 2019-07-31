@@ -5,7 +5,7 @@ library(org.Hs.eg.db)
 library(pathview)
 library(topGO)
 
-#options(stringsAsFactors = FALSE)
+#options(stringsAsFactors = F)
 #options(bitmapType='cairo')
 options(warn = -1)
 
@@ -106,9 +106,7 @@ Pathway.njtree.shiny <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAd
       fig.height = 5
     }
     if(nrow(Pathway.branch@result) != 0){
-      print(Pathway.branch@result)
       if (plotType == "dot"){
-      print(i)
       Pathplot <- dotplot(Pathway.branch, showCategory = showCategory)+ggtitle(sampleID)
       if(savePlot){
         ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_", "enrich_dotplot.pdf", sep = ""),plot = Pathplot,width = 3+(str_length)/10, height = fig.height)
@@ -120,7 +118,7 @@ Pathway.njtree.shiny <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAd
         ggsave(filename =paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_","enrich_barplot.pdf", sep = ""),plot = Pathplot,width = 3+(str_length)/10, height = fig.height)
       }
       }
-      if(!is.na(Pathplot$data$ID)){
+      if(!is.na(Pathplot$data$ID[1])){
         grob.list[[x]] <- Pathplot
         x <- x+1 
       }
