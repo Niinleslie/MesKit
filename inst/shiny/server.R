@@ -20,6 +20,12 @@ shinyServer(function(input, output){
   height2 <- reactive({
     return(input$height2)
   })
+  width3 <- reactive({
+    return(input$width3)
+  })
+  height3 <- reactive({
+    return(input$height3)
+  })
   
   maf_file <- reactive({input$maf})
   sample_info_file <- reactive({input$sampleInfo})
@@ -36,10 +42,13 @@ shinyServer(function(input, output){
   })
 
   upload_maf <- eventReactive(input$submit1,{
-    read.Maf.Shiny(maf_input =  maf_input(), 
-             sample_info_input =  sample_info_input(), use.ccf = input$useccf,
-            ccf.cluster.tsv_input = ccf.cluster.tsv_input(),
-            ccf.loci.tsv_input = ccf.loci.tsv_input(),ref.build = input$ref)
+    if(input$useccf){
+      read.Maf(patientID = input$patientid,maf.dir =input$maf$datapath, sample_info.dir = input$sampleInfo$datapath,
+               ccf.cluster.dir = input$ccf.cluster$datapath, ccf.loci.dir = input$ccf.loci$datapath)
+    }
+    else{
+      read.Maf(patientID = input$patientid,maf.dir = input$maf$datapath, sample_info.dir = input$sampleInfo$datapath)
+    }
     })
   upload_njtree <- eventReactive(input$submit3,{
     maf <- upload_maf()
@@ -84,21 +93,24 @@ shinyServer(function(input, output){
                            ccf.cluster.dir = input$ccf.cluster1$datapath,
                            ccf.loci.dir = input$ccf.loci1$datapath,
                            out.dir = '.')
-  })
+  },
+  width = width2,
+  height = height2
+  )
   
   output$GOplot <- renderPlot({
     njtree <- upload_njtree()
     GO.njtree.shiny(njtree, savePlot = F, qval = input$qval ,pval = input$pval)
   },
-  width = width2,
-  height = height2
+  width = width3,
+  height = height3
   )
   output$Pathwayplot <- renderPlot({
     njtree <- upload_njtree()
     Pathway.njtree.shiny(njtree, savePlot = F, qval = input$qval ,pval = input$pval)
   },
-  width = width2,
-  height = height2
+  width = width3,
+  height = height3
   )
   
   output$phylotree <- renderPlot({
@@ -214,3 +226,9 @@ output$DownloadPhyloTree <- downloadHandler(
 })
 
 
+upload_maf <- eventReactive(input$submit1,{
+  read.Maf.Shiny(maf_input =  maf_input(), 
+                 sample_info_input =  sample_info_input(), use.ccf = input$useccf,
+                 ccf.cluster.tsv_input = ccf.cluster.tsv_input(),
+                 ccf.loci.tsv_input = ccf.loci.tsv_input(),ref.build = input$ref)
+})

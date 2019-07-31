@@ -63,14 +63,15 @@ bodyHome <- tabItem("home",
 
 
 bodyITH <- tabItem("ITH",
-                   h2('ITH evaluation'),
+                   h2(strong('ITH evaluation')),
                    fluidRow(
-                     box(
-                       title = strong('Upload/Setting'),
-                       status = 'primary',
-                       solidHeader = T,
+                     column(
                        width = 3,
+                      box(
+                       status = 'primary',
+                       width = NULL,
                        id = 'upload',
+                       h3(strong('Adjust Upload/Setting')),
                        fileInput('maf','Upload your maf file'),
                        fileInput('sampleInfo','Upload sampleInfo' ),
                        textInput('patientid','Input patient ID'),
@@ -84,15 +85,23 @@ bodyITH <- tabItem("ITH",
                          fileInput('ccf.cluster','Upload ccf.cluster'),
                          fileInput('ccf.loci','Upload ccf.loci' )
                        ),
-                       sliderInput('width1','adjust image width',min = 700,max = 1100, value = 850),
-                       sliderInput('height1','adjust image height',min = 400,max = 570, value = 560),
                        actionBttn('submit1',div(
                          strong("Click ME to start analysing"),align = 'center',
                          icon("hand-right", lib = "glyphicon")))
                      ),
                      box(
+                      width = NULL,
+                      status = 'primary',
+                      h3(strong('Adjust image height/width')),
+                      sliderInput('width1','adjust image width',min = 700,max = 1100, value = 850),
+                       sliderInput('height1','adjust image height',min = 400,max = 570, value = 560)
+                     )
+                     ),
+                     column(
+                       width = 9,                     
+                      box(
                        h3(strong('Visuliaztion')),
-                       width = 9,
+                       width = NULL,
                        height = 900,
                        tabBox(                           
                          height = "100%", width = "100%",
@@ -129,16 +138,20 @@ bodyITH <- tabItem("ITH",
                          )
                          )
                      )
+                     )
+
                    )
 )
 
 bodyclone <- tabItem('clone',
+                     h2(strong('Clonal analysis')),
                     fluidRow(
+                      column(
+                        width = 3,
                       box(
-                        title = strong('Upload/Setting'),
                         status = 'primary',
-                        solidHeader = T,
-                        width = 3 ,
+                        width = NULL,
+                        h3(strong("Upload ccf")),
                         fileInput('ccf.cluster1','Upload ccf.cluster'),
                         fileInput('ccf.loci1','Upload ccf.loci' ),
                         actionBttn('okk',div(
@@ -146,22 +159,35 @@ bodyclone <- tabItem('clone',
                           icon("hand-right", lib = "glyphicon")))
                       ),
                       box(
+                        status = 'primary',
+                        width = NULL,
+                        h3(strong("Adjust image")),
+                        sliderInput('width2','adjust image width',min = 700,max = 1100, value = 850),
+                        sliderInput('height2','adjust image height',min = 400,max = 570, value = 560)
+                      )
+                      ),
+                     column(
+                       width = 9,
+                      box(
                         h3(strong('Visuliaztion')),
-                        width = 9,
+                        width = NULL,
                         tabBox(
                           selected = 'c01',
                           side = 'left',
+                          height = "100%",
+                          width = "100%",
                           tabPanel(
                             value = 'c01',
                             title = div(icon("table"), "TumorClonePlot"),
-                            withSpinner(plotOutput('cloneplot')),
+                            withSpinner(plotOutput('cloneplot',height = "100%")),
                            radioButtons('DownloadClonePlotCheck','Choose file type to download:',
                                      c('png' ='png','pdf' = 'pdf'),inline = T),
                            downloadBttn('DownloadClonePlot', 'Download')
                           )
                         )
-                        
                       )
+                     )    
+
                     )
 )
 
@@ -182,8 +208,8 @@ bodyfunction <- tabItem('function',
                              width = NULL,
                              status = 'primary',
                              h3(strong('Adjust image height/width')),
-                             sliderInput('width2','adjust image width',min = 700,max = 1100, value = 850),
-                             sliderInput('height2','adjust image height',min = 800,max = 2000, value = 1300)
+                             sliderInput('width3','adjust image width',min = 700,max = 1100, value = 850),
+                             sliderInput('height3','adjust image height',min = 800,max = 2000, value = 1300)
                           )
                           ),
                           column(
@@ -214,18 +240,18 @@ bodyfunction <- tabItem('function',
                         ))
 
 bodySurvival <- tabItem('Survival',
-                        h2('Phylotree Visualiaztion'),
+                        h2(strong('Phylotree Visualiaztion')),
                         fluidRow(
-                          box(
-                            title = strong('Upload/Setting'),
-                            status = 'primary',
-                            solidHeader = T,
+                          column(
                             width = 3,
-                            radioButtons('phyloTreeType','select tye of your phylotree ',
-                                         c( NJtree = 'njtree',
-                                            Newick = 'newick',
-                                            beast = 'beast',
-                                            PAML = 'PAML'),selected = 'njtree',inline = T),
+                            box(
+                            width = NULL,
+                            status = 'primary',
+                            radioButtons('phyloTreeType',h3(strong('select tye of your phylotree ')),
+                                         c( 'NJtree(default)' = 'njtree',
+                                            'Newick' = 'newick',
+                                            'beast' = 'beast',
+                                            'PAML' = 'PAML'),selected = 'njtree',inline = T),
                             h3(strong("parameters")),
                             checkboxInput('use.indel','choose if  use indel',value = FALSE),
                             checkboxInput('show.mutSig','choose if show mutationignature',value = TRUE),
@@ -238,15 +264,20 @@ bodySurvival <- tabItem('Survival',
                               actionBttn('submit.tree',div(
                               strong("Click ME to visualize result"),align = 'center',
                               icon("hand-right", lib = "glyphicon")))
+                          )
                           ),
-                          box(
+                          column(
                             width = 9,
+                            box(
+                            width = NULL,
                             height = 950 ,
                             withSpinner(plotOutput("phylotree",height = 800)) ,    
                             radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
                                          c('png' ='png','pdf' = 'pdf'),inline = T),
                             downloadBttn('DownloadPhyloTree', 'Download')
                           )
+                          )
+
                         ),
                         fluidRow(
                         ))
