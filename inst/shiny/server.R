@@ -106,8 +106,9 @@ shinyServer(function(input, output){
       validate(
         need(!(input$submit.tree),"Press tht button if you choose parameter")
       )
-      plot.PhyloTree(maf,use.indel = input$use.indel,heatmap.type = input$heatmap.type ,show.mutSig = input$show.mutSig,
+      p <- plot.PhyloTree(maf,use.indel = input$use.indel,heatmap.type = input$heatmap.type ,show.mutSig = input$show.mutSig,
                 show.heatmap = input$show.heatmap, output.dir = '',phylotree.type = input$phyloTreeType)
+      print(p)
     }
     else{
       validate(
@@ -116,7 +117,8 @@ shinyServer(function(input, output){
       validate(
         need((input$submit.tree),"press button") 
       )
-      plot.PhyloTree(phylotree.dir = input$phylotree.dir$datapath,phylotree.type = input$phyloTreeType,output.dir = '')
+      p <- plot.PhyloTree(phylotree.dir = input$phylotree.dir$datapath,phylotree.type = input$phyloTreeType,output.dir = '')
+      print(p)
     }
     
   })
