@@ -204,7 +204,7 @@ library(igraph)
 library(packcircles)
 library(trees)
 
-inferByClonevol <- function(dir., plotOption="fishplot"){
+inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
     ## read mutations in cluster.tsv from PyClone and get targeted clusters
     cluster.tsv=read.table(dir.cluster.tsv, sep="\t",
                            stringsAsFactors=FALSE, header=TRUE)
