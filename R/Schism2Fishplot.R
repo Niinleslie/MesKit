@@ -197,12 +197,12 @@ schism2Timescape <- function(dirClusterCellularity,
 ## clonevol method
 ## dependency of clonevol
 library(clonevol)
-library(gridBase)
-library(gridExtra)
-library(ggplot2)
-library(igraph)
-library(packcircles)
-library(trees)
+# library(gridBase)
+# library(gridExtra)
+# library(ggplot2)
+# library(igraph)
+# library(packcircles)
+# library(trees)
 
 inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
   ## read mutations in cluster.tsv from PyClone and get targeted clusters
