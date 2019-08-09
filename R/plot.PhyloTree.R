@@ -6,8 +6,7 @@
 #' @return NJtree plot (phylogenetic tree and heatmap)
 #' 
 #' @examples
-#' maf <- read.Maf("311252",dat.dir = './data/multi_lesion', BSG = "BSgenome.Hsapiens.UCSC.hg19")
-#' plot.NJtree(maf)
+#' plot.PhyloTree(maf)
 
 
 
@@ -17,28 +16,11 @@ library(reshape2)
 library(reshape)
 library(ape)
 library(ggplot2)
-library(deconstructSigs)
 library(RColorBrewer)
 library(methods)
-library(reshape2)
-library(BSgenome)
-library(BSgenome.Hsapiens.UCSC.hg19)
-library(GenomeInfoDb)
-library(grDevices)
-library(graphics)
-library(utils)
-# data frame needed
-library(plyr)
 library(ggrepel)
 library(ggtree)
 library(treeio)
-
-source('./R/plot.PhyloTree/NJtree.R')
-source('./R/plot.PhyloTree/read.Maf.R')
-source('./R/plot.PhyloTree/MutationalSig.R')
-source('./R/plot.PhyloTree/readNJtree.R')
-source('./R/plot.PhyloTree/mut_sort.R')
-source('./R/plot.PhyloTree/NJtree_heatmap.R')
 
 ##generate plot data 
 phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
@@ -677,24 +659,25 @@ plotPhyloTree <- function(maf, phylotree.dir = '.' ,use.indel = FALSE, show.mutS
     return(phylotree)
   }
 }
-## test
-maf <- read.Maf("311252",maf.dir  = './data/multi_lesion/maf/311252.maf',
-                sample_info.dir = './data/multi_lesion/sample_info.txt',ref.build = "hg19")
-plotPhyloTree(maf = maf,use.indel = T,show.mutSig = T)
-plotPhyloTree(maf,use.indel = T,show.mutSig = F)
-plotPhyloTree(maf,use.indel = F,show.mutSig = F)
-plotPhyloTree(maf,use.indel = F,show.mutSig = T)
-# CCF
-plotPhyloTree(maf,use.indel = T,show.mutSig = T,show.heatmap = '')
-plotPhyloTree(maf,use.indel = T,show.mutSig = F,show.heatmap = '')
-plotPhyloTree(maf,use.indel = F,show.mutSig = F,show.heatmap = '')
-plotPhyloTree(maf,use.indel = F,show.mutSig = T,show.heatmap = '')
+###### output test ######
+# maf <- read.Maf("311252",maf.dir  = './data/multi_lesion/maf/311252.maf',
+#                  sample_info.dir = './data/multi_lesion/sample_info.txt',ref.build = "hg19")
+# plotPhyloTree(maf = maf,use.indel = T,show.mutSig = T)
+# plotPhyloTree(maf,use.indel = T,show.mutSig = F)
+# plotPhyloTree(maf,use.indel = F,show.mutSig = F)
+# plotPhyloTree(maf,use.indel = F,show.mutSig = T)
+
+## CCF
+# plotPhyloTree(maf,use.indel = T,show.mutSig = T,show.heatmap = '')
+# plotPhyloTree(maf,use.indel = T,show.mutSig = F,show.heatmap = '')
+# plotPhyloTree(maf,use.indel = F,show.mutSig = F,show.heatmap = '')
+# plotPhyloTree(maf,use.indel = F,show.mutSig = T,show.heatmap = '')
 
 # newick
-file <- system.file("extdata", "pa.nwk", package="treeio")
-plotPhyloTree(phylotree.dir = file , phylotree.type = 'newick')
-# beast
-file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
-beast <- read.beast(file)
-beast <- as.phylo(beast)
-plotPhyloTree(phylotree.dir = file , phylotree.type = 'beast')
+# file <- system.file("extdata", "pa.nwk", package="treeio")
+# plotPhyloTree(phylotree.dir = file , phylotree.type = 'newick')
+# # beast
+# file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
+# beast <- read.beast(file)
+# beast <- as.phylo(beast)
+# plotPhyloTree(phylotree.dir = file , phylotree.type = 'beast')
