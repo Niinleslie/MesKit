@@ -266,7 +266,7 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
     fishes = createFishPlotObjects(fishPlotInput)
     for (i in seq_along(fishes)){
       fish = layoutClones(fishes[[i]])
-      fish = setCol(fish,f$clonevol.clone.colors)
+      fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
       fishPlot(fish,shape="spline", 
                title.btm="Patient", 
                cex.title=0.5,
