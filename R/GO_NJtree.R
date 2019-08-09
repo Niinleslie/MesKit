@@ -4,7 +4,6 @@ library(ReactomePA)
 library(org.Hs.eg.db)
 library(pathview)
 library(topGO)
-library(doseplot)
 library(dplyr)
 
 
