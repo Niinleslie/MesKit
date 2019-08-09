@@ -262,18 +262,18 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
     fishPlotInput <- generateFishplotInputs(results=consensusTree)
     
     if (plotOption == "fishplot"){
-        pdf('FISH.pdf', width=8, height=5)
         fishes = createFishPlotObjects(fishPlotInput)
         for (i in seq_along(fishes)){
-            fish = layoutClones(fishes[[i]])
-            fish = setCol(fish,f$clonevol.clone.colors)
-            fishPlot(fish,shape="spline", 
-                     title.btm="Patient", 
-                     cex.title=0.5,
-                     vlines=seq(1, length(sample.names)), 
-                     vlab=sample.names, pad.left=0.5)
+          pdf('FISH.pdf', width=8, height=5)
+          fish = layoutClones(fishes[[i]])
+          fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
+          fishPlot(fish,shape="spline", 
+                   title.btm="Patient", 
+                   cex.title=0.5,
+                   vlines=seq(1, length(sample.names)), 
+                   vlab=sample.names, pad.left=0.5)
+          dev.off()
         }
-        dev.off()
     } else if (plotOption == "timescape"){
         ## preparation for timscape input: treeEdges
         fishPlotTreeEdges <- fishPlotInput$parents[[1]]
@@ -308,13 +308,13 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
         colnames(clonalPrev) <- c("timepoint", "clone_id", "clonal_prev")
         ## print 
         timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
-                  xaxis_title="Time Point", yaxis_title="Clonal Prevalence",
+                  xaxis_title="Time Points", yaxis_title="Clonal Prevalence",
                   phylogeny_title="Clonal Phylogeny", alpha=50,
                   genotype_position="stack", perturbations="NA", sort=FALSE,
                   show_warnings=TRUE, width=900, height=NULL)
         message("Timescape Plot Done!")
     }
-}
+  }
 
 x <- aml1$variants
 # preparation
@@ -332,6 +332,8 @@ names(sample.groups) <- vaf.col.names
 x <- x[order(x$cluster),]
 clone.colors <- c('#999793', '#8d4891', '#f8e356', '#fe9536', '#d7352e')
 #clone.colors <- NULL
+
+consensusTree <- y
 
 y=infer.clonal.models(variants=x,
                         cluster.col.name='cluster',
