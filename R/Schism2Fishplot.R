@@ -410,10 +410,4 @@ plot.clonal.models(y,
                    # vector of width scales for each panel from left to right
                    panel.widths = c(3,4,2,4,2))
 
-# plot trees only
-#pdf('trees.pdf', width = 3, height = 5, useDingbats = FALSE)
-#plot.all.trees.clone.as.branch(y, branch.width = 0.5,
-                               node.size = 1, node.label.size = 0.5)
-#dev.off()
-
 
