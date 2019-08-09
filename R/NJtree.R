@@ -72,7 +72,7 @@ setMethod("getNJtreeSignature", 'NJtree', function(x){x@signature})
 
 
 ###### output test ######
-njtree <- NJtree(maf, use.indel = F, use.ccf = F)
-getMutSort(njtree)
-getPhyloTree(njtree)
-getNJtreeSignature(njtree)
+#njtree <- NJtree(maf, use.indel = F, use.ccf = F)
+#getMutSort(njtree)
+#getPhyloTree(njtree)
+#getNJtreeSignature(njtree)
