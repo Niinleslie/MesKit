@@ -244,13 +244,14 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
   }
   
   ##################### must be used ##################################
+  ## infer the relationship
   consensusTree=infer.clonal.models(variants=dat.final,
                                     cluster.col.name='cluster',
                                     ccf.col.names=sample.names,
                                     cancer.initiation.model='monoclonal',
                                     subclonal.test='bootstrap',
                                     subclonal.test.model='non-parametric',
-                                    founding.cluster=length(ls.cluster_id),
+                                    founding.cluster=1,
                                     num.boots=1000,
                                     cluster.center='mean',
                                     min.cluster.vaf=0.01,
@@ -266,7 +267,7 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
     fishes = createFishPlotObjects(fishPlotInput)
     for (i in seq_along(fishes)){
       fish = layoutClones(fishes[[i]])
-      fish = setCol(fish,f$clonevol.clone.colors)
+      fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
       fishPlot(fish,shape="spline", 
                title.btm="Patient", 
                cex.title=0.5,
@@ -332,6 +333,8 @@ names(sample.groups) <- vaf.col.names
 x <- x[order(x$cluster),]
 clone.colors <- c('#999793', '#8d4891', '#f8e356', '#fe9536', '#d7352e')
 #clone.colors <- NULL
+
+dat.final <- x
 
 y=infer.clonal.models(variants=x,
                       cluster.col.name='cluster',
