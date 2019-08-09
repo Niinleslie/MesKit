@@ -1,3 +1,10 @@
+#load packages
+library(clusterProfiler)
+library(ReactomePA)
+library(org.Hs.eg.db)
+library(pathview)
+library(topGO)
+
 #options(stringsAsFactors = FALSE)
 #options(bitmapType='cairo')
 options(warn = -1)

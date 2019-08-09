@@ -71,12 +71,6 @@ prepareSchismInput <- function(dirClusterTsv, dirLociTsv, dirOutput){
 #' schism2Fishplot(dir.cluster.cellularity, dir.GA.consensusTree)
 #'}
 
-## dependencies of fishplot
-library(png)
-library(Hmisc)
-library(plotrix)
-library(fishplot)
-
 ## generate results for createFishPlotObjects
 schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree){
   ## get cellularity infomation
@@ -147,7 +141,6 @@ schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree){
 
 ## Timescape method
 ## dependency of timescape
-library(timescape)
 
 schism2Timescape <- function(dirClusterCellularity, 
                              dirGAconsensusTree, 
@@ -196,13 +189,6 @@ schism2Timescape <- function(dirClusterCellularity,
 
 ## clonevol method
 ## dependency of clonevol
-library(clonevol)
-library(gridBase)
-library(gridExtra)
-library(ggplot2)
-library(igraph)
-library(packcircles)
-library(trees)
 
 inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
   ## read mutations in cluster.tsv from PyClone and get targeted clusters

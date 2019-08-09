@@ -87,13 +87,6 @@ math_patient <- function(vaf_input_mt, minvaf, maxvaf){
   math_cal(VAF_column)
 }
 
-######### Compare with maftools ###############
-# testing
-# library(maftools)
-# laml = read.maf(maf = maf_file)
-# tcga.ab.2972.het = inferHeterogeneity(maf = laml, tsb = '311252-V', vafCol = 'VAF', useSyn = TRUE)
-# VAF_column2 <- tcga.ab.2972.het$"clusterData"$t_vaf
-# plotClusters(clusters = tcga.ab.2972.het)
 
 
 
