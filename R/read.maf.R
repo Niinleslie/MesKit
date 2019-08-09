@@ -13,8 +13,6 @@
 #' @examples
 #' read.maf(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE) 
 
-library(maftools)
-library(ggplot2)
 
 # Maf class
 Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', ref.build='character'))
@@ -87,14 +85,3 @@ read.Maf <- function(patientID, maf.dir, sample_info.dir, ccf.cluster.dir = NULL
 }
 
 
-# # Error in setattr(x, "row.names", rn) : row names must be 'character' or 'integer', not 'integer'
-# gs.dat = getGeneSummary(m2)
-# data.table::setDF(gs.dat)
-# rownames(gs.dat) = as.character(gs.dat$Hugo_Symbol)
-# 
-# 
-# # maftools comparasion
-# maftools.result <- read.maf(paste(maf.dir,'/',patientID,'.maf',sep = ""))
-# plotmafSummary(maf=maftools.result, rmOutlier = TRUE, addStat='median', dashboard = T, titvRaw = FALSE)
-
-setwd("/home/ninomoriaty/R_Project")

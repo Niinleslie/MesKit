@@ -20,14 +20,6 @@
 #'}
 
 
-# import pkgs
-library(ggplot2)
-library(maftools)
-library(ggridges)
-library(ggsci)
-library(dplyr)
-library(mclust)
-
 ############ Major function ############
 VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_format = "png", show.MATH = T)
 {
