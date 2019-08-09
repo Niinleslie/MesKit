@@ -250,7 +250,7 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
                                       cancer.initiation.model='monoclonal',
                                       subclonal.test='bootstrap',
                                       subclonal.test.model='non-parametric',
-                                      founding.cluster=length(ls.cluster_id),
+                                      founding.cluster=1,
                                       num.boots=1000,
                                       cluster.center='mean',
                                       min.cluster.vaf=0.01,
@@ -267,8 +267,8 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
           pdf('FISH.pdf', width=8, height=5)
           fish = layoutClones(fishes[[i]])
           fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
-          if (length(clusterLs) > 10) {
-            fish=setCol(fish, as.character(clusterLs))
+          if (length(sample.names) > 10) {
+            fish=setCol(fish, as.character(sample.names))
           }
           fishPlot(fish,shape="spline", 
                    title.btm="Patient", 
