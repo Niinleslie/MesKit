@@ -1,3 +1,9 @@
+library(ggplot2)
+library(ggridges)
+library(ggsci)
+library(ggrepel)
+library(gridExtra)
+
 TumorClones_plot <- function(patientID, ccf.dir = "../data/", out.dir = "./Figures/", clone.min.mut = 5, clone.min.aveCCF = 0.1){
 	ccf <- read.table(paste(ccf.dir, patientID, ".cluster.tsv", sep = ""), sep = "\t", header = T, stringsAsFactors = F)
 	ccf <- ccf[which(ccf$size>=5 & ccf$mean>=0.1),c(1,2,4)]
