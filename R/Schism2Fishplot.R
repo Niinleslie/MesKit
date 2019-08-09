@@ -263,8 +263,8 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
   fishPlotInput <- generateFishplotInputs(results=consensusTree)
   
   if (plotOption == "fishplot"){
-    pdf('FISH.pdf', width=8, height=5)
     fishes = createFishPlotObjects(fishPlotInput)
+    pdf('FISH.pdf', width=8, height=5)
     for (i in seq_along(fishes)){
       fish = layoutClones(fishes[[i]])
       fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
@@ -275,6 +275,7 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
                vlab=sample.names, pad.left=0.5)
     }
     dev.off()
+    message("FishPlot Done!")
   } else if (plotOption == "timescape"){
     ## preparation for timscape input: treeEdges
     fishPlotTreeEdges <- fishPlotInput$parents[[1]]
