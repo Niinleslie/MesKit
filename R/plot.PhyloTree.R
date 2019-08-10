@@ -7,7 +7,7 @@
 #' 
 #' @examples
 #' maf <- read.Maf("311252",dat.dir = './data/multi_lesion', BSG = "BSgenome.Hsapiens.UCSC.hg19")
-#' plot.NJtree(maf)
+#' plotPhyloTree(maf)
 
 
 
