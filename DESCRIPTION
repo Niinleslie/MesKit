@@ -17,7 +17,7 @@ Imports:
 Remotes: 
     hdng/clonevol,
     chrisamiller/fishplot
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: DataRepresentation, WESeq, Visualization, DriverMutation,
