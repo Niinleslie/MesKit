@@ -4,10 +4,7 @@
 #' images from different samples or conclude all samples' VAF information in one image.
 #' 
 #' @import ggplot2 ggridges ggsci dplyr
-#' @importFrom maftools 
-#' @importFrom maftools 
-#' @importFrom maftools 
-#' @importFrom maftools 
+#' @importFrom maftools inferHeterogeneity
 #' 
 #' @param maf_file specify a maf document/directory as the input of the function
 #' @param sample_option specify single/all sample names (Tumor_Sample_Barcodes, tsb). Default "OFA".
