@@ -3,7 +3,11 @@
 #' frequency distribution curve with ggplot2 as well as ggridges. We could use different parameters to control output 
 #' images from different samples or conclude all samples' VAF information in one image.
 #' 
-#' @import ggplot2 maftools ggridges ggsci dplyr
+#' @import ggplot2 ggridges ggsci dplyr
+#' @importFrom maftools 
+#' @importFrom maftools 
+#' @importFrom maftools 
+#' @importFrom maftools 
 #' 
 #' @param maf_file specify a maf document/directory as the input of the function
 #' @param sample_option specify single/all sample names (Tumor_Sample_Barcodes, tsb). Default "OFA".
@@ -35,8 +39,6 @@ VAF_plot <-function(maf, sample_option = "OFA", theme_option = "aaas", file_form
   # extract all tumor sample barcode
   tsb_ls <- as.data.frame(as.data.frame(table(samples))["samples"][which(as.data.frame(table(samples))["samples"]$samples != ""),])
   colnames(tsb_ls) <- c("samples")
-  
-
   
   # sample options
   if (sample_option == "All")

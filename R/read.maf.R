@@ -1,7 +1,10 @@
 #' Output an new maf document with information of sample_info 
 #' @description Add sample_info to the original maf file to get a new maf.The new maf file adds three pieces of information:lesion,patient and time
 #'
-#' @import maftools ggplot2
+#' @import ggplot2 
+#' @importFrom maftools MAF
+#' @importFrom maftools summarizeMaf
+#' @importFrom maftools plot.mafSummary
 #'
 #' @param patientID patient/sample name
 #' @param dat.dir specify a data directory as the input of the function
@@ -11,7 +14,9 @@
 #' @return a Maf object/class includes information of sample_info and mut.id and summary figure of it
 #'
 #' @examples
+#' \dontrun{
 #' read.maf(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE) 
+#' }
 
 # Maf class
 Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', ref.build='character'))

@@ -8,6 +8,8 @@
 #' @param minvaf filter low frequency variants caused by sequencing error. Default 0. (on the scale of 0 to 1)
 #' @param maxvaf filter high frequency variants due to copy number alterations or impure tumor. Default 1. (on the scale of 0 to 1)
 #' @return MATH score list for all/selected samples or a single MATH score value
+#' 
+#' @export MATH_score
 
 #' @examples
 #' \dontrun{
