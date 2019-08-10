@@ -12,7 +12,7 @@ Imports:
     utils, ape,  methods, plotrix, grDevices, gridExtra, rtracklayer, Biostrings,
     BSgenome, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Hsapiens.UCSC.hg38, GenomeInfoDb, DO.db,  
     reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel, 
-    ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, png,    
+    ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,  
     maftools, deconstructSigs, pathview, topGO, timescape, packcircles
 Remotes: 
     hdng/clonevol,
