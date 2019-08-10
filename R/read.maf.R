@@ -13,7 +13,6 @@
 #' @examples
 #' read.maf(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE) 
 
-library("maftools")
 # Maf class
 Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', ref.build='character'))
 
