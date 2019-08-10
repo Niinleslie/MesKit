@@ -9,11 +9,11 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports: 
-    utils, ape,  methods, plotrix, grDevices, gridExtra,
-    BSgenome, BSgenome.Hsapiens.UCSC.hg19, GenomeInfoDb, 
-    reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel,
+    utils, ape,  methods, plotrix, grDevices, gridExtra, rtracklayer, Biostrings,
+    BSgenome, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Hsapiens.UCSC.hg38, GenomeInfoDb, DO.db,  
+    reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel, 
     ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, fishplot, png,    
-    maftools, deconstructSigs
+    maftools, deconstructSigs, pathview, topGO, timescape, packcircles
 
 RoxygenNote: 6.1.0
 Encoding: UTF-8
@@ -29,4 +29,3 @@ git_branch: RELEASE_3_8
 git_last_commit: 4078933
 git_last_commit_date: 2019-6-1
 Date/Publication: 2019-6-1
-      
