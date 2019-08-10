@@ -26,17 +26,6 @@
 #' 
 #'}
 
-
-## import pkgs
-library(ggplot2)
-library(maftools)
-library(ggridges)
-library(ggsci)
-library(dplyr)
-library(cowplot)
-
-## source ScoreMATH function
-setwd("/home/ninomoriaty/R_Project/MesKit/R")
 source("MATH_Score.R")
 
 ## Main function for VAF plot

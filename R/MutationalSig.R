@@ -23,24 +23,7 @@
 #' driver_genes_dir, mut.threshold=30)
 #'}
 
-
-## import pkgs
-## dependencies of deconstructSigs
-library(reshape2)
-library(BSgenome)
-library(BSgenome.Hsapiens.UCSC.hg19)
-library(BSgenome.Hsapiens.UCSC.hg38)
-library(GenomeInfoDb)
-library(grDevices)
-library(graphics)
-library(utils)
-library(deconstructSigs)
-library(tidyr)
-## data frame needed
-library(plyr)
-
 ## main function
-## Usage: Mutational_Sigs_branch(maf_file, samples_vector)
 treeMutationalSig <- function(mafData, branch, 
                                  patientID, refBuild, 
                                  driverGenesDir=FALSE, mutThreshold=50){
