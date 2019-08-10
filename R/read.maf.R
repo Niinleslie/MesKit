@@ -18,7 +18,7 @@
 #' read.maf(patientID, dat.dir="./data", use.ccf=FALSE, 
 #' plot.mafSummary=TRUE) 
 
-
+MAF <- setClass(Class="MAF", contains="MAF")
 ## classMaf class
 classMaf <- setClass(Class="classMaf", contains="MAF", 
                 slots= c(ccf.cluster='data.table', ccf.loci='data.table', 
