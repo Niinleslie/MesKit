@@ -10,12 +10,6 @@
 #' maf <- read.Maf('patient', dat.dir = './data/multi_lesion' )
 #' mutSharedPrivate(maf, 311252)
 
-#load the packages
-library("ggsci")
-library("ggplot2")
-library("cowplot")
-library('RColorBrewer')
-library('tidyr')
 
 mutSharedPrivate <- function(maf, show.num = FALSE){
   
