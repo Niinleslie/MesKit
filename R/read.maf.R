@@ -13,9 +13,9 @@
 #' @examples
 #' read.maf(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE) 
 
-library("maftools")
+#library("maftools")
 # Maf class
-Maf <- setClass(Class = "Maf", contains = "MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', ref.build='character'))
+Maf <- setClass(Class = "Maf", contains = "maftools::MAF", slots =  c(ccf.cluster = 'data.table', ccf.loci = 'data.table', patientID = 'character', ref.build='character'))
 
 # read.maf main function
 read.Maf <- function(patientID, maf.dir, sample_info.dir, ccf.cluster.dir = NULL, ccf.loci.dir = NULL, plot.mafSummary = TRUE, ref.build = "hg19"){
