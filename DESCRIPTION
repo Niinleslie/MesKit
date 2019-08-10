@@ -18,7 +18,6 @@ Remotes:
     hdng/clonevol,
     chrisamiller/fishplot
 RoxygenNote: 6.1.0
-Encoding: UTF-8
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: DataRepresentation, WESeq, Visualization, DriverMutation,
