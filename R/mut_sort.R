@@ -1,14 +1,4 @@
 #' get the sorted binary| ccf mutation matrix
-#' @import reshape2
-#' @import tidyr
-
-library(reshape2)
-library(tidyr)
-library(ape)
-library(ggplot2)
-library(dplyr)
-
-
 maf_preprocess <- function(maf.dat, use.indel = F, use.ccf = F, ccf, ccf.mutation.id, ccf.mutation.sep){
   if(!use.indel){
     maf.dat <- maf.dat[which(maf.dat$Variant_Type == "SNP"),]
