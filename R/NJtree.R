@@ -11,27 +11,6 @@
 #' getNJtreeSignature(njtree)
 
 
-# import pkgs
-library(plyr)
-library(tidyr)
-library(ape)
-library(ggplot2)
-library(dplyr)
-# dependencies of deconstructSigs
-library(reshape2)
-library(BSgenome)
-library(BSgenome.Hsapiens.UCSC.hg19)
-library(BSgenome.Hsapiens.UCSC.hg38)
-library(GenomeInfoDb)
-library(grDevices)
-library(graphics)
-library(utils)
-library(deconstructSigs)
-# data frame needed
-library(plyr)
-
-
-
 # set NJtree object
 NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE, 
                         sig.min.mut.number = 50, ccf.mutation.id, ccf.mutation.sep){
@@ -70,9 +49,3 @@ setMethod("getPhyloTree",'NJtree', function(x){x@nj})
 setGeneric("getNJtreeSignature", function(x, signature){standardGeneric("getNJtreeSignature")})
 setMethod("getNJtreeSignature", 'NJtree', function(x){x@signature})
 
-
-###### output test ######
-#njtree <- NJtree(maf, use.indel = F, use.ccf = F)
-#getMutSort(njtree)
-#getPhyloTree(njtree)
-#getNJtreeSignature(njtree)
