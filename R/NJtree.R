@@ -29,7 +29,7 @@ NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE
   }
   mat.nj = nj(dist.gene(t(mut_sort)))
   branch <- read.njtree(mat.nj)
-  list.sig <- Mutational_sigs_tree(maf.dat = maf.dat, branch, patientID, ref.build, mut.threshold = sig.min.mut.number)
+  list.sig <- treeMutationalSig(mafDat = maf.dat, branch, patientID, ref.build, mutThreshold = sig.min.mut.number)
   signature <- list.sig[[1]]
   mut.branches <- list.sig[[2]]
   njtree <- new('NJtree', nj = mat.nj, mut_sort = mut_sort, patientID = patientID, signature = signature, mut_branches = mut.branches)
