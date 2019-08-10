@@ -12,20 +12,18 @@ Imports:
     utils, ape,  methods, plotrix, grDevices, gridExtra, rtracklayer, Biostrings,
     BSgenome, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Hsapiens.UCSC.hg38, GenomeInfoDb, DO.db,  
     reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel, 
-    ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, fishplot, png,    
+    ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, png,    
     maftools, deconstructSigs, pathview, topGO, timescape, packcircles
-
+Remotes: 
+    hdng/clonevol,
+    chrisamiller/fishplot
 RoxygenNote: 6.1.0
 Encoding: UTF-8
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-biocViews: DataRepresentation, DNASeq, Visualization, DriverMutation,
+biocViews: DataRepresentation, WESeq, Visualization, DriverMutation,
         VariantAnnotation, FeatureExtraction, Classification,
         SomaticMutation, Sequencing, FunctionalGenomics, Survival
 NeedsCompilation: no
-Packaged: 2019-6-1 01:24:30 UTC; biocbuild
 git_url: https://github.com/Niinleslie/MesKit
-git_branch: RELEASE_3_8
-git_last_commit: 4078933
 git_last_commit_date: 2019-6-1
-Date/Publication: 2019-6-1
