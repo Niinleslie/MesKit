@@ -70,7 +70,7 @@ prepareSchismInput <- function(dirClusterTsv, dirLociTsv, dirOutput){
 #' 
 #' @export schism2Fishplot
 #' @export schism2Timescape
-#' @export inferByClonevols
+#' @export inferByClonevol
 #'
 #' @examples
 #' \dontrun{
