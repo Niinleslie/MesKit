@@ -5,8 +5,8 @@
 #'  pick the maxium. Return a data frame of each set/branch's mutational 
 #'  signature.
 #' 
-#' @import reshape2 BSgenome BSgenome.Hsapiens.UCSC.hg19 GenomeInfoDb grDevices
-#' graphics utils deconstructSigs
+#' @import reshape2 BSgenome BSgenome.Hsapiens.UCSC.hg19 BSgenome.Hsapiens.UCSC.hg38 
+#' GenomeInfoDb grDevices graphics utils deconstructSigs
 #' @importFrom plyr match_df
 #' 
 #' @param maf_file specify a maf document/directory as the input of the 
