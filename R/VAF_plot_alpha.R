@@ -36,7 +36,8 @@ plotVAF <-function(maf, sampleOption="OFA",
 {
     ## original data preparation
     ## read .maf file
-    mafInput <- maf@data[,-c("patient", "lesion", "time")]
+    sampleInfoPrelude <- c("patient", "lesion", "time")
+    mafInput <- maf@data[, !(names(maf@data) %in% sampleInfoPrelude)]
     laml <- maf
     ## specify patienID
     patientID <- maf@patientID
