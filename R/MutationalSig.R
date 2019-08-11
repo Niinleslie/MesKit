@@ -7,7 +7,7 @@
 #' 
 #' @import reshape2 BSgenome BSgenome.Hsapiens.UCSC.hg19 GenomeInfoDb grDevices
 #' graphics utils deconstructSigs
-#' @import plyr
+#' @importFrom plyr match_df
 #' 
 #' @param maf_file specify a maf document/directory as the input of the 
 #' function
