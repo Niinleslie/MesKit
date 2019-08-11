@@ -18,8 +18,8 @@
 #' read.maf(patientID, dat.dir="./data", use.ccf=FALSE, 
 #' plot.mafSummary=TRUE) 
 
-## classMaf class
-classMaf <- setClass(Class="classMaf", contains="MAF", 
+## Maf class
+Maf <- setClass(Class="classMaf", contains="MAF", 
                 slots= c(ccf.cluster='data.table', ccf.loci='data.table', 
                          patientID='character', ref.build='character'))
 
@@ -107,7 +107,7 @@ readMaf<- function(patientID, mafDir,
     ## summarize sample_info and mut.id with summarizeMaf
     mafSummary <- suppressMessages(maftools:::summarizeMaf(maf=mafData, 
                                                             chatty=TRUE))
-    maf <- classMaf(data=mafData, 
+    maf <- Maf(data=mafData, 
                variants.per.sample=mafSummary$variants.per.sample, 
                variant.type.summary=mafSummary$variant.type.summary,
                variant.classification.summary=mafSummary$
