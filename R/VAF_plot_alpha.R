@@ -36,7 +36,7 @@ plotVAF <-function(maf, sampleOption="OFA",
 {
     ## original data preparation
     ## read .maf file
-    mafInput <- as.data.frame(maf@data)
+    mafInput <- maf@data
     laml <- maf
     ## specify patienID
     patientID <- maf@patientID
@@ -65,7 +65,7 @@ plotVAF <-function(maf, sampleOption="OFA",
                                              tsb=as.character(
                                                  sampleMt$Samples[1]), 
                                              vafCol='VAF', 
-                                             useSyn=TRUE)$"clusterData"
+                                             useSyn=TRUE)$clusterData
             colnames(clusterMt)[6]="VAF"
             ## print VAF pictures for all samples
             if (sampleOption == "All"){
@@ -116,7 +116,7 @@ plotVAF <-function(maf, sampleOption="OFA",
                                     " <- inferHeterogeneity(maf=laml, ", 
                                     "tsb=as.character(sampleMt[1,3]), ", 
                                     "vafCol=\'VAF\', ", 
-                                    "useSyn=TRUE)$\"clusterData\"", sep ="")
+                                    "useSyn=TRUE)$clusterData", sep ="")
             eval(parse(text=clusterMtCha))
             clusterMtCha <- paste("colnames(clusterMt_", counterMt, 
                                     ")[6]=\"VAF\"",sep ="")
@@ -143,8 +143,8 @@ plotVAF <-function(maf, sampleOption="OFA",
             vafInputMt$Samples %in% sampleOption),]
         clusterMt <- inferHeterogeneity(
             maf=laml, tsb=as.character(sampleMt[1,3]), 
-            vafCol='VAF', useSyn=TRUE)$"clusterData"
-        colnames(clusterMt)[6]="VAF"
+            vafCol='VAF', useSyn=TRUE)$clusterData
+        colnames(clusterMt)[colnames(clusterMt)=="t_vaf"] <- "VAF"
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         sampleOption, mathScore)
@@ -198,7 +198,7 @@ plotVAF <-function(maf, sampleOption="OFA",
     densityInfo <- data.frame(layer_data(pic))
     
     ## OFA specific: get scaling ratio
-    if (typeof(ingredients) == "list"){
+    if (!is.null(ingredients)){
         iscale <- ingredients$iscale[1]
         scale <- ingredients$scale[1]
     }
@@ -206,7 +206,7 @@ plotVAF <-function(maf, sampleOption="OFA",
     ## Obtain vline Coordinate(x, xend, y, yend)
     for (cluster_name in clusterLs){
         x_end <- max(clusterMt[which(
-            clusterMt$cluster == cluster_name)]$VAF)
+            clusterMt$cluster == cluster_name), ]$VAF)
         x_end_alter <- densityInfo$x[which.min(
             abs(outer(densityInfo$x,x_end,FUN="-")))]
         y_end <- densityInfo$y[which(
@@ -399,7 +399,7 @@ plotVAF <-function(maf, sampleOption="OFA",
         xEndLs <- data.frame()
         yEndLs <- data.frame()
         clusterMt <- clusterAll[which(
-            clusterAll$Tumor_Sample_Barcode == tsb)]
+            clusterAll$Tumor_Sample_Barcode == tsb), ]
         colnames(clusterMt)[6]="VAF"
         clusterLs <- unique(clusterMt$cluster)
         ## A draft for density infomation(density_info) of ggplot
