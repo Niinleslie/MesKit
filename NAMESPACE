@@ -3,7 +3,7 @@
 export(GO_analysis)
 export(GO_analysis.shiny)
 export(ScoreMATH)
-export(inferByClonevols)
+export(inferByClonevol)
 export(plotVAF)
 export(prepareSchismInput)
 export(readMaf)
