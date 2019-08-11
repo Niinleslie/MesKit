@@ -109,7 +109,7 @@ read.Maf <- function(patientID, mafDir,
     }
     
     ## summarize sample_info and mut.id with summarizeMaf
-    mafSummary <- suppressMessages(maftools:::summarizeMaf(maf=mafData, 
+    mafSummary <- suppressMessages(summarizeMaf(maf=mafData, 
                                                             chatty=TRUE))
     maf <- classMaf(data=mafData, 
                variants.per.sample=mafSummary$variants.per.sample, 
