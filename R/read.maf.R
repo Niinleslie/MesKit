@@ -3,7 +3,7 @@
 #'  new maf file adds three pieces of information:lesion,patient and time
 #'
 #' @import ggplot2 
-#' @importFrom maftools MAF
+#' @importClassesFrom maftools MAF
 #' @importFrom maftools summarizeMaf
 #' @importFrom maftools plot.mafSummary
 #'
