@@ -27,10 +27,8 @@
 #' 
 #'}
 
-source("MATH_Score.R")
-
 ## Main function for VAF plot
-VAF_plot <-function(maf, sampleOption="OFA", 
+plotVAF <-function(maf, sampleOption="OFA", 
                     themeOption="aaas", fileFormat="png", 
                     showMATH=TRUE)
 {

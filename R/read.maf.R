@@ -28,7 +28,7 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
                          patientID='character', ref.build='character'))
 
 ## read.maf main function
-read.Maf <- function(patientID, mafDir, 
+readMaf <- function(patientID, mafDir, 
                     sampleInfoDir, ccfDir=NULL, 
                     plotMafSummary=TRUE, refBuild="hg19"){
     ## read maf file
