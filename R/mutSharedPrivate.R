@@ -5,7 +5,6 @@
 #' @param show.num a logic parameter to determine whether to show the number of each mutations in the stack plot
 #'
 #' @return Stack and point-line plot
-#' @export
 #' @examples
 #' maf <- read.Maf('patient', dat.dir = './data/multi_lesion' )
 #' mutSharedPrivate(maf, 311252)

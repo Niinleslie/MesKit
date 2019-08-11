@@ -12,7 +12,9 @@
 #' @param maxvaf filter high frequency variants due to copy number alterations 
 #' or impure tumor. Default 1. (on the scale of 0 to 1)
 #' @return MATH score list for all/selected samples or a MATH score value.
-
+#' 
+#' @export ScoreMATH
+#' 
 #' @examples
 #' \dontrun{
 #' maf_file="/home/ninomoriaty/R_Project/311252_snv_indel.imputed.maf"

@@ -5,7 +5,7 @@
 #'  to control output images from different samples or conclude all samples' 
 #'  VAF information in one image.
 #' 
-#' @import ggplot2 ggridges ggsci dplyr
+#' @import ggplot2 ggridges ggsci 
 #' @importFrom maftools inferHeterogeneity
 #' 
 #' @param maf_file specify a maf document/directory as the input of the 
@@ -17,6 +17,8 @@
 #' @param fileFormat choose an output file format accessable for ggsave. 
 #' Default "png".
 #' @return Images of selected samples' VAF
+#' 
+#' @export plotVAF
 #'
 #' @examples
 #' \dontrun{
@@ -27,17 +29,15 @@
 #' 
 #'}
 
-source("MATH_Score.R")
-
 ## Main function for VAF plot
-VAF_plot <-function(maf, sampleOption="OFA", 
+plotVAF <-function(maf, sampleOption="OFA", 
                     themeOption="aaas", fileFormat="png", 
                     showMATH=TRUE)
 {
     ## original data preparation
     ## read .maf file
     mafInput <- maf@data[,-c("patient", "lesion", "time")]
-    laml <- read.maf(mafInput)
+    laml <- maf
     ## specify patienID
     patientID <- maf@patientID
     ## extract vaf info

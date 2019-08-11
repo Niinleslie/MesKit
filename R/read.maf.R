@@ -3,9 +3,9 @@
 #'  new maf file adds three pieces of information:lesion,patient and time
 #'
 #' @import ggplot2 
-#' @importFrom maftools MAF
-#' @importFrom maftools summarizeMaf
-#' @importFrom maftools plot.mafSummary
+#' @importClassesFrom maftools MAF
+#' @importFrom maftools plotmafSummary
+#' @importFrom maftools read.maf
 #'
 #' @param patientID patient/sample name
 #' @param dat.dir specify a data directory as the input of the function
@@ -16,6 +16,9 @@
 #' BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
+#' 
+#' @exportClass classMaf
+#' @export readMaf
 #'
 #' @examples
 #' \dontrun{
@@ -28,7 +31,7 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
                          patientID='character', ref.build='character'))
 
 ## read.maf main function
-read.Maf <- function(patientID, mafDir, 
+readMaf <- function(patientID, mafDir, 
                     sampleInfoDir, ccfDir=NULL, 
                     plotMafSummary=TRUE, refBuild="hg19"){
     ## read maf file
@@ -109,17 +112,18 @@ read.Maf <- function(patientID, mafDir,
     }
     
     ## summarize sample_info and mut.id with summarizeMaf
-    mafSummary <- suppressMessages(summarizeMaf(maf=mafData, 
-                                                            chatty=TRUE))
+    mafSum <- read.maf(mafData)
+    
+    # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
     maf <- classMaf(data=mafData, 
-               variants.per.sample=mafSummary$variants.per.sample, 
-               variant.type.summary=mafSummary$variant.type.summary,
-               variant.classification.summary=mafSummary$
+               variants.per.sample=mafSum@variants.per.sample, 
+               variant.type.summary=mafSum@variant.type.summary,
+               variant.classification.summary=mafSum@
                    variant.classification.summary, 
-               gene.summary=mafSummary$gene.summary,
-               summary=mafSummary$summary, 
+               gene.summary=mafSum@gene.summary,
+               summary=mafSum@summary, 
                maf.silent=mafSilent, 
-               clinical.data=mafSummary$sample.anno, 
+               clinical.data=mafSum@clinical.data, 
                ccf.cluster=ccfClusterTsv, 
                ccf.loci=ccfLociTsv, 
                patientID=patientID, 
@@ -137,5 +141,4 @@ read.Maf <- function(patientID, mafDir,
     }
     message("Class Maf Generation Done!")
     return(maf)
-    
 }
