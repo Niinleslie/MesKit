@@ -1,6 +1,6 @@
 #' A object of NJtree painter
 #' 
-#' @import reshape2 reshape ape ggplot2 deconstructSigs RColorBrewer
+#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer
 #' 
 #' @param maf MAF object
 #' @return NJtree plot (phylogenetic tree and heatmap)
