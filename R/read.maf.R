@@ -87,30 +87,6 @@ readMaf <- function(patientID, mafDir,
     ccfClusterTsv <- data.table::setDT(ccfClusterTsvInput)
     ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
-    ## generate maf.silent and filter maf.data
-    vcNonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", 
-                      "Splice_Site", "Translation_Start_Site",
-                      "Nonsense_Mutation", "Nonstop_Mutation", 
-                      "In_Frame_Del", "In_Frame_Ins", 
-                      "Missense_Mutation")
-    
-    mafSilent=mafData[!Variant_Classification %in% vcNonSilent]
-    if(nrow(mafSilent) > 0){
-        mafSilentVc <- mafSilent[,.N, .(
-            Tumor_Sample_Barcode, Variant_Classification)]
-        mafSilentVcCast <- data.table::dcast(
-            data=mafSilentVc, formula=Tumor_Sample_Barcode ~ Variant_Classification, 
-            fill=0, value.var='N')
-        summarySilent <- data.table::data.table(
-            ID=c('Samples', 
-                 colnames(mafSilentVcCast)[2:ncol(mafSilentVcCast)]),
-            N=c(nrow(mafSilentVcCast), 
-                colSums(mafSilentVcCast[,2:ncol(mafSilentVcCast), 
-                                           with=FALSE])))
-        
-        # maf.data=maf.data[Variant_Classification %in% vc.nonSilent]
-    }
-    
     ## summarize sample_info and mut.id with summarizeMaf
     mafSum <- read.maf(mafData)
     
