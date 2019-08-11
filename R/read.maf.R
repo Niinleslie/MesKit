@@ -4,8 +4,8 @@
 #'
 #' @import ggplot2 
 #' @importClassesFrom maftools MAF
-#' @importFrom maftools summarizeMaf
 #' @importFrom maftools plotmafSummary
+#' @importFrom maftools read.maf
 #'
 #' @param patientID patient/sample name
 #' @param dat.dir specify a data directory as the input of the function
@@ -112,17 +112,18 @@ readMaf <- function(patientID, mafDir,
     }
     
     ## summarize sample_info and mut.id with summarizeMaf
-    mafSummary <- suppressMessages(summarizeMaf(maf=mafData, 
-                                                            chatty=TRUE))
+    mafSum <- read.maf(mafData)
+    
+    # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
     maf <- classMaf(data=mafData, 
-               variants.per.sample=mafSummary$variants.per.sample, 
-               variant.type.summary=mafSummary$variant.type.summary,
-               variant.classification.summary=mafSummary$
+               variants.per.sample=mafSum@variants.per.sample, 
+               variant.type.summary=mafSum@variant.type.summary,
+               variant.classification.summary=mafSum@
                    variant.classification.summary, 
-               gene.summary=mafSummary$gene.summary,
-               summary=mafSummary$summary, 
+               gene.summary=mafSum@gene.summary,
+               summary=mafSum@summary, 
                maf.silent=mafSilent, 
-               clinical.data=mafSummary$sample.anno, 
+               clinical.data=mafSum@clinical.data, 
                ccf.cluster=ccfClusterTsv, 
                ccf.loci=ccfLociTsv, 
                patientID=patientID, 
@@ -140,5 +141,4 @@ readMaf <- function(patientID, mafDir,
     }
     message("Class Maf Generation Done!")
     return(maf)
-    
 }
