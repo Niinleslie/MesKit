@@ -10,6 +10,8 @@
 #' @param dir.output specify the directory of two output for SCHISM
 #' @return clusterEstimates.tsv, mutation_to_cluster.tsv
 #' 
+#' @export prepareSchismInput
+#' 
 #' @examples
 #' \dontrun{
 #' prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
@@ -65,6 +67,10 @@ prepareSchismInput <- function(dirClusterTsv, dirLociTsv, dirOutput){
 #' @param dir.GA.consensusTree specify the directory of GA.consensusTree 
 #' document
 #' @return the fishplot showing the evolution relationship predicted by SCHISM
+#' 
+#' @export schism2Fishplot
+#' @export schism2Timescape
+#' @export inferByClonevols
 #'
 #' @examples
 #' \dontrun{

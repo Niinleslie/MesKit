@@ -14,6 +14,8 @@
 #' @param branch_file specify a txt document/directory as the input of 
 #' the branches (needed to be refined)
 #' @return data frame of each set/branch's mutational signature.
+#' 
+#' @export treeMutationalSig
 #'
 #' @examples
 #' \dontrun{

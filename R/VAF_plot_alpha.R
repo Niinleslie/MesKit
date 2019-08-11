@@ -17,6 +17,8 @@
 #' @param fileFormat choose an output file format accessable for ggsave. 
 #' Default "png".
 #' @return Images of selected samples' VAF
+#' 
+#' @export plotVAF
 #'
 #' @examples
 #' \dontrun{

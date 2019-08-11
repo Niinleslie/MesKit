@@ -16,6 +16,9 @@
 #' BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
+#' 
+#' @exportClass classMaf
+#' @export readMaf
 #'
 #' @examples
 #' \dontrun{
