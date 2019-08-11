@@ -8,7 +8,6 @@
 #' @param ccf.mutation.id manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy
 #' @param ccf.mutation.sep manually specify the separator character.Values on each line of the ccf.mutation.id are separated by this character. I
 #' @return binary mutation heatmap or mutation CCF heatmap
-#' @export
 #'
 #' @examples
 #' mut.heatmap(Maf, use.indel = F)

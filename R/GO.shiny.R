@@ -21,8 +21,8 @@ options(warn = -1)
 #' @param savePlot logical. Whether to print the dotplot or barplot of GO result.
 #' @param plotType one of "dot" , "bar"
 #' @param showCategory category numbers
-#' @return
-#' @export a .xls file contains or picture of GO analysis result
+#' 
+#' @export GO_analysis.shiny
 #' @examples 
 #' GO.njtree(njtree, GO.type = "BP", savePlot = T)
 #' 

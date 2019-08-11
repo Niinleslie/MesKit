@@ -14,7 +14,6 @@ options(warn = -1)
 #' @param showCategory category numbers
 
 #' @return
-#' @export a .xls file contains or picture of GO analysis result
 #' @examples
 #' Pathway.njtree(njtree, pathway.type = "KEGG", savePlot = T)
 
