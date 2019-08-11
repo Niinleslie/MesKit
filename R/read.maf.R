@@ -5,7 +5,7 @@
 #' @import ggplot2 
 #' @importClassesFrom maftools MAF
 #' @importFrom maftools summarizeMaf
-#' @importFrom maftools plot.mafSummary
+#' @importFrom maftools plotmafSummary
 #'
 #' @param patientID patient/sample name
 #' @param dat.dir specify a data directory as the input of the function
