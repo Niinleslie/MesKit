@@ -2,7 +2,10 @@
 #' @description Add sample_info to the original maf file to get a new maf.The
 #'  new maf file adds three pieces of information:lesion,patient and time
 #'
-#' @import maftools ggplot2
+#' @import ggplot2 
+#' @importFrom maftools MAF
+#' @importFrom maftools summarizeMaf
+#' @importFrom maftools plot.mafSummary
 #'
 #' @param patientID patient/sample name
 #' @param dat.dir specify a data directory as the input of the function
@@ -15,8 +18,9 @@
 #' mut.id and summary figure of it
 #'
 #' @examples
-#' read.maf(patientID, dat.dir="./data", use.ccf=FALSE, 
-#' plot.mafSummary=TRUE) 
+#' \dontrun{
+#' read.maf(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE) 
+#' }
 
 ## classMaf class
 classMaf <- setClass(Class="classMaf", contains="MAF", 
@@ -24,7 +28,7 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
                          patientID='character', ref.build='character'))
 
 ## read.maf main function
-readMaf<- function(patientID, mafDir, 
+read.Maf <- function(patientID, mafDir, 
                     sampleInfoDir, ccfDir=NULL, 
                     plotMafSummary=TRUE, refBuild="hg19"){
     ## read maf file
@@ -105,7 +109,7 @@ readMaf<- function(patientID, mafDir,
     }
     
     ## summarize sample_info and mut.id with summarizeMaf
-    mafSummary <- suppressMessages(maftools:::summarizeMaf(maf=mafData, 
+    mafSummary <- suppressMessages(summarizeMaf(maf=mafData, 
                                                             chatty=TRUE))
     maf <- classMaf(data=mafData, 
                variants.per.sample=mafSummary$variants.per.sample, 

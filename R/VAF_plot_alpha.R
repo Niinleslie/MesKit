@@ -5,7 +5,8 @@
 #'  to control output images from different samples or conclude all samples' 
 #'  VAF information in one image.
 #' 
-#' @import ggplot2 maftools ggridges ggsci dplyr
+#' @import ggplot2 ggridges ggsci dplyr
+#' @importFrom maftools inferHeterogeneity
 #' 
 #' @param maf_file specify a maf document/directory as the input of the 
 #' function
@@ -19,17 +20,17 @@
 #'
 #' @examples
 #' \dontrun{
-#' plotVAF(maf_file, sampleOption="OFA", themeOption="aaas") 
-#' plotVAF(maf_file, sampleOption="All") 
-#' plotVAF(maf_file, sampleOption="MIX") 
-#' plotVAF(maf_file, sampleOption="tsb1", fileFormat="pdf") 
+#' VAF_plot(maf_file, sampleOption="OFA", themeOption="aaas") 
+#' VAF_plot(maf_file, sampleOption="All") 
+#' VAF_plot(maf_file, sampleOption="MIX") 
+#' VAF_plot(maf_file, sampleOption="tsb1", fileFormat="pdf") 
 #' 
 #'}
 
 source("MATH_Score.R")
 
 ## Main function for VAF plot
-plotVAF <-function(maf, sampleOption="OFA", 
+VAF_plot <-function(maf, sampleOption="OFA", 
                     themeOption="aaas", fileFormat="png", 
                     showMATH=TRUE)
 {
