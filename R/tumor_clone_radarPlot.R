@@ -1,4 +1,11 @@
-TumorClones_plot <- function(patientID, ccf.dir = "../data/", out.dir = "./Figures/", clone.min.mut = 5, clone.min.aveCCF = 0.1){
+#' @description Plot Tumor clone and corresponding ccf distribution
+#' #importFrom ggridges scale_discrete_manual
+#' @param maf_file specify a maf document/directory as the input of the 
+#' 
+#' @export tumorClonesPlot
+
+
+tumorClonesPlot <- function(patientID, ccf.dir = "../data/", out.dir = "./Figures/", clone.min.mut = 5, clone.min.aveCCF = 0.1){
 	ccf <- read.table(paste(ccf.dir, patientID, ".cluster.tsv", sep = ""), sep = "\t", header = T, stringsAsFactors = F)
 	ccf <- ccf[which(ccf$size>=5 & ccf$mean>=0.1),c(1,2,4)]
   cluster.ids <- unique(ccf$cluster_id)
