@@ -27,8 +27,8 @@
 
 ## classMaf class
 classMaf <- setClass(Class="classMaf", contains="MAF", 
-                slots= c(ccf.cluster='data.table', ccf.loci='data.table', 
-                         patientID='character', ref.build='character'))
+                     slots= c(ccf.cluster='data.table', ccf.loci='data.table', 
+                              patientID='character', ref.build='character'))
 
 ## read.maf main function
 readMaf <- function(patientID, mafDir, 
@@ -36,20 +36,20 @@ readMaf <- function(patientID, mafDir,
                     plotMafSummary=TRUE, refBuild="hg19"){
     ## read maf file
     mafInput <- read.table(mafDir, quot="", 
-                            header=TRUE, fill=TRUE, 
-                            sep='\t')
+                           header=TRUE, fill=TRUE, 
+                           sep='\t')
     ## read info file
     sampleInfoInput <-  read.table(sampleInfoDir, quot="", 
-                                     header=TRUE, fill=TRUE, 
-                                     sep='', stringsAsFactors=FALSE)
+                                   header=TRUE, fill=TRUE, 
+                                   sep='', stringsAsFactors=FALSE)
     ## read ccf file
     if (!is.null(ccfDir)) {
         ccfClusterTsvInput <- read.table(ccfDir, quote="", 
-                                            header=TRUE, fill=TRUE, 
-                                            sep='\t', stringsAsFactors=FALSE)
-        ccfLociTsvInput <- read.table(ccfDir, quote="", 
                                          header=TRUE, fill=TRUE, 
                                          sep='\t', stringsAsFactors=FALSE)
+        ccfLociTsvInput <- read.table(ccfDir, quote="", 
+                                      header=TRUE, fill=TRUE, 
+                                      sep='\t', stringsAsFactors=FALSE)
     } else {
         ccfClusterTsvInput <- NULL
         ccfLociTsvInput <- NULL
@@ -92,18 +92,18 @@ readMaf <- function(patientID, mafDir,
     
     # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
     maf <- classMaf(data=mafData, 
-               variants.per.sample=mafSum@variants.per.sample, 
-               variant.type.summary=mafSum@variant.type.summary,
-               variant.classification.summary=mafSum@
-                   variant.classification.summary, 
-               gene.summary=mafSum@gene.summary,
-               summary=mafSum@summary, 
-               maf.silent=mafSum@maf.silent, 
-               clinical.data=mafSum@clinical.data, 
-               ccf.cluster=ccfClusterTsv, 
-               ccf.loci=ccfLociTsv, 
-               patientID=patientID, 
-               ref.build=refBuild)
+                    variants.per.sample=mafSum@variants.per.sample, 
+                    variant.type.summary=mafSum@variant.type.summary,
+                    variant.classification.summary=mafSum@
+                        variant.classification.summary, 
+                    gene.summary=mafSum@gene.summary,
+                    summary=mafSum@summary, 
+                    maf.silent=mafSum@maf.silent, 
+                    clinical.data=mafSum@clinical.data, 
+                    ccf.cluster=ccfClusterTsv, 
+                    ccf.loci=ccfLociTsv, 
+                    patientID=patientID, 
+                    ref.build=refBuild)
     
     ## print the summary plot
     if (plotMafSummary) {
