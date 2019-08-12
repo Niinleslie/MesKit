@@ -5,8 +5,9 @@
 #'  to control output images from different samples or conclude all samples' 
 #'  VAF information in one image.
 #' 
-#' @import ggplot2 ggridges ggsci 
+#' @import ggplot2 ggsci 
 #' @importFrom maftools inferHeterogeneity
+#' @importFrom ggridges geom_density_ridges
 #' 
 #' @param maf_file specify a maf document/directory as the input of the 
 #' function
