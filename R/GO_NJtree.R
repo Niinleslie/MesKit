@@ -67,7 +67,7 @@ GO.njtree <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod = "BH"
     #split the gene symbol by ","
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
-    ego.branch <- GO_analysis.shiny(geneSymbol, GO.type, pval, pAdjustMethod,
+    ego.branch <- GO_analysis(geneSymbol, GO.type, pval, pAdjustMethod,
                 qval, outdir, patientID, sampleID)
       if (is.null(showCategory)){
         showCategory = nrow(ego.branch@result)
@@ -100,7 +100,7 @@ GO.njtree <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod = "BH"
     ego.branch.result <- rbind(GO.branch.result, ego.branch@result)
   }
   
-  ego.all <- GO_analysis.shiny(all.genes, GO.type, pval, pAdjustMethod,
+  ego.all <- GO_analysis(all.genes, GO.type, pval, pAdjustMethod,
                            qval, outdir, patientID, name = "All")
   ego.all.result <- ego.all@result
   if (is.null(showCategory)){

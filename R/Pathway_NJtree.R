@@ -84,7 +84,7 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
     
-    Pathway.branch <- Pathway_analysis.shiny(geneSymbol, pathway.type, pval, pAdjustMethod,
+    Pathway.branch <- Pathway_analysis(geneSymbol, pathway.type, pval, pAdjustMethod,
                                 qval, outdir, patientID, sampleID)
     if (is.null(showCategory) || showCategory > nrow(Pathway.branch@result)){
       showCategory = nrow(Pathway.branch@result)
@@ -119,7 +119,7 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
     Pathway.branch.result <- rbind(Pathway.branch.result, Pathway.branch@result)
   }
   
-  Pathway.all <- Pathway_analysis.shiny(all.genes, pathway.type, pval, pAdjustMethod,
+  Pathway.all <- Pathway_analysis(all.genes, pathway.type, pval, pAdjustMethod,
                                      qval, outdir, patientID, Name = "All")
   Pathway.all.result <- Pathway.all@result
   if (is.null(showCategory)){
