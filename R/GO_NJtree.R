@@ -1,4 +1,4 @@
-options(stringsAsFactors = FALSE)
+options(stringsAsFactors = T)
 options(bitmapType='cairo')
 options(warn = -1)
 
@@ -10,20 +10,20 @@ options(warn = -1)
 #' @param qval Cutoff value of qvalue. Default qval=0.2
 #' @param pAdjustMethod one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default pAdjustMethod="BH"
 #' @param savePlot logical. Whether to print the dotplot or barplot of GO result.
+#' @param writeTable logical. Whether to print the table of GO result.
 #' @param plotType one of "dot" , "bar"
 #' @param showCategory category numbers
-#' @export GO_analysis
+#' @return
+#' @export a .xls file contains or picture of GO analysis result
 #' @examples 
-#' GO.njtree(njtree, GO.type = "BP", savePlot = T)
+#' GO.njtree(njtree, GO.type = "BP", savePlot = T, writeTable = T)
 #' 
 
-
 GO_analysis <- function(genes = NULL, GO.type = GO.type, pval = pval, pAdjustMethod = pAdjustMethod,
- qval = qval, outdir = outdir, patientID = patientID, Name = Name, savePlot = savePlot, 
- plotType = plotType, showCategory = showCategory){
+                        qval = qval, outdir = outdir, patientID = patientID, name = name){
   GO.type <- toupper(GO.type)
   GO.type <- match.arg(GO.type, c("BP", "MF", "CC", "ALL"))
-
+  
   ego <- enrichGO(gene          = genes,
                   OrgDb         = org.Hs.eg.db,
                   keyType       = 'SYMBOL',
@@ -31,86 +31,131 @@ GO_analysis <- function(genes = NULL, GO.type = GO.type, pval = pval, pAdjustMet
                   pvalueCutoff  = pval,
                   pAdjustMethod = pAdjustMethod,
                   qvalueCutoff  = qval
-                  )
-
+  )
+  
   ego@result <- ego@result[which(ego@result$pvalue < pval && ego@result$qvalue < qval), ]
-
+  
   if (!is.null(ego) && nrow(ego@result) > 0){
-    if(Name == "All"){
+    if(name == "All"){
       ego@result$Case <- patientID
     }
     else{
-      ego@result$branch <- Name
-    }
-                 
-    if (savePlot){
-      if (is.null(showCategory)){
-        showCategory = nrow(ego@result)
-      }
-
-      str_length = max(nchar(ego@result$Description))
-      str_height = showCategory
-
-      if (str_height > 15){
-        fig.height = str_height/3
-      }else{fig.height = 5}
- 
-      if (plotType == "dot"){
-        pdf(paste(outdir, "/", patientID, "_", Name, "_GO_", GO.type, "_dotplot.pdf", sep = ""), width = 3+(str_length)/10, height = fig.height)
-        print(dotplot(ego, showCategory = showCategory))
-        dev.off()
-      }
-      else if (plotType == "bar"){
-        pdf(paste(outdir, "/", patientID, "_", Name, "_GO_", GO.type, "_barplot.pdf", sep = ""), width = 3+(str_length)/10, height = fig.height)
-        print(barplot(ego, showCategory = showCategory))
-        dev.off()
-      }
+      ego@result$branch <- name
     }
   }
-  return(ego@result)
+  return(ego)
 }
 
 
 
 GO.njtree <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod = "BH", 
-  qval = 0.2, outdir = NULL, savePlot = TRUE, plotType = "dot", showCategory = NULL){
+                      qval = 0.2, outdir = NULL, savePlot = TRUE, writeTable = TRUE ,plotType = "dot", showCategory = NULL){
   branches <- njtree@mut_branches
   patientID <- njtree@patientID
-
+  
   if(is.null(outdir)){
     outdir <- getwd()
   }
- 
+  
   GO.branch.result <- data.frame()
   all.genes <- c()
+  grob.list <- list(NULL)
+  x <- 1
   for (i in 1:length(branches)){
     branch <- branches[[i]]
     sampleID <- names(branches)[i]
     #split the gene symbol by ","
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
-
-    GO.branch.result <- rbind(GO.branch.result, GO_analysis(geneSymbol, GO.type, pval, pAdjustMethod,
-     qval, outdir, patientID, sampleID, savePlot, plotType, showCategory))
+    ego.branch <- GO_analysis.shiny(geneSymbol, GO.type, pval, pAdjustMethod,
+                qval, outdir, patientID, sampleID)
+      if (is.null(showCategory)){
+        showCategory = nrow(ego.branch@result)
+      }
+      
+      str_length = max(nchar(ego.branch@result$Description))
+      str_height = showCategory
+      
+      if (str_height > 15){
+        fig.height = str_height/3
+      }
+      else{fig.height = 5}
+      # plot result
+      if(nrow(ego.branch@result)!=0){
+        if (plotType == "dot"){
+        go.plot <- dotplot(ego.branch, showCategory = showCategory) + ggtitle(sampleID)
+        if(savePlot){
+          ggsave(filename = paste(outdir, "/", patientID, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = go.plot,width = 3+(str_length)/10, height = fig.height)
+        }
+      }
+        else if (plotType == "bar"){
+        go.plot <- barplot(ego.branch, showCategory = showCategory)+ggtitle(sampleID)
+        if(savePlot){
+          ggsave(paste(outdir, "/", patientID, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = go.plot,width = 3+(str_length)/10, height = fig.height)
+        }
+      }
+        grob.list[[x]] <- go.plot
+        x <- x+1
+      }
+    ego.branch.result <- rbind(GO.branch.result, ego.branch@result)
   }
-
-  GO.result <- GO_analysis(all.genes, GO.type, pval, pAdjustMethod,
-     qval, outdir, patientID, Name = "All", savePlot, plotType, showCategory)
   
-  if(is.null(GO.branch.result)){
+  ego.all <- GO_analysis.shiny(all.genes, GO.type, pval, pAdjustMethod,
+                           qval, outdir, patientID, name = "All")
+  ego.all.result <- ego.all@result
+  if (is.null(showCategory)){
+    showCategory = nrow(ego.all.result)
+  }
+  
+  str_length = max(nchar(ego.all.result$Description))
+  str_height = showCategory
+  
+  if (str_height > 15){
+    fig.height = str_height/3
+  }else{fig.height = 5}
+  
+  if(nrow(ego.all.result) != 0){
+    if (plotType == "dot"){
+    go.plot <- dotplot(ego.all, showCategory = showCategory) + ggtitle(ego.all.result$branch)
+    if(savePlot){
+      ggsave(paste(outdir, "/", patientID, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = go.plot,width = 3+(str_length)/10, height = fig.height)
+    }
+  }else if (plotType == "bar"){
+    go.plot <- barplot(ego.all, showCategory = showCategory)+ ggtitle(ego.all.result$branch)
+    if(savePlot){
+      ggsave(paste(outdir, "/", patientID, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = go.plot , width = 3+(str_length)/10, height = fig.height)
+    }
+  }
+    grob.list[[length(grob.list)+1]] <- go.plot
+  }
+  
+  
+  if(is.null(ego.branch.result)){
     message("0 enriched terms found in all of the shared or private mutations")
+  }else{
+    if(writeTable){
+      write.table(ego.branch.result, file = paste(outdir, "/",  patientID, "_GO_branch_enrich.xls",sep = ""),
+                sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
+    }
   }
-  else{
-  write.table(GO.branch.result, file = paste(outdir, "/",  patientID, "_GO_branch_enrich.xls",sep = ""),
-            sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)    
-  }
-
-  if(is.null(GO.result)){
+  
+  if(is.null(ego.all.result)){
     message(paste( "0 enriched terms found in mutated genes in all tumor samples from Case", patientID))
   }
   else{
-  write.table(GO.result, file = paste(outdir, "/",  patientID, "_GO_all_enrich.xls",sep = ""),
-            sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
+    if(writeTable){
+      write.table(ego.all.result, file = paste(outdir, "/",  patientID, "_GO_all_enrich.xls",sep = ""),
+                sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
+    }
+  }
+  if(length(grob.list) == 1){
+    grid.arrange(grobs = grob.list, ncol =1)
+  }
+  else if(length(grob.list) > 1){
+    grid.arrange(grobs = grob.list, ncol = 2)
+  }
+  else if(length(grob.list) == 0){
+    print('nothing')
   }
 }
 
