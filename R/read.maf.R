@@ -32,22 +32,22 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
 
 ## read.maf main function
 readMaf <- function(patientID, mafDir, 
-                    sampleInfoDir, ccfDir=NULL, 
+                    sampleInfoDir, ccfClusterTsvDir=NULL, ccfLociTsvInput=NULL, 
                     plotMafSummary=TRUE, refBuild="hg19"){
     ## read maf file
-    mafInput <- read.table(mafDir, quot="", 
+    mafInput <- read.table(mafDir, quote="", 
                            header=TRUE, fill=TRUE, 
                            sep='\t')
     ## read info file
-    sampleInfoInput <-  read.table(sampleInfoDir, quot="", 
+    sampleInfoInput <-  read.table(sampleInfoDir, quote="", 
                                    header=TRUE, fill=TRUE, 
                                    sep='', stringsAsFactors=FALSE)
     ## read ccf file
-    if (!is.null(ccfDir)) {
-        ccfClusterTsvInput <- read.table(ccfDir, quote="", 
+    if (!is.null(ccfClusterTsvDir) & !is.null(ccfLociTsvInput)) {
+        ccfClusterTsvInput <- read.table(ccfClusterTsvDir, quote="", 
                                          header=TRUE, fill=TRUE, 
                                          sep='\t', stringsAsFactors=FALSE)
-        ccfLociTsvInput <- read.table(ccfDir, quote="", 
+        ccfLociTsvInput <- read.table(ccfLociTsvInput, quote="", 
                                       header=TRUE, fill=TRUE, 
                                       sep='\t', stringsAsFactors=FALSE)
     } else {
