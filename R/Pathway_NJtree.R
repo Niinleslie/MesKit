@@ -13,9 +13,7 @@ options(warn = -1)
 #' @param writeTable logical. Whether to print the table of  result.
 #' @param plotType one of "dot" , "bar"
 #' @param showCategory category numbers
-
 #' @return
-#' @export a .xls file contains or picture of GO analysis result
 #' @examples
 #' Pathway.njtree(njtree, pathway.type = "KEGG", savePlot = T)
 

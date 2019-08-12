@@ -14,7 +14,6 @@ options(warn = -1)
 #' @param plotType one of "dot" , "bar"
 #' @param showCategory category numbers
 #' @return
-#' @export a .xls file contains or picture of GO analysis result
 #' @examples 
 #' GO.njtree(njtree, GO.type = "BP", savePlot = T, writeTable = T)
 #' 
