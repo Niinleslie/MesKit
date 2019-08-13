@@ -39,6 +39,7 @@ heatmap_input <- function(maf, use.indel, use.ccf, ccf, ccf.mutation.id, ccf.mut
 mut.heatmap <- function(maf, use.indel = FALSE, use.ccf = FALSE, ccf.mutation.id, ccf.mutation.sep){
   maf.dat <- maf@data
   ccf <- maf@ccf.loci
+  patientID <- maf@patientID
   type  <- "Mutation"
   if(use.ccf){
     type <- "CCF"

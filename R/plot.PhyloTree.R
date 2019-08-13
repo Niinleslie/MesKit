@@ -1,16 +1,134 @@
-#' A object of NJtree painter
+#' A  phylogenetic tree painter
 #' 
-#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer
+#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggtree ggrepel
 #' 
 #' @param maf MAF object
-#' @return NJtree plot (phylogenetic tree and heatmap)
+#' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML"
+#' @param use.indel Seclet SNP in Variant type
+#' @param show.mutSig if show Mutational Signature in Images
+#' @param sig.min.mut.number minimum mutation number in each branch
+#' @param show.heatmap if plot heatmap that show mutation distribution in each branch
+#' @param heatmap.type type of heatmap
+#' @param ccf.mutation.id determine the id of mutation
+#' @param ccf.mutation.sep sep of id
+#' @param savePlot if save plot in your working directory
+#' @param phylotree.dat If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter
+#' 
+#' @return Images of Phylotree
+#' 
+#' @export plotPhyloTree
 #' 
 #' @examples
-#' maf <- read.Maf("311252",dat.dir = './data/multi_lesion', BSG = "BSgenome.Hsapiens.UCSC.hg19")
-#' plotPhyloTree(maf)
+#' maf <- readMaf(patientID = "311252",mafDir = './inst/exdata/multi_lesion/maf/311252.maf', 
+#'                sampleInfoDir = './inst/exdata/multi_lesion/sample_info.txt', refBuild = "hg19")
+#' plotPhyloTree(maf, use.indel = F)
+#' plotPhyloTree(maf, use.indel = T)
+#' # if use ccf 
+#' maf <- readMaf("311252",mafDir  = './inst/exdata/multi_lesion/maf/311252.maf',
+#'                 sampleInfoDir = './inst/exdata/multi_lesion/sample_info.txt',
+#'                 ccfClusterTsvDir = './inst/exdata/multi_lesion/ccf/311252.cluster.tsv',
+#'                 ccfLociTsvInput = './inst/exdata/multi_lesion/ccf/311252.loci.tsv',
+#'                 refBuild = "hg19")
+#' plotPhyloTree(maf, use.indel = F, heatmap.type = '')
+#' plotPhyloTree(maf, use.indel = T, heatmap.type = '')
+#' file <- system.file("extdata", "pa.nwk", package="treeio")
+#' plotPhyloTree(phylotree.dat = file , phylotree.type = 'newick')
+#' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
+#' beast <- read.beast(file)
+#' beast <- as.phylo(beast)
+#' plotPhyloTree(phylotree.dat = file , phylotree.type = 'beast')
 
-
-
+## main plotting function
+plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE, 
+                          show.mutSig = TRUE, sig.min.mut.number = 50, 
+                          show.heatmap = TRUE, heatmap.type = 'binary',
+                          ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"), 
+                          ccf.mutation.sep = ":", savePlot = FALSE,
+                          phylotree.dat = NULL){
+  if(heatmap.type == 'binary'){
+    use.ccf = FALSE
+  }else{
+    use.ccf = TRUE
+  }
+  
+  if(phylotree.type != 'njtree'){
+    show.heatmap = FALSE
+    show.mutSig = FALSE
+    if(phylotree.type == 'newick'){
+      Phylo <- read.tree(phylotree.dat)
+    }else if(phylotree.type == 'beast'){
+      beast <- read.beast(phylotree.dat)
+      Phylo <- as.phylo(beast)
+    }
+    else if(phylotree.type == 'PAML'){
+      PAML <- read.paml_rst(phylotree.dat)
+      Phylo <- as.PAML(beast)
+    }
+    else{
+      message("the form of the tree file is not supported")
+    }
+  }
+  else{
+    # set NJtree object(njtree)
+    njtree <- NJtree(maf, use.indel, use.ccf, ccf.mutation.id = ccf.mutation.id, 
+                     ccf.mutation.sep = ccf.mutation.sep)
+    # PhyloTree input data
+    Phylo <- njtree@nj
+    signature <- njtree@signature
+    maf@patientID <- paste(maf@patientID, ".NJtree", sep = "")
+  }
+  # generate phylotree data
+  phylotree.input.data <- phylotreeInput(Phylo, signature, show.mutSig ,phylotree.type)
+  phylotree.input.data <- phylotree.input.data[(phylotree.input.data$distance!=0|
+                                                  phylotree.input.data$sample == 'NORMAL'),]
+  
+  
+  if(show.mutSig){
+    #Set the color
+    color.scale <- colorSet(unique(phylotree.input.data$signature))
+    maf@patientID <- paste(maf@patientID, ".mutsig", sep = "")
+  }
+  #plot phylotree
+  phylotree <- generatePlotObject(phylotree.input.data, color.scale, show.mutSig, 
+                                  phylotree.type)
+  
+  if(show.heatmap){
+    heatmap <- mut.heatmap(maf, use.indel, use.ccf,ccf.mutation.id = ccf.mutation.id,
+                           ccf.mutation.sep = ccf.mutation.sep)
+    plot.njtree <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.8) + draw_plot(heatmap, x = 0.8,y = -0.035, width = 0.2)
+    if(savePlot){
+      output.dir = getwd()
+      if(!use.ccf){
+        if(use.indel){
+          ggsave(filename = paste(output.dir,"/", maf@patientID, ".useindel.pdf", sep = ""),
+                 plot = plot.njtree, width = 14, height = 7)
+        }
+        else{
+          ggsave(filename = paste(output.dir,"/", maf@patientID, ".pdf", sep = ""),
+                 plot = plot.njtree, width = 14, height = 7)
+        }
+      }
+      else{
+        if(use.indel){
+          ggsave(filename = paste(output.dir,"/", maf@patientID, ".useindel.ccf.pdf", sep = ""),
+                 plot = plot.njtree, width = 14, height = 7)
+        }else{
+          ggsave(filename = paste(output.dir,"/", maf@patientID, ".ccf.pdf", sep = ""),
+                 plot = plot.njtree, width = 14, height = 7)
+        }
+      }
+    }
+    return(plot.njtree)
+  }
+  else{
+    if(savePlot){
+      output.dir = getwd()
+      ggsave(filename = paste(output.dir,"/", phylotree.type, ".pdf", sep = ""), 
+             plot = phylotree, width = 14, height = 7)
+    }
+    return(phylotree)
+  }
+}
 ##generate plot data 
 phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
   #Generate the adjacency matrix
@@ -50,7 +168,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
                           'horizon_angle' = 0)
   
   SetPhylotree <- function(sub.edge, x0, y0, w, horizon, name.list,
-                            plot.data, point.list, target.node, Root.node, edge.left){
+                           plot.data, point.list, target.node, Root.node, edge.left){
     #total vertex of tree
     vertex.total = 0
     #Stores the list of angles
@@ -97,7 +215,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
       if(i == 1){
         angle=(pi-w)/2 + angle.list [i]/2 + horizon - pi/2
       }else{
-          angle <- angle+angle.list [(i-1)]/2 + angle.list [i]/2 + horizon - pi/2
+        angle <- angle+angle.list [(i-1)]/2 + angle.list [i]/2 + horizon - pi/2
       }
       angle.list2 <- append(angle.list2, angle)
     }
@@ -166,7 +284,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     #first internal node(NORMAL)
     if(t == 1){
       p.n <- SetPhylotree(sub.edge, 0, 0, pi*2/3, pi/2, name.list, 
-                         plot.data, point.list,target.node, Root.node, edge)
+                          plot.data, point.list,target.node, Root.node, edge)
       plot.data <- p.n[[1]]
       name.list <- p.n[[2]]
     }
@@ -200,9 +318,9 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
   t=1
   while(t <= length(plot.data[, 1])){
     if (all(plot.data$end_num[t] <= length(Phylo$tip.label),
-           plot.data$sample[t] != 'internal node',
-           plot.data$sample[t] != Root.label,
-           plot.data$horizon_angle[t] != plot.data$horizon[t])){
+            plot.data$sample[t] != 'internal node',
+            plot.data$sample[t] != Root.label,
+            plot.data$horizon_angle[t] != plot.data$horizon[t])){
       #the angles less than ninety degrees are adjust to thirty degrees
       if(plot.data$horizon[t] < pi/2){
         plot.data$horizon[t] <- pi/6
@@ -222,9 +340,9 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
   #right part of tree
   t=1
   sample.right <- plot.data[which(plot.data$sample != 'internal node' & 
-                                  plot.data$sample != Root.label &
-                                  plot.data$horizon <= pi/2 & 
-                                  plot.data$horizon > 0), ]
+                                    plot.data$sample != Root.label &
+                                    plot.data$horizon <= pi/2 & 
+                                    plot.data$horizon > 0), ]
   while(t <= length(sample.right[, 1])){
     u=1
     while(u <= (length(sample.right[, 1]) - 1)){
@@ -259,9 +377,9 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
   #left part of tree
   t <- 1
   sample.left <- plot.data[which(plot.data$sample!='internal node' & 
-                                 plot.data$sample!=Root.label & 
-                                 plot.data$horizon >= pi/2 & 
-                                 plot.data$horizon < pi), ]
+                                   plot.data$sample!=Root.label & 
+                                   plot.data$horizon >= pi/2 & 
+                                   plot.data$horizon < pi), ]
   while(t<=length(sample.left[, 1])){
     u=1
     while(u<=(length(sample.left[, 1]) - 1)){
@@ -322,7 +440,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
           }
           if(plot.data$distance[row1] < mean(Phylo$edge.length)/10){
             row <- which(plot.data$node == adjust.node&
-                         plot.data$end_num <= length(Phylo$tip.label))
+                           plot.data$end_num <= length(Phylo$tip.label))
             if(length(row)!=0){
               if(plot.data$horizon[row] < pi/2 & plot.data$sample[row] == list.right[1]){
                 plot.data$horizon[row] <- plot.data$horizon[row] - pi/18
@@ -520,27 +638,27 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
     p <- p + scale_color_manual(values = color.scale)
   }else{
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
-                        data = plot.data[plot.data$sample != Root.label&plot.data$sample != 'internal node',], 
-                        size=1.5, show.legend = T)
+                          data = plot.data[plot.data$sample != Root.label&plot.data$sample != 'internal node',], 
+                          size=1.5, show.legend = T)
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
-                        data = plot.data[plot.data$sample == Root.label,], 
-                        size = 1.5, show.legend = F )
+                          data = plot.data[plot.data$sample == Root.label,], 
+                          size = 1.5, show.legend = F )
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
-                        data = plot.data[plot.data$sample == 'internal node',], 
-                        size = 1.5, show.legend = F )
+                          data = plot.data[plot.data$sample == 'internal node',], 
+                          size = 1.5, show.legend = F )
   }
   p <- p + theme(axis.title.x = element_blank(),
-                axis.text.x = element_blank(),
-                axis.ticks.x = element_blank(),
-                axis.title.y = element_blank(),
-                axis.text.y = element_blank(),
-                axis.ticks.y = element_blank(),
-                axis.line = element_blank(),
-                panel.grid.major = element_blank(),
-                panel.grid.minor = element_blank(), panel.background = element_blank(),
-                panel.border = element_blank(),
-                legend.position = 'right',
-                legend.title = element_text(face="bold")
+                 axis.text.x = element_blank(),
+                 axis.ticks.x = element_blank(),
+                 axis.title.y = element_blank(),
+                 axis.text.y = element_blank(),
+                 axis.ticks.y = element_blank(),
+                 axis.line = element_blank(),
+                 panel.grid.major = element_blank(),
+                 panel.grid.minor = element_blank(), panel.background = element_blank(),
+                 panel.border = element_blank(),
+                 legend.position = 'right',
+                 legend.title = element_text(face="bold")
   )
   p <- p + geom_text_repel(aes(x = x2*0.95, y = y2, label = sample),vjust = 1,
                            nudge_y = text.adjust/7, segment.alpha = 0,
@@ -567,94 +685,12 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
   }
   return(p)
 }
-## plot.NJtree
-plotPhyloTree <- function(maf, phylotree.dir = '.' ,use.indel = FALSE, show.mutSig = TRUE,
-                           sig.min.mut.number = 50,
-                           show.heatmap = TRUE, heatmap.type = 'binary',
-                           ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"), 
-                           ccf.mutation.sep = ":", output.dir = './Figures/',
-                           phylotree.type = 'njtree'){
-  if(heatmap.type == 'binary'){
-    use.ccf = FALSE
-  }else{
-    use.ccf = TRUE
-  }
-  
-  if(phylotree.type != 'njtree'){
-    show.heatmap = FALSE
-    show.mutSig = FALSE
-    if(phylotree.type == 'newick'){
-      Phylo <- read.tree(phylotree.dir)
-    }else if(phylotree.type == 'beast'){
-      beast <- read.beast(phylotree.dir)
-      Phylo <- as.phylo(beast)
-    }
-    else if(phylotree.type == 'PAML'){
-      PAML <- read.paml_rst(phylotree.dir)
-      Phylo <- as.PAML(beast)
-    }
-  }
-  else{
-    # set NJtree object(njtree)
-    njtree <- NJtree(maf, use.indel, use.ccf, ccf.mutation.id = ccf.mutation.id, 
-                     ccf.mutation.sep = ccf.mutation.sep)
-    # PhyloTree input data
-    Phylo <- njtree@nj
-    signature <- njtree@signature
-    maf@patientID <- paste(maf@patientID, ".NJtree", sep = "")
-  }
-  # generate phylotree data
-  phylotree.input.data <- phylotreeInput(Phylo, signature, show.mutSig ,phylotree.type)
-  phylotree.input.data <- phylotree.input.data[(phylotree.input.data$distance!=0|
-                                                phylotree.input.data$sample == 'NORMAL'),]
-  
-  
-  if(show.mutSig){
-    #Set the color
-    color.scale <- colorSet(unique(phylotree.input.data$signature))
-    maf@patientID <- paste(maf@patientID, ".mutsig", sep = "")
-  }
-  #plot phylotree
-  phylotree <- generatePlotObject(phylotree.input.data, color.scale, show.mutSig, 
-                                  phylotree.type)
-  
-  if(show.heatmap){
-    heatmap <- mut.heatmap(maf, use.indel, use.ccf,ccf.mutation.id = ccf.mutation.id,
-                           ccf.mutation.sep = ccf.mutation.sep)
-    plot.njtree <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.8) + draw_plot(heatmap, x = 0.8,y = -0.035, width = 0.2) 
-    if(!use.ccf){
-      if(use.indel){
-        ggsave(filename = paste(output.dir, maf@patientID, ".useindel.pdf", sep = ""),
-               plot = plot.njtree, width = 14, height = 7)
-      }
-      else{
-        ggsave(filename = paste(output.dir, maf@patientID, ".pdf", sep = ""),
-               plot = plot.njtree, width = 14, height = 7)
-      }
-    }else{
-      if(use.indel){
-        ggsave(filename = paste(output.dir, maf@patientID, ".useindel.ccf.pdf", sep = ""),
-               plot = plot.njtree, width = 14, height = 7)
-      }else{
-        ggsave(filename = paste(output.dir, maf@patientID, ".ccf.pdf", sep = ""),
-               plot = plot.njtree, width = 14, height = 7)
-      }
-      
-    }
-    return(plot.njtree)
-  }else{
-    ggsave(filename = paste(output.dir, phylotree.type, ".pdf", sep = ""), 
-           plot = phylotree, width = 14, height = 7)
-    return(phylotree)
-  }
-}
-
 
 # newick
-#file <- system.file("extdata", "pa.nwk", package="treeio")
-#plotPhyloTree(phylotree.dir = file , phylotree.type = 'newick')
+# file <- system.file("extdata", "pa.nwk", package="treeio")
+# plotPhyloTree(phylotree.dir = file , phylotree.type = 'newick')
 # beast
-#file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
-#beast <- read.beast(file)
-#beast <- as.phylo(beast)
-#plotPhyloTree(phylotree.dir = file , phylotree.type = 'beast')
+# file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
+# beast <- read.beast(file)
+# beast <- as.phylo(beast)
+# plotPhyloTree(phylotree.dir = file , phylotree.type = 'beast')

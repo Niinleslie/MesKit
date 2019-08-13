@@ -21,9 +21,13 @@
 #' @export readMaf
 #'
 #' @examples
-#' \dontrun{
-#' read.maf(patientID, dat.dir = "./data", use.ccf = FALSE, plot.mafSummary = TRUE) 
-#' }
+#' maf <- readMaf(patientID = "311252",mafDir = './inst/exdata/multi_lesion/maf/311252.maf', refBuild = "hg19")
+#' # if use ccf 
+#' maf <- readMaf(patientID = "311252",mafDir  = './inst/exdata/multi_lesion/maf/311252.maf',
+#'                 sampleInfoDir = './inst/exdata/multi_lesion/sample_info.txt',
+#'                 ccfClusterTsvDir = './inst/exdata/multi_lesion/ccf/311252.cluster.tsv',
+#'                 ccfLociTsvInput = './inst/exdata/multi_lesion/ccf/311252.loci.tsv',
+#'                 refBuild = "hg19")
 
 ## classMaf class
 classMaf <- setClass(Class="classMaf", contains="MAF", 

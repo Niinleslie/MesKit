@@ -1,10 +1,14 @@
 #' Class NJtree 
 #' 
-#' @param patientID patient name
+#' @param maf return from readMaf()
+#' @param use.indel Seclet SNP in Variant type
+#' @param sig.min.mut.number minimum mutation number in each branch
+#' @param ccf.mutation.id determine the id of mutation
+#' @param ccf.mutation.sep sep of id
 #' @return NJtree object
 #' 
 #' @examples
-#' maf <- read.Maf(patientID)
+#' maf <- readMaf(patientID = "311252",mafDir = './inst/exdata/multi_lesion/maf/311252.maf', refBuild = "hg19")
 #' njtree <- read.NJtree(maf)
 #' getNJtreenj(njtree)
 #' getNJtreemut_sort(njtree)
@@ -13,11 +17,11 @@
 
 # set NJtree object
 NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE, 
-                        sig.min.mut.number = 50, ccf.mutation.id, ccf.mutation.sep){
+                   sig.min.mut.number = 50, ccf.mutation.id, ccf.mutation.sep){
   maf.dat <- maf@data
   ccf <- maf@ccf.loci
   patientID <- maf@patientID
-  ref.build <- paste("BSgenome.Hsapiens.UCSC.", maf@ref.build, sep = "") 
+  refBuild <- paste("BSgenome.Hsapiens.UCSC.", maf@ref.build, sep = "") 
   if(use.ccf){
     mut_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = ccf, use.indel, ccf.mutation.id, ccf.mutation.sep)
     if(is.null(ccf)){
@@ -29,7 +33,7 @@ NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE
   }
   mat.nj = nj(dist.gene(t(mut_sort)))
   branch <- read.njtree(mat.nj)
-  list.sig <- treeMutationalSig(mafDat = maf.dat, branch, patientID, ref.build, mutThreshold = sig.min.mut.number)
+  list.sig <- treeMutationalSig(mafData = maf.dat, branch, patientID, refBuild, mutThreshold = sig.min.mut.number)
   signature <- list.sig[[1]]
   mut.branches <- list.sig[[2]]
   njtree <- new('NJtree', nj = mat.nj, mut_sort = mut_sort, patientID = patientID, signature = signature, mut_branches = mut.branches)
