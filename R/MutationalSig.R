@@ -16,6 +16,7 @@
 #' @return data frame of each set/branch's mutational signature.
 #' 
 #' @export treeMutationalSig
+#' @export treeMutationalBranches
 #'
 #' @examples
 #' \dontrun{
@@ -24,15 +25,52 @@
 #' treeMutationalSig(maf_file, branch_file, driver_genes_dir, mut.threshold=30)
 #'}
 
-## main function
-treeMutationalSig <- function(maf, branch, refBuild, 
-                              driverGenesDir=NULL, mutThreshold=50){
+## Mutational Signature function
+treeMutationalSig <- function(njtree, refBuild, driverGenesDir=NULL, mutThreshold=50){
     ## refBuild limitation: only hg19 or hg38
     if (!((refBuild == "hg19") | (refBuild == "hg38"))){
         stop(error="Error: refBuild's value may be incorrect. 
              refBuild could be only set as \"hg19\" or \"hg38\".")
+    } else {
+        refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
     }
     
+    ## get branches information from njtree object
+    mutBranches <- njtree@mut_branches
+    patientID <- njtree@patientID
+    branchesName <- names(mutBranches)
+    branchesNameList <- strsplit(branchesName, split='∩')
+    
+    
+    ## regain the data frame of all branches with Sample
+    mutSigRef <- data.frame()
+    for (branchName in branchesName){
+        mutBranch <- mutBranches[[branchName]]
+        sample <- data.frame(rep(branchName, length(mutBranch[,1])))
+        mutBranch <- cbind(sample, mutBranch)
+        mutSigRef <- rbind(mutBranch, mutSigRef)
+    }
+    colnames(mutSigRef) <- c("Sample", "ID", "chr", "pos", "pos_end",
+                             "ref", "alt", "Hugo_Symbol", "mut_id")
+    ## get the mutational signature of the branch 
+    mutSigsOutput <- data.frame()
+    for (branchCounter in length(branchesNameList):1){
+        ## generate a single branch
+        branch <- Filter(Negate(is.na), 
+                         branchesNameList[[branchCounter]])
+        branchName <- branchesName[branchCounter]
+        ## get the mutational signature of the branch
+        mutSigsOutput <- .branchMutationalSig(mutSigRef, mutSigsOutput, 
+                                              branch, branchName, 
+                                              patientID, driverGenesDir, 
+                                              mutThreshold, refBuild)
+    }
+    mutSigsOutput
+}
+
+
+## Branches' mutation collection
+treeMutationalBranches <- function(maf, branch){
     ## get mutationalSigs-related  infomation
     maf_input <- maf@data
     patientID <- maf@patientID
@@ -67,7 +105,6 @@ treeMutationalSig <- function(maf, branch, refBuild,
     
     
     ## output collection
-    mutSigsOutput <- data.frame()
     mutBranches <- data.frame()
     mutBranchesOutput <- list()
     listBranchName <- c()
@@ -102,27 +139,20 @@ treeMutationalSig <- function(maf, branch, refBuild,
             mutBranchesOutput[[branchCounter]] <- subset(
                 mutBranchIntersection,select=-c(Sample))
             listBranchName <- c(branchName, listBranchName)
-            ## get the mutational signature of the branch
-            mutSigsOutput <- .branchMutationalSig(mutBranches, mutSigsOutput, 
-                                                  branch, branchName, 
-                                                  patientID, driver_genes, 
-                                                  driverGenesDir, mutThreshold, 
-                                                  refBuild)
         }
         
     }
     names(mutBranchesOutput) <- listBranchName
     ## return the data frame of mutational signature for all branches
-    return(list(mutSigsOutput, mutBranchesOutput))
+    return(mutBranchesOutput)
 }
 
 
 ## Weight mutational Signature of each branch
 .branchMutationalSig <- function(mutSigRef, mutSigsOutput, 
                                  branch, branchName, 
-                                 patientID, driverGenes, 
-                                 driverGenesDir, mutThreshold, 
-                                 refBuild){
+                                 patientID, driverGenesDir, 
+                                 mutThreshold, refBuild){
     if (length(mutSigRef[which(
         mutSigRef$Sample == branchName), 1]) < mutThreshold){
         sigsMaxName <- "No.Signature"
