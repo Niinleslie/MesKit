@@ -3,7 +3,7 @@
 #' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggtree ggrepel
 #' 
 #' @param maf MAF object
-#' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML"
+#' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML" with root 
 #' @param use.indel Seclet SNP in Variant type
 #' @param show.mutSig if show Mutational Signature in Images
 #' @param sig.min.mut.number minimum mutation number in each branch
@@ -32,11 +32,8 @@
 #' plotPhyloTree(maf, use.indel = F, heatmap.type = '')
 #' plotPhyloTree(maf, use.indel = T, heatmap.type = '')
 #' file <- system.file("extdata", "pa.nwk", package="treeio")
-#' plotPhyloTree(phylotree.dat = file , phylotree.type = 'newick')
-#' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
-#' beast <- read.beast(file)
-#' beast <- as.phylo(beast)
-#' plotPhyloTree(phylotree.dat = file , phylotree.type = 'beast')
+#' plotPhyloTree(phylotree.dat = './inst/exdata/newick/pa.nwk', phylotree.type = 'newick')
+#' plotPhyloTree(phylotree.dat = './inst/exdata/newick/sample.nwk', phylotree.type = 'newick')
 
 ## main plotting function
 plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE, 
