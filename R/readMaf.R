@@ -2,7 +2,7 @@
 #' @description Add sample_info to the original maf file to get a new maf.The
 #'  new maf file adds three pieces of information:lesion,patient and time
 #'
-#' @import ggplot2 
+#' @import ggplot2
 #' @importClassesFrom maftools MAF
 #' @importFrom maftools plotmafSummary
 #' @importFrom maftools read.maf
@@ -37,8 +37,10 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
 
 ## read.maf main function
 readMaf <- function(patientID, mafFile, 
-                    sampleInfo, ccfClusterTsvDir=NULL, ccfLociTsvInput=NULL, 
-                    refBuild="hg19", plotMafSummary=TRUE, savePlot = FALSE, summaryPlot.dir = NULL){
+                    sampleInfo, ccfClusterTsvDir=NULL, 
+                    ccfLociTsvDir=NULL, refBuild="hg19", 
+                    MafSummary=TRUE, outputDir = NULL){
+    
     ## read maf file
     mafInput <- read.table(mafFile, quote="", 
                            header=TRUE, fill=TRUE, 
@@ -48,16 +50,16 @@ readMaf <- function(patientID, mafFile,
                                    header=TRUE, fill=TRUE, 
                                    sep='', stringsAsFactors=FALSE)
     ## read ccf file
-    if (!is.null(ccfClusterTsvDir) & !is.null(ccfLociTsvInput)) {
+    if (!is.null(ccfClusterTsvDir) & !is.null(ccfLociTsvDir)) {
         ccfClusterTsvInput <- read.table(ccfClusterTsvDir, quote="", 
                                          header=TRUE, fill=TRUE, 
                                          sep='\t', stringsAsFactors=FALSE)
-        ccfLociTsvInput <- read.table(ccfLociTsvInput, quote="", 
+        ccfLociTsvDir <- read.table(ccfLociTsvDir, quote="", 
                                       header=TRUE, fill=TRUE, 
                                       sep='\t', stringsAsFactors=FALSE)
     } else {
         ccfClusterTsvInput <- NULL
-        ccfLociTsvInput <- NULL
+        ccfLociTsvDir <- NULL
     }
     ## Generate patient,lesion and time information
     mafInput$patient <- ""
@@ -90,12 +92,13 @@ readMaf <- function(patientID, mafFile,
     ## transform data.frame to data.table
     mafData <- data.table::setDT(mafInput)
     ccfClusterTsv <- data.table::setDT(ccfClusterTsvInput)
-    ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
+    ccfLociTsv <- data.table::setDT(ccfLociTsvDir)
     
     ## summarize sample_info and mut.id with summarizeMaf
-    mafSum <- maftools::read.maf(mafData)
-    
+    mafSum <- suppressMessages(read.maf(mafData))
     # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
+    
+    ## generate classMaf
     maf <- classMaf(data=mafData, 
                     variants.per.sample=mafSum@variants.per.sample, 
                     variant.type.summary=mafSum@variant.type.summary,
@@ -111,15 +114,20 @@ readMaf <- function(patientID, mafFile,
                     ref.build=refBuild)
     
     ## print the summary plot
-    if (plotMafSummary) {
-        pic <- maftools::plotmafSummary(maf=maf, rmOutlier=TRUE, 
+    if (MafSummary) {
+        pic <- plotmafSummary(maf=maf, rmOutlier=TRUE, 
                               addStat='median', dashboard=TRUE, 
                               titvRaw=FALSE)
-        if (savePlot){
-            ggsave(maftools::plotmafSummary(maf=maf, rmOutlier=TRUE, addStat='median', 
-                              dashboard=T, titvRaw=FALSE), 
+        
+        ## check the output directory
+        if (is.null(outputDir)){
+            warning("NOTE: It is recommended to provide proper output directory for pictures")
+        }
+        
+        if (!is.null(outputDir)){
+            ggsave(pic, 
                filename=paste(patientID, ".VariantSummary.png", sep=""), 
-               width=12, height=9, dpi=800, path=summaryPlot.dir)
+               width=12, height=9, dpi=800, path=outputDir)
 
         }
     }

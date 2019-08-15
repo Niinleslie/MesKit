@@ -5,9 +5,9 @@
 #' data as two outputs: clusterEstimates.tsv and 
 #' mutation_to_cluster.tsv, which are the input of SCHISM.
 #' 
-#' @param dir.cluster.tsv specify the directory of cluster.tsv document
-#' @param dir.loci.tsv specify the directory of loci.tsv document
-#' @param dir.output specify the directory of two output for SCHISM
+#' @param dirClusterTsv specify the directory of cluster.tsv document
+#' @param dirLociTsv specify the directory of loci.tsv document
+#' @param dirOutput specify the directory of two output for SCHISM
 #' @return clusterEstimates.tsv, mutation_to_cluster.tsv
 #' 
 #' @export prepareSchismInput
@@ -18,45 +18,6 @@
 #'}
 
 ## SCHISM method
-## prepare Schism input
-prepareSchismInput <- function(dirClusterTsv, dirLociTsv, dirOutput){
-    ## read mutations in cluster.tsv from PyClone and get targeted clusters
-    clusterTsv=read.table(dirClusterTsv, sep="\t", 
-                           stringsAsFactors=FALSE, header=TRUE)
-    clusterFilter=clusterTsv[!is.na(clusterTsv$cluster_id) & 
-                                   clusterTsv$size >= 5 & 
-                                   clusterTsv$mean >= 0.1,]
-    clusterLs =unique(clusterFilter$cluster_id)
-    
-    ## read mutations within targeted clusters in loc.tsv file from PyClone 
-    lociTsv=read.table(dirLociTsv, sep="\t", 
-                        stringsAsFactors=FALSE, header=TRUE)
-    lociFiltered <- lociTsv[which(lociTsv$cluster_id %in% clusterLs),]
-    # loci_filtered <- na.omit(loci_filtered)
-    
-    ## generate two outputs for SCHISM
-    clusterEstimatesTsv <- data.frame(lociFiltered$sample_id, 
-                                       lociFiltered$mutation_id, 
-                                       lociFiltered$cellular_prevalence, 
-                                       lociFiltered$cellular_prevalence_std)
-    names(clusterEstimatesTsv)=c("sampleID", "mutationID", 
-                                  "cellularity", "sd")
-    
-    mutationToClusterTsv <- data.frame(lociFiltered$mutation_id, 
-                                          lociFiltered$cluster_id)
-    names(mutationToClusterTsv)=c("mutationID", 
-                                     "clusterID")
-    
-    ## set the directory of outputs and make two SCHISM-needed files 
-    setwd(dirOutput)
-    write.table(clusterEstimatesTsv, file="W.clusterEstimates.tsv", 
-                sep="\t", quote=FALSE, row.names=FALSE)
-    write.table(mutationToClusterTsv, file="W.mutation-to-cluster.tsv", 
-                sep="\t", quote=FALSE, row.names=FALSE)
-    message("SCHISM Input Preparation Done!")
-}
-
-## fishplot method
 #' Get outputs from SCHISM and draw the fishplot
 #' @description read cluster.cellularity and GA.consensusTree documents 
 #' from SCHISM. Construct fraction table and parents vector for drawing 

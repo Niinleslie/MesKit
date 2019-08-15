@@ -5,14 +5,14 @@
 #'  pick the maxium. Return a data frame of each set/branch's mutational 
 #'  signature.
 #' 
-#' @import reshape2 BSgenome GenomeInfoDb grDevices graphics utils 
-#' deconstructSigs
+#' @import reshape2 BSgenome GenomeInfoDb grDevices graphics utils deconstructSigs
 #' @importFrom plyr match_df
 #' 
-#' @param maf_file specify a maf document/directory as the input of the 
-#' function
-#' @param branch_file specify a txt document/directory as the input of 
-#' the branches (needed to be refined)
+#' @param maf specify a maf document/directory as the input of the function
+#' @param branch specify a txt document/directory as the input of the branches
+#' @param refBuild
+#' @param driverGenesDir 
+#' @param mutThreshold
 #' @return data frame of each set/branch's mutational signature.
 #' 
 #' @export treeMutationalSig
@@ -21,20 +21,23 @@
 #' \dontrun{
 #' treeMutationalSig(maf_file, branch_file)
 #' treeMutationalSig(maf_file, branch_file, driver_genes_dir)
-#' treeMutationalSig(maf_file, branch_file, 
-#' driver_genes_dir, mut.threshold=30)
+#' treeMutationalSig(maf_file, branch_file, driver_genes_dir, mut.threshold=30)
 #'}
 
 ## main function
-treeMutationalSig <- function(mafData, branch, 
-                                 patientID, refBuild, 
-                                 driverGenesDir=FALSE, mutThreshold=50){
-    maf_input <- mafData
+treeMutationalSig <- function(maf, branch, refBuild, 
+                              driverGenesDir=NULL, mutThreshold=50){
+    ## refBuild limitation: only hg19 or hg38
+    if (!((refBuild == "hg19") | (refBuild == "hg38"))){
+        stop(error="Error: refBuild's value may be incorrect. 
+             refBuild could be only set as \"hg19\" or \"hg38\".")
+    }
+    
     ## get mutationalSigs-related  infomation
-    datSample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
-                             stringsAsFactors=FALSE)
-    datChr <- data.frame(chr=as.character(maf_input$Chromosome), 
-                          stringsAsFactors=FALSE)
+    maf_input <- maf@data
+    patientID <- maf@patientID
+    datSample <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), stringsAsFactors=FALSE)
+    datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
     datChr$chr <- paste("chr", datChr$chr, sep="")
     datPosStart <- maf_input$Start_Position
     datPosEnd <- maf_input$End_Position
@@ -43,20 +46,20 @@ treeMutationalSig <- function(mafData, branch,
     datNum <- seq_along(datAlt)
     datMutgene <-  maf_input$Hugo_Symbol
     mutId <- select(tidyr::unite(maf_input, "mut.id", 
-                                  Hugo_Symbol, Chromosome, 
-                                  Start_Position, End_Position, 
-                                  Reference_Allele, Tumor_Seq_Allele2, 
-                                  sep=":"), mut.id)
+                                 Hugo_Symbol, Chromosome, 
+                                 Start_Position, End_Position, 
+                                 Reference_Allele, Tumor_Seq_Allele2, 
+                                 sep=":"), mut.id)
     mutSigRef <- data.frame(datNum, datSample, 
-                              datChr, datPosStart, 
-                              datPosEnd, datRef, 
-                              datAlt, datMutgene, 
-                              mutId)
+                            datChr, datPosStart, 
+                            datPosEnd, datRef, 
+                            datAlt, datMutgene, 
+                            mutId)
     colnames(mutSigRef) <- c("ID", "Sample", 
-                               "chr", "pos", 
-                               "pos_end", "ref", 
-                               "alt", "Hugo_Symbol", 
-                               "mut_id")
+                             "chr", "pos", 
+                             "pos_end", "ref", 
+                             "alt", "Hugo_Symbol", 
+                             "mut_id")
     
     ## get branch infomation
     branch <- branch[order(nchar(branch), branch)]
@@ -78,9 +81,7 @@ treeMutationalSig <- function(mafData, branch,
         for (tsb in branch){
             ## generate the intersection of the branch
             mutTsb <- mutSigRef[which(mutSigRef$Sample %in% tsb), ]
-            mutBranch <- match_df(mutBranch, mutTsb, on=c("chr", "pos", 
-                                                             "pos_end", "ref", 
-                                                             "alt"))
+            mutBranch <- match_df(mutBranch, mutTsb, on=c("chr", "pos", "pos_end", "ref", "alt"))
         }
         
         ## generate the branch name
@@ -96,18 +97,17 @@ treeMutationalSig <- function(mafData, branch,
             
             ## duplicate the same mutation
             mutBranchIntersection <- mutSigRef[which(
-                mutSigRef$Sample == branchName & 
-                    (!duplicated(mutSigRef$mut_id))), ]
+                mutSigRef$Sample == branchName & (!duplicated(mutSigRef$mut_id))), ]
             mutBranches <- rbind(mutBranches, mutBranchIntersection)
             mutBranchesOutput[[branchCounter]] <- subset(
                 mutBranchIntersection,select=-c(Sample))
             listBranchName <- c(branchName, listBranchName)
             ## get the mutational signature of the branch
             mutSigsOutput <- .branchMutationalSig(mutBranches, mutSigsOutput, 
-                                                      branch, branchName, 
-                                                      patientID, driver_genes, 
-                                                      driverGenesDir, mutThreshold, 
-                                                      refBuild)
+                                                  branch, branchName, 
+                                                  patientID, driver_genes, 
+                                                  driverGenesDir, mutThreshold, 
+                                                  refBuild)
         }
         
     }
@@ -119,10 +119,10 @@ treeMutationalSig <- function(mafData, branch,
 
 ## Weight mutational Signature of each branch
 .branchMutationalSig <- function(mutSigRef, mutSigsOutput, 
-                                   branch, branchName, 
-                                   patientID, driverGenes, 
-                                   driverGenesDir, mutThreshold, 
-                                   refBuild){
+                                 branch, branchName, 
+                                 patientID, driverGenes, 
+                                 driverGenesDir, mutThreshold, 
+                                 refBuild){
     if (length(mutSigRef[which(
         mutSigRef$Sample == branchName), 1]) < mutThreshold){
         sigsMaxName <- "No.Signature"
@@ -130,16 +130,16 @@ treeMutationalSig <- function(mafData, branch,
     }else{
         ## deconstructSigs
         sigsInput <- suppressWarnings(mut.to.sigs.input(mut.ref=mutSigRef, 
-                                                         sample.id="Sample", 
-                                                         chr="chr", 
-                                                         pos="pos", 
-                                                         ref="ref", 
-                                                         alt="alt",
-                                                         bsg=get(refBuild)))
+                                                        sample.id="Sample", 
+                                                        chr="chr", 
+                                                        pos="pos", 
+                                                        ref="ref", 
+                                                        alt="alt",
+                                                        bsg=get(refBuild)))
         sigsWhich <- whichSignatures(tumor.ref=sigsInput, 
-                                      signatures.ref=signatures.cosmic, 
-                                      sample.id=branchName,
-                                      contexts.needed=TRUE)
+                                     signatures.ref=signatures.cosmic, 
+                                     sample.id=branchName,
+                                     contexts.needed=TRUE)
         ## get mutational signature with max weight
         sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
         sigsMaxName <- colnames(sigsMax)
@@ -150,7 +150,7 @@ treeMutationalSig <- function(mafData, branch,
     # branch <- gsub(paste(patientID,"-",sep=""), "", branch)
     
     ## figure out putative driver genes
-    if (typeof(driverGenesDir) == "character"){
+    if (!is.null(driverGenesDir)){
         ## read putative driver genes' list
         driverGenes <- as.character(read.table(
             driverGenesDir, quote="")[,1])
@@ -177,5 +177,6 @@ treeMutationalSig <- function(mafData, branch,
             sig.prob=sigsMaxProb)
     }
     ## collect branches' mutataional signature information
-    rbind(mutSigsOutput, mutSigsBranch)
+    result <- rbind(mutSigsOutput, mutSigsBranch)
+    return(result)
 }
