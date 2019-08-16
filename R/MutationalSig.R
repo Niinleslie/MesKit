@@ -70,7 +70,7 @@ treeMutationalSig <- function(njtree, refBuild, driverGenesDir=NULL, mutThreshol
 
 
 ## Branches' mutation collection
-treeMutationalBranches <- function(maf, branch){
+.treeMutationalBranches <- function(maf, branch){
     ## get mutationalSigs-related  infomation
     maf_input <- maf@data
     patientID <- maf@patientID
@@ -188,7 +188,7 @@ treeMutationalBranches <- function(maf, branch){
         pdgMut <- mutSigRef[which(
             mutSigRef$Sample == branchName &
                 as.character(mutSigRef$Hugo_Symbol) %in% driverGenes),]
-        pdgBranch <- as.character(pdg.mut$Hugo_Symbol)
+        pdgBranch <- as.character(pdgMut$Hugo_Symbol)
         ## collect branches' mutataional signature and potative driver genes
         mutSigsBranch <- data.frame(
             branch=I(list(branch)), 
@@ -197,7 +197,7 @@ treeMutationalBranches <- function(maf, branch){
                 mutSigRef[which(
                     mutSigRef$Sample == branchName), 1]), 
             sig.prob=sigsMaxProb, 
-            putative_driver_genes=I(list(pdg.branch)))
+            putative_driver_genes=I(list(pdgBranch)))
     } else{
         mutSigsBranch <- data.frame(
             branch=I(list(branch)), 
