@@ -83,7 +83,7 @@ treeMutationalBranches <- function(maf, branch){
     datAlt <- maf_input$Tumor_Seq_Allele2
     datNum <- seq_along(datAlt)
     datMutgene <-  maf_input$Hugo_Symbol
-    mutId <- select(tidyr::unite(maf_input, "mut.id", 
+    mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
                                  Hugo_Symbol, Chromosome, 
                                  Start_Position, End_Position, 
                                  Reference_Allele, Tumor_Seq_Allele2, 
