@@ -1,22 +1,3 @@
-#' Prepare inputs for SCHISM
-#' @description read tsv documents from PyClone and figure 
-#' out the list of filtered clusters. According to those 
-#' targeted clusters, filter targeted mutations and reorganize 
-#' data as two outputs: clusterEstimates.tsv and 
-#' mutation_to_cluster.tsv, which are the input of SCHISM.
-#' 
-#' @param dirClusterTsv specify the directory of cluster.tsv document
-#' @param dirLociTsv specify the directory of loci.tsv document
-#' @param dirOutput specify the directory of two output for SCHISM
-#' @return clusterEstimates.tsv, mutation_to_cluster.tsv
-#' 
-#' @export prepareSchismInput
-#' 
-#' @examples
-#' \dontrun{
-#' prepareSchismInput(dir.cluster.tsv, dir.loci.tsv, dir.output)
-#'}
-
 ## SCHISM method
 #' Get outputs from SCHISM and draw the fishplot
 #' @description read cluster.cellularity and GA.consensusTree documents 
@@ -31,131 +12,30 @@
 #' 
 #' @export schism2Fishplot
 #' @export schism2Timescape
-#' @export inferByClonevol
+#' @export cloneFishPlot
 #'
 #' @examples
 #' \dontrun{
 #' schism2Fishplot(dir.cluster.cellularity, dir.GA.consensusTree)
 #'}
 
-## generate results for createFishPlotObjects
-schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree){
-    ## get cellularity infomation
-    clusterCellularity=read.table(dirClusterCellularity, sep="\t", 
-                                   stringsAsFactors=FALSE, header=TRUE)
-    
-    ## get the list of samples and clusters in this function
-    sampleLs=unique(clusterCellularity$sampleID)
-    clusterLs=unique(clusterCellularity$clusterID)
-    
-    ## build the cancer celluarity/fraction table for fishplot
-    frac.c=c()
-    for (sampleName in sampleLs) {
-        sample <- clusterCellularity[which(
-            clusterCellularity$sampleID == sampleName), ]$cellularity
-        frac.c <- c(frac.c,sample)
-    }
-    fracTable=matrix(frac.c*100, ncol=length(sampleLs))
-    rownames(fracTable) <- clusterLs
-    colnames(fracTable) <- sampleLs
-    
-    ## read the evolution relationship of different subclones
-    GAconsensusTree=read.table(dirGAconsensusTree, sep="\t", 
-                                stringsAsFactors=FALSE, header=TRUE)
-    
-    ## figure out clusters which will be first nodes of the evolution tree
-    endsLs=unique(GAconsensusTree[which(
-        !GAconsensusTree$parent %in% GAconsensusTree$child), 1])
-    
-    ## make sure the first node of the tree would be first in parents
-    if (!rownames(fracTable)[1] %in% endsLs){
-        fracEnd=fracTable[which(
-            rownames(fracTable) == endsLs[1]),]
-        fracTable <- fracTable[-which(
-            rownames(fracTable) == endsLs[1]),]
-        fracTable <- rbind2(fracEnd, fracTable)
-        rownames(fracTable)[1] <- endsLs[1]
-    }
-    
-    ## rearrange subclonal evolution relationship as a vector(parents)
-    parents <- c(seq_along(clusterLs))
-    for (cluster_name in clusterLs){
-        parentCluster <- GAconsensusTree[which(
-            GAconsensusTree$child == cluster_name), 1]
-        if (cluster_name %in% endsLs){
-            parents[which(rownames(fracTable) == cluster_name)] <- 0
-        } else{
-            parents[which(
-                rownames(fracTable) == cluster_name)] <- which(
-                    rownames(fracTable) == min(parentCluster))
-        }
-    }
-    
-    ## fishplot printing
-    pdf('fish.pdf', width=8, height=5)
-    fish=createFishObject(fracTable, parents, 
-                          timepoints=c(seq_along(sampleLs)), 
-                          fix.missing.clones=TRUE)
-    if (length(clusterLs) > 10) {
-        fish=setCol(fish, as.character(clusterLs))
-    }
-    fish=layoutClones(fish)
-    fishPlot(fish, shape="spline", title.btm="PatientID", cex.title=0.5,
-             vlines=seq(1, length(sampleLs)), vlab=sampleLs, pad.left=0.5)
-    dev <- dev.off()
-    message("Fishplot Done!")
-}
-
-## Timescape method
-schism2Timescape <- function(dirClusterCellularity, 
-                             dirGAconsensusTree, 
-                             dirSampleInfo=NULL){
-    ## get cellularity infomation
-    clusterCellularity=read.table(dirClusterCellularity, 
-                                   sep="\t", 
-                                   stringsAsFactors=FALSE, 
-                                   header=TRUE)
-    names(clusterCellularity) <- c("timepoint", "clone_id", 
-                                    "clonal_prev", "sd")
-    clonalPrev <- clusterCellularity[c("timepoint", "clone_id", 
-                                         "clonal_prev")]
-    
-    ## make sure the timepoint is specific for the real data.
-    if (!is.null(dirSampleInfo)){
-        ## read info file
-        sampleInfoInput <- read.table(dirSampleInfo, quot="", 
-                                        header=TRUE, fill=TRUE, 
-                                        sep='', stringsAsFactors=FALSE)
-        sampleInfoInput <- sampleInfoInput[order(sampleInfoInput$time),]
-        timepoints <- sampleInfoInput$sample
-        
-        clonalPrevTemp <- data.frame()
-        for (timepoint in timepoints){
-            clonalPrevTimepoint <- clonalPrev[which(
-                clonalPrev$timepoint == timepoint), ]
-            clonalPrevTemp <- rbind(clonalPrevTemp, clonalPrevTimepoint)
-        }
-        clonalPrev <- clonalPrevTemp
-    } 
-    
-    ## read the evolution relationship of different subclones
-    GAconsensusTree=read.table(dirGAconsensusTree, sep="\t", 
-                                stringsAsFactors=FALSE, header=TRUE)
-    names(GAconsensusTree) <- c("source", "target")
-    treeEdges <- GAconsensusTree
-    
-    timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
-              xaxis_title="Time Point", yaxis_title="Clonal Prevalence",
-              phylogeny_title="Clonal Phylogeny", alpha=50,
-              genotype_position="stack", perturbations="NA", sort=FALSE,
-              show_warnings=TRUE, width=900, height=NULL)
-    message("Timescape Plot Done!")
-}
-
 ## clonevol method
-inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
+cloneFishPlot <- function(inferMethod="clonevol", plotOption="fishplot", 
+                          dirClusterTsvFile=NULL, dirClusterCellularity=NULL, 
+                          dirGAconsensusTree=NULL, dirSampleInfo=NULL){
+    if (inferMethod="clonevol"){
+        clonevol2fishplot(dirClusterTsvFile, plotOption)
+    } else if (inferMethod="SCHISM") {
+        schism2Fishplot(dirClusterCellularity, dirGAconsensusTree, 
+                        dirSampleInfo, plotOption)
+        
+    }
+}
+
+
+clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
     ## read mutations in cluster.tsv from PyClone and get targeted clusters
-    cluster.tsv=read.table(dir.cluster.tsv, sep="\t",
+    cluster.tsv=read.table(dirClusterTsvFile, sep="\t",
                            stringsAsFactors=FALSE, header=TRUE)
     cluster_filter=cluster.tsv[!is.na(cluster.tsv$cluster_id) &
                                    cluster.tsv$size >= 5 &
@@ -213,18 +93,18 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
     if (plotOption == "fishplot"){
         fishes = createFishPlotObjects(fishPlotInput)
         for (i in seq_along(fishes)){
-          pdf(paste('FISH', i, '.pdf', sep=""), width=8, height=5)
-          fish = layoutClones(fishes[[i]])
-          fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
-          if (length(sample.names) > 10) {
-            fish=setCol(fish, as.character(sample.names))
-          }
-          fishPlot(fish,shape="spline", 
-                   title.btm="Patient", 
-                   cex.title=0.5,
-                   vlines=seq(1, length(sample.names)), 
-                   vlab=sample.names, pad.left=0.5)
-          dev.off()
+            pdf(paste('FISH', i, '.pdf', sep=""), width=8, height=5)
+            fish = layoutClones(fishes[[i]])
+            fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
+            if (length(sample.names) > 10) {
+                fish=setCol(fish, as.character(sample.names))
+            }
+            fishPlot(fish,shape="spline", 
+                     title.btm="Patient", 
+                     cex.title=0.5,
+                     vlines=seq(1, length(sample.names)), 
+                     vlab=sample.names, pad.left=0.5)
+            dev.off()
         }
         message("FishPlot Done!")
     } else if (plotOption == "timescape"){
@@ -267,7 +147,138 @@ inferByClonevol <- function(dir.cluster.tsv, plotOption="fishplot"){
                   show_warnings=TRUE, width=900, height=NULL)
         message("Timescape Plot Done!")
     }
-  }
+    
+}
 
+
+
+
+## SCHISM method
+#' Get outputs from SCHISM and draw the fishplot
+#' @description read cluster.cellularity and GA.consensusTree documents 
+#' from SCHISM. Construct fraction table and parents vector for drawing 
+#' fishplot.
+#' 
+#' @param dir.cluster.cellularity specify the directory of cluster.cellularity 
+#' document
+#' @param dir.GA.consensusTree specify the directory of GA.consensusTree 
+#' document
+#' @return the fishplot showing the evolution relationship predicted by SCHISM
+#' 
+#' @export schism2Fishplot
+#' @export schism2Timescape
+#' @export inferByClonevol
+#'
+#' @examples
+#' \dontrun{
+#' schism2Fishplot(dir.cluster.cellularity, dir.GA.consensusTree)
+#'}
+
+## generate results for createFishPlotObjects
+schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree, 
+                            dirSampleInfo, plotOption){
+    ## get cellularity infomation
+    clusterCellularity=read.table(dirClusterCellularity, sep="\t", 
+                                  stringsAsFactors=FALSE, header=TRUE)
+    
+    if (plotOption == "fishplot"){
+        ## get the list of samples and clusters in this function
+        sampleLs=unique(clusterCellularity$sampleID)
+        clusterLs=unique(clusterCellularity$clusterID)
+        
+        ## build the cancer celluarity/fraction table for fishplot
+        frac.c=c()
+        for (sampleName in sampleLs) {
+            sample <- clusterCellularity[which(
+                clusterCellularity$sampleID == sampleName), ]$cellularity
+            frac.c <- c(frac.c,sample)
+        }
+        fracTable=matrix(frac.c*100, ncol=length(sampleLs))
+        rownames(fracTable) <- clusterLs
+        colnames(fracTable) <- sampleLs
+        
+        ## read the evolution relationship of different subclones
+        GAconsensusTree=read.table(dirGAconsensusTree, sep="\t", 
+                                   stringsAsFactors=FALSE, header=TRUE)
+        
+        ## figure out clusters which will be first nodes of the evolution tree
+        endsLs=unique(GAconsensusTree[which(
+            !GAconsensusTree$parent %in% GAconsensusTree$child), 1])
+        
+        ## make sure the first node of the tree would be first in parents
+        if (!rownames(fracTable)[1] %in% endsLs){
+            fracEnd=fracTable[which(
+                rownames(fracTable) == endsLs[1]),]
+            fracTable <- fracTable[-which(
+                rownames(fracTable) == endsLs[1]),]
+            fracTable <- rbind2(fracEnd, fracTable)
+            rownames(fracTable)[1] <- endsLs[1]
+        }
+        
+        ## rearrange subclonal evolution relationship as a vector(parents)
+        parents <- c(seq_along(clusterLs))
+        for (cluster_name in clusterLs){
+            parentCluster <- GAconsensusTree[which(
+                GAconsensusTree$child == cluster_name), 1]
+            if (cluster_name %in% endsLs){
+                parents[which(rownames(fracTable) == cluster_name)] <- 0
+            } else{
+                parents[which(
+                    rownames(fracTable) == cluster_name)] <- which(
+                        rownames(fracTable) == min(parentCluster))
+            }
+        }
+        
+        ## fishplot printing
+        pdf('fish.pdf', width=8, height=5)
+        fish=createFishObject(fracTable, parents, 
+                              timepoints=c(seq_along(sampleLs)), 
+                              fix.missing.clones=TRUE)
+        if (length(clusterLs) > 10) {
+            fish=setCol(fish, as.character(clusterLs))
+        }
+        fish=layoutClones(fish)
+        fishPlot(fish, shape="spline", title.btm="PatientID", cex.title=0.5,
+                 vlines=seq(1, length(sampleLs)), vlab=sampleLs, pad.left=0.5)
+        dev <- dev.off()
+        message("Fishplot Done!")
+    } else if (plotOption="timescape"){
+        names(clusterCellularity) <- c("timepoint", "clone_id", 
+                                       "clonal_prev", "sd")
+        clonalPrev <- clusterCellularity[c("timepoint", "clone_id", 
+                                           "clonal_prev")]
+        
+        ## make sure the timepoint is specific for the real data.
+        if (!is.null(dirSampleInfo)){
+            ## read info file
+            sampleInfoInput <- read.table(dirSampleInfo, quot="", 
+                                          header=TRUE, fill=TRUE, 
+                                          sep='', stringsAsFactors=FALSE)
+            sampleInfoInput <- sampleInfoInput[order(sampleInfoInput$time),]
+            timepoints <- sampleInfoInput$sample
+            
+            clonalPrevTemp <- data.frame()
+            for (timepoint in timepoints){
+                clonalPrevTimepoint <- clonalPrev[which(
+                    clonalPrev$timepoint == timepoint), ]
+                clonalPrevTemp <- rbind(clonalPrevTemp, clonalPrevTimepoint)
+            }
+            clonalPrev <- clonalPrevTemp
+        } 
+        
+        ## read the evolution relationship of different subclones
+        GAconsensusTree=read.table(dirGAconsensusTree, sep="\t", 
+                                   stringsAsFactors=FALSE, header=TRUE)
+        names(GAconsensusTree) <- c("source", "target")
+        treeEdges <- GAconsensusTree
+        
+        timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
+                  xaxis_title="Time Point", yaxis_title="Clonal Prevalence",
+                  phylogeny_title="Clonal Phylogeny", alpha=50,
+                  genotype_position="stack", perturbations="NA", sort=FALSE,
+                  show_warnings=TRUE, width=900, height=NULL)
+        message("Timescape Plot Done!")
+    }
+}
 
 

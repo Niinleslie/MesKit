@@ -23,7 +23,6 @@
 #' (maf_file, tsb=c("tsb1", "tsb2", "tsb3"))
 #'}
 
-
 ## MATH Score main function
 mathScore <- function(mafData, tsb=c("All"), minvaf=0, maxvaf=1){
     ## get vaf-related infomation
