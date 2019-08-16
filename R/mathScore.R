@@ -25,7 +25,7 @@
 
 
 ## MATH Score main function
-mathScore <- function(mafData, tsb=c("OFA"), minvaf=0, maxvaf=1){
+mathScore <- function(mafData, tsb=c("All"), minvaf=0, maxvaf=1){
     ## get vaf-related infomation
     dataHugoSymbol <- mafData$Hugo_Symbol
     dataVaf <- mafData$VAF
@@ -36,12 +36,12 @@ mathScore <- function(mafData, tsb=c("OFA"), minvaf=0, maxvaf=1){
     tsbLs <- data.frame(unique(vafInputMt$Tumor_Sample_Barcode))
     
     ## MATH results for one/all sample
-    if (any(tsb == c("OFA"))){
+    if (any(tsb == c("All"))){
         ## list all samples' MATH scores
         mathOFA <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
         mathAll <- .patientMATH(vafInputMt, minvaf, maxvaf)
         mathAll <- data.frame(Tumor_Sample_Barcode=c("ITH MATH score"), 
-                               MATH_score=c(mathAll))
+                              MATH_score=c(mathAll))
         return(rbind(mathOFA, mathAll))
     } else{
         ## calculate specific samples' MATH score
@@ -49,7 +49,7 @@ mathScore <- function(mafData, tsb=c("OFA"), minvaf=0, maxvaf=1){
         mathSp <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
         mathAll <- .patientMATH(vafInputMt, minvaf, maxvaf)
         mathAll <- data.frame(Tumor_Sample_Barcode=c("ITH MATH score"), 
-                               MATH_score=c(mathAll))
+                              MATH_score=c(mathAll))
         return(rbind(mathSp, mathAll))
     }
     message("MATH Score Calculation Done!")
