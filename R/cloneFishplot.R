@@ -4,6 +4,8 @@
 #' from SCHISM. Construct fraction table and parents vector for drawing 
 #' fishplot.
 #' 
+#' @import htmlwidgets
+#' 
 #' @param dir.cluster.cellularity specify the directory of cluster.cellularity 
 #' document
 #' @param dir.GA.consensusTree specify the directory of GA.consensusTree 
@@ -23,9 +25,9 @@
 cloneFishPlot <- function(inferMethod="clonevol", plotOption="fishplot", 
                           dirClusterTsvFile=NULL, dirClusterCellularity=NULL, 
                           dirGAconsensusTree=NULL, dirSampleInfo=NULL){
-    if (inferMethod="clonevol"){
+    if (inferMethod == "clonevol"){
         clonevol2fishplot(dirClusterTsvFile, plotOption)
-    } else if (inferMethod="SCHISM") {
+    } else if (inferMethod == "SCHISM"){
         schism2Fishplot(dirClusterCellularity, dirGAconsensusTree, 
                         dirSampleInfo, plotOption)
         
@@ -147,7 +149,6 @@ clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
                   show_warnings=TRUE, width=900, height=NULL)
         message("Timescape Plot Done!")
     }
-    
 }
 
 
@@ -242,7 +243,7 @@ schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree,
                  vlines=seq(1, length(sampleLs)), vlab=sampleLs, pad.left=0.5)
         dev <- dev.off()
         message("Fishplot Done!")
-    } else if (plotOption="timescape"){
+    } else if (plotOption == "timescape"){
         names(clusterCellularity) <- c("timepoint", "clone_id", 
                                        "clonal_prev", "sd")
         clonalPrev <- clusterCellularity[c("timepoint", "clone_id", 
@@ -272,11 +273,14 @@ schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree,
         names(GAconsensusTree) <- c("source", "target")
         treeEdges <- GAconsensusTree
         
-        timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
+        timescapeobject <- timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
                   xaxis_title="Time Point", yaxis_title="Clonal Prevalence",
                   phylogeny_title="Clonal Phylogeny", alpha=50,
                   genotype_position="stack", perturbations="NA", sort=FALSE,
                   show_warnings=TRUE, width=900, height=NULL)
+        show(timescapeobject)
+        saveWidget(timescapeobject, file="timescape.html")
+
         message("Timescape Plot Done!")
     }
 }
