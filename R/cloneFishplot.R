@@ -273,14 +273,19 @@ schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree,
         names(GAconsensusTree) <- c("source", "target")
         treeEdges <- GAconsensusTree
         
-        timescapeobject <- timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
-                  xaxis_title="Time Point", yaxis_title="Clonal Prevalence",
-                  phylogeny_title="Clonal Phylogeny", alpha=50,
-                  genotype_position="stack", perturbations="NA", sort=FALSE,
-                  show_warnings=TRUE, width=900, height=NULL)
+        timescapeobject <- timescape(clonalPrev, treeEdges, mutations="NA", 
+                                     clone_colours="NA",
+                                     xaxis_title="Time Point", 
+                                     yaxis_title="Clonal Prevalence",
+                                     phylogeny_title="Clonal Phylogeny", 
+                                     alpha=50,
+                                     genotype_position="stack", 
+                                     perturbations="NA", 
+                                     sort=FALSE,
+                                     show_warnings=TRUE, 
+                                     width=900, height=NULL)
         show(timescapeobject)
         saveWidget(timescapeobject, file="timescape.html")
-
         message("Timescape Plot Done!")
     }
 }
