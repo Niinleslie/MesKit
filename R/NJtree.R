@@ -35,7 +35,7 @@ NJtree <- function(maf, use.indel = FALSE, use.ccf = FALSE, mut.signature = TRUE
   }
   mat.nj = nj(dist.gene(t(mut_sort)))
   branch <- read.njtree(mat.nj)
-  mut.branches <- treeMutationalBranches(maf, branch)
+  mut.branches <- .treeMutationalBranches(maf, branch)
   njtree <- new('NJtree', nj = mat.nj, mut_sort = mut_sort, patientID = patientID, mut_branches = mut.branches)
   return(njtree)
 }
