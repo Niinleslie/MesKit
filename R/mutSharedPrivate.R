@@ -6,8 +6,12 @@
 #'
 #' @return mutSharedPrivate
 #' @examples
-#' maf <- readMaf(patientID = "311252",mafDir = './inst/exdata/multi_lesion/maf/311252.maf', refBuild = "hg19")
-#' mutSharedPrivate(maf, 311252)
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+#' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
+#' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
+#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
+#' mutSharedPrivate(maf)
 
 mutSharedPrivate <- function(maf, show.num = FALSE, savePlot = FALSE){
   maf.dat <- dplyr::select(maf@data,c(Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,  Variant_Type,Reference_Allele,Tumor_Seq_Allele1,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,CDS_Change,Protein_Change,Tumor_Sample_Barcode))
@@ -31,7 +35,7 @@ analysisMutSharedPrivate <- function(df = NULL, patientID = patientID, show.num 
         l=length(df$Hugo_Symbol)
         df$Hugo_Symbol <- as.character(df$Hugo_Symbol)
         newRow <- df[n, ]
-        df <- rbind(df,newrow) 
+        df <- rbind(df,newRow) 
         df[l+1, 2:9] <- df[n, 2:9]
         df[l+1, 1] <- as.character(strsplit(df$Hugo_Symbol[n],split = ",")[[1]][geneNumber])
         geneNumber = geneNumber - 1
