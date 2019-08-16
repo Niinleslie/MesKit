@@ -37,29 +37,37 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
 
 ## read.maf main function
 readMaf <- function(patientID, mafFile, 
-                    sampleInfo, ccfClusterTsvDir=NULL, 
-                    ccfLociTsvDir=NULL, refBuild="hg19", 
-                    MafSummary=TRUE, outputDir = NULL){
+                    sampleInfoDir, ccfClusterFile=NULL, 
+                    ccfLociTsvFile=NULL, refBuild="hg19", 
+                    MafSummary=TRUE, outputDir=NULL, gzOption=NULL){
     
     ## read maf file
     mafInput <- read.table(mafFile, quote="", 
                            header=TRUE, fill=TRUE, 
                            sep='\t')
+    
+    ## save .maf file as gzip file
+    if (gzOption == "gz"){
+        mafGz <- gzfile("maf.gz", "w")
+        write.table(mafInput, mafGz, quote=FALSE, sep='\t', row.names=FALSE)
+        close(mafGz)
+    }
+    
     ## read info file
-    sampleInfoInput <-  read.table(sampleInfo, quote="", 
+    sampleInfoInput <-  read.table(sampleInfoDir, quote="", 
                                    header=TRUE, fill=TRUE, 
                                    sep='', stringsAsFactors=FALSE)
     ## read ccf file
-    if (!is.null(ccfClusterTsvDir) & !is.null(ccfLociTsvDir)) {
-        ccfClusterTsvInput <- read.table(ccfClusterTsvDir, quote="", 
-                                         header=TRUE, fill=TRUE, 
-                                         sep='\t', stringsAsFactors=FALSE)
-        ccfLociTsvDir <- read.table(ccfLociTsvDir, quote="", 
+    if (!is.null(ccfClusterFile) & !is.null(ccfLociTsvFile)) {
+        ccfClusterInput <- read.table(ccfClusterFile, quote="", 
+                                      header=TRUE, fill=TRUE, 
+                                      sep='\t', stringsAsFactors=FALSE)
+        ccfLociTsvInput <- read.table(ccfLociTsvFile, quote="", 
                                       header=TRUE, fill=TRUE, 
                                       sep='\t', stringsAsFactors=FALSE)
     } else {
-        ccfClusterTsvInput <- NULL
-        ccfLociTsvDir <- NULL
+        ccfClusterInput <- NULL
+        ccfLociTsvInput <- NULL
     }
     ## Generate patient,lesion and time information
     mafInput$patient <- ""
@@ -91,8 +99,8 @@ readMaf <- function(patientID, mafFile,
     mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
     ## transform data.frame to data.table
     mafData <- data.table::setDT(mafInput)
-    ccfClusterTsv <- data.table::setDT(ccfClusterTsvInput)
-    ccfLociTsv <- data.table::setDT(ccfLociTsvDir)
+    ccfClusterTsv <- data.table::setDT(ccfClusterInput)
+    ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
     ## summarize sample_info and mut.id with summarizeMaf
     mafSum <- suppressMessages(read.maf(mafData))
@@ -126,9 +134,8 @@ readMaf <- function(patientID, mafFile,
         
         if (!is.null(outputDir)){
             ggsave(pic, 
-               filename=paste(patientID, ".VariantSummary.png", sep=""), 
-               width=12, height=9, dpi=800, path=outputDir)
-
+                   filename=paste(patientID, ".VariantSummary.png", sep=""), 
+                   width=12, height=9, dpi=800, path=outputDir)
         }
     }
     message("Class Maf Generation Done!")
