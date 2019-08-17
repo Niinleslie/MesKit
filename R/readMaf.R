@@ -1,6 +1,7 @@
 #' Output an new maf document with information of sample_info 
-#' @description Add sample_info to the original maf file to get a new maf.The
-#'  new maf file adds three pieces of information:lesion,patient and time
+#' @description Add sample information and ccf data to the original maf file 
+#' to get a new maf. The new maf data adds three pieces of information:lesion, 
+#' patient and time.
 #'
 #' @import ggplot2
 #' @importClassesFrom maftools MAF
@@ -8,27 +9,39 @@
 #' @importFrom maftools read.maf
 #'
 #' @param patientID patient/sample name
-#' @param dat.dir specify a data directory as the input of the function
-#' @param use.ccf=Default FALSE. TRUE if ccf data is provided
-#' @param plot.mafSummary Default TRUE. FALSE if the summary figure is 
-#' unnecessary
-#' @param ref.build Default hg19. specify a referential genome including 
-#' BSgenome.Hsapiens.UCSC.hg19 and BSgenome.Hsapiens.UCSC.hg38 
+#' @param mafFile specify a data directory as the input of the function
+#' @param sampleInfoFile
+#' @param ccfClusterFile
+#' @param ccfLociTsvFile
+#' @param refBuild
+#' @param MafSummary
+#' @param outputDir
+#' @param gzOption
+#' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
 #' 
+#' @examples
+#' ## data information
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", 
+#'                         package = "Meskit")
+#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", 
+#'                                package = "Meskit")
+#' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", 
+#'                               package = "Meskit")
+#' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", 
+#'                            package = "Meskit")
+#' ## manually usage
+#' maf <- readMaf(patientID="311252", mafFile=maf.File, 
+#'                sampleInfoFile=sampleInfo.File, refBuild="hg19")
+#' ## if ccf data provided
+#' maf <- readMaf(patientID="311252", mafFile=maf.File, 
+#'                sampleInfoFile=sampleInfo.File, ccfClusterFile=pyCloneCluster, 
+#'                ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 #' @exportClass classMaf
 #' @export readMaf
 #'
-#' @examples
-#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-#' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
-#' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
-#' # if use ccf 
-#' maf <- readMaf(patientID = "311252", mafFile  = maf.File, sampleInfo = sampleInfo.File,
-#'                 ccfClusterTsvDir = pyCloneCluster, ccfLociTsvInput = pyCloneLoci, refBuild = "hg19")
+
 
 ## classMaf class
 classMaf <- setClass(Class="classMaf", contains="MAF", 
@@ -37,9 +50,9 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
 
 ## read.maf main function
 readMaf <- function(patientID, mafFile, 
-                    sampleInfoDir, ccfClusterFile=NULL, 
+                    sampleInfoFile, ccfClusterFile=NULL, 
                     ccfLociTsvFile=NULL, refBuild="hg19", 
-                    MafSummary=TRUE, outputDir=NULL, gzOption=NULL){
+                    MafSummary=TRUE, outputDir=NULL, gzOption=""){
     
     ## read maf file
     mafInput <- read.table(mafFile, quote="", 
@@ -54,7 +67,7 @@ readMaf <- function(patientID, mafFile,
     }
     
     ## read info file
-    sampleInfoInput <-  read.table(sampleInfoDir, quote="", 
+    sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
                                    sep='', stringsAsFactors=FALSE)
     ## read ccf file
@@ -129,13 +142,12 @@ readMaf <- function(patientID, mafFile,
         
         ## check the output directory
         if (is.null(outputDir)){
-            warning("NOTE: It is recommended to provide proper output directory for pictures")
-        }
-        
-        if (!is.null(outputDir)){
+            warning("NOTE: Missing output directory for pictures")
+        } else {
             ggsave(pic, 
-                   filename=paste(patientID, ".VariantSummary.png", sep=""), 
-                   width=12, height=9, dpi=800, path=outputDir)
+                   filename=paste(patientID, ".VariantSummary.pdf", sep=""), 
+                   width=12, height=9, dpi=1200, path=outputDir)
+            message("VariantSummary Plot Saved!")
         }
     }
     message("Class Maf Generation Done!")

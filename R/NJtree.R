@@ -12,7 +12,7 @@
 #' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
 #' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
 #' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
+#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfoFile = sampleInfo.File, refBuild = "hg19")
 #' njtree <- NJtree(maf)
 #' getNJtreenj(njtree)
 #' getNJtreemut_sort(njtree)

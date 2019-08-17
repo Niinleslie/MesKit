@@ -6,10 +6,14 @@
 #' 
 #' @import htmlwidgets
 #' 
-#' @param dir.cluster.cellularity specify the directory of cluster.cellularity 
+#' @param inferMethod
+#' @param plotOption
+#' @param dirClusterTsvFile
+#' @param dirClusterCellularity specify the directory of cluster.cellularity 
 #' document
-#' @param dir.GA.consensusTree specify the directory of GA.consensusTree 
+#' @param dirGAconsensusTree specify the directory of GA.consensusTree 
 #' document
+#' @param dirSampleInfo
 #' @return the fishplot showing the evolution relationship predicted by SCHISM
 #' 
 #' @export schism2Fishplot
@@ -18,7 +22,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' schism2Fishplot(dir.cluster.cellularity, dir.GA.consensusTree)
+#' cloneFishPlot("SCHISM", "fishplot", dirClusterCellularity=dir.cluster.cellularity, dirGAconsensusTree=dir.GA.consensusTree)
+#' cloneFishPlot("SCHISM", "timescape", dirClusterCellularity=dir.cluster.cellularity, dirGAconsensusTree=dir.GA.consensusTree, dirSampleInfo=NULL)
 #'}
 
 ## clonevol method

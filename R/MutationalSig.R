@@ -8,22 +8,26 @@
 #' @import reshape2 BSgenome GenomeInfoDb grDevices graphics utils deconstructSigs
 #' @importFrom plyr match_df
 #' 
-#' @param maf specify a maf document/directory as the input of the function
-#' @param branch specify a txt document/directory as the input of the branches
+#' @param njtree specify a maf document/directory as the input of the function
 #' @param refBuild
 #' @param driverGenesDir 
 #' @param mutThreshold
 #' @return data frame of each set/branch's mutational signature.
 #' 
-#' @export treeMutationalSig
-#' @export treeMutationalBranches
-#'
 #' @examples
-#' \dontrun{
-#' treeMutationalSig(maf_file, branch_file)
-#' treeMutationalSig(maf_file, branch_file, driver_genes_dir)
-#' treeMutationalSig(maf_file, branch_file, driver_genes_dir, mut.threshold=30)
-#'}
+#' ## data information
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+#' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
+#' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
+#' ## generate 
+#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfoFile = sampleInfo.File, refBuild = "hg19")
+#' njtree <- NJtree(maf)
+#' signature <- treeMutationalSig(njtree, "hg19", driverGenesDir=NULL, mutThreshold=50)
+#' 
+#' @export treeMutationalSig
+#'
+
 
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, refBuild, driverGenesDir=NULL, mutThreshold=50){

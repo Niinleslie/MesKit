@@ -9,26 +9,32 @@
 #' @importFrom maftools inferHeterogeneity
 #' @importFrom ggridges geom_density_ridges
 #' 
-#' @param maf_file specify a maf document/directory as the input of the 
+#' @param maf specify a maf document/directory as the input of the 
 #' function
-#' @param sampleOption specify single/all sample names 
+#' @param plotOption specify single/all sample names 
 #' (Tumor_Sample_Barcodes, tsb). Default "ridges".
 #' @param themeOption select a coloring scheme from ggsci. 
 #' Default "aaas".
 #' @param fileFormat choose an output file format accessable for ggsave. 
 #' Default "png".
+#' @param showMATH
+#' @param outputDir
 #' @return Images of selected samples' VAF
-#' 
-#' @export plotVAF
 #'
 #' @examples
-#' \dontrun{
-#' VAF_plot(maf_file, sampleOption="ridges", themeOption="aaas") 
-#' VAF_plot(maf_file, sampleOption="allSeparate") 
-#' VAF_plot(maf_file, sampleOption="allCombined") 
-#' VAF_plot(maf_file, sampleOption="tsb1", fileFormat="pdf") 
+#' ## data information
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf",
+#'                         package = "Meskit")
+#' maf <- readMaf(patientID="311252", mafFile=maf.File, 
+#'                sampleInfoFile=sampleInfo.File, refBuild="hg19")
+#' ## save ggridge plot
+#' vafCluster(maf, plotOption="311252-S", 
+#'            themeOption="npg", fileFormat="pdf", 
+#'            showMATH=TRUE)
 #' 
-#'}
+#' @export plotVAF
+#' 
+
 
 ## Main function for VAF plot
 vafCluster <-function(maf, plotOption="ridges", 
@@ -61,7 +67,7 @@ vafCluster <-function(maf, plotOption="ridges",
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
-            mathscore <- .mathCal(mafInput, showMATH, 
+            mathscore <- .mathCal(maf, showMATH, 
                                   plotOption, sampleName)
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]
@@ -112,7 +118,7 @@ vafCluster <-function(maf, plotOption="ridges",
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
-            mathscore <- .mathCal(mafInput, showMATH, 
+            mathscore <- .mathCal(maf, showMATH, 
                                   plotOption, sampleName)
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]
@@ -141,7 +147,7 @@ vafCluster <-function(maf, plotOption="ridges",
     else 
     {
         ## calculate ScoreMATH
-        mathscore <- .mathCal(mafInput, showMATH, plotOption)
+        mathscore <- .mathCal(maf, showMATH, plotOption)
         ## data preparation
         sampleMt <- vafInputMt[which(
             vafInputMt$Samples %in% plotOption),]
@@ -162,23 +168,23 @@ vafCluster <-function(maf, plotOption="ridges",
 
 ## Functions for all plotOption
 ## Calculate ScoreMATH
-.mathCal <- function(mafInput, showMATH,  
+.mathCal <- function(maf, showMATH,  
                      plotOption, sampleName = ""){
     if (showMATH){
         if ((plotOption == "allSeparate") | (plotOption == "allCombined")){
-            mathscore <- mathScore(mafInput, c(sampleName))
+            mathscore <- mathScore(maf, c(sampleName))
             mathscore <- mathscore[which(
                 mathscore$Tumor_Sample_Barcode == sampleName), 
                 ]$MATH_score
         }
         else if (plotOption == "ridges"){
-            mathscore <- mathScore(mafInput, c(sampleName))
+            mathscore <- mathScore(maf, c(sampleName))
             mathscore <- mathscore[which(
                 mathscore$Tumor_Sample_Barcode == "ITH MATH score"), 
                 ]$MATH_score
         }
         else {
-            mathscore <- mathScore(mafInput, c(plotOption))
+            mathscore <- mathScore(maf, c(plotOption))
             mathscore <- mathscore[which(
                 mathscore$Tumor_Sample_Barcode == plotOption), 
                 ]$MATH_score
