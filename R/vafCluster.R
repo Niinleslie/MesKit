@@ -26,7 +26,7 @@
 #'            themeOption="npg", fileFormat="pdf", 
 #'            showMATH=TRUE)
 #' 
-#' @export plotVAF
+#' @export vafCluster
 #' 
 
 

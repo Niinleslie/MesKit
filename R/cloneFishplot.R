@@ -19,7 +19,7 @@
 #'}
 #'
 #' @export schism2Fishplot
-#' @export schism2Timescape
+#' @export clonevol2Fishplot
 #' @export cloneFishPlot
 
 ## main function
