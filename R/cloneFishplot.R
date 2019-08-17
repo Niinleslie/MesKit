@@ -2,7 +2,7 @@
 #' Get outputs from SCHISM and draw the fishplot
 #' @description 
 #' 
-#' @import htmlwidgets png Hmisc plotrix fishplot timescape clonevol
+#' @import htmlwidgets png plotrix fishplot timescape clonevol
 #' 
 #' @param inferMethod choose a method to infer suboclonal relationship. Default "clonevol".
 #' @param plotOption choose the function to generate different tyoe of fishplot. Default "fishplot".
