@@ -19,23 +19,27 @@
 #' @export plotPhyloTree
 #' 
 #' @examples
-#' maf <- readMaf(patientID = "311252",mafDir = './inst/exdata/multi_lesion/maf/311252.maf', 
-#'                sampleInfoDir = './inst/exdata/multi_lesion/sample_info.txt', refBuild = "hg19")
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+#' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
+#' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
+#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
 #' plotPhyloTree(maf, use.indel = F)
 #' plotPhyloTree(maf, use.indel = T)
 #' # if use ccf 
-#' maf <- readMaf("311252",mafDir  = './inst/exdata/multi_lesion/maf/311252.maf',
-#'                 sampleInfoDir = './inst/exdata/multi_lesion/sample_info.txt',
-#'                 ccfClusterTsvDir = './inst/exdata/multi_lesion/ccf/311252.cluster.tsv',
-#'                 ccfLociTsvInput = './inst/exdata/multi_lesion/ccf/311252.loci.tsv',
+#' maf <- readMaf("311252",mafDir  = maf.file,
+#'                 sampleInfoDir = sampleInfo.File,
+#'                 ccfClusterTsvDir = pyCloneCluster,
+#'                 ccfLociTsvInput = pyCloneLoci,
 #'                 refBuild = "hg19")
 #' plotPhyloTree(maf, use.indel = F, heatmap.type = '')
 #' plotPhyloTree(maf, use.indel = T, heatmap.type = '')
-#' file <- system.file("extdata", "pa.nwk", package="treeio")
-#' plotPhyloTree(phylotree.dat = './inst/exdata/newick/pa.nwk', phylotree.type = 'newick')
-#' plotPhyloTree(phylotree.dat = './inst/exdata/newick/sample.nwk', phylotree.type = 'newick')
+#' newick.file1 <- system.file("extdata/newick", "1.nwk", package="MesKit")
+#' plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
+#' newick.file2 <- system.file("extdata/newick", "2.nwk", package="MesKit")
+#' plotPhyloTree(phylotree.dat = newick.file2, phylotree.type = 'newick')
 
-## main plotting function
+## main  function
 plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE, 
                           show.mutSig = TRUE, sig.min.mut.number = 50, 
                           show.heatmap = TRUE, heatmap.type = 'binary',
@@ -71,7 +75,8 @@ plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE,
                      ccf.mutation.sep = ccf.mutation.sep)
     # PhyloTree input data
     Phylo <- njtree@nj
-    signature <- njtree@signature
+    refBuild <- maf@ref.build
+    signature <- treeMutationalSig(njtree, refBuild = refBuild)
     maf@patientID <- paste(maf@patientID, ".NJtree", sep = "")
   }
   # generate phylotree data
@@ -120,7 +125,7 @@ plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE,
   else{
     if(savePlot){
       output.dir = getwd()
-      ggsave(filename = paste(output.dir,"/", phylotree.type, ".pdf", sep = ""), 
+      ggsave(filename = paste(output.dir, "/", phylotree.type, ".pdf", sep = ""), 
              plot = phylotree, width = 14, height = 7)
     }
     return(phylotree)
@@ -142,7 +147,8 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     # the  Node connected to NORMAL
     Root.node <- edge[Root.row, 1]
     Root.label <- 'NORMAL'
-  }else{
+  }
+  else{
     NO.Root <- length(Phylo$tip.label) + 1
     #the position of NORMAL in edge 
     Root.node <- NO.Root
@@ -304,7 +310,8 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     where.root <- which(plot.data$sample == Root.label)
     plot.data$x2[where.root] <- 0
     plot.data$y2[where.root] <- -plot.data$distance[where.root]
-  }else{
+  }
+  else{
     where.root <- which(plot.data$sample == Root.label)
     plot.data$x2 [where.root] <- 0
     plot.data$y2[where.root] <- -plot.data$distance[where.root]
@@ -682,6 +689,7 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
   }
   return(p)
 }
+
 
 # newick
 # file <- system.file("extdata", "pa.nwk", package="treeio")
