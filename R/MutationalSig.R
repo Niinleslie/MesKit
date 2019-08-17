@@ -88,10 +88,10 @@ treeMutationalSig <- function(njtree, refBuild, driverGenesDir=NULL, mutThreshol
     datNum <- seq_along(datAlt)
     datMutgene <-  maf_input$Hugo_Symbol
     mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
-                                 Hugo_Symbol, Chromosome, 
-                                 Start_Position, End_Position, 
-                                 Reference_Allele, Tumor_Seq_Allele2, 
-                                 sep=":"), mut.id)
+                                        Hugo_Symbol, Chromosome, 
+                                        Start_Position, End_Position, 
+                                        Reference_Allele, Tumor_Seq_Allele2, 
+                                        sep=":"), mut.id)
     mutSigRef <- data.frame(datNum, datSample, 
                             datChr, datPosStart, 
                             datPosEnd, datRef, 

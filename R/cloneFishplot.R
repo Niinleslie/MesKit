@@ -145,10 +145,10 @@ clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
         colnames(clonalPrev) <- c("timepoint", "clone_id", "clonal_prev")
         ## print timescape
         timescapeobject <- timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
-                  xaxis_title="Time Points", yaxis_title="Clonal Prevalence",
-                  phylogeny_title="Clonal Phylogeny", alpha=50,
-                  genotype_position="stack", perturbations="NA", sort=FALSE,
-                  show_warnings=TRUE, width=900, height=NULL)
+                                     xaxis_title="Time Points", yaxis_title="Clonal Prevalence",
+                                     phylogeny_title="Clonal Phylogeny", alpha=50,
+                                     genotype_position="stack", perturbations="NA", sort=FALSE,
+                                     show_warnings=TRUE, width=900, height=NULL)
         show(timescapeobject)
         saveWidget(timescapeobject, file="timescape.html")
         message("Timescape Plot Done!")
