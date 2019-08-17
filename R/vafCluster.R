@@ -55,8 +55,9 @@ vafCluster <-function(maf, plotOption="ridges",
     tsbLs <- data.frame(unique(vafInputMt$Samples))
     colnames(tsbLs) <- c("samples")
     
-    ## print all samples respectively
+    ## plot all samples' vaf distribution
     if ((plotOption == "allSeparate") | (plotOption == "allCombined")){
+        ## general data process for all samples 
         lsPicName <- c()
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
@@ -71,7 +72,7 @@ vafCluster <-function(maf, plotOption="ridges",
                                             vafCol='VAF', 
                                             useSyn=TRUE)$clusterData
             colnames(clusterMt)[6]="VAF"
-            ## print VAF pictures for all samples
+            ## allSeparate: print VAF pictures for all samples separatively
             if (plotOption == "allSeparate"){
                 pic <- .drawVAF(clusterMt, themeOption, 
                                 sampleName, mathscore)
@@ -80,7 +81,7 @@ vafCluster <-function(maf, plotOption="ridges",
                        width=12, height=9, dpi=800, path=outputDir)
             }
             else {
-                ## print VAF pictures for all samples
+                # prepare separated pictures for later combination 
                 pic_cha <- paste("allSeparate", patientID, ".", counterMt, 
                                  "<-.drawVAF(clusterMt, themeOption, ", 
                                  "sampleName, mathscore, ", 
@@ -91,6 +92,7 @@ vafCluster <-function(maf, plotOption="ridges",
             }
             
         }
+        ## allCombined: print VAF pictures for all samples in one document
         if (plotOption == "allCombined"){
             ## set the columns of the picture and generate all single pictures
             pic <- eval(parse(text=paste("plot_grid(", 
@@ -106,7 +108,7 @@ vafCluster <-function(maf, plotOption="ridges",
         }
     }
     
-    ## one pic for all sample
+    ## plot all samples' vaf distribution with ggridges
     else if (plotOption == "ridges"){
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){
@@ -137,11 +139,9 @@ vafCluster <-function(maf, plotOption="ridges",
                width=12, height=9, dpi=1200, path=outputDir)
     } 
     
-    ## specific sample
+    ## plot specific sample's vaf plot
     else 
     {
-        ## calculate ScoreMATH
-        mathscore <- .mathCal(maf, showMATH, plotOption)
         ## data preparation
         sampleMt <- vafInputMt[which(
             vafInputMt$Samples %in% plotOption),]
@@ -149,6 +149,8 @@ vafCluster <-function(maf, plotOption="ridges",
             maf=laml, tsb=as.character(sampleMt[1,3]), 
             vafCol='VAF', useSyn=TRUE)$clusterData
         colnames(clusterMt)[colnames(clusterMt)=="t_vaf"] <- "VAF"
+        ## calculate ScoreMATH
+        mathscore <- .mathCal(maf, showMATH, plotOption)
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)

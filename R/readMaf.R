@@ -60,14 +60,14 @@ readMaf <- function(patientID, mafFile,
                            header=TRUE, fill=TRUE, 
                            sep='\t')
     
-    ## save .maf file as gzip file
+    ## save .maf file as gzip file (need to be confirmed)
     if (gzOption == "gz"){
         mafGz <- gzfile("maf.gz", "w")
         write.table(mafInput, mafGz, quote=FALSE, sep='\t', row.names=FALSE)
         close(mafGz)
     }
     
-    ## read info file
+    ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
                                    sep='', stringsAsFactors=FALSE)
@@ -111,6 +111,7 @@ readMaf <- function(patientID, mafFile,
     }
     ## fix: Error in setattr(x, "row.names", rn)
     mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
+    
     ## transform data.frame to data.table
     mafData <- data.table::setDT(mafInput)
     ccfClusterTsv <- data.table::setDT(ccfClusterInput)
@@ -145,6 +146,7 @@ readMaf <- function(patientID, mafFile,
         if (is.null(outputDir)){
             warning("NOTE: Missing output directory for pictures")
         } else {
+            ## save the output of MafSummary plot.
             ggsave(pic, 
                    filename=paste(patientID, ".VariantSummary.pdf", sep=""), 
                    width=12, height=9, dpi=1200, path=outputDir)

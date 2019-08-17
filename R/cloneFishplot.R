@@ -31,7 +31,6 @@ cloneFishPlot <- function(inferMethod="clonevol", plotOption="fishplot",
     } else if (inferMethod == "SCHISM"){
         schism2Fishplot(dirClusterCellularity, dirGAconsensusTree, 
                         dirSampleInfo, plotOption)
-        
     }
 }
 
@@ -76,6 +75,7 @@ clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
     }
     
     ##################### must be used ##################################
+    ## infer subclonal relationship by clonevol
     consensusTree=infer.clonal.models(variants=dat.final,
                                       cluster.col.name='cluster',
                                       ccf.col.names=sample.names,
@@ -91,6 +91,7 @@ clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
                                       # confidence interval estimate for CCF
                                       alpha=0.05)
     
+    ## generate fishplot ouput which is used by fishplot and timescape
     fishPlotInput <- generateFishplotInputs(results=consensusTree)
     
     if (plotOption == "fishplot"){
@@ -142,12 +143,14 @@ clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
             }
         }
         colnames(clonalPrev) <- c("timepoint", "clone_id", "clonal_prev")
-        ## print 
-        timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
+        ## print timescape
+        timescapeobject <- timescape(clonalPrev, treeEdges, mutations="NA", clone_colours="NA",
                   xaxis_title="Time Points", yaxis_title="Clonal Prevalence",
                   phylogeny_title="Clonal Phylogeny", alpha=50,
                   genotype_position="stack", perturbations="NA", sort=FALSE,
                   show_warnings=TRUE, width=900, height=NULL)
+        show(timescapeobject)
+        saveWidget(timescapeobject, file="timescape.html")
         message("Timescape Plot Done!")
     }
 }
