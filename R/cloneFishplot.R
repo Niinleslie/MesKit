@@ -1,32 +1,28 @@
-## SCHISM method
+## Main Function for generating fishplot/timescape plot accoding to 
 #' Get outputs from SCHISM and draw the fishplot
-#' @description read cluster.cellularity and GA.consensusTree documents 
-#' from SCHISM. Construct fraction table and parents vector for drawing 
-#' fishplot.
+#' @description 
 #' 
-#' @import htmlwidgets
+#' @import htmlwidgets png Hmisc plotrix fishplot timescape clonevol
 #' 
-#' @param inferMethod
-#' @param plotOption
-#' @param dirClusterTsvFile
-#' @param dirClusterCellularity specify the directory of cluster.cellularity 
-#' document
-#' @param dirGAconsensusTree specify the directory of GA.consensusTree 
-#' document
-#' @param dirSampleInfo
+#' @param inferMethod choose a method to infer suboclonal relationship. Default "clonevol".
+#' @param plotOption choose the function to generate different tyoe of fishplot. Default "fishplot".
+#' @param dirClusterTsvFile specify the directory of cluster.tsv file. Default NULL. If inferMethod == "clonevol", it is necessary to give the parameter a propper value.
+#' @param dirClusterCellularity specify the directory of cluster.cellularity document. Default NULL. If inferMethod == "fishplot", the directory is essential and should be the output of SCHISM.
+#' @param dirGAconsensusTree specify the directory of GA.consensusTree document. Default NULL. However, if inferMethod == "fishplot", the parameter should be the output of SCHISM.
+#' @param dirSampleInfo pecify the directory of sample_info.txt. Default NULL.
 #' @return the fishplot showing the evolution relationship predicted by SCHISM
 #' 
-#' @export schism2Fishplot
-#' @export schism2Timescape
-#' @export cloneFishPlot
-#'
 #' @examples
 #' \dontrun{
 #' cloneFishPlot("SCHISM", "fishplot", dirClusterCellularity=dir.cluster.cellularity, dirGAconsensusTree=dir.GA.consensusTree)
 #' cloneFishPlot("SCHISM", "timescape", dirClusterCellularity=dir.cluster.cellularity, dirGAconsensusTree=dir.GA.consensusTree, dirSampleInfo=NULL)
 #'}
+#'
+#' @export schism2Fishplot
+#' @export schism2Timescape
+#' @export cloneFishPlot
 
-## clonevol method
+## main function
 cloneFishPlot <- function(inferMethod="clonevol", plotOption="fishplot", 
                           dirClusterTsvFile=NULL, dirClusterCellularity=NULL, 
                           dirGAconsensusTree=NULL, dirSampleInfo=NULL){
@@ -39,7 +35,7 @@ cloneFishPlot <- function(inferMethod="clonevol", plotOption="fishplot",
     }
 }
 
-
+## clonevol method
 clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
     ## read mutations in cluster.tsv from PyClone and get targeted clusters
     cluster.tsv=read.table(dirClusterTsvFile, sep="\t",
@@ -160,27 +156,6 @@ clonevol2Fishplot <- function(dirClusterTsvFile, plotOption){
 
 
 ## SCHISM method
-#' Get outputs from SCHISM and draw the fishplot
-#' @description read cluster.cellularity and GA.consensusTree documents 
-#' from SCHISM. Construct fraction table and parents vector for drawing 
-#' fishplot.
-#' 
-#' @param dir.cluster.cellularity specify the directory of cluster.cellularity 
-#' document
-#' @param dir.GA.consensusTree specify the directory of GA.consensusTree 
-#' document
-#' @return the fishplot showing the evolution relationship predicted by SCHISM
-#' 
-#' @export schism2Fishplot
-#' @export schism2Timescape
-#' @export inferByClonevol
-#'
-#' @examples
-#' \dontrun{
-#' schism2Fishplot(dir.cluster.cellularity, dir.GA.consensusTree)
-#'}
-
-## generate results for createFishPlotObjects
 schism2Fishplot <- function(dirClusterCellularity, dirGAconsensusTree, 
                             dirSampleInfo, plotOption){
     ## get cellularity infomation

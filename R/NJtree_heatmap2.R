@@ -16,7 +16,7 @@
 
 heatmap_input <- function(mat, type, ccf.mutation.id, ccf.mutation.sep){
   names <- c("mutation", "sample", "Mutation")
-  if(type = "CCF"){
+  if(type == "CCF"){
     names <- c("mutation", "sample", "CCF")
     }
 

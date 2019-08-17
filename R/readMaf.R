@@ -1,4 +1,4 @@
-#' Output an new maf document with information of sample_info 
+#' MAF/CCF/Sample_info Reader
 #' @description Add sample information and ccf data to the original maf file 
 #' to get a new maf. The new maf data adds three pieces of information:lesion, 
 #' patient and time.
@@ -8,15 +8,15 @@
 #' @importFrom maftools plotmafSummary
 #' @importFrom maftools read.maf
 #'
-#' @param patientID patient/sample name
-#' @param mafFile specify a data directory as the input of the function
-#' @param sampleInfoFile
-#' @param ccfClusterFile
-#' @param ccfLociTsvFile
-#' @param refBuild
-#' @param MafSummary
-#' @param outputDir
-#' @param gzOption
+#' @param patientID patientID for all samples in mafFile.
+#' @param mafFile MAF file directory. 
+#' @param sampleInfoFile sample_info.txt file directory.
+#' @param ccfClusterFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
+#' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
+#' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
+#' @param MafSummary Option for whether printing a MafSummary plot or not. Default TRUE.
+#' @param outputDir Directory for ouput files. Default NULL.
+#' @param gzOption Option for whether generating a .maf.gz compressed file. Default "". If a .maf.gz file is needed, the gzOption could be set as "gz"
 #' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
@@ -38,6 +38,7 @@
 #' maf <- readMaf(patientID="311252", mafFile=maf.File, 
 #'                sampleInfoFile=sampleInfo.File, ccfClusterFile=pyCloneCluster, 
 #'                ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
+#' 
 #' @exportClass classMaf
 #' @export readMaf
 #'
