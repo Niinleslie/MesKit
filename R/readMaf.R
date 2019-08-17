@@ -62,9 +62,14 @@ readMaf <- function(patientID, mafFile,
     
     ## save .maf file as gzip file (need to be confirmed)
     if (gzOption == "gz"){
-        mafGz <- gzfile("maf.gz", "w")
+        oriDir <- getwd()
+        setwd(outputDir)
+        mafGzName <- paste(patientID, ".maf.gz", sep="")
+        mafGz <- gzfile(mafGzName, "w")
         write.table(mafInput, mafGz, quote=FALSE, sep='\t', row.names=FALSE)
         close(mafGz)
+        message(paste(mafGzName," generation Done!", sep=""))
+        setwd(oriDir)
     }
     
     ## read sample_info file
