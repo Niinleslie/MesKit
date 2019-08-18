@@ -52,6 +52,8 @@ Below is an example of the first four rows of sample_info.txt. It should contain
  Note: "-" represent sampling at the same time
  
 - tumors sampling across multiple time points
+ |  sample  |  patient |  lesion |  time  |
+ ---- | ------ | ------ | ------
  | WGC033391D | C1 |  -  |     T1   |
  | WGC033392D | C1 |  -  |     T2   |
  | WGC033393D | C1 |  -  |     T3   |
