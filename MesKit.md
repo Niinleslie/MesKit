@@ -51,13 +51,12 @@ Below is an example of the first four rows of sample_info.txt. It should contain
  
  Note: "-" represent sampling at the same time
  
-> tumors sampling across multiple time points
- |  sample  |  patient |  lesion |  time  |
- ---- | ------ | ------ | ------
- | WGC033391D | C1 |  -  |    T1   |
- | WGC033392D | C1 |  -  |    T2   |
- | WGC033393D | C1 |  -  |    T3   |
- | WGC033386D | C1 |  -  |    T4   |
+- tumors sampling across multiple time points
+ | WGC033391D | C1 |  -  |     T1   |
+ | WGC033392D | C1 |  -  |     T2   |
+ | WGC033393D | C1 |  -  |     T3   |
+ | WGC033386D | C1 |  -  |     T4   |
+
  
 
 ### Maf objects
