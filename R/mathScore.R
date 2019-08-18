@@ -11,10 +11,8 @@
 #' 
 #' @examples
 #' ## data information
-#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf",
-#'                         package = "Meskit")
-#' maf <- readMaf(patientID="311252", mafFile=maf.File,
-#'                sampleInfoFile=sampleInfo.File, refBuild="hg19")
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+#' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 #' ## generate MATH scores for all tsbs
 #' mathScore(maf, tsb=c("All"), minvaf=0, maxvaf=1)
 #' ## generate MATH score for specific tsbs
@@ -23,8 +21,6 @@
 #' 
 #' @export mathScore
 #' 
-
-
 
 ## MATH Score main function
 mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
