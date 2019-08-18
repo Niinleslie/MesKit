@@ -10,3 +10,5 @@ Install the latest version of this package by entering the following in R:
 install.packages("remotes")
 remotes::install_github("Niinleslie/MesKit")
 ```
+
+# [Documentation and help](https://github.com/Niinleslie/MesKit/blob/master/MesKit.md)
