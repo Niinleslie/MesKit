@@ -11,7 +11,7 @@
 #' @param patientID patientID for all samples in mafFile.
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
-#' @param ccfClusterFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
+#' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
 #' @param MafSummary Option for whether printing a MafSummary plot or not. Default TRUE.
@@ -30,7 +30,7 @@
 #' ## manually usage
 #' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 #' ## if ccf data provided
-#' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
+#' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 #' 
 #' @exportClass classMaf
 #' @export readMaf
@@ -43,7 +43,7 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
 
 ## read.maf main function
 readMaf <- function(patientID, mafFile, 
-                    sampleInfoFile, ccfClusterFile=NULL, 
+                    sampleInfoFile, ccfClusterTsvFile=NULL, 
                     ccfLociTsvFile=NULL, refBuild="hg19", 
                     MafSummary=TRUE, outputDir=NULL, gzOption=""){
     
@@ -69,8 +69,8 @@ readMaf <- function(patientID, mafFile,
                                    header=TRUE, fill=TRUE, 
                                    sep='', stringsAsFactors=FALSE)
     ## read ccf file
-    if (!is.null(ccfClusterFile) & !is.null(ccfLociTsvFile)) {
-        ccfClusterInput <- read.table(ccfClusterFile, quote="", 
+    if (!is.null(ccfClusterTsvFile) & !is.null(ccfLociTsvFile)) {
+        ccfClusterInput <- read.table(ccfClusterTsvFile, quote="", 
                                       header=TRUE, fill=TRUE, 
                                       sep='\t', stringsAsFactors=FALSE)
         ccfLociTsvInput <- read.table(ccfLociTsvFile, quote="", 
