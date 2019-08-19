@@ -24,11 +24,12 @@
 
 ## main function
 cloneFishPlot <- function(inferMethod="clonevol", plotOption="fishplot", 
-                          dirClusterTsvFile=NULL, dirClusterCellularity=NULL, 
+                          maf=NULL, dirClusterCellularity=NULL, 
                           dirGAconsensusTree=NULL, dirSampleInfo=NULL){
-    if (inferMethod == "clonevol"){
+    if (inferMethod == "clonevol" & is.null(maf)){
+        dirClusterTsvFile <- maf@ccf.cluster
         clonevol2fishplot(dirClusterTsvFile, plotOption)
-    } else if (inferMethod == "SCHISM"){
+    } else if (inferMethod == "SCHISM" & is.null(dirClusterCellularity) & is.null(dirGAconsensusTree)){
         schism2Fishplot(dirClusterCellularity, dirGAconsensusTree, 
                         dirSampleInfo, plotOption)
     }
