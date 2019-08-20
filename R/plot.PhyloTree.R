@@ -19,28 +19,22 @@
 #' @export plotPhyloTree
 #' 
 #' @examples
-#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-#' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
-#' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
-#' plotPhyloTree(maf, use.indel = F)
-#' plotPhyloTree(maf, use.indel = T)
+#' plotPhyloTree(njtree, use.indel = F)
+#' plotPhyloTree(njtree, use.indel = T)
 #' # if use ccf 
-#' maf <- readMaf("311252",mafDir  = maf.file,
-#'                 sampleInfoDir = sampleInfo.File,
-#'                 ccfClusterTsvDir = pyCloneCluster,
-#'                 ccfLociTsvInput = pyCloneLoci,
-#'                 refBuild = "hg19")
-#' plotPhyloTree(maf, use.indel = F, heatmap.type = '')
-#' plotPhyloTree(maf, use.indel = T, heatmap.type = '')
+#' plotPhyloTree(njtree, use.indel = F, heatmap.type = '')
+#' plotPhyloTree(njtree, use.indel = T, heatmap.type = '')
 #' newick.file1 <- system.file("extdata/newick", "1.nwk", package="MesKit")
 #' plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
 #' newick.file2 <- system.file("extdata/newick", "2.nwk", package="MesKit")
 #' plotPhyloTree(phylotree.dat = newick.file2, phylotree.type = 'newick')
+#' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
+#' plotPhyloTree(phylotree.dat = file , phylotree.type = 'beast')
+#' brstfile <- system.file("extdata/PAML_Baseml", "rst", package="treeio")
+#' plotPhyloTree(phylotree.dat = brstfile , phylotree.type = 'PAML')
 
 ## main  function
-plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE, 
+plotPhyloTree <- function(njtree, phylotree.type = 'njtree', use.indel = FALSE, 
                           show.mutSig = TRUE, sig.min.mut.number = 50, 
                           show.heatmap = TRUE, heatmap.type = 'binary',
                           ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"), 
@@ -63,21 +57,18 @@ plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE,
     }
     else if(phylotree.type == 'PAML'){
       PAML <- read.paml_rst(phylotree.dat)
-      Phylo <- as.PAML(beast)
+      Phylo <- as.phylo(beast)
     }
     else{
-      message("the form of the tree file is not supported")
+      stop("the form of the tree file is not supported")
     }
   }
   else{
-    # set NJtree object(njtree)
-    njtree <- NJtree(maf, use.indel, use.ccf, ccf.mutation.id = ccf.mutation.id, 
-                     ccf.mutation.sep = ccf.mutation.sep)
     # PhyloTree input data
     Phylo <- njtree@nj
-    refBuild <- maf@ref.build
+    refBuild <- njtree@refBuild
     signature <- treeMutationalSig(njtree, refBuild = refBuild)
-    maf@patientID <- paste(maf@patientID, ".NJtree", sep = "")
+    njtree@patientID <- paste(njtree@patientID, ".NJtree", sep = "")
   }
   # generate phylotree data
   phylotree.input.data <- phylotreeInput(Phylo, signature, show.mutSig ,phylotree.type)
@@ -88,34 +79,34 @@ plotPhyloTree <- function(maf, phylotree.type = 'njtree', use.indel = FALSE,
   if(show.mutSig){
     #Set the color
     color.scale <- colorSet(unique(phylotree.input.data$signature))
-    maf@patientID <- paste(maf@patientID, ".mutsig", sep = "")
+    njtree@patientID <- paste(njtree@patientID, ".mutsig", sep = "")
   }
   #plot phylotree
   phylotree <- generatePlotObject(phylotree.input.data, color.scale, show.mutSig, 
                                   phylotree.type)
   
   if(show.heatmap){
-    heatmap <- mut.heatmap(maf, use.indel, use.ccf,ccf.mutation.id = ccf.mutation.id,
+    heatmap <- mut.heatmap(njtree, use.ccf, ccf.mutation.id = ccf.mutation.id,
                            ccf.mutation.sep = ccf.mutation.sep)
     plot.njtree <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.8) + draw_plot(heatmap, x = 0.8,y = -0.035, width = 0.2)
     if(savePlot){
       output.dir = getwd()
       if(!use.ccf){
         if(use.indel){
-          ggsave(filename = paste(output.dir,"/", maf@patientID, ".useindel.pdf", sep = ""),
+          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.pdf", sep = ""),
                  plot = plot.njtree, width = 14, height = 7)
         }
         else{
-          ggsave(filename = paste(output.dir,"/", maf@patientID, ".pdf", sep = ""),
+          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".pdf", sep = ""),
                  plot = plot.njtree, width = 14, height = 7)
         }
       }
       else{
         if(use.indel){
-          ggsave(filename = paste(output.dir,"/", maf@patientID, ".useindel.ccf.pdf", sep = ""),
+          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.ccf.pdf", sep = ""),
                  plot = plot.njtree, width = 14, height = 7)
         }else{
-          ggsave(filename = paste(output.dir,"/", maf@patientID, ".ccf.pdf", sep = ""),
+          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".ccf.pdf", sep = ""),
                  plot = plot.njtree, width = 14, height = 7)
         }
       }
@@ -155,7 +146,18 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     Root.label <- 'Root'
     Root.tip <- 0
     if(is.null(Phylo$root.edge)){
-      stop('We can only draw rooted trees with root.edge')
+      message('root egde is 0')
+      phylo <- root(Phylo, Phylo$tip.label[floor(length(Phylo$tip.label)/2)])
+      edge <-  Phylo$edge
+      distance <- Phylo$edge.length
+      edge <- matrix(c(edge, distance), nrow = length(edge[, 1]))
+      NO.Root <- floor(length(Phylo$tip.label)/2)
+      #the position of NORMAL in edge 
+      Root.row <- which(edge[,2] == NO.Root)
+      # the  Node connected to NORMAL
+      Root.node <- edge[Root.row, 1]
+      Root.label <- 'Root'
+      Root.tip <- 0
     }
     Root.edge <- Phylo$root.edge
     edge <- rbind(edge, c(Root.node, Root.tip, Root.edge))
@@ -691,11 +693,3 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
 }
 
 
-# newick
-# file <- system.file("extdata", "pa.nwk", package="treeio")
-# plotPhyloTree(phylotree.dir = file , phylotree.type = 'newick')
-# beast
-# file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
-# beast <- read.beast(file)
-# beast <- as.phylo(beast)
-# plotPhyloTree(phylotree.dir = file , phylotree.type = 'beast')
