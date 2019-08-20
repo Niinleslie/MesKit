@@ -1,6 +1,7 @@
 ## Main Function for generating fishplot/timescape plot accoding to 
 #' Get outputs from SCHISM and draw the fishplot
-#' @description 
+#' @description infers subclonal relationship based on clonevol and SCHISM. 
+#' generate metastatic evolvogram by fishplot and timescape
 #' 
 #' @import htmlwidgets png plotrix fishplot timescape clonevol
 #' 
@@ -13,8 +14,12 @@
 #' 
 #' @examples
 #' \dontrun{
-#' cloneFishPlot("SCHISM", "fishplot", dirClusterCellularity=dir.cluster.cellularity, dirGAconsensusTree=dir.GA.consensusTree)
-#' cloneFishPlot("SCHISM", "timescape", dirClusterCellularity=dir.cluster.cellularity, dirGAconsensusTree=dir.GA.consensusTree, dirSampleInfo=NULL)
+#' ## clonevol method
+#' cloneFishPlot(maf, inferMethod="clonevol", plotOption="fishplot")
+#' cloneFishPlot(maf, inferMethod="clonevol", plotOption="timescape")
+#' ## fishplot method
+#' cloneFishPlot(maf, inferMethod="SCHISM", plotOption="fishplot", schismCellularityFile, schismConsensusTree)
+#' cloneFishPlot(maf, inferMethod="SCHISM", plotOption="timescape", schismCellularityFile, schismConsensusTree)
 #'}
 #'
 #' @export schism2Fishplot
