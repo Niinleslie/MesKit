@@ -57,7 +57,7 @@ plotPhyloTree <- function(njtree, phylotree.type = 'njtree', use.indel = FALSE,
     }
     else if(phylotree.type == 'PAML'){
       PAML <- read.paml_rst(phylotree.dat)
-      Phylo <- as.phylo(beast)
+      Phylo <- as.phylo(PAML)
     }
     else{
       stop("the form of the tree file is not supported")
