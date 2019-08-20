@@ -1,7 +1,7 @@
 ## Main Function for generating fishplot/timescape plot accoding to 
 #' Get outputs from SCHISM and draw the fishplot
 #' @description infers subclonal relationship based on clonevol and SCHISM. 
-#' generate metastatic evolvogram by fishplot and timescape
+#' generate metastatic evolvogram by fishplot and timescape.s
 #' 
 #' @import htmlwidgets png plotrix fishplot timescape clonevol
 #' 
@@ -32,8 +32,13 @@ cloneFishPlot <- function(maf, inferMethod="clonevol", plotOption="fishplot",
     if (inferMethod == "clonevol"){
         clusterTsvFile <- maf@ccf.cluster
         clonevol2fishplot(clusterTsvFile, plotOption)
-    } else if (inferMethod == "SCHISM" & !is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
-        schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption)
+    } else if (inferMethod == "SCHISM"){
+        if (!is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
+            schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption)
+        } else {
+            warning("Missing schismCellularityFile or schismConsensusTree. The subclonal hierarchy results from SCHISM should be provided.")
+        }
+        
     }
 }
 
