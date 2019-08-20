@@ -17,18 +17,13 @@
 #'
 #' @examples
 #' ## data information
-#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf",
-#'                         package = "Meskit")
-#' maf <- readMaf(patientID="311252", mafFile=maf.File, 
-#'                sampleInfoFile=sampleInfo.File, refBuild="hg19")
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+#' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 #' ## save ggridge plot
-#' vafCluster(maf, plotOption="311252-S", 
-#'            themeOption="npg", fileFormat="pdf", 
-#'            showMATH=TRUE)
+#' vafCluster(maf, plotOption="311252-S", themeOption="npg", fileFormat="pdf", showMATH=TRUE)
 #' 
 #' @export vafCluster
 #' 
-
 
 ## Main function for VAF plot
 vafCluster <-function(maf, plotOption="ridges", 

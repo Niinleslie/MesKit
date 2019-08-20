@@ -12,7 +12,7 @@
 
 \item{sampleInfoFile}{sample_info.txt file directory.}
 
-\item{ccfClusterFile}{CCF cluster.tsv file directory if ccf data provided. Default NULL.}
+\item{ccfClusterTsvFile}{CCF cluster.tsv file directory if ccf data provided. Default NULL.}
 
 \item{ccfLociTsvFile}{CCF loci.tsv file directory if ccf data provided. Default NULL.}
 
@@ -35,20 +35,13 @@ patient and time.
 }
 \examples{
 ## data information
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", 
-                        package = "Meskit")
-sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", 
-                               package = "Meskit")
-pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", 
-                              package = "Meskit")
-pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", 
-                           package = "Meskit")
+maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
+pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
 ## manually usage
-maf <- readMaf(patientID="311252", mafFile=maf.File, 
-               sampleInfoFile=sampleInfo.File, refBuild="hg19")
+maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 ## if ccf data provided
-maf <- readMaf(patientID="311252", mafFile=maf.File, 
-               sampleInfoFile=sampleInfo.File, ccfClusterFile=pyCloneCluster, 
-               ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
+maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 
 }
