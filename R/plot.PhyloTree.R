@@ -28,9 +28,9 @@
 #' plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
 #' newick.file2 <- system.file("extdata/newick", "2.nwk", package="MesKit")
 #' plotPhyloTree(phylotree.dat = newick.file2, phylotree.type = 'newick')
-#' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="treeio")
+#' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="MesKit")
 #' plotPhyloTree(phylotree.dat = file , phylotree.type = 'beast')
-#' brstfile <- system.file("extdata/PAML_Baseml", "rst", package="treeio")
+#' brstfile <- system.file("extdata/PAML_Baseml", "rst", package="MesKit")
 #' plotPhyloTree(phylotree.dat = brstfile , phylotree.type = 'PAML')
 
 ## main  function
