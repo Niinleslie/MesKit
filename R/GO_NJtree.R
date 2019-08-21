@@ -154,7 +154,7 @@ GO.njtree <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod = "BH"
     grid.arrange(grobs = grob.list, ncol = 2)
   }
   else if(length(grob.list) == 0){
-    print('nothing')
+    message('There is no result')
   }
 }
 

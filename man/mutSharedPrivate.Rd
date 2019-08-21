@@ -4,22 +4,26 @@
 \alias{mutSharedPrivate}
 \title{Use R code to find the intersect mutations and their types in several samples of one patient}
 \usage{
-mutSharedPrivate(maf, show.num = FALSE)
+mutSharedPrivate(maf, show.num = FALSE, savePlot = FALSE)
 }
 \arguments{
 \item{maf}{Maf object return from read.Maf()}
 
 \item{show.num}{a logic parameter to determine whether to show the number of each mutations in the stack plot}
 
-\item{patientID}{the ID of a patient whose cancer information is going to be analyzed}
+\item{savePlot}{if save plot of result}
 }
 \value{
-Stack and point-line plot
+mutSharedPrivate
 }
 \description{
 Use R code to find the intersect mutations and their types in several samples of one patient
 }
 \examples{
-maf <- read.Maf('patient', dat.dir = './data/multi_lesion' )
-mutSharedPrivate(maf, 311252)
+maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
+pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
+maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
+mutSharedPrivate(maf)
 }
