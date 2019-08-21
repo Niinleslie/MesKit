@@ -2,15 +2,13 @@
 #' 
 #' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggtree ggrepel
 #' 
-#' @param maf MAF object
+#' @param njtree NJtree object
 #' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML" with root 
 #' @param use.indel Seclet SNP in Variant type
 #' @param show.mutSig if show Mutational Signature in Images
 #' @param sig.min.mut.number minimum mutation number in each branch
 #' @param show.heatmap if plot heatmap that show mutation distribution in each branch
 #' @param heatmap.type type of heatmap
-#' @param ccf.mutation.id determine the id of mutation
-#' @param ccf.mutation.sep sep of id
 #' @param savePlot if save plot in your working directory
 #' @param phylotree.dat If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter
 #' 
@@ -26,13 +24,13 @@
 #' # use other tree format
 #' newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
 #' plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
-#' beast.file <- system.file("extdata/BEAST", "beast_mcc.tree", package="MesKit")
+#' beast.file <- system.file("extdata/BEAST", "sample.beast", package="MesKit")
 #' plotPhyloTree(phylotree.dat = beast.file , phylotree.type = 'beast')
-#' brstfile <- system.file("extdata/PAML_Baseml", "rst", package="MesKit")
-#' plotPhyloTree(phylotree.dat = brstfile , phylotree.type = 'PAML')
+#' PAML.file <- system.file("extdata/PAML", "sample.paml", package="MesKit")
+#' plotPhyloTree(phylotree.dat = PAML.file , phylotree.type = 'PAML')
 
 ## main  function
-plotPhyloTree <- function(njtree, phylotree.type = 'njtree', use.indel = FALSE, 
+plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = FALSE, 
                           show.mutSig = TRUE, sig.min.mut.number = 50, 
                           show.heatmap = TRUE, heatmap.type = 'binary',
                           savePlot = FALSE, phylotree.dat = NULL){
@@ -60,10 +58,13 @@ plotPhyloTree <- function(njtree, phylotree.type = 'njtree', use.indel = FALSE,
     }
   }
   else{
+    if(is.null(njtree)){
+      stop("njtree is null, you need to generate njtree using NJtree.R")
+    }
     # PhyloTree input data
     Phylo <- njtree@nj
     refBuild <- njtree@refBuild
-    signature <- treeMutationalSig(njtree, refBuild = refBuild)
+    signature <- treeMutationalSig(njtree, refBuild = refBuildS)
     njtree@patientID <- paste(njtree@patientID, ".NJtree", sep = "")
   }
   # generate phylotree data
@@ -118,15 +119,15 @@ plotPhyloTree <- function(njtree, phylotree.type = 'njtree', use.indel = FALSE,
   }
 }
 ##generate plot data 
-phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
+phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
   #Generate the adjacency matrix
-  edge <-  Phylo$edge
+  edge <-  phylo$edge
   #Add the third column of the matrix to the node distance
-  distance <- Phylo$edge.length
+  distance <- phylo$edge.length
   edge <- matrix(c(edge, distance), nrow = length(edge[, 1]))
   # which root
   if(phylotree.type == 'njtree'){
-    NO.Root <- which(Phylo$tip.label == 'NORMAL')
+    NO.Root <- which(phylo$tip.label == 'NORMAL')
     Root.tip <- NO.Root
     #the position of NORMAL in edge 
     Root.row <- which(edge[,2] == NO.Root)
@@ -135,18 +136,21 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     Root.label <- 'NORMAL'
   }
   else{
-    NO.Root <- length(Phylo$tip.label) + 1
+    NO.Root <- length(phylo$tip.label) + 1
     #the position of NORMAL in edge 
     Root.node <- NO.Root
     Root.label <- 'Root'
     Root.tip <- 0
-    if(is.null(Phylo$root.edge)){
+    if(is.null(phylo$root.edge)){
       message('root egde is 0')
-      phylo <- root(Phylo, Phylo$tip.label[floor(length(Phylo$tip.label)/2)])
-      edge <-  Phylo$edge
-      distance <- Phylo$edge.length
+      phylo <- root(phylo, phylo$tip.label[floor(length(phylo$tip.label)/2)])
+      if("Root" %in% phylo$node.label){
+        stop("plot.PhyloTree draw tree with root only")
+      }
+      edge <-  phylo$edge
+      distance <- phylo$edge.length
       edge <- matrix(c(edge, distance), nrow = length(edge[, 1]))
-      NO.Root <- floor(length(Phylo$tip.label)/2)
+      NO.Root <- floor(length(phylo$tip.label)/2)
       #the position of NORMAL in edge 
       Root.row <- which(edge[,2] == NO.Root)
       # the  Node connected to NORMAL
@@ -154,7 +158,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
       Root.label <- 'Root'
       Root.tip <- 0
     }
-    Root.edge <- Phylo$root.edge
+    Root.edge <- phylo$root.edge
     edge <- rbind(edge, c(Root.node, Root.tip, Root.edge))
   }
   #store the sample name or node in a list
@@ -179,13 +183,13 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     angle = 0
     for(i in 1 : length(point.list)){
       #if it is sample, the number of vertices plus one
-      if(point.list[i] <= length(Phylo$tip.label)){
+      if(point.list[i] <= length(phylo$tip.label)){
         vertex.total <- vertex.total + 1
         vertex.list <- append(vertex.list, 1)
       }
       #If it is an internal node, it counts several vertices connected to the internal node
       else{
-        if(length(point.list[point.list > length(Phylo$tip.label )]) == 1){
+        if(length(point.list[point.list > length(phylo$tip.label )]) == 1){
           vertex.total <- vertex.total+length(edge.left[, 1])
           vertex.sub <- length(edge.left[, 1])
         }else{
@@ -226,11 +230,11 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     }
     i = 1
     while (i <= length(sub.edge[,1])) {
-      if(point.list[i] > length(Phylo$tip.label)){
+      if(point.list[i] > length(phylo$tip.label)){
         n <- 'internal node'
       }
       #If the number is greater than the length label of labels, it is an internal node, otherwise it is a sample
-      else {n <- Phylo$tip.label[point.list[i]]}
+      else {n <- phylo$tip.label[point.list[i]]}
       if(phylotree.type!= 'njtree' & point.list[i]== Root.tip){
         n <- 'Root'
       }else if(phylotree.type == 'njtree' & point.list[i]== Root.tip){
@@ -261,7 +265,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     return(result)
   }
   t=1
-  while(t <= Phylo$Nnode){
+  while(t <= phylo$Nnode){
     #The first diagram is of the internal node connected to NORMAL
     target.node <- node.list[t]
     #he position of the target t node in the matrix (the first data point is to find the NORMAL)
@@ -297,7 +301,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
       plot.data <- p.n[[1]]
       name.list <- p.n[[2]]
     }
-    node.list<-append(node.list, point.list[point.list>length(Phylo$tip.label)])
+    node.list<-append(node.list, point.list[point.list>length(phylo$tip.label)])
     t=t+1
   }
   #Add the sample_name to the plot data
@@ -318,7 +322,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
   #Adjust Angle of non-NORMAL sample and internal nodes
   t=1
   while(t <= length(plot.data[, 1])){
-    if (all(plot.data$end_num[t] <= length(Phylo$tip.label),
+    if (all(plot.data$end_num[t] <= length(phylo$tip.label),
             plot.data$sample[t] != 'internal node',
             plot.data$sample[t] != Root.label,
             plot.data$horizon_angle[t] != plot.data$horizon[t])){
@@ -420,7 +424,7 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
   while(t <= length(plot.data[,1])){
     row <- ''
     row1 <- ''
-    if(all(plot.data$end_num[t] <= length(Phylo$tip.label),
+    if(all(plot.data$end_num[t] <= length(phylo$tip.label),
            plot.data$sample[t] != 'internal node',
            plot.data$sample[t] != Root.label,
            plot.data$horizon_angle[t] != plot.data$horizon[t])){
@@ -439,9 +443,9 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
           if(length(NO.Root)== 0){
             break
           }
-          if(plot.data$distance[row1] < mean(Phylo$edge.length)/10){
+          if(plot.data$distance[row1] < mean(phylo$edge.length)/10){
             row <- which(plot.data$node == adjust.node&
-                           plot.data$end_num <= length(Phylo$tip.label))
+                           plot.data$end_num <= length(phylo$tip.label))
             if(length(row)!=0){
               if(plot.data$horizon[row] < pi/2 & plot.data$sample[row] == list.right[1]){
                 plot.data$horizon[row] <- plot.data$horizon[row] - pi/18
@@ -534,13 +538,13 @@ phylotreeInput <- function(Phylo, signature = '', show.mutSig, phylotree.type){
     }
   }
   if(show.mutSig){
-    plot.data <- addSignature(Phylo, plot.data, signature)
+    plot.data <- addSignature(phylo, plot.data, signature)
   }
   
   return(plot.data)
 }
 ##add signature
-addSignature <- function(Phylo, plot.data, signature){
+addSignature <- function(phylo, plot.data, signature){
   #add signature to plot.data
   plot.data$signature <- ''
   t <- 1
@@ -560,16 +564,16 @@ addSignature <- function(Phylo, plot.data, signature){
     }
     # the sample in sample_list share one common node(previous node  to the lowest row )
     # signature of NORMAL
-    if(length(signature$branch[[t]]) == length(Phylo$tip.label ) - 1){
+    if(length(signature$branch[[t]]) == length(phylo$tip.label ) - 1){
       row <- which(plot.data$sample == 'NORMAL')
       plot.data$signature[row] <-  as.character(signature$sig[(t)]) 
       t <- t+1
       next
     }
     #Internal nodes connected to NORMAL
-    else if(length(signature$branch[[t]]) == length(Phylo$tip.label ) - 2){
+    else if(length(signature$branch[[t]]) == length(phylo$tip.label ) - 2){
       for(i in 1 : length(plot.data$sample)){
-        if(plot.data$end_num[i] > length(Phylo$tip.label)){
+        if(plot.data$end_num[i] > length(phylo$tip.label)){
           command.row <- i
           break
         }

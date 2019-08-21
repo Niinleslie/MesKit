@@ -4,50 +4,39 @@
 #' @param is.ccf Use mutation CCF for heatmap painting. Default FALSE.
 #' @param use.indel logical. Whether to uses all variants irrespective of values in Mutation_Status.Defaults to FALSE, only use somatic mutations.
 #' @param use.ccf logical. Whether to print the binary heatmap with ccf values. Defaults to FALSE, print the binary heatmap without ccf value
-#' @param ccf
-#' @param ccf.mutation.id manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy
-#' @param ccf.mutation.sep manually specify the separator character.Values on each line of the ccf.mutation.id are separated by this character. I
 #' @return binary mutation heatmap or mutation CCF heatmap
 #'
 #' @examples
-#' mut.heatmap(Maf, use.indel = F)
-#' mut.heatmap(Maf, use.indel = F, use.ccf = TRUE)
+#' mut.heatmap(njtree, use.indel = F)
+#' mut.heatmap(njtree, use.indel = F, use.ccf = TRUE)
 
-heatmap_input <- function(maf, use.indel, use.ccf, ccf, ccf.mutation.id, ccf.mutation.sep){
-  maf.dat <- maf@data
-  ccf <- maf@ccf.loci
-  if(use.ccf){
+heatmap_input <- function(mat, type, ccf.mutation.id, ccf.mutation.sep){
+  names <- c("mutation", "sample", "Mutation")
+  if(type == "CCF"){
     names <- c("mutation", "sample", "CCF")
-    mut_sort <- mut_ccf_sort(maf.dat, ccf = ccf, use.indel = use.indel, ccf.mutation.id, ccf.mutation.sep)
-    if(is.null(ccf)){
-      stop("Missing ccf file. Check whether maf@ccf.loci is NULL")
-    }
-  }
-  else{
-    names <- c("mutation", "sample", "Mutation")
-    mut_sort <- mut_binary_sort(maf.dat, use.indel = use.indel)
   }
   
-  
-  mut_dat <- melt(mut_sort)
+  mut_dat <- melt(mat)
   colnames(mut_dat) <- names
   return(mut_dat)
 }
 
 
-
-mut.heatmap <- function(maf, use.indel = FALSE, use.ccf = FALSE, ccf.mutation.id, ccf.mutation.sep){
-  maf.dat <- maf@data
-  ccf <- maf@ccf.loci
-  patientID <- maf@patientID
+mut.heatmap <- function(njtree, use.ccf = FALSE, ccf.mutation.id, ccf.mutation.sep){
+  patientID <- njtree@patientID
+  mut_sort <- njtree@mut_sort
+  ccf_sort <- njtree@ccf_sort
+  mat <- mut_sort
   type  <- "Mutation"
   if(use.ccf){
     type <- "CCF"
+    mat <- ccf_sort
     if(is.null(ccf)){
-      stop("Missing ccf file. Check whether maf@ccf.loci is NULL")
+      stop("njtree@ccf_sort is NULL. No ccf data was found when readMaf")
     }
   }
-  mut_dat <- heatmap_input(maf, use.indel = use.indel, use.ccf = use.ccf, ccf = ccf, ccf.mutation.id = ccf.mutation.id, ccf.mutation.sep = ccf.mutation.sep)
+  
+  mut_dat <- heatmap_input(mat, type = type, ccf.mutation.id = ccf.mutation.id, ccf.mutation.sep = ccf.mutation.sep)
   mut_dat$sample <- factor(mut_dat$sample, levels =unique(mut_dat$sample))
   p_basic <- ggplot(mut_dat, aes(sample, mutation)) +
     labs(x = "", y = "") + theme_bw() +
@@ -60,11 +49,11 @@ mut.heatmap <- function(maf, use.indel = FALSE, use.ccf = FALSE, ccf.mutation.id
     theme(legend.text = element_text(size = 10, face = "bold", color = "black")) +
     theme(legend.position = "right" ) +
     labs(fill = type) + scale_y_continuous(expand = c(0,0))
-
+  
   if(use.ccf){
     p <- p_basic + geom_tile(aes(fill = mut_dat$CCF)) + scale_fill_gradient(low = "grey", high = "red", na.value="black", limit=c(0, 1))
     ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
-    }
+  }
   if(!use.ccf){
     p <- p_basic + geom_tile(aes(fill = as.factor(mut_dat$Mutation))) + scale_fill_manual(values = c("grey", "red"))
     #ggsave(paste(patientID, "_mut.pdf", sep = ""), p, width = 4.5, height = 6.5)
