@@ -4,9 +4,6 @@
 #' @param is.ccf Use mutation CCF for heatmap painting. Default FALSE.
 #' @param use.indel logical. Whether to uses all variants irrespective of values in Mutation_Status.Defaults to FALSE, only use somatic mutations.
 #' @param use.ccf logical. Whether to print the binary heatmap with ccf values. Defaults to FALSE, print the binary heatmap without ccf value
-#' @param ccf
-#' @param ccf.mutation.id manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy
-#' @param ccf.mutation.sep manually specify the separator character.Values on each line of the ccf.mutation.id are separated by this character. I
 #' @return binary mutation heatmap or mutation CCF heatmap
 #'
 #' @examples
@@ -14,7 +11,7 @@
 #' mut.heatmap(njtree, use.indel = F, use.ccf = TRUE)
 
 
-heatmap_input <- function(mat, type, ccf.mutation.id, ccf.mutation.sep){
+heatmap_input <- function(mat, type){
   names <- c("mutation", "sample", "Mutation")
   if(type == "CCF"){
     names <- c("mutation", "sample", "CCF")
@@ -26,7 +23,7 @@ heatmap_input <- function(mat, type, ccf.mutation.id, ccf.mutation.sep){
 }
 
 
-mut.heatmap <- function(njtree, use.ccf = FALSE, ccf.mutation.id, ccf.mutation.sep){
+mut.heatmap <- function(njtree, use.ccf = FALSE){
   patientID <- maf@patientID
   mut_sort <- njtree@mut_sort
   ccf_sort <- njtree@ccf_sort

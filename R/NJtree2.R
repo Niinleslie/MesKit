@@ -3,8 +3,8 @@
 #' @param maf return from readMaf()
 #' @param use.indel Seclet SNP in Variant type
 #' @param sig.min.mut.number minimum mutation number in each branch
-#' @param ccf.mutation.id determine the id of mutation
-#' @param ccf.mutation.sep sep of id
+#' @param ccf.mutation.id manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy
+#' @param ccf.mutation.sep manually specify the separator character.Values on each line of the ccf.mutation.id are separated by this character. I
 #' @return NJtree object
 #' 
 #' @examples
@@ -14,13 +14,12 @@
 #' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
 #' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
 #' njtree <- NJtree(maf)
-#' getNJtreenj(njtree)
-#' getNJtreemut_sort(njtree)
-#' getNJtreeSignature(njtree)
+
 
 # set NJtree object
 NJtree <- function(maf, use.indel = FALSE, mut.signature = TRUE, 
-                   sig.min.mut.number = 50, ccf.mutation.id, ccf.mutation.sep){
+                   sig.min.mut.number = 50, ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
+                   ccf.mutation.sep = ":"){
   maf.dat <- maf@data
   patientID <- maf@patientID
   refBuild <- paste("BSgenome.Hsapiens.UCSC.", maf@ref.build, sep = "")

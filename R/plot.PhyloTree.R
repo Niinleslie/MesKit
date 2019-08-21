@@ -22,14 +22,12 @@
 #' plotPhyloTree(njtree, use.indel = F)
 #' plotPhyloTree(njtree, use.indel = T)
 #' # if use ccf 
-#' plotPhyloTree(njtree, use.indel = F, heatmap.type = '')
 #' plotPhyloTree(njtree, use.indel = T, heatmap.type = '')
-#' newick.file1 <- system.file("extdata/newick", "1.nwk", package="MesKit")
+#' # use other tree format
+#' newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
 #' plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
-#' newick.file2 <- system.file("extdata/newick", "2.nwk", package="MesKit")
-#' plotPhyloTree(phylotree.dat = newick.file2, phylotree.type = 'newick')
-#' file <- system.file("extdata/BEAST", "beast_mcc.tree", package="MesKit")
-#' plotPhyloTree(phylotree.dat = file , phylotree.type = 'beast')
+#' beast.file <- system.file("extdata/BEAST", "beast_mcc.tree", package="MesKit")
+#' plotPhyloTree(phylotree.dat = beast.file , phylotree.type = 'beast')
 #' brstfile <- system.file("extdata/PAML_Baseml", "rst", package="MesKit")
 #' plotPhyloTree(phylotree.dat = brstfile , phylotree.type = 'PAML')
 
@@ -37,9 +35,7 @@
 plotPhyloTree <- function(njtree, phylotree.type = 'njtree', use.indel = FALSE, 
                           show.mutSig = TRUE, sig.min.mut.number = 50, 
                           show.heatmap = TRUE, heatmap.type = 'binary',
-                          ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"), 
-                          ccf.mutation.sep = ":", savePlot = FALSE,
-                          phylotree.dat = NULL){
+                          savePlot = FALSE, phylotree.dat = NULL){
   if(heatmap.type == 'binary'){
     use.ccf = FALSE
   }else{
@@ -86,8 +82,7 @@ plotPhyloTree <- function(njtree, phylotree.type = 'njtree', use.indel = FALSE,
                                   phylotree.type)
   
   if(show.heatmap){
-    heatmap <- mut.heatmap(njtree, use.ccf, ccf.mutation.id = ccf.mutation.id,
-                           ccf.mutation.sep = ccf.mutation.sep)
+    heatmap <- mut.heatmap(njtree, use.ccf)
     plot.njtree <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.8) + draw_plot(heatmap, x = 0.8,y = -0.035, width = 0.2)
     if(savePlot){
       output.dir = getwd()
