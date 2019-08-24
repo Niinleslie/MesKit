@@ -45,25 +45,20 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
 readMaf <- function(patientID, mafFile, 
                     sampleInfoFile, ccfClusterTsvFile=NULL, 
                     ccfLociTsvFile=NULL, refBuild="hg19", 
-                    MafSummary=TRUE, outputDir=NULL, gzOption=""){
+                    MafSummary=TRUE, outputDir=NULL){
     
     ## read maf file
-    mafInput <- read.table(mafFile, quote="", 
-                           header=TRUE, fill=TRUE, 
-                           sep='\t')
-    
-    ## save .maf file as gzip file (need to be confirmed)
-    if (gzOption == "gz"){
-        oriDir <- getwd()
-        setwd(outputDir)
-        mafGzName <- paste(patientID, ".maf.gz", sep="")
-        mafGz <- gzfile(mafGzName, "w")
-        write.table(mafInput, mafGz, quote=FALSE, sep='\t', row.names=FALSE)
+    if (.substrRight(mafFile, 3) == ".gz"){
+        mafInput <- read.table(mafGz <- gzfile(mafFile, "r"), quote="", 
+                               header=TRUE, fill=TRUE, 
+                               sep='\t')
         close(mafGz)
-        message(paste(mafGzName," generation Done!", sep=""))
-        setwd(oriDir)
+    } else {
+        mafInput <- read.table(mafFile, quote="", 
+                               header=TRUE, fill=TRUE, 
+                               sep='\t')
     }
-    
+
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
@@ -153,3 +148,8 @@ readMaf <- function(patientID, mafFile,
     message("Class Maf Generation Done!")
     return(maf)
 }
+
+.substrRight <- function(x, n){
+    substr(x, nchar(x)-n+1, nchar(x))
+}
+
