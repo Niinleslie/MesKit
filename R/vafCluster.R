@@ -58,6 +58,13 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
                                   plotOption, sampleName)
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]
+            ## data cleaning
+            sampleMt <- sampleMt[complete.cases(sampleMt), ]
+            sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+            if (length(sampleMt[,1]) < 3) {
+                message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+                next()
+                }
             clusterMt <- inferHeterogeneity(maf=laml, 
                                             tsb=as.character(
                                                 sampleMt$Samples[1]), 
@@ -80,12 +87,12 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
             }
             else {
                 # prepare separated pictures for later combination 
-                pic_cha <- paste("allSeparate", patientID, ".", counterMt, 
+                pic_cha <- paste("allSeparate", ".", counterMt, 
                                  "<-.drawVAF(clusterMt, themeOption, ", 
                                  "sampleName, mathscore, ", 
                                  "MIXOption=plotOption)", sep="")
                 eval(parse(text=pic_cha))
-                pic_name <- paste("allSeparate", patientID, ".", counterMt, sep="")
+                pic_name <- paste("allSeparate", ".", counterMt, sep="")
                 lsPicName <- c(lsPicName, pic_name)
             }
             
@@ -122,6 +129,13 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
                                   plotOption, sampleName)
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]
+            ## data cleaning
+            sampleMt <- sampleMt[complete.cases(sampleMt), ]
+            sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+            if (length(sampleMt[,1]) < 3) {
+                message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+                next()
+            }
             clusterMtCha <- paste("clusterMt_", counterMt, 
                                   " <- inferHeterogeneity(maf=laml, ", 
                                   "tsb=as.character(sampleMt[1,3]), ", 
@@ -153,8 +167,14 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
         ## data preparation
         sampleMt <- vafInputMt[which(
             vafInputMt$Samples %in% plotOption),]
+        ## data cleaning
+        sampleMt <- sampleMt[complete.cases(sampleMt), ]
+        sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+        if (length(sampleMt[,1]) < 3) {
+            stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+        }
         clusterMt <- inferHeterogeneity(
-            maf=laml, tsb=as.character(sampleMt[1,3]), 
+            maf=laml, tsb=as.character(sampleMt$Samples[1]), 
             vafCol='VAF', useSyn=TRUE)$clusterData
         colnames(clusterMt)[colnames(clusterMt) == "t_vaf"] <- "VAF"
         ## calculate ScoreMATH
@@ -168,8 +188,8 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
                    width=12, height=9, dpi=1200, path=outputDir)
         }
     }
-    return(pic)
     message("VAF Plot Generation Done!")
+    return(pic)
 }
 
 
