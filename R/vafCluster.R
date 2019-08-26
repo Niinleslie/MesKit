@@ -27,12 +27,8 @@
 
 ## Main function for VAF plot
 vafCluster <-function(maf, plotOption="ridges", themeOption="aaas", 
-                      fileFormat="pdf", mathRange=c(0,1), vafColumn="VAF", 
+                      fileFormat=NULL, mathRange=c(0,1), vafColumn="VAF", 
                       outputDir=NULL){
-    ## check the output directory
-    if (is.null(outputDir)){
-        warning("NOTE: It is recommended to provide proper output directory for pictures")
-    }
     ## original data preparation
     ## read .maf file
     colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
@@ -72,9 +68,15 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
             if (plotOption == "allSeparate"){
                 pic <- .drawVAF(clusterMt, themeOption, 
                                 sampleName, mathscore)
-                ggsave(pic, filename=paste(sampleName, "_VAF_Cluster", 
-                                           ".", fileFormat,sep=""), 
-                       width=12, height=9, dpi=1200, path=outputDir)
+                if(!is.null(fileFormat)){
+                    ## check the output directory
+                    if (is.null(outputDir)){
+                        warning("NOTE: It is recommended to provide proper output directory for pictures")
+                    }
+                    ggsave(pic, filename=paste(sampleName, "_VAF_Cluster", 
+                                               ".", fileFormat,sep=""), 
+                           width=12, height=9, dpi=1200, path=outputDir)
+                }
             }
             else {
                 # prepare separated pictures for later combination 
@@ -98,9 +100,15 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
                                          ", ncol=2, align=\"v\")" , 
                                          sep="")))
             ## save the cowplot picure
-            ggsave(pic, filename=paste(sampleName, "_VAF_Cluster_MIX", ".", 
-                                       fileFormat,sep=""), 
-                   width=12, height=9, dpi=1200, path=outputDir)
+            if(!is.null(fileFormat)){
+                ## check the output directory
+                if (is.null(outputDir)){
+                    warning("NOTE: It is recommended to provide proper output directory for pictures")
+                }
+                ggsave(pic, filename=paste(sampleName, "_VAF_Cluster_MIX", ".", 
+                                           fileFormat,sep=""), 
+                       width=12, height=9, dpi=1200, path=outputDir)
+            }
         }
     }
     
@@ -128,9 +136,15 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
         }
         pic <- eval(parse(text=.ofaVAF(clusterAll, themeOption, tsbLs, 
                                        plotOption, mathscore)))
-        ggsave(pic, filename= paste(patientID, "_VAF_Cluster", ".", 
-                                    fileFormat, sep=""), 
-               width=12, height=9, dpi=1200, path=outputDir)
+        if(!is.null(fileFormat)){
+            ## check the output directory
+            if (is.null(outputDir)){
+                warning("NOTE: It is recommended to provide proper output directory for pictures")
+            }
+            ggsave(pic, filename= paste(patientID, "_VAF_Cluster", ".", 
+                                        fileFormat, sep=""), 
+                   width=12, height=9, dpi=1200, path=outputDir)
+        }
     } 
     
     ## plot specific sample's vaf plot
@@ -148,10 +162,13 @@ vafCluster <-function(maf, plotOption="ridges", themeOption="aaas",
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
-        ggsave(pic, filename=paste(plotOption,"_VAF_Cluster",".", 
-                                   fileFormat,sep=""), 
-               width=12, height=9, dpi=1200, path=outputDir)
+        if(!is.null(fileFormat)){
+            ggsave(pic, filename=paste(plotOption,"_VAF_Cluster",".", 
+                                       fileFormat,sep=""), 
+                   width=12, height=9, dpi=1200, path=outputDir)
+        }
     }
+    return(pic)
     message("VAF Plot Generation Done!")
 }
 
