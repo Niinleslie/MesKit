@@ -64,21 +64,21 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
             vafColumn > minvaf & vafColumn < maxvaf)]
     vafColumn <- as.numeric(
         as.character(vafColumn))[which(!is.na(vafColumn))]
-    vafColumn
+    return(vafColumn)
 }
 
 ## MATH Caculation
 .calMATH <- function(vafColumn){
     MAD <- 1.4826*median(abs(vafColumn - median(vafColumn)))
     MATH <- 100 * MAD / median(vafColumn)
-    MATH
+    return(MATH)
 }
 
 ## MATH multi-sample process
-.multiSampleMATH <- function(vafInputMt, tsb_ls, minvaf, maxvaf){
+.multiSampleMATH <- function(vafInputMt, tsbLs, minvaf, maxvaf){
     samplesMATH <- data.frame()
-    for (counter in seq_along(tsb_ls[,1])){
-        for (sampleNameMt in tsb_ls){
+    for (counter in seq_along(tsbLs[,1])){
+        for (sampleNameMt in tsbLs){
             vafColumn <- .dataClean(
                 vafInputMt, 
                 as.character(sampleNameMt)[counter], 
@@ -90,7 +90,7 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
         }
     }
     colnames(samplesMATH) <- c("Tumor_Sample_Barcode", "MATH_score")
-    samplesMATH
+    return(samplesMATH)
 }
 
 ## MATH patient calcualtion
