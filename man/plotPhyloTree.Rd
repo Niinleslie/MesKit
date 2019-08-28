@@ -4,14 +4,13 @@
 \alias{plotPhyloTree}
 \title{A  phylogenetic tree painter}
 \usage{
-plotPhyloTree(maf, phylotree.type = "njtree", use.indel = FALSE,
-  show.mutSig = TRUE, sig.min.mut.number = 50, show.heatmap = TRUE,
-  heatmap.type = "binary", ccf.mutation.id = c("Hugo_Symbol",
-  "Chromosome", "Start_Position"), ccf.mutation.sep = ":",
-  savePlot = FALSE, phylotree.dat = NULL)
+plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
+  use.indel = FALSE, show.mutSig = TRUE, sig.min.mut.number = 50,
+  show.heatmap = TRUE, heatmap.type = "binary", savePlot = FALSE,
+  phylotree.dat = NULL)
 }
 \arguments{
-\item{maf}{MAF object}
+\item{njtree}{NJtree object}
 
 \item{phylotree.type}{Phylotree format,you can choose "njtree","newick","beast","PAML" with root}
 
@@ -25,10 +24,6 @@ plotPhyloTree(maf, phylotree.type = "njtree", use.indel = FALSE,
 
 \item{heatmap.type}{type of heatmap}
 
-\item{ccf.mutation.id}{determine the id of mutation}
-
-\item{ccf.mutation.sep}{sep of id}
-
 \item{savePlot}{if save plot in your working directory}
 
 \item{phylotree.dat}{If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter}
@@ -40,23 +35,15 @@ Images of Phylotree
 A  phylogenetic tree painter
 }
 \examples{
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
-pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
-plotPhyloTree(maf, use.indel = F)
-plotPhyloTree(maf, use.indel = T)
+plotPhyloTree(njtree, use.indel = F)
+plotPhyloTree(njtree, use.indel = T)
 # if use ccf 
-maf <- readMaf("311252",mafDir  = maf.file,
-                sampleInfoDir = sampleInfo.File,
-                ccfClusterTsvDir = pyCloneCluster,
-                ccfLociTsvInput = pyCloneLoci,
-                refBuild = "hg19")
-plotPhyloTree(maf, use.indel = F, heatmap.type = '')
-plotPhyloTree(maf, use.indel = T, heatmap.type = '')
-newick.file1 <- system.file("extdata/newick", "1.nwk", package="MesKit")
+plotPhyloTree(njtree, use.indel = T, heatmap.type = '')
+# use other tree format
+newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
 plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
-newick.file2 <- system.file("extdata/newick", "2.nwk", package="MesKit")
-plotPhyloTree(phylotree.dat = newick.file2, phylotree.type = 'newick')
+beast.file <- system.file("extdata/BEAST", "sample.beast", package="MesKit")
+plotPhyloTree(phylotree.dat = beast.file , phylotree.type = 'beast')
+PAML.file <- system.file("extdata/PAML", "sample.paml", package="MesKit")
+plotPhyloTree(phylotree.dat = PAML.file , phylotree.type = 'PAML')
 }
