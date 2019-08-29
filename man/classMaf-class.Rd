@@ -21,8 +21,6 @@
 \item{MafSummary}{Option for whether printing a MafSummary plot or not. Default TRUE.}
 
 \item{outputDir}{Directory for ouput files. Default NULL.}
-
-\item{gzOption}{Option for whether generating a .maf.gz compressed file. Default "". If a .maf.gz file is needed, the gzOption could be set as "gz"}
 }
 \value{
 a classMaf object/class includes information of sample_info and 

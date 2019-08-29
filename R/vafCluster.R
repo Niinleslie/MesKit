@@ -19,12 +19,13 @@
 #' @return Images of selected samples' VAF
 #'
 #' @examples
-#' ## data information
 #' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
 #' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-#' ## save ggridge plot
-#' vafCluster(maf, plotOption="311252-S", themeOption="npg", fileFormat="pdf", math_vafRange=c(0,1))
-#' 
+#' vafCluster(maf, plotOption="compare")
+#' vafCluster(maf, plotOption="combine")
+#' vafCluster(maf, plotOption="separate")
+#'
 #' @export vafCluster
 #' 
 
@@ -78,13 +79,16 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             if (plotOption == "separate"){
                 pic <- .drawVAF(clusterMt, themeOption, 
                                 sampleName, mathscore)
+                if (is.null(fileFormat) & !is.null(outputDir)){
+                    stop("ERROR: FileFormat is needed when you need to output pictures.")
+                }
                 if(!is.null(fileFormat)){
                     ## check the output directory
                     if (is.null(outputDir)){
                         warning("NOTE: It is recommended to provide proper output directory for pictures")
                     }
                     ggsave(pic, filename=paste(sampleName, "_VAF_Cluster", 
-                                               ".", fileFormat,sep=""), 
+                                               ".", fileFormat, sep=""), 
                            width=12, height=9, dpi=1200, path=outputDir)
                 }
             }
@@ -110,13 +114,16 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                                          ", ncol=2, align=\"v\")" , 
                                          sep="")))
             ## save the cowplot picure
-            if(!is.null(fileFormat)){
+            if (is.null(fileFormat) & !is.null(outputDir)){
+                stop("ERROR: FileFormat is needed when you need to output pictures.")
+            }
+            if (!is.null(fileFormat)){
                 ## check the output directory
                 if (is.null(outputDir)){
-                    warning("NOTE: It is recommended to provide proper output directory for pictures")
+                    warning("NOTE: It is recommended to provide proper output directory for pictures.")
                 }
                 ggsave(pic, filename=paste(sampleName, "_VAF_Cluster_MIX", ".", 
-                                           fileFormat,sep=""), 
+                                           fileFormat, sep=""), 
                        width=12, height=9, dpi=1200, path=outputDir)
             }
         }
@@ -155,7 +162,11 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         }
         pic <- eval(parse(text=.ofaVAF(clusterAll, themeOption, tsbLs, 
                                        plotOption, mathscore)))
-        if(!is.null(fileFormat)){
+        ## save ridgeline plot
+        if (is.null(fileFormat) & !is.null(outputDir)){
+            stop("ERROR: FileFormat is needed when you need to output pictures.")
+        }
+        if (!is.null(fileFormat)){
             ## check the output directory
             if (is.null(outputDir)){
                 warning("NOTE: It is recommended to provide proper output directory for pictures")
@@ -187,17 +198,20 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
+        if (is.null(fileFormat) & !is.null(outputDir)){
+            stop("ERROR: FileFormat is needed when you need to output pictures.")
+        }
         if(!is.null(fileFormat)){
             ggsave(pic, filename=paste(plotOption,"_VAF_Cluster",".", 
-                                       fileFormat,sep=""), 
+                                       fileFormat, sep=""), 
                    width=12, height=9, dpi=1200, path=outputDir)
         }
     }
     
     else {
-        stop("plotOption settings failure.")
+        stop("ERROR: plotOption settings failure.")
     }
-    message("VAF Plot Generation Done!")
+    message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
     return(pic)
 }
 

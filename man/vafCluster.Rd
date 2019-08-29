@@ -5,7 +5,7 @@
 \title{A VAF plot painter}
 \usage{
 vafCluster(maf, vafRange = c(0, 1), vafColumn = "VAF",
-  plotOption = "compare", themeOption = "aaas", fileFormat = NULL,
+  plotOption = "combine", themeOption = "aaas", fileFormat = NULL,
   outputDir = NULL)
 }
 \arguments{
@@ -14,6 +14,8 @@ vafCluster(maf, vafRange = c(0, 1), vafColumn = "VAF",
 \item{vafRange}{set the VAF threshold for MATH Score calculation. 
 The first number in the list given would be the minvaf parameter for mathScore 
 and the second one would be the maxvaf parameter. Default c(0, 1).}
+
+\item{vafColumn}{choose the specific column containing VAF values. Default "VAF".}
 
 \item{plotOption}{choose a vaf plot ouput option for your target data.Default "compare".}
 
@@ -32,10 +34,11 @@ Generate variant allele frequency(VAF) frequency distribution
  different outputs with different range of samples.
 }
 \examples{
-## data information
 maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
 maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-## save ggridge plot
-vafCluster(maf, plotOption="311252-S", themeOption="npg", fileFormat="pdf", math_vafRange=c(0,1))
+vafCluster(maf, plotOption="compare")
+vafCluster(maf, plotOption="combine")
+vafCluster(maf, plotOption="separate")
 
 }
