@@ -2,7 +2,6 @@
 #' 
 #' @param maf return from readMaf()
 #' @param use.indel Seclet SNP in Variant type
-#' @param sig.min.mut.number minimum mutation number in each branch
 #' @param ccf.mutation.id manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy
 #' @param ccf.mutation.sep manually specify the separator character.Values on each line of the ccf.mutation.id are separated by this character. I
 #' @return NJtree object
@@ -17,8 +16,8 @@
 
 
 # set NJtree object
-NJtree <- function(maf, use.indel = FALSE, mut.signature = TRUE, 
-                   sig.min.mut.number = 50, ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
+NJtree <- function(maf, use.indel = FALSE, 
+                   ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
                    ccf.mutation.sep = ":"){
   maf.dat <- maf@data
   patientID <- maf@patientID

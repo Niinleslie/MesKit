@@ -57,7 +57,7 @@ readMaf <- function(patientID, mafFile, sampleInfoFile,
                                header=TRUE, fill=TRUE, 
                                sep='\t')
     }
-
+    
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
@@ -146,7 +146,7 @@ readMaf <- function(patientID, mafFile, sampleInfoFile,
                               fileFormat, sep=""), 
                width=12, height=9, dpi=1200, path=outputDir)
         message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
-        }
+    }
     message(paste(patientID, "'s classMaf Generation Done!", sep=""))
     return(maf)
 }

@@ -29,12 +29,14 @@
 #' signature2 <- treeMutationalSig(njtree, "hg19", driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 #' ## use different signature reference
 #' signature3 <- treeMutationalSig(njtree, "hg19", driverGenesFile=NULL, mutThreshold=50, signaturesRef="signatures.nature2013")
+#' 
 #' @export treeMutationalSig
 #'
 
 
 ## Mutational Signature function
-treeMutationalSig <- function(njtree, refBuild, driverGenesFile=NULL, mutThreshold=50, signaturesRef="signatures.cosmic"){
+treeMutationalSig <- function(njtree, refBuild, driverGenesFile=NULL, 
+                              mutThreshold=50, signaturesRef="signatures.cosmic"){
     ## refBuild limitation: only hg19 or hg38
     if (!((refBuild == "hg19") | (refBuild == "hg38"))){
         stop(error="Error: refBuild's value may be incorrect. 
@@ -71,7 +73,8 @@ treeMutationalSig <- function(njtree, refBuild, driverGenesFile=NULL, mutThresho
         mutSigsOutput <- .branchMutationalSig(mutSigRef, mutSigsOutput, 
                                               branch, branchName, 
                                               patientID, driverGenesFile, 
-                                              mutThreshold, refBuild, signaturesRef)
+                                              mutThreshold, refBuild, 
+                                              signaturesRef)
     }
     mutSigsOutput
 }
