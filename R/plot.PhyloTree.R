@@ -23,7 +23,7 @@
 #' plotPhyloTree(njtree, use.indel = T, heatmap.type = '')
 #' # use other tree format
 #' newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
-#' plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
+#' plotPhyloTree(phylotree.dat = newick.file, phylotree.type = 'newick')
 #' beast.file <- system.file("extdata/BEAST", "sample.beast", package="MesKit")
 #' plotPhyloTree(phylotree.dat = beast.file , phylotree.type = 'beast')
 #' PAML.file <- system.file("extdata/PAML", "sample.paml", package="MesKit")
