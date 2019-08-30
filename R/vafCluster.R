@@ -183,7 +183,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             eval(parse(text=clusterMtCha))
         }
         pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, themeOption, tsbLs, 
-                                       plotOption, mathscore))))
+                                                        plotOption, mathscore))))
         ## save ridgeline plot
         if (is.null(fileFormat) & !is.null(outputDir)){
             stop("ERROR: FileFormat is needed when you need to output pictures.")
@@ -194,8 +194,8 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                 warning("NOTE: It is recommended to provide proper output directory for pictures")
             }
             suppressMessages(ggsave(pic, filename= paste(patientID, "_VAF_Cluster", ".", 
-                                        fileFormat, sep=""), 
-                   width=12, height=9, dpi=1200, path=outputDir))
+                                                         fileFormat, sep=""), 
+                                    width=12, height=9, dpi=1200, path=outputDir))
         }
     }
     

@@ -8,10 +8,11 @@
 #' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
 #' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
 #' tumorClonesPlot(maf)
+#' 
 #' @export tumorClonesPlot
 
 #tumorClonesPlot <- function(ccfClusterFile = NULL, ccfLociFile = NULL, savePlot  = FALSE, out.dir = NULL, clone.min.mut = 5, clone.min.aveCCF = 0.1){
-tumorClonesPlot <- function(maf, savePlot  = FALSE, out.dir = NULL, clone.min.mut = 5, clone.min.aveCCF = 0.1){
+tumorClonesPlot <- function(maf, savePlot = FALSE, out.dir = NULL, clone.min.mut = 5, clone.min.aveCCF = 0.1){
   ccfCluster <- maf@ccf.cluster
   if(is.null(ccfCluster)){
     stop("ccf data of cluster was not found when readMaf")

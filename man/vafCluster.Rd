@@ -17,7 +17,10 @@ and the second one would be the maxvaf parameter. Default c(0, 1).}
 
 \item{vafColumn}{choose the specific column containing VAF values. Default "VAF".}
 
-\item{plotOption}{choose a vaf plot ouput option for your target data.Default "compare".}
+\item{plotOption}{choose a vaf plot ouput option for your target data.Default "compare". 
+"compare" will tend to provide a ridgeline plot.
+"combine" will output a document with all samples of a patient.
+"separate" will provide documents for every samples from the patient.}
 
 \item{themeOption}{select a theme Palette from ggsci. Default "aaas".}
 

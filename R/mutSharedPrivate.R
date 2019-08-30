@@ -1,9 +1,12 @@
 #' Use R code to find the intersect mutations and their types in several samples of one patient
-#'
+#' @importFrom tidyr unite
+#' @importFrom dplyr select
+#' 
 #' @param maf Maf object return from read.Maf()
 #' @param show.num a logic parameter to determine whether to show the number of each mutations in the stack plot
 #' @param savePlot if save plot of result
 #'
+#' @export mutSharedPrivate
 #' @return mutSharedPrivate
 #' @examples
 #' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
