@@ -3,7 +3,7 @@
 #'  curve with ggplot2 as well as ggridges. Different parameters could lead to 
 #'  different outputs with different range of samples.
 #' 
-#' @import ggplot2 ggsci 
+#' @import ggplot2 ggsci cowplot
 #' @importFrom maftools inferHeterogeneity
 #' @importFrom ggridges geom_density_ridges
 #' 
@@ -160,8 +160,8 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                                   "clusterMt_", counterMt, ")",sep ="")
             eval(parse(text=clusterMtCha))
         }
-        pic <- eval(parse(text=.ofaVAF(clusterAll, themeOption, tsbLs, 
-                                       plotOption, mathscore)))
+        pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, themeOption, tsbLs, 
+                                       plotOption, mathscore))))
         ## save ridgeline plot
         if (is.null(fileFormat) & !is.null(outputDir)){
             stop("ERROR: FileFormat is needed when you need to output pictures.")
@@ -171,11 +171,11 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             if (is.null(outputDir)){
                 warning("NOTE: It is recommended to provide proper output directory for pictures")
             }
-            ggsave(pic, filename= paste(patientID, "_VAF_Cluster", ".", 
+            suppressMessages(ggsave(pic, filename= paste(patientID, "_VAF_Cluster", ".", 
                                         fileFormat, sep=""), 
-                   width=12, height=9, dpi=1200, path=outputDir)
+                   width=12, height=9, dpi=1200, path=outputDir))
         }
-    } 
+    }
     
     ## plot specific sample's vaf plot
     else if (plotOption %in% unique(vafInputMt$Samples))
@@ -212,7 +212,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         stop("ERROR: plotOption settings failure.")
     }
     message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-    return(pic)
+    return(suppressMessages(print(pic)))
 }
 
 
@@ -388,9 +388,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
 
 ## Functions for specific plotOption: "compare"
 ## VAF painter for OFA
-.ofaVAF <- function(clusterAll, themeOption, 
-                    tsbLs, plotOption, 
-                    mathscore){
+.ofaVAF <- function(clusterAll, themeOption, tsbLs, plotOption, mathscore){
     if (is.na(mathscore)){
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
@@ -407,10 +405,11 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                            "color=cluster), ", 
                            "alpha=0.5, show.legend=FALSE) + ", 
                            "geom_density_ridges(color=\"#00C0EB\", ", 
-                           "fill=NA, calc_ecdf=TRUE, alpha=0.5) + ", 
+                           "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ", 
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption),  
                            "scale_color_", themeOption, "() + ", 
-                           "scale_fill_", themeOption, "()", sep="")
+                           "scale_fill_", themeOption, "() + ", 
+                           "labs(y = \"Samples\")", sep="")
     } else {
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
@@ -433,10 +432,11 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                            "geom_density_ridges(color=\"#00C0EB\", ", 
                            "fill=NA, ", 
                            "calc_ecdf=TRUE, ", 
-                           "alpha=0.5) + ",
+                           "alpha=0.5, size=1) + ",
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption), 
                            "scale_color_", themeOption, "() + ", 
-                           "scale_fill_", themeOption, "()", sep="")
+                           "scale_fill_", themeOption, "() + ", 
+                           "labs(y = \"Samples\")", sep="")
     }
     vafOFACha
 }
