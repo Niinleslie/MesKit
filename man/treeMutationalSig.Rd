@@ -35,10 +35,11 @@ pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", packag
 maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfoFile = sampleInfo.File, refBuild = "hg19")
 njtree <- NJtree(maf)
 ## general
-signature1 <- treeMutationalSig(njtree, "hg19", driverGenesFile=NULL, mutThreshold=50)
+signature1 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50)
 ## use driverGenesFile
 putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver_genes.txt", package = "Meskit")
-signature2 <- treeMutationalSig(njtree, "hg19", driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
+signature2 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 ## use different signature reference
-signature3 <- treeMutationalSig(njtree, "hg19", driverGenesFile=NULL, mutThreshold=50, signaturesRef="signatures.nature2013")
+signature3 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50, signaturesRef="signatures.nature2013")
+
 }

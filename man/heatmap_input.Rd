@@ -7,7 +7,7 @@
 heatmap_input(mat, type, ccf.mutation.id, ccf.mutation.sep)
 }
 \arguments{
-\item{is.ccf}{Use mutation CCF for heatmap painting. Default FALSE.}
+\item{use.ccf}{Use mutation CCF for heatmap painting. Default FALSE.}
 
 \item{use.indel}{logical. Whether to uses all variants irrespective of values in Mutation_Status.Defaults to FALSE, only use somatic mutations.}
 

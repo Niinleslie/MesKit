@@ -4,16 +4,13 @@
 \alias{NJtree}
 \title{Class NJtree}
 \usage{
-NJtree(maf, use.indel = FALSE, mut.signature = TRUE,
-  sig.min.mut.number = 50, ccf.mutation.id = c("Hugo_Symbol",
+NJtree(maf, use.indel = FALSE, ccf.mutation.id = c("Hugo_Symbol",
   "Chromosome", "Start_Position"), ccf.mutation.sep = ":")
 }
 \arguments{
 \item{maf}{return from readMaf()}
 
 \item{use.indel}{Seclet SNP in Variant type}
-
-\item{sig.min.mut.number}{minimum mutation number in each branch}
 
 \item{ccf.mutation.id}{manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy}
 
@@ -30,6 +27,6 @@ maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Mes
 sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
 pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
 pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
+maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfoFile, refBuild="hg19")
 njtree <- NJtree(maf)
 }
