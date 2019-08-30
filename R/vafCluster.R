@@ -106,13 +106,32 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         }
         ## combine: print VAF pictures for all samples in one document
         if (plotOption == "combine"){
+            combineMathScore <- .mathCal(maf, vafRange, "compare", sampleName)
             ## set the columns of the picture and generate all single pictures
+            combineTitle <- ggdraw() + 
+                draw_label(
+                    paste("VAF Density Plot of ", patientID, ", MATH Score: ", as.character(combineMathScore), sep=""),
+                    fontface = 'bold',
+                    x = 0,
+                    hjust = 0
+                ) +
+                theme(
+                    # add margin on the left of the drawing canvas,
+                    # so title is aligned with left edge of first plot
+                    plot.margin = margin(0, 0, 0, 7)
+                )
             pic <- eval(parse(text=paste("plot_grid(", 
                                          paste(lsPicName, collapse=","), 
                                          ", nrow=", 
                                          ceiling(length(lsPicName)/2), 
                                          ", ncol=2, align=\"v\")" , 
                                          sep="")))
+            pic <- plot_grid(
+                combineTitle, pic,
+                ncol = 1,
+                # rel_heights values control vertical title margins
+                rel_heights = c(0.1, 1)
+            )
             ## save the cowplot picure
             if (is.null(fileFormat) & !is.null(outputDir)){
                 stop("ERROR: FileFormat is needed when you need to output pictures.")
