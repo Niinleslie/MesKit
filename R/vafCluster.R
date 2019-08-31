@@ -156,9 +156,6 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
-            ## calculate ScoreMATH
-            mathscore <- .mathCal(maf, vafRange, 
-                                  plotOption, sampleName)
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]
             ## data cleaning
@@ -168,6 +165,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                 message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
                 next()
             }
+            ## generate data from different Tumor_Sample_Barcode
             clusterMtCha <- paste("clusterMt_", counterMt, 
                                   " <- inferHeterogeneity(maf=laml, ", 
                                   "tsb=as.character(sampleMt[1,3]), ", 
@@ -182,6 +180,8 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                                   "clusterMt_", counterMt, ")",sep ="")
             eval(parse(text=clusterMtCha))
         }
+        ## calculate ScoreMATH
+        mathscore <- .mathCal(maf, vafRange, plotOption, sampleName)
         pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, themeOption, tsbLs, 
                                                         plotOption, mathscore))))
         ## save ridgeline plot
@@ -452,13 +452,15 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                            "color=cluster), ", 
                            "alpha=0.5, show.legend=FALSE) + ", 
                            "geom_density_ridges(color=\"#00C0EB\", ", 
-                           "fill=NA, ", 
-                           "calc_ecdf=TRUE, ", 
-                           "alpha=0.5, size=1) + ",
+                           "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ",
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption), 
                            "scale_color_", themeOption, "() + ", 
                            "scale_fill_", themeOption, "() + ", 
-                           "labs(y = \"Samples\")", sep="")
+                           "labs(y = \"Samples\") + ", 
+                           "geom_text(data=cbind(clusterAll %>% group_by(Tumor_Sample_Barcode) %>% summarise(MATH=unique(MATH)), 
+                                                 VAF=(clusterAll %>% group_by(Tumor_Sample_Barcode) %>% summarise(VAF=max(VAF)))$VAF),
+                                     aes(x=0.85*max(VAF), label=paste(\"MATH Score:\", sprintf(\"%1.3f\", MATH), sep=\"\")), 
+                                     position=position_nudge(y=0.65), colour=\"black\", size=3.5)", sep="")
     }
     vafOFACha
 }
