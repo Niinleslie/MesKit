@@ -17,7 +17,7 @@
 #' ## clonevol method
 #' cloneFishPlot(maf, inferMethod="clonevol", plotOption="fishplot")
 #' cloneFishPlot(maf, inferMethod="clonevol", plotOption="timescape")
-#' ## fishplot method
+#' ## SCHISM method
 #' cloneFishPlot(maf, inferMethod="SCHISM", plotOption="fishplot", schismCellularityFile, schismConsensusTree)
 #' cloneFishPlot(maf, inferMethod="SCHISM", plotOption="timescape", schismCellularityFile, schismConsensusTree)
 #'}

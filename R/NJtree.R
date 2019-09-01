@@ -2,23 +2,25 @@
 #' 
 #' @param maf return from readMaf()
 #' @param use.indel Seclet SNP in Variant type
-#' @param sig.min.mut.number minimum mutation number in each branch
 #' @param ccf.mutation.id manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy
 #' @param ccf.mutation.sep manually specify the separator character.Values on each line of the ccf.mutation.id are separated by this character. I
 #' @return NJtree object
+#' 
+#' @exportClass NJtree
+#' @export NJtree
 #' 
 #' @examples
 #' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
 #' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
 #' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
 #' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-#' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
+#' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfoFile, refBuild="hg19")
 #' njtree <- NJtree(maf)
 
 
 # set NJtree object
-NJtree <- function(maf, use.indel = FALSE, mut.signature = TRUE, 
-                   sig.min.mut.number = 50, ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
+NJtree <- function(maf, use.indel = FALSE, 
+                   ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
                    ccf.mutation.sep = ":"){
   maf.dat <- maf@data
   patientID <- maf@patientID
@@ -27,7 +29,7 @@ NJtree <- function(maf, use.indel = FALSE, mut.signature = TRUE,
   mut_sort <- mut_binary_sort(maf.dat = maf.dat, use.indel = use.indel)
   mat.nj = nj(dist.gene(t(mut_sort)))
   branch <- read.njtree(mat.nj)
-  mut.branches <- treeMutationalBranches(maf, branch)
+  mut.branches <- .treeMutationalBranches(maf, branch)
   ccf_sort <- matrix()
   if(is.null(maf@ccf.loci)){
     ccf_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = ccf, use.indel, ccf.mutation.id, ccf.mutation.sep)

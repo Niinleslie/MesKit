@@ -71,7 +71,7 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
 .calMATH <- function(vafColumn){
     MAD <- 1.4826*median(abs(vafColumn - median(vafColumn)))
     MATH <- 100 * MAD / median(vafColumn)
-    return(MATH)
+    return(round(MATH, digits=3))
 }
 
 ## MATH multi-sample process

@@ -1,6 +1,6 @@
 Package: Meskit
 Type: Package
-Title: Analysis and visualize multi-region whole-exome sequencing data
+Title: Analyse and visualize multi-region whole-exome sequencing data
 Version: 0.1.0
 Author: Mengni Liu <niinleslie@gmail.com>
 Maintainer: Mengni Liu <niinleslie@gmail.com>
@@ -14,7 +14,7 @@ Imports:
     reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel, 
     ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, ggtree, 
     maftools, deconstructSigs, pathview, topGO, timescape, packcircles, 
-    clusterProfiler, ReactomePA, htmlwidgets
+    clusterProfiler, ReactomePA, htmlwidgets, clonevol, fishplot
 Remotes: 
     hdng/clonevol,
     chrisamiller/fishplot
