@@ -1,6 +1,6 @@
 Package: Meskit
 Type: Package
-Title: Analysis and visualize multi-region whole-exome sequencing data
+Title: Analyse and visualize multi-region whole-exome sequencing data
 Version: 0.1.0
 Author: Mengni Liu <niinleslie@gmail.com>
 Maintainer: Mengni Liu <niinleslie@gmail.com>
