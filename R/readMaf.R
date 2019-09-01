@@ -17,8 +17,6 @@
 #' @param MafSummary Option for whether printing a MafSummary plot or not. Default TRUE.
 #' @param outputDir Directory for ouput files. Default NULL.
 #' 
-#' @export readMaf
-#' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
 #' 
