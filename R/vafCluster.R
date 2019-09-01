@@ -347,8 +347,8 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             ## generate character/string for ggplot and paint the picture
             vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                        theme_bw() + 
-                       theme(title=element_text(size=18), ", 
-                                "text=element_text(size=18), ", 
+                       theme(title=element_text(size=16), ", 
+                                "text=element_text(size=16), ", 
                                 "panel.grid=element_blank(), ", 
                                 "panel.border=element_blank(), ", 
                                 "axis.line=element_line(size=0.25)) + ", 
@@ -388,9 +388,9 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             ## generate character/string for ggplot and paint the picture
             vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                        theme_bw() + 
-                       theme(plot.title=element_text(size=18, hjust=1, ", 
+                       theme(plot.title=element_text(size=16, hjust=1, ", 
                                 "vjust=0.5, face='bold'), ", 
-                                "title=element_text(size=18), ",
+                                "title=element_text(size=16), ",
                                 "text=element_text(size=18), ", 
                                 "panel.grid=element_blank(), ", 
                                 "panel.border=element_blank(), ", 
@@ -415,7 +415,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
                       theme_bw() + 
-                      theme(title=element_text(size=18), ", 
+                      theme(title=element_text(size=16), ", 
                            "text=element_text(size=18), ", 
                            "panel.grid=element_blank(), ", 
                            "panel.border=element_blank(), ", 
@@ -436,14 +436,14 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
                       theme_bw() + 
-                      theme(plot.title=element_text(size=18, hjust=1, ", 
+                      theme(plot.title=element_text(size=16, hjust=1, ", 
                            "vjust=0.5, face='bold'), ", 
-                           "title=element_text(size=18), ", 
+                           "title=element_text(size=16), ", 
                            "text=element_text(size=18), ", 
                            "panel.grid=element_blank(), ", 
                            "panel.border=element_blank(), ", 
                            "axis.line=element_line(size=0.25)) + ", 
-                           "ggtitle(\"MATH Score: ", 
+                           "ggtitle(\"VAF Density Plot of ", patientID, ", MATH Score: ", 
                            as.character(mathscore), "\") + ", 
                            "geom_density_ridges(fill=\"whitesmoke\", ", 
                            "calc_ecdf=TRUE, alpha=0.8) + ",
