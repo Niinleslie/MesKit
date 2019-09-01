@@ -14,7 +14,7 @@ Imports:
     reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel, 
     ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, ggtree, 
     maftools, deconstructSigs, pathview, topGO, timescape, packcircles, 
-    clusterProfiler, ReactomePA, htmlwidgets, clonevol, fishplot
+    clusterProfiler, ReactomePA, htmlwidgets, clonevol, fishplot, pdp
 Remotes: 
     hdng/clonevol,
     chrisamiller/fishplot
