@@ -36,7 +36,9 @@
 
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, refBuild, driverGenesFile=NULL, 
-                              mutThreshold=50, signaturesRef="signatures.cosmic"){
+                              mutThreshold=50, 
+                              signaturesRef="signatures.cosmic",
+                              plotSignatures=TRUE){
     ## refBuild limitation: only hg19 or hg38
     if (!((refBuild == "hg19") | (refBuild == "hg38"))){
         stop(error="Error: refBuild's value may be incorrect. 
@@ -73,7 +75,7 @@ treeMutationalSig <- function(njtree, refBuild, driverGenesFile=NULL,
                                               branch, branchName, 
                                               patientID, driverGenesFile, 
                                               mutThreshold, refBuild, 
-                                              signaturesRef)
+                                              signaturesRef, plotSignatures)
     }
     message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
     return(mutSigsOutput)
@@ -163,7 +165,8 @@ treeMutationalSig <- function(njtree, refBuild, driverGenesFile=NULL,
 .branchMutationalSig <- function(mutSigRef, mutSigsOutput, 
                                  branch, branchName, 
                                  patientID, driverGenesFile, 
-                                 mutThreshold, refBuild, signaturesRef){
+                                 mutThreshold, refBuild, 
+                                 signaturesRef, plotSignatures){
     if (length(mutSigRef[which(
         mutSigRef$Sample == branchName), 1]) < mutThreshold){
         sigsMaxName <- "No.Signature"
@@ -181,6 +184,9 @@ treeMutationalSig <- function(njtree, refBuild, driverGenesFile=NULL,
                                      signatures.ref=get(signaturesRef), 
                                      sample.id=branchName,
                                      contexts.needed=TRUE)
+        if (plotSignatures) {
+            pic <- plotSignatures(sigsWhich, sub = 'example')
+        }
         ## get mutational signature with max weight
         sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
         sigsMaxName <- colnames(sigsMax)
