@@ -41,10 +41,10 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
                               patientID='character', ref.build='character'))
 
 ## read.maf main function
-readMaf <- function(patientID, mafFile, sampleInfoFile, 
+readMaf <- function(mafFile, sampleInfoFile, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
                     refBuild="hg19", 
-                    MafSummary=TRUE, fileFormat="pdf", outputDir=NULL){
+                    MafSummary=TRUE){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
@@ -57,6 +57,10 @@ readMaf <- function(patientID, mafFile, sampleInfoFile,
                                header=TRUE, fill=TRUE, 
                                sep='\t')
     }
+    
+    ## get patientID
+    fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
+    patientID <- strsplit(fileName, ".maf")[[1]][1]
     
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
