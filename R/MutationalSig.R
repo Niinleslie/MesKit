@@ -21,7 +21,7 @@
 #' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
 #' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
 #' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfoFile = sampleInfo.File, refBuild = "hg19")
-#' njtree <- NJtree(maf)
+#' njtree <- getNJtree(maf)
 #' ## general
 #' signature1 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50)
 #' ## use driverGenesFile
