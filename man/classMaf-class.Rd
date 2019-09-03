@@ -6,8 +6,6 @@
 \alias{classMaf}
 \title{MAF/CCF/Sample_info Reader}
 \arguments{
-\item{patientID}{patientID for all samples in mafFile.}
-
 \item{mafFile}{MAF file directory.}
 
 \item{sampleInfoFile}{sample_info.txt file directory.}

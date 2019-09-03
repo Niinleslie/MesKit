@@ -14,8 +14,6 @@ plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
 
 \item{phylotree.type}{Phylotree format,you can choose "njtree","newick","beast","PAML" with root}
 
-\item{use.indel}{Seclet SNP in Variant type}
-
 \item{show.mutSig}{if show Mutational Signature in Images}
 
 \item{sig.min.mut.number}{minimum mutation number in each branch}
