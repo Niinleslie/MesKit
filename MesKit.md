@@ -131,8 +131,6 @@ treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50
 ## Phylogenetic tree visualization
 `plotPhyloTree` function can visualize phylogenetic tree from njtree objects. If parameter `show.mutSig` is set to "TRUE" (DEFAULT), mutation signature would be shown in different colors of each trunk and branch. Either binary mutation heatmap (indicate the presence or absence of a mutation) or ccf heatmap can be displayed by parameter `heatmap.type`. Except for njtree objects, this function also supports other rooted tree formats as input, such as "\*.newick", "\*.beast", "\*.PAML" (Root represents noraml sample). `ccf.mutation.id` manually specifies which columns could be joint by `ccf.mutation.sep` to match mutation id in ccf data.
 ```R
-# plot phylogenetic tree based on njtree object
-plotPhyloTree(maf, phylotree.type = 'njtree', use.indel = FALSE, show.mutSig = TRUE)
 
 # if use ccf  
 plotPhyloTree(njtree, use.indel = T, heatmap.type = 'CCF') 
