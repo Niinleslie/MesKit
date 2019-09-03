@@ -1,6 +1,6 @@
 #' A  phylogenetic tree painter
 #' 
-#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggtree ggrepel
+#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggrepel
 #' 
 #' @param njtree NJtree object
 #' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML" with root 
