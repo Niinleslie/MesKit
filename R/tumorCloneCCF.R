@@ -65,7 +65,6 @@ tumorClonesPlot <- function(maf, savePlot = FALSE, out.dir = NULL, clone.min.mut
   if (savePlot){
     ggsave(paste(out.dir, "radar_dotplot.pdf", sep = "/"), radar_dotplot, width = 9, height = 6.5) 
   }
-   
 }
 
 

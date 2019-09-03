@@ -17,7 +17,7 @@
 #' mutSharedPrivate(maf)
 
 mutSharedPrivate <- function(maf, show.num = FALSE, savePlot = FALSE){
-  maf.dat <- dplyr::select(maf@data,c(Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,  Variant_Type,Reference_Allele,Tumor_Seq_Allele1,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,CDS_Change,Protein_Change,Tumor_Sample_Barcode))
+  maf.dat <- dplyr::select(maf@data,c(Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,Variant_Type,Reference_Allele,Tumor_Seq_Allele1,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,CDS_Change,Protein_Change,Tumor_Sample_Barcode))
   patientID <- maf@patientID
   analysisMutSharedPrivate(maf.dat, patientID = patientID, show.num = show.num, savePlot = savePlot)
 }
@@ -83,7 +83,7 @@ analysisMutSharedPrivate <- function(df = NULL, patientID = patientID, show.num 
   df$Reference_Allele <- as.character(df$Reference_Allele)
   df$Tumor_Seq_Allele2 <- as.character(df$Tumor_Seq_Allele2)
   sample.combination <- combination(c(levels(df$Tumor_Sample_Barcode)))
-  neededData <- select(tidyr::unite(df, "neededData", Hugo_Symbol, Chromosome, Start_Position, End_Position ,Reference_Allele, Tumor_Seq_Allele2, sep = "_"), neededData)
+  neededData <- dplyr::select(tidyr::unite(df, "neededData",Hugo_Symbol, Chromosome, Start_Position, End_Position ,Reference_Allele, Tumor_Seq_Allele2, sep = "_"), neededData)  
   df <- cbind(df,neededData)
   #get intersection
   allIntersect <- list()

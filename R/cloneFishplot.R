@@ -31,7 +31,7 @@ cloneFishPlot <- function(maf, inferMethod="clonevol", plotOption="fishplot",
                           schismCellularityFile=NULL, schismConsensusTree=NULL){
     if (inferMethod == "clonevol"){
         clusterTsvFile <- maf@ccf.cluster
-        clonevol2fishplot(clusterTsvFile, plotOption)
+        clonevol2Fishplot(clusterTsvFile, plotOption)
     } else if (inferMethod == "SCHISM"){
         if (!is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
             schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption)

@@ -44,14 +44,14 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     show.heatmap = FALSE
     show.mutSig = FALSE
     if(phylotree.type == 'newick'){
-      Phylo <- read.tree(phylotree.dat)
+      Phylo <- ape::read.tree()(phylotree.dat)
     }else if(phylotree.type == 'beast'){
-      beast <- read.beast(phylotree.dat)
-      Phylo <- as.phylo(beast)
+      beast <- treeio::read.beast(phylotree.dat)
+      Phylo <- ape::as.phylo(beast)
     }
     else if(phylotree.type == 'PAML'){
-      PAML <- read.paml_rst(phylotree.dat)
-      Phylo <- as.phylo(PAML)
+      PAML <- treeio::read.paml_rst(phylotree.dat)
+      Phylo <- ape::as.phylo(PAML)
     }
     else{
       stop("the form of the tree file is not supported")
@@ -64,7 +64,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     # PhyloTree input data
     Phylo <- njtree@nj
     refBuild <- njtree@refBuild
-    signature <- treeMutationalSig(njtree, refBuild = refBuildS)
+    signature <- treeMutationalSig(njtree, refBuild = refBuild)
     njtree@patientID <- paste(njtree@patientID, ".NJtree", sep = "")
   }
   # generate phylotree data
