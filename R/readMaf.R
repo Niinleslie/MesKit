@@ -8,7 +8,6 @@
 #' @importFrom maftools plotmafSummary
 #' @importFrom maftools read.maf
 #'
-#' @param patientID patientID for all samples in mafFile.
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
