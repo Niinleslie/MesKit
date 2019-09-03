@@ -102,7 +102,7 @@ treeMutationalSig <- function(njtree, refBuild="hg19", driverGenesFile=NULL,
         #     sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
         #     sigsMaxName <- colnames(sigsMax)
         #     sigsMaxProb <- sigsMax[,1]
-        # }
+        }
         
         ## vectorize branch name
         # branch <- gsub(paste(patientID,"-",sep=""), "", branch)
@@ -229,7 +229,8 @@ treeMutationalSig <- function(njtree, refBuild="hg19", driverGenesFile=NULL,
     ## return the data frame of mutational signature for all branches
     return(mutBranchesOutput)
 }
-# 
+
+
 # .plotMutationalSig <- function(sigsWhich) {
 #     cur_dev <- grDevices::dev.cur()   # store current device
 #     pdf(NULL, width = 6, height = 6)  # open null device
@@ -243,5 +244,4 @@ treeMutationalSig <- function(njtree, refBuild="hg19", driverGenesFile=NULL,
 #     })
 #     
 #     deconstructSigs::plotSignatures(sigsWhich, sub = 'example')
-#     recordPlot()
-# }
+#     recordPlot() }

@@ -5,9 +5,8 @@
 \title{A  phylogenetic tree painter}
 \usage{
 plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
-  use.indel = FALSE, show.mutSig = TRUE, sig.min.mut.number = 50,
-  show.heatmap = TRUE, heatmap.type = "binary", savePlot = FALSE,
-  phylotree.dat = NULL)
+  show.mutSig = TRUE, sig.min.mut.number = 50, show.heatmap = TRUE,
+  heatmap.type = "binary", phylotree.dat = NULL)
 }
 \arguments{
 \item{njtree}{NJtree object}
@@ -22,8 +21,6 @@ plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
 
 \item{heatmap.type}{type of heatmap}
 
-\item{savePlot}{if save plot in your working directory}
-
 \item{phylotree.dat}{If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter}
 }
 \value{
@@ -33,10 +30,10 @@ Images of Phylotree
 A  phylogenetic tree painter
 }
 \examples{
-plotPhyloTree(njtree, use.indel = F)
-plotPhyloTree(njtree, use.indel = T)
+plotPhyloTree(njtree)
+plotPhyloTree(njtree)
 # if use ccf 
-plotPhyloTree(njtree, use.indel = T, heatmap.type = '')
+plotPhyloTree(njtree, heatmap.type = '')
 # use other tree format
 newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
 plotPhyloTree(phylotree.dat = newick.file, phylotree.type = 'newick')

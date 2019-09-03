@@ -27,6 +27,9 @@ GO_analysis(genes = NULL, GO.type = GO.type, pval = pval,
 
 \item{showCategory}{category numbers}
 }
+\value{
+to be continued
+}
 \description{
 Use R code to do the GO analysis.
 }
