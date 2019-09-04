@@ -98,10 +98,10 @@ treeMutationalSig <- function(njtree, refBuild="hg19", driverGenesFile=NULL,
         #         pic_name <- paste("branch", ".", branchCounter, sep="")
         #         lsPicName <- c(lsPicName, pic_name)
         #     }
-        #     ## get mutational signature with max weight
-        #     sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
-        #     sigsMaxName <- colnames(sigsMax)
-        #     sigsMaxProb <- sigsMax[,1]
+            ## get mutational signature with max weight
+            sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
+            sigsMaxName <- colnames(sigsMax)
+            sigsMaxProb <- sigsMax[,1]
         }
         
         ## vectorize branch name
