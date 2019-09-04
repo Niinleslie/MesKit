@@ -35,8 +35,7 @@
 
 
 ## Mutational Signature function
-treeMutationalSig <- function(njtree, refBuild="hg19", driverGenesFile=NULL, 
-                              mutThreshold=50, 
+treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, 
                               signaturesRef="signatures.cosmic",
                               plot.Signatures=FALSE){
     ## refBuild limitation: only hg19 or hg38
@@ -50,6 +49,7 @@ treeMutationalSig <- function(njtree, refBuild="hg19", driverGenesFile=NULL,
     ## get branches information from njtree object
     mutBranches <- njtree@mut_branches
     patientID <- njtree@patientID
+    refBuild <- njtree@refBuild
     branchesName <- names(mutBranches)
     branchesNameList <- strsplit(branchesName, split='∩')
     
