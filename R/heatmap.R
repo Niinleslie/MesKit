@@ -48,7 +48,7 @@ mut.heatmap <- function(njtree, use.ccf = FALSE){
     theme(panel.border = element_blank()) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
     theme(axis.text.y = element_blank()) +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1,size = 10, hjust = 1, face = "bold", color = "black")) +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 9, hjust = 1, color = "black")) +
     theme(axis.ticks = element_blank()) +
     theme(legend.title = element_text(size = 12, face = "bold", color = "black")) +
     theme(legend.text = element_text(size = 10, face = "bold", color = "black")) +
@@ -56,7 +56,7 @@ mut.heatmap <- function(njtree, use.ccf = FALSE){
     labs(fill = type) + scale_y_continuous(expand = c(0,0))
   
   if(use.ccf){
-    p <- p_basic + geom_tile(aes(fill = mut_dat$CCF)) + scale_fill_gradient(low = "#f7fbff", high = "#08306b", na.value="black", limit=c(0, 1))
+    p <- p_basic + geom_tile(aes(fill = mut_dat$CCF)) + scale_fill_gradient(low = "#deebf7", high = "#08306b", na.value="black", limit=c(0, 1))
     #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
   }
   if(!use.ccf){
