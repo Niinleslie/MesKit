@@ -105,7 +105,7 @@ clonevol2Fishplot <- function(clusterTsvFile, plotOption){
     if (plotOption == "fishplot"){
         fishes = createFishPlotObjects(fishPlotInput)
         for (i in seq_along(fishes)){
-            pdf(paste('FISH', i, '.pdf', sep=""), width=8, height=5)
+            # pdf(paste('FISH', i, '.pdf', sep=""), width=8, height=5)
             fish = layoutClones(fishes[[i]])
             fish = setCol(fish,fishPlotInput$clonevol.clone.colors)
             if (length(sample.names) > 10) {
@@ -116,7 +116,7 @@ clonevol2Fishplot <- function(clusterTsvFile, plotOption){
                      cex.title=0.5,
                      vlines=seq(1, length(sample.names)), 
                      vlab=sample.names, pad.left=0.5)
-            dev.off()
+            # dev.off()
         }
         message("FishPlot Done!")
     } else if (plotOption == "timescape"){

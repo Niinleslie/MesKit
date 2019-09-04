@@ -17,7 +17,7 @@ options(warn = -1)
 #' 
 #' @export GO.njtree
 #' 
-#' @return
+#' @return to be continued
 #' @examples 
 #' GO.njtree(njtree, GO.type = "BP", savePlot = T, writeTable = T)
 #' 

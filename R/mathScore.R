@@ -40,7 +40,8 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
         mathOFA <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
         mathAll <- .patientMATH(vafInputMt, minvaf, maxvaf)
         mathAll <- data.frame(Tumor_Sample_Barcode=c("ITH MATH score"), 
-                              MATH_score=c(mathAll))
+                              MATH_score=c(mathAll$MATH_score), 
+                              Tumor_Burden=c(mathAll$Tumor_Burden))
         return(rbind(mathOFA, mathAll))
     } else{
         ## calculate specific samples' MATH score
@@ -48,7 +49,8 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
         mathSp <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
         mathAll <- .patientMATH(vafInputMt, minvaf, maxvaf)
         mathAll <- data.frame(Tumor_Sample_Barcode=c("ITH MATH score"), 
-                              MATH_score=c(mathAll))
+                              MATH_score=c(mathAll$MATH_score), 
+                              Tumor_Burden=c(mathAll$Tumor_Burden))
         return(rbind(mathSp, mathAll))
     }
     message("MATH Score Calculation Done!")
@@ -74,6 +76,12 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
     return(round(MATH, digits=3))
 }
 
+## Tumor burden Caculation
+.calTumorBurden <- function(vafColumn){
+    tumorBurden <- length(vafColumn)/40
+    return(tumorBurden)
+}
+
 ## MATH multi-sample process
 .multiSampleMATH <- function(vafInputMt, tsbLs, minvaf, maxvaf){
     samplesMATH <- data.frame()
@@ -85,11 +93,11 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
                 minvaf, maxvaf)
             sampleMATH <- data.frame(
                 as.character(sampleNameMt)[counter], 
-                .calMATH(vafColumn))
+                .calMATH(vafColumn), .calTumorBurden(vafColumn))
             samplesMATH <- rbind(samplesMATH, sampleMATH)
         }
     }
-    colnames(samplesMATH) <- c("Tumor_Sample_Barcode", "MATH_score")
+    colnames(samplesMATH) <- c("Tumor_Sample_Barcode", "MATH_score", "Tumor_Burden")
     return(samplesMATH)
 }
 
@@ -102,5 +110,6 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
     vafColumn <- as.numeric(
         as.character(vafColumn))[which(
             !is.na(vafColumn))]
-    .calMATH(vafColumn)
+    result <- data.frame(MATH_score=.calMATH(vafColumn), Tumor_Burden=.calTumorBurden(vafColumn))
+    return(result)
 }

@@ -7,7 +7,7 @@
 #' @return NJtree object
 #' 
 #' @exportClass NJtree
-#' @export NJtree
+#' @export getNJtree
 #' 
 #' @examples
 #' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
@@ -15,11 +15,11 @@
 #' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
 #' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
 #' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfoFile, refBuild="hg19")
-#' njtree <- NJtree(maf)
+#' njtree <- getNJtree(maf)
 
 
 # set NJtree object
-NJtree <- function(maf, use.indel = FALSE, 
+getNJtree <- function(maf, use.indel = FALSE, 
                    ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
                    ccf.mutation.sep = ":"){
   maf.dat <- maf@data

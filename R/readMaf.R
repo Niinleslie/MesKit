@@ -8,14 +8,12 @@
 #' @importFrom maftools plotmafSummary
 #' @importFrom maftools read.maf
 #'
-#' @param patientID patientID for all samples in mafFile.
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
 #' @param MafSummary Option for whether printing a MafSummary plot or not. Default TRUE.
-#' @param outputDir Directory for ouput files. Default NULL.
 #' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
@@ -41,10 +39,10 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
                               patientID='character', ref.build='character'))
 
 ## read.maf main function
-readMaf <- function(patientID, mafFile, sampleInfoFile, 
+readMaf <- function(mafFile, sampleInfoFile, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
                     refBuild="hg19", 
-                    MafSummary=TRUE, fileFormat="pdf", outputDir=NULL){
+                    MafSummary=TRUE){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
@@ -57,6 +55,10 @@ readMaf <- function(patientID, mafFile, sampleInfoFile,
                                header=TRUE, fill=TRUE, 
                                sep='\t')
     }
+    
+    ## get patientID
+    fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
+    patientID <- strsplit(fileName, ".maf")[[1]][1]
     
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
@@ -128,25 +130,13 @@ readMaf <- function(patientID, mafFile, sampleInfoFile,
                     ref.build=refBuild)
     
     ## print the summary plot
-    if (!MafSummary & !is.null(outputDir)){
-        stop("ERROR: MafSummary should be TRUE if the ouput of image is needed")
-    }
-    if (MafSummary & is.null(outputDir)) {
+    if (MafSummary) {
         plotmafSummary(maf=maf, rmOutlier=TRUE, 
                        addStat='median', dashboard=TRUE, 
                        titvRaw=FALSE)
-        message("NOTE: Missing output directory for picture ouputs")
-        ## check the output directory
-    } else if (MafSummary & !is.null(outputDir)) {
-        ## save the output of MafSummary plot.
-        ggsave(plotmafSummary(maf=maf, rmOutlier=TRUE, 
-                              addStat='median', dashboard=TRUE, 
-                              titvRaw=FALSE), 
-               filename=paste(patientID, ".VariantSummary.", 
-                              fileFormat, sep=""), 
-               width=12, height=9, dpi=1200, path=outputDir)
         message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
-    }
+        ## check the output directory
+    } 
     message(paste(patientID, "'s classMaf Generation Done!", sep=""))
     return(maf)
 }
