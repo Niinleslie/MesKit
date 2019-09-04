@@ -39,7 +39,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
   }else{
     use.ccf = TRUE
     if (is.null(njtree@ccf.loci)){
-      stop("Missing ccf file. Cannot generate heatmap of "CCF" type")
+      stop("Missing ccf file. Cannot generate heatmap of 'CCF' type")
     } 
   }
   
