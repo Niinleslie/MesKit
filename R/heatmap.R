@@ -60,7 +60,7 @@ mut.heatmap <- function(njtree, use.ccf = FALSE){
     #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
   }
   if(!use.ccf){
-    p <- p_basic + geom_tile(aes(fill = as.factor(mut_dat$Mutation))) + scale_fill_manual(values = c("#f7fbff", "#08306b"))
+    p <- p_basic + geom_tile(aes(fill = as.factor(mut_dat$Mutation))) + scale_fill_manual(values = c("#deebf7", "#08306b"))
     #ggsave(paste(patientID, "_mut.pdf", sep = ""), p, width = 4.5, height = 6.5)
   }
   return(p)
