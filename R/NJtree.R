@@ -31,7 +31,7 @@ getNJtree <- function(maf, use.indel = FALSE,
   branch <- read.njtree(mat.nj)
   mut.branches <- .treeMutationalBranches(maf, branch)
   ccf_sort <- matrix()
-  if(is.null(maf@ccf.loci)){
+  if(!is.null(maf@ccf.loci)){
     ccf_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = ccf, use.indel, ccf.mutation.id, ccf.mutation.sep)
   }
 
