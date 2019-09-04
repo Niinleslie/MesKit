@@ -133,7 +133,7 @@ treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50
 ```R
 
 # if use ccf  
-plotPhyloTree(njtree, use.indel = T, heatmap.type = 'CCF') 
+plotPhyloTree(njtree, heatmap.type = 'CCF') 
 
 # use other tree format 
 newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit") 
