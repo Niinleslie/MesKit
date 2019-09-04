@@ -31,9 +31,7 @@ A  phylogenetic tree painter
 }
 \examples{
 plotPhyloTree(njtree)
-plotPhyloTree(njtree)
-# if use ccf 
-plotPhyloTree(njtree, heatmap.type = '')
+plotPhyloTree(njtree, heatmap.type = 'CCF')
 # use other tree format
 newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
 plotPhyloTree(phylotree.dat = newick.file, phylotree.type = 'newick')

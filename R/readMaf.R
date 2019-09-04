@@ -134,10 +134,9 @@ readMaf <- function(mafFile, sampleInfoFile,
         plotmafSummary(maf=maf, rmOutlier=TRUE, 
                        addStat='median', dashboard=TRUE, 
                        titvRaw=FALSE)
-        message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
-        ## check the output directory
+        # message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
     } 
-    message(paste(patientID, "'s classMaf Generation Done!", sep=""))
+    # message(paste(patientID, "'s classMaf Generation Done!", sep=""))
     return(maf)
 }
 
