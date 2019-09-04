@@ -15,7 +15,7 @@
 ## there are two @param use.ccf..
 # @param use.ccf Use mutation CCF for heatmap painting. Default FALSE.
 
-heatmap_input <- function(mat, type, ccf.mutation.id, ccf.mutation.sep){
+heatmap_input <- function(mat, type){
   names <- c("mutation", "sample", "Mutation")
   if(type == "CCF"){
     names <- c("mutation", "sample", "CCF")
@@ -27,7 +27,7 @@ heatmap_input <- function(mat, type, ccf.mutation.id, ccf.mutation.sep){
 }
 
 
-mut.heatmap <- function(njtree, use.ccf = FALSE, ccf.mutation.id, ccf.mutation.sep){
+mut.heatmap <- function(njtree, use.ccf = FALSE){
   patientID <- njtree@patientID
   mut_sort <- njtree@mut_sort
   ccf_sort <- njtree@ccf_sort
@@ -41,7 +41,7 @@ mut.heatmap <- function(njtree, use.ccf = FALSE, ccf.mutation.id, ccf.mutation.s
     }
   }
   
-  mut_dat <- heatmap_input(mat, type = type, ccf.mutation.id = ccf.mutation.id, ccf.mutation.sep = ccf.mutation.sep)
+  mut_dat <- heatmap_input(mat, type = type)
   mut_dat$sample <- factor(mut_dat$sample, levels =unique(mut_dat$sample))
   p_basic <- ggplot(mut_dat, aes(sample, mutation)) +
     labs(x = "", y = "") + theme_bw() +
@@ -57,7 +57,7 @@ mut.heatmap <- function(njtree, use.ccf = FALSE, ccf.mutation.id, ccf.mutation.s
   
   if(use.ccf){
     p <- p_basic + geom_tile(aes(fill = mut_dat$CCF)) + scale_fill_gradient(low = "grey", high = "red", na.value="black", limit=c(0, 1))
-    ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
+    #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
   }
   if(!use.ccf){
     p <- p_basic + geom_tile(aes(fill = as.factor(mut_dat$Mutation))) + scale_fill_manual(values = c("grey", "red"))
