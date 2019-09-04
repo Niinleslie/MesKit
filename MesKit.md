@@ -124,7 +124,12 @@ Pathway.njtree(njtree, pathway.type = "KEGG", savePlot = T, writeTable = T)
 
 Using `treeMutationalSig` function, you can identify potential signatures which could be attributed to known mutational processes for each branch/trunk of the NJtree. The function is implemented from R package deconstructSig. Two signature matrices are available including "cosmic" and "nature2013" via `signature.ref`. Parameter `mutThreshold` specifies the minimum mutation number that required to perform mutation signature analysis (Default:50). Moreover, you could provide the driver gene list to `driverGenesFile`, and the final result will add a column recording driver genes for particular mutation intersections. 
 ```R
-treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50)
+# If refBuild = "hg19", BSgenome.Hsapiens.UCSC.hg19
+library("BSgenome.Hsapiens.UCSC.hg19")
+# If refBuild = "hg38", BSgenome.Hsapiens.UCSC.hg38
+library("BSgenome.Hsapiens.UCSC.hg38")
+
+treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50
 ```
 
 
