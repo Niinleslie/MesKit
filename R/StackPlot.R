@@ -1,6 +1,5 @@
-#' @import ggplot2
+#' @import ggplot2 ggsci
 #' @export mutStackPlot
-
 
 
 
@@ -9,9 +8,9 @@ sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", packag
 maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
 tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
-mutStackPlot(maf, oncogeneListFile, tsgListFile)
+mutStackPlot(maf, oncogeneListFile, tsgListFile, themeOption="aaas")
 
-mutStackPlot <- function(maf, oncogeneListFile, tsgListFile) {
+mutStackPlot <- function(maf, oncogeneListFile, tsgListFile, themeOption) {
     ## prepare maf data with mut.id
     patientID <- maf@patientID
     mafData <- maf@data
@@ -32,13 +31,25 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile) {
     tsgData <- .stackDataFilter(mafData, tsgLs, tsbLs, geneType="TSG")
     plotData <- rbind(oncogeneData, tsgData)
     
-    ## generate stack plot
-    ggplot(plotData, aes(x=GeneType, y=VariantNum,fill=VariantCategory)) + 
-        geom_bar(stat="identity",position="stack", width = 0.55) + 
-        ggtitle(paste(patientID, "'s Stack Plot", sep=""))+ 
-        theme(axis.ticks.length=unit(0.5,'cm')) + 
-        guides(fill=guide_legend(title=NULL)) # silence the legend title
     
+
+    ## generate stack plot
+    ggsciFillPalette <- eval(parse(text="scale_fill_aaas()"))
+    ggplot(plotData, aes(x=GeneType, y=VariantNum,fill=VariantCategory)) + 
+        theme_bw() +
+        geom_bar(stat="identity",position="stack", width = 0.55) + 
+        theme(plot.title=element_text(size=15, face='bold'), 
+              title=element_text(size=16), 
+              text=element_text(size=18),  
+              panel.grid=element_blank(), 
+              panel.border=element_blank(), 
+              axis.line=element_line(size=0.25), 
+              axis.title.x = element_blank(), 
+              axis.ticks.length=unit(0.5,'cm'), 
+              legend.title=element_blank()) + 
+        ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
+        labs(y = "Variant Number") + 
+        ggsciFillPalette
 }
 
 .stackDataFilter <- function(mafData, geneLs, tsbLs, geneType) {
@@ -63,8 +74,9 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile) {
     
     ## generate plot data for ggplot
     VariantNum <- c(nrow(GenePrivate), nrow(GeneShared), nrow(GeneParitalShared))
-    VariantCategory <- c("Private", "Shared", "ParitalShared")
+    VariantCategory <- c("Private", "Shared", "Parital-Shared")
     stackData <- data.frame(VariantCategory, VariantNum)
     stackData$GeneType <- rep(geneType, nrow(stackData))
+    stackData$VariantCategory <- factor(stackData$VariantCategory, levels = c("Private", "Parital-Shared", "Shared"))
     return(stackData)
 }
