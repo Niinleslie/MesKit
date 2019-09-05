@@ -1,16 +1,20 @@
+#' Stack Plot for variatns of oncogenes and TSGs in patient
+#' @description use the 
+
+
 #' @import ggplot2 ggsci
 #' @export mutStackPlot
 
 
 
-# maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-# sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-# maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-# oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
-# tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
-# mutStackPlot(maf, oncogeneListFile, tsgListFile, themeOption="npg")
+#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+#' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
+#' oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
+#' tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
+#' mutStackPlot(maf, oncogeneListFile, tsgListFile, themeOption="npg")
 
-mutStackPlot <- function(maf, oncogeneListFile, tsgListFile, themeOption="aaas") {
+mutStackPlot <- function(maf, oncogeneListFile, tsgListFile, themeOption="aaas", show.percentage=FALSE) {
     ## prepare maf data with mut.id
     patientID <- maf@patientID
     mafData <- maf@data
@@ -33,22 +37,41 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile, themeOption="aaas")
 
     ## generate stack plot
     ggsciFillPalette <- eval(parse(text=paste("scale_fill_", themeOption, "()", sep="")))
-    ggplot(plotData, aes(x=GeneType, y=VariantNum,fill=VariantCategory, label=Frequency)) + 
-        theme_bw() +
-        geom_bar(stat="identity",position="stack", width=0.55) + 
-        geom_text(color="white", size=3.5, position = position_stack(vjust = 0.5)) + 
-        theme(plot.title=element_text(size=15, face='bold'), 
-              title=element_text(size=16), 
-              text=element_text(size=18),  
-              panel.grid=element_blank(), 
-              panel.border=element_blank(), 
-              axis.line=element_line(size=0.25), 
-              axis.title.x = element_blank(), 
-              axis.ticks.length=unit(0.5,'cm'), 
-              legend.title=element_blank()) + 
-        ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
-        labs(y = "Variant number") + 
-        ggsciFillPalette
+    if (show.percentage){
+        ggplot(plotData, aes(x=GeneType, y=VariantNum,fill=VariantCategory, label=Frequency)) + 
+            theme_bw() +
+            geom_bar(stat="identity",position="stack", width=0.55) + 
+            geom_text(color="white", size=3.5, position = position_stack(vjust = 0.5)) + 
+            theme(plot.title=element_text(size=15, face='bold'), 
+                  title=element_text(size=16), 
+                  text=element_text(size=18),  
+                  panel.grid=element_blank(), 
+                  panel.border=element_blank(), 
+                  axis.line=element_line(size=0.25), 
+                  axis.title.x = element_blank(), 
+                  axis.ticks.length=unit(0.5,'cm'), 
+                  legend.title=element_blank()) + 
+            ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
+            labs(y = "Variant number") + 
+            ggsciFillPalette 
+    } else {
+        ggplot(plotData, aes(x=GeneType, y=VariantNum,fill=VariantCategory, label=Frequency)) + 
+            theme_bw() +
+            geom_bar(stat="identity",position="stack", width=0.55) + 
+            theme(plot.title=element_text(size=15, face='bold'), 
+                  title=element_text(size=16), 
+                  text=element_text(size=18),  
+                  panel.grid=element_blank(), 
+                  panel.border=element_blank(), 
+                  axis.line=element_line(size=0.25), 
+                  axis.title.x = element_blank(), 
+                  axis.ticks.length=unit(0.5,'cm'), 
+                  legend.title=element_blank()) + 
+            ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
+            labs(y = "Variant number") + 
+            ggsciFillPalette
+    }
+    
 }
 
 .stackDataFilter <- function(mafData, geneLs, tsbLs, geneType) {
