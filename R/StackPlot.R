@@ -4,9 +4,12 @@
 
 
 
-maf.File <- 
+maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
-tsgListFile <- "/home/ninomoriaty/R_Project/MesKit/inst/TSG.list.txt"
+tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
+mutStackPlot(maf, oncogeneListFile, tsgListFile)
 
 mutStackPlot <- function(maf, oncogeneListFile, tsgListFile) {
     ## prepare maf data with mut.id
@@ -25,8 +28,8 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile) {
     tsgLs <- as.character(read.table(tsgListFile, header = TRUE, quote="", sep="\t")[,1])
     
     ## generate mutID-labeled mafData 
-    oncogeneData <- .stackDataFilter(mafData, oncogeneLs, geneType="Oncogene")
-    tsgData <- .stackDataFilter(mafData, tsgLs, geneType="TSG")
+    oncogeneData <- .stackDataFilter(mafData, oncogeneLs, tsbLs, geneType="Oncogene")
+    tsgData <- .stackDataFilter(mafData, tsgLs, tsbLs, geneType="TSG")
     plotData <- rbind(oncogeneData, tsgData)
     
     ## generate stack plot
@@ -38,7 +41,7 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile) {
     
 }
 
-.stackDataFilter <- function(mafData, geneLs, geneType) {
+.stackDataFilter <- function(mafData, geneLs, tsbLs, geneType) {
     ## data preparation
     mafDataGene <- mafData[which(as.character(mafData$Hugo_Symbol) %in% geneLs),]
     mafDataGene$tsbID <- rep("", nrow(mafDataGene))
