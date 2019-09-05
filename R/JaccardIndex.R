@@ -19,7 +19,7 @@ JaccardIndex <- function(maf){
 
 	variants.list <- list()
 	for (tsb in TSBs){
-		dat.tsb <- dat[which(dat$Tumor_Sample_Barcode == tsb)]
+		dat.tsb <- dat[which(dat$Tumor_Sample_Barcode == tsb),]
 		variants.list[[tsb]] <- paste(dat.tsb$Hugo_Symbol, dat.tsb$Chromosome, dat.tsb$Start_Position, dat.tsb$Variant_Type,
 		dat.tsb$Reference_Allele, dat.tsb$Tumor_Seq_Allele2, sep=":")
 	}
