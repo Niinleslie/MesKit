@@ -19,7 +19,7 @@ JaccardIndex <- function(maf){
 
 	variants.list <- list()
 	for (tsb in TSBs){
-		dat.tsb <- dat[which(dat$Tumor_Sample_Barcode == tsb)]
+		dat.tsb <- dat[which(dat$Tumor_Sample_Barcode == tsb),]
 		variants.list[[tsb]] <- paste(dat.tsb$Hugo_Symbol, dat.tsb$Chromosome, dat.tsb$Start_Position, dat.tsb$Variant_Type,
 		dat.tsb$Reference_Allele, dat.tsb$Tumor_Seq_Allele2, sep=":")
 	}
@@ -35,6 +35,6 @@ JaccardIndex <- function(maf){
 			#Jaccard.mat[j,i] <- Jaccard.mat[i,j]
 		}
 	}
-	corrplot::corrplot(Jaccard.mat, type="upper", is.corr = F, method="pie", outline = FALSE, tl.col = "black",
+	corrplot::corrplot(Jaccard.mat, type="upper", is.corr = F, method="pie", outline = FALSE, tl.col = "black", add = F,
 	  addCoef.col = "grey", col = RColorBrewer::brewer.pal(10,"PuOr"))
 }
