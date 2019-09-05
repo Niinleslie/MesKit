@@ -21,7 +21,7 @@
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 #' oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
 #' tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
-#' mutStackPlot(maf, oncogeneListFile, tsgListFile, themeOption="npg")
+#' mutStackPlot(maf, oncogeneListFile, tsgListFile, themeOption="npg", show.percentage=TRUE)
 #' 
 #' @export mutStackPlot
 
