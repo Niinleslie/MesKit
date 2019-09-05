@@ -1,15 +1,13 @@
 #' A  phylogenetic tree painter
 #' 
-#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggtree ggrepel
+#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggrepel
 #' 
 #' @param njtree NJtree object
 #' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML" with root 
-#' @param use.indel Seclet SNP in Variant type
 #' @param show.mutSig if show Mutational Signature in Images
 #' @param sig.min.mut.number minimum mutation number in each branch
 #' @param show.heatmap if plot heatmap that show mutation distribution in each branch
 #' @param heatmap.type type of heatmap
-#' @param savePlot if save plot in your working directory
 #' @param phylotree.dat If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter
 #' 
 #' @return Images of Phylotree
@@ -17,10 +15,10 @@
 #' @export plotPhyloTree
 #' 
 #' @examples
-#' plotPhyloTree(njtree, use.indel = F)
-#' plotPhyloTree(njtree, use.indel = T)
+#' plotPhyloTree(njtree)
+#' plotPhyloTree(njtree)
 #' # if use ccf 
-#' plotPhyloTree(njtree, use.indel = T, heatmap.type = '')
+#' plotPhyloTree(njtree, heatmap.type = '')
 #' # use other tree format
 #' newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
 #' plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
@@ -30,10 +28,9 @@
 #' plotPhyloTree(phylotree.dat = PAML.file , phylotree.type = 'PAML')
 
 ## main  function
-plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = FALSE, 
+plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', 
                           show.mutSig = TRUE, sig.min.mut.number = 50, 
-                          show.heatmap = TRUE, heatmap.type = 'binary',
-                          savePlot = FALSE, phylotree.dat = NULL){
+                          show.heatmap = TRUE, heatmap.type = 'binary', phylotree.dat = NULL){
   if(heatmap.type == 'binary'){
     use.ccf = FALSE
   }else{
@@ -88,36 +85,9 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
   if(show.heatmap){
     heatmap <- mut.heatmap(njtree, use.ccf)
     plot.njtree <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.8) + draw_plot(heatmap, x = 0.8,y = -0.035, width = 0.2)
-    if(savePlot){
-      output.dir = getwd()
-      if(!use.ccf){
-        if(use.indel){
-          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
-        }
-        else{
-          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
-        }
-      }
-      else{
-        if(use.indel){
-          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.ccf.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
-        }else{
-          ggsave(filename = paste(output.dir,"/", njtree@patientID, ".ccf.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
-        }
-      }
-    }
     return(plot.njtree)
   }
   else{
-    if(savePlot){
-      output.dir = getwd()
-      ggsave(filename = paste(output.dir, "/", phylotree.type, ".pdf", sep = ""), 
-             plot = phylotree, width = 14, height = 7)
-    }
     return(phylotree)
   }
 }

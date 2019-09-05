@@ -12,7 +12,6 @@ options(warn = -1)
 #' @param pval Cutoff value of pvalue. Default pval=0.05
 #' @param qval Cutoff value of qvalue. Default qval=0.2
 #' @param pAdjustMethod one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default pAdjustMethod="BH"
-#' @param savePlot logical. Whether to print the dotplot or barplot of GO result.
 #' @param writeTable logical. Whether to print the table of  result.
 #' @param plotType one of "dot" , "bar"
 #' @param showCategory category numbers
@@ -21,7 +20,7 @@ options(warn = -1)
 #' 
 #' @return
 #' @examples
-#' Pathway.njtree(njtree, pathway.type = "KEGG", savePlot = T)
+#' Pathway.njtree(njtree, pathway.type = "KEGG")
 
 
 Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, outdir = NULL, 
@@ -69,7 +68,7 @@ Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = p
 
 #Pathway analysis
 Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMethod = "BH",
-                           qval = 0.2, outdir = NULL, Name = 'All', savePlot = FALSE, writeTable = FALSE, plotType = "dot", showCategory = NULL){
+                           qval = 0.2, outdir = NULL, Name = 'All', writeTable = FALSE, plotType = "dot", showCategory = NULL){
   branches <- njtree@mut_branches
   patientID <- njtree@patientID
   
@@ -105,15 +104,9 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
     if(nrow(Pathway.branch@result) != 0){
       if (plotType == "dot"){
       Pathplot <- dotplot(Pathway.branch, showCategory = showCategory)+ggtitle(sampleID)
-      if(savePlot){
-        ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_", "enrich_dotplot.pdf", sep = ""),plot = Pathplot,width = 3+(str_length)/10, height = fig.height)
-      }
     }
       else if (plotType == "bar"){
       Pathplot <- barplot(Pathway.branch, showCategory = showCategory) + ggtitle(sampleID)
-      if(savePlot){
-        ggsave(filename =paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_","enrich_barplot.pdf", sep = ""),plot = Pathplot,width = 3+(str_length)/10, height = fig.height)
-      }
       }
       if(!is.na(Pathplot$data$ID[1])){
         grob.list[[x]] <- Pathplot
@@ -140,15 +133,9 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
   if(nrow(Pathway.all.result) != 0){
     if (plotType == "dot"){
     Pathplot <- dotplot(Pathway.all, showCategory = showCategory)+ggtitle('All gene')
-     if(savePlot){
-      ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_", pathway.type,"_","enrich_barplot.pdf", sep = ""),plot = Pathplot, width = 3+(str_length)/10, height = fig.height)
-    }
    }
     else if (plotType == "bar"){
     Pathplot <- barplot(Pathway.all, showCategory = showCategory)+ggtitle('All gene')
-    if(savePlot){
-      ggsave(filename = paste(outdir, "/", patientID, "_", Name, "_", pathway.type, "enrich_barplot.pdf", sep = ""),plot = Pathplot ,width = 3+(str_length)/10, height = fig.height)
-    }
    }
   grob.list[[length(grob.list)+1]] <- Pathplot
   }

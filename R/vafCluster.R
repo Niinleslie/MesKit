@@ -23,7 +23,7 @@
 #' @examples
 #' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
 #' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-#' maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
+#' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 #' vafCluster(maf, plotOption="compare")
 #' vafCluster(maf, plotOption="combine")
 #' vafCluster(maf, plotOption="separate")
