@@ -120,9 +120,9 @@ MesKit provides `GO.njtree` function and `Pathway.njtree` function to perform ge
 library("org.Hs.eg.db")
 
 # GO enrichment analysis
-GO.njtree(njtree, GO.type = "BP", savePlot = T, writeTable = T)
+GO.njtree(njtree, GO.type = "BP", writeTable = T)
 # Pathway enrichment analysis
-Pathway.njtree(njtree, pathway.type = "KEGG", savePlot = T, writeTable = T)
+Pathway.njtree(njtree, pathway.type = "KEGG", writeTable = T)
 ```
 
 Using `treeMutationalSig` function, you can identify potential signatures which could be attributed to known mutational processes for each branch/trunk of the NJtree. The function is implemented from R package deconstructSig. Two signatures matrices are available including "cosmic" and "nature2013" via `signature.ref`. Parameter `mutThreshold` specifies the minimum mutation number that required to perform mutation signature analysis (Default:50). Moreover, you could provide the driver gene list to `driverGenesFile` and the final result will add a column recording driver genes for particular mutation intersections. 

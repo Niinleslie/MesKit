@@ -4,7 +4,6 @@
 #' 
 #' @param maf Maf object return from read.Maf()
 #' @param show.num a logic parameter to determine whether to show the number of each mutations in the stack plot
-#' @param savePlot if save plot of result
 #'
 #' @export mutSharedPrivate
 #' @return mutSharedPrivate
@@ -16,12 +15,13 @@
 #' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
 #' mutSharedPrivate(maf)
 
-mutSharedPrivate <- function(maf, show.num = FALSE, savePlot = FALSE){
+mutSharedPrivate <- function(maf, show.num = FALSE){
   maf.dat <- dplyr::select(maf@data,c(Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,  Variant_Type,Reference_Allele,Tumor_Seq_Allele1,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,CDS_Change,Protein_Change,Tumor_Sample_Barcode))
   patientID <- maf@patientID
-  analysisMutSharedPrivate(maf.dat, patientID = patientID, show.num = show.num, savePlot = savePlot)
+  analysisMutSharedPrivate(maf.dat, patientID = patientID, show.num = show.num)
 }
-analysisMutSharedPrivate <- function(df = NULL, patientID = patientID, show.num = FALSE, savePlot){
+
+analysisMutSharedPrivate <- function(df = NULL, patientID = patientID, show.num = FALSE){
   primitiveLength <- length(df$Hugo_Symbol)
   #separate by quote
   df$Hugo_Symbol <- as.character(df$Hugo_Symbol)
@@ -293,22 +293,13 @@ analysisMutSharedPrivate <- function(df = NULL, patientID = patientID, show.num 
   # put pictures together
   if(length(levels(all.final.frame$Sample)) < 21){
     gg <- ggdraw()+draw_plot(bar.plot,0,0.3,1,0.7)+draw_plot(point.line.plot,0,0,1,0.35)
-    if(savePlot){
-      ggsave(paste("mutSharedPrivate.",patientID,".pdf",sep = ""),width = 10,height = 10,plot = gg)
-    }
   } 
   else {
     if (length(levels(all.final.frame$Sample)) > 60) {
       gg <- ggdraw()+draw_plot(bar.plot,0,0.3,1,0.7)+draw_plot(point.line.plot,0,0,1,0.35)
-      if(savePlot){
-        ggsave(paste("mutSharedPrivate.",patientID,".pdf",sep = ""),width = 13,height = 10,plot = gg)
-      }
     } 
     else {
       gg <- ggdraw()+draw_plot(bar.plot,0,0.3,1,0.7)+draw_plot(point.line.plot,0,0,1,0.35)
-      if(savePlot){
-        ggsave(paste("mutSharedPrivate.",patientID,".pdf",sep = ""),width = 10,height = 10,plot = gg)
-      }
     }
   }  
   return(gg)
