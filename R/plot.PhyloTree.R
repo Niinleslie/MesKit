@@ -44,14 +44,14 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     show.heatmap = FALSE
     show.mutSig = FALSE
     if(phylotree.type == 'newick'){
-      Phylo <- ape::read.tree()(phylotree.dat)
+      Phylo <- treeio::read.tree(phylotree.dat)
     }else if(phylotree.type == 'beast'){
       beast <- treeio::read.beast(phylotree.dat)
-      Phylo <- ape::as.phylo(beast)
+      Phylo <- treeio::as.phylo(beast)
     }
     else if(phylotree.type == 'PAML'){
       PAML <- treeio::read.paml_rst(phylotree.dat)
-      Phylo <- ape::as.phylo(PAML)
+      Phylo <- treeio::as.phylo(PAML)
     }
     else{
       stop("the form of the tree file is not supported")
@@ -90,20 +90,20 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
       if(!use.ccf){
         if(use.indel){
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
+                 plot = plot.njtree, width = 14, height = 9)
         }
         else{
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
+                 plot = plot.njtree, width = 14, height = 9)
         }
       }
       else{
         if(use.indel){
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.ccf.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
+                 plot = plot.njtree, width = 14, height = 9)
         }else{
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".ccf.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 7)
+                 plot = plot.njtree, width = 14, height = 9)
         }
       }
     }
@@ -113,7 +113,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     if(savePlot){
       output.dir = getwd()
       ggsave(filename = paste(output.dir, "/", phylotree.type, ".pdf", sep = ""), 
-             plot = phylotree, width = 14, height = 7)
+             plot = phylotree, width = 14, height = 9)
     }
     return(phylotree)
   }
@@ -133,33 +133,25 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
     Root.row <- which(edge[,2] == NO.Root)
     # the  Node connected to NORMAL
     Root.node <- edge[Root.row, 1]
+    Root.edge <- edge[Root.row, 3]
     Root.label <- 'NORMAL'
   }
   else{
-    NO.Root <- length(phylo$tip.label) + 1
-    #the position of NORMAL in edge 
-    Root.node <- NO.Root
-    Root.label <- 'Root'
-    Root.tip <- 0
     if(is.null(phylo$root.edge)){
       message('root egde is 0')
-      phylo <- root(phylo, phylo$tip.label[floor(length(phylo$tip.label)/2)])
+      phylo1 <- root(phylo, phylo$tip.label[floor(length(phylo$tip.label)/2)])
       if("Root" %in% phylo$node.label){
         stop("plot.PhyloTree draw tree with root only")
       }
       edge <-  phylo$edge
       distance <- phylo$edge.length
       edge <- matrix(c(edge, distance), nrow = length(edge[, 1]))
-      NO.Root <- floor(length(phylo$tip.label)/2)
-      #the position of NORMAL in edge 
-      Root.row <- which(edge[,2] == NO.Root)
+      NO.Root <- length(phylo$tip.label) + 1
       # the  Node connected to NORMAL
-      Root.node <- edge[Root.row, 1]
+      Root.node <- NO.Root
       Root.label <- 'Root'
-      Root.tip <- 0
+      Root.tip <- NO.Root
     }
-    Root.edge <- phylo$root.edge
-    edge <- rbind(edge, c(Root.node, Root.tip, Root.edge))
   }
   #store the sample name or node in a list
   name.list <- c('')
@@ -226,7 +218,22 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
     #Angle adjustment (select a branch Angle to align with the previous internal node)
     if(target.node != Root.node){
       a <- which(vertex.list == max(vertex.list))
+      if(length(a) > 1){
+        a <- which(sub.edge[,3] == max(sub.edge[,3]))
+      }
       angle.list2[a[1]] <- horizon
+      # if(length(angle.list2) == 2){
+      #   a <- which(sub.edge[,3] == max(sub.edge[,3]))
+      #   angle.list2[-a[1]] <- angle.list2[a[1]]
+      #   angle.list2[a[1]] <- horizon
+      # }
+      # else{
+      #   a <- which(vertex.list == max(vertex.list))
+      #   if(length(a) > 1){
+      #     a <- which(sub.edge[,3] == max(sub.edge[,3]))
+      #   }
+      #   angle.list2[a[1]] <- horizon
+      # }
     }
     i = 1
     while (i <= length(sub.edge[,1])) {
@@ -234,11 +241,8 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
         n <- 'internal node'
       }
       #If the number is greater than the length label of labels, it is an internal node, otherwise it is a sample
-      else {n <- phylo$tip.label[point.list[i]]}
-      if(phylotree.type!= 'njtree' & point.list[i]== Root.tip){
-        n <- 'Root'
-      }else if(phylotree.type == 'njtree' & point.list[i]== Root.tip){
-        n <- 'NORMAL'
+      else {
+        n <- phylo$tip.label[point.list[i]]
       }
       #Merge the sample name into a list for coloring
       name.list <- append(name.list, n)
@@ -272,7 +276,9 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
     row.list <- c()
     for(i1 in 1:length(edge[, 1])){
       if(target.node %in% edge[i1,1:2]){
-        row.list <- append(row.list, i1)
+        if(edge[i1,2] != NO.Root){
+          row.list <- append(row.list, i1)
+        }
       }
     }
     #Filter out the submatrix with target_node
@@ -287,10 +293,20 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
     }
     #first internal node(NORMAL)
     if(t == 1){
-      p.n <- SetPhylotree(sub.edge, 0, 0, pi*2/3, pi/2, name.list, 
-                          plot.data, point.list,target.node, Root.node, edge)
+      p.n <- SetPhylotree(sub.edge, 0, 0, pi/12, pi/2, name.list, 
+                          plot.data, point.list, target.node, Root.node, edge)
       plot.data <- p.n[[1]]
       name.list <- p.n[[2]]
+      if(phylotree.type == "njtree"){
+        Root.info <- list(0, 0, 0, -(Root.edge), 0, pi/2, Root.edge,
+                          Root.node, NO.Root, 0)
+        plot.data <- rbind(plot.data, Root.info)
+        if(phylotree.type!= 'njtree'){
+          name.list <- append(name.list, "Root")
+        }else if(phylotree.type == 'njtree'){
+          name.list <- append(name.list, "NORMAL")
+        }
+      }
     }
     else{
       #Find the current starting coordinate in the plot data
@@ -305,19 +321,9 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
     t=t+1
   }
   #Add the sample_name to the plot data
-  plot.data <- cbind(plot.data, sample=name.list)
-  #Transform NORMAL branches into vertical roots
-  if (phylotree.type == 'njtree'){
-    where.root <- which(plot.data$sample == Root.label)
-    plot.data$x2[where.root] <- 0
-    plot.data$y2[where.root] <- -plot.data$distance[where.root]
-  }
-  else{
-    where.root <- which(plot.data$sample == Root.label)
-    plot.data$x2 [where.root] <- 0
-    plot.data$y2[where.root] <- -plot.data$distance[where.root]
-  }
-  
+  print(plot.data)
+  print(name.list)
+  plot.data <- cbind(plot.data, sample = name.list)
   plot.data <- plot.data[-1, ]
   #Adjust Angle of non-NORMAL sample and internal nodes
   t=1
@@ -328,13 +334,13 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
             plot.data$horizon_angle[t] != plot.data$horizon[t])){
       #the angles less than ninety degrees are adjust to thirty degrees
       if(plot.data$horizon[t] < pi/2){
-        plot.data$horizon[t] <- pi/6
+        plot.data$horizon[t] <- pi*7/18
         angle <- plot.data$horizon[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
         plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
       # above 90 are adjusted to 150
       else if(plot.data$horizon[t] > pi/2){
-        plot.data$horizon[t] <- pi*5/6
+        plot.data$horizon[t] <- pi*11/18
         angle <- plot.data$horizon[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
         plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
@@ -641,13 +647,16 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
     #   "#8DD3C7" "#FFFFB3" "#BEBADA" "#FB8072" "#80B1D3" "#FDB462" "#B3DE69" "#FCCDE5" "#D9D9D9" "#BC80BD"
     #    "#CCEBC5" "#FFED6F""#1B9E77" "#D95F02" "#7570B3" "#E7298A" "#66A61E" "#E6AB02" "#A6761D" "#666666"]
     p <- p + scale_color_manual(values = color.scale)
-  }else{
+  }
+  else{
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
                           data = plot.data[plot.data$sample != Root.label&plot.data$sample != 'internal node',], 
                           size=1.5, show.legend = T)
-    p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
-                          data = plot.data[plot.data$sample == Root.label,], 
-                          size = 1.5, show.legend = F )
+    if(phylotree.type == "njtree"){
+      p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
+                            data = plot.data[plot.data$sample == Root.label,], 
+                            size = 1.5, show.legend = F )
+    }
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
                           data = plot.data[plot.data$sample == 'internal node',], 
                           size = 1.5, show.legend = F )
@@ -669,10 +678,18 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
                            nudge_y = text.adjust/7, segment.alpha = 0,
                            data = plot.data[(plot.data$sample != 'internal node'&plot.data$sample != Root.label), ],
                            fontface = 'bold', size = 4)
-  p <- p + geom_text_repel(aes(x = x2,y = y2), label = Root.label, vjust = 0, 
-                           nudge_y = -text.adjust/7, segment.alpha = 0,
-                           data = plot.data[(plot.data$sample == Root.label),], 
-                           fontface = 'bold', size = 4)
+  if(phylotree.type == "njtree"){
+    p <- p + geom_text_repel(aes(x = x2,y = y2), label = Root.label, vjust = 0, 
+                             nudge_y = -text.adjust/7, segment.alpha = 0,
+                             data = plot.data[(plot.data$sample == Root.label),], 
+                             fontface = 'bold', size = 4)
+  }
+  else{
+    p <- p + geom_text_repel(aes(x = x,y = y), label = "Root", vjust = 0,
+                             nudge_y = -text.adjust/7, segment.alpha = 0,
+                             data = data.frame(x = 0, y = 0 ),
+                             fontface = 'bold', size = 4)
+  }
   #Leaf nodes and internal nodes are distinguished by point size
   p <- p + geom_point(aes(x = x2,y = y2), 
                       data = plot.data[plot.data$sample == 'internal node',],
@@ -681,6 +698,10 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
   p <- p + geom_point(aes(x = x2, y = y2), 
                       data = plot.data[plot.data$sample != 'internal node',],
                       size = 3, color = "#67001F", fill = 'white', shape = 21, stroke = 1)
+  if(phylotree.type!= "njtree"){
+    p <- p + geom_point(x = 0, y = 0, 
+                        size = 3, color = "#67001F", fill = 'white', shape = 21, stroke = 1)
+  }
   Nd <- plot.data$distance[which(plot.data$sample == Root.label)]
   if(length(Nd)!=0){
     if(Nd != 0){
