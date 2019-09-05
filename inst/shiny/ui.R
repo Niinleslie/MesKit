@@ -9,13 +9,14 @@ suppressMessages(library(shinycssloaders))
 #sider bar----
 
 sidebar <- dashboardSidebar(
-    width = 300,
+    width = 400,
   sidebarMenu(id="sidername",selected='home',
-    menuItem("Home", tabName = "home", icon = icon("home")),
-    menuItem("ITH evaluation", tabName = "ITH", icon = icon("location-arrow")),
-    menuItem("Clonal analysis", tabName = "clone", icon = icon("th",lib = "glyphicon")),
-    menuItem("Functional analysis", tabName = "function", icon = icon("bar-chart")),
-    menuItem("PhyloTree", tabName = "Survival", icon = icon("line-chart"))
+    menuItem(strong("Home"), tabName = "home", icon = icon("home")),
+    menuItem(strong("Input Data"), tabName = "input", icon = icon("th",lib = "glyphicon")),
+    menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("location-arrow")),
+    menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("th",lib = "glyphicon")),
+    menuItem(strong("Functional analysis"), tabName = "function", icon = icon("bar-chart")),
+    menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart"))
   )
 )
 
@@ -61,71 +62,133 @@ bodyHome <- tabItem("home",
                 )
 )
 
+bodyIP <- tabItem("input",
+                  h2('Input section'),
+                  fluidRow(
+                    column(
+                      width = 3,
+                      box(
+                        title = div(shiny::icon("gear"), "Adjust image height & width", inline =TRUE),
+                        width = NULL,
+                        tabBox(
+                          width = "100%",
+                          height = "100%",
+                          id = "InputSession",
+                          title = "",
+                          selected = "IS1",
+                          tabPanel(
+                            value = "IS1",
+                            title = div(icon("book"), "Upload"),
+                            radioGroupButtons(
+                              "dataset",
+                              label = "Data Set",
+                              choices = c(default = "default", upload = "upload"),
+                              selected = "default",
+                              status = "primary"
+                            ),
+                            conditionalPanel(
+                              condition = "input.dataset == 'upload'",
+                              fileInput('maf','Upload maf file'),
+                              fileInput('sampleInfo','Upload sampleInfo' ),
+                              checkboxInput('useccf','choose if  use ccf',value = F),
+                              conditionalPanel(
+                                condition = "input.useccf == true",
+                                fileInput('ccf.cluster','Upload ccf.cluster'),
+                                fileInput('ccf.loci','Upload ccf.loci' )
+                              )
+                            ),
+                            # fileInput('maf','Upload maf file'),
+                            # fileInput('sampleInfo','Upload sampleInfo' ),
+                            # checkboxInput('useccf','choose if  use ccf',value = F),
+                            # conditionalPanel(
+                            #   condition = "input.useccf == true",
+                            #   fileInput('ccf.cluster','Upload ccf.cluster'),
+                            #   fileInput('ccf.loci','Upload ccf.loci' )
+                            # ),
+                            actionBttn('submit1',div(
+                              strong("Click ME to start analysing"),align = 'center',
+                              icon("hand-right", lib = "glyphicon")))
+                          ),
+                          tabPanel(
+                            value = "IS2",
+                            title = div(icon("book"), "Setting"),
+                            textInput('patientid','Input patient ID'),
+                            selectInput('ref','select reference genome(hg19/hg38)',
+                                        choices = c(
+                                          'hg19','hg38'
+                                        ))
+                          )
+                        )
+                      )
+                    ),
+                    column(
+                      width = 9,
+                      box(
+                        title = "Maf Summary",
+                        width = 1000,
+                        height = 850,
+                        # tabBox(
+                        #   title = "",
+                        #   selected = "MS2",
+                        #   tabPanel(
+                        #     id = "MS1",
+                        #     title = div(icon("book"), "Readme")
+                        #   ),
+                        #   tabPanel(
+                        #     id = "MS2",
+                        #     title = div(icon("th", lib = "glyphicon"), "Maf Summary"),
+                        #     withSpinner(plotOutput('mafSummary',height = "100%",width = "100%"))
+                        #   )
+                        # )
+                        withSpinner(plotOutput('mafSummary'))
+                      ),
+                      box(
+                        status = 'success',
+                        width = NULL,
+                        radioButtons('DownloadMafSummaryCheck','Choose file type to download:',
+                                     c('png' ='png','pdf' = 'pdf'),inline = T),
+                        downloadBttn('DownloadMafSummary', 'Download')
+                      )
+                      # box(
+                      #   status = 'success',
+                      #   width = NULL,
+                      #   radioButtons('DownloadMafSummaryCheck','Choose file type to download:',
+                      #                c('png' ='png','pdf' = 'pdf'),inline = T),
+                      #   downloadBttn('DownloadMafSummary', 'Download')
+                      # )
+                    )
+                  )
+                  )
+
 
 bodyITH <- tabItem("ITH",
-                   h2(strong('ITH evaluation')),
+                   h2('ITH evaluation'),
                    fluidRow(
-                     column(
-                       width = 3,
-                      box(
-                       status = 'primary',
-                       width = NULL,
-                       id = 'upload',
-                       h3(strong('Upload file /Setting parameters')),
-                       fileInput('maf','Upload your maf file'),
-                       fileInput('sampleInfo','Upload sampleInfo' ),
-                       textInput('patientid','Input patient ID'),
-                       selectInput('ref','select reference genome',
-                                   choices = c(
-                                     'hg19','hg38'
-                                   )),
-                       checkboxInput('useccf','choose if  use ccf',value = F),
-                       conditionalPanel(
-                         condition = "input.useccf == true",
-                         fileInput('ccf.cluster','Upload ccf.cluster'),
-                         fileInput('ccf.loci','Upload ccf.loci' )
-                       ),
-                       actionBttn('submit1',div(
-                         strong("Click ME to start analysing"),align = 'center',
-                         icon("hand-right", lib = "glyphicon")))
-                     ),
+                    column(
+                     width = 3,
                      box(
-                      width = NULL,
-                      status = 'primary',
-                      h3(strong('Adjust image height/width')),
-                      sliderInput('width1','adjust image width',min = 700,max = 1100, value = 850),
-                       sliderInput('height1','adjust image height',min = 400,max = 570, value = 560)
-                     )
+                       width = NULL,
+                       status = 'primary',
+                       title = div(shiny::icon("gear"), "Adjust image height & width", inline =TRUE),
+                       sliderInput('width1','adjust image width',min = 700,max = 1100, value = 850)                     )
                      ),
                      column(
                        width = 9,                     
                       box(
-                       h3(strong('Visuliaztion')),
+                       title = 'Visuliaztion',
                        width = NULL,
-                       height = 900,
                        tabBox(                           
                          height = "100%", width = "100%",
-                         selected = "caInput01",
+                         selected = "caInput02",
                          side = "left",
                          tabPanel(
-                           title = "MafSummary",
-                           value = "caInput01",
-                           withSpinner(plotOutput('mafSummary',height = '100%')),
-                           box(
-                             status = 'success',
-                             width = NULL,
-                             radioButtons('DownloadMafSummaryCheck','Choose file type to download:',
-                                        c('png' ='png','pdf' = 'pdf'),inline = T),
-                             downloadBttn('DownloadMafSummary', 'Download')
-                           )
-                         ),
-                         tabPanel(
-                           title = "Math.Score",
+                           title = div(icon("chart-bar"), "Math Score"),
                            value = "caInput02",
-                           withSpinner(dataTableOutput('mathScore'))                 
+                           withSpinner(dataTableOutput('mathScore')),
+                           downloadBttn('DownloadMathScore', 'Download')
                          ),
                          tabPanel(
-                           title = "VAF plot",
+                           title = div(icon("image"), "VAF Plot"),
                            value = "caInput03",
                            plotOutput("vaf.cluster",height = "100%",width = "100%"),
                            box(
@@ -137,15 +200,15 @@ bodyITH <- tabItem("ITH",
                            )
                          ),
                          tabPanel(
-                           title = "SharePrivate",
+                           title = div(icon("map"), "mut Shared private plot"),
                            value = "caInput04",
                            plotOutput("mut.share_private",height = "100%"),
                            box(
                              width = NULL,
                              status = 'success',
-                             radioButtons('DownloadSharePlotCheck','Choose file type to download:',
+                             radioButtons('DownloadSharedPlotCheck','Choose file type to download:',
                                         c('png' ='png','pdf' = 'pdf'),inline = T),
-                             downloadBttn('DownloadSharePlot', 'Download')
+                             downloadBttn('DownloadSharedPlot', 'Download')
                            )
 
                          )
@@ -157,32 +220,21 @@ bodyITH <- tabItem("ITH",
 )
 
 bodyclone <- tabItem('clone',
-                     h2(strong('Clonal analysis')),
+                     h2('Clonal analysis'),
                     fluidRow(
                       column(
                         width = 3,
                       box(
                         status = 'primary',
                         width = NULL,
-                        h3(strong("Upload ccf")),
-                        fileInput('ccf.cluster1','Upload ccf.cluster'),
-                        fileInput('ccf.loci1','Upload ccf.loci' ),
-                        actionBttn('okk',div(
-                          strong("Click ME to visualize result"),align = 'center',
-                          icon("hand-right", lib = "glyphicon")))
-                      ),
-                      box(
-                        status = 'primary',
-                        width = NULL,
-                        h3(strong("Adjust image")),
-                        sliderInput('width2','adjust image width',min = 700,max = 1100, value = 850),
-                        sliderInput('height2','adjust image height',min = 400,max = 570, value = 560)
+                        title = div(shiny::icon("gear"), "Adjust image height & width", inline =TRUE),
+                        sliderInput('width2','adjust image width',min = 700,max = 1100, value = 850)
                       )
                       ),
                      column(
                        width = 9,
                       box(
-                        h3(strong('Visuliaztion')),
+                        title = 'Visuliaztion',
                         width = NULL,
                         tabBox(
                           selected = 'c01',
@@ -191,7 +243,7 @@ bodyclone <- tabItem('clone',
                           width = "100%",
                           tabPanel(
                             value = 'c01',
-                            title = "TumorClonePlot",
+                            title = div(icon("newspaper"), "TumorClone Plot"),
                             withSpinner(plotOutput('cloneplot',height = "100%")),
                             box(
                               width = NULL,
@@ -210,30 +262,32 @@ bodyclone <- tabItem('clone',
 )
 
 bodyfunction <- tabItem('function',
-                        h2(strong('Functional analysis')),
+                        h2('Functional analysis'),
                         fluidRow(
                           column(
                             width = 3,
                             box(
                              width = NULL,
                              status = 'primary',
-                             h3(strong('Adjust pval/qval')),
+                             title = div(shiny::icon("gear"), "Adjust parameters", inline =TRUE),
                              sliderInput('pval','adjust pval',min = 0,max = 1, value = 0.05),
                              sliderInput('qval','adjust image qval',min = 0,max = 1, value = 0.2),
+                             checkboxInput('saveplot1',strong('click if save plot of result'),value = F),
+                             checkboxInput('writetable1',strong('click if write table of result'),value = F),
                              actionBttn('submit3',div(strong("Click me Start/Refresh"),align = 'center'))
                            ),
                           box(
                              width = NULL,
                              status = 'primary',
-                             h3(strong('Adjust image height/width')),
+                             title = div(shiny::icon("gear"), "Data upload & Configuration", inline =TRUE),
                              sliderInput('width3','adjust image width',min = 700,max = 1100, value = 850),
-                             sliderInput('height3','adjust image height',min = 800,max = 2000, value = 1300)
+                             sliderInput('height3','adjust image height',min = 600,max = 2000, value = 1300)
                           )
                           ),
                           column(
                            width = 9,
                            box(
-                             h3(strong('Visuliaztion')),
+                            title = 'Visuliaztion',
                             width = NULL,
                             height = 2100,
                             tabBox(
@@ -242,7 +296,7 @@ bodyfunction <- tabItem('function',
                               width = "100%",
                               height = "100%",
                               tabPanel(
-                                title = 'GO analysis',
+                                title = div(icon("lightbulb"), "GO Analyse"),
                                 value = 'F01',
                                 withSpinner(plotOutput('GOplot',height = "100%",width = "100%")),
                                 box(
@@ -255,7 +309,7 @@ bodyfunction <- tabItem('function',
 
                               ),
                               tabPanel(
-                                title = 'pathway analysis',
+                                title = div(icon("microsoft"), "Pathway Analyse"),
                                 value = 'F02',
                                 withSpinner(plotOutput('Pathwayplot',height = "100%",width = "100%")),
                                 box(
@@ -275,27 +329,28 @@ bodyfunction <- tabItem('function',
                         ))
 
 bodySurvival <- tabItem('Survival',
-                        h2(strong('Phylotree Visualiaztion')),
+                        h2('Phylotree Visualiaztion'),
                         fluidRow(
                           column(
                             width = 3,
                             box(
                             width = NULL,
                             status = 'primary',
-                            radioButtons('phyloTreeType',h3(strong('select tye of your phylotree ')),
+                            title = div(shiny::icon("gear"), "Adjust parameters", inline =TRUE),
+                            radioButtons('phyloTreeType',h4('select tye of your phylotree'),
                                          c( 'NJtree(default)' = 'njtree',
                                             'Newick' = 'newick',
                                             'beast' = 'beast',
                                             'PAML' = 'PAML'),selected = 'njtree',inline = T),
-                            h3(strong("parameters")),
-                            checkboxInput('use.indel','choose if  use indel',value = FALSE),
-                            checkboxInput('show.mutSig','choose if show mutationignature',value = TRUE),
-                            checkboxInput('show.heatmap','choose if show heatmap',value = TRUE),
-                            textInput('heatmap.type','heatmap type','binary'),
                             conditionalPanel(
                               condition = "input.phyloTreeType != 'njtree'",
                               fileInput('phylotree.dir','upload your phylotree file')
                             ),
+                            checkboxInput('use.indel','choose if  use indel',value = FALSE),
+                            checkboxInput('show.mutSig','choose if show mutationignature',value = TRUE),
+                            checkboxInput('show.heatmap','choose if show heatmap',value = TRUE),
+                            textInput('heatmap.type','heatmap type','binary'),
+                            checkboxInput('saveplot3','choose if saveplot',value = F),
                               actionBttn('submit.tree',div(
                               strong("Click ME to visualize result"),align = 'center',
                               icon("hand-right", lib = "glyphicon")))
@@ -304,9 +359,10 @@ bodySurvival <- tabItem('Survival',
                           column(
                             width = 9,
                             box(
+                            title = "Visulization",
                             width = NULL,
-                            height = 1200 ,
-                            withSpinner(plotOutput("phylotree",height = 1000)), 
+                            height = 800,
+                            withSpinner(plotOutput("phylotree"))), 
                             box(
                               width = NULL,
                               status = 'success',
@@ -314,11 +370,9 @@ bodySurvival <- tabItem('Survival',
                                          c('png' ='png','pdf' = 'pdf'),inline = T),
                               downloadBttn('DownloadPhyloTree', 'Download')
                             )
-
                           )
-                          )
-
-                        ))
+                        )
+                        )
                     
 
 #Main function----
@@ -328,12 +382,14 @@ shinyUI(
                   titleWidth = 650),
     sidebar,
     dashboardBody(
+      theme = 
       tags$head(
         tags$style(HTML(".shiny-output-error-validation {color: brown;}")),
         tags$link(rel = "stylesheet", type = "text/css", href = "css/main.css")
       ),
       tabItems(
         bodyHome,
+        bodyIP,
         bodyITH,
         bodyclone,
         bodyfunction,

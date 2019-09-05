@@ -84,30 +84,30 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
   
   if(show.heatmap){
     heatmap <- mut.heatmap(njtree, use.ccf)
-    plot.njtree <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.8) + draw_plot(heatmap, x = 0.8,y = -0.035, width = 0.2)
+    PH <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.8) + draw_plot(heatmap, x = 0.8,y = -0.035, width = 0.2)
     if(savePlot){
       output.dir = getwd()
       if(!use.ccf){
         if(use.indel){
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 9)
+                 plot = PH, width = 14, height = 9)
         }
         else{
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 9)
+                 plot = PH, width = 14, height = 9)
         }
       }
       else{
         if(use.indel){
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".useindel.ccf.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 9)
+                 plot = PH, width = 14, height = 9)
         }else{
           ggsave(filename = paste(output.dir,"/", njtree@patientID, ".ccf.pdf", sep = ""),
-                 plot = plot.njtree, width = 14, height = 9)
+                 plot = PH, width = 14, height = 9)
         }
       }
     }
-    return(plot.njtree)
+    return(PH)
   }
   else{
     if(savePlot){

@@ -71,51 +71,49 @@ GO.njtree <- function(njtree, GO.type = "ALL", pval = 0.05, pAdjustMethod = "BH"
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
     ego.branch <- GO_analysis(geneSymbol, GO.type, pval, pAdjustMethod,
-                qval, outdir, patientID, sampleID)
-      if (is.null(showCategory)){
+                              qval, outdir, patientID, sampleID)
+    if (is.null(showCategory)){
         showCategory = nrow(ego.branch@result)
-      }
-      
-      str_length = max(nchar(ego.branch@result$Description))
-      str_height = showCategory
-      
-      if (str_height > 15){
-        fig.height = str_height/3
-      }
-      else{fig.height = 5}
-      # plot result
-      if(nrow(ego.branch@result)!=0){
+    }
+    str_length = max(nchar(ego.branch@result$Description))
+    str_height = showCategory
+    if (str_height > 15){
+      fig.height = str_height/3
+    }
+    else{fig.height = 5}
+    # plot result
+    if(nrow(ego.branch@result)!=0){
         if (plotType == "dot"){
         go.plot <- dotplot(ego.branch, showCategory = showCategory) + ggtitle(sampleID)
         if(savePlot){
           ggsave(filename = paste(outdir, "/", patientID, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = go.plot,width = 3+(str_length)/10, height = fig.height)
         }
-      }
-        else if (plotType == "bar"){
-        go.plot <- barplot(ego.branch, showCategory = showCategory)+ggtitle(sampleID)
-        if(savePlot){
+    }
+    else if (plotType == "bar"){
+      go.plot <- barplot(ego.branch, showCategory = showCategory)+ggtitle(sampleID)
+      if(savePlot){
           ggsave(paste(outdir, "/", patientID, "_GO_", GO.type, "_barplot.pdf", sep = ""),plot = go.plot,width = 3+(str_length)/10, height = fig.height)
-        }
       }
-        grob.list[[x]] <- go.plot
-        x <- x+1
-      }
+    }
+    grob.list[[x]] <- go.plot
+    x <- x+1
+  }
     ego.branch.result <- rbind(GO.branch.result, ego.branch@result)
   }
-  
   ego.all <- GO_analysis(all.genes, GO.type, pval, pAdjustMethod,
                            qval, outdir, patientID, name = "All")
   ego.all.result <- ego.all@result
   if (is.null(showCategory)){
     showCategory = nrow(ego.all.result)
   }
-  
   str_length = max(nchar(ego.all.result$Description))
   str_height = showCategory
-  
   if (str_height > 15){
     fig.height = str_height/3
-  }else{fig.height = 5}
+  }
+  else{
+    fig.height = 5
+  }
   
   if(nrow(ego.all.result) != 0){
     if (plotType == "dot"){
