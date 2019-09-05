@@ -35,6 +35,6 @@ JaccardIndex <- function(maf){
 			#Jaccard.mat[j,i] <- Jaccard.mat[i,j]
 		}
 	}
-	corrplot::corrplot(Jaccard.mat, type="upper", is.corr = F, method="pie", outline = FALSE, tl.col = "black",
+	corrplot::corrplot(Jaccard.mat, type="upper", is.corr = F, method="pie", outline = FALSE, tl.col = "black", add = F,
 	  addCoef.col = "grey", col = RColorBrewer::brewer.pal(10,"PuOr"))
 }
