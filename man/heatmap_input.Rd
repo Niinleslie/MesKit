@@ -4,11 +4,9 @@
 \alias{heatmap_input}
 \title{plot the corresponding binary heatmap| ccf heatmaf of the NJtree}
 \usage{
-heatmap_input(mat, type, ccf.mutation.id, ccf.mutation.sep)
+heatmap_input(mat, type)
 }
 \arguments{
-\item{use.indel}{logical. Whether to uses all variants irrespective of values in Mutation_Status.Defaults to FALSE, only use somatic mutations.}
-
 \item{use.ccf}{logical. Whether to print the binary heatmap with ccf values. Defaults to FALSE, print the binary heatmap without ccf value}
 }
 \value{
@@ -18,7 +16,7 @@ binary mutation heatmap or mutation CCF heatmap
 plot the corresponding binary heatmap| ccf heatmaf of the NJtree
 }
 \examples{
-mut.heatmap(njtree, use.indel = F)
-mut.heatmap(njtree, use.indel = F, use.ccf = TRUE)
+mut.heatmap(njtree)
+mut.heatmap(njtree, use.ccf = TRUE)
 
 }

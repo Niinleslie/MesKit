@@ -4,14 +4,12 @@
 \alias{mutSharedPrivate}
 \title{Use R code to find the intersect mutations and their types in several samples of one patient}
 \usage{
-mutSharedPrivate(maf, show.num = FALSE, savePlot = FALSE)
+mutSharedPrivate(maf, show.num = FALSE)
 }
 \arguments{
 \item{maf}{Maf object return from read.Maf()}
 
 \item{show.num}{a logic parameter to determine whether to show the number of each mutations in the stack plot}
-
-\item{savePlot}{if save plot of result}
 }
 \value{
 mutSharedPrivate

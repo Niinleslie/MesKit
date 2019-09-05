@@ -3,12 +3,12 @@
 
 
 
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
-tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
-mutStackPlot(maf, oncogeneListFile, tsgListFile, themeOption="npg")
+# maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
+# sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
+# maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
+# oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
+# tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
+# mutStackPlot(maf, oncogeneListFile, tsgListFile, themeOption="npg")
 
 mutStackPlot <- function(maf, oncogeneListFile, tsgListFile, themeOption="aaas") {
     ## prepare maf data with mut.id
