@@ -4,8 +4,8 @@
 
 
 
-
-oncogeneListFile <- "/home/ninomoriaty/R_Project/MesKit/inst/oncogene.list.txt"
+maf.File <- 
+oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
 tsgListFile <- "/home/ninomoriaty/R_Project/MesKit/inst/TSG.list.txt"
 
 mutStackPlot <- function(maf, oncogeneListFile, tsgListFile) {
