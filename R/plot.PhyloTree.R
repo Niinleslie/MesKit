@@ -64,7 +64,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree',
     # PhyloTree input data
     Phylo <- njtree@nj
     refBuild <- njtree@refBuild
-    signature <- suppressMessages(treeMutationalSig(njtree, refBuild = refBuild))
+    signature <- suppressMessages(treeMutationalSig(njtree))
     njtree@patientID <- paste(njtree@patientID, ".NJtree", sep = "")
   }
   # generate phylotree data
