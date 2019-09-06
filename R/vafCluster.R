@@ -38,9 +38,9 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
     ## read .maf file
     colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
     mafInput <- maf@data
-    laml <- maf
-    ## specify patienID
     patientID <- maf@patientID
+    laml <- maf
+    
     ## extract vaf info
     n <- length(mafInput$Hugo_Symbol)
     vafInputMt <- data.frame(mafInput$Hugo_Symbol, 
@@ -154,8 +154,10 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         }
         ## calculate ScoreMATH
         mathtbscore<- .mathCal(maf, vafRange, plotOption, sampleName)
-        pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, themeOption, tsbLs, 
-                                                        plotOption, mathtbscore))))
+        pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, themeOption, 
+                                                        tsbLs, plotOption, 
+                                                        mathtbscore, patientID, 
+                                                        vafRange))))
     }
     
     ## plot specific sample's vaf plot
@@ -372,7 +374,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
 
 ## Functions for specific plotOption: "compare"
 ## VAF painter for OFA
-.ofaVAF <- function(clusterAll, themeOption, tsbLs, plotOption, mathtbscore){
+.ofaVAF <- function(clusterAll, themeOption, tsbLs, plotOption, mathtbscore, patientID, vafRange){
     if (is.null(mathtbscore)){
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
@@ -393,7 +395,8 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption),  
                            "scale_color_", themeOption, "() + ", 
                            "scale_fill_", themeOption, "() + ", 
-                           "labs(y = \"Samples\")", sep="")
+                           "labs(y = \"Samples\") + ", 
+                           "scale_x_continuous(limits = ", "c(", as.character(vafRange[1]), ",", as.character(vafRange[2]), "))", sep="")
     } else {
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
@@ -422,7 +425,8 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                            "geom_text(data=cbind(clusterAll %>% group_by(Tumor_Sample_Barcode) %>% summarise(MATH=unique(MATH)), 
                                                  VAF=(clusterAll %>% group_by(Tumor_Sample_Barcode) %>% summarise(VAF=max(VAF)))$VAF),
                                      aes(x=0.85*max(VAF), label=paste(\"MATH Score:\", sprintf(\"%1.3f\", MATH), sep=\"\")), 
-                                     position=position_nudge(y=0.65), colour=\"black\", size=3.5)", sep="")
+                                     position=position_nudge(y=0.65), colour=\"black\", size=3.5) + ", 
+                           "scale_x_continuous(limits = ", "c(", as.character(vafRange[1]), ",", as.character(vafRange[2]), "))", sep="")
     }
     vafOFACha
 }
