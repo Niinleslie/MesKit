@@ -13,7 +13,7 @@
 #' @export JaccardIndex
 
 
-JaccardIndex <- function(maf){
+JaccardIndex <- function(maf, type="lower"){
 	dat <- maf@data
 	TSBs <- unique(dat$Tumor_Sample_Barcode)
 
@@ -35,6 +35,6 @@ JaccardIndex <- function(maf){
 			#Jaccard.mat[j,i] <- Jaccard.mat[i,j]
 		}
 	}
-	corrplot::corrplot(Jaccard.mat, type="upper", is.corr = F, method="pie", outline = FALSE, tl.col = "black", add = F,
-	  addCoef.col = "grey", col = RColorBrewer::brewer.pal(10,"PuOr"))
+	corrplot::corrplot(Jaccard.mat, type=type, is.corr = F, method="pie", outline = FALSE, tl.col = "black", add = F,
+	  addCoef.col = "grey", col = RColorBrewer::brewer.pal(10,"PuOr"), cl.lim=c(0,1))
 }
