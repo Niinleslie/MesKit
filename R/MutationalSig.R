@@ -33,7 +33,6 @@
 #' @export treeMutationalSig
 #'
 
-
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, 
                               signaturesRef="signatures.cosmic",
@@ -151,6 +150,22 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     return(mutSigsOutput)
 }
 
+## plot.MutationalSigs
+.plotMutationalSig <- function(sigsWhich) {
+    cur_dev <- grDevices::dev.cur()   # store current device
+    pdf(NULL, width = 6, height = 6)  # open null device
+    grDevices::dev.control("enable")  # turn on recording for the null device
+    null_dev <- grDevices::dev.cur()  # store null device
+    
+    # make sure we always clean up properly, even if something causes an error
+    on.exit({
+        grDevices::dev.off(null_dev)
+        if (cur_dev > 1) grDevices::dev.set(cur_dev) # only set cur device if not null device
+    })
+    
+    deconstructSigs::plotSignatures(sigsWhich, sub = 'example')
+    recordPlot() 
+}
 
 ## Branches' mutation collection
 .treeMutationalBranches <- function(maf, branch){
@@ -228,21 +243,4 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     names(mutBranchesOutput) <- listBranchName
     ## return the data frame of mutational signature for all branches
     return(mutBranchesOutput)
-}
-
-
-.plotMutationalSig <- function(sigsWhich) {
-    cur_dev <- grDevices::dev.cur()   # store current device
-    pdf(NULL, width = 6, height = 6)  # open null device
-    grDevices::dev.control("enable")  # turn on recording for the null device
-    null_dev <- grDevices::dev.cur()  # store null device
-
-    # make sure we always clean up properly, even if something causes an error
-    on.exit({
-        grDevices::dev.off(null_dev)
-        if (cur_dev > 1) grDevices::dev.set(cur_dev) # only set cur device if not null device
-    })
-
-    deconstructSigs::plotSignatures(sigsWhich, sub = 'example')
-    recordPlot() 
 }
