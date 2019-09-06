@@ -163,9 +163,6 @@ clonevol2Fishplot <- function(clusterTsvFile, plotOption){
     }
 }
 
-
-
-
 ## SCHISM method
 schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOption){
     ## get cellularity infomation
