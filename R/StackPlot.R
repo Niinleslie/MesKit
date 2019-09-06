@@ -15,7 +15,7 @@
 #' @param show.percentage logical parameter that determine whether the 
 #' percentage of different intersections will print in the stack plot or not
 #'
-#' @example
+#' @examples
 #' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
 #' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")

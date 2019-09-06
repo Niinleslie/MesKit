@@ -244,4 +244,5 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     })
 
     deconstructSigs::plotSignatures(sigsWhich, sub = 'example')
-    recordPlot() }
+    recordPlot() 
+}
