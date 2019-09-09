@@ -141,8 +141,8 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         par(mfrow = c(3,1), xpd = FALSE, mar=c(5, 4, 4, 2), oma=c(0,0,0,4))
         picGrid <- eval(parse(text=paste("plot_grid(",
                               paste(lsPicName, collapse=","),
-                              ", nrow=",
-                              ceiling(length(lsPicName)/2), ", ncol=2, align=\"v\")" ,
+                              ", nrow=1",
+                              ", ncol=length(lsPicName), align=\"v\")" ,
                               sep="")))
         message(paste(njtree@patientID, " mutaional signature Summary Plot generation done!", sep=""))
     }
