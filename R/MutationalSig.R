@@ -33,12 +33,12 @@
 #' @export treeMutationalSig
 #'
 
-
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, 
                               signaturesRef="signatures.cosmic",
                               plot.Signatures=FALSE){
     ## refBuild limitation: only hg19 or hg38
+    refBuild <- njtree@refBuild
     if (!((refBuild == "hg19") | (refBuild == "hg38"))){
         stop(error="Error: refBuild's value may be incorrect. 
              refBuild could be only set as \"hg19\" or \"hg38\".")
@@ -49,7 +49,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ## get branches information from njtree object
     mutBranches <- njtree@mut_branches
     patientID <- njtree@patientID
-    refBuild <- njtree@refBuild
     branchesName <- names(mutBranches)
     branchesNameList <- strsplit(branchesName, split='∩')
     
@@ -90,14 +89,14 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                          signatures.ref=get(signaturesRef), 
                                          sample.id=branchName,
                                          contexts.needed=TRUE)
-        #     ## plot.MuationalSiganture
-        #     if (plot.Signatures) {
-        #         pic_cha <- paste("branch", ".", branchCounter, 
-        #                          " <- .plotMutationalSig(sigsWhich)", sep="")
-        #         eval(parse(text=pic_cha))
-        #         pic_name <- paste("branch", ".", branchCounter, sep="")
-        #         lsPicName <- c(lsPicName, pic_name)
-        #     }
+            ## plot.MuationalSiganture
+            if (plot.Signatures) {
+                pic_cha <- paste("branch", ".", branchCounter,
+                                 " <- .plotMutationalSig(sigsWhich)", sep="")
+                eval(parse(text=pic_cha))
+                pic_name <- paste("branch", ".", branchCounter, sep="")
+                lsPicName <- c(lsPicName, pic_name)
+            }
             ## get mutational signature with max weight
             sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
             sigsMaxName <- colnames(sigsMax)
@@ -138,19 +137,35 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
     
-    # if (plot.Signatures){
-    #     par(mfrow = c(3,1), xpd = FALSE, mar=c(5, 4, 4, 2), oma=c(0,0,0,4))
-    #     picGrid <- eval(parse(text=paste("plot_grid(", 
-    #                           paste(lsPicName, collapse=","), 
-    #                           ", nrow=", 
-    #                           ceiling(length(lsPicName)/2), ", ncol=2, align=\"v\")" , 
-    #                           sep="")))
-    #     message(paste(njtree@patientID, " mutaional signature Summary Plot generation done!", sep=""))
-    # }
+    if (plot.Signatures){
+        par(mfrow = c(3,1), xpd = FALSE, mar=c(5, 4, 4, 2), oma=c(0,0,0,4))
+        picGrid <- eval(parse(text=paste("plot_grid(",
+                              paste(lsPicName, collapse=","),
+                              ", nrow=",
+                              ceiling(length(lsPicName)/2), ", ncol=2, align=\"v\")" ,
+                              sep="")))
+        message(paste(njtree@patientID, " mutaional signature Summary Plot generation done!", sep=""))
+    }
     message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
     return(mutSigsOutput)
 }
 
+## plot.MutationalSigs
+.plotMutationalSig <- function(sigsWhich) {
+    cur_dev <- grDevices::dev.cur()   # store current device
+    pdf(NULL, width = 6, height = 6)  # open null device
+    grDevices::dev.control("enable")  # turn on recording for the null device
+    null_dev <- grDevices::dev.cur()  # store null device
+    
+    # make sure we always clean up properly, even if something causes an error
+    on.exit({
+        grDevices::dev.off(null_dev)
+        if (cur_dev > 1) grDevices::dev.set(cur_dev) # only set cur device if not null device
+    })
+    
+    deconstructSigs::plotSignatures(sigsWhich, sub = 'example')
+    recordPlot() 
+}
 
 ## Branches' mutation collection
 .treeMutationalBranches <- function(maf, branch){
@@ -229,19 +244,3 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ## return the data frame of mutational signature for all branches
     return(mutBranchesOutput)
 }
-
-
-# .plotMutationalSig <- function(sigsWhich) {
-#     cur_dev <- grDevices::dev.cur()   # store current device
-#     pdf(NULL, width = 6, height = 6)  # open null device
-#     grDevices::dev.control("enable")  # turn on recording for the null device
-#     null_dev <- grDevices::dev.cur()  # store null device
-#     
-#     # make sure we always clean up properly, even if something causes an error
-#     on.exit({
-#         grDevices::dev.off(null_dev)
-#         if (cur_dev > 1) grDevices::dev.set(cur_dev) # only set cur device if not null device
-#     })
-#     
-#     deconstructSigs::plotSignatures(sigsWhich, sub = 'example')
-#     recordPlot() }

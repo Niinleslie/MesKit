@@ -35,7 +35,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree',
     use.ccf = FALSE
   }else{
     use.ccf = TRUE
-    if (is.null(njtree@ccf.loci)){
+    if (is.null(njtree@ccf_sort)){
       stop("Missing ccf file. Cannot generate heatmap of 'CCF' type")
     } 
   }
@@ -64,7 +64,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree',
     # PhyloTree input data
     Phylo <- njtree@nj
     refBuild <- njtree@refBuild
-    signature <- suppressMessages(treeMutationalSig(njtree, refBuild = refBuild))
+    signature <- suppressMessages(treeMutationalSig(njtree))
     njtree@patientID <- paste(njtree@patientID, ".NJtree", sep = "")
   }
   # generate phylotree data
