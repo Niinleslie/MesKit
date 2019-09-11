@@ -75,6 +75,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             mutSigRef$Sample == branchName), 1]) < mutThreshold){
             sigsMaxName <- "No.Signature"
             sigsMaxProb <- 0
+            next()
         }else{
             ## deconstructSigs
             sigsInput <- suppressWarnings(
