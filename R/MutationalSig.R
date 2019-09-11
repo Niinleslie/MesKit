@@ -175,26 +175,26 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     df.sigsInputTrans <- transform(df.sigsInputTrans, Mutational_Type = factor(Mutational_Type, levels = orderlist))
     
     ## 
-    group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
+    # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
+    group.colors <- pal_npg("nrc", alpha=1)(6)
     pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
         geom_bar(stat="identity") + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
-                  fill="#ecf8ff", alpha=0.15) + 
+                  fill="#fce7e4", alpha=0.15) + 
         geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
-                  fill="#f3f3f3", alpha=0.25) + 
+                  fill="#ecf8fa", alpha=0.25) + 
         geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax=Inf),
-                  fill="#fbecec", alpha=0.15) + 
+                  fill="#dbfff9", alpha=0.05) + 
         geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax=Inf),
-                  fill="#f3f3f3", alpha=0.08) + 
+                  fill="#e4e8f3", alpha=0.08) + 
         geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax=Inf),
-                  fill="#d7ffeb", alpha=0.05) + 
+                  fill="#fdefeb", alpha=0.15) + 
         geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax=Inf),
-                  fill="#ffecf7", alpha=0.1) + 
+                  fill="#e5e8ef", alpha=0.1) + 
         geom_bar(stat="identity") + 
         facet_grid(Branch ~ .) + 
         scale_fill_manual(values=group.colors)
-    pic
     return(pic)
 }
 
