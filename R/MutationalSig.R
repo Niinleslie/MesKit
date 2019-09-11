@@ -93,6 +93,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                          signatures.ref=get(signaturesRef), 
                                          sample.id=branchName,
                                          contexts.needed=TRUE)
+            
             ## plot.MuationalSiganture
             if (plot.Signatures) {
                 pic_cha <- paste("branch", ".", branchCounter,
@@ -140,35 +141,25 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## collect branches' mutataional signature information
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
-    
-    if (plot.Signatures){
-        par(mfrow = c(3,1), xpd = FALSE, mar=c(5, 4, 4, 2), oma=c(0,0,0,4))
-        picGrid <- eval(parse(text=paste("plot_grid(",
-                                         paste(lsPicName, collapse=","),
-                                         ", nrow=1",
-                                         ", ncol=length(lsPicName), align=\"v\")" ,
-                                         sep="")))
-        message(paste(njtree@patientID, " mutaional signature Summary Plot generation done!", sep=""))
-    }
     message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
     return(mutSigsOutput)
 }
 
 ## plot.MutationalSigs
-.plotMutationalSig <- function(sigsWhich) {
-    cur_dev <- grDevices::dev.cur()   # store current device
-    pdf(NULL, width = 6, height = 6)  # open null device
-    grDevices::dev.control("enable")  # turn on recording for the null device
-    null_dev <- grDevices::dev.cur()  # store null device
+.plotMutationalSig <- function(sigsInput) {
+    ## calculate the Mutation Probability
+    sigsInputTrans <- as.data.frame(t(sigsInput))
+    sigsInputSum <- as.data.frame(apply(sigsInput, 1, function(x) sum(x)))
+    ls.branchesName <- rownames(sigsInput)
+    for (branch in ls.branchesName) {
+        sigsInputTrans[branch] <- sigsInputTrans[branch]/sigsInputSum[branch, ]
+    }
+    df.sigsInputTrans <- data.frame(Mutational_Type=colnames(sigsInputBranch), 
+                                    sigsInputTrans)
     
-    # make sure we always clean up properly, even if something causes an error
-    on.exit({
-        grDevices::dev.off(null_dev)
-        if (cur_dev > 1) grDevices::dev.set(cur_dev) # only set cur device if not null device
-    })
-    
-    deconstructSigs::plotSignatures(sigsWhich, sub = 'example')
-    recordPlot() 
+    ## 
+    ggplot(df.sigsInputBranch, aes(x=Mutational_Type, y=Mutation_Probability)) + 
+        geom_bar(stat="identity")
 }
 
 ## Branches' mutation collection
