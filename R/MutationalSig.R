@@ -23,12 +23,12 @@
 #' maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfoFile = sampleInfo.File, refBuild = "hg19")
 #' njtree <- getNJtree(maf)
 #' ## general
-#' signature1 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50)
+#' signature1 <- treeMutationalSig(njtree, mutThreshold=50)
 #' ## use driverGenesFile
 #' putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver_genes.txt", package = "Meskit")
-#' signature2 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
+#' signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 #' ## use different signature reference
-#' signature3 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50, signaturesRef="signatures.nature2013")
+#' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
 #' 
 #' @export treeMutationalSig
 #'
@@ -118,16 +118,16 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             pdgBranch <- as.character(pdgMut$Hugo_Symbol)
             ## collect branches' mutataional signature and potative driver genes
             mutSigsBranch <- data.frame(
-                branch=I(list(branch)), 
+                branch=c(branchName), 
                 sig=sigsMaxName, 
                 mut.num=length(
                     mutSigRef[which(
                         mutSigRef$Sample == branchName), 1]), 
                 sig.prob=sigsMaxProb, 
-                putative_driver_genes=I(list(pdgBranch)))
+                putative_driver_genes=c(paste(pdgBranch, collapse = ",")))
         } else{
             mutSigsBranch <- data.frame(
-                branch=I(list(branch)), 
+                branch=c(branchName), 
                 sig=sigsMaxName, 
                 mut.num=length(mutSigRef[which(
                     mutSigRef$Sample == branchName), 1]), 
@@ -140,10 +140,10 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     if (plot.Signatures){
         par(mfrow = c(3,1), xpd = FALSE, mar=c(5, 4, 4, 2), oma=c(0,0,0,4))
         picGrid <- eval(parse(text=paste("plot_grid(",
-                              paste(lsPicName, collapse=","),
-                              ", nrow=1",
-                              ", ncol=length(lsPicName), align=\"v\")" ,
-                              sep="")))
+                                         paste(lsPicName, collapse=","),
+                                         ", nrow=1",
+                                         ", ncol=length(lsPicName), align=\"v\")" ,
+                                         sep="")))
         message(paste(njtree@patientID, " mutaional signature Summary Plot generation done!", sep=""))
     }
     message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
