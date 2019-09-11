@@ -3,7 +3,7 @@
 #'  curve with ggplot2 as well as ggridges. Different parameters could lead to 
 #'  different outputs with different range of samples.
 #' 
-#' @import ggplot2 ggsci cowplot
+#' @import ggplot2 ggsci cowplot mclust
 #' @importFrom maftools inferHeterogeneity
 #' @importFrom ggridges geom_density_ridges
 #' @importFrom dplyr group_by
@@ -33,7 +33,7 @@
 #' 
 
 ## Main function for VAF plot
-vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF", 
+vafCluster <-function(maf, vafRange=c(0.05,1), vafColumn="VAF", 
                       plotOption="combine", themeOption="aaas"){
     ## original data preparation
     ## read .maf file
@@ -60,7 +60,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
-            mathtbscore <- .mathCal(maf, vafRange, plotOption, sampleName)
+            mathscore <- .mathCal(maf, vafRange, plotOption, sampleName)
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]
             ## data cleaning
@@ -70,22 +70,23 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                 message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
                 next()
             }
-            clusterMt <- inferHeterogeneity(maf=laml, 
+            clusterMt <- suppressMessages(inferHeterogeneity(maf=laml, 
                                             tsb=as.character(
                                                 sampleMt$Samples[1]), 
                                             vafCol='VAF', 
-                                            useSyn=TRUE)$clusterData
+                                            useSyn=TRUE)$clusterData)
+            message(paste("Processing sample ", sampleName, sep = ""))
             colnames(clusterMt)[colnames(clusterMt) == "t_vaf"] <- "VAF"
             ## separate: print VAF pictures for all samples separatively
             if (plotOption == "separate"){
                 pic <- .drawVAF(clusterMt, themeOption, 
-                                sampleName, mathtbscore)
+                                sampleName, mathscore)
             }
             else {
                 # prepare separated pictures for later combination 
                 pic_cha <- paste("separate", ".", counterMt, 
                                  "<-.drawVAF(clusterMt, themeOption, ", 
-                                 "sampleName, mathtbscore, ", 
+                                 "sampleName, mathscore, ", 
                                  "MIXOption=plotOption)", sep="")
                 eval(parse(text=pic_cha))
                 pic_name <- paste("separate", ".", counterMt, sep="")
@@ -95,7 +96,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
         }
         ## combine: print VAF pictures for all samples in one document
         if (plotOption == "combine"){
-            combineMathScore <- .mathCal(maf, vafRange, "compare", sampleName)$MATH_score
+            combineMathScore <- .mathCal(maf, vafRange, "compare", sampleName)
             ## set the columns of the picture and generate all single pictures
             combineTitle <- ggdraw() + 
                 draw_label(
@@ -140,10 +141,11 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             }
             ## generate data from different Tumor_Sample_Barcode
             clusterMtCha <- paste("clusterMt_", counterMt, 
-                                  " <- inferHeterogeneity(maf=laml, ", 
+                                  " <- suppressMessages(inferHeterogeneity(maf=laml, ", 
                                   "tsb=as.character(sampleMt[1,3]), ", 
                                   "vafCol=\'VAF\', ", 
-                                  "useSyn=TRUE)$clusterData", sep ="")
+                                  "useSyn=TRUE)$clusterData)", sep ="")
+            message(paste("Processing sample ", sampleName, sep = ""))
             eval(parse(text=clusterMtCha))
             clusterMtCha <- paste("colnames(clusterMt_", counterMt, 
                                   ")[colnames(clusterMt_", counterMt, 
@@ -154,10 +156,10 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             eval(parse(text=clusterMtCha))
         }
         ## calculate ScoreMATH
-        mathtbscore<- .mathCal(maf, vafRange, plotOption, sampleName)
+        mathscore <- .mathCal(maf, vafRange, plotOption, sampleName)
         pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, themeOption, 
                                                         tsbLs, plotOption, 
-                                                        mathtbscore, patientID, 
+                                                        mathscore, patientID, 
                                                         vafRange))))
     }
     
@@ -178,16 +180,16 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
             vafCol='VAF', useSyn=TRUE)$clusterData
         colnames(clusterMt)[colnames(clusterMt) == "t_vaf"] <- "VAF"
         ## calculate ScoreMATH
-        mathtbscore <- .mathCal(maf, vafRange, plotOption)
+        mathscore <- .mathCal(maf, vafRange, plotOption)
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
-                        plotOption, mathtbscore)
+                        plotOption, mathscore)
     }
     else {
         stop("ERROR: plotOption settings failure.")
     }
     message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-    return(suppressMessages(print(pic)))
+    return(suppressWarnings(suppressMessages(print(pic))))
 }
 
 
@@ -197,39 +199,32 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                      plotOption, sampleName = ""){
     if (!is.null(vafRange)){
         if ((plotOption == "separate") | (plotOption == "combine")){
-            mathtbscore <- mathScore(maf, c(sampleName), minvaf=vafRange[1], maxvaf=vafRange[2])
+            mathtbscoreLs <- mathScore(maf, c(sampleName), minvaf=vafRange[1], maxvaf=vafRange[2])
+            mathtbscore <- mathtbscoreLs$sampleLevel
             mathscore <- mathtbscore[which(
                 mathtbscore$Tumor_Sample_Barcode == sampleName), 
                 ]$MATH_score
-            tumorburden <- mathtbscore[which(
-                mathtbscore$Tumor_Sample_Barcode == sampleName), 
-                ]$Tumor_Burden
         }
         else if (plotOption == "compare"){
-            mathtbscore <- mathScore(maf, c(sampleName), minvaf=vafRange[1], maxvaf=vafRange[2])
+            mathtbscoreLs <- mathScore(maf, c(sampleName), minvaf=vafRange[1], maxvaf=vafRange[2])
+            mathtbscore <- mathtbscoreLs$patientLevel
             mathscore <- mathtbscore[which(
-                mathtbscore$Tumor_Sample_Barcode == "ITH MATH score"), 
+                mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
                 ]$MATH_score
-            tumorburden <- mathtbscore[which(
-                mathtbscore$Tumor_Sample_Barcode == "ITH MATH score"), 
-                ]$Tumor_Burden
         }
         else if (plotOption %in% unique(vafInputMt$Samples)) {
-            mathtbscore <- mathScore(maf, c(plotOption), minvaf=vafRange[1], maxvaf=vafRange[2])
+            mathtbscoreLs <- mathScore(maf, c(sampleName), minvaf=vafRange[1], maxvaf=vafRange[2])
+            mathtbscore <- mathtbscoreLs$sampleLevel
             mathscore <- mathtbscore[which(
                 mathtbscore$Tumor_Sample_Barcode == plotOption), 
                 ]$MATH_score
-            tumorburden <- mathtbscore[which(
-                mathtbscore$Tumor_Sample_Barcode == plotOption), 
-                ]$Tumor_Burden
         } else {
             stop("ERROR: plotOption setting error")
         }
-        mathtbscore <- data.frame(MATH_score=mathscore, Tumor_Burden=tumorburden)
     } else {
-        mathtbscore <- NULL
+        mathscore <- NULL
     }
-    return(mathtbscore)
+    return(mathscore)
 }
 
 
@@ -284,12 +279,12 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
 ## Functions for specific plotOption: "separate", "combine", "tsb"
 ## VAF painter
 .drawVAF <- function(clusterMt, themeOption, 
-                     plotOption, mathtbscore, 
+                     plotOption, mathscore, 
                      MIXOption=""){
     ## A draft for density infomation(density_info) of ggplot
     picv <- ggplot(clusterMt, aes(x=VAF)) + 
         geom_line(size=1, colour="#00C0EB", stat="density")
-    if (is.null(mathtbscore)){
+    if (is.null(mathscore)){
         if (MIXOption == "combine"){
             ## generate cha for ggplot and specific titles for minifigures
             vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
@@ -340,7 +335,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                                 "panel.border=element_blank(), ", 
                                 "axis.line=element_line(size=0.25)) + ", 
                                 "ggtitle(\"", plotOption, 
-                                "\'s MATH Score: ", as.character(mathtbscore$MATH_score), 
+                                "\'s MATH Score: ", as.character(mathscore), 
                                 "\") + ", 
                                 "geom_line(size=1, colour=\"#00C0EB\", ", 
                                 "stat=\"density\") + ", 
@@ -361,7 +356,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                                 "panel.border=element_blank(), ", 
                                 "axis.line=element_line(size=0.25)) + ",  
                                 "ggtitle(\"MATH Score: ", 
-                                as.character(mathtbscore$MATH_score), "\") + ", 
+                                as.character(mathscore), "\") + ", 
                                 "geom_line(size=1, colour=\"#00C0EB\", ", 
                                 "stat=\"density\") + ", 
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
@@ -375,8 +370,8 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
 
 ## Functions for specific plotOption: "compare"
 ## VAF painter for OFA
-.ofaVAF <- function(clusterAll, themeOption, tsbLs, plotOption, mathtbscore, patientID, vafRange){
-    if (is.null(mathtbscore)){
+.ofaVAF <- function(clusterAll, themeOption, tsbLs, plotOption, mathscore, patientID, vafRange){
+    if (is.null(mathscore)){
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
                       theme_bw() + 
@@ -410,7 +405,7 @@ vafCluster <-function(maf, vafRange=c(0,1), vafColumn="VAF",
                            "panel.border=element_blank(), ", 
                            "axis.line=element_line(size=0.25)) + ", 
                            "ggtitle(\"VAF density plot of ", patientID, ", MATH Score: ", 
-                           as.character(mathtbscore$MATH_score), "\") + ", 
+                           as.character(mathscore), "\") + ", 
                            "geom_density_ridges(fill=\"whitesmoke\", ", 
                            "calc_ecdf=TRUE, alpha=0.8) + ",
                            "geom_point(aes(x=VAF, ", 
