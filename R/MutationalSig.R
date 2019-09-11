@@ -75,10 +75,10 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             mutSigRef$Sample == branchName), 1]) < mutThreshold){
             sigsMaxName <- "No.Signature"
             sigsMaxProb <- 0
-            message(paste("Branch ", branchName, 
-                          ": Number of mutations is less than mutThreshold.", 
-                          sep = ""))
-            next()
+            # message(paste("Branch ", branchName, 
+            #               ": Number of mutations is less than mutThreshold.", 
+            #               sep = ""))
+            # next()
         }else{
             ## deconstructSigs
             sigsInput <- suppressWarnings(
@@ -94,14 +94,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                          sample.id=branchName,
                                          contexts.needed=TRUE)
             
-            ## plot.MuationalSiganture
-            if (plot.Signatures) {
-                pic_cha <- paste("branch", ".", branchCounter,
-                                 " <- .plotMutationalSig(sigsWhich)", sep="")
-                eval(parse(text=pic_cha))
-                pic_name <- paste("branch", ".", branchCounter, sep="")
-                lsPicName <- c(lsPicName, pic_name)
-            }
             ## get mutational signature with max weight
             sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
             sigsMaxName <- colnames(sigsMax)
@@ -141,6 +133,11 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## collect branches' mutataional signature information
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
+    if (plot.Signatures) {
+        pic <- .plotMutationalSig(sigsInput)
+        print(pic)
+        message(paste(njtree@patientID, " mutaional signature plot generation done!", sep=""))
+    }
     message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
     return(mutSigsOutput)
 }
@@ -148,18 +145,58 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
 ## plot.MutationalSigs
 .plotMutationalSig <- function(sigsInput) {
     ## calculate the Mutation Probability
-    sigsInputTrans <- as.data.frame(t(sigsInput))
     sigsInputSum <- as.data.frame(apply(sigsInput, 1, function(x) sum(x)))
-    ls.branchesName <- rownames(sigsInput)
+    sigsInputTrans <- as.data.frame(t(sigsInput))
+    ls.branchesName <- as.character(rownames(sigsInput))
+    ls.mutationType <-as.character(rownames(sigsInputTrans))
+    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
+    sigsInputBranches <- data.frame()
+    ## calculation process(maybe could be replaced by lapply)
     for (branch in ls.branchesName) {
         sigsInputTrans[branch] <- sigsInputTrans[branch]/sigsInputSum[branch, ]
+        sigsInputBranch <- data.frame(sigsInputTrans[branch], 
+                                      rep(branch, length(sigsInputTrans[branch])), 
+                                      stringsAsFactors = FALSE)
+        colnames(sigsInputBranch) <- c("Mutation_Probability", "Branch")
+        sigsInputBranches <- rbind(sigsInputBranches, sigsInputBranch)
     }
-    df.sigsInputTrans <- data.frame(Mutational_Type=colnames(sigsInputBranch), 
-                                    sigsInputTrans)
+    
+    df.sigsInputTrans <- data.frame(Mutational_Type=ls.mutationType, 
+                                    Group=ls.mutationType, 
+                                    sigsInputBranches, 
+                                    stringsAsFactors = FALSE)
+    
+    for (mutationGroup in ls.mutationGroup) {
+        df.sigsInputTrans$Group[which(grepl(mutationGroup, df.sigsInputTrans$Group))] <- mutationGroup
+    }
+    
+    ## specific the label order of x axis
+    orderlist <- c(ls.mutationType)
+    df.sigsInputTrans <- transform(df.sigsInputTrans, Mutational_Type = factor(Mutational_Type, levels = orderlist))
     
     ## 
-    ggplot(df.sigsInputBranch, aes(x=Mutational_Type, y=Mutation_Probability)) + 
-        geom_bar(stat="identity")
+    group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
+    mypal = pal_npg("nrc", alpha = 1)(6)
+    pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
+        geom_bar(stat="identity") + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+        geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
+                  fill=mypal[1], alpha=0.008) + 
+        geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
+                  fill=mypal[2], alpha=0.008) + 
+        geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax=Inf),
+                  fill=mypal[3], alpha=0.008) + 
+        geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax=Inf),
+                  fill=mypal[4], alpha=0.008) + 
+        geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax=Inf),
+                  fill=mypal[5], alpha=0.008) + 
+        geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax=Inf),
+                  fill=mypal[6], alpha=0.008) + 
+        geom_bar(stat="identity") + 
+        facet_grid(Branch ~ .) + 
+        scale_fill_npg()
+    pic
+    return(pic)
 }
 
 ## Branches' mutation collection
