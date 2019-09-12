@@ -7,7 +7,6 @@
 #' 
 #' @import reshape2 grDevices graphics utils deconstructSigs cowplot dplyr
 #' @import BSgenome BSgenome.Hsapiens.UCSC.hg19
-#' @import GenomeInfoDbData
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom dplyr filter_at
 #' 
