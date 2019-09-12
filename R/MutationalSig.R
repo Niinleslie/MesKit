@@ -134,7 +134,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
     if (plot.Signatures) {
-        pic <- .plotMutationalSig(sigsInput)
+        pic <- .plotMutationalSig(sigsInput, mutSigsOutput)
         print(pic)
         message(paste(njtree@patientID, " mutaional signature plot generation done!", sep=""))
     }
@@ -143,7 +143,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
 }
 
 ## plot.MutationalSigs
-.plotMutationalSig <- function(sigsInput) {
+.plotMutationalSig <- function(sigsInput, mutSigsOutput) {
     ## calculate the Mutation Probability
     sigsInputSum <- as.data.frame(apply(sigsInput, 1, function(x) sum(x)))
     sigsInputTrans <- as.data.frame(t(sigsInput))
@@ -151,13 +151,16 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ls.mutationType <-as.character(rownames(sigsInputTrans))
     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
     sigsInputBranches <- data.frame()
+    
     ## calculation process(maybe could be replaced by lapply)
     for (branch in ls.branchesName) {
         sigsInputTrans[branch] <- sigsInputTrans[branch]/sigsInputSum[branch, ]
+        signature <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig)
         sigsInputBranch <- data.frame(sigsInputTrans[branch], 
                                       rep(branch, length(sigsInputTrans[branch])), 
+                                      rep(signature, length(sigsInputTrans[branch])), 
                                       stringsAsFactors = FALSE)
-        colnames(sigsInputBranch) <- c("Mutation_Probability", "Branch")
+        colnames(sigsInputBranch) <- c("Mutation_Probability", "Branch", "Signature")
         sigsInputBranches <- rbind(sigsInputBranches, sigsInputBranch)
     }
     
@@ -166,6 +169,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                     sigsInputBranches, 
                                     stringsAsFactors = FALSE)
     
+    ## generate Mutation Type for every column
     for (mutationGroup in ls.mutationGroup) {
         df.sigsInputTrans$Group[which(grepl(mutationGroup, df.sigsInputTrans$Group))] <- mutationGroup
     }
@@ -177,7 +181,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ## 
     # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
     group.colors <- pal_npg("nrc", alpha=1)(6)
-    pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
+    ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
         geom_bar(stat="identity") + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
@@ -194,7 +198,12 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                   fill="#e5e8ef", alpha=0.1) + 
         geom_bar(stat="identity") + 
         facet_grid(Branch ~ .) + 
-        scale_fill_manual(values=group.colors)
+        scale_fill_manual(values=group.colors) + 
+        ylim(0, 0.2) + 
+        geom_text(data = dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE), 
+                  aes(y=0.175, label=Signature), 
+                  position=position_nudge(x=7.5), 
+                  colour="#2B2B2B", , fontface = "bold", size=2.5)
     return(pic)
 }
 
@@ -214,7 +223,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     datMutgene <-  maf_input$Hugo_Symbol
     mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
                                         Hugo_Symbol, Chromosome, 
-                                        Start_Position, End_Position, 
+                                        Start_Position, 
                                         Reference_Allele, Tumor_Seq_Allele2, 
                                         sep=":"), mut.id)
     mutSigRef <- data.frame(datNum, datSample, 
@@ -231,7 +240,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ## get branch infomation
     branch <- branch[order(nchar(branch), branch)]
     branches <- strsplit(branch, split='∩')
-    
     
     ## output collection
     mutBranches <- data.frame()
