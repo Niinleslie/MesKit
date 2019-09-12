@@ -25,10 +25,11 @@ getNJtree <- function(maf, use.indel = FALSE,
   maf.dat <- maf@data
   patientID <- maf@patientID
   refBuild <- paste("BSgenome.Hsapiens.UCSC.", maf@ref.build, sep = "")
-  mut_sort <- mut_binary_sort(maf.dat = maf.dat, use.indel = use.indel)
-  mat.nj = nj(dist.gene(t(as.matrix(mut_sort[, -1]))))
+  mut_sort.id <- mut_binary_sort(maf.dat = maf.dat, use.indel = use.indel)
+  mut_sort <- as.matrix(mut_sort.id[, -1])
+  mat.nj = nj(dist.gene(t(mut_sort)))
   branch <- read.njtree(mat.nj)
-  mut_branches <- .treeMutationalBranches(maf, branch, mut_sort)
+  mut_branches <- .treeMutationalBranches(maf, branch, mut_sort.id)
   ccf_sort <- matrix()
   if(!is.null(maf@ccf.loci)){
     ccf_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = maf@ccf.loci, use.indel, ccf.mutation.id, ccf.mutation.sep)

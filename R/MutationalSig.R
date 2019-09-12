@@ -208,7 +208,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
 }
 
 ## Branches' mutation collection
-.treeMutationalBranches <- function(maf, branch, mut_sort){
+.treeMutationalBranches <- function(maf, branch, mut_sort.id){
     ## get mutationalSigs-related  infomation
     maf_input <- maf@data
     patientID <- maf@patientID
@@ -242,10 +242,10 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## generate intersection's mut.id and get the mutation information in mutSigRef
         branch <- unlist(branch)
         branch.id <- append(branch, "mut.id")
-        unbranch <- names(mut_sort)[which(!(names(mut_sort) %in% branch.id))]
+        unbranch <- names(mut_sort.id)[which(!(names(mut_sort.id) %in% branch.id))]
         branch.intersection <- dplyr::intersect(
-            mut_sort %>% dplyr::filter_at(branch, all_vars(. == 1)), 
-            mut_sort %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
+            mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
+            mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
         branch.mut.id <- branch.intersection$mut.id 
         
         ## generate the branch name
