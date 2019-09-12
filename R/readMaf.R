@@ -109,7 +109,7 @@ readMaf <- function(mafFile, sampleInfoFile,
     ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
     ## summarize sample_info and mut.id with summarizeMaf
-    sink("character")
+    sink("/dev/null")
     mafSum <- read.maf(mafData)
     sink()
     # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
