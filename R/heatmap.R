@@ -28,7 +28,7 @@ heatmap_input <- function(mat, type){
 
 mut.heatmap <- function(njtree, use.ccf = FALSE){
   patientID <- njtree@patientID
-  mut_sort <- njtree@mut_sort
+  mut_sort <- as.matrix(njtree@mut_sort[, -1])
   ccf_sort <- njtree@ccf_sort
   mat <- mut_sort
   type  <- "Mutation"

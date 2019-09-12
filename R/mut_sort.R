@@ -40,7 +40,9 @@ mut_ccf_sort <- function(maf.dat, ccf, use.indel, ccf.mutation.id , ccf.mutation
 ##sort the matrix; return row order and coloum order
 mut_binary_sort <- function(maf.dat, use.indel = FALSE, returnOrder = FALSE){
   M <- maf_preprocess(maf.dat, use.indel = use.indel)
-  mut_samples <- suppressMessages(dcast(M, mut.id~sample)[,-1])
+  mut_samples <- suppressMessages(dcast(M, mut.id~sample))
+  col.mut.id <- mut_samples$mut.id
+  mut_samples <- mut_samples[, -1]
   mut_samples[!is.na(mut_samples)] <- 1
   mut_samples[is.na(mut_samples)] <- 0
   mut_samples$NORMAL <- 0
@@ -60,6 +62,7 @@ mut_binary_sort <- function(maf.dat, use.indel = FALSE, returnOrder = FALSE){
   scores <- apply(mut_binary[sampleOrder, ], 2, scoreCol)
   geneOrder <- sort(scores, decreasing = TRUE, index.return = TRUE)$ix
   mut_sort <- t(mut_binary[sampleOrder,geneOrder])
+  mut_sort <- cbind.data.frame(mut.id=col.mut.id, mut_sort)
   if(returnOrder){
     return(list(geneOrder, sampleOrder))
   }
