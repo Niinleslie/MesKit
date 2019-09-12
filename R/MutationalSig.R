@@ -5,7 +5,7 @@
 #' by using treeMutationalSig and return a data.frame about the most likely muational
 #' signatures.
 #' 
-#' @import reshape2 BSgenome grDevices graphics utils deconstructSigs cowplot dplyr
+#' @import reshape2 BSgenome BSgenome.Hsapiens.UCSC.hg19 grDevices graphics utils deconstructSigs cowplot dplyr
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom dplyr filter_at
 #' 
