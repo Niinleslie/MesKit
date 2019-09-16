@@ -1,4 +1,6 @@
-#' Class NJtree 
+#' Class NJtree
+#' 
+#' @import dplyr dcast
 #' 
 #' @param maf return from readMaf()
 #' @param use.indel Seclet SNP in Variant type

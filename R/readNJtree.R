@@ -96,7 +96,7 @@ read.njtree <- function(mat.nj){
   }
   
 
-  nodes.num <- mat.nj$tip.label -1 
+  nodes.num <- seq_along(mat.nj$tip.label)-1
   NJtree_branch <- edges_label[order(unlist(lapply(edges_label, function(x) length(unlist(strsplit(x, split = "∩"))))))]
   edges.num <- length(strsplit(tail(NJtree_branch,1), split = "∩")[[1]])
   NJtree_branch_Alias <- c(paste(rep("B", length(NJtree_branch)-1), (length(NJtree_branch)-1):1, sep = ""), "T")
