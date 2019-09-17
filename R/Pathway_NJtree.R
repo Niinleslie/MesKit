@@ -23,7 +23,7 @@ options(warn = -1)
 #' Pathway.njtree(njtree, pathway.type = "KEGG")
 
 
-Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, outdir = NULL, 
+Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, 
                              patientID = patientID, Name = Name){
   
   trans = suppressMessages(bitr(genes, fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db"))
@@ -38,7 +38,7 @@ Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = p
       keyType       = 'kegg',                    
       pvalueCutoff  = pval,
       pAdjustMethod = pAdjustMethod,
-      qvalueCutoff  = qval
+      qvalueCutoff  = qval,
     )
   }
   else{
@@ -47,12 +47,12 @@ Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = p
       organism      = 'human',                              
       pvalueCutoff  = pval,
       pAdjustMethod = pAdjustMethod,
-      qvalueCutoff  = qval
+      qvalueCutoff  = qval,
     )
     
   }
-  pathway@result <- pathway@result[which(pathway@result$pvalue < pval && pathway@result$qvalue < qval), ]
-  #pathway <- setReadable(pathway, OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
+  #pathway@result <- pathway@result[which(pathway@result$pvalue < pval & pathway@result$qvalue < qval), ]
+
   
   if (!is.null(pathway) && nrow(pathway@result) > 0){     
     if(Name == "All"){
@@ -68,17 +68,13 @@ Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = p
 
 #Pathway analysis
 Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMethod = "BH",
-                           qval = 0.2, outdir = NULL, Name = 'All', writeTable = FALSE, plotType = "dot", showCategory = NULL){
+                           qval = 0.2,  plotType = "dot", showCategory = 5){
   branches <- njtree@mut_branches
   patientID <- njtree@patientID
   
-  if(is.null(outdir)){
-    outdir <- getwd()
-  }
-  
   Pathway.branch.result <- data.frame()
   all.genes <- c()
-  grob.list <- list(NULL)
+  grob.list <- list()
   x <- 1
   for (i in 1:length(branches)){
     branch <- branches[[i]]
@@ -88,87 +84,69 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
     all.genes <- unique(c(all.genes, geneSymbol))
     
     Pathway.branch <- Pathway_analysis(geneSymbol, pathway.type, pval, pAdjustMethod,
-                                qval, outdir, patientID, sampleID)
-    if (is.null(showCategory) || showCategory > nrow(Pathway.branch@result)){
-      showCategory = nrow(Pathway.branch@result)
-      
-    }
+                                qval, patientID, sampleID)
     
-    str_length = max(nchar(Pathway.branch@result$Description))      
-    str_height = showCategory
-    if (str_height > 15){
-      fig.height = str_height/3
+
+    if(min(Pathway.branch@result$p.adjust) > pval | min(Pathway.branch@result$qvalue) > qval){
+       message(paste("0 enriched pathway found for branch ", sampleID, sep = ""))
     }else{
-      fig.height = 5
-    }
-    if(nrow(Pathway.branch@result) != 0){
+      #str_length = max(nchar(Pathway.branch@result$Description))      
+      #str_height = showCategory
+      #if (str_height > 15){
+        #fig.height = str_height/4
+      #}else{
+        #fig.height = 4
+      #}
+
       if (plotType == "dot"){
-      Pathplot <- dotplot(Pathway.branch, showCategory = showCategory)+ggtitle(sampleID)
-    }
+        path.plot <- dotplot(Pathway.branch, showCategory = showCategory) + ggtitle(sampleID)
+      }
       else if (plotType == "bar"){
-      Pathplot <- barplot(Pathway.branch, showCategory = showCategory) + ggtitle(sampleID)
+        path.plot <- barplot(Pathway.branch, showCategory = showCategory) + ggtitle(sampleID)
       }
-      if(!is.na(Pathplot$data$ID[1])){
-        grob.list[[x]] <- Pathplot
-        x <- x+1 
-      }
+
+      grob.list[[x]] <- path.plot
+      x <- x+1
+      Pathway.branch.result <- rbind(Pathway.branch.result, Pathway.branch@result)
     }
-    Pathway.branch.result <- rbind(Pathway.branch.result, Pathway.branch@result)
-  }
-  
+  }  
   Pathway.all <- Pathway_analysis(all.genes, pathway.type, pval, pAdjustMethod,
-                                     qval, outdir, patientID, Name = "All")
+                                     qval, patientID, Name = "All")
   Pathway.all.result <- Pathway.all@result
-  if (is.null(showCategory)){
-    showCategory = nrow(Pathway.all.result)
+  if(min(Pathway.all.result$p.adjust) > pval | min(Pathway.all.result$qvalue) > qval){
+      message(paste("0 enriched pathway found in ", patientID, sep = ""))
   }
-  
-  str_length = max(nchar(Pathway.all.result$Description))
-  str_height = showCategory
-  
-  if (str_height > 15){
-    fig.height = str_height/3
-  }else{fig.height = 5}
-  
-  if(nrow(Pathway.all.result) != 0){
+  else{
+    #str_length = max(nchar(Pathway.all.result$Description))
+    #str_height = showCategory
+#    
+    #if (str_height > 15){
+      #fig.height = str_height/4
+    #}else{fig.height = 4}
+    
     if (plotType == "dot"){
-    Pathplot <- dotplot(Pathway.all, showCategory = showCategory)+ggtitle('All gene')
-   }
-    else if (plotType == "bar"){
-    Pathplot <- barplot(Pathway.all, showCategory = showCategory)+ggtitle('All gene')
-   }
-  grob.list[[length(grob.list)+1]] <- Pathplot
+      path.plot <- dotplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
+    }else if (plotType == "bar"){
+      path.plot <- barplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
+    }
+    grob.list[[length(grob.list) + 1]] <- path.plot
+
+  pathway.results <- list()
+  if(is.null(Pathway.branch.result)){
+    pathway.results[[1]] <- NA
+  }else{
+    pathway.results[[1]] <- Pathway.branch.result
+  }
+  if(is.null(Pathway.all.result)){
+    pathway.results[[2]] <- NA
+  }else{
+    pathway.results[[2]] <- Pathway.all.result
   }
 
-  
-  if(is.null(Pathway.branch.result)){
-    message("0 enriched terms found in all of the shared or private mutations")
-  }
-  else{
-    if(writeTable){
-      write.table(Pathway.branch.result, file = paste(outdir, "/",  patientID, "_Pathway_branch_enrich.xls",sep = ""),
-                sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
-    }
-  }
-  
-  
-  if(is.null(Pathway.all.result)){
-    message(paste( "0 enriched terms found in mutated genes in all tumor samples from Case", patientID))
-  }
-  else{
-    if(writeTable){
-      write.table(Pathway.all.result, file = paste(outdir, "/",  patientID, "_Pathway_all_enrich.xls",sep = ""),
-                sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
-    }
-        
-  }
   if(length(grob.list) == 1){
-    grid.arrange(grobs = grob.list,ncol =1)
+    grid.arrange(grobs = grob.list, ncol =1)
+  }else if(length(grob.list) > 1){
+    grid.arrange(grobs = grob.list, ncol =2 )
   }
-  else if(length(grob.list) > 1){
-    grid.arrange(grobs = grob.list,ncol =2 )
-  }
-  else if(length(grob.list) == 0){
-    print('nothing')
-  }
+
 } 

@@ -13,13 +13,13 @@
 #' @export JaccardIndex
 
 
-JaccardIndex <- function(maf, type="lower"){
+JaccardIndex <- function(maf, type = "lower"){
 	dat <- maf@data
 	TSBs <- unique(dat$Tumor_Sample_Barcode)
 
 	variants.list <- list()
 	for (tsb in TSBs){
-		dat.tsb <- dat[which(dat$Tumor_Sample_Barcode == tsb), ]
+		dat.tsb <- dat[which(dat$Tumor_Sample_Barcode == tsb)]
 		variants.list[[tsb]] <- paste(dat.tsb$Hugo_Symbol, dat.tsb$Chromosome, dat.tsb$Start_Position, dat.tsb$Variant_Type,
 		dat.tsb$Reference_Allele, dat.tsb$Tumor_Seq_Allele2, sep=":")
 	}
@@ -32,9 +32,9 @@ JaccardIndex <- function(maf, type="lower"){
 			variants.i <- unlist(variants.list[TSBs[[i]]])
 			variants.j <- unlist(variants.list[TSBs[[j]]])
 			Jaccard.mat[i,j] <- length(intersect(variants.i, variants.j))/length(union(variants.i,variants.j))
-			#Jaccard.mat[j,i] <- Jaccard.mat[i,j]
+			Jaccard.mat[j,i] <- Jaccard.mat[i,j]
 		}
 	}
-	corrplot::corrplot(Jaccard.mat, type=type, is.corr = F, method="pie", outline = FALSE, tl.col = "black", add = F,
-	  addCoef.col = "grey", col = RColorBrewer::brewer.pal(10,"PuOr"), cl.lim=c(0,1))
+	corrplot::corrplot(Jaccard.mat, type = type, is.corr = F, method="pie", outline = FALSE, tl.col = "black",
+	  addCoef.col = "grey", col = RColorBrewer::brewer.pal(10,"PuOr"), cl.lim = c(0, 1), add = FALSE)
 }
