@@ -74,7 +74,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## get the mutational signature of the branch
         if (length(mutSigRef[which(
             mutSigRef$Sample == branchName), 1]) < mutThreshold){
-            sigsMaxName <- "No.Signature"
+            sigsMaxName <- "No Signature"
             sigsMaxProb <- 0
             message(paste("Branch ", branchName,
                           ": Number of mutations is less than mutThreshold.",
@@ -155,6 +155,47 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ls.mutationType <-as.character(rownames(sigsInputTrans))
     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
     sigsInputBranches <- data.frame()
+    ## Aetiology from https://cancer.sanger.ac.uk/cosmic/signatures_v2 emm actually the additional feature may matter
+    df.aetiology <- data.frame(
+        aeti=c(
+            "An endogenous mutational process initiated by spontaneous deamination of 5-methylcytosine",
+            "Activity of the AID/APOBEC family of cytidine deaminases", 
+            "Failure of DNA double-strand break-repair by homologous recombination",
+            "Tobacco mutagens", 
+            "Unknown", 
+            "Defective DNA mismatch repair and is found in microsatellite unstable tumours",
+            "Ultraviolet light exposure", 
+            "Unknown", 
+            "Polymerase η, which is implicated with the activity of AID during somatic hypermutation", 
+            "Recurrent POLE somatic mutations, viz., Pro286Arg and Val411Leu.",
+            "Treatments with the alkylating agent temozolomide", 
+            "Unknown", 
+            "Activity of the AID/APOBEC family of cytidine deaminases(C > U)",
+            "Unknown", 
+            "Defective DNA mismatch repair", 
+            "Unknown", 
+            "Unknown",
+            "Unknown", 
+            "Unknown", 
+            "Defective DNA mismatch repair", 
+            "Unknown",
+            "Exposures to aristolochic acid", 
+            "Unknown", 
+            "Exposures to aflatoxin",
+            "Unknown", 
+            "Defective DNA mismatch repair", 
+            "Unknown", 
+            "Unknown",
+            "Tobacco chewing habit", 
+            "Unknown", 
+            "Unknown"), 
+        sig=c("Signature 1", "Signature 2", "Signature 3", "Signature 4", "Signature 5", "Signature 6",
+              "Signature 7", "Signature 8", "Signature 9", "Signature 10", "Signature 11", "Signature 12", 
+              "Signature 13", "Signature 14", "Signature 15", "Signature 16", "Signature 17", "Signature 18",
+              "Signature 19", "Signature 20", "Signature 21", "Signature 22", "Signature 23", "Signature 24", 
+              "Signature 25", "Signature 26", "Signature 27", "Signature 28", "Signature 29", "Signature 30", 
+              "No Signature")
+        )
     
     ## calculation process(maybe could be replaced by lapply)
     for (branch in ls.branchesName) {
@@ -162,13 +203,15 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         signature <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig)
         alias <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$alias)
         sigsWeight <- mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig.prob
+        aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
         sigsInputBranch <- data.frame(sigsInputTrans[branch], 
                                       rep(branch, length(sigsInputTrans[branch])), 
                                       rep(alias, length(sigsInputTrans[branch])), 
                                       rep(signature, length(sigsInputTrans[branch])), 
                                       rep(sigsWeight, length(sigsInputTrans[branch])), 
+                                      rep(aetiology , length(sigsInputTrans[branch])), 
                                       stringsAsFactors = FALSE)
-        colnames(sigsInputBranch) <- c("Mutation_Probability", "Branch", "Alias", "Signature", "SigsWeight")
+        colnames(sigsInputBranch) <- c("Mutation_Probability", "Branch", "Alias", "Signature", "SigsWeight", "Aetiology")
         sigsInputBranches <- rbind(sigsInputBranches, sigsInputBranch)
     }
     
@@ -185,7 +228,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ## specific the label order of x axis
     orderlist <- c(ls.mutationType)
     df.sigsInputTrans <- transform(df.sigsInputTrans, Mutational_Type = factor(Mutational_Type, levels = orderlist))
-    
+    df.sigsInputText <- dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE)
     ## 
     # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
     group.colors <- pal_npg("nrc", alpha=1)(6)
@@ -207,11 +250,13 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         geom_bar(stat="identity") + 
         facet_grid(Alias ~ .) + 
         scale_fill_manual(values=group.colors) + 
+        xlab("Mutational Type") + 
+        ylab("Mutation Probability") + 
         ylim(0, 0.2) + 
-        geom_text(data = dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE), 
-                  aes(x=1, y=0.175, label=paste(Signature, ":",  sprintf("%1.3f", SigsWeight), sep="")), 
-                  hjust = 0, colour="#2B2B2B", , fontface = "bold", size=2.5)
-        
+        geom_text(data = df.sigsInputText, 
+                  aes(x=-Inf, y=Inf, label=paste(Signature, ": ",  sprintf("%1.3f", SigsWeight), "    ", 
+                                                 "Aetiology: ", aetiology, sep="")), 
+                  hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=1.5)
     return(pic)
 }
 
@@ -255,6 +300,10 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         branch.intersection <- intersect(
             mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
             mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
+        if (is.null(branch.intersection)){
+            message(paste(branch, ": Mutation Intersection Missing", sep=""))
+            next()
+        }
         branch.mut.id <- branch.intersection$mut.id 
         
         ## generate the branch name
@@ -269,3 +318,12 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     }
     return(mutBranchesOutput)
 }
+
+
+
+
+
+
+
+
+
