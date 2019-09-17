@@ -228,13 +228,15 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ## specific the label order of x axis
     orderlist <- c(ls.mutationType)
     df.sigsInputTrans <- transform(df.sigsInputTrans, Mutational_Type = factor(Mutational_Type, levels = orderlist))
+    df.sigsInputTrans <- df.sigsInputTrans[which(df.sigsInputTrans$Signature != "No Signature"), ]
     df.sigsInputText <- dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE)
-    ## 
+    
     # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
     group.colors <- pal_npg("nrc", alpha=1)(6)
     pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
         geom_bar(stat="identity") + 
-        theme(axis.text.x = element_text(size=3, angle = 45, hjust = 1, vjust = 1)) +
+        theme(axis.text.x = element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
+              axis.text.y = element_text(size=5)) +
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
                   fill="#fce7e4", alpha=0.15) + 
         geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
@@ -252,10 +254,10 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         scale_fill_manual(values=group.colors) + 
         xlab("Mutational Type") + 
         ylab("Mutation Probability") + 
-        ylim(0, 0.2) + 
+        scale_y_continuous(limits=c(0, 0.2), breaks=seq(0, 0.2, 0.1)) + 
         geom_text(data = df.sigsInputText, 
                   aes(x=-Inf, y=Inf, label=paste(Signature, ": ",  sprintf("%1.3f", SigsWeight), "    ", 
-                                                 "Aetiology: ", aetiology, sep="")), 
+                                                 "Aetiology: ", Aetiology, sep="")), 
                   hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=1.5)
     return(pic)
 }
@@ -307,7 +309,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             next()
         }
         branch.mut.id <- branch.intersection$mut.id 
-        
         
         ## data duplication
         branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
