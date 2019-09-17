@@ -3,7 +3,7 @@ maf_preprocess <- function(maf.dat, use.indel = F, use.ccf = F, ccf, ccf.mutatio
   if(!use.indel){
     maf.dat <- maf.dat[which(maf.dat$Variant_Type == "SNP"),]
   }
-  mut.id <- dplyr::select(tidyr::unite(maf.dat, "mut.id", Hugo_Symbol, Chromosome, Start_Position, Reference_Allele, Tumor_Seq_Allele2, sep = ":"), mut.id)
+  mut.id <- tidyr::unite(maf.dat, "mut.id", Hugo_Symbol, Chromosome, Start_Position, Reference_Allele, Tumor_Seq_Allele2, sep = ":")$mut.id
   M <- data.frame(mut.id = mut.id, sample = maf.dat$Tumor_Sample_Barcode)
 
   if(use.ccf){

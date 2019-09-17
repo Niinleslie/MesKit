@@ -10,8 +10,8 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     utils, ape, methods, plotrix, grDevices, gridExtra, rtracklayer, Biostrings,
-    BSgenome, BSgenome.Hsapiens.UCSC.hg19, GenomeInfoDb, GenomeInfoDbData, DO.db,  
-    reshape2, tidyr, dplyr, plyr, Hmisc, ggrepel, 
+    BSgenome, GenomeInfoDb, GenomeInfoDbData, DO.db,  
+    reshape2, tidyr, plyr, Hmisc, ggrepel, 
     ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, 
     maftools, deconstructSigs, pathview, topGO, timescape, packcircles, 
     clusterProfiler, ReactomePA, htmlwidgets, clonevol, fishplot, pdp, corrplot, 
@@ -22,9 +22,7 @@ Remotes:
 RoxygenNote: 6.1.1
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-biocViews: DataRepresentation, WESeq, Visualization, DriverMutation,
-        VariantAnnotation, FeatureExtraction, Classification,
-        SomaticMutation, Sequencing, FunctionalGenomics, Survival
+biocViews: WESeq, Intra-tumor Heterogeneity, Evolution, Visualization
 NeedsCompilation: no
 git_url: https://github.com/Niinleslie/MesKit
 git_last_commit_date: 2019-6-1
