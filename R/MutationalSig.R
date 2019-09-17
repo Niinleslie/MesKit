@@ -295,19 +295,20 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         
         ## generate intersection's mut.id and get the mutation information in mutSigRef
         branch <- unlist(branch)
+        ## generate the branch name
+        branchName <- paste(branch, collapse="∩")
         branch.id <- append(branch, "mut.id")
         unbranch <- names(mut_sort.id)[which(!(names(mut_sort.id) %in% branch.id))]
         branch.intersection <- intersect(
             mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
             mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
-        if (is.null(branch.intersection)){
-            message(paste(branch, ": Mutation Intersection Missing", sep=""))
+        if (is.na(branch.intersection[1,1])){
+            message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
             next()
         }
         branch.mut.id <- branch.intersection$mut.id 
         
-        ## generate the branch name
-        branchName <- paste(branch, collapse="∩")
+        
         ## data duplication
         branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
         branch.mut$Sample <- branchName
