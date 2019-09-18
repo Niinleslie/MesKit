@@ -5,7 +5,7 @@
 #' by using treeMutationalSig and return a data.frame about the most likely muational
 #' signatures.
 #' 
-#' @import reshape2 grDevices graphics utils deconstructSigs cowplot
+#' @import reshape2 grDevices graphics utils deconstructSigs cowplot grid
 #' @import BSgenome BSgenome.Hsapiens.UCSC.hg19
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom dplyr filter_at
@@ -35,6 +35,66 @@
 #' 
 #' @export treeMutationalSig
 #'
+
+## Branches' mutation collection
+.treeMutationalBranches <- function(maf, branchAlias, mut_sort.id){
+    ## get mutationalSigs-related  infomation
+    maf_input <- maf@data
+    branch <- as.character(branchAlias$Branch)
+    patientID <- maf@patientID
+    datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
+    datChr$chr <- paste("chr", datChr$chr, sep="")
+    datMutgene <-  maf_input$Hugo_Symbol
+    mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
+                                        Hugo_Symbol, Chromosome, 
+                                        Start_Position, 
+                                        Reference_Allele, Tumor_Seq_Allele2, 
+                                        sep=":"), mut.id)
+    mutSigRef <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
+                            datChr, maf_input$Start_Position, 
+                            maf_input$End_Position, maf_input$Reference_Allele, 
+                            maf_input$Tumor_Seq_Allele2, datMutgene, 
+                            mutId, stringsAsFactors=FALSE)
+    colnames(mutSigRef) <- c("Sample", 
+                             "chr", "pos", 
+                             "pos_end", "ref", 
+                             "alt", "Hugo_Symbol", 
+                             "mut_id")
+    
+    ## get branch infomation
+    ls.branch <- branch[order(nchar(branch), branch)]
+    branches <- strsplit(ls.branch, split='∩')
+    
+    ## generate mutational intersections for each branch
+    mutBranchesOutput <- list()
+    for (branch in branches){
+        
+        ## generate intersection's mut.id and get the mutation information in mutSigRef
+        branch <- unlist(branch)
+        ## generate the branch name
+        branchName <- paste(branch, collapse="∩")
+        branch.id <- append(branch, "mut.id")
+        unbranch <- names(mut_sort.id)[which(!(names(mut_sort.id) %in% branch.id))]
+        branch.intersection <- intersect(
+            mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
+            mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
+        if (is.na(branch.intersection[1,1])){
+            message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
+            next()
+        }
+        branch.mut.id <- branch.intersection$mut.id 
+        
+        ## data duplication
+        branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
+        branch.mut$Sample <- branchName
+        branch.mut <- branch.mut[!duplicated(branch.mut),]
+        branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
+        ## generate branch mutation list
+        mutBranchesOutput[[branchName]] <- branch.mut
+    }
+    return(mutBranchesOutput)
+}
+
 
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, 
@@ -232,11 +292,23 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     df.sigsInputText <- dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE)
     
     # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
+    CA <- grid::textGrob(expression(bold("C > A")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    CG <- grid::textGrob(expression(bold("C > G")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    CT <- grid::textGrob(expression(bold("C > T")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    TA <- grid::textGrob(expression(bold("T > A")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    TC <- grid::textGrob(expression(bold("T > C")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    TG <- grid::textGrob(expression(bold("T > G")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    
     group.colors <- pal_npg("nrc", alpha=1)(6)
-    pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
+    ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
         geom_bar(stat="identity") + 
-        theme(axis.text.x = element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
-              axis.text.y = element_text(size=5)) +
+        theme(panel.grid=element_blank(), 
+              panel.border=element_blank(), 
+              panel.background = element_blank(), 
+              legend.position='none', 
+              axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
+              axis.text.y=element_text(size=5)) +
+        ## background colors
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
                   fill="#fce7e4", alpha=0.15) + 
         geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
@@ -249,79 +321,46 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                   fill="#fdefeb", alpha=0.15) + 
         geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax=Inf),
                   fill="#e5e8ef", alpha=0.1) + 
+        ## barplot
         geom_bar(stat="identity") + 
+        ## combine different results
         facet_grid(Alias ~ .) + 
+        ## color setting
         scale_fill_manual(values=group.colors) + 
+        ## axis setting
         xlab("Mutational Type") + 
         ylab("Mutation Probability") + 
-        scale_y_continuous(limits=c(0, 0.2), breaks=seq(0, 0.2, 0.1)) + 
+        scale_y_continuous(limits=c(-0.03, 0.2), breaks=seq(0, 0.2, 0.1)) + 
+        ## signature notes and text parts
         geom_text(data = df.sigsInputText, 
                   aes(x=-Inf, y=Inf, label=paste(Signature, ": ",  sprintf("%1.3f", SigsWeight), "    ", 
                                                  "Aetiology: ", Aetiology, sep="")), 
-                  hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=1.5)
+                  hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=2.75) + 
+        ## Mutational Type Labels
+        annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = CT,  xmin = 43, xmax = 43, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = TA,  xmin = 59, xmax = 59, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = TC,  xmin = 75, xmax = 75, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = TG,  xmin = 91, xmax = 91, ymin = -0.065, ymax = -0) + 
+        ## x axis bar
+        geom_rect(aes(xmin=0, xmax=16.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[1], alpha=1) + 
+        geom_rect(aes(xmin=16.595, xmax=32.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[2], alpha=0.25) + 
+        geom_rect(aes(xmin=32.595, xmax=48.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[3], alpha=0.05) + 
+        geom_rect(aes(xmin=48.595, xmax=64.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[4], alpha=0.08) + 
+        geom_rect(aes(xmin=64.595, xmax=80.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[5], alpha=0.15) + 
+        geom_rect(aes(xmin=80.595, xmax=96.5, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[6], alpha=0.1)
+        
+    
+   
     return(pic)
 }
-
-## Branches' mutation collection
-.treeMutationalBranches <- function(maf, branchAlias, mut_sort.id){
-    ## get mutationalSigs-related  infomation
-    maf_input <- maf@data
-    branch <- as.character(branchAlias$Branch)
-    patientID <- maf@patientID
-    datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
-    datChr$chr <- paste("chr", datChr$chr, sep="")
-    datMutgene <-  maf_input$Hugo_Symbol
-    mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
-                                        Hugo_Symbol, Chromosome, 
-                                        Start_Position, 
-                                        Reference_Allele, Tumor_Seq_Allele2, 
-                                        sep=":"), mut.id)
-    mutSigRef <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
-                            datChr, maf_input$Start_Position, 
-                            maf_input$End_Position, maf_input$Reference_Allele, 
-                            maf_input$Tumor_Seq_Allele2, datMutgene, 
-                            mutId, stringsAsFactors=FALSE)
-    colnames(mutSigRef) <- c("Sample", 
-                             "chr", "pos", 
-                             "pos_end", "ref", 
-                             "alt", "Hugo_Symbol", 
-                             "mut_id")
-    
-    ## get branch infomation
-    ls.branch <- branch[order(nchar(branch), branch)]
-    branches <- strsplit(ls.branch, split='∩')
-    
-    ## generate mutational intersections for each branch
-    mutBranchesOutput <- list()
-    for (branch in branches){
-        
-        ## generate intersection's mut.id and get the mutation information in mutSigRef
-        branch <- unlist(branch)
-        ## generate the branch name
-        branchName <- paste(branch, collapse="∩")
-        branch.id <- append(branch, "mut.id")
-        unbranch <- names(mut_sort.id)[which(!(names(mut_sort.id) %in% branch.id))]
-        branch.intersection <- intersect(
-            mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
-            mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
-        if (is.na(branch.intersection[1,1])){
-            message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
-            next()
-        }
-        branch.mut.id <- branch.intersection$mut.id 
-        
-        ## data duplication
-        branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
-        branch.mut$Sample <- branchName
-        branch.mut <- branch.mut[!duplicated(branch.mut),]
-        branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
-        ## generate branch mutation list
-        mutBranchesOutput[[branchName]] <- branch.mut
-    }
-    return(mutBranchesOutput)
-}
-
-
 
 
 
