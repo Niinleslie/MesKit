@@ -300,13 +300,15 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     TG <- grid::textGrob(expression(bold("T > G")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
     
     group.colors <- pal_npg("nrc", alpha=1)(6)
-    ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
+    pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
         geom_bar(stat="identity") + 
         theme(panel.grid=element_blank(), 
               panel.border=element_blank(), 
               panel.background = element_blank(), 
               legend.position='none', 
-              axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
+              # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
+              axis.text.x=element_blank(), 
+              axis.ticks.x=element_blank(),
               axis.text.y=element_text(size=5)) +
         ## background colors
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
@@ -356,9 +358,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                   fill=group.colors[5], alpha=0.15) + 
         geom_rect(aes(xmin=80.595, xmax=96.5, ymin=-0.01, ymax=-0.005),
                   fill=group.colors[6], alpha=0.1)
-        
-    
-   
     return(pic)
 }
 
