@@ -5,7 +5,7 @@
 \title{USE R code to do the pathway analysis.}
 \usage{
 Pathway_analysis(genes = NULL, pathway.type = pathway.type,
-  pval = pval, pAdjustMethod = "BH", qval = qval, outdir = NULL,
+  pval = pval, pAdjustMethod = "BH", qval = qval,
   patientID = patientID, Name = Name)
 }
 \arguments{

@@ -15,6 +15,8 @@ treeMutationalSig(njtree, driverGenesFile = NULL, mutThreshold = 50,
 \item{mutThreshold}{the threshold for the variants in a branch. Default 50.}
 
 \item{refBuild}{BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.}
+
+\item{plot.Signature}{the parameter used to print the signautre summary plot by ggplot2}
 }
 \value{
 data frame of each set/branch's mutational signature.
@@ -41,5 +43,7 @@ putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver
 signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 ## use different signature reference
 signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
+## print mutational signature plot
+signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.Signatures=TRUE)
 
 }

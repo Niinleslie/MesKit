@@ -15,6 +15,7 @@
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
 #' @param driverGenesFile the directory of the driver gene list. Default NULL.
 #' @param mutThreshold the threshold for the variants in a branch. Default 50.
+#' @param plot.Signature the parameter used to print the signautre summary plot by ggplot2
 #' @return data frame of each set/branch's mutational signature.
 #' 
 #' @examples
@@ -32,68 +33,12 @@
 #' signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 #' ## use different signature reference
 #' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
+#' ## print mutational signature plot
+#' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.Signatures=TRUE)
 #' 
 #' @export treeMutationalSig
 #'
 
-## Branches' mutation collection
-.treeMutationalBranches <- function(maf, branchAlias, mut_sort.id){
-    ## get mutationalSigs-related  infomation
-    maf_input <- maf@data
-    branch <- as.character(branchAlias$Branch)
-    patientID <- maf@patientID
-    datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
-    datChr$chr <- paste("chr", datChr$chr, sep="")
-    datMutgene <-  maf_input$Hugo_Symbol
-    mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
-                                        Hugo_Symbol, Chromosome, 
-                                        Start_Position, 
-                                        Reference_Allele, Tumor_Seq_Allele2, 
-                                        sep=":"), mut.id)
-    mutSigRef <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
-                            datChr, maf_input$Start_Position, 
-                            maf_input$End_Position, maf_input$Reference_Allele, 
-                            maf_input$Tumor_Seq_Allele2, datMutgene, 
-                            mutId, stringsAsFactors=FALSE)
-    colnames(mutSigRef) <- c("Sample", 
-                             "chr", "pos", 
-                             "pos_end", "ref", 
-                             "alt", "Hugo_Symbol", 
-                             "mut_id")
-    
-    ## get branch infomation
-    ls.branch <- branch[order(nchar(branch), branch)]
-    branches <- strsplit(ls.branch, split='∩')
-    
-    ## generate mutational intersections for each branch
-    mutBranchesOutput <- list()
-    for (branch in branches){
-        
-        ## generate intersection's mut.id and get the mutation information in mutSigRef
-        branch <- unlist(branch)
-        ## generate the branch name
-        branchName <- paste(branch, collapse="∩")
-        branch.id <- append(branch, "mut.id")
-        unbranch <- names(mut_sort.id)[which(!(names(mut_sort.id) %in% branch.id))]
-        branch.intersection <- intersect(
-            mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
-            mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
-        if (is.na(branch.intersection[1,1])){
-            message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
-            next()
-        }
-        branch.mut.id <- branch.intersection$mut.id 
-        
-        ## data duplication
-        branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
-        branch.mut$Sample <- branchName
-        branch.mut <- branch.mut[!duplicated(branch.mut),]
-        branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
-        ## generate branch mutation list
-        mutBranchesOutput[[branchName]] <- branch.mut
-    }
-    return(mutBranchesOutput)
-}
 
 
 ## Mutational Signature function
@@ -255,7 +200,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
               "Signature 19", "Signature 20", "Signature 21", "Signature 22", "Signature 23", "Signature 24", 
               "Signature 25", "Signature 26", "Signature 27", "Signature 28", "Signature 29", "Signature 30", 
               "No Signature")
-        )
+    )
     
     ## calculation process(maybe could be replaced by lapply)
     for (branch in ls.branchesName) {
@@ -362,6 +307,64 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
 }
 
 
+## Branches' mutation collection
+.treeMutationalBranches <- function(maf, branchAlias, mut_sort.id){
+    ## get mutationalSigs-related  infomation
+    maf_input <- maf@data
+    branch <- as.character(branchAlias$Branch)
+    patientID <- maf@patientID
+    datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
+    datChr$chr <- paste("chr", datChr$chr, sep="")
+    datMutgene <-  maf_input$Hugo_Symbol
+    mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
+                                        Hugo_Symbol, Chromosome, 
+                                        Start_Position, 
+                                        Reference_Allele, Tumor_Seq_Allele2, 
+                                        sep=":"), mut.id)
+    mutSigRef <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
+                            datChr, maf_input$Start_Position, 
+                            maf_input$End_Position, maf_input$Reference_Allele, 
+                            maf_input$Tumor_Seq_Allele2, datMutgene, 
+                            mutId, stringsAsFactors=FALSE)
+    colnames(mutSigRef) <- c("Sample", 
+                             "chr", "pos", 
+                             "pos_end", "ref", 
+                             "alt", "Hugo_Symbol", 
+                             "mut_id")
+    
+    ## get branch infomation
+    ls.branch <- branch[order(nchar(branch), branch)]
+    branches <- strsplit(ls.branch, split='∩')
+    
+    ## generate mutational intersections for each branch
+    mutBranchesOutput <- list()
+    for (branch in branches){
+        
+        ## generate intersection's mut.id and get the mutation information in mutSigRef
+        branch <- unlist(branch)
+        ## generate the branch name
+        branchName <- paste(branch, collapse="∩")
+        branch.id <- append(branch, "mut.id")
+        unbranch <- names(mut_sort.id)[which(!(names(mut_sort.id) %in% branch.id))]
+        branch.intersection <- intersect(
+            mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
+            mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
+        if (is.na(branch.intersection[1,1])){
+            message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
+            next()
+        }
+        branch.mut.id <- branch.intersection$mut.id 
+        
+        ## data duplication
+        branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
+        branch.mut$Sample <- branchName
+        branch.mut <- branch.mut[!duplicated(branch.mut),]
+        branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
+        ## generate branch mutation list
+        mutBranchesOutput[[branchName]] <- branch.mut
+    }
+    return(mutBranchesOutput)
+}
 
 
 

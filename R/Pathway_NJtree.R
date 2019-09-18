@@ -149,4 +149,5 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
     grid.arrange(grobs = grob.list, ncol =2 )
   }
 
-} 
+  }
+}

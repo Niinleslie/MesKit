@@ -5,8 +5,8 @@
 \title{Use R code to do the GO analysis.}
 \usage{
 GO_analysis(genes = NULL, GO.type = GO.type, pval = pval,
-  pAdjustMethod = pAdjustMethod, qval = qval, outdir = outdir,
-  patientID = patientID, name = name)
+  pAdjustMethod = pAdjustMethod, qval = qval, patientID = patientID,
+  name = name)
 }
 \arguments{
 \item{GO.type}{One of "BP", "MF", and "CC" subontologies, or "ALL" for all three. Default type="ALL"}
