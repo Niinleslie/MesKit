@@ -337,7 +337,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     ## generate mutational intersections for each branch
     mutBranchesOutput <- list()
     for (branch in branches){
-        
         ## generate intersection's mut.id and get the mutation information in mutSigRef
         branch <- unlist(branch)
         ## generate the branch name
