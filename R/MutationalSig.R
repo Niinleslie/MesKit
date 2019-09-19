@@ -309,7 +309,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
 .treeMutationalBranches <- function(maf, branchAlias, mut_sort.id){
     ## get mutationalSigs-related  infomation
     maf_input <- maf@data
-    branch <- as.character(branchAlias$Branch)
+    branchChar <- as.character(branchAlias$Branch)
     patientID <- maf@patientID
     datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
     datChr$chr <- paste("chr", datChr$chr, sep="")
@@ -331,7 +331,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                              "mut_id")
     
     ## get branch infomation
-    ls.branch <- branch[order(nchar(branch), branch)]
+    ls.branch <- branchChar[order(nchar(branchChar), branchChar)]
     branches <- strsplit(ls.branch, split='∩')
     
     ## generate mutational intersections for each branch
