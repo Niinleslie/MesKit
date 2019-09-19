@@ -30,7 +30,6 @@
 #' 
 #' @exportClass classMaf
 #' @export readMaf
-#'
 
 ## classMaf class
 classMaf <- setClass(Class="classMaf", contains="MAF", 

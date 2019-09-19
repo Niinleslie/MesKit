@@ -39,8 +39,6 @@
 #' @export treeMutationalSig
 #'
 
-
-
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, 
                               signaturesRef="signatures.cosmic",
@@ -349,7 +347,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         branch.intersection <- intersect(
             mut_sort.id %>% dplyr::filter_at(branch, all_vars(. == 1)), 
             mut_sort.id %>% dplyr::filter_at(unbranch, all_vars(. == 0))) 
-        if (is.na(branch.intersection[1,1])){
+        if (nrow(branch.intersection) == 0){
             message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
             next()
         }
