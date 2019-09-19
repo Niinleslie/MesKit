@@ -15,8 +15,6 @@
 \item{ccfLociTsvFile}{CCF loci.tsv file directory if ccf data provided. Default NULL.}
 
 \item{refBuild}{BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.}
-
-\item{MafSummary}{Option for whether printing a MafSummary plot or not. Default TRUE.}
 }
 \value{
 a classMaf object/class includes information of sample_info and 

@@ -13,7 +13,6 @@
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
-#' @param MafSummary Option for whether printing a MafSummary plot or not. Default TRUE.
 #' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
@@ -41,8 +40,7 @@ classMaf <- setClass(Class="classMaf", contains="MAF",
 ## read.maf main function
 readMaf <- function(mafFile, sampleInfoFile, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
-                    refBuild="hg19", 
-                    MafSummary=TRUE){
+                    refBuild="hg19"){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
@@ -111,7 +109,9 @@ readMaf <- function(mafFile, sampleInfoFile,
     ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
     ## summarize sample_info and mut.id with summarizeMaf
-    mafSum <- suppressMessages(read.maf(mafData))
+    sink("/dev/null")
+    mafSum <- read.maf(mafData)
+    sink()
     # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
     
     ## generate classMaf
@@ -130,12 +130,12 @@ readMaf <- function(mafFile, sampleInfoFile,
                     ref.build=refBuild)
     
     ## print the summary plot
-    if (MafSummary) {
-        plotmafSummary(maf=maf, rmOutlier=TRUE, 
-                       addStat='median', dashboard=TRUE, 
-                       titvRaw=FALSE)
-        # message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
-    } 
+    # if (MafSummary) {
+    #     plotmafSummary(maf=maf, rmOutlier=TRUE, 
+    #                    addStat='median', dashboard=TRUE, 
+    #                    titvRaw=FALSE)
+    #     # message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
+    # } 
     # message(paste(patientID, "'s classMaf Generation Done!", sep=""))
     return(maf)
 }

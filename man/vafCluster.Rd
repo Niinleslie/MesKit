@@ -4,7 +4,7 @@
 \alias{vafCluster}
 \title{A VAF plot painter}
 \usage{
-vafCluster(maf, vafRange = c(0, 1), vafColumn = "VAF",
+vafCluster(maf, vafRange = c(0.05, 1), vafColumn = "VAF",
   plotOption = "combine", themeOption = "aaas")
 }
 \arguments{

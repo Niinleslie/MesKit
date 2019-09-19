@@ -15,6 +15,8 @@ treeMutationalSig(njtree, driverGenesFile = NULL, mutThreshold = 50,
 \item{mutThreshold}{the threshold for the variants in a branch. Default 50.}
 
 \item{refBuild}{BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.}
+
+\item{plot.Signature}{the parameter used to print the signautre summary plot by ggplot2}
 }
 \value{
 data frame of each set/branch's mutational signature.
@@ -35,11 +37,13 @@ pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", packag
 maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfoFile = sampleInfo.File, refBuild = "hg19")
 njtree <- getNJtree(maf)
 ## general
-signature1 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50)
+signature1 <- treeMutationalSig(njtree, mutThreshold=50)
 ## use driverGenesFile
 putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver_genes.txt", package = "Meskit")
-signature2 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
+signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 ## use different signature reference
-signature3 <- treeMutationalSig(njtree, refBuild="hg19", driverGenesFile=NULL, mutThreshold=50, signaturesRef="signatures.nature2013")
+signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
+## print mutational signature plot
+signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.Signatures=TRUE)
 
 }

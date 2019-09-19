@@ -96,8 +96,11 @@ read.njtree <- function(mat.nj){
   }
   
 
-
-  NJtree_sampleID <- edges_label[order(unlist(lapply(edges_label, function(x) length(unlist(strsplit(x, split = "∩"))))))]
+  nodes.num <- seq_along(mat.nj$tip.label)-1
+  NJtree_branch <- edges_label[order(unlist(lapply(edges_label, function(x) length(unlist(strsplit(x, split = "∩"))))))]
+  edges.num <- length(strsplit(tail(NJtree_branch,1), split = "∩")[[1]])
+  NJtree_branch_Alias <- c(paste(rep("B", length(NJtree_branch)-1), (length(NJtree_branch)-1):1, sep = ""), "T")
+  NJtree_sampleID <- data.frame(Branch = NJtree_branch, Alias = NJtree_branch_Alias)
+  
   return(NJtree_sampleID)
-  #write.table(NJtree_sampleID, file = paste(patientID, ".NJtree.edges", sep = ""), quote = F, row.names = F, col.names = F, fileEncoding = "UTF-8")
 }
