@@ -30,7 +30,6 @@
 #' 
 #' @exportClass classMaf
 #' @export readMaf
-#'
 
 ## classMaf class
 classMaf <- setClass(Class="classMaf", contains="MAF", 
@@ -109,9 +108,7 @@ readMaf <- function(mafFile, sampleInfoFile,
     ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
     ## summarize sample_info and mut.id with summarizeMaf
-    sink("/dev/null")
-    mafSum <- read.maf(mafData)
-    sink()
+    capture.output(mafSum <- read.maf(mafData))
     # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
     
     ## generate classMaf
