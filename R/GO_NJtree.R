@@ -126,9 +126,6 @@ GO.njtree <- function(njtree, GO.type = "BP", pval = 0.05, pAdjustMethod = "BH",
   }else{
     ego.results[[1]] <- ego.all.result
   }
-
-  return(ego.results)
-
   if(length(grob.list) == 1){
     arrangeGrob(grobs = grob.list, ncol =1)
   }
