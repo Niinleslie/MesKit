@@ -3,6 +3,8 @@
 #' 
 #' @param maf return from readMaf()
 #' @param use.indel Seclet SNP in Variant type
+#' @param minVaf the minimum value of vaf
+#' @param maxVaf the maximum value of vaf
 #' @param ccf.mutation.id manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy
 #' @param ccf.mutation.sep manually specify the separator character.Values on each line of the ccf.mutation.id are separated by this character. I
 #' @return NJtree object
