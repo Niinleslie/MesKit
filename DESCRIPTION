@@ -14,7 +14,8 @@ Imports: utils, ape, methods, plotrix, grDevices, gridExtra,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
         maftools, deconstructSigs, timescape,
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
-        clonevol, fishplot, pdp, corrplot, mclust
+        clonevol, fishplot, pdp, corrplot, mclust,
+        Shiny,
 Remotes: hdng/clonevol, chrisamiller/fishplot
 RoxygenNote: 6.1.1
 Suggests: knitr, rmarkdown
