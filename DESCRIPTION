@@ -23,15 +23,3 @@ biocViews: WESeq, Intra-tumor Heterogeneity, Evolution, Visualization
 NeedsCompilation: no
 git_url: https://github.com/Niinleslie/MesKit
 git_last_commit_date: 2019-6-1
-RemoteType: github
-RemoteHost: api.github.com
-RemoteRepo: MesKit
-RemoteUsername: Niinleslie
-RemoteRef: master
-RemoteSha: c4604c4fb57586935ce05767e71f7db6f385d0a2
-GithubRepo: MesKit
-GithubUsername: Niinleslie
-GithubRef: master
-GithubSHA1: c4604c4fb57586935ce05767e71f7db6f385d0a2
-Packaged: 2019-09-20 12:12:10 UTC; 刘妞妞
-Built: R 3.5.1; ; 2019-09-20 12:12:15 UTC; windows
