@@ -3,8 +3,7 @@
 #'  curve with ggplot2 as well as ggridges. Different parameters could lead to 
 #'  different outputs with different range of samples.
 #' 
-#' @import ggplot2 ggsci cowplot mclust
-#' @importFrom maftools inferHeterogeneity
+#' @import ggplot2 ggsci cowplot
 #' @importFrom ggridges geom_density_ridges
 #' @importFrom dplyr group_by
 #' 
@@ -44,7 +43,6 @@ vafCluster <-function(maf, vafColumn="VAF",
         mafInput$VAF <- mafInput$VAF/100
     }
     patientID <- maf@patientID
-    laml <- maf
     
     ## extract vaf info
     n <- length(mafInput$Hugo_Symbol)
@@ -83,6 +81,7 @@ vafCluster <-function(maf, vafColumn="VAF",
             if (plotOption == "separate"){
                 pic <- .drawVAF(clusterMt, themeOption, 
                                 sampleName, mathscore)
+                print(pic)
             }
             else {
                 # prepare separated pictures for later combination 
@@ -98,36 +97,48 @@ vafCluster <-function(maf, vafColumn="VAF",
         }
         ## combine: print VAF pictures for all samples in one document
         if (plotOption == "combine"){
-            mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, "compare", sampleName)
-            mathtbscore <- mathtbscoreLs$patientLevel
-            combineMathScore <- mathtbscore[which(
-                mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
-                ]$MATH_score
-            ## set the columns of the picture and generate all single pictures
-            combineTitle <- ggdraw() + 
-                draw_label(
-                    paste("VAF density plot of ", patientID, ", MATH Score: ", as.character(combineMathScore), sep=""),
-                    fontface = 'bold',
-                    x = 0,
-                    hjust = 0
-                ) +
-                theme(
-                    # add margin on the left of the drawing canvas,
-                    # so title is aligned with left edge of first plot
-                    plot.margin = margin(0, 0, 0, 7)
-                )
-            pic <- eval(parse(text=paste("plot_grid(", 
-                                         paste(lsPicName, collapse=","), 
-                                         ", nrow=", 
-                                         ceiling(length(lsPicName)/2), 
-                                         ", ncol=2, align=\"v\")" , 
-                                         sep="")))
-            pic <- plot_grid(
-                combineTitle, pic,
-                ncol = 1,
-                # rel_heights values control vertical title margins
-                rel_heights = c(0.1, 1)
-            )
+            if (showMATH){
+                mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, "compare", sampleName)
+                mathtbscore <- mathtbscoreLs$patientLevel
+                combineMathScore <- mathtbscore[which(
+                    mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
+                    ]$MATH_score
+                ## set the columns of the picture and generate all single pictures
+                combineTitle <- ggdraw() + 
+                    draw_label(
+                        paste("VAF density plot of ", patientID, ", MATH Score: ", as.character(combineMathScore), sep=""),
+                        fontface = 'bold',
+                        x = 0,
+                        hjust = 0
+                    ) +
+                    theme(
+                        # add margin on the left of the drawing canvas,
+                        # so title is aligned with left edge of first plot
+                        plot.margin = margin(0, 0, 0, 7)
+                    )
+                pic <- eval(parse(text=paste("plot_grid(", 
+                                             paste(lsPicName, collapse=","), 
+                                             ", nrow=", 
+                                             ceiling(length(lsPicName)/2), 
+                                             ", ncol=2, align=\"v\")" , 
+                                             sep="")))
+                pic <- plot_grid(
+                    combineTitle, pic,
+                    ncol = 1,
+                    # rel_heights values control vertical title margins
+                    rel_heights = c(0.1, 1))
+                return(suppressWarnings(suppressMessages(print(pic))))
+                
+            } else {
+                pic <- eval(parse(text=paste("plot_grid(", 
+                                             paste(lsPicName, collapse=","), 
+                                             ", nrow=", 
+                                             ceiling(length(lsPicName)/2), 
+                                             ", ncol=2, align=\"v\")" , 
+                                             sep="")))
+                return(suppressWarnings(suppressMessages(print(pic))))
+            }
+            
         }
     }
     
@@ -135,7 +146,7 @@ vafCluster <-function(maf, vafColumn="VAF",
     else if (plotOption == "compare"){
         ## calculate ScoreMATH
         mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, 
-                              plotOption, sampleName)
+                              plotOption)
         mathscore <- mathtbscoreLs$sampleLevel
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){
@@ -145,7 +156,7 @@ vafCluster <-function(maf, vafColumn="VAF",
             ## data cleaning
             sampleMt <- sampleMt[complete.cases(sampleMt), ]
             sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-            if (length(sampleMt[,1]) < 3) {
+            if (nrow(sampleMt) < 3) {
                 message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
                 next()
             }
@@ -165,6 +176,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         minVaf, maxVaf))))
+        return(suppressWarnings(suppressMessages(print(pic))))
     }
     
     ## plot specific sample's vaf plot
@@ -179,21 +191,19 @@ vafCluster <-function(maf, vafColumn="VAF",
         if (length(sampleMt[,1]) < 3) {
             stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
         }
-        clusterMt <- inferHeterogeneity(
-            maf=laml, tsb=as.character(sampleMt$Samples[1]), 
-            vafCol='VAF', useSyn=TRUE)$clusterData
-        colnames(clusterMt)[colnames(clusterMt) == "t_vaf"] <- "VAF"
+        clusterMt <- clusterGenerator(sampleMt)
         ## calculate ScoreMATH
         mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption)
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
+        return(suppressWarnings(suppressMessages(print(pic))))
     }
     else {
         stop("ERROR: plotOption settings failure.")
     }
     message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-    return(suppressWarnings(suppressMessages(print(pic))))
+    
 }
 
 

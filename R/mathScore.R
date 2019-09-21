@@ -23,7 +23,7 @@
 #' 
 
 ## MATH Score main function
-mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
+mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
     ## get vaf-related infomation
     mafData <- maf@data
     dataHugoSymbol <- mafData$Hugo_Symbol

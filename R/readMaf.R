@@ -4,9 +4,6 @@
 #' patient and time.
 #'
 #' @import ggplot2
-#' @importClassesFrom maftools MAF
-#' @importFrom maftools plotmafSummary
-#' @importFrom maftools read.maf
 #'
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
@@ -103,6 +100,13 @@ readMaf <- function(mafFile, sampleInfoFile,
     ## fix: Error in setattr(x, "row.names", rn)
     mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
     
+    vc.nonSilent = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+                     "Translation_Start_Site", "Nonsense_Mutation", 
+                     "Nonstop_Mutation", "In_Frame_Del",
+                     "In_Frame_Ins", "Missense_Mutation")
+    mafInput = mafInput[which(mafInput$Variant_Classification %in% vc.nonSilent), ]
+    
+    
     ## transform data.frame to data.table
     mafData <- data.table::setDT(mafInput)
     ccfClusterTsv <- data.table::setDT(ccfClusterInput)
@@ -115,14 +119,6 @@ readMaf <- function(mafFile, sampleInfoFile,
                     patientID=patientID, 
                     ref.build=refBuild)
     
-    ## print the summary plot
-    # if (MafSummary) {
-    #     plotmafSummary(maf=maf, rmOutlier=TRUE, 
-    #                    addStat='median', dashboard=TRUE, 
-    #                    titvRaw=FALSE)
-    #     # message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
-    # } 
-    # message(paste(patientID, "'s classMaf Generation Done!", sep=""))
     return(maf)
 }
 
