@@ -42,7 +42,8 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
         mathAll <- data.frame(Tumor_Sample_Barcode=maf@patientID, 
                               MATH_score=c(mathAll$MATH_score), 
                               Tumor_Burden=c(mathAll$Tumor_Burden))
-        colnames(mathOFA) <- c("Tumor_Sample_Barcode", "MATH_score", "TMB(mutations/Mb)")
+        colnames(mathOFA) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                               "TMB(mutations/Mb)")
         mathResult <- list(patientLevel=mathAll, sampleLevel=mathOFA)
         return(mathResult)
     } else{
@@ -53,7 +54,8 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
         mathAll <- data.frame(Tumor_Sample_Barcode=maf@patientID, 
                               MATH_score=c(mathAll$MATH_score), 
                               Tumor_Burden=c(mathAll$Tumor_Burden))
-        colnames(mathSp) <- c("Tumor_Sample_Barcode", "MATH_score", "TMB(mutations/Mb)")
+        colnames(mathSp) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                              "TMB(mutations/Mb)")
         mathResult <- list(patientLevel=mathAll, sampleLevel=mathSp)
         return(mathResult)
     }
@@ -101,7 +103,8 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
             samplesMATH <- rbind(samplesMATH, sampleMATH)
         }
     }
-    colnames(samplesMATH) <- c("Tumor_Sample_Barcode", "MATH_score", "Tumor_Burden")
+    colnames(samplesMATH) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                               "Tumor_Burden")
     return(samplesMATH)
 }
 
@@ -115,6 +118,7 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0, maxvaf=1){
     vafColumn <- as.numeric(
         as.character(vafColumn))[which(
             !is.na(vafColumn))]
-    result <- data.frame(MATH_score=.calMATH(vafColumn), Tumor_Burden=length(vafColumn)/40/tsbNum)
+    result <- data.frame(MATH_score=.calMATH(vafColumn), 
+                         Tumor_Burden=length(vafColumn)/40/tsbNum)
     return(result)
 }

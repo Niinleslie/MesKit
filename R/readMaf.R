@@ -32,9 +32,10 @@
 #' @export readMaf
 
 ## classMaf class
-classMaf <- setClass(Class="classMaf", contains="MAF", 
-                     slots= c(ccf.cluster='data.table', ccf.loci='data.table', 
-                              patientID='character', ref.build='character'))
+classMaf <- setClass(Class="classMaf", 
+                     slots= c(data='data.table', ccf.cluster='data.table', 
+                              ccf.loci='data.table', patientID='character', 
+                              ref.build='character'))
 
 ## read.maf main function
 readMaf <- function(mafFile, sampleInfoFile, 
@@ -107,20 +108,8 @@ readMaf <- function(mafFile, sampleInfoFile,
     ccfClusterTsv <- data.table::setDT(ccfClusterInput)
     ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
-    ## summarize sample_info and mut.id with summarizeMaf
-    capture.output(mafSum <- read.maf(mafData))
-    # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
-    
     ## generate classMaf
     maf <- classMaf(data=mafData, 
-                    variants.per.sample=mafSum@variants.per.sample, 
-                    variant.type.summary=mafSum@variant.type.summary,
-                    variant.classification.summary=mafSum@
-                        variant.classification.summary, 
-                    gene.summary=mafSum@gene.summary,
-                    summary=mafSum@summary, 
-                    maf.silent=mafSum@maf.silent, 
-                    clinical.data=mafSum@clinical.data, 
                     ccf.cluster=ccfClusterTsv, 
                     ccf.loci=ccfLociTsv, 
                     patientID=patientID, 

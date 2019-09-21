@@ -36,7 +36,7 @@
 #' ## use different signature reference
 #' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
 #' ## print mutational signature plot
-#' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.Signatures=TRUE)
+#' signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.Signatures=TRUE)
 #' 
 #' @export treeMutationalSig
 #'

@@ -11,7 +11,7 @@ LazyData: true
 Imports: 
     utils, ape, methods, plotrix, grDevices, gridExtra, rtracklayer, Biostrings,
     BSgenome, GenomeInfoDb, GenomeInfoDbData, DO.db,  
-    reshape2, tidyr, plyr, Hmisc, ggrepel, 
+    reshape2, tidyr, Hmisc, ggrepel, dplyr, 
     ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, 
     maftools, deconstructSigs, pathview, topGO, timescape, packcircles, 
     clusterProfiler, ReactomePA, htmlwidgets, clonevol, fishplot, pdp, corrplot, 

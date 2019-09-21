@@ -20,10 +20,20 @@
 
 
 # set NJtree object
-getNJtree <- function(maf, use.indel = FALSE, 
-                   ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
-                   ccf.mutation.sep = ":"){
+getNJtree <- function(maf, use.indel=FALSE, 
+                      vafColumn="VAF", 
+                      minVaf=0.02, 
+                      maxVaf=1, 
+                      ccf.mutation.id = c("Hugo_Symbol","Chromosome","Start_Position"),
+                      ccf.mutation.sep = ":"){
   maf.dat <- maf@data
+  ## vaf filter
+  colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
+  if (max(maf.dat$VAF, na.rm=TRUE) > 1){
+    maf.dat$VAF <- maf.dat$VAF/100
+  }
+  maf.dat <- maf.dat[which(maf.dat$VAF > minVaf & maf.dat$VAF < maxVaf), ]
+  ## information input
   patientID <- maf@patientID
   refBuild <- paste("BSgenome.Hsapiens.UCSC.", maf@ref.build, sep = "")
   mut_sort.id <- mut_binary_sort(maf.dat = maf.dat, use.indel = use.indel)
@@ -35,7 +45,7 @@ getNJtree <- function(maf, use.indel = FALSE,
   if(!is.null(maf@ccf.loci)){
     ccf_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = maf@ccf.loci, use.indel, ccf.mutation.id, ccf.mutation.sep)
   }
-
+  
   njtree <- new('NJtree', patientID = patientID, nj = mat.nj, mut_sort = mut_sort, mut_branches = mut_branches, ccf_sort = ccf_sort, refBuild = maf@ref.build)
   return(njtree)
 }
