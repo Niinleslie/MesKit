@@ -4,7 +4,7 @@ maf_preprocess <- function(maf.dat, use.indel = F, use.ccf = F, ccf, ccf.mutatio
     maf.dat <- maf.dat[which(maf.dat$Variant_Type == "SNP"),]
   }
   mut.id <- tidyr::unite(maf.dat, "mut.id", Hugo_Symbol, Chromosome, Start_Position, Reference_Allele, Tumor_Seq_Allele2, sep = ":")$mut.id
-  M <- data.frame(mut.id = mut.id, sample = maf.dat$Tumor_Sample_Barcode)
+  M <- data.frame(mut.id = mut.id, sample = maf.dat$Tumor_Sample_Barcode, mutation = 1)
 
   if(use.ccf){
     if(is.null(ccf)){
@@ -28,7 +28,7 @@ mut_ccf_sort <- function(maf.dat, ccf, use.indel, ccf.mutation.id , ccf.mutation
   M <- maf_preprocess(maf.dat, use.indel = use.indel, use.ccf = TRUE, ccf, ccf.mutation.id = ccf.mutation.id, ccf.mutation.sep = ccf.mutation.sep)
   M[is.na(M$CCF),'CCF'] <- 2
 
-  mut_samples <- suppressMessages(dcast(M, mut.id~sample, value.var = "CCF")[,-1])
+  mut_samples <- suppressMessages(tidyr::spread(M, sample, CCF)[,-1])
   #mut_samples[mut_samples == 0 ] <- 2
   mut_samples[is.na(mut_samples)] <- 0
   mut_samples$NORMAL <- 0
@@ -40,7 +40,7 @@ mut_ccf_sort <- function(maf.dat, ccf, use.indel, ccf.mutation.id , ccf.mutation
 ##sort the matrix; return row order and coloum order
 mut_binary_sort <- function(maf.dat, use.indel = FALSE, returnOrder = FALSE){
   M <- maf_preprocess(maf.dat, use.indel = use.indel)
-  mut_samples <- suppressMessages(dcast(M, mut.id~sample))
+  mut_samples <- suppressMessages(tidyr::spread(M, sample, mutation))
   col.mut.id <- mut_samples$mut.id
   mut_samples <- mut_samples[, -1]
   mut_samples[!is.na(mut_samples)] <- 1

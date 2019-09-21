@@ -8,17 +8,14 @@ Description: Analysis and visualize multi-region whole-exome sequencing data.Thi
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: 
-    utils, ape, methods, plotrix, grDevices, gridExtra, rtracklayer, Biostrings,
-    BSgenome, GenomeInfoDb, GenomeInfoDbData, DO.db,  
-    reshape2, tidyr, Hmisc, ggrepel, dplyr, 
-    ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot, 
-    maftools, deconstructSigs, pathview, topGO, timescape, packcircles, 
-    clusterProfiler, ReactomePA, htmlwidgets, clonevol, fishplot, pdp, corrplot, 
-    mclust
-Remotes: 
-    hdng/clonevol,
-    chrisamiller/fishplot
+Imports: utils, ape, methods, plotrix, grDevices, gridExtra,
+        rtracklayer, Biostrings, BSgenome, GenomeInfoDb,
+        GenomeInfoDbData, DO.db, tidyr, plyr, Hmisc, ggrepel,
+        ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
+        maftools, deconstructSigs, timescape,
+        packcircles, clusterProfiler, ReactomePA, htmlwidgets,
+        clonevol, fishplot, pdp, corrplot, mclust
+Remotes: hdng/clonevol, chrisamiller/fishplot
 RoxygenNote: 6.1.1
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
