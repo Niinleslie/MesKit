@@ -12,7 +12,7 @@ Imports: utils, ape, methods, plotrix, grDevices, gridExtra,
         rtracklayer, Biostrings, BSgenome, GenomeInfoDb,
         GenomeInfoDbData, DO.db, tidyr, dplyr, Hmisc, ggrepel,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
-        deconstructSigs, timescape,
+        deconstructSigs, timescape, grid, 
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
         clonevol, fishplot, pdp, corrplot, mclust
 Remotes: hdng/clonevol, chrisamiller/fishplot

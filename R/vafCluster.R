@@ -145,8 +145,7 @@ vafCluster <-function(maf, vafColumn="VAF",
     ## plot all samples' vaf distribution with ggridges
     else if (plotOption == "compare"){
         ## calculate ScoreMATH
-        mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, 
-                              plotOption)
+        mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption)
         mathscore <- mathtbscoreLs$sampleLevel
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){

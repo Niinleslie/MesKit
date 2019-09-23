@@ -94,13 +94,13 @@ readMaf <- function(mafFile, sampleInfoFile, mut.type=c("All"),
     }
     ## fix: Error in setattr(x, "row.names", rn)
     mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
-    if (mut.type == "nonSilent"){
+    if (any(mut.type == c("nonSilent"))){
         nonSilent = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
                       "Translation_Start_Site", "Nonsense_Mutation", 
                       "Nonstop_Mutation", "In_Frame_Del",
                       "In_Frame_Ins", "Missense_Mutation")
         mafInput = mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
-    } else if (mut.type == "All"){
+    } else if (any(mut.type == c("All"))){
         # message("All variant classification submitted")
     } else {
         mafInput = mafInput[which(mafInput$Variant_Classification %in% mut.type), ]
