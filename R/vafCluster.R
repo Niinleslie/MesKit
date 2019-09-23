@@ -74,7 +74,7 @@ vafCluster <-function(maf, vafColumn="VAF",
             }
             
             ## infer possible cluster from mafInput
-            clusterMt <- clusterGenerator(mafInput, sampleName)
+            clusterMt <- .clusterGenerator(mafInput, sampleName)
             clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
 
             ## separate: print VAF pictures for all samples separatively
@@ -161,7 +161,7 @@ vafCluster <-function(maf, vafColumn="VAF",
             }
             ## generate data from different Tumor_Sample_Barcode
             clusterMtCha <- paste("clusterMt_", counterMt, 
-                                  " <- clusterGenerator(mafInput, sampleName)", sep ="")
+                                  " <- .clusterGenerator(mafInput, sampleName)", sep ="")
             eval(parse(text=clusterMtCha))
             clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
                                   " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
@@ -190,7 +190,7 @@ vafCluster <-function(maf, vafColumn="VAF",
         if (length(sampleMt[,1]) < 3) {
             stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
         }
-        clusterMt <- clusterGenerator(mafInput, sampleName)
+        clusterMt <- .clusterGenerator(mafInput, sampleName)
         ## calculate ScoreMATH
         mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption)
         ## VAF plot for specifc sample
@@ -237,7 +237,7 @@ vafCluster <-function(maf, vafColumn="VAF",
     return(mathscore)
 }
 
-clusterGenerator <- function(mafInput, sampleName){
+.clusterGenerator <- function(mafInput, sampleName){
     ## refine part
     Mt <- mclust::densityMclust(mafInput$VAF, G=1:7, verbose=FALSE)
     clusterMt <- as.data.frame(mafInput)
@@ -247,55 +247,6 @@ clusterGenerator <- function(mafInput, sampleName){
     return(clusterMt)
 }
 
-
-
-## Draw vlines for all plotOption
-.vlineVAF <- function(clusterMt, pic, 
-                      tsbLs, plotOption, 
-                      tsb, ingredients=NULL)
-{
-    ## data prepare
-    vafVlineCha <- ""
-    clusterLs <- unique(clusterMt$cluster)
-    ## density information of the curve for a tsb
-    densityInfo <- data.frame(layer_data(pic))
-    
-    ## OFA specific: get scaling ratio
-    if (!is.null(ingredients)){
-        iscale <- ingredients$iscale[1]
-        scale <- ingredients$scale[1]
-    }
-    
-    ## Obtain vline Coordinate(x, xend, y, yend)
-    for (cluster_name in clusterLs){
-        x_end <- max(clusterMt[which(
-            clusterMt$cluster == cluster_name), ]$VAF)
-        x_end_alter <- densityInfo$x[which.min(
-            abs(outer(densityInfo$x,x_end,FUN="-")))]
-        y_end <- densityInfo$y[which(
-            densityInfo$x == x_end_alter)]
-        if (plotOption == "compare"){
-            ## Scale and draw lines
-            density <- densityInfo$density[which(
-                densityInfo$x == x_end_alter)]
-            vafVlineCha <- paste(
-                vafVlineCha, 
-                "geom_segment(data=clusterMt_", which(tsbLs == tsb), 
-                " ,aes(x=", x_end_alter, 
-                ", xend=", x_end_alter, 
-                ", y=", which(tsbLs == tsb), 
-                ", yend=", which(tsbLs == tsb) + density*iscale*scale, "), ", 
-                "size=0.5, colour=\"grey\", linetype=\"dashed\") + ",sep="")
-        }else{
-            vafVlineCha <- paste(
-                vafVlineCha, 
-                "geom_segment(aes(x=", x_end_alter,", xend=", x_end_alter, 
-                ", y=0, yend=", y_end,"), ", 
-                "size=0.5, colour=\"grey\", linetype=\"dashed\") + ",sep="")
-        }
-    }
-    vafVlineCha
-}
 
 ## Functions for specific plotOption: "separate", "combine", "tsb"
 ## VAF painter
@@ -450,6 +401,55 @@ clusterGenerator <- function(mafInput, sampleName){
     }
     vafOFACha
 }
+
+## Draw vlines for all plotOption
+.vlineVAF <- function(clusterMt, pic, 
+                      tsbLs, plotOption, 
+                      tsb, ingredients=NULL)
+{
+    ## data prepare
+    vafVlineCha <- ""
+    clusterLs <- unique(clusterMt$cluster)
+    ## density information of the curve for a tsb
+    densityInfo <- data.frame(layer_data(pic))
+    
+    ## OFA specific: get scaling ratio
+    if (!is.null(ingredients)){
+        iscale <- ingredients$iscale[1]
+        scale <- ingredients$scale[1]
+    }
+    
+    ## Obtain vline Coordinate(x, xend, y, yend)
+    for (cluster_name in clusterLs){
+        x_end <- max(clusterMt[which(
+            clusterMt$cluster == cluster_name), ]$VAF)
+        x_end_alter <- densityInfo$x[which.min(
+            abs(outer(densityInfo$x,x_end,FUN="-")))]
+        y_end <- densityInfo$y[which(
+            densityInfo$x == x_end_alter)]
+        if (plotOption == "compare"){
+            ## Scale and draw lines
+            density <- densityInfo$density[which(
+                densityInfo$x == x_end_alter)]
+            vafVlineCha <- paste(
+                vafVlineCha, 
+                "geom_segment(data=clusterMt_", which(tsbLs == tsb), 
+                " ,aes(x=", x_end_alter, 
+                ", xend=", x_end_alter, 
+                ", y=", which(tsbLs == tsb), 
+                ", yend=", which(tsbLs == tsb) + density*iscale*scale, "), ", 
+                "size=0.5, colour=\"grey\", linetype=\"dashed\") + ",sep="")
+        }else{
+            vafVlineCha <- paste(
+                vafVlineCha, 
+                "geom_segment(aes(x=", x_end_alter,", xend=", x_end_alter, 
+                ", y=0, yend=", y_end,"), ", 
+                "size=0.5, colour=\"grey\", linetype=\"dashed\") + ",sep="")
+        }
+    }
+    vafVlineCha
+}
+
 
 ## VAF draw vlines for ofa
 .ofaVlineVAF <- function(clusterAll, tsbLs, 
