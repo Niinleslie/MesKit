@@ -190,7 +190,7 @@ vafCluster <-function(maf, vafColumn="VAF",
         if (length(sampleMt[,1]) < 3) {
             stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
         }
-        clusterMt <- clusterGenerator(sampleMt)
+        clusterMt <- clusterGenerator(mafInput, sampleName)
         ## calculate ScoreMATH
         mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption)
         ## VAF plot for specifc sample
