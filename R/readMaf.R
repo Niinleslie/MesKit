@@ -7,6 +7,7 @@
 #'
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
+#' @param mut.type select proper variant classification you need
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
@@ -28,14 +29,8 @@
 #' @exportClass classMaf
 #' @export readMaf
 
-## classMaf class
-classMaf <- setClass(Class="classMaf", 
-                     slots= c(data='data.table', ccf.cluster='data.table', 
-                              ccf.loci='data.table', patientID='character', 
-                              ref.build='character'))
-
 ## read.maf main function
-readMaf <- function(mafFile, sampleInfoFile, 
+readMaf <- function(mafFile, sampleInfoFile, mut.type=c("All"), 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
                     refBuild="hg19"){
     
@@ -99,12 +94,18 @@ readMaf <- function(mafFile, sampleInfoFile,
     }
     ## fix: Error in setattr(x, "row.names", rn)
     mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
+    if (mut.type == "nonSilent"){
+        nonSilent = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+                      "Translation_Start_Site", "Nonsense_Mutation", 
+                      "Nonstop_Mutation", "In_Frame_Del",
+                      "In_Frame_Ins", "Missense_Mutation")
+        mafInput = mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
+    } else if (mut.type == "All"){
+        # message("All variant classification submitted")
+    } else {
+        mafInput = mafInput[which(mafInput$Variant_Classification %in% mut.type), ]
+    }
     
-    vc.nonSilent = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
-                     "Translation_Start_Site", "Nonsense_Mutation", 
-                     "Nonstop_Mutation", "In_Frame_Del",
-                     "In_Frame_Ins", "Missense_Mutation")
-    mafInput = mafInput[which(mafInput$Variant_Classification %in% vc.nonSilent), ]
     
     
     ## transform data.frame to data.table
@@ -126,3 +127,8 @@ readMaf <- function(mafFile, sampleInfoFile,
     substr(x, nchar(x)-n+1, nchar(x))
 }
 
+## classMaf class
+classMaf <- setClass(Class="classMaf", 
+                     slots= c(data='data.table', ccf.cluster='data.table', 
+                              ccf.loci='data.table', patientID='character', 
+                              ref.build='character'))

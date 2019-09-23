@@ -12,7 +12,11 @@ vafCluster(maf, vafColumn = "VAF", minVaf = 0.02, maxVaf = 1,
 
 \item{vafColumn}{choose the specific column containing VAF values. Default "VAF".}
 
-\item{minVaf}{}
+\item{minVaf}{the minimum value of vaf}
+
+\item{maxVaf}{the maximum value of vaf}
+
+\item{showMATH}{decide whether show the MATH Score or not}
 
 \item{plotOption}{choose a vaf plot ouput option for your target data.Default "compare". 
 "compare" will tend to provide a ridgeline plot.
