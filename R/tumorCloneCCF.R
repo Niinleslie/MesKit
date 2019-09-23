@@ -12,7 +12,7 @@
 #' @export tumorClonesPlot
 
 #tumorClonesPlot <- function(ccfClusterFile = NULL, ccfLociFile = NULL, savePlot  = FALSE, out.dir = NULL, clone.min.mut = 5, clone.min.aveCCF = 0.1){
-tumorClonesPlot <- function(maf, savePlot = FALSE, out.dir = NULL, clone.min.mut = 5, clone.min.aveCCF = 0.1){
+tumorClonesPlot <- function(maf, out.dir = NULL, clone.min.mut = 5, clone.min.aveCCF = 0.1){
   ccfCluster <- maf@ccf.cluster
   if(is.null(ccfCluster)){
     stop("ccf data of cluster was not found when readMaf")
@@ -62,9 +62,9 @@ tumorClonesPlot <- function(maf, savePlot = FALSE, out.dir = NULL, clone.min.mut
 
   radar_dotplot <- grid.arrange(radar_plot, loci_dotplot, ncol = 2)
   radar_dotplot
-  if (savePlot){
-    ggsave(paste(out.dir, "radar_dotplot.pdf", sep = "/"), radar_dotplot, width = 9, height = 6.5) 
-  }
+  # if (savePlot){
+  #   ggsave(paste(out.dir, "radar_dotplot.pdf", sep = "/"), radar_dotplot, width = 9, height = 6.5) 
+  # }
    
 }
 
