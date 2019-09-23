@@ -239,7 +239,7 @@ vafCluster <-function(maf, vafColumn="VAF",
 
 clusterGenerator <- function(mafInput, sampleName){
     ## refine part
-    Mt <- mclust::densityMclust(mafInput[, VAF], G=1:7, verbose=FALSE)
+    Mt <- mclust::densityMclust(mafInput$VAF, G=1:7, verbose=FALSE)
     clusterMt <- as.data.frame(mafInput)
     clusterMt$cluster <- as.character(Mt[["classification"]])
     ## 
