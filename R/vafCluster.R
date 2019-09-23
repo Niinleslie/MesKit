@@ -3,7 +3,7 @@
 #'  curve with ggplot2 as well as ggridges. Different parameters could lead to 
 #'  different outputs with different range of samples.
 #' 
-#' @import ggplot2 ggsci cowplot
+#' @import ggplot2 ggsci cowplot grid
 #' @importFrom ggridges geom_density_ridges
 #' @importFrom dplyr group_by
 #' 
