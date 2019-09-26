@@ -17,7 +17,7 @@
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
 #' @param driverGenesFile the directory of the driver gene list. Default NULL.
 #' @param mutThreshold the threshold for the variants in a branch. Default 50.
-#' @param plot.Signature the parameter used to print the signautre summary plot by ggplot2
+#' @param plot.signatures the parameter used to print the signautre summary plot by ggplot2
 #' @return data frame of each set/branch's mutational signature.
 #' 
 #' @examples
@@ -44,7 +44,7 @@
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, 
                               signaturesRef="signatures.cosmic",
-                              plot.Signatures=FALSE){
+                              plot.signatures=FALSE, plot.branchTrunk=FALSE){
     ## refBuild limitation: only hg19 or hg38
     refBuild <- njtree@refBuild
     if (!((refBuild == "hg19") | (refBuild == "hg38"))){
@@ -142,10 +142,15 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## collect branches' mutataional signature information
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
-    if (plot.Signatures) {
+    if (plot.signatures) {
         pic <- .plotMutationalSig(sigsInput, mutSigsOutput)
         print(pic)
         message(paste(njtree@patientID, " mutaional signature plot generation done!", sep=""))
+    }
+    if (plot.branchTrunk) {
+        pic <- .plotBranchTrunk(sigsInput, mutSigsOutput)
+        print(pic)
+        message(paste(njtree@patientID, "branch-trunk plot generation done!", sep=""))
     }
     message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
     return(mutSigsOutput)
@@ -306,6 +311,132 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     return(pic)
 }
 
+.plotBranchTrunk <- function(mutSigRef) {
+    ## add mutational group
+    mutSigRef$Group <- paste(mutSigRef$ref, ">", mutSigRef$alt, sep = "")
+    
+    # Reverse complement the G's and A's
+    gind = grep("G",substr(mutSigRef$Group,1,1))
+    tind = grep("A",substr(mutSigRef$Group,1,1))
+    
+    mutSigRef$Group[c(gind, tind)] <- gsub("G", "g", gsub("C", "c", gsub("T", "t", gsub("A", "a", mutSigRef$Group[c(gind, tind)]))))
+    mutSigRef$Group[c(gind, tind)] <- gsub("g", "C", gsub("c", "G", gsub("t", "A", gsub("a", "T", mutSigRef$Group[c(gind, tind)])))) 
+    
+    total.mut <- nrow(mutSigRef)
+    ls.mut_id <- unique(mutSigRef$mut_id)
+    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
+    mutFracBT <- data.frame(matrix(ncol = 5, nrow = 0))
+    colnames(mutFracBT) <- c("mut.id", "Group", "Alias", "BT", "mut.frac")
+    
+    for (mut.id in ls.mut_id) {
+        ## renew the row needed to be added to the result
+        row.mut <- c()
+        group <- unique(mutSigRef[which(mutSigRef$mut_id == mut.id), ]$Group)
+        alias <- unique(mutSigRef[which(mutSigRef$mut_id == mut.id), ]$alias)
+        row.mut <- append(row.mut, mut.id)
+        row.mut <- append(row.mut, group)
+        row.mut <- append(row.mut, alias)
+        ## add mut.frac of specific group
+        if (alias == "T") {
+            mut.frac <- 100*nrow(mutSigRef[which(
+                mutSigRef$mut_id == mut.id & 
+                    mutSigRef$alias == "T"), ])/total.mut
+            row.mut <- append(row.mut, "Trunk")
+        } else {
+            mut.frac <- 100*nrow(mutSigRef[which(
+                mutSigRef$mut_id == mut.id & 
+                    mutSigRef$alias != "T"), ])/total.mut
+            row.mut <- append(row.mut, "Branch")
+        }
+        row.mut <- append(row.mut, mut.frac)
+        row.mut <- t(as.data.frame(row.mut))
+        colnames(row.mut) <- c("mut.id", "Group", "Alias", "BT", "mut.frac")
+        mutFracBT <- rbind(mutFracBT, row.mut)
+    }
+    
+    ## set the x label
+    mutFracBT$GroupBT <- paste(mutFracBT$Group, mutFracBT$BT, sep=" ")
+    
+    ## specific the label order of x axis
+    orderlist <- c("C>A", "C>T", "C>G", "T>A", "T>C", "T>G")
+    mutFracBT <- transform(mutFracBT, Group = factor(Group, levels = orderlist))
+    
+    # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
+    CA <- grid::textGrob(expression(bold("C > A")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    CG <- grid::textGrob(expression(bold("C > G")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    CT <- grid::textGrob(expression(bold("C > T")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    TA <- grid::textGrob(expression(bold("T > A")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    TC <- grid::textGrob(expression(bold("T > C")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    TG <- grid::textGrob(expression(bold("T > G")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    
+    group.colors <- pal_npg("nrc", alpha=1)(6)
+    
+    ggplot(mutFracBT, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
+        geom_boxplot()
+    
+    
+    
+    ggplot(df.sigsInputTrans, aes(x=GroupBT, y=mut.frac, group=Group, fill=Group)) + 
+        geom_bar(stat="identity") + 
+        theme(panel.grid=element_blank(), 
+              panel.border=element_blank(), 
+              panel.background = element_blank(), 
+              legend.position='none', 
+              # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
+              axis.text.x=element_blank(), 
+              axis.ticks.x=element_blank(),
+              axis.text.y=element_text(size=5)) +
+        ## background colors
+        geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
+                  fill="#fce7e4", alpha=0.15) + 
+        geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
+                  fill="#ecf8fa", alpha=0.25) + 
+        geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax=Inf),
+                  fill="#dbfff9", alpha=0.05) + 
+        geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax=Inf),
+                  fill="#e4e8f3", alpha=0.08) + 
+        geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax=Inf),
+                  fill="#fdefeb", alpha=0.15) + 
+        geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax=Inf),
+                  fill="#e5e8ef", alpha=0.1) + 
+        ## box plot
+        geom_bar(stat="identity") + 
+        ## combine different results
+        facet_grid(Alias ~ .) + 
+        ## color setting
+        scale_fill_manual(values=group.colors) + 
+        ## axis setting
+        xlab("Mutational Type") + 
+        ylab("Mutation Probability") + 
+        scale_y_continuous(limits=c(0, 100), breaks=seq(0, 0.2, 0.1)) + 
+        ## signature notes and text parts
+        geom_text(data = df.sigsInputText, 
+                  aes(x=-Inf, y=Inf, label=paste(Signature, ": ",  sprintf("%1.3f", SigsWeight), "    ", 
+                                                 "Aetiology: ", Aetiology, sep="")), 
+                  hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=2.75) + 
+        ## Mutational Type Labels
+        annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = CT,  xmin = 43, xmax = 43, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = TA,  xmin = 59, xmax = 59, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = TC,  xmin = 75, xmax = 75, ymin = -0.065, ymax = -0) + 
+        annotation_custom(grob = TG,  xmin = 91, xmax = 91, ymin = -0.065, ymax = -0) + 
+        ## x axis bar
+        geom_rect(aes(xmin=0, xmax=16.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[1], alpha=1) + 
+        geom_rect(aes(xmin=16.595, xmax=32.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[2], alpha=0.25) + 
+        geom_rect(aes(xmin=32.595, xmax=48.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[3], alpha=0.05) + 
+        geom_rect(aes(xmin=48.595, xmax=64.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[4], alpha=0.08) + 
+        geom_rect(aes(xmin=64.595, xmax=80.405, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[5], alpha=0.15) + 
+        geom_rect(aes(xmin=80.595, xmax=96.5, ymin=-0.01, ymax=-0.005),
+                  fill=group.colors[6], alpha=0.1)
+    return(pic)
+}
+
 
 ## Branches' mutation collection
 .treeMutationalBranches <- function(maf, branchAlias, mut_sort.id){
@@ -345,6 +476,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         branchName <- paste(branch, collapse="∩")
         branch.id <- append(branch, "mut.id")
         unbranch <- names(mut_sort.id)[which(!(names(mut_sort.id) %in% branch.id))]
+        ## generate mutation intersection for specific branch
         branch.intersection <- dplyr::intersect(
             mut_sort.id %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1)), 
             mut_sort.id %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0))) 
@@ -357,8 +489,9 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## data duplication
         branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
         branch.mut$Sample <- branchName
-        branch.mut <- branch.mut[!duplicated(branch.mut),]
+        # branch.mut <- branch.mut[!duplicated(branch.mut),]
         branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
+        
         ## generate branch mutation list
         mutBranchesOutput[[branchName]] <- branch.mut
     }
