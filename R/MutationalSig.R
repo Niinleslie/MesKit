@@ -311,139 +311,118 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     return(pic)
 }
 
-.plotBranchTrunk <- function(mutSigRef) {
-    ## add mutational group
-    mutSigRef$Group <- paste(mutSigRef$ref, ">", mutSigRef$alt, sep = "")
-    
-    # Reverse complement the G's and A's
-    gind = grep("G",substr(mutSigRef$Group,1,1))
-    tind = grep("A",substr(mutSigRef$Group,1,1))
-    
-    mutSigRef$Group[c(gind, tind)] <- gsub("G", "g", gsub("C", "c", gsub("T", "t", gsub("A", "a", mutSigRef$Group[c(gind, tind)]))))
-    mutSigRef$Group[c(gind, tind)] <- gsub("g", "C", gsub("c", "G", gsub("t", "A", gsub("a", "T", mutSigRef$Group[c(gind, tind)])))) 
-    
-    total.mut <- nrow(mutSigRef)
-    ls.mut_id <- unique(mutSigRef$mut_id)
+.plotBranchTrunk <- function(sigsInput, mutSigsOutput) {
+    trunkName <- mutSigsOutput[which(mutSigsOutput$alias == "T"), ]$branch
+    sigsInput.trunk <- sigsInput[which(rownames(sigsInput) == trunkName), ]
+    sigsInput.branch <- sigsInput[which(rownames(sigsInput) != trunkName), ]
+    sigsInput.branch <- colSums(sigsInput.branch)
+    sigsInputBT <- rbind(Trunk=sigsInput.trunk, Branch=sigsInput.branch)
+    sigsInputBTTrans <- data.frame(Mutational_Type=colnames(sigsInputBT), t(sigsInputBT))
     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
-    mutFracBT <- data.frame(matrix(ncol = 5, nrow = 0))
-    colnames(mutFracBT) <- c("mut.id", "Group", "Alias", "BT", "mut.frac")
     
-    for (mut.id in ls.mut_id) {
-        ## renew the row needed to be added to the result
-        row.mut <- c()
-        group <- unique(mutSigRef[which(mutSigRef$mut_id == mut.id), ]$Group)
-        alias <- unique(mutSigRef[which(mutSigRef$mut_id == mut.id), ]$alias)
-        row.mut <- append(row.mut, mut.id)
-        row.mut <- append(row.mut, group)
-        row.mut <- append(row.mut, alias)
-        ## add mut.frac of specific group
-        if (alias == "T") {
-            mut.frac <- 100*nrow(mutSigRef[which(
-                mutSigRef$mut_id == mut.id & 
-                    mutSigRef$alias == "T"), ])/total.mut
-            row.mut <- append(row.mut, "Trunk")
-        } else {
-            mut.frac <- 100*nrow(mutSigRef[which(
-                mutSigRef$mut_id == mut.id & 
-                    mutSigRef$alias != "T"), ])/total.mut
-            row.mut <- append(row.mut, "Branch")
-        }
-        row.mut <- append(row.mut, mut.frac)
-        row.mut <- t(as.data.frame(row.mut))
-        colnames(row.mut) <- c("mut.id", "Group", "Alias", "BT", "mut.frac")
-        mutFracBT <- rbind(mutFracBT, row.mut)
+    ## generate Mutation Type for every column
+    for (mutationGroup in ls.mutationGroup) {
+        sigsInputBTTrans$Group[which(grepl(mutationGroup, sigsInputBTTrans$Mutational_Type))] <- mutationGroup
     }
     
-    ## set the x label
-    mutFracBT$GroupBT <- paste(mutFracBT$Group, mutFracBT$BT, sep=" ")
+    sigsInputBSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
+    sigsInputTSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
     
-    ## specific the label order of x axis
-    orderlist <- c("C>A", "C>T", "C>G", "T>A", "T>C", "T>G")
-    mutFracBT <- transform(mutFracBT, Group = factor(Group, levels = orderlist))
+    for (mutationGroup in ls.mutationGroup) {
+        groupBSum <- sigsInputBSum$sum[which(sigsInputBSum$Group == mutationGroup)]
+        groupTSum <- sigsInputTSum$sum[which(sigsInputTSum$Group == mutationGroup)]
+        sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch <- 
+            100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch/groupBSum
+        sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk <- 
+            100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk/groupTSum
+    }
     
-    # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
-    CA <- grid::textGrob(expression(bold("C > A")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-    CG <- grid::textGrob(expression(bold("C > G")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-    CT <- grid::textGrob(expression(bold("C > T")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-    TA <- grid::textGrob(expression(bold("T > A")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-    TC <- grid::textGrob(expression(bold("T > C")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-    TG <- grid::textGrob(expression(bold("T > G")),gp=gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+    sigsInputBoxplot <- data.frame(matrix(nrow=0, ncol=3))
+    colnames(sigsInputBoxplot) <- c("GroupBT", "Group", "mut.frac")
+    
+    for (mutationGroup in ls.mutationGroup) {
+        dat.group <- sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]
+        df.groupB <- data.frame(rep(paste(mutationGroup, "Branch", sep=" "), nrow(dat.group)), 
+                                rep(mutationGroup, nrow(dat.group)), 
+                               dat.group$Branch)
+        df.groupT <- data.frame(rep(paste(mutationGroup, "Trunk", sep=" "), nrow(dat.group)), 
+                                rep(mutationGroup, nrow(dat.group)), 
+                                dat.group$Trunk)
+        colnames(df.groupB) <- c("GroupBT", "Group", "mut.frac")
+        colnames(df.groupT) <- c("GroupBT", "Group", "mut.frac")
+        sigsInputBoxplot <- rbind(sigsInputBoxplot, df.groupB, df.groupT)
+    }
     
     group.colors <- pal_npg("nrc", alpha=1)(6)
     
-    ggplot(mutFracBT, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
-        geom_boxplot()
+    # group.colors <- c("#009AEC", "#000000", "#C10000", "#A5A5A5", "#00C491", "#FF4FB1")
+    CA <- grid::textGrob(expression(bold("C > A")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CG <- grid::textGrob(expression(bold("C > G")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CT <- grid::textGrob(expression(bold("C > T")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TA <- grid::textGrob(expression(bold("T > A")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TC <- grid::textGrob(expression(bold("T > C")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TG <- grid::textGrob(expression(bold("T > G")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
     
-    
-    
-    ggplot(df.sigsInputTrans, aes(x=GroupBT, y=mut.frac, group=Group, fill=Group)) + 
-        geom_bar(stat="identity") + 
+    ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
+        geom_boxplot() + 
         theme(panel.grid=element_blank(), 
               panel.border=element_blank(), 
               panel.background = element_blank(), 
               legend.position='none', 
-              # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
-              axis.text.x=element_blank(), 
-              axis.ticks.x=element_blank(),
-              axis.text.y=element_text(size=5)) +
+              axis.text.x=element_text(size=10, angle = 90), 
+              axis.text.y=element_text(size=10)) + 
         ## background colors
-        geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=0.5, xmax=2.5, ymin=0, ymax=Inf),
                   fill="#fce7e4", alpha=0.15) + 
-        geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=2.5, xmax=4.5, ymin=0, ymax=Inf),
                   fill="#ecf8fa", alpha=0.25) + 
-        geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=4.5, xmax=6.5, ymin=0, ymax=Inf),
                   fill="#dbfff9", alpha=0.05) + 
-        geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=6.5, xmax=8.5, ymin=0, ymax=Inf),
                   fill="#e4e8f3", alpha=0.08) + 
-        geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=8.5, xmax=10.5, ymin=0, ymax=Inf),
                   fill="#fdefeb", alpha=0.15) + 
-        geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=10.5, xmax=12.5, ymin=0, ymax=Inf),
                   fill="#e5e8ef", alpha=0.1) + 
-        ## box plot
-        geom_bar(stat="identity") + 
-        ## combine different results
-        facet_grid(Alias ~ .) + 
+        geom_boxplot() + 
         ## color setting
         scale_fill_manual(values=group.colors) + 
         ## axis setting
-        xlab("Mutational Type") + 
-        ylab("Mutation Probability") + 
-        scale_y_continuous(limits=c(0, 100), breaks=seq(0, 0.2, 0.1)) + 
-        ## signature notes and text parts
-        geom_text(data = df.sigsInputText, 
-                  aes(x=-Inf, y=Inf, label=paste(Signature, ": ",  sprintf("%1.3f", SigsWeight), "    ", 
-                                                 "Aetiology: ", Aetiology, sep="")), 
-                  hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=2.75) + 
-        ## Mutational Type Labels
-        annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = CT,  xmin = 43, xmax = 43, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = TA,  xmin = 59, xmax = 59, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = TC,  xmin = 75, xmax = 75, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = TG,  xmin = 91, xmax = 91, ymin = -0.065, ymax = -0) + 
+        xlab(" ") + 
+        ylab("Mutation fraction(%)") + 
+        scale_y_continuous(limits=c(-5, 100), breaks=seq(0, 100, 25)) + 
         ## x axis bar
-        geom_rect(aes(xmin=0, xmax=16.405, ymin=-0.01, ymax=-0.005),
+        geom_rect(aes(xmin=0.5, xmax=2.5, ymin=-5, ymax=-0.5),
                   fill=group.colors[1], alpha=1) + 
-        geom_rect(aes(xmin=16.595, xmax=32.405, ymin=-0.01, ymax=-0.005),
+        geom_rect(aes(xmin=2.5, xmax=4.5, ymin=-5, ymax=-0.5),
                   fill=group.colors[2], alpha=0.25) + 
-        geom_rect(aes(xmin=32.595, xmax=48.405, ymin=-0.01, ymax=-0.005),
+        geom_rect(aes(xmin=4.5, xmax=6.5, ymin=-5, ymax=-0.5),
                   fill=group.colors[3], alpha=0.05) + 
-        geom_rect(aes(xmin=48.595, xmax=64.405, ymin=-0.01, ymax=-0.005),
+        geom_rect(aes(xmin=6.5, xmax=8.5, ymin=-5, ymax=-0.5),
                   fill=group.colors[4], alpha=0.08) + 
-        geom_rect(aes(xmin=64.595, xmax=80.405, ymin=-0.01, ymax=-0.005),
+        geom_rect(aes(xmin=8.5, xmax=10.5, ymin=-5, ymax=-0.5),
                   fill=group.colors[5], alpha=0.15) + 
-        geom_rect(aes(xmin=80.595, xmax=96.5, ymin=-0.01, ymax=-0.005),
-                  fill=group.colors[6], alpha=0.1)
-    return(pic)
+        geom_rect(aes(xmin=10.5, xmax=12.5, ymin=-5, ymax=-0.5),
+                  fill=group.colors[6], alpha=0.1) + 
+        ## Mutational Type Labels
+        annotation_custom(grob = CA,  xmin = 1, xmax = 3, ymin = -8.5, ymax = -0) + 
+        annotation_custom(grob = CG,  xmin = 3, xmax = 5, ymin = -8.5, ymax = -0) + 
+        annotation_custom(grob = CT,  xmin = 5, xmax = 7, ymin = -8.5, ymax = -0) + 
+        annotation_custom(grob = TA,  xmin = 7, xmax = 9, ymin = -8.5, ymax = -0) + 
+        annotation_custom(grob = TC,  xmin = 9, xmax = 11, ymin = -8.5, ymax = -0) + 
+        annotation_custom(grob = TG,  xmin = 11, xmax = 13, ymin = -8.5, ymax = -0)
+        
+        ## TODO: do the t-test and you should make sure the data is qualified.
+    
 }
 
 
 ## Branches' mutation collection
-.treeMutationalBranches <- function(maf, branchAlias, mut_sort.id){
+.treeMutationalBranches <- function(maf.dat, patientID, branchAlias, mut_sort.id){
     ## get mutationalSigs-related  infomation
-    maf_input <- maf@data
+    maf_input <- maf.dat
     branchChar <- as.character(branchAlias$Branch)
-    patientID <- maf@patientID
+    patientID <- patientID
     datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
     datChr$chr <- paste("chr", datChr$chr, sep="")
     datMutgene <-  maf_input$Hugo_Symbol
@@ -484,12 +463,12 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
             next()
         }
-        branch.mut.id <- branch.intersection$mut.id 
+        branch.mut.id <- branch.intersection$mut.id
         
         ## data duplication
         branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
         branch.mut$Sample <- branchName
-        # branch.mut <- branch.mut[!duplicated(branch.mut),]
+        branch.mut <- branch.mut[!duplicated(branch.mut),]
         branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
         
         ## generate branch mutation list
