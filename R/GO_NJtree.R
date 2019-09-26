@@ -99,7 +99,7 @@ GO.njtree <- function(njtree, GO.type = "BP", pval = 0.05, pAdjustMethod = "BH",
   ego.all.result <- ego.all@result
   egoResult.list[[i+1]] <- ego.all.result
   result.branchNames <- c(result.branchNames, "All")
-  if(min(ego.all.result$p.adjust) > pval | min(ego.all.result$qvalue) > qval, na.rm = T){
+  if(min(ego.all.result$p.adjust) > pval | min(ego.all.result$qvalue, na.rm = T) > qval){
       message(paste("0 enriched terms found in ", patientID, sep = ""))
     }else{
     #str_length = max(nchar(ego.all.result$Description))

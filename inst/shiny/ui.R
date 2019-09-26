@@ -16,7 +16,8 @@ sidebar <- dashboardSidebar(
     menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("location-arrow")),
     menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("th",lib = "glyphicon")),
     menuItem(strong("Functional analysis"), tabName = "function", icon = icon("bar-chart")),
-    menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart"))
+    menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart")),
+    menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart"))
   )
 )
 
@@ -39,26 +40,28 @@ bodyHome <- tabItem("home",
                     
               fluidRow(
                 box(
-                  width = 6,
+                  width = 12,
                   status = "info",
                   solidHeader = TRUE,
                   title =  strong("Overview of MesKit package"),
-                  p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
-                    style = "font-si16pt"),
-                  br(),
-                  div(img(src = "images/pipeline.png", width=600), style="text-align: center;")
-                  ),
-                box(
-                  width = 6,
-                  status = "info",
-                  solidHeader = TRUE,
-                  title =  strong("MesKit result viewer"),
-                  includeMarkdown("dom/Results_viewer.md"),
-                  br(),
-                  div(img(src = "images/result_view.png", width=730, height = 422), style="text-align: center;")
-                  #img(src = "images/result_view.png", align = "center", width="100%")
+                  # p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
+                  #   style = "font-si16pt"),
+                  # br(),
+                  fluidRow(
+                    column(
+                      width = 7,
+                      div(img(src = "images/pipeline.png", width=950,height = 700),style="text-align: left;")
+                    ),
+                    column(
+                      width = 5,
+                      br(),
+                      p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
+                        style = "font-si16pt"),
+                      br(),
+                      includeMarkdown("dom/Results_viewer.md")
+                    )
                   )
-
+                  )
                 )
 )
 
@@ -66,96 +69,51 @@ bodyIP <- tabItem("input",
                   h2('Input section'),
                   fluidRow(
                     column(
-                      width = 3,
+                      width = 4,
                       box(
-                        title = div(shiny::icon("gear"), "Adjust image height & width", inline =TRUE),
+                        title = div(shiny::icon("gear"), "Upload", inline =TRUE),
                         width = NULL,
-                        tabBox(
-                          width = "100%",
-                          height = "100%",
-                          id = "InputSession",
-                          title = "",
-                          selected = "IS1",
-                          tabPanel(
-                            value = "IS1",
-                            title = div(icon("book"), "Upload"),
-                            radioGroupButtons(
-                              "dataset",
-                              label = "Data Set",
-                              choices = c(default = "default", upload = "upload"),
-                              selected = "default",
-                              status = "primary"
-                            ),
-                            conditionalPanel(
-                              condition = "input.dataset == 'upload'",
-                              fileInput('maf','Upload maf file'),
-                              fileInput('sampleInfo','Upload sampleInfo' ),
-                              checkboxInput('useccf','choose if  use ccf',value = F),
-                              conditionalPanel(
-                                condition = "input.useccf == true",
-                                fileInput('ccf.cluster','Upload ccf.cluster'),
-                                fileInput('ccf.loci','Upload ccf.loci' )
-                              )
-                            ),
-                            # fileInput('maf','Upload maf file'),
-                            # fileInput('sampleInfo','Upload sampleInfo' ),
-                            # checkboxInput('useccf','choose if  use ccf',value = F),
-                            # conditionalPanel(
-                            #   condition = "input.useccf == true",
-                            #   fileInput('ccf.cluster','Upload ccf.cluster'),
-                            #   fileInput('ccf.loci','Upload ccf.loci' )
-                            # ),
-                            actionBttn('submit1',div(
-                              strong("Click ME to start analysing"),align = 'center',
-                              icon("hand-right", lib = "glyphicon")))
-                          ),
-                          tabPanel(
-                            value = "IS2",
-                            title = div(icon("book"), "Setting"),
-                            selectInput('ref','select reference genome(hg19/hg38)',
-                                        choices = c(
-                                          'hg19','hg38'
-                                        )),
-                            checkboxInput('use.indel','choose if  use indel',value = FALSE)
+                        radioGroupButtons(
+                          "dataset",
+                          label = "Load data",
+                          choices = c(Example = "default", Upload = "upload"),
+                          selected = "default",
+                          status = "primary"
+                        ),
+                        conditionalPanel(
+                          condition = "input.dataset == 'upload'",
+                          fileInput('maf','Upload maf file'),
+                          fileInput('sampleInfo','Upload sampleInfo' ),
+                          conditionalPanel(
+                            condition = "input.useccf == true",
+                            fileInput('ccf.cluster','Upload ccf.cluster'),
+                            fileInput('ccf.loci','Upload ccf.loci' )
                           )
-                        )
+                        ),
+                        actionBttn('submit1',div(
+                          strong("Click ME to start analysing"),align = 'center',
+                          icon("thumbs-up", lib = "glyphicon")))
                       )
                     ),
                     column(
-                      width = 9,
+                      width = 4,
                       box(
-                        title = "Maf Summary",
-                        width = 1000,
-                        height = 850,
-                        # tabBox(
-                        #   title = "",
-                        #   selected = "MS2",
-                        #   tabPanel(
-                        #     id = "MS1",
-                        #     title = div(icon("book"), "Readme")
-                        #   ),
-                        #   tabPanel(
-                        #     id = "MS2",
-                        #     title = div(icon("th", lib = "glyphicon"), "Maf Summary"),
-                        #     withSpinner(plotOutput('mafSummary',height = "100%",width = "100%"))
-                        #   )
-                        # )
-                        withSpinner(plotOutput('mafSummary'))
-                      ),
-                      box(
-                        status = 'success',
                         width = NULL,
-                        radioButtons('DownloadMafSummaryCheck','Choose file type to download:',
-                                     c('png' ='png','pdf' = 'pdf'),inline = T),
-                        downloadBttn('DownloadMafSummary', 'Download')
+                        title = div(icon("book"), "Parameters"),
+                        # selectInput('ref','select reference genome(hg19/hg38)',
+                        #             choices = c('hg19','hg38'),selected = "hg19"),
+                        switchInput('useccf','use ccf',value = F,
+                                    onLabel = "TRUE",offLabel = "FALSE",labelWidth = 200),
+                        switchInput('use.indel','use indel',value = FALSE,
+                                    onLabel = "TRUE",offLabel = "FALSE",labelWidth = 200),
+                        selectInput('ref','Select reference genome(hg19/hg38)',
+                                    choices = c('hg19','hg38'),selected = "hg19")
+                        # conditionalPanel(
+                        #   condition = "input.useccf == true",
+                        #   textInput("ccf.mutation.id","ccf.mutation.id",value = "Hugo_Symbol','Chromosome','Start_Position'"),
+                        #   textInput("ccf.mutation.sep","ccf.mutation.sep",":")
+                        #   )
                       )
-                      # box(
-                      #   status = 'success',
-                      #   width = NULL,
-                      #   radioButtons('DownloadMafSummaryCheck','Choose file type to download:',
-                      #                c('png' ='png','pdf' = 'pdf'),inline = T),
-                      #   downloadBttn('DownloadMafSummary', 'Download')
-                      # )
                     )
                   )
                   )
@@ -164,94 +122,184 @@ bodyIP <- tabItem("input",
 bodyITH <- tabItem("ITH",
                    h2('ITH evaluation'),
                    fluidRow(
-                    column(
-                     width = 3,
-                     box(
-                       width = NULL,
-                       tabBox(
-                         width = "100%",
-                         height = "100%",
-                         selected = "IE2",
-                         tabPanel(
-                           value = "IE1",
-                           title = div(shiny::icon("gear"), "height&width", inline =TRUE),
-                           sliderInput('width1','adjust image width',min = 700,max = 1100, value = 850)
-                         ),
-                         tabPanel(
-                           value = "IE2",
-                           title = div(shiny::icon("eye"), "setting&upload", inline =TRUE),
-                           h4(strong("Setting for MutSharedPrivatedPlot")),
-                           checkboxInput('show.num','show mutational number',value = FALSE),
-                           h4(strong("Setting for StackPlot")),
-                           fileInput('oncogeneListFile','Upload oncogeneListFile'),
-                           fileInput('tsgListFile','Upload tsgListFile')
-                         )
-                       )
-                       )
-                       # title = div(shiny::icon("gear"), "Adjust image height & width", inline =TRUE),
-                       # sliderInput('width1','adjust image width',min = 700,max = 1100, value = 850)                     )
-                     ),
                      column(
-                       width = 9,                     
+                       width = 11,                     
                       box(
-                       title = 'Visuliaztion',
                        width = NULL,
                        tabBox(                           
-                         height = "100%", width = "100%",
+                         height = "100%", 
+                         width = "100%",
                          selected = "caInput02",
                          side = "left",
                          tabPanel(
-                           title = div(icon("chart-bar"), "mathScore"),
+                           title = div(icon("chart-bar"), "MathScore"),
                            value = "caInput02",
-                           withSpinner(dataTableOutput('mathScore')),
+                           fluidRow(
+                             column(
+                               width = 3,
+                               textInput("tsb",h4(strong("tsb")),value = "All",width = 300)
+                             ),
+                             column(
+                               width = 5,
+                               sliderInput("vafrange",h4(strong("VAF range")),min = 0,max = 1,value = c(0,1),width = 600)
+                             )
+                           ),
+                           actionBttn('submit2',div(
+                             strong("Click ME to start analysing"),align = 'center',
+                             icon("hand-point-down", lib = "glyphicon"))),
+                           br(),
+                           br(),
+                           withSpinner(DT::dataTableOutput('mathScore')),
+                           br(),
                            downloadBttn('DownloadMathScore', 'Download')
                          ),
                          tabPanel(
-                           title = div(icon("image"), "vafPlot"),
+                           title = div(icon("image"), "Vafplot"),
                            value = "caInput03",
+                           fluidRow(
+                             column(
+                               width = 3,
+                               selectInput("plotOption",h4(strong("Plot Option")),
+                                           choices = c(
+                                             compare = "compare",
+                                             combine = "combine",
+                                             separate = "separate"
+                                           ), selected = "compare",width = 300)
+                             ),
+                             column(
+                               width = 5,
+                               sliderInput('width1','Adjust Image Width',min = 700,max = 1100, value = 850,width = 500)
+                             )
+                           ),
+                           actionBttn('submit3',div(
+                             strong("Click ME to start analysing"),align = 'center',
+                             icon("hand-point-down", lib = "glyphicon"))),
+                           br(),
+                           br(),
                            plotOutput("vaf.cluster",height = "100%",width = "100%"),
-                           box(
-                             width = NULL,
-                             status = 'success',
-                             radioButtons('DownloadVafPlotCheck','Choose file type to download:',
-                                        c('png' ='png','pdf' = 'pdf'),inline = T),
-                             downloadBttn('DownloadVafPlot', 'Download')
+                           br(),
+                           fluidRow(
+                             column(
+                               width = 3,
+                               radioButtons('DownloadVafPlotCheck','Choose file type to download:',
+                                            c('png' ='png','pdf' = 'pdf'),inline = T)
+                             ),
+                             column(
+                               width = 3,
+                               downloadBttn('DownloadVafPlot', 'Download')
+                             )
                            )
                          ),
                          tabPanel(
-                           title = div(icon("map"), "mutSharedPrivatePlot"),
+                           title = div(icon("map"), "Mutsharedprivateplot"),
                            value = "caInput04",
+                           fluidRow(
+                             column(
+                               width = 5,
+                               sliderInput('width2','Adjust Image Width',min = 700,max = 1100, value = 850,width = 500)
+                             ),
+                             column(
+                               width = 5,
+                               br(),
+                               br(),
+                               switchInput('show.num','Show Mutational Number',value = FALSE,
+                                           onLabel = "TRUE",offLabel = "FALSE",labelWidth = 200)
+                             )
+                           ),
+                           br(),
+                           actionBttn('submit4',div(
+                             strong("Click ME to start analysing"),align = 'center',
+                             icon("hand-point-down", lib = "glyphicon"))),
+                           br(),
+                           br(),
                            plotOutput("mut.share_private",height = "100%"),
-                           box(
-                             width = NULL,
-                             status = 'success',
-                             radioButtons('DownloadSharedPlotCheck','Choose file type to download:',
-                                        c('png' ='png','pdf' = 'pdf'),inline = T),
-                             downloadBttn('DownloadSharedPlot', 'Download')
+                           br(),
+                           fluidRow(
+                             column(
+                               width = 3,
+                               radioButtons('DownloadSharedPlotCheck','Choose file type to download:',
+                                            c('png' ='png','pdf' = 'pdf'),inline = T)
+                             ),
+                             column(
+                               width = 3,
+                               downloadBttn('DownloadSharedPlot', 'Download')
+                             )
                            )
                          ),
                          tabPanel(
-                           title = div(icon("camara"), "stackPlot"),
+                           title = div(icon("camara"), "Stackplot"),
                            value = "caInput05",
+                           fluidRow(
+                             column(
+                               width = 3,
+                               fileInput('oncogeneListFile','Upload oncogeneListFile',width = 300)
+                             ),
+                             column(
+                               width = 3,
+                               fileInput('tsgListFile','Upload tsgListFile',width = 300)
+                             )
+                           ),
+                           fluidRow(
+                             column(
+                               width = 5,
+                               sliderInput('width3','Adjust Image Width',min = 700,max = 1100, value = 850,width = 500)
+                             ),
+                             column(
+                               width = 5,
+                               br(),
+                               br(),
+                               actionBttn('submit5',div(
+                                 strong("Click ME to start analysing"),align = 'center',
+                                 icon("hand-point-down", lib = "glyphicon")))
+                             )
+                           ),
+                           br(),
+                           br(),
                            plotOutput("stackplot",height = "100%"),
-                           box(
-                             width = NULL,
-                             status = 'success',
-                             radioButtons('DownloadStackPlotCheck','Choose file type to download:',
-                                          c('png' ='png','pdf' = 'pdf'),inline = T),
-                             downloadBttn('DownloadStackPlot', 'Download')
+                           br(),
+                           fluidRow(
+                             column(
+                               width = 3,
+                               radioButtons('DownloadStackPlotCheck','Choose file type to download:',
+                                            c('png' ='png','pdf' = 'pdf'),inline = T)
+                             ),
+                             column(
+                               width = 3,
+                               downloadBttn('DownloadStackPlot', 'Download')
+                             )
                            )
                          ),
                          tabPanel(
-                           title = div(icon("box"), "JaccardIndex"),
+                           title = div(icon("box"), "Jaccardindex"),
                            value = "caInput06",
+                           fluidRow(
+                             column(
+                               width = 5,
+                               sliderInput('width4','Adjust Image Width',min = 700,max = 1100, value = 850,width = 500)
+                             ),
+                             column(
+                               width = 5,
+                               br(),
+                               br(),
+                               actionBttn('submit6',div(
+                                 strong("Click ME to start analysing"),align = 'center',
+                                 icon("hand-point-down", lib = "glyphicon")))
+                             )
+                           ),
+                           br(),
+                           br(),
                            plotOutput("JaccardIndex",height = "100%"),
-                           box(
-                             width = NULL,
-                             status = 'success',
-                             radioButtons('DownloadJaccardIndexCheck','Choose file type to download:',
-                                          c('png' ='png','pdf' = 'pdf'),inline = T),
-                             downloadBttn('DownloadJaccardIndex', 'Download')
+                           br(),
+                           fluidRow(
+                             column(
+                               width = 3,
+                               radioButtons('DownloadJaccardIndexCheck','Choose file type to download:',
+                                            c('png' ='png','pdf' = 'pdf'),inline = T)
+                             ),
+                             column(
+                               width = 3,
+                               downloadBttn('DownloadJaccardIndex', 'Download')
+                             )
                            )
                          )
                          )
@@ -263,20 +311,10 @@ bodyITH <- tabItem("ITH",
 
 bodyclone <- tabItem('clone',
                      h2('Clonal analysis'),
-                    fluidRow(
-                      column(
-                        width = 3,
-                      box(
-                        status = 'primary',
-                        width = NULL,
-                        title = div(shiny::icon("gear"), "Adjust image height & width", inline =TRUE),
-                        sliderInput('width2','adjust image width',min = 700,max = 1100, value = 850)
-                      )
-                      ),
+                     fluidRow(
                      column(
-                       width = 9,
+                       width = 10,
                       box(
-                        title = 'Visuliaztion',
                         width = NULL,
                         tabBox(
                           selected = 'c01',
@@ -285,16 +323,40 @@ bodyclone <- tabItem('clone',
                           width = "100%",
                           tabPanel(
                             value = 'c01',
-                            title = div(icon("newspaper"), "TumorClone Plot"),
+                            title = div(icon("newspaper"), "TumorCloneplot"),
+                            fluidRow(
+                              column(
+                                width = 5,
+                                sliderInput('width5','Adjust image width',min = 700,max = 1100, value = 850,width = 500)
+                              ),
+                              column(
+                                width = 5,
+                                br(),
+                                br(),
+                                actionBttn('submit7',div(
+                                  strong("Click ME to start analysing"),align = 'center',
+                                  icon("hand-point-down", lib = "glyphicon")))
+                              )
+                            ),
+                            # sliderInput('width5','Adjust image width',min = 700,max = 1100, value = 850,width = 500),
+                            # actionBttn('submit7',div(
+                            #   strong("Click ME to start analysing"),align = 'center',
+                            #   icon("hand-point-down", lib = "glyphicon"))),
+                            br(),
+                            br(),
                             withSpinner(plotOutput('cloneplot',height = "100%")),
-                            box(
-                              width = NULL,
-                              status = 'success',
-                              radioButtons('DownloadClonePlotCheck','Choose file type to download:',
-                                     c('png' ='png','pdf' = 'pdf'),inline = T),
-                              downloadBttn('DownloadClonePlot', 'Download')
+                            br(),
+                            fluidRow(
+                              column(
+                                width = 3,
+                                radioButtons('DownloadClonePlotCheck','Choose file type to download:',
+                                             c('png' ='png','pdf' = 'pdf'),inline = T)
+                              ),
+                              column(
+                                width = 3,
+                                downloadBttn('DownloadClonePlot', 'Download')
+                              )
                             )
-
                           )
                         )
                       )
@@ -307,61 +369,84 @@ bodyfunction <- tabItem('function',
                         h2('Functional analysis'),
                         fluidRow(
                           column(
-                            width = 3,
-                            box(
-                             width = NULL,
-                             status = 'primary',
-                             title = div(shiny::icon("gear"), "Adjust parameters", inline =TRUE),
-                             sliderInput('pval','adjust pval',min = 0,max = 1, value = 0.05),
-                             sliderInput('qval','adjust image qval',min = 0,max = 1, value = 0.2),
-                             # checkboxInput('saveplot1',strong('click if save plot of result'),value = F),
-                             # checkboxInput('writetable1',strong('click if write table of result'),value = F),
-                             actionBttn('submit3',div(strong("Click me Start/Refresh"),align = 'center'))
-                           ),
-                          box(
-                             width = NULL,
-                             status = 'primary',
-                             title = div(shiny::icon("gear"), "Data upload & Configuration", inline =TRUE),
-                             sliderInput('width3','adjust image width',min = 700,max = 1100, value = 850),
-                             sliderInput('height3','adjust image height',min = 600,max = 2000, value = 1300)
-                          )
-                          ),
-                          column(
-                           width = 9,
+                           width = 12,
                            box(
-                            title = 'Visuliaztion',
                             width = NULL,
-                            height = 2100,
+                            height = 800,
                             tabBox(
                               side = 'left',
                               selected = 'F02',
                               width = "100%",
                               height = "100%",
                               tabPanel(
-                                title = div(icon("lightbulb"), "GO Analyse"),
+                                title = div(icon("lightbulb"), "GO analysis"),
                                 value = 'F01',
-                                withSpinner(plotOutput('GOplot',height = "100%",width = "100%")),
-                                box(
-                                  width = NULL,
-                                  status = 'success',
-                                  radioButtons('DownloadGOPlotCheck','Choose file type to download:',
-                                             c('png' ='png','pdf' = 'pdf'),inline = T),
-                                  downloadBttn('DownloadGOPlot', 'Download')
+                                fluidRow(
+                                  column(
+                                    width = 5,
+                                    sliderInput('pval1','Adjust pval',min = 0,max = 1, value = 0.05),
+                                    sliderInput('qval1','Adjust image qval',min = 0,max = 1, value = 0.2)
+                                  ),
+                                  column(
+                                    width = 5,
+                                    sliderInput('width6','Adjust image width',min = 400,max = 800, value = 800),
+                                    sliderInput('height6','Adjust image height',min = 400,max = 600, value = 500)
+                                  )
+                                ),
+                                fluidRow(
+                                  column(
+                                    width = 5,
+                                    br(),
+                                    br(),
+                                    uiOutput("chooselist1"),
+                                    actionBttn('submit8',div(
+                                      strong("Click ME to start analysing"),align = 'center',
+                                      icon("hand-right", lib = "glyphicon")))
+                                  ),
+                                  column(
+                                    width = 7,
+                                    withSpinner(plotOutput('GOplot',height = "100%",width = "100%")),
+                                    br(),
+                                    radioButtons('DownloadGOPlotCheck','Choose file type to download:',
+                                                 c('png' ='png','pdf' = 'pdf'),inline = T),
+                                    downloadBttn('DownloadGOPlot', 'Download')
+                                  )
                                 )
-
                               ),
                               tabPanel(
-                                title = div(icon("microsoft"), "Pathway Analyse"),
+                                title = div(icon("microsoft"), "Pathway analysis"),
                                 value = 'F02',
-                                withSpinner(plotOutput('Pathwayplot',height = "100%",width = "100%")),
-                                box(
-                                  width = NULL,
-                                  status = 'success',
-                                  radioButtons('DownloadPathPlotCheck','Choose file type to download:',
-                                             c('png' ='png','pdf' = 'pdf'),inline = T),
-                                  downloadBttn('DownloadPathPlot', 'Download')
+                                fluidRow(
+                                  column(
+                                    width = 5,
+                                    sliderInput('pval2','Adjust pval',min = 0,max = 1, value = 0.05),
+                                    sliderInput('qval2','Adjust image qval',min = 0,max = 1, value = 0.2)
+                                  ),
+                                  column(
+                                    width = 5,
+                                    sliderInput('width7','Adjust image width',min = 400,max = 800, value = 800),
+                                    sliderInput('height7','Adjust image height',min = 400,max = 600, value = 500)
+                                  )
+                                ),
+                                fluidRow(
+                                  column(
+                                    width = 5,
+                                    br(),
+                                    br(),
+                                    uiOutput("chooselist2"),
+                                    actionBttn('submit9',div(
+                                      strong("Click ME to start analysing"),align = 'center',
+                                      icon("hand-right", lib = "glyphicon")))
+                                  ),
+                                  column(
+                                    width = 7,
+                                    withSpinner(plotOutput('Pathwayplot',height = "100%",width = "100%")),
+                                    br(),
+                                    radioButtons('DownloadPathPlotCheck','Choose file type to download:',
+                                                 c('png' ='png','pdf' = 'pdf'),inline = T),
+                                    downloadBttn('DownloadPathPlotPlot', 'Download')
+                                  )
                                 )
-
                               )
                             )
                           )
@@ -371,98 +456,113 @@ bodyfunction <- tabItem('function',
                         ))
 
 bodySurvival <- tabItem('Survival',
-                        h2('Phylotree Visualiaztion'),
+                        h2('Phylotree visualiaztion'),
                         fluidRow(
                           column(
                             width = 3,
                             box(
                             width = NULL,
                             status = 'primary',
-                            title = div(shiny::icon("gear"), "Adjust parameters", inline =TRUE),
-                            radioGroupButtons('phyloTreeType','select tye of your phylotree',
-                                         c( 'NJtree' = 'njtree',
-                                            'Newick' = 'newick',
-                                            'beast' = 'beast',
-                                            'PAML' = 'PAML'),
-                                         status = "primary",
+                            title = div(shiny::icon("gear"), "Parameters", inline =TRUE),
+                            selectInput('phyloTreeType','Select tye of your phylotree',
+                                         c( 'njtree','newick','beast','PAML'),
                                          selected = 'njtree'),
                             conditionalPanel(
                               condition = "input.phyloTreeType != 'njtree'",
                               fileInput('phylotree.dir','upload your phylotree file')
                             ),
-                            checkboxInput('show.mutSig','choose if show mutationignature',value = TRUE),
-                            checkboxInput('show.heatmap','choose if show heatmap',value = TRUE),
+                            switchInput('show.mutSig','Choose if show mutationignature',value = TRUE,
+                                        width = 500,onLabel = "TRUE",offLabel = "FALSE"),
+                            switchInput('show.heatmap','Choose if show heatmap',value = TRUE,width = 500,onLabel = "TRUE",offLabel = "FALSE"),
                             radioGroupButtons(
                               inputId = "sig.name",
-                              label = "signature name",
-                              choices = c(default = "Default", alias = "Alias"),
-                              selected = "Default",
+                              label = "Signature name",
+                              choices = c(default = "default", alias = "alias"),
+                              selected = "default",
                               status = "primary"
                             ),
                             radioGroupButtons(
                               inputId = "heatmap.type",
-                              label = "heatmap type",
+                              label = "Heatmap type",
                               choices = c(binary = "binary", CCF = "CCF"),
                               selected = "binary",
                               status = "primary"
-                            )
-                              # actionBttn('submit.tree',div(
-                              # strong("Click ME to visualize result"),align = 'center',
-                              # icon("hand-right", lib = "glyphicon")))
+                            ),
+                            actionBttn('submit10',div(
+                              strong("Click ME to start analysing"),align = 'center',
+                              icon("hand-right", lib = "glyphicon")))
                           )
                           ),
                           column(
                             width = 9,
                             box(
-                              title = "visulization",
+                              title = div(icon("eye"), "Visulization"),
                               width = NULL,
                               height = 1000,
-                              tabBox(
-                                side = 'left',
-                                selected = 'S01',
-                                width = "100%",
-                                height = "100%",
-                                tabPanel(
-                                  title = div(icon("lightbulb"), "Phylotree"),
-                                  value = "S01",
-                                  withSpinner(plotOutput("phylotree",height = 700)),
-                                  box(
-                                    width = NULL,
-                                    status = 'success',
-                                    radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
-                                                 c('png' ='png','pdf' = 'pdf'),inline = T),
-                                    downloadBttn('DownloadPhyloTree', 'Download')
-                                  )
+                              withSpinner(plotOutput("phylotree",height = 700)),
+                              br(),
+                              fluidRow(
+                                column(
+                                  width = 3,
+                                  radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
+                                               c('png' ='png','pdf' = 'pdf'),inline = T)
                                 ),
-                                tabPanel(
-                                  title = div(icon("align-left"), "signature"),
-                                  value = "S02",
-                                  withSpinner(plotOutput("signature",height = 700)),
-                                  box(
-                                    width = NULL,
-                                    status = 'success',
-                                    radioButtons('DownloadSignaturePlotCheck','Choose file type to download:',
-                                                 c('png' ='png','pdf' = 'pdf'),inline = T),
-                                    downloadBttn('DownloadSignaturePlot', 'Download')
-                                  )
+                                column(
+                                  width = 3,
+                                  downloadBttn('DownloadPhyloTree', 'Download')
+                                )
+                              )
                                 )
                             )
-                            )
-
-                            # box(
-                            # title = "Visulization",
-                            # width = NULL,
-                            # height = 800,
-                            # withSpinner(plotOutput("phylotree"))), 
-                            # box(
-                            #   width = NULL,
-                            #   status = 'success',
-                            #   radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
-                            #              c('png' ='png','pdf' = 'pdf'),inline = T),
-                            #   downloadBttn('DownloadPhyloTree', 'Download')
-                            # )
-                          )
+                            
+                          
                         )
+                        )
+bodysignature <- tabItem('signature',
+                         h2('Signature analysis'),
+                         fluidRow(
+                           column(
+                             width = 10,
+                             box(
+                               width = NULL,
+                               tabBox(
+                                 side = 'left',
+                                 selected = 'sa1',
+                                 width = "100%",
+                                 height = "100%",
+                                 tabPanel(
+                                   title = div(icon("bar-chart"), "Signature"),
+                                   value = "sa1",
+                                   actionBttn('submit11',div(
+                                     strong("Click ME to start analysing"),align = 'center',
+                                     icon("hand-point-down", lib = "glyphicon"))),
+                                   br(),
+                                   br(),
+                                   withSpinner(plotOutput("signature",height = 700)),
+                                   br(),
+                                   fluidRow(
+                                     column(
+                                       width = 3,
+                                       radioButtons('DownloadSignaturePlotCheck','Choose file type to download:',
+                                                    c('png' ='png','pdf' = 'pdf'),inline = T)
+                                     ),
+                                     column(
+                                       width = 3,
+                                       downloadBttn('DownloadSignaturePlot', 'Download')
+                                     )
+                                   )
+                                   # box(
+                                   #   width = NULL,
+                                   #   status = 'success',
+                                   #   radioButtons('DownloadSignaturePlotCheck','Choose file type to download:',
+                                   #                c('png' ='png','pdf' = 'pdf'),inline = T),
+                                   #   downloadBttn('DownloadSignaturePlot', 'Download')
+                                   # )
+                                 )
+                               )
+                             )
+                           )
+                         )
                         )
                     
 
@@ -473,9 +573,26 @@ shinyUI(
                   titleWidth = 650),
     sidebar,
     dashboardBody(
-      theme = 
       tags$head(
-        tags$style(HTML(".shiny-output-error-validation {color: brown;}")),
+        tags$style(HTML("
+                        .shiny-output-error-validation {
+                            color: brown;
+                        }
+                        # .pipediv{
+                        #     width:900px;
+                        #     height:500px;
+                        # }
+                        # .pipediv .pipe{
+                        #     float:left;
+                        # }
+                        # .pipediv .pipe img{
+                        #     width:500px;
+                        #     height:500px;
+                        # }
+                        # .pipetext{
+                        #     
+                        # }
+                        ")),
         tags$link(rel = "stylesheet", type = "text/css", href = "css/main.css")
       ),
       tabItems(
@@ -484,7 +601,8 @@ shinyUI(
         bodyITH,
         bodyclone,
         bodyfunction,
-        bodySurvival
+        bodySurvival,
+        bodysignature
       )
     )
   )
