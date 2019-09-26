@@ -8,6 +8,8 @@
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
 #' @param mut.type select proper variant classification you need
+#' @param mut.nonSilent 
+#' @param chr.silent
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
@@ -32,6 +34,7 @@
 ## read.maf main function
 readMaf <- function(mafFile, sampleInfoFile, 
                     mut.type="All", mut.nonSilent=NULL, 
+                    chr.silent=NULL, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
                     refBuild="hg19"){
     
@@ -95,6 +98,8 @@ readMaf <- function(mafFile, sampleInfoFile,
     }
     ## fix: Error in setattr(x, "row.names", rn)
     mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
+    
+    ## filter variant classification
     if (mut.type == "nonSilent"){
         if (is.null(mut.nonSilent)){
             nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
@@ -109,6 +114,11 @@ readMaf <- function(mafFile, sampleInfoFile,
         # message("All variant classification submitted")
     } else {
         error("mut.type setting error")
+    }
+    
+    ## filter chromosome
+    if (!is.null(chr.silent)){
+        mafInput = mafInput[which(!mafInput$Chromosome %in% chr.silent), ]
     }
     
     ## transform data.frame to data.table
