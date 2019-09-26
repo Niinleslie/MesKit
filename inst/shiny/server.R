@@ -37,7 +37,7 @@ shinyServer(function(input, output){
 
   inputData <- eventReactive(input$submit1,{
     if(input$dataset == "default"){
-      maf_example <- readRDS("./example/MesKit_Example.rds")
+      example <- readRDS("./example/MesKit_Example.rds")
     }
     else{
       if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
@@ -53,7 +53,7 @@ shinyServer(function(input, output){
     }
     switch(
       input$dataset,
-      "default" = maf_example,
+      "default" = example,
       "upload"  = maf,
     )
     })
@@ -61,6 +61,11 @@ shinyServer(function(input, output){
   inputNJtree <- reactive({
     if(input$dataset == "upload"){
       maf <- inputData()
+      njtree <- getNJtree(maf, use.indel = input$use.indel,
+                          ccf.mutation.id = input$ccf.mutation.id,ccf.mutation.sep = input$ccf.mutation.sep)
+    }
+    else{
+      maf <- inputData()$maf
       njtree <- getNJtree(maf, use.indel = input$use.indel,
                           ccf.mutation.id = input$ccf.mutation.id,ccf.mutation.sep = input$ccf.mutation.sep)
     }
@@ -73,12 +78,12 @@ shinyServer(function(input, output){
                 minvaf = input$vafrange[1],maxvaf = input$vafrange[2])$sampleLevel
     }
     else{
-      maf <- inputData()
+      maf <- inputData()$maf
       mathScore(maf,tsb = input$tsb,
-                minvaf = input$vafrange[1],maxvaf = input$vafrange[2])$sampleLevel
+                      minvaf = input$vafrange[1],maxvaf = input$vafrange[2])$sampleLevel
     }
   })
-  output$mathScore <- renderDataTable({
+  output$mathScore <- DT::renderDataTable({
      ms()
   })
   vc <- eventReactive(input$submit3,{
@@ -87,7 +92,7 @@ shinyServer(function(input, output){
       vafCluster(maf,plotOption = input$plotOption)
     }
     else{
-      maf <- inputData()
+      maf <- inputData()$maf
       vafCluster(maf,plotOption = input$plotOption)
     }
   })
@@ -104,7 +109,7 @@ shinyServer(function(input, output){
       mutSharedPrivate(maf,show.num = input$show.num)
     }
     else{
-      maf <- inputData()
+      maf <- inputData()$maf
       mutSharedPrivate(maf,show.num = input$show.num)
     }
   })
@@ -126,13 +131,7 @@ shinyServer(function(input, output){
                    tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
     }
     else{
-      maf <- inputData()
-      validate(
-        need(!((is.null(input$oncogeneListFile$datapath) & is.null(input$tsgListFile$datapath))), 
-             "Upload oncogeneListFile and tsgListFile in 'Setting&Upload' ")
-      )
-      mutStackPlot(maf, oncogeneListFile = input$oncogeneListFile$datapath,
-                   tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
+      inputData()$stack
     }
   })
   output$stackplot <- renderPlot({
@@ -148,7 +147,7 @@ shinyServer(function(input, output){
       JaccardIndex(maf)
     }
     else{
-      maf <- inputData()
+      maf <- inputData()$maf
       JaccardIndex(maf)
     }
   })
@@ -171,7 +170,7 @@ shinyServer(function(input, output){
       tumorClonesPlot(maf)
     }
     else{
-      maf <- inputData()
+      maf <- inputData()$maf
       tumorClonesPlot(maf)
     }
   })
@@ -259,7 +258,7 @@ shinyServer(function(input, output){
       }
     }
     else{
-      njtree <- inputData()$njtree
+      njtree <- inputData()
       p <- plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                          heatmap.type = input$heatmap.type, sig.name = input$sig.name,
                          show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
@@ -283,7 +282,7 @@ shinyServer(function(input, output){
       }
     }
     else{
-      njtree <- inputData()$njtree
+      njtree <- inputData()
       treeMutationalSig(njtree,plot.Signatures = T)
     }
   })
@@ -297,8 +296,15 @@ shinyServer(function(input, output){
       paste("MathScore",'.',"csv", sep='')
     },
     content = function(file) {
-      maf <- inputData()
-      data <- mathScore(maf = maf)
+      if(input$dataset == "upload"){
+        maf <- inputData()
+        data <- mathScore(maf = maf)$sampleLevel
+      }
+      else{
+        maf <- inputData()$maf
+        data <- mathScore(maf = maf)$sampleLevel
+      }
+
       write.csv(data,file)
     }
   )
@@ -319,7 +325,7 @@ shinyServer(function(input, output){
         vafCluster(maf)
       }
       else{
-        maf <- inputData()
+        maf <- inputData()$maf
         vafCluster(maf)
       }
       dev.off()
@@ -338,12 +344,16 @@ shinyServer(function(input, output){
         pdf(file,width = 12 , height = 9)
       }
       if(input$dataset == "upload"){
+        maf <- inputData()
+        validate(
+          need(!((is.null(input$oncogeneListFile$datapath) & is.null(input$tsgListFile$datapath))), 
+               "Upload oncogeneListFile and tsgListFile in 'Setting&Upload' ")
+        )
         mutStackPlot(maf, oncogeneListFile = input$oncogeneListFile$datapath,
                      tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
       }
       else{
-        mutStackPlot(maf, oncogeneListFile = input$oncogeneListFile$datapath,
-                     tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
+        inputData()$stack
       }
       dev.off()
     },
@@ -365,7 +375,7 @@ shinyServer(function(input, output){
         JaccardIndex(maf)
       }
       else{
-        maf <- inputData()
+        maf <- inputData()$maf
         JaccardIndex(maf)
       }
       dev.off()
@@ -389,7 +399,7 @@ shinyServer(function(input, output){
         mutSharedPrivate(maf)
       }
       else{
-        maf <- inputData()
+        maf <- inputData()$maf
         mutSharedPrivate(maf) 
       }
       dev.off()
@@ -413,7 +423,7 @@ shinyServer(function(input, output){
         tumorClonesPlot(maf)
       }
       else{
-        maf <- inputData()
+        maf <- inputData()$maf
         tumorClonesPlot(maf)
       }
       dev.off()
@@ -454,7 +464,7 @@ output$DownloadPhyloTree <- downloadHandler(
       }
     }
     else{
-      njtree <- inputData()$njtree
+      njtree <- inputData()
       p <- plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                          heatmap.type = input$heatmap.type, sig.name = input$sig.name,
                          show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
