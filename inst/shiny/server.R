@@ -61,13 +61,11 @@ shinyServer(function(input, output){
   inputNJtree <- reactive({
     if(input$dataset == "upload"){
       maf <- inputData()
-      njtree <- getNJtree(maf, use.indel = input$use.indel,
-                          ccf.mutation.id = input$ccf.mutation.id,ccf.mutation.sep = input$ccf.mutation.sep)
+      njtree <- getNJtree(maf, use.indel = input$use.indel)
     }
     else{
       maf <- inputData()$maf
-      njtree <- getNJtree(maf, use.indel = input$use.indel,
-                          ccf.mutation.id = input$ccf.mutation.id,ccf.mutation.sep = input$ccf.mutation.sep)
+      njtree <- getNJtree(maf, use.indel = input$use.indel)
     }
   })
 
@@ -75,28 +73,48 @@ shinyServer(function(input, output){
     if(input$dataset == "upload"){
       maf <- inputData()
       mathScore(maf,tsb = input$tsb,
-                minvaf = input$vafrange[1],maxvaf = input$vafrange[2])$sampleLevel
+                minvaf = input$vafrange[1],maxvaf = input$maxvaf)$sampleLevel
     }
     else{
       maf <- inputData()$maf
       mathScore(maf,tsb = input$tsb,
-                      minvaf = input$vafrange[1],maxvaf = input$vafrange[2])$sampleLevel
+                      minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
     }
   })
   output$mathScore <- DT::renderDataTable({
      ms()
   })
+  output$msdb <- renderUI({
+    if(!is.null(ms())){
+      downloadBttn('DownloadMathScore', 'Download')
+    }
+  })
   vc <- eventReactive(input$submit3,{
     if(input$dataset == "upload"){
       maf <- inputData()
-      vafCluster(maf,plotOption = input$plotOption)
+      vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
     }
     else{
       maf <- inputData()$maf
-      vafCluster(maf,plotOption = input$plotOption)
+      vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
     }
   })
-  output$vaf.cluster <- renderPlot({
+  output$vcdb <- renderUI({
+    if(!is.null(vc())){
+      fluidRow(
+        column(
+          width = 3,
+          radioButtons('DownloadVafPlotCheck','Choose file type to download:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadVafPlot', 'Download')
+        )
+      )
+    }
+  })
+  output$vaf <- renderPlot({
     vc()
   }, 
     width = width1,
@@ -120,18 +138,43 @@ shinyServer(function(input, output){
   height = 560,
   res = 100
   )
-  stk <- eventReactive(input$submit5,{
-    if(input$dataset == "upload"){
-      maf <- inputData()
-      validate(
-        need(!((is.null(input$oncogeneListFile$datapath) & is.null(input$tsgListFile$datapath))), 
-             "Upload oncogeneListFile and tsgListFile in 'Setting&Upload' ")
+  output$mspdb <- renderUI({
+    if(!is.null(msp())){
+      fluidRow(
+        column(
+          width = 3,
+          radioButtons('DownloadSharedPlotCheck','Choose file type to download:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadSharedPlot', 'Download')
+        )
       )
-      mutStackPlot(maf, oncogeneListFile = input$oncogeneListFile$datapath,
-                   tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
+    }
+  })
+  stk <- eventReactive(input$submit5,{
+    if(is.null(input$oncogeneListFile$datapath)){
+      oncogeneListFile <- './example/oncogene.list.txt'
     }
     else{
-      inputData()$stack
+      oncogeneListFile <- input$oncogeneListFile$datapath
+    }
+    if(is.null(input$tsgListFile$datapath)){
+      tsgListFile <- './example/TSG.list.txt'
+    }
+    else{
+      tsgListFile <- input$tsgListFile$datapath
+    }
+    if(input$dataset == "upload"){
+      maf <- inputData()
+      mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+                   tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
+    }
+    else{
+      maf <- inputData()$maf
+      mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+                   tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
     }
   })
   output$stackplot <- renderPlot({
@@ -141,14 +184,29 @@ shinyServer(function(input, output){
   height = 560,
   res = 100
   )
+  output$stkdb <- renderUI({
+    if(!is.null(stk())){
+      fluidRow(
+        column(
+          width = 3,
+          radioButtons('DownloadStackPlotCheck','Choose file type to download:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadStackPlot', 'Download')
+        )
+      )
+    }
+  })
   ji <- eventReactive(input$submit6,{
     if(input$dataset == "upload"){
       maf <- inputData()
-      JaccardIndex(maf)
+      JaccardIndex(maf,type = input$JItype)
     }
     else{
       maf <- inputData()$maf
-      JaccardIndex(maf)
+      JaccardIndex(maf,type = input$JItype)
     }
   })
   output$JaccardIndex <- renderPlot({
@@ -158,6 +216,21 @@ shinyServer(function(input, output){
   height = 560,
   res = 100
   )
+  output$jidb <- renderUI({
+    if(!is.null(ji())){
+      fluidRow(
+        column(
+          width = 3,
+          radioButtons('DownloadJaccardIndexCheck','Choose file type to download:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadJaccardIndex', 'Download')
+        )
+      )
+    }
+  })
   clp <- eventReactive(input$submit7,{
     if(input$dataset == "upload"){
       validate(
@@ -181,18 +254,33 @@ shinyServer(function(input, output){
   height = 560,
   res = 100
   )
+  output$clpdb <- renderUI({
+    if(is.null(clp())){
+      fluidRow(
+        column(
+          width = 4,
+          radioButtons('DownloadClonePlotCheck','Choose file type:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 4,
+          downloadBttn('DownloadClonePlot', 'Download')
+        )
+      )
+    }
+  })
   GO <- eventReactive(input$submit8,{
     if(input$dataset == "upload"){
       njtree <- inputNJtree()
-      GO.njtree(njtree, qval = input$qval1 ,pval = input$pval1)
+      GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
     }
     else{
       njtree <- inputNJtree()
-      GO.njtree(njtree, qval = input$qval1 ,pval = input$pval1)
+      GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
     }
   })
   output$chooselist1 <- renderUI({
-    selectInput("gl","chooose branch to show",
+    selectInput("gl","Branch",
                 choices = names(GO()[[2]]) ,selected = names(GO()[[2]])[1],width = 600)
   })
   output$GOplot <- renderPlot({
@@ -206,20 +294,36 @@ shinyServer(function(input, output){
   width = width6,
   height = height6
   )
+  output$GOdb <- renderUI({
+    if(!is.null(GO())){
+      br()
+      radioButtons('DownloadGOPlotCheck','Choose file type to download:',
+                   c('png' ='png','pdf' = 'pdf'),inline = T)
+      downloadBttn('DownloadGOPlot', 'Download')
+    }
+  })
   Path <- eventReactive(input$submit9,{
     if(input$dataset == "upload"){
       njtree <- inputNJtree()
-      list <- Pathway.njtree(njtree, qval = input$qval2 ,pval = input$pval2)
+      list <- Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
       return(list)
     }
     else{
       njtree <- inputNJtree()
-      list <- Pathway.njtree(njtree, qval = input$qval2 ,pval = input$pval2)
+      list <- Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
       return(list)
     }
   })
+  output$Pathdb <- renderUI({
+    if(!is.null(Path())){
+      radioButtons('DownloadPathPlotCheck','Choose file type to download:',
+                   c('png' ='png','pdf' = 'pdf'),inline = T)
+      downloadBttn('DownloadPathPlotPlot', 'Download')
+  
+    }
+  })
   output$chooselist2 <- renderUI({
-    selectInput("pl","chooose branch to show",
+    selectInput("pl","Branch",
                 choices = names(Path()[[2]]) ,selected = names(Path()[[2]])[1],width = 600)
   })
   output$Pathwayplot <- renderPlot({
@@ -258,7 +362,7 @@ shinyServer(function(input, output){
       }
     }
     else{
-      njtree <- inputData()
+      njtree <- inputNJtree()
       p <- plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                          heatmap.type = input$heatmap.type, sig.name = input$sig.name,
                          show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
@@ -271,6 +375,23 @@ shinyServer(function(input, output){
   },
   res = 100
 )
+  output$phtdb <- renderUI({
+    if(!is.null(pht())){
+      br()
+      br()
+      fluidRow(
+        column(
+          width = 3,
+          radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadPhyloTree', 'Download')
+        )
+      )
+    }
+  })
   sigp <- eventReactive(input$submit11,{
     if(input$dataset == "upload"){
       if(input$phyloTreeType == 'njtree'){
@@ -282,7 +403,7 @@ shinyServer(function(input, output){
       }
     }
     else{
-      njtree <- inputData()
+      njtree <- inputNJtree()
       treeMutationalSig(njtree,plot.Signatures = T)
     }
   })
@@ -291,6 +412,21 @@ shinyServer(function(input, output){
   },
   res = 100
   )
+  output$sigpdb <- renderUI({
+    if(!is.null(sigp())){
+      fluidRow(
+        column(
+          width = 3,
+          radioButtons('DownloadSignaturePlotCheck','Choose file type to download:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadSignaturePlot', 'Download')
+        )
+      )
+    }
+  })
   output$DownloadMathScore <- downloadHandler(
     filename = function() {
       paste("MathScore",'.',"csv", sep='')
@@ -353,7 +489,9 @@ shinyServer(function(input, output){
                      tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
       }
       else{
-        inputData()$stack
+        maf <- inputData()$maf
+        mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+                     tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
       }
       dev.off()
     },
@@ -464,7 +602,7 @@ output$DownloadPhyloTree <- downloadHandler(
       }
     }
     else{
-      njtree <- inputData()
+      njtree <- inputNJtree()
       p <- plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                          heatmap.type = input$heatmap.type, sig.name = input$sig.name,
                          show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
@@ -487,12 +625,10 @@ output$DownloadGOPlot <- downloadHandler(
       pdf(file,width = 20, height = 16)
     }
     if(input$dataset == "upload"){
-      njtree <- inputNJtree()
-      GO.njtree(njtree, savePlot = F, qval = input$qval ,pval = input$pval)
+      return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
     }
     else{
-      njtree <- inputNJtree()
-      GO.njtree(njtree, savePlot = F, qval = input$qval ,pval = input$pval)
+      return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
     }
     dev.off()
   },
@@ -509,11 +645,12 @@ output$DownloadPathPlot <- downloadHandler(
     else if (input$DownloadPathPlotCheck == "pdf"){
       pdf(file,width = 20, height = 16)
     }
-
-    njtree <- upload_njtree()
-    Pathway.njtree(njtree, savePlot = F, qval = input$qval ,pval = input$pval)
-
-
+    if(input$dataset == "upload"){
+      return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
+    }
+    else{
+      return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
+    }
     dev.off()
   },
   contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
@@ -529,7 +666,7 @@ output$DownloadSignaturePlot <- downloadHandler(
     else if (input$DownloadSignaturePlotCheckk == "pdf"){
       pdf(file,width = 1400, height = 800)
     }
-    njtree <- upload_njtree()
+    njtree <- inputNJtree()
     treeMutationalSig(njtree,plot.Signatures = T)
     dev.off()
   },
