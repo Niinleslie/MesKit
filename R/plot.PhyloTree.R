@@ -124,7 +124,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
 }
 ##generate plot data 
 phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
-  phylo <- root(phylo, phylo$tip.label[which(phylo$tip.label == "NORMAL")])
+  phylo <- ape::root(phylo, phylo$tip.label[which(phylo$tip.label == "NORMAL")])
   phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
   phylo$edge <- phylo$edge[-1,]
   phylo$edge.length <- phylo$edge.length[-1]
