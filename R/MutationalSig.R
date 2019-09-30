@@ -337,20 +337,39 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk/groupTSum
     }
     
-    sigsInputBoxplot <- data.frame(matrix(nrow=0, ncol=3))
-    colnames(sigsInputBoxplot) <- c("GroupBT", "Group", "mut.frac")
+    sigsInputBoxplot <- data.frame(matrix(nrow=0, ncol=4))
+    colnames(sigsInputBoxplot) <- c("GroupBT", "Group", "BT", "mut.frac")
     
     for (mutationGroup in ls.mutationGroup) {
         dat.group <- sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]
         df.groupB <- data.frame(rep(paste(mutationGroup, "Branch", sep=" "), nrow(dat.group)), 
                                 rep(mutationGroup, nrow(dat.group)), 
-                               dat.group$Branch)
+                                rep("Branch", nrow(dat.group)), 
+                                dat.group$Branch)
         df.groupT <- data.frame(rep(paste(mutationGroup, "Trunk", sep=" "), nrow(dat.group)), 
                                 rep(mutationGroup, nrow(dat.group)), 
+                                rep("Trunk", nrow(dat.group)),
                                 dat.group$Trunk)
-        colnames(df.groupB) <- c("GroupBT", "Group", "mut.frac")
-        colnames(df.groupT) <- c("GroupBT", "Group", "mut.frac")
+        colnames(df.groupB) <- c("GroupBT", "Group", "BT", "mut.frac")
+        colnames(df.groupT) <- c("GroupBT", "Group", "BT", "mut.frac")
         sigsInputBoxplot <- rbind(sigsInputBoxplot, df.groupB, df.groupT)
+    }
+    
+    df.pValue <- data.frame(matrix(ncol = 2, nrow = 0))
+    colnames(df.pValue) <- c("Group", "p.value")
+    for (mutationGroup in ls.mutationGroup) {
+        pValue <- t.test(
+            sigsInputBoxplot[
+                which(sigsInputBoxplot$Group == mutationGroup & 
+                          sigsInputBoxplot$BT == "Branch"), ]$mut.frac, 
+            sigsInputBoxplot[
+                which(sigsInputBoxplot$Group == mutationGroup & 
+                          sigsInputBoxplot$BT == "Trunk"), ]$mut.frac, 
+            paired=TRUE, conf.level=0.95
+            )$p.value
+        row.pValue <- data.frame(mutationGroup, pValue)
+        colnames(row.pValue) <- c("Group", "p.value")
+        df.pValue <- rbind(df.pValue, row.pValue)
     }
     
     group.colors <- pal_npg("nrc", alpha=1)(6)
@@ -384,7 +403,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                   fill="#fdefeb", alpha=0.15) + 
         geom_rect(aes(xmin=10.5, xmax=12.5, ymin=0, ymax=Inf),
                   fill="#e5e8ef", alpha=0.1) + 
-        geom_boxplot() + 
+        geom_boxplot(coef=100) + 
         ## color setting
         scale_fill_manual(values=group.colors) + 
         ## axis setting
