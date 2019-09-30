@@ -30,7 +30,7 @@ getNJtree <- function(maf, use.indel=FALSE,
                       ccf.mutation.sep = ":"){
   maf.dat <- maf@data
   ## vaf filter
-  colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
+  colnames(maf.dat)[colnames(maf.dat) == vafColumn] <- "VAF"
   if (max(maf.dat$VAF, na.rm=TRUE) > 1){
     maf.dat$VAF <- maf.dat$VAF/100
   }
