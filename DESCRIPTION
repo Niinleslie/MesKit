@@ -14,10 +14,10 @@ Imports: utils, ape, methods, plotrix, grDevices, gridExtra,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
         deconstructSigs, timescape, grid, 
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
-        clonevol, fishplot, pdp, corrplot, mclust
-Remotes: hdng/clonevol, chrisamiller/fishplot, raerose01/deconstructSigs
+        clonevol, fishplot, pdp, corrplot, mclust,        
+Remotes: hdng/clonevol, chrisamiller/fishplot
 RoxygenNote: 6.1.1
-Suggests: knitr, rmarkdown
+Suggests: Shiny, plolty, knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: WESeq, Intra-tumor Heterogeneity, Evolution, Visualization
 NeedsCompilation: no

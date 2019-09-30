@@ -5,7 +5,7 @@
 #' @param njtree NJtree object
 #' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML" with root 
 #' @param show.mutSig if show Mutational Signature in Images
-#' @param 
+#' @param sig.name choose "alias" when showing alias in branch 
 #' @param sig.min.mut.number minimum mutation number in each branch
 #' @param show.heatmap if plot heatmap that show mutation distribution in each branch
 #' @param heatmap.type type of heatmap,choose 'CCF' if use ccf
@@ -124,7 +124,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
 }
 ##generate plot data 
 phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type){
-  phylo <- root(phylo, phylo$tip.label[which(phylo$tip.label == "NORMAL")])
+  phylo <- ape::root(phylo, phylo$tip.label[which(phylo$tip.label == "NORMAL")])
   phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
   phylo$edge <- phylo$edge[-1,]
   phylo$edge.length <- phylo$edge.length[-1]
