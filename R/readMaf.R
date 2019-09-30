@@ -96,8 +96,9 @@ readMaf <- function(mafFile, sampleInfoFile,
         mafInput[which(
             mafInput$Tumor_Sample_Barcode == tsb),]$time <- time
     }
-    ## fix: Error in setattr(x, "row.names", rn)
-    mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
+    
+    # ## fix: Error in setattr(x, "row.names", rn)
+    # mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
     
     ## filter variant classification
     if (mut.type == "nonSilent"){
