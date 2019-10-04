@@ -316,7 +316,12 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
 }
 
 .plotBranchTrunk <- function(sigsInput, mutSigsOutput, signif.level) {
-    trunkName <- mutSigsOutput[which(mutSigsOutput$alias == "T"), ]$branch
+    if (any(mutSigsOutput$alias == "T")){
+        trunkName <- mutSigsOutput[which(mutSigsOutput$alias == "T"), ]$branch
+    } else {
+        stop("Trunk ERROR: There is no trunk mutation and the branch-trunk plot could not be plotted.
+             Warnings and outputs from function getNJtree should be checked.")
+    } 
     sigsInput.trunk <- sigsInput[which(rownames(sigsInput) == trunkName), ]
     sigsInput.branch <- sigsInput[which(rownames(sigsInput) != trunkName), ]
     sigsInput.branch <- colSums(sigsInput.branch)
@@ -334,7 +339,13 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     
     for (mutationGroup in ls.mutationGroup) {
         groupBSum <- sigsInputBSum$sum[which(sigsInputBSum$Group == mutationGroup)]
+        if (groupBSum == 0) {
+            sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch <- 0
+        }
         groupTSum <- sigsInputTSum$sum[which(sigsInputTSum$Group == mutationGroup)]
+        if (groupBSum == 0) {
+            sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk <- 0
+        }
         sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch <- 
             100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch/groupBSum
         sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk <- 
@@ -372,38 +383,72 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                           sigsInputBoxplot$BT == "Trunk"), ]$mut.frac, 
             paired=TRUE, alternative = "two.sided", conf.level=conf.level, 
             exact=FALSE
-            )$p.value
+        )$p.value
         row.pValue <- data.frame(mutationGroup, pValue)
         colnames(row.pValue) <- c("Group", "p.value")
         df.pValue <- rbind(df.pValue, row.pValue)
     }
     
     ## p values of mutational list
-    chapV <- grid::textGrob(expression("p value: "), gp=gpar(fontsize=12), vjust=0, hjust=1)
-    CApV <- grid::textGrob(as.character(
-        round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
-              digits = 3)), 
-        gp=gpar(fontsize=12),vjust=0,hjust=1)
-    CGpV <- grid::textGrob(as.character(
-        round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
-              digits = 3)), 
-        gp=gpar(fontsize=12),vjust=0,hjust=1)
-    CTpV <- grid::textGrob(as.character(
-        round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
-              digits = 3)), 
-        gp=gpar(fontsize=12),vjust=0,hjust=1)
-    TApV <- grid::textGrob(as.character(
-        round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
-              digits = 3)), 
-        gp=gpar(fontsize=12),vjust=0,hjust=1)
-    TCpV <- grid::textGrob(as.character(
-        round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
-              digits = 3)), 
-        gp=gpar(fontsize=12),vjust=0,hjust=1)
-    TGpV <- grid::textGrob(as.character(
-        round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
-              digits = 3)), 
-        gp=gpar(fontsize=12),vjust=0,hjust=1)
+    if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value <= signif.level) {
+        CApV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
+                  digits = 3)), "*", sep=""), 
+            gp=gpar(fontsize=12),vjust=0,hjust=1)    
+    } else {
+        CApV <- grid::textGrob(expression(""), 
+                               gp=gpar(fontsize=12),vjust=0,hjust=1) 
+    }
+    
+    if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value <= signif.level) {
+        CGpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
+                  digits = 3)), "*", sep=""), 
+            gp=gpar(fontsize=12),vjust=0,hjust=1)
+    } else {
+        CGpV <- grid::textGrob(expression(""), 
+                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+    }
+    
+    if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value <= signif.level) {
+        CTpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
+                  digits = 3)), "*", sep=""), 
+            gp=gpar(fontsize=12),vjust=0,hjust=1)
+    } else {
+        CTpV <- grid::textGrob(expression(""), 
+                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+    }
+    
+    if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value <= signif.level) {
+        TApV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
+                  digits = 3)), "*", sep=""),
+            gp=gpar(fontsize=12),vjust=0,hjust=1)
+    } else {
+        TApV <- grid::textGrob(expression(""), 
+                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+    }
+    
+    if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value <= signif.level) {
+        TCpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
+                  digits = 3)), "*", sep=""),
+            gp=gpar(fontsize=12),vjust=0,hjust=1)
+    } else {
+        TCpV <- grid::textGrob(expression(""), 
+                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+    }
+    
+    if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value <= signif.level) {
+        TGpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
+                  digits = 3)), "*", sep=""),
+            gp=gpar(fontsize=12),vjust=0,hjust=1)
+    } else {
+        TGpV <- grid::textGrob(expression(""), 
+                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+    }
     
     ## names of mutational list
     CA <- grid::textGrob(expression(bold("C > A")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
@@ -414,34 +459,37 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     TG <- grid::textGrob(expression(bold("T > G")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
     
     group.colors <- pal_npg("nrc", alpha=1)(6)
-    ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
-        geom_boxplot() + 
+    pic <- ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
+        geom_boxplot(coef=100) + 
         theme(panel.grid=element_blank(), 
               panel.border=element_blank(), 
               panel.background = element_blank(), 
               legend.position='none', 
-              axis.text.x=element_text(size=10, angle = 90), 
+              axis.text.x=element_text(size=10, angle = 90, vjust = 0.5, hjust=1), 
+              axis.ticks.x = element_blank(), 
               axis.text.y=element_text(size=10)) + 
         ## background colors
-        geom_rect(aes(xmin=0.5, xmax=2.5, ymin=0, ymax=100),
+        geom_rect(aes(xmin=0.5, xmax=2.5, ymin=0, ymax=104),
                   fill="#fce7e4", alpha=0.15) + 
-        geom_rect(aes(xmin=2.5, xmax=4.5, ymin=0, ymax=100),
+        geom_rect(aes(xmin=2.5, xmax=4.5, ymin=0, ymax=104),
                   fill="#ecf8fa", alpha=0.25) + 
-        geom_rect(aes(xmin=4.5, xmax=6.5, ymin=0, ymax=100),
+        geom_rect(aes(xmin=4.5, xmax=6.5, ymin=0, ymax=104),
                   fill="#dbfff9", alpha=0.05) + 
-        geom_rect(aes(xmin=6.5, xmax=8.5, ymin=0, ymax=100),
+        geom_rect(aes(xmin=6.5, xmax=8.5, ymin=0, ymax=104),
                   fill="#e4e8f3", alpha=0.08) + 
-        geom_rect(aes(xmin=8.5, xmax=10.5, ymin=0, ymax=100),
+        geom_rect(aes(xmin=8.5, xmax=10.5, ymin=0, ymax=104),
                   fill="#fdefeb", alpha=0.15) + 
-        geom_rect(aes(xmin=10.5, xmax=12.5, ymin=0, ymax=100),
+        geom_rect(aes(xmin=10.5, xmax=12.5, ymin=0, ymax=104),
                   fill="#e5e8ef", alpha=0.1) + 
         geom_boxplot(coef=100) + 
         ## color setting
         scale_fill_manual(values=group.colors) + 
         ## axis setting
-        xlab(" ") + 
-        ylab("Mutation fraction(%)") + 
-        scale_y_continuous(limits=c(-5, 105), breaks=seq(0, 100, 25)) + 
+        scale_x_discrete(name = "", labels=c("Branch", "Trunk", "Branch", "Trunk", 
+                                             "Branch", "Trunk", "Branch", "Trunk",
+                                             "Branch", "Trunk", "Branch", "Trunk")) + 
+        scale_y_continuous(name = "Mutation fraction(%)", limits=c(-5, 104), breaks=seq(0, 100, 25)) + 
+        coord_cartesian(ylim = c(0,100), expand = TRUE) + 
         ## x axis bar
         geom_rect(aes(xmin=0.5, xmax=2.5, ymin=-5, ymax=-0.5),
                   fill=group.colors[1], alpha=1) + 
@@ -463,15 +511,13 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         annotation_custom(grob = TC,  xmin = 9, xmax = 11, ymin = -8.5, ymax = -0) + 
         annotation_custom(grob = TG,  xmin = 11, xmax = 13, ymin = -8.5, ymax = -0) + 
         ## Mutational Type p value of wilcox.test
-        annotation_custom(grob = chapV,  xmin = 1, xmax = 3, ymin = 106, ymax = 106) + 
-        annotation_custom(grob = CApV,  xmin = 1, xmax = 3, ymin = 100, ymax = 102.5) +
-        annotation_custom(grob = CGpV,  xmin = 3, xmax = 5, ymin = 100, ymax = 102.5) +
-        annotation_custom(grob = CTpV,  xmin = 5, xmax = 7, ymin = 100, ymax = 102.5) +
-        annotation_custom(grob = TApV,  xmin = 7, xmax = 9, ymin = 100, ymax = 102.5) +
-        annotation_custom(grob = TCpV,  xmin = 9, xmax = 11, ymin = 100, ymax = 102.5) +
-        annotation_custom(grob = TGpV,  xmin = 11, xmax = 13, ymin = 100, ymax = 102.5)
-        
-    
+        annotation_custom(grob = CApV,  xmin = 1.5, xmax = 3, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ]$mut.frac)) +
+        annotation_custom(grob = CGpV,  xmin = 3.5, xmax = 5, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ]$mut.frac)) +
+        annotation_custom(grob = CTpV,  xmin = 5.5, xmax = 7, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>T"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>T"), ]$mut.frac)) +
+        annotation_custom(grob = TApV,  xmin = 7.5, xmax = 9, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ]$mut.frac)) +
+        annotation_custom(grob = TCpV,  xmin = 9.5, xmax = 11, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ]$mut.frac)) +
+        annotation_custom(grob = TGpV,  xmin = 11.5, xmax = 13, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>G"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>G"), ]$mut.frac))
+    return(pic)
 }
 
 
