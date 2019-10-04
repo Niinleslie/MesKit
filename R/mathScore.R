@@ -56,7 +56,7 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
                               Tumor_Burden=c(mathAll$Tumor_Burden))
         colnames(mathSp) <- c("Tumor_Sample_Barcode", "MATH_score", 
                               "TMB(mutations/Mb)")
-        mathResult <- list(patientLevel=mathAll, sampleLevel=mathSp)
+        mathResult <- list(sampleLevel=mathSp)
         return(mathResult)
     }
     message("MATH Score Calculation Done!")
