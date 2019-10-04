@@ -42,7 +42,7 @@ getNJtree <- function(maf, use.indel=FALSE,
   mut_sort <- as.matrix(mut_sort.id[, -1])
   mat.nj = nj(dist.gene(t(mut_sort)))
   branchAlias <- read.njtree(mat.nj)
-  mut_branches <- .treeMutationalBranches(maf.dat, patientID, branchAlias, mut_sort.id)
+  mut_branches <- .treeMutationalBranches(maf.dat, branchAlias, mut_sort.id)
   ccf_sort <- matrix()
   if(length(maf@ccf.loci)!= 0){
     ccf_sort <- mut_ccf_sort(maf.dat = maf.dat, ccf = maf@ccf.loci, use.indel, ccf.mutation.id, ccf.mutation.sep)
