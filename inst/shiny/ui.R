@@ -16,8 +16,8 @@
       menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("location-arrow")),
       menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("th",lib = "glyphicon")),
       menuItem(strong("Functional analysis"), tabName = "function", icon = icon("bar-chart")),
-      menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart")),
-      menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart"))
+      menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
+      menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart"))
     )
   )
   
@@ -123,9 +123,18 @@
                              fluidRow(
                                column(
                                  width = 3,
-                                 textInput("tsb",h4(strong("Tumor sample barcode")),value = "All",width = 300),
-                                 div(style="display:inline-block",textInput(inputId="minvaf", label=h4(strong("minvaf")), value = 0.0, width = 150)),
-                                 div(style="display:inline-block",textInput(inputId="maxvaf", label=h4(strong("maxvaf")), value = 1.0, width = 150)),
+                                 textInput("tsb", 
+                                           h4(strong("Tumor sample barcode")), 
+                                           value = "All",width = 300),
+                                 div(
+                                   style="display:inline-block", 
+                                   textInput(inputId="minvaf", 
+                                             label=h4(strong("minvaf")), 
+                                             value = 0.0, width = 150)),
+                                 div(style="display:inline-block", 
+                                     textInput(inputId="maxvaf", 
+                                               label=h4(strong("maxvaf")), 
+                                               value = 1.0, width = 150)),
                                  br(),
                                  actionBttn('submit2',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -348,8 +357,15 @@
                                   fluidRow(
                                     column(
                                       width = 3,
-                                      textInput('pval1','Pval',value = 0.05),
-                                      textInput('qval1','Qval',value = 0.2),
+                                      div(
+                                        style="display:inline-block", 
+                                        textInput(inputId="pval1", 
+                                                  label="Pval", 
+                                                  value = 0.05, width = 150)),
+                                      div(style="display:inline-block", 
+                                          textInput(inputId="qval1", 
+                                                    label="Qval", 
+                                                    value = 0.2, width = 150)),
                                       sliderInput('width6','Adjust image width',min = 400,max = 1000, value = 800),
                                       sliderInput('height6','Adjust image height',min = 400,max = 600, value = 500),
                                       br(),
@@ -373,8 +389,15 @@
                                   fluidRow(
                                     column(
                                       width = 3,
-                                      textInput('pval2','Pval',value = 0.05),
-                                      textInput('qval2','Qval',value = 0.2),
+                                      div(
+                                        style="display:inline-block", 
+                                        textInput(inputId="pval2", 
+                                                  label="Pval", 
+                                                  value = 0.05, width = 150)),
+                                      div(style="display:inline-block", 
+                                          textInput(inputId="qval2", 
+                                                    label="Qval", 
+                                                    value = 0.2, width = 150)),
                                       sliderInput('width7','Adjust image width',min = 400,max = 1000, value = 800),
                                       sliderInput('height7','Adjust image height',min = 400,max = 600, value = 500),
                                       br(),
@@ -525,8 +548,8 @@
           bodyITH,
           bodyclone,
           bodyfunction,
-          bodySurvival,
-          bodySignature
+          bodySignature,
+          bodySurvival
         )
       )
     )
