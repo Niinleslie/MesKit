@@ -103,6 +103,9 @@ shinyServer(function(input, output){
     if(!is.null(vc())){
       fluidRow(
         column(
+          width = 6
+        ),
+        column(
           width = 3,
           radioButtons('DownloadVafPlotCheck','Choose file type to download:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
@@ -141,6 +144,9 @@ shinyServer(function(input, output){
   output$mspdb <- renderUI({
     if(!is.null(msp())){
       fluidRow(
+        column(
+          width = 6
+        ),
         column(
           width = 3,
           radioButtons('DownloadSharedPlotCheck','Choose file type to download:',
@@ -188,6 +194,9 @@ shinyServer(function(input, output){
     if(!is.null(stk())){
       fluidRow(
         column(
+          width = 6
+        ),
+        column(
           width = 3,
           radioButtons('DownloadStackPlotCheck','Choose file type to download:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
@@ -219,6 +228,9 @@ shinyServer(function(input, output){
   output$jidb <- renderUI({
     if(!is.null(ji())){
       fluidRow(
+        column(
+          width = 6
+        ),
         column(
           width = 3,
           radioButtons('DownloadJaccardIndexCheck','Choose file type to download:',
@@ -258,12 +270,15 @@ shinyServer(function(input, output){
     if(is.null(clp())){
       fluidRow(
         column(
-          width = 4,
+          width = 6
+        ),
+        column(
+          width = 3,
           radioButtons('DownloadClonePlotCheck','Choose file type:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
-          width = 4,
+          width = 3,
           downloadBttn('DownloadClonePlot', 'Download')
         )
       )
@@ -381,6 +396,9 @@ shinyServer(function(input, output){
       br()
       fluidRow(
         column(
+          width = 6
+        ),
+        column(
           width = 3,
           radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
@@ -415,6 +433,9 @@ shinyServer(function(input, output){
   output$sigpdb <- renderUI({
     if(!is.null(sigp())){
       fluidRow(
+        column(
+          width = 6
+        ),
         column(
           width = 3,
           radioButtons('DownloadSignaturePlotCheck','Choose file type to download:',

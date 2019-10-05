@@ -85,16 +85,13 @@
                             condition = "input.dataset == 'upload'",
                             fileInput('maf','maf file'),
                             fileInput('sampleInfo','sampleInfo' ),
+                            checkboxInput('useccf',strong('use ccf'),value = F,width = 200),
                             conditionalPanel(
                               condition = "input.useccf == true",
                               fileInput('ccf.cluster','ccf.cluster'),
                               fileInput('ccf.loci','ccf.loci' )
                             ),
-                            br(),
-                            checkboxInput('useccf',strong('use ccf'),value = F,width = 200),
-                            br(),
                             checkboxInput('use.indel',strong('use indel'),value = FALSE,width = 400),
-                            br(),
                             selectInput('ref','Select reference genome(hg19/hg38)',
                                         choices = c('hg19','hg38'),selected = "hg19")
                           ),
@@ -177,9 +174,10 @@
                                              selected = "aaas",width = 300),
                                  sliderInput('width1','Adjust Image Width',min = 700,max = 1100, value = 850,width = 500),
                                  br(),
-                                 actionBttn('submit3',div(
+                                 actionBttn('submit3', div(
                                    strong("Click ME to start analysing"),align = 'center',
-                                   icon("hand-point-down", lib = "glyphicon")))
+                                   icon("hand-point-down", lib = "glyphicon")),
+                                   )
                                ),
                                column(
                                  width = 8,
