@@ -311,10 +311,20 @@ shinyServer(function(input, output){
   )
   output$GOdb <- renderUI({
     if(!is.null(GO())){
-      br()
-      radioButtons('DownloadGOPlotCheck','Choose file type to download:',
-                   c('png' ='png','pdf' = 'pdf'),inline = T)
-      downloadBttn('DownloadGOPlot', 'Download')
+      fluidRow(
+        column(
+          width = 6
+        ),
+        column(
+          width = 3,
+          radioButtons('DownloadGOPlotCheck','Choose file type:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadGOPlot', 'Download')
+        )
+      )
     }
   })
   Path <- eventReactive(input$submit9,{
@@ -331,9 +341,20 @@ shinyServer(function(input, output){
   })
   output$Pathdb <- renderUI({
     if(!is.null(Path())){
-      radioButtons('DownloadPathPlotCheck','Choose file type to download:',
-                   c('png' ='png','pdf' = 'pdf'),inline = T)
-      downloadBttn('DownloadPathPlotPlot', 'Download')
+      fluidRow(
+        column(
+          width = 6
+        ),
+        column(
+          width = 3,
+          radioButtons('DownloadPathPlotCheck','Choose file type:',
+                       c('png' ='png','pdf' = 'pdf'),inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadPathPlot', 'Download')
+        )
+      )
   
     }
   })

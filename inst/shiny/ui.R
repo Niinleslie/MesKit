@@ -108,7 +108,7 @@
                      h2('ITH evaluation'),
                      fluidRow(
                        column(
-                         width = 11,                     
+                         width = 12,                     
                         box(
                          width = NULL,
                          tabBox(                           
@@ -124,8 +124,8 @@
                                column(
                                  width = 3,
                                  textInput("tsb",h4(strong("Tumor sample barcode")),value = "All",width = 300),
-                                 textInput("minvaf",h4(strong("minvaf")),value = 0,width = 300),
-                                 textInput("maxvaf",h4(strong("maxvaf")),value = 1,width = 300),
+                                 div(style="display:inline-block",textInput(inputId="minvaf", label=h4(strong("minvaf")), value = 0.0, width = 150)),
+                                 div(style="display:inline-block",textInput(inputId="maxvaf", label=h4(strong("maxvaf")), value = 1.0, width = 150)),
                                  br(),
                                  actionBttn('submit2',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -261,7 +261,7 @@
                              fluidRow(
                                column(
                                  width = 3,
-                                 selectInput("JItype",h4(strong("type")),
+                                 selectInput("JItype",h4(strong("Type")),
                                              choices = c(
                                                Lower = "lower",
                                                Upper = "upper",
@@ -445,7 +445,7 @@
                           )
                           )
   
-  bodysignature <- tabItem('signature',
+  bodySignature <- tabItem('signature',
                            h2('Mutational signature analysis'),
                            fluidRow(
                              column(
@@ -526,7 +526,7 @@
           bodyclone,
           bodyfunction,
           bodySurvival,
-          bodysignature
+          bodySignature
         )
       )
     )

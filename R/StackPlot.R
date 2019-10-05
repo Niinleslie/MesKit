@@ -56,7 +56,7 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile,
     }
     ggplot(plotData, aes(x=GeneType, y=VariantNum, fill=VariantCategory, label=Frequency)) + 
         theme_bw() +
-        geom_bar(stat="identity",position="stack", width=0.55) + 
+        geom_bar(stat="identity",position="stack", width=0.45) + 
         plotPercentage + 
         theme(plot.title=element_text(size=15, face='bold'), 
               title=element_text(size=16), 
