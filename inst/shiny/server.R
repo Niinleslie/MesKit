@@ -36,8 +36,8 @@ shinyServer(function(input, output){
   })
 
   inputData <- eventReactive(input$submit1,{
-    if(input$dataset == "default"){
-      example <- readRDS("./example/MesKit_Example.rds")
+    if(is.null(input$maf) | is.null(input$sampleInfo)){
+      maf <- readRDS("./example/MesKit_Example.rds")
     }
     else{
       if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
@@ -51,15 +51,10 @@ shinyServer(function(input, output){
                        sampleInfoFile = input$sampleInfo$datapath)
       }
     }
-    switch(
-      input$dataset,
-      "default" = example,
-      "upload"  = maf,
-    )
     })
   
   inputNJtree <- reactive({
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       njtree <- Meskit::getNJtree(maf, use.indel = input$use.indel)
     }
@@ -70,10 +65,10 @@ shinyServer(function(input, output){
   })
 
   ms <- eventReactive(input$submit2,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       Meskit::mathScore(maf,tsb = c("All"),
-                minvaf = input$vafrange[1],maxvaf = input$maxvaf)$sampleLevel
+                minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
     }
     else{
       maf <- inputData()$maf
@@ -90,7 +85,7 @@ shinyServer(function(input, output){
     }
   })
   vc <- eventReactive(input$submit3,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
     }
@@ -103,11 +98,11 @@ shinyServer(function(input, output){
     if(!is.null(vc())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadVafPlotCheck','Choose file type to download:',
+          width = 2,
+          radioButtons('DownloadVafPlotCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -125,7 +120,7 @@ shinyServer(function(input, output){
     res = 100
   )
   msp <- eventReactive(input$submit4,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       Meskit::mutSharedPrivate(maf,show.num = input$show.num)
     }
@@ -145,11 +140,11 @@ shinyServer(function(input, output){
     if(!is.null(msp())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadSharedPlotCheck','Choose file type to download:',
+          width = 2,
+          radioButtons('DownloadSharedPlotCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -172,7 +167,7 @@ shinyServer(function(input, output){
     else{
       tsgListFile <- input$tsgListFile$datapath
     }
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
                    tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
@@ -194,11 +189,11 @@ shinyServer(function(input, output){
     if(!is.null(stk())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadStackPlotCheck','Choose file type to download:',
+          width = 2,
+          radioButtons('DownloadStackPlotCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -209,7 +204,7 @@ shinyServer(function(input, output){
     }
   })
   ji <- eventReactive(input$submit6,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       Meskit::JaccardIndex(maf,type = input$JItype)
     }
@@ -229,11 +224,11 @@ shinyServer(function(input, output){
     if(!is.null(ji())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadJaccardIndexCheck','Choose file type to download:',
+          width = 2,
+          radioButtons('DownloadJaccardIndexCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -244,7 +239,7 @@ shinyServer(function(input, output){
     }
   })
   clp <- eventReactive(input$submit7,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       validate(
         need(!(is.null(input$ccf.cluster$datapath)), "click the button 'use ccf',Upload ccf.cluster in Session 'Input Data' ")
       )
@@ -267,14 +262,14 @@ shinyServer(function(input, output){
   res = 100
   )
   output$clpdb <- renderUI({
-    if(is.null(clp())){
+    if(!is.null(clp())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadClonePlotCheck','Choose file type:',
+          width = 2,
+          radioButtons('DownloadClonePlotCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -285,7 +280,7 @@ shinyServer(function(input, output){
     }
   })
   GO <- eventReactive(input$submit8,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       njtree <- inputNJtree()
       Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
     }
@@ -299,7 +294,7 @@ shinyServer(function(input, output){
                 choices = names(GO()[[2]]) ,selected = names(GO()[[2]])[1],width = 600)
   })
   output$GOplot <- renderPlot({
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
     }
     else{
@@ -313,11 +308,11 @@ shinyServer(function(input, output){
     if(!is.null(GO())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadGOPlotCheck','Choose file type:',
+          width = 2,
+          radioButtons('DownloadGOPlotCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -328,7 +323,7 @@ shinyServer(function(input, output){
     }
   })
   Path <- eventReactive(input$submit9,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       njtree <- inputNJtree()
       list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
       return(list)
@@ -343,11 +338,11 @@ shinyServer(function(input, output){
     if(!is.null(Path())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadPathPlotCheck','Choose file type:',
+          width = 2,
+          radioButtons('DownloadPathPlotCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -363,7 +358,7 @@ shinyServer(function(input, output){
                 choices = names(Path()[[2]]) ,selected = names(Path()[[2]])[1],width = 600)
   })
   output$Pathwayplot <- renderPlot({
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
     }
     else{
@@ -375,7 +370,7 @@ shinyServer(function(input, output){
   res = 100
   )
   pht <- eventReactive(input$submit10,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       if(input$phyloTreeType == 'njtree'){
         njtree <- inputNJtree()
         if(input$useccf == T){
@@ -417,11 +412,11 @@ shinyServer(function(input, output){
       br()
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadPhyloTreeCheck','Choose file type to download:',
+          width = 2,
+          radioButtons('DownloadPhyloTreeCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -432,7 +427,7 @@ shinyServer(function(input, output){
     }
   })
   sigp <- eventReactive(input$submit11,{
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       if(input$phyloTreeType == 'njtree'){
         njtree <- inputNJtree()
         Meskit::treeMutationalSig(njtree,plot.Signatures = T)
@@ -455,11 +450,11 @@ shinyServer(function(input, output){
     if(!is.null(sigp())){
       fluidRow(
         column(
-          width = 6
+          width = 7
         ),
         column(
-          width = 3,
-          radioButtons('DownloadSignaturePlotCheck','Choose file type to download:',
+          width = 2,
+          radioButtons('DownloadSignaturePlotCheck','Save type as:',
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -474,7 +469,7 @@ shinyServer(function(input, output){
       paste("MathScore",'.',"csv", sep='')
     },
     content = function(file) {
-      if(input$dataset == "upload"){
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         maf <- inputData()
         data <- Meskit::mathScore(maf = maf)$sampleLevel
       }
@@ -498,7 +493,7 @@ shinyServer(function(input, output){
       else if (input$DownloadVafPlotCheck == "pdf"){
         pdf(file,width = 12 , height = 9)
       }
-      if(input$dataset == "upload"){
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         maf <- inputData()
         Meskit::vafCluster(maf)
       }
@@ -521,7 +516,7 @@ shinyServer(function(input, output){
       else if (input$DownloadStackPlotCheck == "pdf"){
         pdf(file,width = 12 , height = 9)
       }
-      if(input$dataset == "upload"){
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         maf <- inputData()
         validate(
           need(!((is.null(input$oncogeneListFile$datapath) & is.null(input$tsgListFile$datapath))), 
@@ -550,7 +545,7 @@ shinyServer(function(input, output){
       else if (input$DownloadStackPlotCheck == "pdf"){
         pdf(file,width = 12 , height = 9)
       }
-      if(input$dataset == "upload"){
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         maf <- inputData()
         Meskit::JaccardIndex(maf)
       }
@@ -574,7 +569,7 @@ shinyServer(function(input, output){
       else if (input$DownloadSharedPlotCheck == "pdf"){
         pdf(file,width = 13 , height = 10)
       }
-      if(input$dataset == "upload"){
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         maf <- inputData()
         Meskit::mutSharedPrivate(maf)
       }
@@ -598,7 +593,7 @@ shinyServer(function(input, output){
       else if (input$DownloadClonePlotCheck == "pdf"){
         pdf(file,width = 15 , height = 8)
       }
-      if(input$dataset == "upload"){
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         maf <- inputData()
         Meskit::tumorClonesPlot(maf)
       }
@@ -621,7 +616,7 @@ output$DownloadPhyloTree <- downloadHandler(
     else if (input$DownloadPhyloTreeCheck == "pdf"){
       ggsave(file,inputData()$phylotreeplot,width = 14, height = 8)
     }
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       if(input$phyloTreeType == 'njtree'){
         njtree <- inputNJtree()
         if(input$useccf == T){
@@ -666,7 +661,7 @@ output$DownloadGOPlot <- downloadHandler(
     else if (input$DownloadGOPlotCheck == "pdf"){
       pdf(file,width = 20, height = 16)
     }
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
     }
     else{
@@ -687,7 +682,7 @@ output$DownloadPathPlot <- downloadHandler(
     else if (input$DownloadPathPlotCheck == "pdf"){
       pdf(file,width = 20, height = 16)
     }
-    if(input$dataset == "upload"){
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
     }
     else{

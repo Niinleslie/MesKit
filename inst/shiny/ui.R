@@ -73,19 +73,15 @@
                         box(
                           title = div(shiny::icon("gear"), "Upload", inline =TRUE),
                           width = NULL,
-                          radioGroupButtons(
-                            "dataset",
-                            label = "",
-                            choices = c(Example = "default", Upload = "upload"),
-                            selected = "default",
-                            status = "primary"
-                          ),
-                          br(),
                           conditionalPanel(
-                            condition = "input.dataset == 'upload'",
-                            fileInput('maf','maf file'),
-                            fileInput('sampleInfo','sampleInfo' ),
-                            checkboxInput('useccf',strong('use ccf'),value = F,width = 200),
+                            condition = "true",
+                            fileInput(inputId = 'maf', 
+                                      label = 'maf file', 
+                                      placeholder = "example data: 311252.maf"),
+                            fileInput(inputId = 'sampleInfo', 
+                                      label = 'sampleInfo', 
+                                      placeholder = "example data: sample_info.txt"),
+                            checkboxInput(inputId = 'useccf', label = strong('use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
                               condition = "input.useccf == true",
                               fileInput('ccf.cluster','ccf.cluster'),
@@ -95,6 +91,7 @@
                             selectInput('ref','Select reference genome(hg19/hg38)',
                                         choices = c('hg19','hg38'),selected = "hg19")
                           ),
+                          
                           actionBttn('submit1',div(
                             strong("Click ME to start analysing"),align = 'center',
                             icon("thumbs-up", lib = "glyphicon")))
@@ -298,7 +295,7 @@
                        h2('Clonal analysis'),
                        fluidRow(
                        column(
-                         width = 11,
+                         width = 12,
                         box(
                           width = NULL,
                           tabBox(

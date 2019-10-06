@@ -61,7 +61,7 @@ tumorClonesPlot <- function(maf, out.dir = NULL, clone.min.mut = 5, clone.min.av
           theme(legend.position = "none")
 
   radar_dotplot <- grid.arrange(radar_plot, loci_dotplot, ncol = 2)
-  radar_dotplot
+  return(radar_dotplot)
   # if (savePlot){
   #   ggsave(paste(out.dir, "radar_dotplot.pdf", sep = "/"), radar_dotplot, width = 9, height = 6.5) 
   # }
