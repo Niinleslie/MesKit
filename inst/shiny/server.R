@@ -66,9 +66,9 @@ shinyServer(function(input, output){
   
   output$maftable <- DT::renderDataTable({
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      inputData()@data
+      datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
     } else {
-      inputData()$maf@data
+      datatable(inputData()$maf@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
     }
   })
 

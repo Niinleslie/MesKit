@@ -2,14 +2,16 @@
   
   #required packages
   suppressMessages(library(shiny))
+  suppressMessages(library(DT))
   suppressMessages(library(shinydashboard))
   suppressMessages(library(shinyWidgets))
   suppressMessages(library(shinycssloaders))
+  suppressMessages(library(shinyjs))
   
   #sider bar----
   
   sidebar <- dashboardSidebar(
-      width = 400,
+      width = 300,
     sidebarMenu(id="sidername",selected='home',
       menuItem(strong("Home"), tabName = "home", icon = icon("home")),
       menuItem(strong("Input Data"), tabName = "input", icon = icon("th",lib = "glyphicon")),
@@ -19,6 +21,7 @@
       menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
       menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart"))
     )
+    
   )
   
   
@@ -78,21 +81,22 @@
                           conditionalPanel(
                             condition = "true",
                             fileInput(inputId = 'maf', 
-                                      label = div(style = "font-size:18px; font-weight: bold; ", 'MAF file'), 
+                                      label = div(style = "font-size:18px; font-weight:400; ", 'MAF file'), 
                                       placeholder = "example data: 311252.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:18px; font-weight: bold; ", 'sampleInfo'), 
+                                      label = div(style = "font-size:18px; font-weight:400; ", 'Sample information document'), 
                                       placeholder = "example data: sample_info.txt", 
                                       width = 400),
                             checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
                               condition = "input.useccf == true",
-                              fileInput('ccf.cluster',label = div(style = "font-size:18px; font-weight: bold; ", 'ccf.cluster')),
-                              fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight: bold; ", 'ccf.loci'))
+                              fileInput('ccf.cluster',label = div(style = "font-size:18px; font-weight:400; ", 'ccf.cluster')),
+                              fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight:400; ", 'ccf.loci'))
                             ),
                             checkboxInput('use.indel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
-                            selectInput('ref', label = div(style = "font-size:18px; font-weight: bold; ", 'Select reference genome(hg19/hg38)'),
+                            br(),
+                            selectInput('ref', label = div(style = "font-size:18px; font-weight:400; ", 'Select reference genome(hg19/hg38)'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
                           actionBttn('submit1',div(
@@ -132,14 +136,14 @@
                                  tags$table(
                                    tags$tr(id = "inline", 
                                            width = "100%",
-                                           tags$td(width = "30%", div(style = "font-size:18px;  font-weight: bold; ", "Min VAF:")),
+                                           tags$td(width = "30%", div(style = "font-size:18px; font-weight:400; ", "Min VAF:")),
                                            tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.00, label = NULL)))
                                  ), 
                                  br(),
                                  tags$table(
                                    tags$tr(id = "inline",
                                            width = "100%",
-                                           tags$td(width = "30%", tags$div(style = "font-size:18px;  font-weight: bold; ", "Max VAF:")),
+                                           tags$td(width = "30%", tags$div(style = "font-size:18px;  font-weight:400; ", "Max VAF:")),
                                            tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
                                  ), 
                                  br(),
@@ -164,13 +168,13 @@
                              fluidRow(
                                column(
                                  width = 3,
-                                 selectInput("plotOption",h4(strong("Plot option")),
+                                 selectInput("plotOption", label = div(style = "font-size:18px; font-weight:400;  ", "Plot option"),
                                              choices = c(
                                                Compare = "compare",
                                                Combine = "combine",
                                                Separate = "separate"
                                              ), selected = "compare",width = 300),
-                                 selectInput("themeOption",h4(strong("Theme option")),
+                                 selectInput("themeOption", label = div(style = "font-size:18px; font-weight:400;  ", "Theme option"),
                                              choices = c(NPG = "npg",
                                                          AAAS = "aaas",
                                                          NEJM = "nejm",
@@ -211,7 +215,7 @@
                                column(
                                  width = 3,
                                  br(),
-                                 checkboxInput('show.num',strong('Show mutation number'),width = 200),
+                                 checkboxInput('show.num',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
                                  br(),
                                  sliderInput('width2', label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 700,max = 1100, value = 850,width = 500),
                                  br(),
@@ -368,14 +372,14 @@
                                       tags$table(
                                         tags$tr(id = "inline", 
                                                 width = "100%",
-                                                tags$td(width = "20%", div(style = "font-size:18px;  font-weight: bold; ", "Pval:")),
+                                                tags$td(width = "20%", div(style = "font-size:18px; font-weight:400;  ", "Pval:")),
                                                 tags$td(width = "70%", textInput(inputId = "pval1", value = 0.05, label = NULL)))
                                       ), 
                                       br(),
                                       tags$table(
                                         tags$tr(id = "inline",
                                                 width = "100%",
-                                                tags$td(width = "20%", tags$div(style = "font-size:18px;  font-weight: bold; ", "Qval:")),
+                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:400; ", "Qval:")),
                                                 tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
                                       ), 
                                       br(),
@@ -405,14 +409,14 @@
                                       tags$table(
                                         tags$tr(id = "inline", 
                                                 width = "100%",
-                                                tags$td(width = "20%", div(style = "font-size:18px;  font-weight: bold; ", "Pval:")),
+                                                tags$td(width = "20%", div(style = "font-size:18px; font-weight:400; ", "Pval:")),
                                                 tags$td(width = "70%", textInput(inputId = "pval2", value = 0.05, label = NULL)))
                                       ), 
                                       br(),
                                       tags$table(
                                         tags$tr(id = "inline",
                                                 width = "100%",
-                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight: bold; ", "Qval:")),
+                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:400; ", "Qval:")),
                                                 tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
                                       ), 
                                       br(),
@@ -458,13 +462,13 @@
                                     checkboxInput('show.heatmap',strong('Show heatmap'),value = TRUE),
                                     radioButtons(
                                       inputId = "sig.name", 
-                                      label = div(style = "font-size:18px; font-weight: bold; ", "Signature name"), 
+                                      label = div(style = "font-size:18px; font-weight:400; ", "Signature name"), 
                                       choices = c(Default = "default", Alias = "alias"), 
                                       selected = "default", 
                                       inline = TRUE),
                                     radioButtons(
                                       inputId = "heatmap.type",
-                                      label = div(style = "font-size:18px; font-weight: bold; ", "Heatmap type"),
+                                      label = div(style = "font-size:18px; font-weight:400; ", "Heatmap type"),
                                       choices = c(Binary = "binary", CCF = "CCF"),
                                       selected = "binary", 
                                       inline = TRUE
@@ -532,15 +536,33 @@
   
   #Main function----
   shinyUI(
-    dashboardPage(skin = "blue",
-      dashboardHeader(title = "Meskit: Analysis and visualize multi-sample whole-exome sequencing data",
-                    titleWidth = 650),
+    dashboardPage(
+      skin = "blue",
+      dashboardHeader(title = "",
+                    titleWidth = 0),
       sidebar,
       dashboardBody(
-        tags$head(
-          tags$style(type="text/css", "#inline label{ display: table-cell; text-align: centers; vertical-align: middle; width=400; } 
+      ## add text behind the sidebar (design error)
+          tags$head(tags$style(HTML(
+            '.textnvbar { 
+        font-size: 20px;
+        line-height: 50px;
+        text-align: left;
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        padding: 0 15px;
+        overflow: hidden;
+        color: white;
+      }
+    '))),
+          tags$script(HTML('
+      $(document).ready(function() {
+        $("header").find("nav").append(\'<span class="textnvbar"> Meskit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
+      })
+     ')), 
+          tags$head(
+            tags$style(type="text/css", "#inline label{ display: table-cell; text-align: centers; vertical-align: middle; width=400; } 
                 #inline .form-group { display: table-row; width=400; }")
-        ),
+          ),
         tags$head(
           tags$style(HTML("
                           .shiny-output-error-validation {

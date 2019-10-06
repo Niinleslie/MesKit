@@ -4,6 +4,13 @@ img {
   max-height:100%;
 }
 
+
+.main-header {
+  position: fixed;
+  width:100%;
+}
+
+
 .pipe{
     float:left;
     width:68%;
