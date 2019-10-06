@@ -123,9 +123,6 @@
                              fluidRow(
                                column(
                                  width = 3,
-                                 textInput("tsb", 
-                                           h4(strong("Tumor sample barcode")), 
-                                           value = "All",width = 300),
                                  div(
                                    style="display:inline-block", 
                                    textInput(inputId="minvaf", 
@@ -249,7 +246,7 @@
                                  br(),
                                  checkboxInput('show.percentage',label = strong('Show percentage'),value = T),
                                  br(),
-                                 sliderInput('width3','Adjust image width',min = 600,max = 1100, value = 700,width = 500),
+                                 sliderInput('width3','Adjust image width',min = 600,max = 1100, value = 650,width = 500),
                                  br(),
                                  actionBttn('submit5',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -438,19 +435,18 @@
                                     ),
                                     checkboxInput('show.mutSig',strong('Show mutation signature'),value = TRUE),
                                     checkboxInput('show.heatmap',strong('Show heatmap'),value = TRUE),
-                                    radioGroupButtons(
-                                      inputId = "sig.name",
-                                      label = "Signature name",
-                                      choices = c(Default = "default", Alias = "alias"),
-                                      selected = "default",
-                                      status = "primary"
-                                    ),
-                                    radioGroupButtons(
+                                    radioButtons(
+                                      inputId = "sig.name", 
+                                      label = "Signature name", 
+                                      choices = c(Default = "default", Alias = "alias"), 
+                                      selected = "default", 
+                                      inline = TRUE),
+                                    radioButtons(
                                       inputId = "heatmap.type",
                                       label = "Heatmap type",
                                       choices = c(Binary = "binary", CCF = "CCF"),
-                                      selected = "binary",
-                                      status = "primary"
+                                      selected = "binary", 
+                                      inline = TRUE
                                     ),
                                     actionBttn('submit10',div(
                                       strong("Click ME to start analysing"),align = 'center',

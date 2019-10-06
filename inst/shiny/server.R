@@ -72,12 +72,12 @@ shinyServer(function(input, output){
   ms <- eventReactive(input$submit2,{
     if(input$dataset == "upload"){
       maf <- inputData()
-      Meskit::mathScore(maf,tsb = input$tsb,
+      Meskit::mathScore(maf,tsb = c("All"),
                 minvaf = input$vafrange[1],maxvaf = input$maxvaf)$sampleLevel
     }
     else{
       maf <- inputData()$maf
-      Meskit::mathScore(maf,tsb = input$tsb,
+      Meskit::mathScore(maf,tsb = c("All"),
                       minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
     }
   })
