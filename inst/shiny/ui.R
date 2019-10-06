@@ -1,78 +1,78 @@
-  options(spinner.type=4)
-  
-  #required packages
-  suppressMessages(library(shiny))
-  suppressMessages(library(DT))
-  suppressMessages(library(shinydashboard))
-  suppressMessages(library(shinyWidgets))
-  suppressMessages(library(shinycssloaders))
-  suppressMessages(library(shinyjs))
-  
-  #sider bar----
-  
-  sidebar <- dashboardSidebar(
-      width = 300,
-    sidebarMenu(id="sidername",selected='home',
-      menuItem(strong("Home"), tabName = "home", icon = icon("home")),
-      menuItem(strong("Input Data"), tabName = "input", icon = icon("th",lib = "glyphicon")),
-      menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("location-arrow")),
-      menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("th",lib = "glyphicon")),
-      menuItem(strong("Functional analysis"), tabName = "function", icon = icon("bar-chart")),
-      menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
-      menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart"))
-    )
-    
+options(spinner.type=4)
+
+#required packages
+suppressMessages(library(shiny))
+suppressMessages(library(DT))
+suppressMessages(library(shinydashboard))
+suppressMessages(library(shinyWidgets))
+suppressMessages(library(shinycssloaders))
+suppressMessages(library(shinyjs))
+
+#sider bar----
+
+sidebar <- dashboardSidebar(
+  width = 300,
+  sidebarMenu(id="sidername",selected='home',
+              menuItem(strong("Home"), tabName = "home", icon = icon("home")),
+              menuItem(strong("Input Data"), tabName = "input", icon = icon("th",lib = "glyphicon")),
+              menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("location-arrow")),
+              menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("th",lib = "glyphicon")),
+              menuItem(strong("Functional analysis"), tabName = "function", icon = icon("bar-chart")),
+              menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
+              menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart"))
   )
   
-  
-  #bodyHome ----
-  #tabItem:创建标签页；子页面；与sidebar里的tabName相对应
-  #fluidRow代表一行，
-  #box是基本容器，可以存放图形或其他输出内容(非必须；但无法设定宽度，maxWidth = 12)
-  #shinydashboar
-  bodyHome <- tabItem("home",
-                fluidRow(
-                  box(
-                    width = 12,
-                    status = "info",
-                    solidHeader = TRUE,
-                    title = strong("Wellcome to the MesKit reporter"),
-                    includeMarkdown("dom/Introduction.md")
-                  )
-                ),
-                      
-                fluidRow(
-                  box(
-                    width = 12,
-                    status = "info",
-                    solidHeader = TRUE,
-                    title =  strong("Overview of MesKit package"),
-                    # p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
-                    #   style = "font-si16pt"),
-                    # br(),
+)
+
+
+#bodyHome ----
+#tabItem:创建标签页；子页面；与sidebar里的tabName相对应
+#fluidRow代表一行，
+#box是基本容器，可以存放图形或其他输出内容(非必须；但无法设定宽度，maxWidth = 12)
+#shinydashboar
+bodyHome <- tabItem("home",
                     fluidRow(
-                      column(
-                        width = 7,
-                        div(img(src = "images/pipeline.png", width=950,height = 700),style="text-align: left;")
-                      ),
-                      column(
-                        width = 5,
-                        br(),
-                        p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
-                          style = "font-si16pt"),
-                        br(),
-                        includeMarkdown("dom/Results_viewer.md")
+                      box(
+                        width = 12,
+                        status = "info",
+                        solidHeader = TRUE,
+                        title = strong("Wellcome to the MesKit reporter"),
+                        includeMarkdown("dom/Introduction.md")
+                      )
+                    ),
+                    
+                    fluidRow(
+                      box(
+                        width = 12,
+                        status = "info",
+                        solidHeader = TRUE,
+                        title =  strong("Overview of MesKit package"),
+                        # p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
+                        #   style = "font-si16pt"),
+                        # br(),
+                        fluidRow(
+                          column(
+                            width = 7,
+                            div(img(src = "images/pipeline.png", width=950,height = 700),style="text-align: left;")
+                          ),
+                          column(
+                            width = 5,
+                            br(),
+                            p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
+                              style = "font-si16pt"),
+                            br(),
+                            includeMarkdown("dom/Results_viewer.md")
+                          )
+                        )
                       )
                     )
-                    )
-                  )
-  )
-  
-  bodyIP <- tabItem("input",
-                    h2('Input section'),
-                    fluidRow(
-                      column(
-                        width = 12, 
+)
+
+bodyIP <- tabItem("input",
+                  h2('Input section'),
+                  fluidRow(
+                    column(
+                      width = 12, 
                       column(
                         width = 3,
                         box(
@@ -110,16 +110,16 @@
                         uiOutput("mafdb")
                       )
                     )
-                    )
-                    )
-  
-  
-  bodyITH <- tabItem("ITH",
-                     h2('ITH evaluation'),
-                     fluidRow(
-                       column(
-                         width = 12,                     
-                        box(
+                  )
+)
+
+
+bodyITH <- tabItem("ITH",
+                   h2('ITH evaluation'),
+                   fluidRow(
+                     column(
+                       width = 12,                     
+                       box(
                          width = NULL,
                          tabBox(                           
                            height = "100%", 
@@ -128,7 +128,7 @@
                            side = "left",
                            tabPanel(
                              title = div(icon("chart-bar"), "MathScore"),
-                               h3(strong("Parameter: ")), 
+                             h3(strong("Parameter: ")), 
                              value = "caInput02",
                              fluidRow(
                                column(
@@ -151,7 +151,7 @@
                                  actionBttn('submit2',div(
                                    strong("Click ME to start analysing"),align = 'center',
                                    icon("hand-point-down", lib = "glyphicon")))
-                                 ),
+                               ),
                                column(
                                  width = 8,
                                  withSpinner(DT::dataTableOutput('mathScore')),
@@ -198,7 +198,7 @@
                                  actionBttn('submit3', div(
                                    strong("Click ME to start analysing"),align = 'center',
                                    icon("hand-point-down", lib = "glyphicon")),
-                                   )
+                                 )
                                ),
                                column(
                                  width = 8,
@@ -302,59 +302,59 @@
                                )
                              )
                            )
-                           )
+                         )
                        )
-                       )
-  
                      )
-  )
-  
-  bodyclone <- tabItem('clone',
-                       h2('Clonal analysis'),
-                       fluidRow(
+                     
+                   )
+)
+
+bodyclone <- tabItem('clone',
+                     h2('Clonal analysis'),
+                     fluidRow(
                        column(
                          width = 12,
-                        box(
-                          width = NULL,
-                          tabBox(
-                            selected = 'c01',
-                            side = 'left',
-                            height = "100%",
-                            width = "100%",
-                            tabPanel(
-                              value = 'c01',
-                              title = div(icon("newspaper"), "Tumorcloneplot"),
-                              h3(strong("Parameter: ")), 
-                              fluidRow(
-                                column(
-                                  width = 3,
-                                  sliderInput('width5',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 700,max = 1100, value = 850,width = 500),
-                                  br(),
-                                  br(),
-                                  actionBttn('submit7',div(
-                                    strong("Click ME to start analysing"),align = 'center',
-                                    icon("hand-point-down", lib = "glyphicon")))
-                                ),
-                                column(
-                                  width = 8,
-                                  withSpinner(plotOutput('cloneplot',height = "100%")),
-                                  uiOutput("clpdb")
-                                )
-                              )
-                            )
-                          )
-                        )
+                         box(
+                           width = NULL,
+                           tabBox(
+                             selected = 'c01',
+                             side = 'left',
+                             height = "100%",
+                             width = "100%",
+                             tabPanel(
+                               value = 'c01',
+                               title = div(icon("newspaper"), "Tumorcloneplot"),
+                               h3(strong("Parameter: ")), 
+                               fluidRow(
+                                 column(
+                                   width = 3,
+                                   sliderInput('width5',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 700,max = 1100, value = 850,width = 500),
+                                   br(),
+                                   br(),
+                                   actionBttn('submit7',div(
+                                     strong("Click ME to start analysing"),align = 'center',
+                                     icon("hand-point-down", lib = "glyphicon")))
+                                 ),
+                                 column(
+                                   width = 8,
+                                   withSpinner(plotOutput('cloneplot',height = "100%")),
+                                   uiOutput("clpdb")
+                                 )
+                               )
+                             )
+                           )
+                         )
                        )    
-  
-                      )
-  )
-  
-  bodyfunction <- tabItem('function',
-                          h2('Functional analysis'),
-                          fluidRow(
-                            column(
-                             width = 12,
-                             box(
+                       
+                     )
+)
+
+bodyfunction <- tabItem('function',
+                        h2('Functional analysis'),
+                        fluidRow(
+                          column(
+                            width = 12,
+                            box(
                               width = NULL,
                               height = 800,
                               tabBox(
@@ -437,114 +437,116 @@
                                 )
                               )
                             )
-                            )
-                          ))
-  
-  bodySurvival <- tabItem('Survival',
-                          h2('Phylotree visualiaztion'),
-                          fluidRow(
-                            column(
-                              width = 12,
-                              box(
-                                width = NULL,
-                                fluidRow(
-                                  column(
-                                    h3(strong("Parameter: ")), 
-                                    width = 3,
-                                    selectInput('phyloTreeType',h4(strong('Type')),
-                                                c( 'njtree','newick','beast','PAML'),
-                                                selected = 'njtree'),
-                                    conditionalPanel(
-                                      condition = "input.phyloTreeType != 'njtree'",
-                                      fileInput('phylotree.dir','upload your phylotree file')
-                                    ),
-                                    checkboxInput('show.mutSig',strong('Show mutation signature'),value = TRUE),
-                                    checkboxInput('show.heatmap',strong('Show heatmap'),value = TRUE),
-                                    radioButtons(
-                                      inputId = "sig.name", 
-                                      label = div(style = "font-size:18px; font-weight:400; ", "Signature name"), 
-                                      choices = c(Default = "default", Alias = "alias"), 
-                                      selected = "default", 
-                                      inline = TRUE),
-                                    radioButtons(
-                                      inputId = "heatmap.type",
-                                      label = div(style = "font-size:18px; font-weight:400; ", "Heatmap type"),
-                                      choices = c(Binary = "binary", CCF = "CCF"),
-                                      selected = "binary", 
-                                      inline = TRUE
-                                    ),
-                                    actionBttn('submit10',div(
-                                      strong("Click ME to start analysing"),align = 'center',
-                                      icon("hand-right", lib = "glyphicon")))
+                          )
+                        ))
+
+bodySurvival <- tabItem('Survival',
+                        h2('Phylotree visualiaztion'),
+                        fluidRow(
+                          column(
+                            width = 12,
+                            box(
+                              width = NULL,
+                              fluidRow(
+                                column(
+                                  h3(strong("Parameter: ")), 
+                                  width = 3,
+                                  selectInput('phyloTreeType',h4(strong('Type')),
+                                              c( 'njtree','newick','beast','PAML'),
+                                              selected = 'njtree'),
+                                  conditionalPanel(
+                                    condition = "input.phyloTreeType != 'njtree'",
+                                    fileInput('phylotree.dir','upload your phylotree file')
                                   ),
-                                  column(
-                                    width = 9,
-                                    withSpinner(plotOutput("phylotree",height = 700)),
-                                    br(),
-                                    uiOutput("phtdb")
-                                  )
+                                  checkboxInput('show.mutSig',strong('Show mutation signature'),value = TRUE),
+                                  checkboxInput('show.heatmap',strong('Show heatmap'),value = TRUE),
+                                  radioButtons(
+                                    inputId = "sig.name", 
+                                    label = div(style = "font-size:18px; font-weight:400; ", "Signature name"), 
+                                    choices = c(Default = "default", Alias = "alias"), 
+                                    selected = "default", 
+                                    inline = TRUE),
+                                  radioButtons(
+                                    inputId = "heatmap.type",
+                                    label = div(style = "font-size:18px; font-weight:400; ", "Heatmap type"),
+                                    choices = c(Binary = "binary", CCF = "CCF"),
+                                    selected = "binary", 
+                                    inline = TRUE
+                                  ),
+                                  actionBttn('submit10',div(
+                                    strong("Click ME to start analysing"),align = 'center',
+                                    icon("hand-right", lib = "glyphicon")))
+                                ),
+                                column(
+                                  width = 9,
+                                  withSpinner(plotOutput("phylotree",height = 700)),
+                                  br(),
+                                  uiOutput("phtdb")
                                 )
                               )
                             )
                           )
-                          )
-  
-  bodySignature <- tabItem('signature',
-                           h2('Mutational signature analysis'),
-                           fluidRow(
-                             column(
-                               width = 12,
-                               box(
-                                 width = NULL,
-                                 height = 800,
-                                 tabBox(
-                                   side = 'left',
-                                   selected = 'S01',
-                                   width = "100%",
-                                   height = "100%",
-                                   tabPanel(title = div(icon("lightbulb"), "Mutational signature data"), 
-                                            h3(strong("Parameter: ")), 
-                                            value = 'S01',
-                                            fluidRow(
-                                              column(
-                                                width = 3,
-                                                textInput('pval1','Pval',value = 0.05),
-                                                textInput('qval1','Qval',value = 0.2),
-                                                sliderInput('width6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 400,max = 1000, value = 800),
-                                                sliderInput('height6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust image height'),min = 400,max = 600, value = 500),
-                                                br(),
-                                                br(),
-                                                actionBttn('submit8',div(
-                                                  strong("Click ME to start analysing"),align = 'center',
-                                                  icon("hand-right", lib = "glyphicon")))
-                                              ))
-                                            ), 
-                                   tabPanel("Mutation probability plot",
-                                            h3(strong("Parameter: "))
-                                            ), 
-                                   tabPanel("Trunk-branch plot", 
-                                            h3(strong("Parameter: "))
-                                            )
-                                   
-                                   
-                                   
+                        )
+)
+
+bodySignature <- tabItem('signature',
+                         h2('Mutational signature analysis'),
+                         fluidRow(
+                           column(
+                             width = 12,
+                             box(
+                               width = NULL,
+                               height = 800,
+                               tabBox(
+                                 side = 'left',
+                                 selected = 'S01',
+                                 width = "100%",
+                                 height = "100%",
+                                 tabPanel(title = div(icon("lightbulb"), "Mutational signature data"), 
+                                          h3(strong("Parameter: ")), 
+                                          value = 'S01',
+                                          fluidRow(
+                                            column(
+                                              width = 3,
+                                              textInput('pval1','Pval',value = 0.05),
+                                              textInput('qval1','Qval',value = 0.2),
+                                              sliderInput('width6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 400,max = 1000, value = 800),
+                                              sliderInput('height6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust image height'),min = 400,max = 600, value = 500),
+                                              br(),
+                                              br(),
+                                              actionBttn('submit8',div(
+                                                strong("Click ME to start analysing"),align = 'center',
+                                                icon("hand-right", lib = "glyphicon")))
+                                            ))
+                                 ), 
+                                 tabPanel("Mutation probability plot",
+                                          h3(strong("Parameter: "))
+                                 ), 
+                                 tabPanel("Trunk-branch plot", 
+                                          h3(strong("Parameter: "))
                                  )
+                                 
+                                 
+                                 
                                )
                              )
-                           ))
-                      
-  
-  #Main function----
-  shinyUI(
-    dashboardPage(
-      skin = "blue",
-      dashboardHeader(title = "",
-                    titleWidth = 0),
-      sidebar,
-      dashboardBody(
+                           )
+                         ))
+
+
+#Main function----
+shinyUI(
+  dashboardPage(
+    skin = "blue",
+    dashboardHeader(titleWidth = 0, 
+                    tags$li(class = "dropdown", actionLink(inputId = "help", label = "Help")), 
+                    tags$li(class = "dropdown", actionLink(inputId = "contact", label = "Contact"))
+    ),
+    sidebar,
+    dashboardBody(
       ## add text behind the sidebar (design error)
-          tags$head(tags$style(HTML(
-            '.textnvbar { 
+      tags$head(tags$style(HTML(
+        '.textnvbar { 
         font-size: 20px;
         line-height: 50px;
         text-align: left;
@@ -554,17 +556,18 @@
         color: white;
       }
     '))),
-          tags$script(HTML('
+      tags$script(HTML('
       $(document).ready(function() {
         $("header").find("nav").append(\'<span class="textnvbar"> Meskit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
       })
      ')), 
-          tags$head(
-            tags$style(type="text/css", "#inline label{ display: table-cell; text-align: centers; vertical-align: middle; width=400; } 
+      ## used for inline setting
+      tags$head(
+        tags$style(type="text/css", "#inline label{ display: table-cell; text-align: centers; vertical-align: middle; width=400; } 
                 #inline .form-group { display: table-row; width=400; }")
-          ),
-        tags$head(
-          tags$style(HTML("
+      ),
+      tags$head(
+        tags$style(HTML("
                           .shiny-output-error-validation {
                               color: brown;
                           }
@@ -583,17 +586,17 @@
                           #     
                           # }
                           ")),
-          tags$link(rel = "stylesheet", type = "text/css", href = "css/main.css")
-        ),
-        tabItems(
-          bodyHome,
-          bodyIP,
-          bodyITH,
-          bodyclone,
-          bodyfunction,
-          bodySignature,
-          bodySurvival
-        )
+        tags$link(rel = "stylesheet", type = "text/css", href = "css/main.css")
+      ),
+      tabItems(
+        bodyHome,
+        bodyIP,
+        bodyITH,
+        bodyclone,
+        bodyfunction,
+        bodySignature,
+        bodySurvival
       )
     )
   )
+)

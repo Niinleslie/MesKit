@@ -3,7 +3,13 @@ suppressMessages(library(shiny))
 
 
 # Define server logic required to plot various variables against mpg
-shinyServer(function(input, output){
+shinyServer(function(input, output, session){
+  observeEvent(input$ChangePassword, {
+    updateTabItems(session, "help", "home")
+  })
+  observeEvent(input$ChangePassword, {
+    updateTabItems(session, "contact", "home")
+  })
   phylotree.type <- reactive({
     return(input$phylotTreeType)
   })
@@ -34,7 +40,7 @@ shinyServer(function(input, output){
   height7 <- reactive({
     return(input$height7)
   })
-
+  
   inputData <- eventReactive(input$submit1,{
     if(is.null(input$maf) | is.null(input$sampleInfo)){
       maf <- readRDS("./example/MesKit_Example.rds")
@@ -42,16 +48,16 @@ shinyServer(function(input, output){
     else{
       if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
         maf <- Meskit::readMaf(mafFile = input$maf$datapath,
-                       sampleInfoFile = input$sampleInfo$datapath, 
-                       ccfClusterTsvFile =  input$ccf.cluster$datapath, 
-                       ccfLociTsvFile = input$ccf.loci$datapath)
+                               sampleInfoFile = input$sampleInfo$datapath, 
+                               ccfClusterTsvFile =  input$ccf.cluster$datapath, 
+                               ccfLociTsvFile = input$ccf.loci$datapath)
       }
       else{
         maf <- Meskit::readMaf(mafFile = input$maf$datapath, 
-                       sampleInfoFile = input$sampleInfo$datapath)
+                               sampleInfoFile = input$sampleInfo$datapath)
       }
     }
-    })
+  })
   
   inputNJtree <- reactive({
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
@@ -71,22 +77,22 @@ shinyServer(function(input, output){
       datatable(inputData()$maf@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
     }
   })
-
+  
   ms <- eventReactive(input$submit2,{
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       Meskit::mathScore(maf,tsb = c("All"),
-                minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
+                        minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
     }
     else{
       maf <- inputData()$maf
       Meskit::mathScore(maf,tsb = c("All"),
-                      minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
+                        minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
     }
   })
   
   output$mathScore <- DT::renderDataTable({
-     ms()
+    ms()
   })
   
   output$msdb <- renderUI({
@@ -134,9 +140,9 @@ shinyServer(function(input, output){
   output$vaf <- renderPlot({
     vc()
   }, 
-    width = width1,
-    height = 560,
-    res = 100
+  width = width1,
+  height = 560,
+  res = 100
   )
   msp <- eventReactive(input$submit4,{
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
@@ -189,16 +195,16 @@ shinyServer(function(input, output){
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
       Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                   tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
+                           tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
     }
     else{
       maf <- inputData()$maf
       Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                   tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
+                           tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
     }
   })
   output$stackplot <- renderPlot({
-     stk()
+    stk()
   },
   width = width3,
   height = 560,
@@ -233,7 +239,7 @@ shinyServer(function(input, output){
     }
   })
   output$JaccardIndex <- renderPlot({
-     ji()
+    ji()
   },
   width = width4,
   height = 560,
@@ -274,7 +280,7 @@ shinyServer(function(input, output){
     }
   })
   output$cloneplot <- renderPlot({
-      clp()
+    clp()
   },
   width = width5,
   height = 560,
@@ -369,7 +375,7 @@ shinyServer(function(input, output){
           downloadBttn('DownloadPathPlot', 'Download')
         )
       )
-  
+      
     }
   })
   output$chooselist2 <- renderUI({
@@ -398,8 +404,8 @@ shinyServer(function(input, output){
           )
         }
         p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                           heatmap.type = input$heatmap.type, sig.name = input$sig.name,
-                           show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+                                   heatmap.type = input$heatmap.type, sig.name = input$sig.name,
+                                   show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
         return(p)
       }
       else{
@@ -407,25 +413,25 @@ shinyServer(function(input, output){
           need(!is.null(input$phylotree.dir),"Upload your phylotree file")
         )
         p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
-                           phylotree.type = input$phyloTreeType)
+                                   phylotree.type = input$phyloTreeType)
         return(p)
       }
     }
     else{
       njtree <- inputNJtree()
       p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                         heatmap.type = input$heatmap.type, sig.name = input$sig.name,
-                         show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+                                 heatmap.type = input$heatmap.type, sig.name = input$sig.name,
+                                 show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
       return(p)
       # inputData()$phylotreeplot
     }
   })
   
   output$phylotree <- renderPlot({
-     pht()
+    pht()
   },
   res = 100
-)
+  )
   output$phtdb <- renderUI({
     if(!is.null(pht())){
       br()
@@ -462,7 +468,7 @@ shinyServer(function(input, output){
     }
   })
   output$signature <- renderPlot({
-     sigp()
+    sigp()
   },
   res = 100
   )
@@ -497,7 +503,7 @@ shinyServer(function(input, output){
         maf <- inputData()$maf
         data <- Meskit::mathScore(maf = maf)$sampleLevel
       }
-
+      
       write.csv(data,file)
     }
   )
@@ -543,12 +549,12 @@ shinyServer(function(input, output){
                "Upload oncogeneListFile and tsgListFile in 'Setting&Upload' ")
         )
         Meskit::mutStackPlot(maf, oncogeneListFile = input$oncogeneListFile$datapath,
-                     tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
+                             tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
       }
       else{
         maf <- inputData()$maf
         Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                     tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
+                             tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
       }
       dev.off()
     },
@@ -625,110 +631,110 @@ shinyServer(function(input, output){
     },
     contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
   )
-output$DownloadPhyloTree <- downloadHandler(
-  filename = function() {
-    paste("PhyloTree",'.',input$DownloadPhyloTreeCheck, sep='')
-  },
-  content = function(file) {
-    if (input$DownloadPhyloTreeCheck == "png"){
-      png(file,width = 1400, height = 800,res = 80)
-    }
-    else if (input$DownloadPhyloTreeCheck == "pdf"){
-      ggsave(file,inputData()$phylotreeplot,width = 14, height = 8)
-    }
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      if(input$phyloTreeType == 'njtree'){
-        njtree <- inputNJtree()
-        if(input$useccf == T){
-          validate(
-            need(input$heatmap.type == "CCF","switch heatmap type to CCF")
-          )
+  output$DownloadPhyloTree <- downloadHandler(
+    filename = function() {
+      paste("PhyloTree",'.',input$DownloadPhyloTreeCheck, sep='')
+    },
+    content = function(file) {
+      if (input$DownloadPhyloTreeCheck == "png"){
+        png(file,width = 1400, height = 800,res = 80)
+      }
+      else if (input$DownloadPhyloTreeCheck == "pdf"){
+        ggsave(file,inputData()$phylotreeplot,width = 14, height = 8)
+      }
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+        if(input$phyloTreeType == 'njtree'){
+          njtree <- inputNJtree()
+          if(input$useccf == T){
+            validate(
+              need(input$heatmap.type == "CCF","switch heatmap type to CCF")
+            )
+          }
+          p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
+                                     heatmap.type = input$heatmap.type, sig.name = input$sig.name,
+                                     show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+          return(p)
         }
-        p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                           heatmap.type = input$heatmap.type, sig.name = input$sig.name,
-                           show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
-        return(p)
+        else{
+          validate(
+            need(!is.null(input$phylotree.dir),"Upload your phylotree file")
+          )
+          p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
+                                     phylotree.type = input$phyloTreeType)
+          return(p)
+        }
       }
       else{
-        validate(
-          need(!is.null(input$phylotree.dir),"Upload your phylotree file")
-        )
-        p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
-                           phylotree.type = input$phyloTreeType)
+        njtree <- inputNJtree()
+        p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
+                                   heatmap.type = input$heatmap.type, sig.name = input$sig.name,
+                                   show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
         return(p)
+        # inputData()$phylotreeplot
       }
+      dev.off()
     }
-    else{
+  )
+  
+  output$DownloadGOPlot <- downloadHandler(
+    filename = function() {
+      paste("GOPlot", '.',input$DownloadGOPlotCheck, sep='')
+    },
+    content = function(file) {
+      if (input$DownloadGOPlotCheck == "png"){
+        png(file,width = 2000, height = 1600,res = 144)
+      }
+      else if (input$DownloadGOPlotCheck == "pdf"){
+        pdf(file,width = 20, height = 16)
+      }
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+        return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
+      }
+      else{
+        return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
+      }
+      dev.off()
+    },
+    contentType = paste('image/',input$DownloadGOPlotCheck,sep="")
+  )
+  output$DownloadPathPlot <- downloadHandler(
+    filename = function() {
+      paste("pathwatplot",'.',input$DownloadGOPlotCheck, sep='')
+    },
+    content = function(file) {
+      if (input$DownloadPathPlotCheck == "png"){
+        png(file,width = 2000, height = 1600,res = 144)
+      }
+      else if (input$DownloadPathPlotCheck == "pdf"){
+        pdf(file,width = 20, height = 16)
+      }
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+        return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
+      }
+      else{
+        return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
+      }
+      dev.off()
+    },
+    contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
+  )
+  output$DownloadSignaturePlot <- downloadHandler(
+    filename = function() {
+      paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck, sep='')
+    },
+    content = function(file) {
+      if (input$DownloadSignaturePlotCheck == "png"){
+        png(file,width = 1400, height = 800,res = 144)
+      }
+      else if (input$DownloadSignaturePlotCheckk == "pdf"){
+        pdf(file,width = 1400, height = 800)
+      }
       njtree <- inputNJtree()
-      p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                         heatmap.type = input$heatmap.type, sig.name = input$sig.name,
-                         show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
-      return(p)
-      # inputData()$phylotreeplot
-    }
-    dev.off()
-  }
-)
-
-output$DownloadGOPlot <- downloadHandler(
-  filename = function() {
-    paste("GOPlot", '.',input$DownloadGOPlotCheck, sep='')
-  },
-  content = function(file) {
-    if (input$DownloadGOPlotCheck == "png"){
-      png(file,width = 2000, height = 1600,res = 144)
-    }
-    else if (input$DownloadGOPlotCheck == "pdf"){
-      pdf(file,width = 20, height = 16)
-    }
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
-    }
-    else{
-      return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
-    }
-    dev.off()
-  },
-  contentType = paste('image/',input$DownloadGOPlotCheck,sep="")
-)
-output$DownloadPathPlot <- downloadHandler(
-  filename = function() {
-    paste("pathwatplot",'.',input$DownloadGOPlotCheck, sep='')
-  },
-  content = function(file) {
-    if (input$DownloadPathPlotCheck == "png"){
-      png(file,width = 2000, height = 1600,res = 144)
-    }
-    else if (input$DownloadPathPlotCheck == "pdf"){
-      pdf(file,width = 20, height = 16)
-    }
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
-    }
-    else{
-      return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
-    }
-    dev.off()
-  },
-  contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
-)
-output$DownloadSignaturePlot <- downloadHandler(
-  filename = function() {
-    paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck, sep='')
-  },
-  content = function(file) {
-    if (input$DownloadSignaturePlotCheck == "png"){
-      png(file,width = 1400, height = 800,res = 144)
-    }
-    else if (input$DownloadSignaturePlotCheckk == "pdf"){
-      pdf(file,width = 1400, height = 800)
-    }
-    njtree <- inputNJtree()
-    Meskit::treeMutationalSig(njtree,plot.Signatures = T)
-    dev.off()
-  },
-  contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
-)
-
-
+      Meskit::treeMutationalSig(njtree,plot.Signatures = T)
+      dev.off()
+    },
+    contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
+  )
+  
+  
 })
