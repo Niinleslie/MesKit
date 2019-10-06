@@ -81,22 +81,22 @@ bodyIP <- tabItem("input",
                           conditionalPanel(
                             condition = "true",
                             fileInput(inputId = 'maf', 
-                                      label = div(style = "font-size:18px; font-weight:400; ", 'MAF file'), 
+                                      label = div(style = "font-size:18px; font-weight:600; ", 'MAF file'), 
                                       placeholder = "example data: 311252.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:18px; font-weight:400; ", 'Sample information document'), 
+                                      label = div(style = "font-size:18px; font-weight:600; ", 'Sample information document'), 
                                       placeholder = "example data: sample_info.txt", 
                                       width = 400),
                             checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
                               condition = "input.useccf == true",
-                              fileInput('ccf.cluster',label = div(style = "font-size:18px; font-weight:400; ", 'ccf.cluster')),
-                              fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight:400; ", 'ccf.loci'))
+                              fileInput('ccf.cluster',label = div(style = "font-size:18px; font-weight:600; ", 'ccf.cluster')),
+                              fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight:600; ", 'ccf.loci'))
                             ),
                             checkboxInput('use.indel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
                             br(),
-                            selectInput('ref', label = div(style = "font-size:18px; font-weight:400; ", 'Select reference genome(hg19/hg38)'),
+                            selectInput('ref', label = div(style = "font-size:18px; font-weight:600; ", 'Select reference genome(hg19/hg38)'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
                           actionBttn('submit1',div(
@@ -136,14 +136,14 @@ bodyITH <- tabItem("ITH",
                                  tags$table(
                                    tags$tr(id = "inline", 
                                            width = "100%",
-                                           tags$td(width = "30%", div(style = "font-size:18px; font-weight:400; ", "Min VAF:")),
+                                           tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min VAF:")),
                                            tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.00, label = NULL)))
                                  ), 
                                  br(),
                                  tags$table(
                                    tags$tr(id = "inline",
                                            width = "100%",
-                                           tags$td(width = "30%", tags$div(style = "font-size:18px;  font-weight:400; ", "Max VAF:")),
+                                           tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max VAF:")),
                                            tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
                                  ), 
                                  br(),
@@ -168,13 +168,13 @@ bodyITH <- tabItem("ITH",
                              fluidRow(
                                column(
                                  width = 3,
-                                 selectInput("plotOption", label = div(style = "font-size:18px; font-weight:400;  ", "Plot option"),
+                                 selectInput("plotOption", label = div(style = "font-size:18px; font-weight:600;  ", "Plot option"),
                                              choices = c(
                                                Compare = "compare",
                                                Combine = "combine",
                                                Separate = "separate"
                                              ), selected = "compare",width = 300),
-                                 selectInput("themeOption", label = div(style = "font-size:18px; font-weight:400;  ", "Theme option"),
+                                 selectInput("themeOption", label = div(style = "font-size:18px; font-weight:600;  ", "Theme option"),
                                              choices = c(NPG = "npg",
                                                          AAAS = "aaas",
                                                          NEJM = "nejm",
@@ -193,7 +193,7 @@ bodyITH <- tabItem("ITH",
                                                          'The Simpsons' = 'simpsons',
                                                          GSEA = 'gsea'),
                                              selected = "aaas",width = 300),
-                                 sliderInput('width1', label = div(style = "font-size:18px; font-weight:400; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
+                                 sliderInput('width1', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
                                  br(),
                                  actionBttn('submit3', div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -217,7 +217,7 @@ bodyITH <- tabItem("ITH",
                                  br(),
                                  checkboxInput('show.num',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
                                  br(),
-                                 sliderInput('width2', label = div(style = "font-size:18px; font-weight:400; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                                 sliderInput('width2', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                                  br(),
                                  actionBttn('submit4',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -261,7 +261,7 @@ bodyITH <- tabItem("ITH",
                                  br(),
                                  checkboxInput('show.percentage',label = strong('Show percentage'),value = T),
                                  br(),
-                                 sliderInput('width3',label = div(style = "font-size:18px; font-weight:400; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
+                                 sliderInput('width3',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
                                  br(),
                                  actionBttn('submit5',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -288,7 +288,7 @@ bodyITH <- tabItem("ITH",
                                                Upper = "upper",
                                                Full = "full"
                                              ), selected = "lower",width = 300),
-                                 sliderInput('width4',label = div(style = "font-size:18px; font-weight:400; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                                 sliderInput('width4',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                                  br(),
                                  br(),
                                  actionBttn('submit6',div(
@@ -328,7 +328,7 @@ bodyclone <- tabItem('clone',
                                fluidRow(
                                  column(
                                    width = 3,
-                                   sliderInput('width5',label = div(style = "font-size:18px; font-weight:400; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                                   sliderInput('width5',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                                    br(),
                                    br(),
                                    actionBttn('submit7',div(
@@ -372,19 +372,19 @@ bodyfunction <- tabItem('function',
                                       tags$table(
                                         tags$tr(id = "inline", 
                                                 width = "100%",
-                                                tags$td(width = "20%", div(style = "font-size:18px; font-weight:400;  ", "Pval:")),
+                                                tags$td(width = "20%", div(style = "font-size:18px; font-weight:600;  ", "Pval:")),
                                                 tags$td(width = "70%", textInput(inputId = "pval1", value = 0.05, label = NULL)))
                                       ), 
                                       br(),
                                       tags$table(
                                         tags$tr(id = "inline",
                                                 width = "100%",
-                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:400; ", "Qval:")),
+                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:600; ", "Qval:")),
                                                 tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
                                       ), 
                                       br(),
-                                      sliderInput('width6',label = div(style = "font-size:18px; font-weight:400; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                      sliderInput('height6',label = div(style = "font-size:18px; font-weight:400; ", 'Image height'),min = 400,max = 600, value = 500),
+                                      sliderInput('width6',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+                                      sliderInput('height6',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500),
                                       br(),
                                       br(),
                                       actionBttn('submit8',div(
@@ -409,19 +409,19 @@ bodyfunction <- tabItem('function',
                                       tags$table(
                                         tags$tr(id = "inline", 
                                                 width = "100%",
-                                                tags$td(width = "20%", div(style = "font-size:18px; font-weight:400; ", "Pval:")),
+                                                tags$td(width = "20%", div(style = "font-size:18px; font-weight:600; ", "Pval:")),
                                                 tags$td(width = "70%", textInput(inputId = "pval2", value = 0.05, label = NULL)))
                                       ), 
                                       br(),
                                       tags$table(
                                         tags$tr(id = "inline",
                                                 width = "100%",
-                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:400; ", "Qval:")),
+                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:600; ", "Qval:")),
                                                 tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
                                       ), 
                                       br(),
-                                      sliderInput('width7',label = div(style = "font-size:18px; font-weight:400; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                      sliderInput('height7',label = div(style = "font-size:18px; font-weight:400; ", 'Image height'),min = 400,max = 600, value = 500),
+                                      sliderInput('width7',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+                                      sliderInput('height7',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500),
                                       br(),
                                       actionBttn('submit9',div(
                                         strong("Click ME to start analysing"),align = 'center',
@@ -451,25 +451,33 @@ bodySurvival <- tabItem('Survival',
                                 column(
                                   h3(strong("Parameter: ")), 
                                   width = 3,
-                                  selectInput('phyloTreeType',h4(strong('Type')),
+                                  selectInput('phyloTreeType',div(style = "font-size:18px; font-weight:600; ", 'Type'),
                                               c( 'njtree','newick','beast','PAML'),
                                               selected = 'njtree'),
                                   conditionalPanel(
                                     condition = "input.phyloTreeType != 'njtree'",
                                     fileInput('phylotree.dir','upload your phylotree file')
                                   ),
-                                  checkboxInput('show.mutSig',strong('Show mutation signature'),value = TRUE),
-                                  checkboxInput('show.heatmap',strong('Show heatmap'),value = TRUE),
+                                  checkboxInput('show.mutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
+                                  checkboxInput('show.heatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
                                   radioButtons(
                                     inputId = "sig.name", 
-                                    label = div(style = "font-size:18px; font-weight:400; ", "Signature name"), 
-                                    choices = c(Default = "default", Alias = "alias"), 
+                                    label = div(style = "font-size:18px; font-weight:600; ", "Signature name"), 
+                                    choiceNames = list(
+                                      tags$span(style = "font-size:14.5px; font-weight:400; ", "Default"), 
+                                      tags$span(style = "font-size:14.5px; font-weight:400; ", "Alias")
+                                    ),
+                                    choiceValues = c("default", "alias"),
                                     selected = "default", 
                                     inline = TRUE),
                                   radioButtons(
                                     inputId = "heatmap.type",
-                                    label = div(style = "font-size:18px; font-weight:400; ", "Heatmap type"),
-                                    choices = c(Binary = "binary", CCF = "CCF"),
+                                    label = div(style = "font-size:18px; font-weight:600; ", "Heatmap type"),
+                                    choiceNames = list(
+                                      tags$span(style = "font-size:14.5px; font-weight:400; ", "Binary"), 
+                                      tags$span(style = "font-size:14.5px; font-weight:400; ", "CCF")
+                                    ),
+                                    choiceValues = c("binary", "CCF"),
                                     selected = "binary", 
                                     inline = TRUE
                                   ),
@@ -510,8 +518,8 @@ bodySignature <- tabItem('signature',
                                               width = 3,
                                               textInput('pval1','Pval',value = 0.05),
                                               textInput('qval1','Qval',value = 0.2),
-                                              sliderInput('width6',label = div(style = "font-size:18px; font-weight:400; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                              sliderInput('height6',label = div(style = "font-size:18px; font-weight:400; ", 'Image height'),min = 400,max = 600, value = 500),
+                                              sliderInput('width6',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+                                              sliderInput('height6',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500),
                                               br(),
                                               br(),
                                               actionBttn('submit8',div(
@@ -535,18 +543,28 @@ bodySignature <- tabItem('signature',
 
 
 #Main function----
+dbHeader <- dashboardHeader(title = "Meskit", titleWidth = 300, 
+                tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
+                tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))))
+dbHeader$children[[2]]$children <-  tags$a(href='https://github.com/Niinleslie/MesKit',
+                                           tags$img(src='image/logo.png',height='65',width='250'))
 shinyUI(
   dashboardPage(
     skin = "blue",
-    dashboardHeader(titleWidth = 0, 
-                    tags$li(class = "dropdown", actionLink(inputId = "help", label = "Help")), 
-                    tags$li(class = "dropdown", actionLink(inputId = "contact", label = "Contact"))
-    ),
-    sidebar,
-    dashboardBody(
+    header=dbHeader ,
+    sidebar=sidebar,
+    body=dashboardBody(
       ## add text behind the sidebar (design error)
       tags$head(tags$style(HTML(
-        '.textnvbar { 
+        '/* logo */
+        .skin-blue .main-header .logo {
+                              background-color: #3c8dbc;
+        }
+        /* logo when hovered */
+        .skin-blue .main-header .logo:hover {
+                              background-color: #3c8dbc;
+                              }
+        .textnvbar { 
         font-size: 20px;
         line-height: 50px;
         text-align: left;

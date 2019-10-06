@@ -4,11 +4,11 @@ suppressMessages(library(shiny))
 
 # Define server logic required to plot various variables against mpg
 shinyServer(function(input, output, session){
-  observeEvent(input$ChangePassword, {
-    updateTabItems(session, "help", "home")
+  observeEvent(input$help, {
+    updateTabItems(session, "sidername", "home")
   })
-  observeEvent(input$ChangePassword, {
-    updateTabItems(session, "contact", "home")
+  observeEvent(input$contact, {
+    updateTabItems(session, "sidername", "home")
   })
   phylotree.type <- reactive({
     return(input$phylotTreeType)
@@ -127,8 +127,14 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadVafPlotCheck', div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons(inputId = 'DownloadVafPlotCheck', 
+                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
         ),
         column(
           width = 3,
@@ -169,8 +175,14 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadSharedPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadSharedPlotCheck',
+                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
         ),
         column(
           width = 3,
@@ -218,8 +230,14 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadStackPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadStackPlotCheck',
+                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
         ),
         column(
           width = 3,
@@ -253,8 +271,13 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadJaccardIndexCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadJaccardIndexCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
         ),
         column(
           width = 3,
@@ -294,8 +317,13 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadClonePlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadClonePlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
         ),
         column(
           width = 3,
@@ -337,8 +365,11 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadGOPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadGOPlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),choiceValues = c("png", "pdf"), inline = T)
         ),
         column(
           width = 3,
@@ -367,8 +398,11 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadPathPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadPathPlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),choiceValues = c("png", "pdf"), inline = T)
         ),
         column(
           width = 3,
@@ -442,8 +476,11 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadPhyloTreeCheck', div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadPhyloTreeCheck', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),inline = T)
         ),
         column(
           width = 3,
@@ -480,8 +517,11 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadSignaturePlotCheck', div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       c('png' ='png','pdf' = 'pdf'),inline = T)
+          radioButtons('DownloadSignaturePlotCheck', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),inline = T)
         ),
         column(
           width = 3,

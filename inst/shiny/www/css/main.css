@@ -4,18 +4,14 @@ img {
   max-height:100%;
 }
 
-
-.main-header {
-  position: fixed;
-  width:100%;
+.content {
+  padding-top: 1%;
 }
-
 
 .pipe{
     float:left;
     width:68%;
 }
-
 .pipetext{
     float:right;
     text-align: left;
