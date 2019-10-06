@@ -63,6 +63,14 @@ shinyServer(function(input, output){
       njtree <- Meskit::getNJtree(maf, use.indel = input$use.indel)
     }
   })
+  
+  output$maftable <- DT::renderDataTable({
+    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+      inputData()@data
+    } else {
+      inputData()$maf@data
+    }
+  })
 
   ms <- eventReactive(input$submit2,{
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
@@ -76,14 +84,25 @@ shinyServer(function(input, output){
                       minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
     }
   })
+  
   output$mathScore <- DT::renderDataTable({
      ms()
   })
+  
   output$msdb <- renderUI({
     if(!is.null(ms())){
-      downloadBttn('DownloadMathScore', 'Download')
+      fluidRow(
+        column(
+          width = 9
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadMathScore', 'Download')
+        )
+      )
     }
   })
+  
   vc <- eventReactive(input$submit3,{
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       maf <- inputData()
@@ -102,7 +121,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadVafPlotCheck','Save type as:',
+          radioButtons('DownloadVafPlotCheck', div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -144,7 +163,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadSharedPlotCheck','Save type as:',
+          radioButtons('DownloadSharedPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -193,7 +212,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadStackPlotCheck','Save type as:',
+          radioButtons('DownloadStackPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -228,7 +247,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadJaccardIndexCheck','Save type as:',
+          radioButtons('DownloadJaccardIndexCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -269,7 +288,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadClonePlotCheck','Save type as:',
+          radioButtons('DownloadClonePlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -312,7 +331,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadGOPlotCheck','Save type as:',
+          radioButtons('DownloadGOPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -342,7 +361,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadPathPlotCheck','Save type as:',
+          radioButtons('DownloadPathPlotCheck',div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -401,6 +420,7 @@ shinyServer(function(input, output){
       # inputData()$phylotreeplot
     }
   })
+  
   output$phylotree <- renderPlot({
      pht()
   },
@@ -416,7 +436,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadPhyloTreeCheck','Save type as:',
+          radioButtons('DownloadPhyloTreeCheck', div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(
@@ -454,7 +474,7 @@ shinyServer(function(input, output){
         ),
         column(
           width = 2,
-          radioButtons('DownloadSignaturePlotCheck','Save type as:',
+          radioButtons('DownloadSignaturePlotCheck', div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        c('png' ='png','pdf' = 'pdf'),inline = T)
         ),
         column(

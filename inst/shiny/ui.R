@@ -69,34 +69,43 @@
                     h2('Input section'),
                     fluidRow(
                       column(
-                        width = 4,
+                        width = 12, 
+                      column(
+                        width = 3,
                         box(
                           title = div(shiny::icon("gear"), "Upload", inline =TRUE),
                           width = NULL,
                           conditionalPanel(
                             condition = "true",
                             fileInput(inputId = 'maf', 
-                                      label = 'maf file', 
-                                      placeholder = "example data: 311252.maf"),
+                                      label = div(style = "font-size:18px; font-weight: bold; ", 'MAF file'), 
+                                      placeholder = "example data: 311252.maf", 
+                                      width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = 'sampleInfo', 
-                                      placeholder = "example data: sample_info.txt"),
-                            checkboxInput(inputId = 'useccf', label = strong('use ccf'),value = FALSE, width = 200),
+                                      label = div(style = "font-size:18px; font-weight: bold; ", 'sampleInfo'), 
+                                      placeholder = "example data: sample_info.txt", 
+                                      width = 400),
+                            checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
                               condition = "input.useccf == true",
-                              fileInput('ccf.cluster','ccf.cluster'),
-                              fileInput('ccf.loci','ccf.loci' )
+                              fileInput('ccf.cluster',label = div(style = "font-size:18px; font-weight: bold; ", 'ccf.cluster')),
+                              fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight: bold; ", 'ccf.loci'))
                             ),
-                            checkboxInput('use.indel',strong('use indel'),value = FALSE,width = 400),
-                            selectInput('ref','Select reference genome(hg19/hg38)',
-                                        choices = c('hg19','hg38'),selected = "hg19")
+                            checkboxInput('use.indel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
+                            selectInput('ref', label = div(style = "font-size:18px; font-weight: bold; ", 'Select reference genome(hg19/hg38)'),
+                                        choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
-                          
                           actionBttn('submit1',div(
                             strong("Click ME to start analysing"),align = 'center',
                             icon("thumbs-up", lib = "glyphicon")))
                         )
+                      ), 
+                      column(
+                        width = 5, 
+                        withSpinner(DT::dataTableOutput('maftable')),
+                        uiOutput("mafdb")
                       )
+                    )
                     )
                     )
   
@@ -115,20 +124,25 @@
                            side = "left",
                            tabPanel(
                              title = div(icon("chart-bar"), "MathScore"),
-                             h3("Parameter: "), 
+                               h3(strong("Parameter: ")), 
                              value = "caInput02",
                              fluidRow(
                                column(
                                  width = 3,
-                                 div(
-                                   style="display:inline-block", 
-                                   textInput(inputId="minvaf", 
-                                             label=h4(strong("minvaf")), 
-                                             value = 0.0, width = 150)),
-                                 div(style="display:inline-block", 
-                                     textInput(inputId="maxvaf", 
-                                               label=h4(strong("maxvaf")), 
-                                               value = 1.0, width = 150)),
+                                 tags$table(
+                                   tags$tr(id = "inline", 
+                                           width = "100%",
+                                           tags$td(width = "30%", div(style = "font-size:18px;  font-weight: bold; ", "Min VAF:")),
+                                           tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.00, label = NULL)))
+                                 ), 
+                                 br(),
+                                 tags$table(
+                                   tags$tr(id = "inline",
+                                           width = "100%",
+                                           tags$td(width = "30%", tags$div(style = "font-size:18px;  font-weight: bold; ", "Max VAF:")),
+                                           tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
+                                 ), 
+                                 br(),
                                  br(),
                                  actionBttn('submit2',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -145,7 +159,7 @@
                            ),
                            tabPanel(
                              title = div(icon("image"), "Vafplot"),
-                             h3("Parameter: "), 
+                             h3(strong("Parameter: ")), 
                              value = "caInput03",
                              fluidRow(
                                column(
@@ -175,7 +189,7 @@
                                                          'The Simpsons' = 'simpsons',
                                                          GSEA = 'gsea'),
                                              selected = "aaas",width = 300),
-                                 sliderInput('width1','Adjust Image Width',min = 700,max = 1100, value = 850,width = 500),
+                                 sliderInput('width1', label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'), min = 700,max = 1100, value = 850,width = 500),
                                  br(),
                                  actionBttn('submit3', div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -191,7 +205,7 @@
                            ),
                            tabPanel(
                              title = div(icon("map"), "Mutsharedprivateplot"),
-                             h3("Parameter: "), 
+                             h3(strong("Parameter: ")), 
                              value = "caInput04",
                              fluidRow(
                                column(
@@ -199,7 +213,7 @@
                                  br(),
                                  checkboxInput('show.num',strong('Show mutation number'),width = 200),
                                  br(),
-                                 sliderInput('width2','Adjust image width',min = 700,max = 1100, value = 850,width = 500),
+                                 sliderInput('width2', label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 700,max = 1100, value = 850,width = 500),
                                  br(),
                                  actionBttn('submit4',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -214,7 +228,7 @@
                            ),
                            tabPanel(
                              title = div(icon("camara"), "Stackplot"),
-                             h3("Parameter: "), 
+                             h3(strong("Parameter: ")), 
                              value = "caInput05",
                              fluidRow(
                                column(
@@ -243,7 +257,7 @@
                                  br(),
                                  checkboxInput('show.percentage',label = strong('Show percentage'),value = T),
                                  br(),
-                                 sliderInput('width3','Adjust image width',min = 600,max = 1100, value = 650,width = 500),
+                                 sliderInput('width3',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 600,max = 1100, value = 650,width = 500),
                                  br(),
                                  actionBttn('submit5',div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -259,7 +273,7 @@
                            ),
                            tabPanel(
                              title = div(icon("box"), "Jaccardindex"),
-                             h3("Parameter: "), 
+                             h3(strong("Parameter: ")), 
                              value = "caInput06",
                              fluidRow(
                                column(
@@ -270,7 +284,7 @@
                                                Upper = "upper",
                                                Full = "full"
                                              ), selected = "lower",width = 300),
-                                 sliderInput('width4','Adjust image width',min = 700,max = 1100, value = 850,width = 500),
+                                 sliderInput('width4',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 700,max = 1100, value = 850,width = 500),
                                  br(),
                                  br(),
                                  actionBttn('submit6',div(
@@ -306,11 +320,11 @@
                             tabPanel(
                               value = 'c01',
                               title = div(icon("newspaper"), "Tumorcloneplot"),
-                              h3("Parameter: "), 
+                              h3(strong("Parameter: ")), 
                               fluidRow(
                                 column(
                                   width = 3,
-                                  sliderInput('width5','Adjust image width',min = 700,max = 1100, value = 850,width = 500),
+                                  sliderInput('width5',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 700,max = 1100, value = 850,width = 500),
                                   br(),
                                   br(),
                                   actionBttn('submit7',div(
@@ -346,22 +360,27 @@
                                 height = "100%",
                                 tabPanel(
                                   title = div(icon("lightbulb"), "GO analysis"),
-                                  h3("Parameter: "), 
+                                  h3(strong("Parameter: ")), 
                                   value = 'F01',
                                   fluidRow(
                                     column(
                                       width = 3,
-                                      div(
-                                        style="display:inline-block", 
-                                        textInput(inputId="pval1", 
-                                                  label="Pval", 
-                                                  value = 0.05, width = 150)),
-                                      div(style="display:inline-block", 
-                                          textInput(inputId="qval1", 
-                                                    label="Qval", 
-                                                    value = 0.2, width = 150)),
-                                      sliderInput('width6','Adjust image width',min = 400,max = 1000, value = 800),
-                                      sliderInput('height6','Adjust image height',min = 400,max = 600, value = 500),
+                                      tags$table(
+                                        tags$tr(id = "inline", 
+                                                width = "100%",
+                                                tags$td(width = "20%", div(style = "font-size:18px;  font-weight: bold; ", "Pval:")),
+                                                tags$td(width = "70%", textInput(inputId = "pval1", value = 0.05, label = NULL)))
+                                      ), 
+                                      br(),
+                                      tags$table(
+                                        tags$tr(id = "inline",
+                                                width = "100%",
+                                                tags$td(width = "20%", tags$div(style = "font-size:18px;  font-weight: bold; ", "Qval:")),
+                                                tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
+                                      ), 
+                                      br(),
+                                      sliderInput('width6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 400,max = 1000, value = 800),
+                                      sliderInput('height6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust image height'),min = 400,max = 600, value = 500),
                                       br(),
                                       br(),
                                       actionBttn('submit8',div(
@@ -378,22 +397,27 @@
                                 ),
                                 tabPanel(
                                   title = div(icon("microsoft"), "Pathway analysis"),
-                                  h3("Parameter: "), 
+                                  h3(strong("Parameter: ")), 
                                   value = 'F02',
                                   fluidRow(
                                     column(
                                       width = 3,
-                                      div(
-                                        style="display:inline-block", 
-                                        textInput(inputId="pval2", 
-                                                  label="Pval", 
-                                                  value = 0.05, width = 150)),
-                                      div(style="display:inline-block", 
-                                          textInput(inputId="qval2", 
-                                                    label="Qval", 
-                                                    value = 0.2, width = 150)),
-                                      sliderInput('width7','Adjust image width',min = 400,max = 1000, value = 800),
-                                      sliderInput('height7','Adjust image height',min = 400,max = 600, value = 500),
+                                      tags$table(
+                                        tags$tr(id = "inline", 
+                                                width = "100%",
+                                                tags$td(width = "20%", div(style = "font-size:18px;  font-weight: bold; ", "Pval:")),
+                                                tags$td(width = "70%", textInput(inputId = "pval2", value = 0.05, label = NULL)))
+                                      ), 
+                                      br(),
+                                      tags$table(
+                                        tags$tr(id = "inline",
+                                                width = "100%",
+                                                tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight: bold; ", "Qval:")),
+                                                tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
+                                      ), 
+                                      br(),
+                                      sliderInput('width7',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image width'),min = 400,max = 1000, value = 800),
+                                      sliderInput('height7',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image height'),min = 400,max = 600, value = 500),
                                       br(),
                                       actionBttn('submit9',div(
                                         strong("Click ME to start analysing"),align = 'center',
@@ -421,7 +445,7 @@
                                 width = NULL,
                                 fluidRow(
                                   column(
-                                    h3("Parameter: "), 
+                                    h3(strong("Parameter: ")), 
                                     width = 3,
                                     selectInput('phyloTreeType',h4(strong('Type')),
                                                 c( 'njtree','newick','beast','PAML'),
@@ -434,13 +458,13 @@
                                     checkboxInput('show.heatmap',strong('Show heatmap'),value = TRUE),
                                     radioButtons(
                                       inputId = "sig.name", 
-                                      label = "Signature name", 
+                                      label = div(style = "font-size:18px; font-weight: bold; ", "Signature name"), 
                                       choices = c(Default = "default", Alias = "alias"), 
                                       selected = "default", 
                                       inline = TRUE),
                                     radioButtons(
                                       inputId = "heatmap.type",
-                                      label = "Heatmap type",
+                                      label = div(style = "font-size:18px; font-weight: bold; ", "Heatmap type"),
                                       choices = c(Binary = "binary", CCF = "CCF"),
                                       selected = "binary", 
                                       inline = TRUE
@@ -475,15 +499,15 @@
                                    width = "100%",
                                    height = "100%",
                                    tabPanel(title = div(icon("lightbulb"), "Mutational signature data"), 
-                                            h3("Parameter: "), 
+                                            h3(strong("Parameter: ")), 
                                             value = 'S01',
                                             fluidRow(
                                               column(
                                                 width = 3,
                                                 textInput('pval1','Pval',value = 0.05),
                                                 textInput('qval1','Qval',value = 0.2),
-                                                sliderInput('width6','Adjust image width',min = 400,max = 1000, value = 800),
-                                                sliderInput('height6','Adjust image height',min = 400,max = 600, value = 500),
+                                                sliderInput('width6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust Image Width'),min = 400,max = 1000, value = 800),
+                                                sliderInput('height6',label = div(style = "font-size:18px; font-weight:400; ", 'Adjust image height'),min = 400,max = 600, value = 500),
                                                 br(),
                                                 br(),
                                                 actionBttn('submit8',div(
@@ -492,10 +516,10 @@
                                               ))
                                             ), 
                                    tabPanel("Mutation probability plot",
-                                            h3("Parameter: ")
+                                            h3(strong("Parameter: "))
                                             ), 
                                    tabPanel("Trunk-branch plot", 
-                                            h3("Parameter: ")
+                                            h3(strong("Parameter: "))
                                             )
                                    
                                    
@@ -513,6 +537,10 @@
                     titleWidth = 650),
       sidebar,
       dashboardBody(
+        tags$head(
+          tags$style(type="text/css", "#inline label{ display: table-cell; text-align: centers; vertical-align: middle; width=400; } 
+                #inline .form-group { display: table-row; width=400; }")
+        ),
         tags$head(
           tags$style(HTML("
                           .shiny-output-error-validation {
