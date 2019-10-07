@@ -513,7 +513,9 @@ bodySignature <- tabItem('signature',
                                                 icon("hand-right", lib = "glyphicon")))
                                             ), column(
                                               width = 9,
-                                              withSpinner(plotOutput('sigOFA2', height = "100%", width = "100%"))
+                                              withSpinner(plotOutput('sigOFA2', height = "100%", width = "100%")),
+                                              br(),
+                                              uiOutput("sigpdb")
                                             )
                                           )
                                  )

@@ -469,6 +469,28 @@ shinyServer(function(input, output, session){
   res = 100
   )
   
+  output$sigpdb <- renderUI({
+    if(!is.null(sigOFA2())){
+      fluidRow(
+        column(
+          width = 7
+        ),
+        column(
+          width = 2,
+          radioButtons('DownloadSignaturePlotCheck', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),choiceValues = c("png", "pdf"), inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadSignaturePlot', 'Download')
+        )
+      )
+    }
+  })
+  
   pht <- eventReactive(input$submit10,{
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
       if(input$phyloTreeType == 'njtree'){
@@ -530,47 +552,8 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  sigp <- eventReactive(input$submit11,{
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      if(input$phyloTreeType == 'njtree'){
-        njtree <- inputNJtree()
-        Meskit::treeMutationalSig(njtree,plot.Signatures = T)
-      }
-      else{
-        message("Drawing signature plot when using njtree")
-      }
-    }
-    else{
-      njtree <- inputNJtree()
-      Meskit::treeMutationalSig(njtree,plot.Signatures = T)
-    }
-  })
-  output$signature <- renderPlot({
-    sigp()
-  },
-  res = 100
-  )
-  output$sigpdb <- renderUI({
-    if(!is.null(sigp())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadSignaturePlotCheck', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSignaturePlot', 'Download')
-        )
-      )
-    }
-  })
+
+  
   output$DownloadMathScore <- downloadHandler(
     filename = function() {
       paste("MathScore",'.',"csv", sep='')
@@ -807,7 +790,7 @@ shinyServer(function(input, output, session){
       if (input$DownloadSignaturePlotCheck == "png"){
         png(file,width = 1400, height = 800,res = 144)
       }
-      else if (input$DownloadSignaturePlotCheckk == "pdf"){
+      else if (input$DownloadSignaturePlotCheck == "pdf"){
         pdf(file,width = 1400, height = 800)
       }
       njtree <- inputNJtree()
