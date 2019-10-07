@@ -454,7 +454,7 @@ bodySignature <- tabItem('signature',
                                  selected = 'S01',
                                  width = "100%",
                                  height = "100%",
-                                 tabPanel(title = div(icon("lightbulb"), "Mutational signature analysis"), 
+                                 tabPanel(title = div(icon("lightbulb"), "Mutational signature summary"), 
                                           h3(strong("Parameter: ")), 
                                           value = 'S01',
                                           fluidRow(
@@ -466,26 +466,6 @@ bodySignature <- tabItem('signature',
                                                           choices = c(signatures.cosmic = "signatures.cosmic",
                                                                       signatures.nature2013 = "signatures.nature2013"),
                                                           selected = "signatures.cosmic"),
-                                              radioButtons(
-                                                inputId = "sigplot", 
-                                                label = div(style = "font-size:18px; font-weight:600; ", "Plot option"), 
-                                                choiceNames = list(
-                                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
-                                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-Trunk"), 
-                                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Neither")
-                                                ),
-                                                choiceValues = c("signaturesProb", "branchTrunk", "neither"),
-                                                selected = "neither", 
-                                                inline = TRUE), 
-                                              conditionalPanel(
-                                                condition = "input.sigplot != 'neither'",
-                                                conditionalPanel(
-                                                  condition = "input.sigplot == 'branchTrunk'",
-                                                  numericInput('signif.level', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 50)
-                                                ), 
-                                                sliderInput('widthSig',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                                sliderInput('heightSig',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500)
-                                              ),
                                               br(),
                                               br(),
                                               actionBttn('submitSig',div(
@@ -497,6 +477,45 @@ bodySignature <- tabItem('signature',
                                               withSpinner(DT::dataTableOutput('sigOFA'))
                                             )
                                             )
+                                 ), 
+                                 tabPanel(title = div(icon("lightbulb"), "Mutational signature analysis"), 
+                                          h3(strong("Parameter: ")), 
+                                          value = 'S02',
+                                          fluidRow(
+                                            column(
+                                              width = 3,
+                                              fileInput('driverGenesFile2',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
+                                              numericInput('mutThreshold2', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
+                                              selectInput("signaturesRef2", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
+                                                          choices = c(signatures.cosmic = "signatures.cosmic",
+                                                                      signatures.nature2013 = "signatures.nature2013"),
+                                                          selected = "signatures.cosmic"),
+                                              radioButtons(
+                                                inputId = "sigplot", 
+                                                label = div(style = "font-size:18px; font-weight:600; ", "Plot option"), 
+                                                choiceNames = list(
+                                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
+                                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-Trunk")
+                                                ),
+                                                choiceValues = c("signaturesProb", "branchTrunk"),
+                                                selected = "signaturesProb", 
+                                                inline = TRUE), 
+                                                conditionalPanel(
+                                                  condition = "input.sigplot == 'branchTrunk'",
+                                                  numericInput('signifLevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 50)
+                                                ), 
+                                                sliderInput('widthSig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+                                                sliderInput('heightSig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500), 
+                                              br(),
+                                              br(),
+                                              actionBttn('submitSig2',div(
+                                                strong("Click ME to start analysing"),align = 'center',
+                                                icon("hand-right", lib = "glyphicon")))
+                                            ), column(
+                                              width = 9,
+                                              withSpinner(plotOutput('sigOFA2',height = "100%",width = "100%"))
+                                            )
+                                          )
                                  )
                                )
                              )

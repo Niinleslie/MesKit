@@ -428,31 +428,34 @@ shinyServer(function(input, output, session){
   )
   
   sigOFA <- eventReactive(input$submitSig,{
-      njtree <- inputNJtree()
-      if (input$sigplot == "neither") {
-        df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
-                                                  signaturesRef=input$signaturesRef,
-                                                  plot.signatures=FALSE, plot.branchTrunk=FALSE, 
-                                                  signif.level=0.05)
-        return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
-      } else if (input$sigplot == "signaturesProb") {
-        sp.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
-                                                  signaturesRef=input$signaturesRef,
-                                                  plot.signatures=TRUE, plot.branchTrunk=FALSE, 
-                                                  signif.level=0.05)
-      } else if (input$sigplot == "branchTrunk") {
-        bt.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
-                                                  signaturesRef=input$signaturesRef,
-                                                  plot.signatures=FALSE, plot.branchTrunk=TRUE, 
-                                                  signif.level=input$signif.level)
-      }
-      
-
+    njtree <- inputNJtree()
+    df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+                                              signaturesRef=input$signaturesRef,
+                                              plot.signatures=FALSE, plot.branchTrunk=FALSE, 
+                                              signif.level=0.05)
+    return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
   })
   
   output$sigOFA <- DT::renderDataTable({
     sigOFA()
   })
+  
+  sigOFA2 <- eventReactive(input$submitSig2,{
+    njtree <- inputNJtree()
+    if (input$sigplot == "signaturesProb") {
+      Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath, mutThreshold=input$mutThreshold2, 
+                                signaturesRef=input$signaturesRef2,
+                                plot.signatures=TRUE, plot.branchTrunk=FALSE, 
+                                signif.level=0.05)
+    } else if (input$sigplot == "branchTrunk"){
+      Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath, mutThreshold=input$mutThreshold2, 
+                                signaturesRef=input$signaturesRef2,
+                                plot.signatures=FALSE, plot.branchTrunk=TRUE, 
+                                signif.level=input$signifLevel)
+    }
+  })
+  
+  ## TODO: how to extract the print pictures in R shiny.
   
   pht <- eventReactive(input$submit10,{
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
