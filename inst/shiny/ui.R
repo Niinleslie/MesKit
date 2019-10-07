@@ -96,7 +96,6 @@ bodyIP <- tabItem("input",
                               fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight:600; ", 'ccf.loci'))
                             ),
                             checkboxInput('use.indel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
-                            br(),
                             selectInput('ref', label = div(style = "font-size:18px; font-weight:600; ", 'Select reference genome(hg19/hg38)'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
@@ -106,8 +105,8 @@ bodyIP <- tabItem("input",
                         )
                       ), 
                       column(
-                        width = 5, 
-                        withSpinner(DT::dataTableOutput('maftable')),
+                        width = 9, 
+                        withSpinner(DT::dataTableOutput('maftable', width = '100%')),
                         uiOutput("mafdb")
                       )
                     )
@@ -195,6 +194,7 @@ bodyITH <- tabItem("ITH",
                                                          GSEA = 'gsea'),
                                              selected = "aaas",width = 300),
                                  sliderInput('width1', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
+                                 br(),
                                  br(),
                                  actionBttn('submit3', div(
                                    strong("Click ME to start analysing"),align = 'center',
@@ -613,8 +613,22 @@ shinyUI(
         padding: 0 15px;
         overflow: hidden;
         color: white;
-      }
-    '))),
+        }'))),
+      
+      ## change the style of the progress bar.
+      tags$head(tags$style(
+        type="text/css", 
+        ".progress.shiny-file-input-progress {
+            height:3.5px;
+        }
+          
+        .progress-bar {
+          background-image: linear-gradient(to right, #77C7FF, #3c8dbc ) !important;
+          background-size: auto !important;
+          font-size:0px;
+          height:3.5px;
+        }"
+      )),
       tags$script(HTML('
       $(document).ready(function() {
         $("header").find("nav").append(\'<span class="textnvbar"> Meskit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
@@ -626,8 +640,7 @@ shinyUI(
                 #inline .form-group { display: table-row; width=400; }")
       ),
       tags$head(
-        tags$style(HTML("
-                          .shiny-output-error-validation {
+        tags$style(HTML(".shiny-output-error-validation {
                               color: brown;
                           }
                           # .pipediv{

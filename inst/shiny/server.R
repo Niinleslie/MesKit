@@ -149,6 +149,7 @@ shinyServer(function(input, output, session){
       )
     }
   })
+  
   output$vaf <- renderPlot({
     vc()
   }, 
