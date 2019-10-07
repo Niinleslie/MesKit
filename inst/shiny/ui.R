@@ -495,7 +495,7 @@ bodySignature <- tabItem('signature',
                                                 label = div(style = "font-size:18px; font-weight:600; ", "Plot option"), 
                                                 choiceNames = list(
                                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
-                                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-Trunk")
+                                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-trunk")
                                                 ),
                                                 choiceValues = c("signaturesprob", "branchtrunk"),
                                                 selected = "signaturesprob", 
@@ -513,7 +513,7 @@ bodySignature <- tabItem('signature',
                                                 icon("hand-right", lib = "glyphicon")))
                                             ), column(
                                               width = 9,
-                                              withSpinner(plotOutput('sigOFA2',height = "100%",width = "100%"))
+                                              withSpinner(plotOutput('sigOFA2', height = "100%", width = "100%"))
                                             )
                                           )
                                  )

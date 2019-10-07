@@ -40,6 +40,12 @@ shinyServer(function(input, output, session){
   height7 <- reactive({
     return(input$height7)
   })
+  widthsig2 <- reactive({
+    return(input$widthsig2)
+  })
+  heightsig2 <- reactive({
+    return(input$heightsig2)
+  })
   
   inputData <- eventReactive(input$submit1,{
     if(is.null(input$maf) | is.null(input$sampleInfo)){
@@ -458,8 +464,8 @@ shinyServer(function(input, output, session){
   output$sigOFA2 <- renderPlot({
     sigOFA2()
   },
-  width = 800,
-  height = 560,
+  width = widthsig2,
+  height = heightsig2,
   res = 100
   )
   
