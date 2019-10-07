@@ -544,7 +544,8 @@ shinyServer(function(input, output, session){
                        choiceNames = list(
                          tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
                          tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),inline = T)
+                       ),
+                       choiceValues = c("png", "pdf"), inline = T)
         ),
         column(
           width = 3,

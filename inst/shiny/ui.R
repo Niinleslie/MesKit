@@ -505,7 +505,7 @@ bodySignature <- tabItem('signature',
                                                   numericInput('signiflevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1)
                                                 ), 
                                                 sliderInput(inputId='widthsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                                sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500, width = 500), 
+                                                sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 700, value = 600, width = 500), 
                                               br(),
                                               br(),
                                               actionBttn('submitSig2',div(
@@ -619,14 +619,14 @@ shinyUI(
       tags$head(tags$style(
         type="text/css", 
         ".progress.shiny-file-input-progress {
-            height:3.5px;
+            height:5px;
         }
           
         .progress-bar {
           background-image: linear-gradient(to right, #77C7FF, #3c8dbc ) !important;
           background-size: auto !important;
           font-size:0px;
-          height:3.5px;
+          height:5px;
         }"
       )),
       tags$script(HTML('
