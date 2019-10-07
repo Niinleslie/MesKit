@@ -457,7 +457,7 @@ shinyServer(function(input, output, session){
       Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath, mutThreshold=input$mutThreshold2, 
                                 signaturesRef=input$signaturesRef2,
                                 plot.signatures=FALSE, plot.branchTrunk=TRUE, 
-                                signif.level=input$signifLevel)
+                                signif.level=input$signiflevel)
     }
   })
   
@@ -782,6 +782,7 @@ shinyServer(function(input, output, session){
     },
     contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
   )
+  
   output$DownloadSignaturePlot <- downloadHandler(
     filename = function() {
       paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck, sep='')
@@ -794,7 +795,11 @@ shinyServer(function(input, output, session){
         pdf(file,width = 1400, height = 800)
       }
       njtree <- inputNJtree()
-      Meskit::treeMutationalSig(njtree,plot.Signatures = T)
+      if (input$sigplot == "signaturesprob"){
+        Meskit::treeMutationalSig(njtree,plot.Signatures = T)
+      } else if (input$sigplot == "branchtrunk") {
+        Meskit::treeMutationalSig(njtree,plot.branchTrunk = T)
+      }
       dev.off()
     },
     contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
