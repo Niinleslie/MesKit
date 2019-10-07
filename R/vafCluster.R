@@ -82,7 +82,7 @@ vafCluster <-function(maf, vafColumn="VAF",
             if (plotOption == "separate"){
                 pic <- .drawVAF(clusterMt, themeOption, 
                                 sampleName, mathscore)
-                print(pic)
+                pic
             }
             else {
                 # prepare separated pictures for later combination 
@@ -128,7 +128,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                     ncol = 1,
                     # rel_heights values control vertical title margins
                     rel_heights = c(0.1, 1))
-                return(suppressWarnings(suppressMessages(print(pic))))
+                return(suppressWarnings(suppressMessages(pic)))
                 
             } else {
                 pic <- eval(parse(text=paste("plot_grid(", 
@@ -137,7 +137,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                                              ceiling(length(lsPicName)/2), 
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
-                return(suppressWarnings(suppressMessages(print(pic))))
+                return(suppressWarnings(suppressMessages(pic)))
             }
             
         }
@@ -176,7 +176,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         minVaf, maxVaf))))
-        return(suppressWarnings(suppressMessages(print(pic))))
+        return(suppressWarnings(suppressMessages(pic)))
     }
     
     ## plot specific sample's vaf plot
@@ -197,7 +197,7 @@ vafCluster <-function(maf, vafColumn="VAF",
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
-        return(suppressWarnings(suppressMessages(print(pic))))
+        return(suppressWarnings(suppressMessages(pic)))
     }
     else {
         stop("ERROR: plotOption settings failure.")
