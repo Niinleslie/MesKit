@@ -485,7 +485,7 @@ bodySignature <- tabItem('signature',
                                             column(
                                               width = 3,
                                               fileInput('driverGenesFile2',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
-                                              numericInput('mutThreshold2', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
+                                              numericInput('mutThreshold2', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50, step=10),
                                               selectInput("signaturesRef2", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
                                                           choices = c(signatures.cosmic = "signatures.cosmic",
                                                                       signatures.nature2013 = "signatures.nature2013"),
@@ -497,15 +497,15 @@ bodySignature <- tabItem('signature',
                                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
                                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-Trunk")
                                                 ),
-                                                choiceValues = c("signaturesProb", "branchTrunk"),
-                                                selected = "signaturesProb", 
+                                                choiceValues = c("signaturesprob", "branchtrunk"),
+                                                selected = "signaturesprob", 
                                                 inline = TRUE), 
                                                 conditionalPanel(
-                                                  condition = "input.sigplot == 'branchTrunk'",
-                                                  numericInput('signifLevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 50)
+                                                  condition = "input.sigplot == 'branchtrunk'",
+                                                  numericInput('signiflevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1)
                                                 ), 
-                                                sliderInput('widthSig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                                sliderInput('heightSig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500), 
+                                                sliderInput(inputId='widthsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
+                                                sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500, width = 500), 
                                               br(),
                                               br(),
                                               actionBttn('submitSig2',div(

@@ -442,12 +442,12 @@ shinyServer(function(input, output, session){
   
   sigOFA2 <- eventReactive(input$submitSig2,{
     njtree <- inputNJtree()
-    if (input$sigplot == "signaturesProb") {
+    if (input$sigplot == "signaturesprob") {
       Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath, mutThreshold=input$mutThreshold2, 
                                 signaturesRef=input$signaturesRef2,
                                 plot.signatures=TRUE, plot.branchTrunk=FALSE, 
                                 signif.level=0.05)
-    } else if (input$sigplot == "branchTrunk"){
+    } else if (input$sigplot == "branchtrunk"){
       Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath, mutThreshold=input$mutThreshold2, 
                                 signaturesRef=input$signaturesRef2,
                                 plot.signatures=FALSE, plot.branchTrunk=TRUE, 
@@ -455,7 +455,13 @@ shinyServer(function(input, output, session){
     }
   })
   
-  ## TODO: how to extract the print pictures in R shiny.
+  output$sigOFA2 <- renderPlot({
+    sigOFA2()
+  },
+  width = 800,
+  height = 560,
+  res = 100
+  )
   
   pht <- eventReactive(input$submit10,{
     if(!is.null(input$maf) & !is.null(input$sampleInfo)){
