@@ -149,12 +149,12 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     if (plot.signatures) {
         pic <- .plotMutationalSig(sigsInput, mutSigsOutput)
         message(paste(njtree@patientID, " mutaional signature plot generation done!", sep=""))
-        return(print(pic))
+        return(pic)
         
     } else if (plot.branchTrunk) {
         pic <- .plotBranchTrunk(sigsInput, mutSigsOutput, signif.level)
         message(paste(njtree@patientID, " branch-trunk plot generation done!", sep=""))
-        return(print(pic))
+        return(pic)
         
     } else if (!plot.branchTrunk & !plot.signatures){
         message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
