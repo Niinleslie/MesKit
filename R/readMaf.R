@@ -4,12 +4,12 @@
 #' patient and time.
 #'
 #' @import ggplot2
-#' @importClassesFrom maftools MAF
-#' @importFrom maftools plotmafSummary
-#' @importFrom maftools read.maf
 #'
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
+#' @param mut.type select proper variant classification you need
+#' @param mut.nonSilent 
+#' @param chr.silent
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
@@ -31,13 +31,10 @@
 #' @exportClass classMaf
 #' @export readMaf
 
-## classMaf class
-classMaf <- setClass(Class="classMaf", contains="MAF", 
-                     slots= c(ccf.cluster='data.table', ccf.loci='data.table', 
-                              patientID='character', ref.build='character'))
-
 ## read.maf main function
 readMaf <- function(mafFile, sampleInfoFile, 
+                    mut.type="All", mut.nonSilent=NULL, 
+                    chr.silent=NULL, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
                     refBuild="hg19"){
     
@@ -99,41 +96,44 @@ readMaf <- function(mafFile, sampleInfoFile,
         mafInput[which(
             mafInput$Tumor_Sample_Barcode == tsb),]$time <- time
     }
-    ## fix: Error in setattr(x, "row.names", rn)
-    mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
+    
+    # ## fix: Error in setattr(x, "row.names", rn)
+    # mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
+    
+    ## filter variant classification
+    if (mut.type == "nonSilent"){
+        if (is.null(mut.nonSilent)){
+            nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+                          "Translation_Start_Site", "Nonsense_Mutation", 
+                          "Nonstop_Mutation", "In_Frame_Del",
+                          "In_Frame_Ins", "Missense_Mutation")
+        } else {
+            nonSilent <- mut.nonSilent 
+        }
+        mafInput = mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
+    } else if (mut.type == "All"){
+        # message("All variant classification submitted")
+    } else {
+        error("mut.type setting error")
+    }
+    
+    ## filter chromosome
+    if (!is.null(chr.silent)){
+        mafInput = mafInput[which(!mafInput$Chromosome %in% chr.silent), ]
+    }
     
     ## transform data.frame to data.table
     mafData <- data.table::setDT(mafInput)
     ccfClusterTsv <- data.table::setDT(ccfClusterInput)
     ccfLociTsv <- data.table::setDT(ccfLociTsvInput)
     
-    ## summarize sample_info and mut.id with summarizeMaf
-    capture.output(mafSum <- read.maf(mafData))
-    # mafSum2 <- suppressMessages(.summarizeMaf(mafData))
-    
     ## generate classMaf
     maf <- classMaf(data=mafData, 
-                    variants.per.sample=mafSum@variants.per.sample, 
-                    variant.type.summary=mafSum@variant.type.summary,
-                    variant.classification.summary=mafSum@
-                        variant.classification.summary, 
-                    gene.summary=mafSum@gene.summary,
-                    summary=mafSum@summary, 
-                    maf.silent=mafSum@maf.silent, 
-                    clinical.data=mafSum@clinical.data, 
                     ccf.cluster=ccfClusterTsv, 
                     ccf.loci=ccfLociTsv, 
                     patientID=patientID, 
                     ref.build=refBuild)
     
-    ## print the summary plot
-    # if (MafSummary) {
-    #     plotmafSummary(maf=maf, rmOutlier=TRUE, 
-    #                    addStat='median', dashboard=TRUE, 
-    #                    titvRaw=FALSE)
-    #     # message(paste(patientID, ".VariantSummary Plot Saved!", sep=""))
-    # } 
-    # message(paste(patientID, "'s classMaf Generation Done!", sep=""))
     return(maf)
 }
 
@@ -141,3 +141,8 @@ readMaf <- function(mafFile, sampleInfoFile,
     substr(x, nchar(x)-n+1, nchar(x))
 }
 
+## classMaf class
+classMaf <- setClass(Class="classMaf", 
+                     slots= c(data='data.table', ccf.cluster='data.table', 
+                              ccf.loci='data.table', patientID='character', 
+                              ref.build='character'))

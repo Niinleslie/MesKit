@@ -4,13 +4,18 @@
 \alias{getNJtree}
 \title{Class NJtree}
 \usage{
-getNJtree(maf, use.indel = FALSE, ccf.mutation.id = c("Hugo_Symbol",
-  "Chromosome", "Start_Position"), ccf.mutation.sep = ":")
+getNJtree(maf, use.indel = FALSE, vafColumn = "VAF", minVaf = 0.02,
+  maxVaf = 1, ccf.mutation.id = c("Hugo_Symbol", "Chromosome",
+  "Start_Position"), ccf.mutation.sep = ":")
 }
 \arguments{
 \item{maf}{return from readMaf()}
 
 \item{use.indel}{Seclet SNP in Variant type}
+
+\item{minVaf}{the minimum value of vaf}
+
+\item{maxVaf}{the maximum value of vaf}
 
 \item{ccf.mutation.id}{manually specify which columns could be joint by ccf.mutation.sep to get the same format of mutation id in ccfy}
 

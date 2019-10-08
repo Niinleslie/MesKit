@@ -5,8 +5,9 @@
 \title{A  phylogenetic tree painter}
 \usage{
 plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
-  show.mutSig = TRUE, sig.min.mut.number = 50, show.heatmap = TRUE,
-  heatmap.type = "binary", phylotree.dat = NULL)
+  use.indel = FALSE, show.mutSig = TRUE, sig.min.mut.number = 50,
+  sig.name = "default", show.heatmap = TRUE, heatmap.type = "binary",
+  savePlot = FALSE, phylotree.dat = NULL)
 }
 \arguments{
 \item{njtree}{NJtree object}
@@ -19,7 +20,7 @@ plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
 
 \item{show.heatmap}{if plot heatmap that show mutation distribution in each branch}
 
-\item{heatmap.type}{type of heatmap}
+\item{heatmap.type}{type of heatmap,choose 'CCF' if use ccf}
 
 \item{phylotree.dat}{If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter}
 }
@@ -33,7 +34,7 @@ A  phylogenetic tree painter
 plotPhyloTree(njtree)
 plotPhyloTree(njtree)
 # if use ccf 
-plotPhyloTree(njtree, heatmap.type = '')
+plotPhyloTree(njtree, heatmap.type = 'CCF')
 # use other tree format
 newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
 plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')

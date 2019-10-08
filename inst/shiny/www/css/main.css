@@ -4,6 +4,10 @@ img {
   max-height:100%;
 }
 
+.content {
+  padding-top: 1%;
+}
+
 .pipe{
     float:left;
     width:68%;
