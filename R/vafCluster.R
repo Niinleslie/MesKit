@@ -60,6 +60,7 @@ vafCluster <-function(maf, vafColumn="VAF",
     if ((plotOption == "separate") | (plotOption == "combine")){
         ## general data process for all samples 
         lsPicName <- c()
+        lsSep <- list()
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
@@ -82,7 +83,8 @@ vafCluster <-function(maf, vafColumn="VAF",
             if (plotOption == "separate"){
                 pic <- .drawVAF(clusterMt, themeOption, 
                                 sampleName, mathscore)
-                pic
+                lsSep[[counterMt]] <- pic
+                print(pic)
             }
             else {
                 # prepare separated pictures for later combination 
@@ -94,7 +96,9 @@ vafCluster <-function(maf, vafColumn="VAF",
                 pic_name <- paste("separate", ".", counterMt, sep="")
                 lsPicName <- c(lsPicName, pic_name)
             }
-            
+        }
+        if (plotOption == "separate"){
+            return(lsSep)
         }
         ## combine: print VAF pictures for all samples in one document
         if (plotOption == "combine"){
@@ -275,7 +279,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                                           tsb_ls, plotOption),
                                 "scale_color_", themeOption, "() + ", 
                                 "scale_fill_", themeOption, "()", sep="")
-            eval(parse(text=vafDrawCha))
+            
         } else {
             ## generate character/string for ggplot and paint the picture
             vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
@@ -291,7 +295,6 @@ vafCluster <-function(maf, vafColumn="VAF",
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
                                 "scale_color_", themeOption, "() + ", 
                                 "scale_fill_", themeOption, "()", sep="")
-            eval(parse(text=vafDrawCha))
         } 
     }
     else {
@@ -316,7 +319,6 @@ vafCluster <-function(maf, vafColumn="VAF",
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
                                 "scale_color_", themeOption, "() + ", 
                                 "scale_fill_", themeOption, "()", sep="")
-            eval(parse(text=vafDrawCha))
         } else {
             ## generate character/string for ggplot and paint the picture
             vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
@@ -336,9 +338,9 @@ vafCluster <-function(maf, vafColumn="VAF",
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
                                 "scale_color_", themeOption, "() + ", 
                                 "scale_fill_", themeOption, "()", sep="")
-            eval(parse(text=vafDrawCha))
         }
     }
+    return(eval(parse(text=vafDrawCha)))
 }
 
 ## Functions for specific plotOption: "compare"
