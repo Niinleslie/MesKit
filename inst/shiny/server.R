@@ -1,4 +1,5 @@
 suppressMessages(library(shiny))
+suppressMessages(library(Meskit))
 
 
 
@@ -49,52 +50,151 @@ shinyServer(function(input, output, session){
   
   inputData <- eventReactive(input$submit1,{
     if(is.null(input$maf) | is.null(input$sampleInfo)){
-      maf <- readRDS("./example/MesKit_Example.rds")
+      mafFile <- './example/311252.maf'
+      sampleInfoFile <- './example/sample_info.txt'
+      ccfClusterTsvFile <- './example/311252.cluster.tsv'
+      ccfLociTsvFile <- './example/311252.loci.tsv'
+      maf <- Meskit::readMaf(mafFile = mafFile,
+                             sampleInfoFile = sampleInfoFile, 
+                             ccfClusterTsvFile =  ccfClusterTsvFile, 
+                             ccfLociTsvFile = ccfLociTsvFile)
     }
     else{
       if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
         maf <- Meskit::readMaf(mafFile = input$maf$datapath,
                                sampleInfoFile = input$sampleInfo$datapath, 
                                ccfClusterTsvFile =  input$ccf.cluster$datapath, 
-                               ccfLociTsvFile = input$ccf.loci$datapath)
+                               ccfLociTsvFile = input$ccf.loci$datapath,
+                               inputFileName = input$maf$name)
       }
       else{
-        maf <- Meskit::readMaf(mafFile = input$maf$datapath, 
-                               sampleInfoFile = input$sampleInfo$datapath)
+        maf <- readMaf(mafFile = input$maf$datapath, 
+                       sampleInfoFile = input$sampleInfo$datapath,
+                       inputFileName = input$maf$name)
       }
     }
   })
   
   inputNJtree <- reactive({
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      maf <- inputData()
-      njtree <- Meskit::getNJtree(maf, use.indel = input$use.indel)
-    }
-    else{
-      maf <- inputData()$maf
-      njtree <- Meskit::getNJtree(maf, use.indel = input$use.indel)
+    maf <- inputData()
+    njtree <- Meskit::getNJtree(maf, use.indel = input$use.indel)
+  })
+  ## output Introduction of maf datatable
+  output$ie1 <- renderUI({
+    if(input$iecontrol01){
+      tagList(
+        box(
+          width = NULL,
+          div(
+            h3(strong("The MAF files")),
+            p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
+              style = "font-size:16px; font-weight:500;"),
+            p("Hugo_Symbol, Chromosome, Start_Position, End_Position, Variant_Classification, Variant_Type, Reference_Allele, Tumor_Seq_Allele2, VAF, Tumor_Sample_Barcode.",
+              style = "font-size:16px; font-weight:500;"),
+            br(),
+            h4(strong("Example MAF file")),
+            style = "width: 800px"
+          ),
+          DT::dataTableOutput("ied1",width = "70%"),
+          br()
+        )
+      )
     }
   })
-  
+  output$ied1 <- renderDataTable({
+    if(input$iecontrol01){
+      md1 <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      datatable(md1, options = list(pageLength = 5, dom = 't', scrollX = T),rownames = FALSE)
+    }
+  })
+  ## output Introduction of sampleinfo datatable
+  output$ie2 <- renderUI({
+    if(input$iecontrol02){
+      box(
+        width = NULL,
+        tagList(
+          div(
+            h3(strong("Information of samples")),
+            p("Below is an example of the first four rows of sample_info.txt. It should contain the sampleID, patientID, lesion and sampling time. The input files are located under the '/inst/extdata/' folder.",
+              style = "font-size:16px; font-weight:500;"),
+            style = "width : 800px"
+          ),
+          tags$li(strong("tumors sampling across multiple spatially-distinct regions"),
+                  style = "width : 800px;font-size:16px; font-weight:500;"),
+          br(),
+          DT::dataTableOutput("ied2_1",width = "70%"),
+          br(),
+          tags$li(strong("tumors sampling across multiple time points"),
+                  style = "width : 800px;font-size:16px; font-weight:500;"),
+          br(),
+          DT::dataTableOutput("ied2_2",width = "70%"),
+          br(),
+          div(tags$span("Note:",style = "font-size:16px; font-weight:700;"),
+              tags$span("'-' represents sampling at the same time or sampling from the same site.",
+                        style = "font-size:16px; font-weight:500;")),
+          br()
+        )
+      )
+    }
+  })
+  output$ied2_1 <- renderDataTable({
+    if(input$iecontrol02){
+      spd1 <- read.table('dom/sampleinfo1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      datatable(spd1, options = list(pageLength = 5, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+    }
+  })
+  output$ied2_2 <- renderDataTable({
+    if(input$iecontrol02){
+      spd1 <- read.table('dom/sampleinfo2.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      datatable(spd1, options = list(pageLength = 5, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+    }
+  })
+  ## output Introduction of ccf.cluster
+  output$ie3 <- renderUI({
+    if(input$iecontrol03){
+      box(
+        width = NULL,
+        tagList(
+          h3(strong("Example ccf.cluster file")),
+          DT::dataTableOutput("ied3",width = "70%"),
+          br()
+        )
+      )
+    }
+  })
+  output$ied3 <- renderDataTable({
+    if(input$iecontrol03){
+      spd3 <- read.table('dom/ccf.cluster.CSV',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      datatable(spd3, options = list(pageLength = 6, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+    }
+  })
+  ## output Introduction of ccf.loci
+  output$ie4 <- renderUI({
+    if(input$iecontrol04){
+      box(
+        width = NULL,
+        tagList(
+          h3(strong("Example ccf.loci file")),
+          DT::dataTableOutput("ied4",width = "80%"),
+          br()
+        )
+      )
+    }
+  })
+  output$ied4 <- renderDataTable({
+    if(input$iecontrol04){
+      spd4 <- read.table('dom/ccf.loci.CSV',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      datatable(spd4, options = list(pageLength = 6, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+    }
+  })
   output$maftable <- DT::renderDataTable({
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
-    } else {
-      datatable(inputData()$maf@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
-    }
+    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
   })
-  
+
   ms <- eventReactive(input$submit2,{
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      maf <- inputData()
-      Meskit::mathScore(maf,tsb = c("All"),
-                        minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
-    }
-    else{
-      maf <- inputData()$maf
-      Meskit::mathScore(maf,tsb = c("All"),
-                        minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
-    }
+    maf <- inputData()
+    Meskit::mathScore(maf,tsb = c("All"),
+                      minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
   })
   
   output$mathScore <- DT::renderDataTable({
@@ -116,15 +216,27 @@ shinyServer(function(input, output, session){
   })
   
   vc <- eventReactive(input$submit3,{
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      maf <- inputData()
-      Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
+    maf <- inputData()
+    Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
+  })
+  output$chooselistvaf <- renderUI({
+    names <- names(vc())
+    selectInput("vsl","Branch",
+                choices = names ,selected = names[1],width = 600)
+  })
+  output$vaf <- renderPlot({
+    if(input$plotOption == "separate"){
+      return(vc()[[which(names(vc()) == input$vsl)]])
+      print(names(vc()))
     }
     else{
-      maf <- inputData()$maf
-      Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
+      vc()
     }
-  })
+  }, 
+  width = width1,
+  height = 560,
+  res = 100
+  )
   output$vcdb <- renderUI({
     if(!is.null(vc())){
       fluidRow(
@@ -149,25 +261,11 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  
-  output$vaf <- renderPlot({
-    vc()
-  }, 
-  width = width1,
-  height = 560,
-  res = 100
-  )
   msp <- eventReactive(input$submit4,{
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      maf <- inputData()
-      Meskit::mutSharedPrivate(maf,show.num = input$show.num)
-    }
-    else{
-      maf <- inputData()$maf
-      Meskit::mutSharedPrivate(maf,show.num = input$show.num)
-    }
+    maf <- inputData()
+    return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
   })
-  output$mut.share_private <- renderPlot({
+  output$mutSharedPrivatePlot <- renderPlot({
     msp()
   },
   width = width2,
@@ -211,16 +309,10 @@ shinyServer(function(input, output, session){
     else{
       tsgListFile <- input$tsgListFile$datapath
     }
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      maf <- inputData()
-      Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                           tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
-    }
-    else{
-      maf <- inputData()$maf
-      Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                           tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
-    }
+    maf <- inputData()
+    Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+                         tsgListFile = tsgListFile, themeOption=input$themeOption2,
+                         show.percentage = input$show.percentage)
   })
   output$stackplot <- renderPlot({
     stk()
@@ -254,14 +346,8 @@ shinyServer(function(input, output, session){
     }
   })
   ji <- eventReactive(input$submit6,{
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      maf <- inputData()
-      Meskit::JaccardIndex(maf,type = input$JItype)
-    }
-    else{
-      maf <- inputData()$maf
-      Meskit::JaccardIndex(maf,type = input$JItype)
-    }
+    maf <- inputData()
+    Meskit::JaccardIndex(maf,type = input$JItype)
   })
   output$JaccardIndex <- renderPlot({
     ji()
@@ -305,7 +391,7 @@ shinyServer(function(input, output, session){
       Meskit::tumorClonesPlot(maf)
     }
     else{
-      maf <- inputData()$maf
+      maf <- inputData()
       Meskit::tumorClonesPlot(maf)
     }
   })
@@ -340,26 +426,23 @@ shinyServer(function(input, output, session){
     }
   })
   GO <- eventReactive(input$submit8,{
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      njtree <- inputNJtree()
-      Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
-    }
-    else{
-      njtree <- inputNJtree()
-      Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
-    }
+    njtree <- inputNJtree()
+    Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
   })
   output$chooselist1 <- renderUI({
-    selectInput("gl","Branch",
-                choices = names(GO()[[2]]) ,selected = names(GO()[[2]])[1],width = 600)
-  })
-  output$GOplot <- renderPlot({
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
+    if("All" %in% names(GO()[[2]])){
+      names <- names(GO()[[2]])
+      names <- names[-(which(names == "All"))]
+      names <- append(names,"All",after = 0)
     }
     else{
-      return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
+      names <- names(GO()[[2]])
     }
+    selectInput("gl","Branch",
+                choices = names ,selected = names[1],width = 600)
+  })
+  output$GOplot <- renderPlot({
+    return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
   },
   width = width6,
   height = height6
@@ -386,14 +469,9 @@ shinyServer(function(input, output, session){
     }
   })
   Path <- eventReactive(input$submit9,{
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      njtree <- inputNJtree()
-      list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
-      return(list)
-    }
-    else{
-      
-    }
+    njtree <- inputNJtree()
+    list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
+    return(list)
   })
   output$Pathdb <- renderUI({
     if(!is.null(Path())){
@@ -418,16 +496,19 @@ shinyServer(function(input, output, session){
     }
   })
   output$chooselist2 <- renderUI({
-    selectInput("pl","Branch",
-                choices = names(Path()[[2]]) ,selected = names(Path()[[2]])[1],width = 600)
-  })
-  output$Pathwayplot <- renderPlot({
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
+    if("All" %in% names(Path()[[2]])){
+      names <- names(Path()[[2]])
+      names <- names[-(which(names == "All"))]
+      names <- append(names,"All",after = 0)
     }
     else{
-      return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
+      names <- names(Path()[[2]])
     }
+    selectInput("pl","Branch",
+                choices = names ,selected = names[1],width = 600)
+  })
+  output$Pathwayplot <- renderPlot({
+    Path()[[2]][[which(names(Path()[[2]]) == input$pl)]]
   },
   width = width7,
   height = height7,
@@ -555,23 +636,16 @@ shinyServer(function(input, output, session){
     }
   })
 
-  
+## Download control  
   output$DownloadMathScore <- downloadHandler(
     filename = function() {
-      paste("MathScore",'.',"csv", sep='')
+      paste("MathScore_",Sys.Date(),".csv", sep = '')
     },
-    content = function(file) {
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        maf <- inputData()
-        data <- Meskit::mathScore(maf = maf)$sampleLevel
-      }
-      else{
-        maf <- inputData()$maf
-        data <- Meskit::mathScore(maf = maf)$sampleLevel
-      }
-      
+    content = function(file){
+      data <- ms()
       write.csv(data,file)
-    }
+    },
+    contentType = 'text/csv'
   )
   
   output$DownloadVafPlot <- downloadHandler(
@@ -585,14 +659,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadVafPlotCheck == "pdf"){
         pdf(file,width = 12 , height = 9)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        maf <- inputData()
-        Meskit::vafCluster(maf)
-      }
-      else{
-        maf <- inputData()$maf
-        Meskit::vafCluster(maf)
-      }
+      print(vc())
       dev.off()
     },
     contentType = paste('image/',input$DownloadVafPlotCheck,sep="")
@@ -608,20 +675,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadStackPlotCheck == "pdf"){
         pdf(file,width = 12 , height = 9)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        maf <- inputData()
-        validate(
-          need(!((is.null(input$oncogeneListFile$datapath) & is.null(input$tsgListFile$datapath))), 
-               "Upload oncogeneListFile and tsgListFile in 'Setting&Upload' ")
-        )
-        Meskit::mutStackPlot(maf, oncogeneListFile = input$oncogeneListFile$datapath,
-                             tsgListFile = input$tsgListFile$datapath, themeOption="npg", show.percentage = TRUE)
-      }
-      else{
-        maf <- inputData()$maf
-        Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                             tsgListFile = tsgListFile, themeOption=input$themeOption2, show.percentage = input$show.percentage)
-      }
+      print(stk())
       dev.off()
     },
     contentType = paste('image/',input$DownloadVafPlotCheck,sep="")
@@ -637,14 +691,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadStackPlotCheck == "pdf"){
         pdf(file,width = 12 , height = 9)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        maf <- inputData()
-        Meskit::JaccardIndex(maf)
-      }
-      else{
-        maf <- inputData()$maf
-        Meskit::JaccardIndex(maf)
-      }
+      print(ji())
       dev.off()
     },
     contentType = paste('image/',input$DownloadJaccardIndexCheck,sep="")
@@ -661,14 +708,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadSharedPlotCheck == "pdf"){
         pdf(file,width = 13 , height = 10)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        maf <- inputData()
-        Meskit::mutSharedPrivate(maf)
-      }
-      else{
-        maf <- inputData()$maf
-        Meskit::mutSharedPrivate(maf) 
-      }
+      print(msp())
       dev.off()
     },
     contentType = paste('image/',input$DownloadSharedPlotCheck,sep="")
@@ -685,14 +725,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadClonePlotCheck == "pdf"){
         pdf(file,width = 15 , height = 8)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        maf <- inputData()
-        Meskit::tumorClonesPlot(maf)
-      }
-      else{
-        maf <- inputData()$maf
-        Meskit::tumorClonesPlot(maf)
-      }
+      print(clp())
       dev.off()
     },
     contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
@@ -706,38 +739,9 @@ shinyServer(function(input, output, session){
         png(file,width = 1400, height = 800,res = 80)
       }
       else if (input$DownloadPhyloTreeCheck == "pdf"){
-        ggsave(file,inputData()$phylotreeplot,width = 14, height = 8)
+        pdf(file,width = 14, height = 8)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        if(input$phyloTreeType == 'njtree'){
-          njtree <- inputNJtree()
-          if(input$useccf == T){
-            validate(
-              need(input$heatmap.type == "CCF","switch heatmap type to CCF")
-            )
-          }
-          p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                                     heatmap.type = input$heatmap.type, sig.name = input$sig.name,
-                                     show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
-          return(p)
-        }
-        else{
-          validate(
-            need(!is.null(input$phylotree.dir),"Upload your phylotree file")
-          )
-          p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
-                                     phylotree.type = input$phyloTreeType)
-          return(p)
-        }
-      }
-      else{
-        njtree <- inputNJtree()
-        p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                                   heatmap.type = input$heatmap.type, sig.name = input$sig.name,
-                                   show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
-        return(p)
-        # inputData()$phylotreeplot
-      }
+      print(pht)
       dev.off()
     }
   )
@@ -753,19 +757,14 @@ shinyServer(function(input, output, session){
       else if (input$DownloadGOPlotCheck == "pdf"){
         pdf(file,width = 20, height = 16)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
-      }
-      else{
-        return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
-      }
+      GOplot()
       dev.off()
     },
     contentType = paste('image/',input$DownloadGOPlotCheck,sep="")
   )
   output$DownloadPathPlot <- downloadHandler(
     filename = function() {
-      paste("pathwatplot",'.',input$DownloadGOPlotCheck, sep='')
+      paste("Pathwaytplot",'.',input$DownloadGOPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPathPlotCheck == "png"){
@@ -774,12 +773,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadPathPlotCheck == "pdf"){
         pdf(file,width = 20, height = 16)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
-      }
-      else{
-        return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]])
-      }
+      Pathwayplot()
       dev.off()
     },
     contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
@@ -796,16 +790,10 @@ shinyServer(function(input, output, session){
       else if (input$DownloadSignaturePlotCheck == "pdf"){
         pdf(file,width = 1400, height = 800)
       }
-      njtree <- inputNJtree()
-      if (input$sigplot == "signaturesprob"){
-        Meskit::treeMutationalSig(njtree,plot.Signatures = T)
-      } else if (input$sigplot == "branchtrunk") {
-        Meskit::treeMutationalSig(njtree,plot.branchTrunk = T)
-      }
+      print(sigOFA2())
       dev.off()
     },
     contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
   )
-  
   
 })
