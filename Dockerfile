@@ -5,6 +5,7 @@ COPY sources.list   /etc/apt/sources.list
 RUN apt-get clean
 RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
     build-essential \
+    gfortran \
     wget \
     sudo \
     libgfortran5 \
