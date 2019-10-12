@@ -4,6 +4,7 @@ COPY sources.list   /etc/apt/sources.list
 #FROM debian:latest
 RUN apt-get clean
 RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
+    build-essential \
     wget \
     sudo \
     libgfortran5 \
