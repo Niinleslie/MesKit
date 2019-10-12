@@ -18,7 +18,9 @@ RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
     libxt-dev \
     libssl-dev \
     libxml2 \
-    libxml2-dev
+    libxml2-dev \
+    libpng \
+    libpng-dev
 
 # Download and install shiny server
 #RUN R -e "options(repos='https://mirrors.tuna.tsinghua.edu.cn/CRAN')"
