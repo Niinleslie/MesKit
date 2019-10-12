@@ -53,7 +53,10 @@ readMaf <- function(mafFile, sampleInfoFile,
     ## get patientID
     fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
     patientID <- strsplit(fileName, ".maf")[[1]][1]
-    
+    ## correct error of file name in shiny
+    if(patientID == "0"){
+      patientID <- strsplit(inputFileName, ".maf")[[1]][1]
+    }
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
