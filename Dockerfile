@@ -19,7 +19,6 @@ RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
     libssl-dev \
     libxml2 \
     libxml2-dev \
-    libpng \
     libpng-dev
 
 # Download and install shiny server
