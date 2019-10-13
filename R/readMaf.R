@@ -13,6 +13,7 @@
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
+#' @param inputFileName Correct error of shiny app MAF file name 
 #' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
@@ -36,7 +37,8 @@ readMaf <- function(mafFile, sampleInfoFile,
                     mut.type="All", mut.nonSilent=NULL, 
                     chr.silent=NULL, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
-                    refBuild="hg19"){
+                    refBuild="hg19",
+                    inputFileName = NULL){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
