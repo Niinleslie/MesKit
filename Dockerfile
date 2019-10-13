@@ -38,6 +38,6 @@ RUN R -e "BiocManager::install(c('org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 
 # shiny server application & configuration
 COPY inst/shiny /srv/shiny-server/
 
-EXPOSE 8888
+EXPOSE 3838
 
 CMD ["/bin/bash"]
