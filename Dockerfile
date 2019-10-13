@@ -4,12 +4,15 @@ COPY sources.list   /etc/apt/sources.list
 #FROM debian:latest
 RUN apt-get clean
 RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
+    build-essential \
+    gfortran \
     wget \
     sudo \
     libgfortran5 \
     gdebi-core \
     # r-needed:
     r-base \
+    r-base-dev \
     # for devtools: https://stackoverflow.com/questions/31114991/installation-of-package-devtools-had-non-zero-exit-status-in-a-powerpc
     apt-utils \
     libgfortran5 \
@@ -17,7 +20,8 @@ RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
     libxt-dev \
     libssl-dev \
     libxml2 \
-    libxml2-dev
+    libxml2-dev \
+    libpng-dev
 
 # Download and install shiny server
 #RUN R -e "options(repos='https://mirrors.tuna.tsinghua.edu.cn/CRAN')"
