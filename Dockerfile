@@ -12,6 +12,7 @@ RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
     gdebi-core \
     # r-needed:
     r-base \
+    r-base-dev \
     # for devtools: https://stackoverflow.com/questions/31114991/installation-of-package-devtools-had-non-zero-exit-status-in-a-powerpc
     apt-utils \
     libgfortran5 \
