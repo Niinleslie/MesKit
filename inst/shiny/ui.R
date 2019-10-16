@@ -729,7 +729,7 @@ bodySurvival <- tabItem('Survival',
                               box(
                                 width = NULL,
                                 height = "100%",
-                                plotOutput("phylotree",height = 800),
+                                plotOutput("phylotree",height = 700,width = 1000),
                                 br(),
                                 uiOutput("phtdb")
                               )

@@ -464,7 +464,6 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
     t <- t+ 1
   }
   list.right <- as.character(sample.right$sample)
-  print(list.right)
   #left part of tree
   t <- 1
   sample.left <- plot.data[which(plot.data$sample!='internal node' & 
@@ -504,7 +503,6 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
     t <- t+1
   }
   list.left <- as.character(sample.left$sample)
-  print(list.left)
   #Adjust the Angle again
   t=1
   adjust.node.list <- c()
@@ -672,7 +670,6 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
   if(show.mutSig){
     plot.data <- addSignature(phylo, plot.data, signature)
   }
-  print(plot.data)
   return(plot.data)
 }
 ##add signature
