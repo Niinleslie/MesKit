@@ -42,14 +42,14 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     show.heatmap = FALSE
     show.mutSig = FALSE
     if(phylotree.type == 'newick'){
-      phylo <- treeio::read.tree(phylotree.dat)
+      phylo <- ape::read.tree(phylotree.dat)
     }else if(phylotree.type == 'beast'){
       beast <- treeio::read.beast(phylotree.dat)
-      phylo <- treeio::as.phylo(beast)
+      phylo <- ape::as.phylo(beast)
     }
     else if(phylotree.type == 'PAML'){
       PAML <- treeio::read.paml_rst(phylotree.dat)
-      phylo <- treeio::as.phylo(PAML)
+      phylo <- ape::as.phylo(PAML)
     }
     else{
       stop("the form of the tree file is not supported")
@@ -88,9 +88,10 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     pm <- getPrivateMutation(njtree)
     totalMut.sum <- pm[[1]]
     privateMut.proportion <- pm[[2]]
-    PH <- ggdraw() + draw_plot(phylotree, x = 0,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.7,y = -0.04, width = 0.3)
+    PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.44,y = -0.12, width = 0.15)
+                   # + theme(plot.margin=unit(c(0,0,0.8,0),"cm"))
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMut.sum ,"; ",privateMut.proportion,")",sep = ""),fontface = "bold")
-    PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))
+    PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
     if(savePlot){
       output.dir = getwd()
       if(!use.ccf){
@@ -127,7 +128,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
 ##generate plot data 
 phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, Root.label){
   if(phylotree.type == 'njtree'){
-    phylo <- root(phylo, phylo$tip.label[which(phylo$tip.label == Root.label)])
+    phylo <- ape::root(phylo, phylo$tip.label[which(phylo$tip.label == Root.label)])
     phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
     phylo$edge <- phylo$edge[-1,]
     phylo$edge.length <- phylo$edge.length[-1]
@@ -234,20 +235,32 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
       # }
       angle.list2 <- append(angle.list2, angle)
     }
+    # x <- which(!(sub.edge[,2] %in% verticalPath))
+    # if(horizon == pi/2){
+    #   if(angle.list2[x] < pi/2 &
+    #      as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
+    #     angle.list2[x] <- angle.list2[x] - pi/18
+    #   }
+    #   else if(angle.list2[x] > pi/2 &
+    #           as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
+    #     angle.list2[x] <- angle.list2[x] + pi/18
+    #   }
+    # }
     #Angle adjustment (select a branch Angle to align with the previous internal node)
     a <- which(sub.edge[,2] %in% verticalPath)
     if(length(a) != 0){
       if(target.node == Root.node){
-        if(sub.edge[a,2] > length(phylo$tip.label)){
-          angle.list2[a[1]] <- horizon
-        }
-        else{
-          a <- which(vertex.list == max(vertex.list))
-          if(length(a) > 1){
-            a <- which(sub.edge[,3] == max(sub.edge[,3]))
-          }
-          angle.list2[a[1]] <- horizon
-        }
+        # if(sub.edge[a,2] > length(phylo$tip.label)){
+        #   angle.list2[a[1]] <- horizon
+        # }
+        # else{
+        #   a <- which(vertex.list == max(vertex.list))
+        #   if(length(a) > 1){
+        #     a <- which(sub.edge[,3] == max(sub.edge[,3]))
+        #   }
+        #   angle.list2[a[1]] <- horizon
+        # }
+        angle.list2[a[1]] <- horizon
       }
       else{
         angle.list2[a[1]] <- horizon
@@ -265,7 +278,6 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
           }
         }
       }
-      # angle.list2[a[1]] <- horizon
     }
     else{
       a <- which(vertex.list == max(vertex.list))
@@ -274,12 +286,19 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
       }
       angle.list2[a[1]] <- horizon
     }
-    # a <- which(vertex.list == max(vertex.list))
-    # if(length(a) > 1){
-    #   a <- which(sub.edge[,3] == max(sub.edge[,3]))
-    # }
-    # angle.list2[a[1]] <- horizon
-    
+    x <- which(angle.list2!= pi/2)
+    if(length(x) == 1){
+      if(horizon == pi/2){
+        if(angle.list2[x] < pi/2 &
+           as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
+          angle.list2[x] <- angle.list2[x] - pi/18
+        }
+        else if(angle.list2[x] > pi/2 &
+                as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
+          angle.list2[x] <- angle.list2[x] + pi/18
+        }
+      }
+    }
     i = 1
     while (i <= length(sub.edge[,1])) {
       if(point.list[i] > length(phylo$tip.label)){
@@ -382,23 +401,23 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
             plot.data$angle[t] != plot.data$horizon[t])){
       #the angles less than ninety degrees are adjust to thirty degrees
       if(plot.data$x1[t] > 0){
-        plot.data$angle[t] <- pi*1/4 
+        plot.data$angle[t] <- pi*(1/4-1/18) 
         angle <- plot.data$angle[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
         plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
       else if(plot.data$x1[t] < 0){
-        plot.data$angle[t] <- pi*3/4
+        plot.data$angle[t] <- pi*(3/4+1/18) 
         angle <- plot.data$angle[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
         plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
       else{
         if(plot.data$angle[t] < pi/2){
-          plot.data$angle[t] <- pi*1/4 
+          plot.data$angle[t] <- pi*(1/4-1/18) 
           angle <- plot.data$angle[t]
           plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
           plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
         else if(plot.data$angle[t] > pi/2){
-          plot.data$angle[t] <- pi*3/4
+          plot.data$angle[t] <- pi*(3/4+1/18)
           angle <- plot.data$angle[t]
           plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
           plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
@@ -412,7 +431,8 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
   sample.right <- plot.data[which(plot.data$sample != 'internal node' & 
                                     plot.data$sample != Root.label &
                                     plot.data$angle <= pi/2 & 
-                                    plot.data$angle > 0), ]
+                                    plot.data$angle > 0&
+                                    plot.data$angle != plot.data$horizon), ]
   while(t <= length(sample.right[, 1])){
     u=1
     while(u <= (length(sample.right[, 1]) - 1)){
@@ -444,12 +464,14 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
     t <- t+ 1
   }
   list.right <- as.character(sample.right$sample)
+  print(list.right)
   #left part of tree
   t <- 1
   sample.left <- plot.data[which(plot.data$sample!='internal node' & 
                                    plot.data$sample!=Root.label & 
                                    plot.data$angle >= pi/2 & 
-                                   plot.data$angle < pi), ]
+                                   plot.data$angle < pi&
+                                   plot.data$angle != plot.data$horizon), ]
   while(t<=length(sample.left[, 1])){
     u=1
     while(u<=(length(sample.left[, 1]) - 1)){
@@ -482,7 +504,7 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
     t <- t+1
   }
   list.left <- as.character(sample.left$sample)
-  
+  print(list.left)
   #Adjust the Angle again
   t=1
   adjust.node.list <- c()
@@ -493,6 +515,9 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
            plot.data$sample[t] != 'internal node',
            plot.data$sample[t] != Root.label,
            plot.data$angle[t] != plot.data$horizon[t])){
+      # if(nrow(plot.data[plot.data$x2 > 0,]) == 2|nrow(plot.data[plot.data$x2 < 0,]) == 2){
+      #   break
+      # }
       internal.node <- plot.data$node[t]
       row1 <- which(plot.data$end_num == internal.node)
       if (length(row1) != 0){
@@ -511,17 +536,29 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
           if(plot.data$distance[row1] < mean(phylo$edge.length)/5){
             row <- which(plot.data$node == adjust.node&
                            plot.data$end_num <= length(phylo$tip.label))
-            if(length(row)!=0){
-              if(plot.data$angle[row] < pi/2 & plot.data$sample[row] == list.right[1]){
-                plot.data$angle[row] <- plot.data$angle[row] - pi*2/15
+            row2 <- which(plot.data$node == plot.data$end_num[row1] &
+                          plot.data$angle != plot.data$horizon &  
+                          plot.data$end_num <= length(phylo$tip.label))
+            if(length(row)!=0 & length(row2)!=0){
+              if(plot.data$angle[row] < pi/2 &
+                 plot.data$angle[row2] < pi/2 &
+                 plot.data$sample[row] == list.right[1]){
+                if(nrow(plot.data[plot.data$x2 > 0,]) == 2){
+                  break
+                }
+                plot.data$angle[row] <- plot.data$angle[row] - pi*1/10
                 angle <- plot.data$angle[row]
                 plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
                 plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
               }
-              else if(plot.data$angle[row]>pi/2 & 
+              else if(plot.data$angle[row] > pi/2 &
+                      plot.data$angle[row2] > pi/2 &
                       plot.data$sample[row] == list.left[length(list.left)]){
+                if(nrow(plot.data[plot.data$x2 < 0,]) == 2){
+                  break
+                }
                 if(plot.data$angle[row] == max(plot.data$angle)){
-                  plot.data$angle[row] <- plot.data$angle[row] + pi*2/15
+                  plot.data$angle[row] <- plot.data$angle[row] + pi*1/10
                   angle <- plot.data$angle[row]
                   plot.data$x2[row] <- plot.data$distance[row]*cos(angle)+plot.data$x1[row]
                   plot.data$y2[row] <- plot.data$distance[row]*sin(angle)+plot.data$y1[row]
@@ -539,10 +576,37 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
   bisectBranchAngle <- function(list.part, plot.data){
     t = F
     while(t == F){
-      if(length(list.part) == 1|length(list.part) == 2){
+      # if(length(list.part) == 1|length(list.part) == 2){
+      #   break
+      # }
+      if(length(list.part) == 1){
         break
       }
-      if(length(list.part)==3){
+      else if(length(list.part) == 2){
+        judge.angle <- plot.data$angle[which(plot.data$sample == list.part[1])]
+        if(judge.angle > 0 & judge.angle < pi/2 & nrow(plot.data[plot.data$x2 > 0,]) == 2){
+          first.angle <- plot.data$angle[which(plot.data$sample==list.part[1])] 
+          final.angle <- pi/2
+          row <- which(plot.data$sample == list.part[2])
+          angle <- (final.angle - first.angle)/2 + first.angle
+          plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
+          plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
+          break
+        }
+        else if(judge.angle > pi/2 & judge.angle < pi & nrow(plot.data[plot.data$x2 < 0,]) == 2){
+          first.angle <- pi/2
+          final.angle <- plot.data$angle[which(plot.data$sample==list.part[2])] 
+          row <- which(plot.data$sample == list.part[1])
+          angle <- (final.angle - first.angle)/2 + first.angle
+          plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
+          plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
+          break
+        }
+        else{
+          break
+        }
+      }
+      else if(length(list.part)==3){
         first.angle <-plot.data$angle[which(plot.data$sample==list.part[1])] 
         final.angle <- plot.data$angle[which(plot.data$sample==list.part[length(list.part)])]
         part.total.nodes <- length(list.part)
@@ -608,6 +672,7 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
   if(show.mutSig){
     plot.data <- addSignature(phylo, plot.data, signature)
   }
+  print(plot.data)
   return(plot.data)
 }
 ##add signature
@@ -681,12 +746,16 @@ addSignature <- function(phylo, plot.data, signature){
 ##color scale set
 colorSet <- function(signatures){
   ## FF6A5A:Sig19、
-  all.color.scale <- c("#E41A1C","#377EB8","#7F0000","#66C2A5","#FC8D62",
-                       "#8DA0CB","#E78AC3","#A6D854","#FFD92F","#E5C494",
-                       "#8DD3C7", "#6E016B" ,"#BEBADA", "#FB8072", "#80B1D3",
-                       "#FDB462","#B3DE69","#FCCDE5","#FF6A5A","#BC80BD",
-                       "#CCEBC5" ,"#A52DBF","#B6646A", "#9F994E", "#7570B3" ,
-                       "#A814FF" ,"#66A61E" ,"#E6AB02" ,"#A6761D", "#666666",'black')
+  all.color.scale <- c("#E41A1C","#377EB8","#7F0000",
+                       "#35978f","#FC8D62","#2166ac",
+                       "#E78AC3","#A6D854","#FFD92F",
+                       "#E5C494","#8DD3C7", "#6E016B" ,
+                       "#BEBADA", "#e08214", "#80B1D3",
+                       "#d6604d","#ffff99","#FCCDE5",
+                       "#FF6A5A","#BC80BD","#CCEBC5" ,
+                       "#fb9a99","#B6646A", "#9F994E", 
+                       "#7570B3" ,"#c51b7d" ,"#66A61E" ,
+                       "#E6AB02" ,"#003c30", "#666666",'black')
   all.signature <- append(gsub('Signature.', '',row.names(deconstructSigs::signatures.cosmic)), 'No signature')
   color.scale <- c()
   for(i in 1:length(signatures)){
@@ -745,7 +814,7 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
                  panel.border = element_blank(),
                  legend.title = element_text(face="bold"),
                  legend.position = 'top',
-                 legend.direction = "horizontal") + guides(color = guide_legend(nrow=1))+coord_fixed(ratio= dx/dy*2)               
+                 legend.direction = "horizontal") + guides(color = guide_legend(nrow=1))+coord_fixed(ratio= 1)               
   if(sig.name == "default"){
     p <- p + geom_text_repel(aes(x = x2*1.5, y = y2, label = sample),vjust = 1,
                              nudge_y = text.adjust/5, segment.alpha = 0,
@@ -753,8 +822,8 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
                              fontface = 'bold', size = 3)
   }
   else{
-    p <- p + geom_text_repel(aes(x = x2*0.95, y = y2, label = alias),vjust = 1,
-                             nudge_y = text.adjust/5, segment.alpha = 0,
+    p <- p + geom_text_repel(aes(x = x2*1.2, y = y2, label = alias),vjust = 1,
+                             nudge_y = text.adjust/8, segment.alpha = 0,
                              data = plot.data[(plot.data$sample != 'internal node'&plot.data$sample != Root.label), ],
                              fontface = 'bold', size = 4) 
   }
@@ -781,20 +850,20 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, phylotr
   #Leaf nodes and internal nodes are distinguished by point size
   p <- p + geom_point(aes(x = x2,y = y2), 
                       data = plot.data[plot.data$sample == 'internal node',],
-                      size = 1.7, color = "#67001F", fill = '#67001F', shape = 21, 
+                      size = 1.7, color = "#8c510a", fill = "#8c510a", shape = 21, 
                       stroke = 0.5)
   p <- p + geom_point(aes(x = x2, y = y2), 
                       data = plot.data[plot.data$sample != 'internal node',],
-                      size = 3, color = "#67001F", fill = 'white', shape = 21, stroke = 1)
+                      size = 3,color = "#67001F", fill = 'white', shape = 21, stroke = 1)
   if(phylotree.type!= "njtree"){
     p <- p + geom_point(x = 0, y = 0, 
-                        size = 3, color = "#67001F", fill = 'white', shape = 21, stroke = 1)
+                        size = 3, color = "#8c510a", fill = 'white', shape = 21, stroke = 1)
   }
   Nd <- plot.data$distance[which(plot.data$sample == Root.label)]
   if(length(Nd)!=0){
     if(Nd != 0){
-      p <- p + geom_point(aes(x =0 , y = 0), size = 1.7, color = "#67001F",
-                          fill = '#67001F', shape = 21, stroke = 0.5)
+      p <- p + geom_point(aes(x =0 , y = 0), size = 1.7, color = "#8c510a",
+                          fill = '#8c510a', shape = 21, stroke = 0.5)
     }
   }
   return(p)

@@ -40,9 +40,10 @@ bodyHome <- tabItem("home",
                         status = "info",
                         solidHeader = TRUE,
                         title = strong("Wellcome to the MesKit reporter"),
-                        h4(strong("Introduction")),
+                        h3(strong("Introduction")),
                         p("Malignant tumor, is considered one of the most serious threats to human health. Among numerous causes attributable to tumor, the intra-tumoral heterogeneity (ITH), once ignored, is now thought to have been a key factor contributing to the therapeutic failure. Today, with the rapid development of high-throughput sequencing technologies, sequencing of spatially or temporally distinct tumor regions has begun to uncover the bewildering extent of diversity within tumors. To facilitate the rapid analysis, we present an R package, MesKit, providing comprehensive analysis that are commonly used in cancer genomic ITH studies, including ITH evaluation, enrichment, signature, clone evolution analysis, also allowing visualizing phylogenetic trees.",
-                          style = "font-size:16px; font-weight:500;")
+                          style = "font-size:18px; font-weight:500;line-height:40px;"),
+                        br()
                       )
                     ),
                     
@@ -55,17 +56,17 @@ bodyHome <- tabItem("home",
                         fluidRow(
                           column(
                             width = 7,
-                            div(img(src = "images/pipeline.png", width=950,height = 700),style="text-align: left;")
+                            div(img(src = "images/pipeline.png", width=950,height = 500),style="text-align: left;")
                           ),
                           column(
                             width = 5,
-                            h4(strong("With this MesKit's Shiny APP:")),
+                            h3(strong("With this MesKit's Shiny APP:")),
                             p("- Evaluate the intra-tumoral heterogeneity (ITH) .",br(),
                               " - Perform clonal analysis.",br(),
                               "- Perform enrichment analysis of GO ontology and pathway.",br(),
                               "- Perform mutational signature analysis.",br(),
                               "- Construct phylogenetic trees.",
-                              style = "font-size:16px; font-weight:500;")
+                              style = "font-size:18px; font-weight:500;line-height:50px;")
                             # br(),
                             # p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
                             #   style = "font-si16pt"),
@@ -148,6 +149,15 @@ bodyIP <- tabItem("input",
                           actionBttn('submit1',div(
                             strong("Start analysing"),align = 'center',
                             icon("hand-right", lib = "glyphicon")))
+                          # uiOutput("pb1")
+                          # progressBar(
+                          #   id = "pb1",
+                          #   value = 0,
+                          #   total = 100,
+                          #   title = "Wait",
+                          #   display_pct = FALSE, 
+                          #   status = "custom"
+                          # )
                         )
                       ), 
                       column(
@@ -160,7 +170,6 @@ bodyIP <- tabItem("input",
                         #   uiOutput("ie2")
                         # )
                         uiOutput("ie1"),
-                        br(),
                         uiOutput("ie2"),
                         uiOutput("ie3"),
                         uiOutput("ie4")
@@ -179,7 +188,7 @@ bodyITH <- tabItem("ITH",
                          width = NULL,
                          conditionalPanel(
                            condition = "input.tith == 'caInput02'",
-                           h3(strong("Parameter: ")), 
+                           h3(strong("Parameter ")), 
                            tags$table(
                              tags$tr(id = "inline", 
                                      width = "100%",
@@ -201,7 +210,7 @@ bodyITH <- tabItem("ITH",
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput03'",
-                           h3(strong("Parameter: ")), 
+                           h3(strong("Parameter ")), 
                            selectInput("plotOption", label = div(style = "font-size:18px; font-weight:600;  ", "Plot option"),
                                        choices = c(
                                          Compare = "compare",
@@ -232,12 +241,20 @@ bodyITH <- tabItem("ITH",
                            br(),
                            actionBttn('submit3', div(
                              strong("Start analysing"),align = 'center',
-                             icon("hand-right", lib = "glyphicon")),
+                             icon("hand-right", lib = "glyphicon"))
                            )
+                           # progressBar(
+                           #   id = "pb3",
+                           #   value = 0,
+                           #   total = 100,
+                           #   title = "",
+                           #   display_pct = TRUE, 
+                           #   status = "custom"
+                           # )
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput04'",
-                           h3(strong("Parameter: ")), 
+                           h3(strong("Parameter ")), 
                            br(),
                            checkboxInput('show.num1',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
                            br(),
@@ -249,7 +266,7 @@ bodyITH <- tabItem("ITH",
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput05'",
-                           h3(strong("Parameter: ")), 
+                           h3(strong("Parameter ")), 
                            fileInput(inputId = 'oncogeneListFile', 
                                      label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene list file'), 
                                      placeholder = "Defalut file: oncogene.list.txt", 
@@ -286,7 +303,7 @@ bodyITH <- tabItem("ITH",
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput06'",
-                           h3(strong("Parameter: ")), 
+                           h3(strong("Parameter ")), 
                            selectInput("JItype",h4(strong("Type")),
                                        choices = c(
                                          Lower = "lower",
@@ -306,7 +323,6 @@ bodyITH <- tabItem("ITH",
                        width = 9,
                        box(
                          width = NULL,
-                         h3(strong("Visulization: ")),
                          tabBox(
                            id = 'tith',
                            height = "100%", 
@@ -316,7 +332,7 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                              title = div(icon("chart-bar"), "MathScore"),
                              value = "caInput02",
-                             withSpinner(DT::dataTableOutput('mathScore')),
+                             DT::dataTableOutput('mathScore'),
                              br(),
                              br(),
                              uiOutput("msdb")
@@ -328,26 +344,26 @@ bodyITH <- tabItem("ITH",
                                condition = "input.plotOption == 'separate' ",
                                uiOutput("chooselistvaf")
                              ),
-                             withSpinner(plotOutput("vaf",height = "100%")), 
+                             plotOutput("vaf",height = "100%"), 
                              uiOutput("vcdb")
                            ),
                            tabPanel(
                              title = div(icon("map"), "Mutsharedprivateplot"),
                              value = "caInput04",
-                             withSpinner(plotOutput("mutSharedPrivatePlot",height = "100%")),   
+                             plotOutput("mutSharedPrivatePlot",height = "100%"),   
                              uiOutput("mspdb")
                            ),
                            tabPanel(
                              title = div(icon("chart-bar"), "Stackplot"),
                              value = "caInput05",
-                             withSpinner(plotOutput("stackplot",height = "100%")),
+                             plotOutput("stackplot",height = "100%"),
                              br(),
                              uiOutput("stkdb")
                            ),
                            tabPanel(
                              title = div(icon("box"), "Jaccardindex"),
                              value = "caInput06",
-                             withSpinner(plotOutput("JaccardIndex",height = "100%")) ,
+                             plotOutput("JaccardIndex",height = "100%",width = "100%") ,
                              uiOutput("jidb")
                            )
                          )
@@ -410,7 +426,7 @@ bodyclone <- tabItem('clone',
                            width = NULL,
                            conditionalPanel(
                              condition = "input.clt == 'c01'",
-                             h3(strong("Parameter: ")), 
+                             h3(strong("Parameter ")), 
                              sliderInput('width5',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                              br(),
                              br(),
@@ -433,7 +449,7 @@ bodyclone <- tabItem('clone',
                              tabPanel(
                                value = 'c01',
                                title = div(icon("newspaper"), "Tumorcloneplot"),
-                               withSpinner(plotOutput('cloneplot',height = "100%")),
+                               plotOutput('cloneplot',height = "100%"),
                                br(),
                                uiOutput("clpdb")
                              )
@@ -467,7 +483,7 @@ bodyfunction <- tabItem('function',
                               width = NULL,
                               conditionalPanel(
                                 condition = "input.fat == 'F01'",
-                                h3(strong("Parameter: ")),
+                                h3(strong("Parameter ")),
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
@@ -492,7 +508,7 @@ bodyfunction <- tabItem('function',
                               ),
                               conditionalPanel(
                                 condition = "input.fat == 'F02'",
-                                h3(strong("Parameter: ")),
+                                h3(strong("Parameter ")),
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
@@ -520,7 +536,7 @@ bodyfunction <- tabItem('function',
                             width = 9,
                             box(
                               width = NULL,
-                              h3(strong("Visulization: ")),
+                              height = "100%",
                               tabBox(
                                 id = 'fat',
                                 side = 'left',
@@ -531,39 +547,22 @@ bodyfunction <- tabItem('function',
                                   title = div(icon("lightbulb"), "GO analysis"),
                                   value = 'F01',
                                   uiOutput("chooselist1"),
-                                  withSpinner(plotOutput('GOplot',height = "100%",width = "100%")),
-                                  uiOutput("GOdb")
+                                  plotOutput('GOplot',height = "100%",width = "100%"),
+                                  br(),
+                                  uiOutput("GOdb"),
+                                  uiOutput('gotui')
                                 ),
                                 tabPanel(
                                   title = div(icon("microsoft"), "Pathway analysis"),
                                   value = 'F02',
                                   uiOutput("chooselist2"),
-                                  withSpinner(plotOutput('Pathwayplot',height = "100%",width = "100%")),
-                                  uiOutput("Pathdb")
+                                  plotOutput('Pathwayplot',height = "100%"),
+                                  br(),
+                                  uiOutput("Pathdb"),
+                                  uiOutput('patht')
                                 )
                               )
                             )
-                            # tabBox(
-                            #   id = 'fat',
-                            #   side = 'left',
-                            #   selected = 'F02',
-                            #   width = "100%",
-                            #   height = "100%",
-                            #   tabPanel(
-                            #     title = div(icon("lightbulb"), "GO analysis"),
-                            #     value = 'F01',
-                            #     uiOutput("chooselist1"),
-                            #     withSpinner(plotOutput('GOplot',height = "100%",width = "100%")),
-                            #     uiOutput("GOdb")
-                            #   ),
-                            #   tabPanel(
-                            #     title = div(icon("microsoft"), "Pathway analysis"),
-                            #     value = 'F02',
-                            #     uiOutput("chooselist2"),
-                            #     withSpinner(plotOutput('Pathwayplot',height = "100%",width = "100%")),
-                            #     uiOutput("Pathdb")
-                            #   )
-                            #   )
                           )
                         )
 )
@@ -579,44 +578,43 @@ bodySignature <- tabItem('signature',
                                width = NULL,
                                conditionalPanel(
                                  condition = "input.sgt == 'S01'",
-                                 h3(strong("Parameter: ")),
-                                 fileInput('driverGenesFile',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
-                                 numericInput('mutThreshold', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
-                                 selectInput("signaturesRef", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
+                                 h3(strong("Parameter ")),
+                                 fileInput('driverGenesFile1',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
+                                 numericInput('mutThreshold1', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
+                                 selectInput("signaturesRef1", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
                                              choices = c(signatures.cosmic = "signatures.cosmic",
                                                          signatures.nature2013 = "signatures.nature2013"),
                                              selected = "signatures.cosmic"),
+                                 sliderInput(inputId='widthsig1',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
+                                 sliderInput(inputId='heightsig1',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 600, width = 500), 
                                  br(),
                                  br(),
-                                 actionBttn('submitSig',div(
+                                 actionBttn('submitSig1',div(
                                    strong("Start analysing"),align = 'center',
                                    icon("hand-right", lib = "glyphicon")))
                                ),
                                conditionalPanel(
                                  condition = "input.sgt == 'S02'",
-                                 h3(strong("Parameter: ")),
+                                 h3(strong("Parameter ")),
                                  fileInput('driverGenesFile2',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
                                  numericInput('mutThreshold2', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50, step=10),
                                  selectInput("signaturesRef2", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
                                              choices = c(signatures.cosmic = "signatures.cosmic",
                                                          signatures.nature2013 = "signatures.nature2013"),
                                              selected = "signatures.cosmic"),
-                                 radioButtons(
-                                   inputId = "sigplot", 
-                                   label = div(style = "font-size:18px; font-weight:600; ", "Plot option"), 
-                                   choiceNames = list(
-                                     tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
-                                     tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-trunk")
-                                   ),
-                                   choiceValues = c("signaturesprob", "branchtrunk"),
-                                   selected = "signaturesprob", 
-                                   inline = TRUE), 
-                                 conditionalPanel(
-                                   condition = "input.sigplot == 'branchtrunk'",
-                                   numericInput('signiflevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1)
-                                 ), 
+                                 # radioButtons(
+                                 #   inputId = "sigplot", 
+                                 #   label = div(style = "font-size:18px; font-weight:600; ", "Plot option"), 
+                                 #   choiceNames = list(
+                                 #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
+                                 #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-trunk")
+                                 #   ),
+                                 #   choiceValues = c("signaturesprob", "branchtrunk"),
+                                 #   selected = "signaturesprob", 
+                                 #   inline = TRUE), 
+                                 numericInput('signiflevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1),
                                  sliderInput(inputId='widthsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                 sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 700, value = 600, width = 500), 
+                                 sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 600, width = 500), 
                                  br(),
                                  br(),
                                  actionBttn('submitSig2',div(
@@ -629,7 +627,6 @@ bodySignature <- tabItem('signature',
                              width = 9,
                              box(
                                width = NULL,
-                               h3(strong("Visulization: ")),
                                tabBox(
                                  id = 'sgt',
                                  side = 'left',
@@ -637,16 +634,20 @@ bodySignature <- tabItem('signature',
                                  width = "100%",
                                  height = "100%",
                                  tabPanel(
-                                   title = div(icon("newspaper"), "Summary"), 
+                                   title = div(icon("newspaper"), "Signature"), 
                                    value = 'S01',
-                                   withSpinner(DT::dataTableOutput('sigOFA'))
+                                   plotOutput('sigOFAPlot1', height = "100%", width = "100%"),
+                                   uiOutput("sigpdb1"),
+                                   br(),
+                                   uiOutput('sigOFATableUI1')
                                  ), 
                                  tabPanel(
-                                   title = div(icon("image"), "Visulization"),
+                                   title = div(icon("image"), "Branch trunck"),
                                    value = 'S02',
-                                   withSpinner(plotOutput('sigOFA2', height = "100%", width = "100%")),
+                                   plotOutput('sigOFAPlot2', height = "100%", width = "100%"),
+                                   uiOutput("sigpdb2"),
                                    br(),
-                                   uiOutput("sigpdb")
+                                   uiOutput('sigOFATableUI2')
                                  )
                                )
                              )
@@ -680,7 +681,7 @@ bodySurvival <- tabItem('Survival',
                             width = 3,
                             box(
                               width = NULL,
-                              h3(strong("Parameter: ")), 
+                              h3(strong("Parameter ")), 
                               selectInput('phyloTreeType',div(style = "font-size:18px; font-weight:600; ", 'Type'),
                                           c( 'njtree','newick','beast','PAML'),
                                           selected = 'njtree'),
@@ -690,28 +691,31 @@ bodySurvival <- tabItem('Survival',
                                           label = div(style = "font-size:18px; font-weight:600; ", 'Phylotree file'), 
                                           width = 400)
                               ),
-                              checkboxInput('show.mutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
-                              checkboxInput('show.heatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
-                              radioButtons(
-                                inputId = "sig.name", 
-                                label = div(style = "font-size:18px; font-weight:600; ", "Signature name"), 
-                                choiceNames = list(
-                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Default"), 
-                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Alias")
-                                ),
-                                choiceValues = c("default", "alias"),
-                                selected = "alias", 
-                                inline = TRUE),
-                              radioButtons(
-                                inputId = "heatmap.type",
-                                label = div(style = "font-size:18px; font-weight:600; ", "Heatmap type"),
-                                choiceNames = list(
-                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "Binary"), 
-                                  tags$span(style = "font-size:14.5px; font-weight:400; ", "CCF")
-                                ),
-                                choiceValues = c("binary", "CCF"),
-                                selected = "binary", 
-                                inline = TRUE
+                              conditionalPanel(
+                                condition = "input.phyloTreeType == 'njtree'",
+                                checkboxInput('show.mutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
+                                checkboxInput('show.heatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
+                                # radioButtons(
+                                #   inputId = "sig.name", 
+                                #   label = div(style = "font-size:18px; font-weight:600; ", "Signature name"), 
+                                #   choiceNames = list(
+                                #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Default"), 
+                                #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Alias")
+                                #   ),
+                                #   choiceValues = c("default", "alias"),
+                                #   selected = "alias", 
+                                #   inline = TRUE),
+                                radioButtons(
+                                  inputId = "heatmap.type",
+                                  label = div(style = "font-size:18px; font-weight:600; ", "Heatmap type"),
+                                  choiceNames = list(
+                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "Binary"), 
+                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "CCF")
+                                  ),
+                                  choiceValues = c("binary", "CCF"),
+                                  selected = "binary", 
+                                  inline = TRUE
+                                )
                               ),
                               actionBttn('submit10',div(
                                 strong("Start analysing"),align = 'center',
@@ -720,12 +724,15 @@ bodySurvival <- tabItem('Survival',
                           ),
                           column(
                             width = 9,
-                            box(
-                              width = NULL,
-                              h3(strong("Visulization: ")),
-                              withSpinner(plotOutput("phylotree",height = 800)),
-                              br(),
-                              uiOutput("phtdb")
+                            conditionalPanel(
+                              condition = 'input.submit10',
+                              box(
+                                width = NULL,
+                                height = "100%",
+                                plotOutput("phylotree",height = 800),
+                                br(),
+                                uiOutput("phtdb")
+                              )
                             )
                           )
                         )
