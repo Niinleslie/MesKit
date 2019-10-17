@@ -36,8 +36,13 @@ RUN R -e "remotes::install_github('Niinleslie/Meskit')"
 RUN R -e "BiocManager::install(c('org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))"
 
 # shiny server application & configuration
+COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
 COPY inst/shiny /srv/shiny-server/
 
 EXPOSE 3838
 
-CMD ["/bin/bash"]
+# Copy further configuration files into the Docker image
+COPY shiny-server.sh /usr/bin/shiny-server.sh
+
+#CMD ["/bin/bash"]
+CMD ["/usr/bin/shiny-server.sh"]
