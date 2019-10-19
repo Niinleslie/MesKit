@@ -8,7 +8,7 @@ Description: Analysis and visualize multi-region whole-exome sequencing data.Thi
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: utils, ape, methods, plotrix, grDevices, gridExtra,
+Imports: utils, ape, methods, plotrix, gridExtra,
         DO.db, tidyr, dplyr, Hmisc, ggrepel,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
         deconstructSigs, timescape, grid, 
