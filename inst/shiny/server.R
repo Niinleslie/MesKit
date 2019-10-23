@@ -43,10 +43,10 @@ shinyServer(function(input, output, session){
     return(input$height7)
   })
   widthsig1 <- reactive({
-    return(input$widthsig2)
+    return(input$widthsig1)
   })
   heightsig1 <- reactive({
-    return(input$heightsig2)
+    return(input$heightsig1)
   })
   widthsig2 <- reactive({
     return(input$widthsig2)
@@ -54,93 +54,96 @@ shinyServer(function(input, output, session){
   heightsig2 <- reactive({
     return(input$heightsig2)
   })
-
-  inputData <- eventReactive(input$submit1,{
-    if(is.null(input$maf) | is.null(input$sampleInfo)){
-      mafFile <- './example/311252.maf'
-      sampleInfoFile <- './example/sample_info.txt'
-      ccfClusterTsvFile <- './example/311252.cluster.tsv'
-      ccfLociTsvFile <- './example/311252.loci.tsv'
-      maf <- Meskit::readMaf(mafFile = mafFile,
-                             sampleInfoFile = sampleInfoFile,
-                             ccfClusterTsvFile =  ccfClusterTsvFile,
-                             ccfLociTsvFile = ccfLociTsvFile)
-    }
-    else{
-      if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
-        maf <- Meskit::readMaf(mafFile = input$maf$datapath,
-                               sampleInfoFile = input$sampleInfo$datapath,
-                               ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                               ccfLociTsvFile = input$ccf.loci$datapath,
-                               inputFileName = input$maf$name)
+  
+  # maf <- reactiveValues()
+  # observeEvent(input$submit1,{
+  #   mafFile <- './example/311252.maf'
+  #   sampleInfoFile <- './example/sample_info.txt'
+  #   ccfClusterTsvFile <- './example/311252.cluster.tsv'
+  #   ccfLociTsvFile <- './example/311252.loci.tsv'
+  #   maf$a <- Meskit::readMaf(mafFile = mafFile,
+  #                          sampleInfoFile = sampleInfoFile,
+  #                          ccfClusterTsvFile =  ccfClusterTsvFile,
+  #                          ccfLociTsvFile = ccfLociTsvFile)
+  # })
+  # output$progressBox2 <- renderInfoBox({
+  #   infoBox(
+  #     "Progress", paste0(25 + input$submit10, "%"), icon = icon("list"),
+  #     color = "purple", fill = TRUE
+  #   )
+  # })
+  inputData <- reactive({
+    if(input$submit1){
+      if(is.null(input$maf) | is.null(input$sampleInfo)){
+        mafFile <- './example/311252.maf'
+        sampleInfoFile <- './example/sample_info.txt'
+        ccfClusterTsvFile <- './example/311252.cluster.tsv'
+        ccfLociTsvFile <- './example/311252.loci.tsv'
+        maf <- Meskit::readMaf(mafFile = mafFile,
+                               sampleInfoFile = sampleInfoFile,
+                               ccfClusterTsvFile =  ccfClusterTsvFile,
+                               ccfLociTsvFile = ccfLociTsvFile)
       }
       else{
-        maf <- readMaf(mafFile = input$maf$datapath,
-                       sampleInfoFile = input$sampleInfo$datapath,
-                       inputFileName = input$maf$name)
+        if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
+          maf <- Meskit::readMaf(mafFile = input$maf$datapath,
+                                 sampleInfoFile = input$sampleInfo$datapath,
+                                 ccfClusterTsvFile =  input$ccf.cluster$datapath,
+                                 ccfLociTsvFile = input$ccf.loci$datapath,
+                                 inputFileName = input$maf$name)
+        }
+        else{
+          maf <- readMaf(mafFile = input$maf$datapath,
+                         sampleInfoFile = input$sampleInfo$datapath,
+                         inputFileName = input$maf$name)
+        }
       }
     }
   })
-  # inputData <- reactive({
-  #   if(input$submit1){
-  #     if(is.null(input$maf) | is.null(input$sampleInfo)){
-  #       mafFile <- './example/311252.maf'
-  #       sampleInfoFile <- './example/sample_info.txt'
-  #       ccfClusterTsvFile <- './example/311252.cluster.tsv'
-  #       ccfLociTsvFile <- './example/311252.loci.tsv'
-  #       maf <- Meskit::readMaf(mafFile = mafFile,
-  #                              sampleInfoFile = sampleInfoFile, 
-  #                              ccfClusterTsvFile =  ccfClusterTsvFile, 
-  #                              ccfLociTsvFile = ccfLociTsvFile)
-  #     }
-  #     else{
-  #       if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
-  #         maf <- Meskit::readMaf(mafFile = input$maf$datapath,
-  #                                sampleInfoFile = input$sampleInfo$datapath, 
-  #                                ccfClusterTsvFile =  input$ccf.cluster$datapath, 
-  #                                ccfLociTsvFile = input$ccf.loci$datapath,
-  #                                inputFileName = input$maf$name)
-  #       }
-  #       else{
-  #         maf <- readMaf(mafFile = input$maf$datapath, 
-  #                        sampleInfoFile = input$sampleInfo$datapath,
-  #                        inputFileName = input$maf$name)
-  #       }
-  #     }
-  #   }
-  #   if(is.null(input$maf) | is.null(input$sampleInfo)){
-  #     mafFile <- './example/311252.maf'
-  #     sampleInfoFile <- './example/sample_info.txt'
-  #     ccfClusterTsvFile <- './example/311252.cluster.tsv'
-  #     ccfLociTsvFile <- './example/311252.loci.tsv'
-  #     maf <- Meskit::readMaf(mafFile = mafFile,
-  #                            sampleInfoFile = sampleInfoFile, 
-  #                            ccfClusterTsvFile =  ccfClusterTsvFile, 
-  #                            ccfLociTsvFile = ccfLociTsvFile)
-  #   }
-  #   else{
-  #     if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
-  #       maf <- Meskit::readMaf(mafFile = input$maf$datapath,
-  #                              sampleInfoFile = input$sampleInfo$datapath, 
-  #                              ccfClusterTsvFile =  input$ccf.cluster$datapath, 
-  #                              ccfLociTsvFile = input$ccf.loci$datapath,
-  #                              inputFileName = input$maf$name)
-  #     }
-  #     else{
-  #       maf <- readMaf(mafFile = input$maf$datapath, 
-  #                      sampleInfoFile = input$sampleInfo$datapath,
-  #                      inputFileName = input$maf$name)
-  #     }
-  #   }
-  # })
-  
   inputNJtree <- reactive({
     maf <- inputData()
     njtree <- Meskit::getNJtree(maf, use.indel = input$use.indel)
   })
+  buttonValue <- reactiveValues(a = 0, b = 0, c = 0, d = 0)
+  observeEvent(input$iecontrol01,{
+    buttonValue$a <- buttonValue$a + 1
+    if(buttonValue$a == 2){
+      buttonValue$a <- 0
+    }
+    buttonValue$b <- 0
+    buttonValue$c <- 0
+    buttonValue$d <- 0
+  })
+  observeEvent(input$iecontrol02,{
+    buttonValue$a <- 0
+    buttonValue$b <- buttonValue$b + 1
+    if(buttonValue$b == 2){
+      buttonValue$b <- 0
+    }
+    buttonValue$c <- 0
+    buttonValue$d <- 0
+  })
+  observeEvent(input$iecontrol03,{
+    buttonValue$a <- 0
+    buttonValue$b <- 0
+    buttonValue$c <- buttonValue$c + 1
+    if(buttonValue$c == 2){
+      buttonValue$c <- 0
+    }
+    buttonValue$d <- 0
+  })
+  observeEvent(input$iecontrol04,{
+    buttonValue$a <- 0
+    buttonValue$b <- 0
+    buttonValue$c <- 0
+    buttonValue$d <- buttonValue$d + 1
+    if(buttonValue$d == 2){
+      buttonValue$d <- 0
+    }
+  })
   ## output Introduction of maf datatable
   output$ie1 <- renderUI({
-    if((input$iecontrol01)%%2 != 0 ){
+    if(buttonValue$a == 1){
       tagList(
         box(
           width = NULL,
@@ -167,7 +170,7 @@ shinyServer(function(input, output, session){
   })
   ## output Introduction of sampleinfo datatable
   output$ie2 <- renderUI({
-    if((input$iecontrol02)%%2 != 0){
+    if(buttonValue$b == 1){
       box(
         width = NULL,
         tagList(
@@ -209,7 +212,7 @@ shinyServer(function(input, output, session){
   })
   ## output Introduction of ccf.cluster
   output$ie3 <- renderUI({
-    if((input$iecontrol03)%%2 != 0){
+    if(buttonValue$c == 1){
       box(
         width = NULL,
         tagList(
@@ -228,7 +231,7 @@ shinyServer(function(input, output, session){
   })
   ## output Introduction of ccf.loci
   output$ie4 <- renderUI({
-    if((input$iecontrol04)%%2 != 0){
+    if(buttonValue$d == 1){
       box(
         width = NULL,
         tagList(
@@ -248,11 +251,26 @@ shinyServer(function(input, output, session){
   output$maftable <- DT::renderDataTable({
     datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
   })
-
-  ms <- eventReactive(input$submit2,{
-    maf <- inputData()
-    Meskit::mathScore(maf,tsb = c("All"),
-                      minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
+  stopButtonValue2 <- reactiveValues(a = 0)
+  observeEvent(input$stop2,{
+    stopButtonValue2$a <- 1
+  })
+  observeEvent(input$submit3,{
+    stopButtonValue2$a <- 0
+  })
+  stopButtonValue2 <- reactiveValues(a = 0)
+  observeEvent(input$stop2,{
+    stopButtonValue2$a <- 1
+  })
+  observeEvent(input$submit2,{
+    stopButtonValue2$a <- 0
+  })
+  ms <- reactive({
+    if(input$submit2 & stopButtonValue2$a != 1){
+      maf <- inputData()
+      Meskit::mathScore(maf,tsb = c("All"),
+                        minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
+    }
   })
   output$mathScore <- DT::renderDataTable({
     ms()
@@ -271,19 +289,49 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  
-  vc <- eventReactive(input$submit3,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValue3 <- reactiveValues(a = 0)
+  observeEvent(input$stop3,{
+    stopButtonValue3$a <- 1
+  })
+  observeEvent(input$submit3,{
+    stopButtonValue3$a <- 0
+  })
+  # observeEvent((input$stop3),{
+  #   stop()
+  # })
+  # vc <- reactiveVal()
+  # observeEvent(input$submit3,{
+  #   progress <- Progress$new(session, min=1, max=15)
+  #   on.exit(progress$close())
+  #   progress$set(message = 'Calculation in progress',
+  #                detail = 'This may take a while...')
+  #   
+  #   for (i in 1:15) {
+  #     progress$set(value = i)
+  #     Sys.sleep(0.1)
+  #   }
+  #   maf <- inputData()
+  #   vc(Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption))
+  # })
+  # observeEvent(input$stop3,{
+  #   removeTab("vaf")
+  # })
+  vc <- reactive({
+    if(input$submit3 & stopButtonValue3$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+        maf <- inputData()
+        Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
+      # maf <- inputData()
+      # Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
     }
-    maf <- inputData()
-    Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
   })
   output$chooselistvaf <- renderUI({
     names <- names(vc())
@@ -327,18 +375,27 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  msp <- eventReactive(input$submit4,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValue4 <- reactiveValues(a = 0)
+  observeEvent(input$stop4,{
+    stopButtonValue4$a <- 1
+  })
+  observeEvent(input$submit4,{
+    stopButtonValue4$a <- 0
+  })
+  msp <- reactive({
+    if(input$submit4 & stopButtonValue4$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      maf <- inputData()
+      return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
     }
-    maf <- inputData()
-    return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
   })
   output$mutSharedPrivatePlot <- renderPlot({
     msp()
@@ -371,32 +428,41 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  stk <- eventReactive(input$submit5,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValue5 <- reactiveValues(a = 0)
+  observeEvent(input$stop5,{
+    stopButtonValue5$a <- 1
+  })
+  observeEvent(input$submit5,{
+    stopButtonValue5$a <- 0
+  })
+  stk <- reactive({
+    if(input$submit5 & stopButtonValue5$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      if(is.null(input$oncogeneListFile$datapath)){
+        oncogeneListFile <- './example/oncogene.list.txt'
+      }
+      else{
+        oncogeneListFile <- input$oncogeneListFile$datapath
+      }
+      if(is.null(input$tsgListFile$datapath)){
+        tsgListFile <- './example/TSG.list.txt'
+      }
+      else{
+        tsgListFile <- input$tsgListFile$datapath
+      }
+      maf <- inputData()
+      Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+                           tsgListFile = tsgListFile, themeOption=input$themeOption2,
+                           show.percentage = input$show.percentage)
     }
-    if(is.null(input$oncogeneListFile$datapath)){
-      oncogeneListFile <- './example/oncogene.list.txt'
-    }
-    else{
-      oncogeneListFile <- input$oncogeneListFile$datapath
-    }
-    if(is.null(input$tsgListFile$datapath)){
-      tsgListFile <- './example/TSG.list.txt'
-    }
-    else{
-      tsgListFile <- input$tsgListFile$datapath
-    }
-    maf <- inputData()
-    Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                         tsgListFile = tsgListFile, themeOption=input$themeOption2,
-                         show.percentage = input$show.percentage)
   })
   output$stackplot <- renderPlot({
     stk()
@@ -409,7 +475,7 @@ shinyServer(function(input, output, session){
     if(!is.null(stk())){
       fluidRow(
         column(
-          width = 7
+          width = 6
         ),
         column(
           width = 2,
@@ -429,18 +495,38 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  ji <- eventReactive(input$submit6,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValue6 <- reactiveValues(a = 0)
+  observeEvent(input$stop6,{
+    stopButtonValue6$a <- 1
+  })
+  observeEvent(input$submit6,{
+    stopButtonValue6$a <- 0
+  })
+  ji <- reactive({
+    if(stopButtonValue6$a != 1&input$submit6){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      maf <- inputData()
+      return(Meskit::JaccardIndex(maf,type = input$JItype))
     }
-    maf <- inputData()
-    return(Meskit::JaccardIndex(maf,type = input$JItype))
+    # progress <- Progress$new(session, min=1, max=15)
+    # on.exit(progress$close())
+    # progress$set(message = 'Calculation in progress',
+    #              detail = 'This may take a while...')
+    # 
+    # for (i in 1:15) {
+    #   progress$set(value = i)
+    #   Sys.sleep(0.1)
+    # }
+    # maf <- inputData()
+    # return(Meskit::JaccardIndex(maf,type = input$JItype))
   })
   output$JaccardIndex <- renderPlot({
     ji()
@@ -453,7 +539,7 @@ shinyServer(function(input, output, session){
     if(!is.null(ji())){
       fluidRow(
         column(
-          width = 7
+          width = 5
         ),
         column(
           width = 2,
@@ -472,29 +558,65 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  clp <- eventReactive(input$submit7,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValue7 <- reactiveValues(a = 0)
+  observeEvent(input$stop7,{
+    stopButtonValue7$a <- 1
+  })
+  observeEvent(input$submit7,{
+    stopButtonValue7$a <- 0
+  })
+  clp <- reactive({
+    if(input$submit7 & stopButtonValue7$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+        validate(
+          need(!(is.null(input$ccf.cluster$datapath)), "click the button 'use ccf',Upload ccf.cluster in Session 'Input Data' ")
+        )
+        validate(
+          need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
+        )
+        maf <- inputData()
+        Meskit::tumorClonesPlot(maf)
+      }
+      else{
+        maf <- inputData()
+        Meskit::tumorClonesPlot(maf)
+      }
     }
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      validate(
-        need(!(is.null(input$ccf.cluster$datapath)), "click the button 'use ccf',Upload ccf.cluster in Session 'Input Data' ")
-      )
-      validate(
-        need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci Session 'Input Data'")
-      )
-      maf <- inputData()
-      Meskit::tumorClonesPlot(maf)
-    }
-    else{
-      maf <- inputData()
-      Meskit::tumorClonesPlot(maf)
+  })
+  clp <- reactive({
+    if(input$submit7 & stopButtonValue7$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+        validate(
+          need(!(is.null(input$ccf.cluster$datapath)), "click the button 'use ccf',Upload ccf.cluster in Session 'Input Data' ")
+        )
+        validate(
+          need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
+        )
+        maf <- inputData()
+        Meskit::tumorClonesPlot(maf)
+      }
+      else{
+        maf <- inputData()
+        Meskit::tumorClonesPlot(maf)
+      }
     }
   })
   output$cloneplot <- renderPlot({
@@ -522,23 +644,32 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 3,
-          downloadBttn('DownloadClonePlot', 'Download')
+          div(downloadBttn('DownloadClonePlot', 'Download'))
         )
       )
     }
   })
-  GO <- eventReactive(input$submit8,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValue8 <- reactiveValues(a = 0)
+  observeEvent(input$stop8,{
+    stopButtonValue8$a <- 1
+  })
+  observeEvent(input$submit8,{
+    stopButtonValue8$a <- 0
+  })
+  GO <- reactive({
+    if(input$submit8 & stopButtonValue8$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      njtree <- inputNJtree()
+      Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
     }
-    njtree <- inputNJtree()
-    Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
   })
   # Datatable under GO plot
   output$gotui <- renderUI({
@@ -553,6 +684,7 @@ shinyServer(function(input, output, session){
           ),
           column(
             width = 3,
+            br(),
             downloadBttn('DownloadGOTable', 'Download')
           )
         )
@@ -564,16 +696,18 @@ shinyServer(function(input, output, session){
     datatable(data,options = list(pageLength = 5, dom = 'tp', scrollX = T), rownames = FALSE,width = 5)
   })
   output$chooselist1 <- renderUI({
-    if("All" %in% names(GO()[[2]])){
-      names <- names(GO()[[2]])
-      names <- names[-(which(names == "All"))]
-      names <- append(names,"All",after = 0)
+    if(!is.null(GO())){
+      if("All" %in% names(GO()[[2]])){
+        names <- names(GO()[[2]])
+        names <- names[-(which(names == "All"))]
+        names <- append(names,"All",after = 0)
+      }
+      else{
+        names <- names(GO()[[2]])
+      }
+      selectInput("gl","Branch",
+                  choices = names ,selected = names[1],width = 600)
     }
-    else{
-      names <- names(GO()[[2]])
-    }
-    selectInput("gl","Branch",
-                choices = names ,selected = names[1],width = 600)
   })
   output$GOplot <- renderPlot({
     return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
@@ -585,7 +719,7 @@ shinyServer(function(input, output, session){
     if(!is.null(GO())){
       fluidRow(
         column(
-          width = 7
+          width = 6
         ),
         column(
           width = 2,
@@ -602,25 +736,34 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  Path <- eventReactive(input$submit9,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValue9 <- reactiveValues(a = 0)
+  observeEvent(input$stop9,{
+    stopButtonValue9$a <- 1
+  })
+  observeEvent(input$submit9,{
+    stopButtonValue9$a <- 0
+  })
+  Path <- reactive({
+    if(input$submit9 != 0 & stopButtonValue9$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      njtree <- inputNJtree()
+      list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
+      return(list)
     }
-    njtree <- inputNJtree()
-    list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
-    return(list)
   })
   output$Pathdb <- renderUI({
     if(!is.null(Path())){
       fluidRow(
         column(
-          width = 7
+          width = 6
         ),
         column(
           width = 2,
@@ -632,6 +775,7 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 3,
+          br(),
           downloadBttn('DownloadPathPlot', 'Download')
         )
       )
@@ -639,16 +783,18 @@ shinyServer(function(input, output, session){
     }
   })
   output$chooselist2 <- renderUI({
-    if("All" %in% names(Path()[[2]])){
-      names <- names(Path()[[2]])
-      names <- names[-(which(names == "All"))]
-      names <- append(names,"All",after = 0)
+    if(!is.null(Path())){
+      if("All" %in% names(Path()[[2]])){
+        names <- names(Path()[[2]])
+        names <- names[-(which(names == "All"))]
+        names <- append(names,"All",after = 0)
+      }
+      else{
+        names <- names(Path()[[2]])
+      }
+      selectInput("pl","Branch",
+                  choices = names ,selected = names[1],width = 600)
     }
-    else{
-      names <- names(Path()[[2]])
-    }
-    selectInput("pl","Branch",
-                choices = names ,selected = names[1],width = 600)
   })
   # Datatable under Pathway plot
   output$patht <- renderUI({
@@ -680,35 +826,70 @@ shinyServer(function(input, output, session){
   height = height7,
   res = 100
   )
-  
-  sigOFA1 <- eventReactive(input$submitSig1,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
+  stopButtonValueSig <- reactiveValues(a = 0)
+  observeEvent(input$stopSig,{
+    stopButtonValueSig$a <- 1
+  })
+  observeEvent(input$submitSig,{
+    stopButtonValueSig$a <- 0
+  })
+  sigOFA <- reactive({
+    if(input$submitSig & stopButtonValueSig$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      njtree <- inputNJtree()
+      df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+                                                signaturesRef=input$signaturesRef,
+                                                plot.signatures=FALSE, plot.branchTrunk=FALSE, 
+                                                signif.level=0.05)
+      return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
     }
-    njtree <- inputNJtree()
-    df.signature <- Meskit::treeMutationalSig(njtree,
-                                              driverGenesFile=input$driverGenesFile$datapath1,
-                                              mutThreshold=input$mutThreshold1, 
-                                              signaturesRef=input$signaturesRef1,
-                                              plot.signatures=FALSE, plot.branchTrunk=FALSE, 
-                                              signif.level=0.05)
-    df.signature.plot <- Meskit::treeMutationalSig(njtree,
-                                                   driverGenesFile=input$driverGenesFile1$datapath,
-                                                   mutThreshold=input$mutThreshold1, 
-                                                   signaturesRef=input$signaturesRef1,
-                                                   plot.signatures=TRUE, plot.branchTrunk=FALSE, 
-                                                   signif.level=0.05)
-    return(list(df.signature.plot,df.signature))
-    # return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
+  })
+  output$sigOFA <- DT::renderDataTable({
+    sigOFA()
+  })
+  stopButtonValueSig1 <- reactiveValues(a = 0)
+  observeEvent(input$stopSig1,{
+    stopButtonValueSig1$a <- 1
+  })
+  observeEvent(input$submitSig1,{
+    stopButtonValueSig1$a <- 0
+  })
+  sigOFA1 <- reactive({
+    if(input$submitSig1 & stopButtonValueSig1$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      njtree <- inputNJtree()
+      df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+                                                signaturesRef=input$signaturesRef,
+                                                plot.signatures=FALSE, plot.branchTrunk=FALSE, 
+                                                signif.level=0.05)
+      df.signature.plot <- Meskit::treeMutationalSig(njtree,
+                                                     driverGenesFile=input$driverGenesFile1$datapath,
+                                                     mutThreshold=input$mutThreshold1, 
+                                                     signaturesRef=input$signaturesRef1,
+                                                     plot.signatures=TRUE, plot.branchTrunk=FALSE, 
+                                                     signif.level=0.05)
+      return(list(df.signature.plot,df.signature))
+      # return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
+    }
   })
   output$sigOFATableUI1 <- renderUI({
-    if(!is.null(sigOFA1()[[2]])){
+    if(!is.null(sigOFA1())){
       tagList(
         h4(strong('Signature summary')),
         br(),
@@ -733,63 +914,82 @@ shinyServer(function(input, output, session){
     res = 100
   )
   output$sigOFATable1 <- DT::renderDataTable({
-    data <- sigOFA1()[[2]]
-    datatable(data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
+    data <- sigOFA1()[[2]][,c(1:2)]
+    datatable(data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T,dom = "t"))
   })
-  sigOFA2 <- eventReactive(input$submitSig2,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
-    }
-    njtree <- inputNJtree()
-    df.branchTrunck <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath2,
-                                                 mutThreshold=input$mutThreshold2, 
-                                                 signaturesRef=input$signaturesRef2,
-                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
-                                                 signif.level=0.05)
-    df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
-                                                     mutThreshold=input$mutThreshold2, 
-                                                     signaturesRef=input$signaturesRef2,
-                                                     plot.signatures=FALSE, plot.branchTrunk=TRUE, 
-                                                     signif.level=input$signiflevel)
-    return(list(df.branchTrunk.plot,df.branchTrunck))
+  stopButtonValueSig2 <- reactiveValues(a = 0)
+  observeEvent(input$stopSig2,{
+    stopButtonValueSig2$a <- 1
   })
-  output$sigOFATableUI2 <- renderUI({
-    if(!is.null(sigOFA2()[[2]]))
-    tagList(
-      h4(strong('Signature summary')),
-      br(),
-      DT::dataTableOutput('sigOFATable2'),
-      fluidRow(
-        column(
-          width = 9
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSigOFATable2', 'Download')
-        )
-      )
-    )
+  observeEvent(input$submitSig2,{
+    stopButtonValueSig2$a <- 0
   })
-  output$sigOFATable2 <- renderDataTable({
-    if(!is.null(sigOFA2()[[2]])){
-      return(datatable(sigOFA2()[[2]], options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
+  sigOFA2 <- reactive({
+    if(input$submitSig2 & stopButtonValueSig2$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      njtree <- inputNJtree()
+      df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
+                                                       mutThreshold=input$mutThreshold2, 
+                                                       signaturesRef=input$signaturesRef2,
+                                                       plot.signatures=FALSE, plot.branchTrunk=TRUE, 
+                                                       signif.level=input$signiflevel)
+      return(df.branchTrunk.plot)
     }
   })
+  # output$sigOFATableUI2 <- renderUI({
+  #   if(!is.null(sigOFA2()[[2]]))
+  #   tagList(
+  #     h4(strong('Signature summary')),
+  #     br(),
+  #     DT::dataTableOutput('sigOFATable2'),
+  #     fluidRow(
+  #       column(
+  #         width = 9
+  #       ),
+  #       column(
+  #         width = 3,
+  #         downloadBttn('DownloadSigOFATable2', 'Download')
+  #       )
+  #     )
+  #   )
+  # })
+  # output$sigOFATable2 <- renderDataTable({
+  #   if(!is.null(sigOFA2()[[2]])){
+  #     return(datatable(sigOFA2()[[2]], options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
+  #   }
+  # })
   
   output$sigOFAPlot2 <- renderPlot({
-    return(sigOFA2()[[1]]) 
+    return(sigOFA2()) 
   },
   width = widthsig2,
   height = heightsig2,
   res = 100
   )
-  
+  output$sigpdb <- renderUI({
+    if(!is.null(sigOFA())){
+      fluidRow(
+        column(
+          width = 7
+        ),
+        column(
+          width = 2
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadSignatureSummary', 'Download')
+        )
+      )
+    }
+  })
   output$sigpdb1 <- renderUI({
     if(!is.null(sigOFA1())){
       fluidRow(
@@ -832,46 +1032,54 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  
-  pht <- eventReactive(input$submit10,{
-    progress <- Progress$new(session, min=1, max=15)
-    on.exit(progress$close())
-    progress$set(message = 'Calculation in progress',
-                 detail = 'This may take a while...')
-    
-    for (i in 1:15) {
-      progress$set(value = i)
-      Sys.sleep(0.1)
-    }
-    if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-      if(input$phyloTreeType == 'njtree'){
-        njtree <- inputNJtree()
-        if(input$useccf == T){
-          validate(
-            need(input$heatmap.type == "CCF","switch heatmap type to CCF")
-          )
+  stopButtonValue10<- reactiveValues(a = 0)
+  observeEvent(input$stop10,{
+    stopButtonValue10$a <- 1
+  })
+  observeEvent(input$submit10,{
+    stopButtonValue10$a <- 0
+  })
+  pht <- reactive({
+    if(input$submit10 &stopButtonValue10$a != 1){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.1)
+      }
+      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+        if(input$phyloTreeType == 'njtree'){
+          njtree <- inputNJtree()
+          if(input$useccf == T){
+            validate(
+              need(input$heatmap.type == "CCF","switch heatmap type to CCF")
+            )
+          }
+          p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
+                                     heatmap.type = input$heatmap.type, sig.name = "default",
+                                     show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+          return(p)
         }
-        p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                                   heatmap.type = input$heatmap.type, sig.name = "alias",
-                                   show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
-        return(p)
+        else{
+          validate(
+            need(!is.null(input$phylotree.dir),"Upload your phylotree file")
+          )
+          p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
+                                     phylotree.type = input$phyloTreeType)
+          return(p)
+        }
       }
       else{
-        validate(
-          need(!is.null(input$phylotree.dir),"Upload your phylotree file")
-        )
-        p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
-                                   phylotree.type = input$phyloTreeType)
+        njtree <- inputNJtree()
+        p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
+                                   heatmap.type = input$heatmap.type, sig.name = "default",
+                                   show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
         return(p)
+        # inputData()$phylotreeplot
       }
-    }
-    else{
-      njtree <- inputNJtree()
-      p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                                 heatmap.type = input$heatmap.type, sig.name = "alias",
-                                 show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
-      return(p)
-      # inputData()$phylotreeplot
     }
   })
   
@@ -1067,10 +1275,36 @@ shinyServer(function(input, output, session){
     },
     contentType = 'text/csv'
   )
-  
-  output$DownloadSignaturePlot <- downloadHandler(
+  output$DownloadSignatureSummary <- downloadHandler(
     filename = function() {
-      paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck, sep='')
+      paste("Pathway_",input$pl,"_",Sys.Date(),'.csv', sep='')
+    },
+    content = function(file){
+      data <- sigOFA()
+      write.csv(data,file)
+    },
+    contentType = 'text/csv'
+  )
+  output$DownloadSignaturePlot1 <- downloadHandler(
+    filename = function() {
+      paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck1, sep='')
+    },
+    content = function(file) {
+      if (input$DownloadSignaturePlotCheck == "png"){
+        png(file,width = input$widthsig1, height = input$heightsig1,res = 144)
+      }
+      else if (input$DownloadSignaturePlotCheck == "pdf"){
+        pdf(file,width = input$widthsig1/100, height = input$heightsig1/100)
+      }
+      print(sigOFA1()[[1]])
+      dev.off()
+    },
+    contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
+  )
+  
+  output$DownloadSignaturePlot2 <- downloadHandler(
+    filename = function() {
+      paste("Branch_trunck",'.',input$DownloadSignaturePlotCheck2, sep='')
     },
     content = function(file) {
       if (input$DownloadSignaturePlotCheck == "png"){
@@ -1085,4 +1319,4 @@ shinyServer(function(input, output, session){
     contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
   )
   
-})
+})  

@@ -33,7 +33,7 @@ cloneFishPlot <- function(maf, inferMethod="clonevol", plotOption="fishplot",
                           genotypePosition="stack"){
     if (inferMethod == "clonevol"){
         clusterTsvFile <- maf@ccf.cluster
-        clonevol2fishplot(clusterTsvFile, plotOption, genotypePosition)
+        clonevol2Fishplot(clusterTsvFile, plotOption, genotypePosition)
     } else if (inferMethod == "SCHISM"){
         if (!is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
             schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption, genotypePosition)
@@ -47,16 +47,18 @@ cloneFishPlot <- function(maf, inferMethod="clonevol", plotOption="fishplot",
 ## clonevol method
 clonevol2Fishplot <- function(clusterTsvFile, plotOption, genotypePosition){
     ## read mutations in cluster.tsv from PyClone and get targeted clusters
-    cluster.tsv=read.table(clusterTsvFile, sep="\t",
-                           stringsAsFactors=FALSE, header=TRUE)
+    cluster.tsv <- clusterTsvFile
+    # cluster.tsv=read.table(clusterTsvFile, sep="\t",
+    #                        stringsAsFactors=FALSE, header=TRUE)
     cluster_filter=cluster.tsv[!is.na(cluster.tsv$cluster_id) &
                                    cluster.tsv$size >= 5 &
                                    cluster.tsv$mean >= 0.1,]
     cluster_ls =unique(cluster_filter$cluster_id)
     
     ## read mutations within targeted clusters in loc.tsv file from PyClone
-    loci.tsv=read.table(dir.loci.tsv, sep="\t",
-                        stringsAsFactors=FALSE, header=TRUE)
+    
+    # loci.tsv=read.table(dir.loci.tsv, sep="\t",
+    #                     stringsAsFactors=FALSE, header=TRUE)
     loci_filtered <- loci.tsv[which(loci.tsv$cluster_id %in% cluster_ls),]
     
     # loci_filtered <- na.omit(loci_filtered)
