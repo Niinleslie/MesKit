@@ -19,8 +19,8 @@
 #' cloneFishPlot(maf, inferMethod="clonevol", plotOption="fishplot")
 #' cloneFishPlot(maf, inferMethod="clonevol", plotOption="timescape")
 #' ## SCHISM method
-#' cloneFishPlot(maf, inferMethod="SCHISM", plotOption="fishplot", schismCellularityFile, schismConsensusTree)
-#' cloneFishPlot(maf, inferMethod="SCHISM", plotOption="timescape", schismCellularityFile, schismConsensusTree)
+#' cloneFishPlot(inferMethod="SCHISM", plotOption="fishplot", schismCellularityFile, schismConsensusTree)
+#' cloneFishPlot(inferMethod="SCHISM", plotOption="timescape", schismCellularityFile, schismConsensusTree)
 #'}
 #'
 #' @export schism2Fishplot
@@ -28,7 +28,7 @@
 #' @export cloneFishPlot
 
 ## main function
-cloneFishPlot <- function(maf, inferMethod="clonevol", plotOption="fishplot", 
+cloneFishPlot <- function(maf=NULL, inferMethod="clonevol", plotOption="fishplot", 
                           schismCellularityFile=NULL, schismConsensusTree=NULL, 
                           genotypePosition="stack"){
     if (inferMethod == "clonevol"){
@@ -38,7 +38,7 @@ cloneFishPlot <- function(maf, inferMethod="clonevol", plotOption="fishplot",
         if (!is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
             schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption, genotypePosition)
         } else {
-            warning("Missing schismCellularityFile or schismConsensusTree. The subclonal hierarchy results from SCHISM should be provided.")
+            warning("Missing schismCellularityFile or schismConsensusTree. The subclonal hierarchy outputs from SCHISM should be provided.")
         }
         
     }
