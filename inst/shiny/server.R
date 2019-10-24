@@ -296,26 +296,6 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit3,{
     stopButtonValue3$a <- 0
   })
-  # observeEvent((input$stop3),{
-  #   stop()
-  # })
-  # vc <- reactiveVal()
-  # observeEvent(input$submit3,{
-  #   progress <- Progress$new(session, min=1, max=15)
-  #   on.exit(progress$close())
-  #   progress$set(message = 'Calculation in progress',
-  #                detail = 'This may take a while...')
-  #   
-  #   for (i in 1:15) {
-  #     progress$set(value = i)
-  #     Sys.sleep(0.1)
-  #   }
-  #   maf <- inputData()
-  #   vc(Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption))
-  # })
-  # observeEvent(input$stop3,{
-  #   removeTab("vaf")
-  # })
   vc <- reactive({
     if(input$submit3 & stopButtonValue3$a != 1){
       progress <- Progress$new(session, min=1, max=15)
@@ -325,7 +305,7 @@ shinyServer(function(input, output, session){
 
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
         maf <- inputData()
         Meskit::vafCluster(maf,plotOption = input$plotOption,themeOption = input$themeOption)
@@ -391,7 +371,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       maf <- inputData()
       return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
@@ -444,7 +424,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       if(is.null(input$oncogeneListFile$datapath)){
         oncogeneListFile <- './example/oncogene.list.txt'
@@ -511,7 +491,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       maf <- inputData()
       return(Meskit::JaccardIndex(maf,type = input$JItype))
@@ -523,7 +503,7 @@ shinyServer(function(input, output, session){
     # 
     # for (i in 1:15) {
     #   progress$set(value = i)
-    #   Sys.sleep(0.1)
+    #   Sys.sleep(0.01)
     # }
     # maf <- inputData()
     # return(Meskit::JaccardIndex(maf,type = input$JItype))
@@ -574,7 +554,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         validate(
@@ -601,7 +581,7 @@ shinyServer(function(input, output, session){
 
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         validate(
@@ -665,7 +645,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       njtree <- inputNJtree()
       Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
@@ -752,7 +732,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       njtree <- inputNJtree()
       list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
@@ -842,7 +822,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       njtree <- inputNJtree()
       df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
@@ -871,7 +851,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       njtree <- inputNJtree()
       df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
@@ -933,7 +913,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       njtree <- inputNJtree()
       df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
@@ -1048,7 +1028,7 @@ shinyServer(function(input, output, session){
       
       for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(0.1)
+        Sys.sleep(0.01)
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         if(input$phyloTreeType == 'njtree'){
