@@ -180,7 +180,7 @@ clonevol2Fishplot <- function(clusterTsvFile, plotOption, genotypePosition){
 ## SCHISM method
 schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOption, genotypePosition){
     ## get cellularity infomation
-    clusterCellularity=read.table(schismCellularityFile, sep="\t", 
+    clusterCellularity <- read.table(schismCellularityFile, sep="\t", 
                                   stringsAsFactors=FALSE, header=TRUE)
     
     if (plotOption == "fishplot"){
@@ -232,7 +232,7 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
         }
         
         ## fishplot printing
-        pdf('fish.pdf', width=8, height=5)
+        # pdf('fish.pdf', width=8, height=5)
         fish=createFishObject(fracTable, parents, 
                               timepoints=c(seq_along(sampleLs)), 
                               fix.missing.clones=TRUE)
@@ -242,7 +242,7 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
         fish=layoutClones(fish)
         fishPlot(fish, shape="spline", title.btm="PatientID", cex.title=0.5,
                  vlines=seq(1, length(sampleLs)), vlab=sampleLs, pad.left=0.5)
-        dev <- dev.off()
+        # dev <- dev.off()
         message("Fishplot Done!")
     } else if (plotOption == "timescape"){
         names(clusterCellularity) <- c("timepoint", "clone_id", 
@@ -283,7 +283,7 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
         
         ## timescape plot
         timescapeobject <- timescape(clonalPrev, treeEdges, mutations="NA", 
-                                     clone_colours=cloneList,
+                                     clone_colours=clone_colours,
                                      xaxis_title="Time Point", 
                                      yaxis_title="Clonal Prevalence",
                                      phylogeny_title="Clonal Phylogeny", 
