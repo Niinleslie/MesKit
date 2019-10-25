@@ -61,6 +61,7 @@ vafCluster <-function(maf, vafColumn="VAF",
         ## general data process for all samples 
         lsPicName <- c()
         lsSep <- list()
+        lsSampleName <- c()
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
@@ -84,7 +85,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                 pic <- .drawVAF(clusterMt, themeOption, 
                                 sampleName, mathscore)
                 lsSep[[counterMt]] <- pic
-                print(pic)
+                lsSampleName <- c(lsSampleName,sampleName)
             }
             else {
                 # prepare separated pictures for later combination 
@@ -98,6 +99,7 @@ vafCluster <-function(maf, vafColumn="VAF",
             }
         }
         if (plotOption == "separate"){
+            names(lsSep) <- lsSampleName
             return(lsSep)
         }
         ## combine: print VAF pictures for all samples in one document
