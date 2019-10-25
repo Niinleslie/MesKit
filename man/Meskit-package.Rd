@@ -8,4 +8,13 @@
 \description{
 Analysis and visualize multi-region whole-exome sequencing data.This package provides various functions to perform most commonly used analyses in cancer genomics and to create feature rich customizable visualzations with minimal effort.
 }
+\author{
+\strong{Maintainer}: 
+
+Authors:
+\itemize{
+  \item Mengni Liu \email{niinleslie@gmail.com}
+}
+
+}
 \keyword{internal}
