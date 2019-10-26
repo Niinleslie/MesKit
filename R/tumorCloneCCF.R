@@ -27,17 +27,20 @@ tumorClonesPlot <- function(maf, out.dir = NULL, clone.min.mut = 5, clone.min.av
   }
   ccfLoci <- ccfLoci[which(!is.na(ccfLoci$variant_allele_frequency)),]
   loci <- ccfLoci[which(ccfLoci$cluster_id %in% cluster.ids),]
-  
-
+  mean <- max(ccfCluster$mean)
+  label <- factor(ccfCluster$sample_id)
+  labelUp <- c(label[2],label[length(label)-2])
   ##only for our test sample
   #ccf$sample_id <- unlist(lapply(ccf$sample_id, function(x) unlist(strsplit(x, "-"))[2]))
   #loci$sample_id <- unlist(lapply(loci$sample_id, function(x) unlist(strsplit(x, "-"))[2]))
 
-  radar_plot <- ggplot(ccfCluster, aes(x=sample_id, y=mean, fill=factor(cluster_id))) + geom_bar(stat="identity") + coord_polar()+ 
+  radar_plot <- ggplot(ccfCluster, aes(x=factor(sample_id), y=mean, fill=factor(cluster_id))) + geom_bar(stat="identity") + coord_polar()+ 
           theme_bw() + scale_fill_npg(labels=as.character(seq(length(cluster.ids))))+
+            geom_text(y = 2*mean, label = label,
+                      position = position_identity())+
             theme(panel.grid = element_blank(),
             panel.border= element_blank(),
-            axis.text.x = element_text(size = 9, hjust = 1, face = "bold"), 
+            axis.text.x = element_blank(), 
             axis.text.y = element_blank(),
             axis.ticks = element_blank(),
             axis.title = element_blank())+
@@ -60,7 +63,9 @@ tumorClonesPlot <- function(maf, out.dir = NULL, clone.min.mut = 5, clone.min.av
           labs(y = "Cellular prevalence")+
           theme(legend.position = "none")
 
-  radar_dotplot <- grid.arrange(radar_plot, loci_dotplot, ncol = 2)
+  # radar_dotplot <- grid.arrange(radar_plot, loci_dotplot, ncol = 2)
+  radar_dotplot <- ggdraw(xlim = c(0,1.05))+draw_plot(radar_plot, x = 0, y = 0, width = 0.5) + draw_plot(loci_dotplot, x = 0.55, y = 0, width = 0.5)
+  ggsave(paste("./radar_dotplot.pdf", sep = "/"), radar_dotplot, width = 9, height = 6.5)
   return(radar_dotplot)
   # if (savePlot){
   #   ggsave(paste(out.dir, "radar_dotplot.pdf", sep = "/"), radar_dotplot, width = 9, height = 6.5) 
