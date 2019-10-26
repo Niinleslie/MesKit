@@ -38,7 +38,7 @@ import(htmlwidgets)
 import(pdp)
 import(reshape2)
 import(timescape)
-import(utils)s
+import(utils)
 import(timescape)
 importFrom(GenomeInfoDb,seqnames)
 importFrom(ReactomePA,enrichPathway)
