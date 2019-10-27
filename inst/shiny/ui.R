@@ -1183,20 +1183,22 @@ shinyUI(
         overflow: hidden;
         color: white;
         }'))),
+      
       ## change the style of the progress bar.
-      tags$head(tags$style(
-        type="text/css", 
-        ".progress.shiny-file-input-progress {
-            height:5px;
-        }
-          
-        .progress-bar {
-          background-image: linear-gradient(to right, #77C7FF, #3c8dbc ) !important;
-          background-size: auto !important;
-          font-size:0px;
-          height:5px;
-        }"
-      )),
+      # tags$head(tags$style(
+      #   type="text/css", 
+      #   ".progress.shiny-file-input-progress {
+      #       height:5px;
+      #   }
+      #     
+      #   .progress-bar {
+      #     background-image: linear-gradient(to right, #77C7FF, #3c8dbc ) !important;
+      #     background-size: auto !important;
+      #     font-size:0px;
+      #     height:5px;
+      #   }"
+      # )),
+      
       tags$script(HTML('
       $(document).ready(function() {
         $("header").find("nav").append(\'<span class="textnvbar"> Meskit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
