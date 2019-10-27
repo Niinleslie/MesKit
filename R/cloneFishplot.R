@@ -181,7 +181,7 @@ clonevol2Fishplot <- function(clusterTsvFile, plotOption, genotypePosition){
 schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOption, genotypePosition){
     ## get cellularity infomation
     clusterCellularity <- read.table(schismCellularityFile, sep="\t", 
-                                  stringsAsFactors=FALSE, header=TRUE)
+                                     stringsAsFactors=FALSE, header=TRUE)
     
     if (plotOption == "fishplot"){
         ## get the list of samples and clusters in this function
@@ -240,7 +240,7 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
             fish=setCol(fish, as.character(clusterLs))
         }
         fish=layoutClones(fish)
-        fishPlot(fish, shape="spline", title.btm="PatientID", cex.title=0.5,
+        fishPlot(fish, shape="spline", title.btm="", cex.title=0.5,
                  vlines=seq(1, length(sampleLs)), vlab=sampleLs, pad.left=0.5)
         # dev <- dev.off()
         message("Fishplot Done!")
@@ -293,9 +293,10 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
                                      sort=FALSE,
                                      show_warnings=TRUE, 
                                      width=900, height=NULL)
-        show(timescapeobject)
-        saveWidget(timescapeobject, file="timescape.html")
+        # show(timescapeobject)
+        # saveWidget(timescapeobject, file="timescape.html")
         message("Timescape Plot Done!")
+        return(timescapeobject)
     }
 }
 

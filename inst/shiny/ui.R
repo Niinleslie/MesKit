@@ -9,6 +9,7 @@ suppressMessages(library(shinyWidgets))
 suppressMessages(library(shinycssloaders))
 suppressMessages(library(shinyjs))
 suppressMessages(library(Meskit))
+suppressMessages(library(timescape))
 
 
 #sider bar----
@@ -17,21 +18,15 @@ sidebar <- dashboardSidebar(
   width = 300,
   sidebarMenu(id="sidername",selected='home',
               menuItem(strong("Home"), tabName = "home", icon = icon("home")),
-              menuItem(strong("Input Data"), tabName = "input", icon = icon("th",lib = "glyphicon")),
-              menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("location-arrow")),
-              menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("th",lib = "glyphicon")),
+              menuItem(strong("Input Data"), tabName = "input", icon = icon("gear")),
+              menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
+              menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("bar-chart")),
               menuItem(strong("Functional analysis"), tabName = "function", icon = icon("bar-chart")),
               menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
-              menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("line-chart"))
+              menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("tree"))
   )
-  
 )
 
-
-#bodyHome ----
-#tabItem:创建标签页；子页面；与sidebar里的tabName相对应
-#fluidRow代表一行，
-#box是基本容器，可以存放图形或其他输出内容(非必须；但无法设定宽度，maxWidth = 12)
 #shinydashboar
 bodyHome <- tabItem("home",
                     fluidRow(
@@ -169,6 +164,7 @@ bodyIP <- tabItem("input",
                         #   br(),
                         #   uiOutput("ie2")
                         # )
+                        br(),
                         uiOutput("ie1"),
                         uiOutput("ie2"),
                         uiOutput("ie3"),
@@ -225,15 +221,15 @@ bodyITH <- tabItem("ITH",
                                    class = paste0("bttn-default"),
                                    list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
-                                 ),
-                                 tags$button(
-                                   Id = "stop2",
-                                   type = "button",
-                                   class = "bttn-material-circle",
-                                   class = "btn action-button",
-                                   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   style = " background-position: center;padding:0;margin-bottom:7px;"
                                  )
+                                 # tags$button(
+                                 #   Id = "stop2",
+                                 #   type = "button",
+                                 #   class = "bttn-material-circle",
+                                 #   class = "btn action-button",
+                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                 # )
                                )
                              )
                            )
@@ -283,15 +279,15 @@ bodyITH <- tabItem("ITH",
                                    class = paste0("bttn-default"),
                                    list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
-                                 ),
-                                 tags$button(
-                                   Id = "stop3",
-                                   type = "button",
-                                   class = "bttn-material-circle",
-                                   class = "btn action-button",
-                                   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   style = " background-position: center;padding:0;margin-bottom:7px;"
                                  )
+                                 # tags$button(
+                                 #   Id = "stop3",
+                                 #   type = "button",
+                                 #   class = "bttn-material-circle",
+                                 #   class = "btn action-button",
+                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                 # )
                                )
                              )
                              )
@@ -314,15 +310,15 @@ bodyITH <- tabItem("ITH",
                                    class = paste0("bttn-default"),
                                    list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
-                                 ),
-                                 tags$button(
-                                   Id = "stop4",
-                                   type = "button",
-                                   class = "bttn-material-circle",
-                                   class = "btn action-button",
-                                   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   style = " background-position: center;padding:0;margin-bottom:7px;"
                                  )
+                                 # tags$button(
+                                 #   Id = "stop4",
+                                 #   type = "button",
+                                 #   class = "bttn-material-circle",
+                                 #   class = "btn action-button",
+                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                 # )
                                )
                              )
                            )
@@ -371,15 +367,15 @@ bodyITH <- tabItem("ITH",
                                    class = paste0("bttn-default"),
                                    list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
-                                 ),
-                                 tags$button(
-                                   Id = "stop5",
-                                   type = "button",
-                                   class = "bttn-material-circle",
-                                   class = "btn action-button",
-                                   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   style = " background-position: center;padding:0;margin-bottom:7px;"
                                  )
+                                 # tags$button(
+                                 #   Id = "stop5",
+                                 #   type = "button",
+                                 #   class = "bttn-material-circle",
+                                 #   class = "btn action-button",
+                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                 # )
                                )
                              )
                            )
@@ -407,15 +403,15 @@ bodyITH <- tabItem("ITH",
                                    class = paste0("bttn-default"),
                                    list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
-                                 ),
-                                 tags$button(
-                                   Id = "stop6",
-                                   type = "button",
-                                   class = "bttn-material-circle",
-                                   class = "btn action-button",
-                                   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   style = " background-position: center;padding:0;margin-bottom:7px;"
                                  )
+                                 # tags$button(
+                                 #   Id = "stop6",
+                                 #   type = "button",
+                                 #   class = "bttn-material-circle",
+                                 #   class = "btn action-button",
+                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                 # )
                                )
                              )
                            )
@@ -474,7 +470,7 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                              title = div(icon("box"), "Jaccardindex"),
                              value = "caInput06",
-                             div(plotOutput("JaccardIndex",height = "100%",width = "100%"),align = "center") ,
+                             div(plotOutput("JaccardIndex",height = "100%"),align = "center") ,
                              uiOutput("jidb")
                            )
                          )
@@ -562,15 +558,70 @@ bodyclone <- tabItem('clone',
                                      class = paste0("bttn-default"),
                                      list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                      style = "margin-bottom:0px;margin-right:0px;"
-                                   ),
-                                   tags$button(
-                                     Id = "stop7",
-                                     type = "button",
-                                     class = "bttn-material-circle",
-                                     class = "btn action-button",
-                                     list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                    )
+                                   # tags$button(
+                                   #   Id = "stop7",
+                                   #   type = "button",
+                                   #   class = "bttn-material-circle",
+                                   #   class = "btn action-button",
+                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                   # )
+                                 )
+                               )
+                             )
+                           ),
+                           conditionalPanel(
+                             condition = "input.clt == 'c02'",
+                             div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                             br(),
+                             selectInput("inferMethod", label = div(style = "font-size:18px; font-weight:600;  ", "Infer method"),
+                                         choices = c(
+                                           Clonevol = "clonevol",
+                                           SCHISM = "SCHISM"
+                                         ), selected = "SCHISM",width = 300),
+                             selectInput("plotOptionFish", label = div(style = "font-size:18px; font-weight:600;  ", "Plot option"),
+                                         choices = c(
+                                           Fishplot = "fishplot",
+                                           Timescape = "timescape"
+                                         ), selected = "timescape",width = 300),
+                             conditionalPanel(
+                               condition = "input.inferMethod == 'SCHISM'",
+                               fileInput(inputId = 'schismCellularityFile', 
+                                         label = div(style = "font-size:18px; font-weight:600; ", 'SCHISM cellularity file'), 
+                                         placeholder = "Defalut file: E1.cluster.cellularity", 
+                                         width = 400),
+                               fileInput(inputId = 'schismConsensusTree', 
+                                         label = div(style = "font-size:18px; font-weight:600; ", 'SCHISM consensus tree'), 
+                                         placeholder = "Defalut file: E1.GA.consensusTree", 
+                                         width = 400)
+                             ),
+                             conditionalPanel(
+                               condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish != 'timescape'",
+                               sliderInput('width11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 300,max = 600, value = 450,width = 450)
+                             ),
+                             br(),
+                             br(),
+                             fluidRow(
+                               column(
+                                 width = 9,
+                                 div(
+                                   tags$button(
+                                     id = "submit11", type = "button", class = "action-button bttn",
+                                     class = "bttn-unite", class = paste0("bttn-md"),
+                                     class = paste0("bttn-default"),
+                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                     style = "margin-bottom:0px;margin-right:0px;"
+                                   )
+                                   # tags$button(
+                                   #   Id = "stop7",
+                                   #   type = "button",
+                                   #   class = "bttn-material-circle",
+                                   #   class = "btn action-button",
+                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                   # )
                                  )
                                )
                              )
@@ -593,14 +644,22 @@ bodyclone <- tabItem('clone',
                              tabPanel(
                                value = 'c01',
                                title = div(icon("newspaper"), "Tumorcloneplot"),
-                               div(plotOutput('cloneplot',height = "100%"),align = "center"),
+                               div(plotOutput('cloneplot',height = "100%",width = "100%"),align = "center"),
                                br(),
                                uiOutput("clpdb")
-                               
                              ),
                              tabPanel(
                                value = 'c02',
-                               title = div(icon("newspaper"), "Clonefishplot")
+                               title = div(icon("newspaper"), "Clonefishplot"),
+                               conditionalPanel(
+                                 condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish == 'fishplot'",
+                                 div(plotOutput('clonefishplot',height = "100%",width = "100%"),align = "center",style = "padding:0px;margin:0px"),
+                                 uiOutput("cfpdb")
+                               ),
+                               conditionalPanel(
+                                 condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish == 'timescape'",
+                                 timescapeOutput("timeScapePlot")
+                               )
                              )
                            )
                          )
@@ -672,15 +731,15 @@ bodyfunction <- tabItem('function',
                                         class = paste0("bttn-default"),
                                         list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                         style = "margin-bottom:0px;margin-right:0px;"
-                                      ),
-                                      tags$button(
-                                        Id = "stop8",
-                                        type = "button",
-                                        class = "bttn-material-circle",
-                                        class = "btn action-button",
-                                        list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                        style = " background-position: center;padding:0;margin-bottom:7px;"
                                       )
+                                      # tags$button(
+                                      #   Id = "stop8",
+                                      #   type = "button",
+                                      #   class = "bttn-material-circle",
+                                      #   class = "btn action-button",
+                                      #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                      #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                      # )
                                     )
                                   )
                                 )
@@ -719,15 +778,15 @@ bodyfunction <- tabItem('function',
                                         class = paste0("bttn-default"),
                                         list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                         style = "margin-bottom:0px;margin-right:0px;"
-                                      ),
-                                      tags$button(
-                                        Id = "stop9",
-                                        type = "button",
-                                        class = "bttn-material-circle",
-                                        class = "btn action-button",
-                                        list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                        style = " background-position: center;padding:0;margin-bottom:7px;"
                                       )
+                                      # tags$button(
+                                      #   Id = "stop9",
+                                      #   type = "button",
+                                      #   class = "bttn-material-circle",
+                                      #   class = "btn action-button",
+                                      #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                      #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                      # )
                                     )
                                   )
                                 )
@@ -816,15 +875,15 @@ bodySignature <- tabItem('signature',
                                          class = paste0("bttn-default"),
                                          list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                          style = "margin-bottom:0px;margin-right:0px;"
-                                       ),
-                                       tags$button(
-                                         Id = "stopSig",
-                                         type = "button",
-                                         class = "bttn-material-circle",
-                                         class = "btn action-button",
-                                         list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                         style = " background-position: center;padding:0;margin-bottom:7px;"
                                        )
+                                       # tags$button(
+                                       #   Id = "stopSig",
+                                       #   type = "button",
+                                       #   class = "bttn-material-circle",
+                                       #   class = "btn action-button",
+                                       #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                       #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                       # )
                                      )
                                    )
                                  )
@@ -856,15 +915,15 @@ bodySignature <- tabItem('signature',
                                          class = paste0("bttn-default"),
                                          list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                          style = "margin-bottom:0px;margin-right:0px;"
-                                       ),
-                                       tags$button(
-                                         Id = "stopSig1",
-                                         type = "button",
-                                         class = "bttn-material-circle",
-                                         class = "btn action-button",
-                                         list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                         style = " background-position: center;padding:0;margin-bottom:7px;"
                                        )
+                                       # tags$button(
+                                       #   Id = "stopSig1",
+                                       #   type = "button",
+                                       #   class = "bttn-material-circle",
+                                       #   class = "btn action-button",
+                                       #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                       #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                       # )
                                      )
                                    )
                                  )
@@ -907,15 +966,15 @@ bodySignature <- tabItem('signature',
                                          class = paste0("bttn-default"),
                                          list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                          style = "margin-bottom:0px;margin-right:0px;"
-                                       ),
-                                       tags$button(
-                                         Id = "stopSig2",
-                                         type = "button",
-                                         class = "bttn-material-circle",
-                                         class = "btn action-button",
-                                         list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                         style = " background-position: center;padding:0;margin-bottom:7px;"
                                        )
+                                       # tags$button(
+                                       #   Id = "stopSig2",
+                                       #   type = "button",
+                                       #   class = "bttn-material-circle",
+                                       #   class = "btn action-button",
+                                       #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                       #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                       # )
                                      )
                                    )
                                  )
@@ -941,7 +1000,7 @@ bodySignature <- tabItem('signature',
                                  tabPanel(
                                    title = div(icon("newspaper"), "Summary"), 
                                    value = 'S01',
-                                   DT::dataTableOutput('sigOFA'),
+                                   DT::dataTableOutput('sigOFA',width = "70%"),
                                    br(),
                                    uiOutput("sigpdb")
                                  ),
@@ -1052,15 +1111,15 @@ bodySurvival <- tabItem('Survival',
                                       class = paste0("bttn-default"),
                                       list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
                                       style = "margin-bottom:0px;margin-right:0px;"
-                                    ),
-                                    tags$button(
-                                      Id = "stop10",
-                                      type = "button",
-                                      class = "bttn-material-circle",
-                                      class = "btn action-button",
-                                      list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                      style = " background-position: center;padding:0;margin-bottom:7px;"
                                     )
+                                    # tags$button(
+                                    #   Id = "stop10",
+                                    #   type = "button",
+                                    #   class = "bttn-material-circle",
+                                    #   class = "btn action-button",
+                                    #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                    #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                    # )
                                   )
                                 )
                               )
@@ -1079,13 +1138,11 @@ bodySurvival <- tabItem('Survival',
                                 style = "font-size:20px; font-weight:500;line-height:40px;"),
                               conditionalPanel(
                                 condition = 'input.submit10',
-                                box(
                                   width = NULL,
                                   height = "100%",
                                   div(plotOutput("phylotree",height = 700,width = 1000),align = "center"),
                                   br(),
                                   uiOutput("phtdb")
-                                )
                               )
                             )
                           )
