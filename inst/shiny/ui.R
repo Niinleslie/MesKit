@@ -9,6 +9,7 @@ suppressMessages(library(shinyWidgets))
 suppressMessages(library(shinycssloaders))
 suppressMessages(library(shinyjs))
 suppressMessages(library(Meskit))
+suppressMessages(library(timescape))
 
 
 #sider bar----
@@ -24,14 +25,8 @@ sidebar <- dashboardSidebar(
               menuItem(strong("Signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
               menuItem(strong("PhyloTree"), tabName = "Survival", icon = icon("tree"))
   )
-  
 )
 
-
-#bodyHome ----
-#tabItem:创建标签页；子页面；与sidebar里的tabName相对应
-#fluidRow代表一行，
-#box是基本容器，可以存放图形或其他输出内容(非必须；但无法设定宽度，maxWidth = 12)
 #shinydashboar
 bodyHome <- tabItem("home",
                     fluidRow(
@@ -169,6 +164,7 @@ bodyIP <- tabItem("input",
                         #   br(),
                         #   uiOutput("ie2")
                         # )
+                        br(),
                         uiOutput("ie1"),
                         uiOutput("ie2"),
                         uiOutput("ie3"),
@@ -603,7 +599,7 @@ bodyclone <- tabItem('clone',
                              conditionalPanel(
                                condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish != 'timescape'",
                                sliderInput('width11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 300,max = 600, value = 450,width = 450)
+                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 300,max = 600, value = 450,width = 450)
                              ),
                              br(),
                              br(),
@@ -661,10 +657,9 @@ bodyclone <- tabItem('clone',
                                  uiOutput("cfpdb")
                                ),
                                conditionalPanel(
-                                 condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish == 'timescape'&input$submit11",
-                                 timescapeOutput("timescape")
+                                 condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish == 'timescape'",
+                                 timescapeOutput("timeScapePlot")
                                )
-                               # timescapeOutput("timescape")
                              )
                            )
                          )
@@ -1005,7 +1000,7 @@ bodySignature <- tabItem('signature',
                                  tabPanel(
                                    title = div(icon("newspaper"), "Summary"), 
                                    value = 'S01',
-                                   DT::dataTableOutput('sigOFA'),
+                                   DT::dataTableOutput('sigOFA',width = "70%"),
                                    br(),
                                    uiOutput("sigpdb")
                                  ),

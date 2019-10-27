@@ -161,16 +161,16 @@ shinyServer(function(input, output, session){
             h4(strong("Example MAF file")),
             style = "width: 800px"
           ),
-          DT::dataTableOutput("ied1",width = "70%"),
+          DT::dataTableOutput("ietable1",width = "100%"),
           br()
         )
       )
     }
   })
-  output$ied1 <- renderDataTable({
+  output$ietable1 <- renderDataTable({
     if(input$iecontrol01){
-      md1 <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      return(DT::datatable(md1, options = list(pageLength = 5, dom = 't', scrollX = T),rownames = FALSE)) 
+      maftable <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      datatable(maftable, options = list(pageLength = 5, dom = 't', scrollX = T),rownames = FALSE,width = 5)
     }
   })
   ## output Introduction of sampleinfo datatable
@@ -673,12 +673,17 @@ shinyServer(function(input, output, session){
   height = height11,
   res = 144
   )
-  output$timescape <- renderTimescape({
-    # if(input$inferMethod == "SCHISM"&input$plotOptionFish == "timescape"&input$submit11){
+  tscontrol <- reactiveValues(a= 0)
+  isolate(tscontrol$a)
+  output$timeScapePlot <- renderTimescape({
+    if(input$submit11){
       cloneFishPlot(inferMethod=input$inferMethod, plotOption="timescape",
                     schismCellularityFile='./example/E1.cluster.cellularity',
                     schismConsensusTree='./example/E1.GA.consensusTree')
-    
+    }
+  })
+  observeEvent(input$submit11,{
+    tscontrol$a <- tscontrol$a+1
   })
   output$cfpdb <- renderUI({
     if(input$submit11){
