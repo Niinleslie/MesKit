@@ -132,7 +132,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                 mut.num=length(
                     mutSigRef[which(
                         mutSigRef$Sample == branchName), 1]), 
-                sig.prob=sigsMaxProb, 
+                sig.prob=format(round(test, digits = 4), nsmall = 4), 
                 putative_driver_genes=c(paste(pdgBranch, collapse = ",")))
         } else{
             mutSigsBranch <- data.frame(
@@ -141,7 +141,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                 sig=sigsMaxName, 
                 mut.num=length(mutSigRef[which(
                     mutSigRef$Sample == branchName), 1]), 
-                sig.prob=sigsMaxProb)
+                sig.prob=format(round(sigsMaxProb, digits = 4), nsmall = 4))
         }
         ## collect branches' mutataional signature information
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)

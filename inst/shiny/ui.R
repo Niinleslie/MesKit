@@ -390,7 +390,7 @@ bodyITH <- tabItem("ITH",
                                          Upper = "upper",
                                          Full = "full"
                                        ), selected = "lower",width = 300),
-                           sliderInput('width4',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                           sliderInput('width4',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'), min = 400, max = 1000, value = 500, width = 500),
                            br(),
                            br(),
                            fluidRow(
@@ -718,7 +718,7 @@ bodyfunction <- tabItem('function',
                                 ), 
                                 br(),
                                 sliderInput('width6',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                sliderInput('height6',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500),
+                                sliderInput('height6',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
                                 br(),
                                 br(),
                                 fluidRow(
@@ -766,7 +766,7 @@ bodyfunction <- tabItem('function',
                                 ), 
                                 br(),
                                 sliderInput('width7',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                sliderInput('height7',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 500),
+                                sliderInput('height7',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
                                 br(),
                                 fluidRow(
                                   column(
@@ -902,7 +902,7 @@ bodySignature <- tabItem('signature',
                                                          signatures.nature2013 = "signatures.nature2013"),
                                              selected = "signatures.cosmic"),
                                  sliderInput(inputId='widthsig1',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                 sliderInput(inputId='heightsig1',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 600, width = 500), 
+                                 sliderInput(inputId='heightsig1',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
                                  br(),
                                  br(),
                                  fluidRow(
@@ -953,7 +953,7 @@ bodySignature <- tabItem('signature',
                                  #   inline = TRUE), 
                                  numericInput('signiflevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1),
                                  sliderInput(inputId='widthsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                 sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 600, width = 500), 
+                                 sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
                                  br(),
                                  br(),
                                  fluidRow(
@@ -1000,7 +1000,7 @@ bodySignature <- tabItem('signature',
                                  tabPanel(
                                    title = div(icon("newspaper"), "Summary"), 
                                    value = 'S01',
-                                   DT::dataTableOutput('sigOFA',width = "70%"),
+                                   DT::dataTableOutput('sigOFA',width = "100%"),
                                    br(),
                                    uiOutput("sigpdb")
                                  ),
@@ -1210,7 +1210,14 @@ shinyUI(
                 #inline .form-group { display: table-row; width=400; }")
       ),
       tags$head(
-        tags$style(HTML(".shiny-output-error-validation {
+        tags$style(HTML("
+        td { text-overflow: ellipsis; overflow: hidden; }
+        
+        td:hover {white-space: normal; text-overflow:none; overflow:visible; }
+        
+        .dataTables_wrapper  { white-space: nowrap;}
+        
+        .shiny-output-error-validation {
                               color: brown;
                          }
                          .shiny-notification {
@@ -1221,6 +1228,7 @@ shinyUI(
                               top: calc(50% - 100px);;
                               left: calc(50% + 100px);;
                          }
+                         
                          .shiny-notification-close {
                               float: right;
                               font-weight: bold;

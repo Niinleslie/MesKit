@@ -512,7 +512,7 @@ shinyServer(function(input, output, session){
     ji()
   },
   width = width4,
-  height = 560,
+  height = width4,
   res = 100
   )
   output$jidb <- renderUI({
@@ -825,7 +825,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- inputNJtree()
-      df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+      df.signature <- treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                 signaturesRef=input$signaturesRef,
                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
                                                 signif.level=0.05)
@@ -895,7 +895,10 @@ shinyServer(function(input, output, session){
   )
   output$sigOFATable1 <- DT::renderDataTable({
     data <- sigOFA1()[[2]][,c(1:2)]
-    datatable(data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T,dom = "t"))
+    datatable(data, options = list(searching = TRUE, pageLength = 10, 
+                                   lengthMenu = c(5, 10, 15, 18), 
+                                   scrollX = TRUE, dom = "t",
+                                   fixedHeader = TRUE, ))
   })
   stopButtonValueSig2 <- reactiveValues(a = 0)
   observeEvent(input$stopSig2,{
