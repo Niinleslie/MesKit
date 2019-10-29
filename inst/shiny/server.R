@@ -1,5 +1,4 @@
 suppressMessages(library(shiny))
-suppressMessages(library(Meskit))
 suppressMessages(library(ggplot2))
 
 
@@ -161,7 +160,7 @@ shinyServer(function(input, output, session){
             h4(strong("Example MAF file")),
             style = "width: 800px"
           ),
-          DT::dataTableOutput("ietable1",width = "100%"),
+          div(DT::dataTableOutput("ietable1",width = "100%"),style = "white-space:nowrap; scrollX: true;"),
           br()
         )
       )
@@ -170,7 +169,7 @@ shinyServer(function(input, output, session){
   output$ietable1 <- renderDataTable({
     if(input$iecontrol01){
       maftable <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(maftable, options = list(pageLength = 5, dom = 't', scrollX = T),rownames = FALSE,width = 5)
+      DT::datatable(maftable,options = list(dom = 't', scrollX = T,lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
     }
   })
   ## output Introduction of sampleinfo datatable
@@ -250,7 +249,7 @@ shinyServer(function(input, output, session){
   output$ied4 <- renderDataTable({
     if(input$iecontrol04){
       spd4 <- read.table('dom/ccf.loci.CSV',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd4, options = list(pageLength = 6, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+      datatable(spd4, options = list(pageLength = 6, dom = 't', scrollX = T, fixedColumns = TRUE), rownames = FALSE,width = 5)
     }
   })
   output$maftable <- DT::renderDataTable({
@@ -369,14 +368,14 @@ shinyServer(function(input, output, session){
   })
   msp <- reactive({
     if(input$submit4 & stopButtonValue4$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
+      progress <- Progress$new(session, min=1, max=30)
       on.exit(progress$close())
       progress$set(message = 'Calculation in progress',
                    detail = 'This may take a while...')
       
-      for (i in 1:15) {
+      for (i in 1:30) {
         progress$set(value = i)
-        Sys.sleep(0.01)
+        Sys.sleep(2)
       }
       isolate({
         maf <- inputData()
@@ -914,7 +913,7 @@ shinyServer(function(input, output, session){
                                                   signaturesRef=input$signaturesRef,
                                                   plot.signatures=FALSE, plot.branchTrunk=FALSE, 
                                                   signif.level=0.05)
-        return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
+        return(datatable(df.signature, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
       })
     }
   })
