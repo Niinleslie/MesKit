@@ -97,12 +97,26 @@ shinyServer(function(input, output, session){
                          inputFileName = input$maf$name)
         }
       }
+      return(maf)
     }
   })
-  inputNJtree <- reactive({
-    maf <- inputData()
-    njtree <- Meskit::getNJtree(maf, use.indel = input$use.indel)
+  
+  varsLs <- reactiveValues()
+  observeEvent(input$submit1,{
+    withProgress(min = 0, max = 2, value = 0, {
+      ## Rshiny: progress bar
+      setProgress(message = 'Generating ', detail = paste("MAF Class", sep="")) 
+      varsLs[['maf']] <- inputData()
+      incProgress(amount=1)
+      
+      ## Rshiny: progress bar
+      setProgress(message = 'Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
+      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf), use.indel = input$use.indel)
+      incProgress(amount=1)
+      
+    })
   })
+  
   buttonValue <- reactiveValues(a = 0, b = 0, c = 0, d = 0)
   observeEvent(input$iecontrol01,{
     buttonValue$a <- buttonValue$a + 1
@@ -155,7 +169,7 @@ shinyServer(function(input, output, session){
             h4(strong("Example MAF file")),
             style = "width: 800px"
           ),
-          div(DT::dataTableOutput("ietable1",width = "100%"),style = "white-space:nowrap; scrollX: true;"),
+          DT::dataTableOutput("ied1",width = "100%"),
           br()
         )
       )
@@ -164,7 +178,7 @@ shinyServer(function(input, output, session){
   output$ied1 <- renderDataTable({
     if(input$iecontrol01){
       maftable <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      DT::datatable(maftable,options = list(dom = 't', scrollX = T,lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
+      datatable(maftable, options = list(autoWidth = TRUE, dom = 't', scroller = TRUE, scrollX = T, lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
     }
   })
   ## output Introduction of sampleinfo datatable
@@ -266,7 +280,7 @@ shinyServer(function(input, output, session){
   })
   ms <- reactive({
     if(input$submit2 & stopButtonValue2$a != 1){
-      maf <- inputData()
+      maf <- isolate(varsLs$maf)
       Meskit::mathScore(maf,tsb = c("All"),
                         minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
     }
@@ -297,7 +311,7 @@ shinyServer(function(input, output, session){
   })
   vc <- reactive({
     if(input$submit3 & stopButtonValue3$a != 1){
-      maf <- inputData()
+      maf <- isolate(varsLs$maf)
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
       
       withProgress(min = 0, max = tsbmax+1, value = 0, {
@@ -372,7 +386,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(2)
       }
-      maf <- inputData()
+      maf <- isolate(varsLs$maf)
       return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
     }
   })
@@ -437,7 +451,7 @@ shinyServer(function(input, output, session){
       else{
         tsgListFile <- input$tsgListFile$datapath
       }
-      maf <- inputData()
+      maf <- isolate(varsLs$maf)
       Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
                            tsgListFile = tsgListFile, themeOption=input$themeOption2,
                            show.percentage = input$show.percentage)
@@ -492,7 +506,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- inputData()
+      maf <- isolate(varsLs$maf)
       return(Meskit::JaccardIndex(maf,type = input$JItype))
     }
     # progress <- Progress$new(session, min=1, max=15)
@@ -504,7 +518,7 @@ shinyServer(function(input, output, session){
     #   progress$set(value = i)
     #   Sys.sleep(0.01)
     # }
-    # maf <- inputData()
+    # maf <- isolate(varsLs$maf)
     # return(Meskit::JaccardIndex(maf,type = input$JItype))
   })
   output$JaccardIndex <- renderPlot({
@@ -562,11 +576,11 @@ shinyServer(function(input, output, session){
         validate(
           need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
         )
-        maf <- inputData()
+        maf <- isolate(varsLs$maf)
         Meskit::tumorClonesPlot(maf)
       }
       else{
-        maf <- inputData()
+        maf <- isolate(varsLs$maf)
         Meskit::tumorClonesPlot(maf)
       }
     }
@@ -589,11 +603,11 @@ shinyServer(function(input, output, session){
         validate(
           need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
         )
-        maf <- inputData()
+        maf <- isolate(varsLs$maf)
         Meskit::tumorClonesPlot(maf)
       }
       else{
-        maf <- inputData()
+        maf <- isolate(varsLs$maf)
         Meskit::tumorClonesPlot(maf)
       }
     }
@@ -646,7 +660,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- inputNJtree()
+      maf <- isolate(varsLs$njtree)
       Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
     }
   })
@@ -733,7 +747,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- inputNJtree()
+      maf <- isolate(varsLs$njtree)
       list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
       return(list)
     }
@@ -824,7 +838,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       isolate({
-        njtree <- inputNJtree()
+        maf <- isolate(varsLs$njtree)
         df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                   signaturesRef=input$signaturesRef,
                                                   plot.signatures=FALSE, plot.branchTrunk=FALSE, 
@@ -854,7 +868,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- inputNJtree()
+      maf <- isolate(varsLs$njtree)
       df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                 signaturesRef=input$signaturesRef,
                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
@@ -919,7 +933,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- inputNJtree()
+      maf <- isolate(varsLs$njtree)
       df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
                                                        mutThreshold=input$mutThreshold2, 
                                                        signaturesRef=input$signaturesRef2,
@@ -1036,7 +1050,7 @@ shinyServer(function(input, output, session){
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         if(input$phyloTreeType == 'njtree'){
-          njtree <- inputNJtree()
+          maf <- isolate(varsLs$njtree)
           if(input$useccf == T){
             validate(
               need(input$heatmap.type == "CCF","switch heatmap type to CCF")
@@ -1057,7 +1071,7 @@ shinyServer(function(input, output, session){
         }
       }
       else{
-        njtree <- inputNJtree()
+        maf <- isolate(varsLs$njtree)
         p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                                    heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
