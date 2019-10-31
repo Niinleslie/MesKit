@@ -18,3 +18,8 @@ img {
     width:32%;
     vertical-align:top;
 }
+
+
+#maf_progress porgress-bar {
+  height: 5em;
+}
