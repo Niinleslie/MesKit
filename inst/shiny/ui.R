@@ -1203,21 +1203,12 @@ shinyUI(
         $("header").find("nav").append(\'<span class="textnvbar"> Meskit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
       })
      ')), 
-      ## used for inline setting
+      
+      
       tags$head(
         tags$style(type="text/css", "#inline label{ display: table-cell; text-align: centers; vertical-align: middle; width=400; } 
-                #inline .form-group { display: table-row; width=400; }")
-      ),
-      tags$head(
+                #inline .form-group { display: table-row; width=400; }"),
         tags$style(HTML("
-        
-        
-        td, tr, th { text-overflow: ellipsis; overflow: hidden; }
-        
-        td:hover, tr:hover, th:hover {white-space: normal; text-overflow:none; overflow:visible; }
-        
-        .dataTables_wrapper  { white-space: nowrap;}
-        
         .shiny-output-error-validation {
                               color: brown;
                          }
@@ -1226,11 +1217,11 @@ shinyUI(
                               width: 600px;
                               position:fixed;
                               font-size: 30px;
-                              top: calc(50% - 100px);;
-                              left: calc(50% + 100px);;
+                              top: calc(50% - 100px);
+                              left: calc(50% + 100px);
                          }
                          # .shiny-notification-close {
-                         #      float: right;
+                         #      float: right;/*image size adjust  */
                          #      font-weight: bold;
                          #      font-size: 30px;
                          #      bottom: 9px;
@@ -1254,8 +1245,9 @@ shinyUI(
                           #     
                           # }
                           ")),
-        tags$link(rel = "stylesheet", type = "text/css", href = "css/main.css")
+        tags$link(rel = "stylesheet", type = "text/css", href = "main.css")
       ),
+      
       tabItems(
         bodyHome,
         bodyIP,

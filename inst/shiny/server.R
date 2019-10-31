@@ -114,6 +114,9 @@ shinyServer(function(input, output, session){
       varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf), use.indel = input$use.indel)
       incProgress(amount=1)
       
+      setProgress(message = paste("MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
+      Sys.sleep(1.8)
+
     })
   })
   
