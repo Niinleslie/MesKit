@@ -164,7 +164,6 @@ bodyIP <- tabItem("input",
                         #   br(),
                         #   uiOutput("ie2")
                         # )
-                        br(),
                         uiOutput("ie1"),
                         uiOutput("ie2"),
                         uiOutput("ie3"),
@@ -598,8 +597,8 @@ bodyclone <- tabItem('clone',
                              ),
                              conditionalPanel(
                                condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish != 'timescape'",
-                               sliderInput('width11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 300,max = 600, value = 450,width = 450)
+                               sliderInput('width11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 1000,max = 1200, value = 1100,width = 500),
+                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 450,max = 650, value = 551,width = 450)
                              ),
                              br(),
                              br(),
@@ -1228,17 +1227,16 @@ shinyUI(
                               top: calc(50% - 100px);;
                               left: calc(50% + 100px);;
                          }
-                         
-                         .shiny-notification-close {
-                              float: right;
-                              font-weight: bold;
-                              font-size: 30px;
-                              bottom: 9px;
-                              position: relative;
-                              padding-left: 4px;
-                              color: #444;
-                              cursor: default;
-                          }
+                         # .shiny-notification-close {
+                         #      float: right;
+                         #      font-weight: bold;
+                         #      font-size: 30px;
+                         #      bottom: 9px;
+                         #      position: relative;
+                         #      padding-left: 4px;
+                         #      color: #444;
+                         #      cursor: default;
+                         #  }
                           # .pipediv{
                           #     width:900px;
                           #     height:500px;
