@@ -1210,9 +1210,11 @@ shinyUI(
       ),
       tags$head(
         tags$style(HTML("
-        td { text-overflow: ellipsis; overflow: hidden; }
         
-        td:hover {white-space: normal; text-overflow:none; overflow:visible; }
+        
+        td, tr, th { text-overflow: ellipsis; overflow: hidden; }
+        
+        td:hover, tr:hover, th:hover {white-space: normal; text-overflow:none; overflow:visible; }
         
         .dataTables_wrapper  { white-space: nowrap;}
         
