@@ -439,6 +439,7 @@ bodyITH <- tabItem("ITH",
                              DT::dataTableOutput('mathScore'),
                              br(),
                              br(),
+                             DT::dataTableOutput('mathScoreTMB'),
                              uiOutput("msdb")
                            ),
                            tabPanel(

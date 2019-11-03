@@ -285,11 +285,23 @@ shinyServer(function(input, output, session){
     if(input$submit2 & stopButtonValue2$a != 1){
       maf <- isolate(varsLs$maf)
       Meskit::mathScore(maf,tsb = c("All"),
-                        minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
+                        minvaf = input$minvaf, 
+                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "MATH_score")]
     }
   })
   output$mathScore <- DT::renderDataTable({
     ms()
+  })
+  ms2 <- reactive({
+    if(input$submit2 & stopButtonValue2$a != 1){
+      maf <- isolate(varsLs$maf)
+      Meskit::mathScore(maf,tsb = c("All"),
+                        minvaf = input$minvaf, 
+                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "TMB(mutations/Mb)")]
+    }
+  })
+  output$mathScoreTMB <- DT::renderDataTable({
+    ms2()
   })
   
   output$msdb <- renderUI({
@@ -318,7 +330,10 @@ shinyServer(function(input, output, session){
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
       
       withProgress(min = 0, max = tsbmax+1, value = 0, {
-                     pic <- vafClusterRshiny(maf,plotOption = input$plotOption,themeOption = input$themeOption)
+                     pic <- vafClusterRshiny(maf,
+                                             plotOption = input$plotOption, 
+                                             themeOption = input$themeOption,
+                                             showMATH=FALSE)
                      
                      ## Rshiny: progress bar
                      incProgress(amount=1)
