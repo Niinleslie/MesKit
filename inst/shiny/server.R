@@ -678,7 +678,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
     }
   })
@@ -765,7 +765,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
       return(list)
     }
@@ -861,7 +861,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
 
-        maf <- isolate(varsLs$njtree)
+        njtree <- isolate(varsLs$njtree)
         df.signature <- Meskit::treeMutationalSig(njtree, 
                                                   driverGenesFile=driverGenesFile, 
                                                   mutThreshold=input$mutThreshold, 
@@ -893,7 +893,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                 signaturesRef=input$signaturesRef,
                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
@@ -958,7 +958,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
                                                        mutThreshold=input$mutThreshold2, 
                                                        signaturesRef=input$signaturesRef2,
@@ -1075,7 +1075,7 @@ shinyServer(function(input, output, session){
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         if(input$phyloTreeType == 'njtree'){
-          maf <- isolate(varsLs$njtree)
+          njtree <- isolate(varsLs$njtree)
           if(input$useccf == T){
             validate(
               need(input$heatmap.type == "CCF","switch heatmap type to CCF")
@@ -1096,7 +1096,7 @@ shinyServer(function(input, output, session){
         }
       }
       else{
-        maf <- isolate(varsLs$njtree)
+        njtree <- isolate(varsLs$njtree)
         p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                                    heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
