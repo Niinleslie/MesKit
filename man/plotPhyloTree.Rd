@@ -18,6 +18,8 @@ plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
 
 \item{sig.min.mut.number}{minimum mutation number in each branch}
 
+\item{sig.name}{choose "alias" when showing alias in branch}
+
 \item{show.heatmap}{if plot heatmap that show mutation distribution in each branch}
 
 \item{heatmap.type}{type of heatmap,choose 'CCF' if use ccf}
@@ -36,10 +38,10 @@ plotPhyloTree(njtree)
 # if use ccf 
 plotPhyloTree(njtree, heatmap.type = 'CCF')
 # use other tree format
-newick.file <- system.file("extdata/newick", "1.nwk", package="MesKit")
-plotPhyloTree(phylotree.dat = newick.file1, phylotree.type = 'newick')
-beast.file <- system.file("extdata/BEAST", "sample.beast", package="MesKit")
+newick.file <- system.file("extdata/newick", "1.nwk", package="Meskit")
+plotPhyloTree(phylotree.dat = newick.file, phylotree.type = 'newick')
+beast.file <- system.file("extdata/BEAST", "sample.beast", package="Meskit")
 plotPhyloTree(phylotree.dat = beast.file , phylotree.type = 'beast')
-PAML.file <- system.file("extdata/PAML", "sample.paml", package="MesKit")
+PAML.file <- system.file("extdata/PAML", "sample.paml", package="Meskit")
 plotPhyloTree(phylotree.dat = PAML.file , phylotree.type = 'PAML')
 }

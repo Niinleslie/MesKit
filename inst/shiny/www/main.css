@@ -1,0 +1,35 @@
+/*image size adjust  */
+img {
+  max-width:100%;
+  max-height:100%;
+}
+
+.content {
+  padding-top: 1%;
+}
+
+.pipe{
+    float:left;
+    width:68%;
+}
+.pipetext{
+    float:right;
+    text-align: left;
+    width:32%;
+    vertical-align:top;
+}
+
+/*data table style  */
+td, tr, th {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+td:hover, tr:hover, th:hover {
+    white-space: normal;
+    text-overflow: initial;
+    overflow:visible; }
+
+.dataTables_wrapper  {
+    white-space: nowrap;
+}

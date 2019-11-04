@@ -2,20 +2,19 @@ Package: Meskit
 Type: Package
 Title: Analyse and visualize multi-region whole-exome sequencing data
 Version: 0.1.0
-Author: Mengni Liu <niinleslie@gmail.com>
+Authors@R: c(person("Mengni", "Liu", ,"niinleslie@gmail.com", role = c("aut", "cre")))
 Maintainer: Mengni Liu <niinleslie@gmail.com>
 Description: Analysis and visualize multi-region whole-exome sequencing data.This package provides various functions to perform most commonly used analyses in cancer genomics and to create feature rich customizable visualzations with minimal effort.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: utils, ape, methods, plotrix, grDevices, gridExtra,
-        rtracklayer, Biostrings, BSgenome, GenomeInfoDb,
-        GenomeInfoDbData, DO.db, tidyr, dplyr, Hmisc, ggrepel,
+Imports: utils, ape, methods, plotrix, gridExtra,
+        DO.db, tidyr, dplyr, Hmisc, ggrepel,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
         deconstructSigs, timescape, grid, 
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
-        clonevol, fishplot, pdp, corrplot, mclust,        
-Remotes: hdng/clonevol, chrisamiller/fishplot
+        clonevol, fishplot, pdp, corrplot, mclust, treeio       
+Remotes: hdng/clonevol, chrisamiller/fishplot, GuangchuangYu/treeio
 RoxygenNote: 6.1.1
 Suggests: Shiny, plolty, knitr, rmarkdown
 VignetteBuilder: knitr

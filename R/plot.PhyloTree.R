@@ -362,7 +362,7 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
     }
     #first internal node(NORMAL)
     if(t == 1){
-      p.n <- SetPhylotree(sub.edge, 0, 0, pi/2, pi/2, name.list, 
+      p.n <- SetPhylotree(sub.edge, 0, 0, pi*2/3, pi/2, name.list, 
                           plot.data, point.list, target.node, Root.node, edge)
       plot.data <- p.n[[1]]
       name.list <- p.n[[2]]
@@ -401,23 +401,23 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
             plot.data$angle[t] != plot.data$horizon[t])){
       #the angles less than ninety degrees are adjust to thirty degrees
       if(plot.data$x1[t] > 0){
-        plot.data$angle[t] <- pi*(1/4-1/18) 
+        plot.data$angle[t] <- pi*(1/6-1/36) 
         angle <- plot.data$angle[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
         plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
       else if(plot.data$x1[t] < 0){
-        plot.data$angle[t] <- pi*(3/4+1/18) 
+        plot.data$angle[t] <- pi*(5/6+1/36) 
         angle <- plot.data$angle[t]
         plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
         plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
       else{
         if(plot.data$angle[t] < pi/2){
-          plot.data$angle[t] <- pi*(1/4-1/18) 
+          plot.data$angle[t] <- pi*(1/6-1/36) 
           angle <- plot.data$angle[t]
           plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
           plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
         else if(plot.data$angle[t] > pi/2){
-          plot.data$angle[t] <- pi*(3/4+1/18)
+          plot.data$angle[t] <- pi*(5/6+1/36)
           angle <- plot.data$angle[t]
           plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
           plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
