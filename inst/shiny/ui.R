@@ -192,6 +192,51 @@ bodyITH <- tabItem("ITH",
                        box(
                          width = NULL,
                          conditionalPanel(
+                           condition = "input.tith == 'caInput00'",
+                           div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                           br(),
+                           tags$table(
+                             tags$tr(id = "inline", 
+                                     width = "100%",
+                                     tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min VAF:")),
+                                     tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.00, label = NULL)))
+                           ), 
+                           br(),
+                           tags$table(
+                             tags$tr(id = "inline",
+                                     width = "100%",
+                                     tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max VAF:")),
+                                     tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
+                           ), 
+                           br(),
+                           br(),
+                           fluidRow(
+                             column(
+                               width = 9,
+                               div(
+                                 tags$button(
+                                   id = "submit0", type = "button", class = "action-button bttn",
+                                   class = "bttn-unite", class = paste0("bttn-md"),
+                                   class = paste0("bttn-default"),
+                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                   style = "margin-bottom:0px;margin-right:0px;"
+                                 )
+                                 # tags$button(
+                                 #   Id = "stop2",
+                                 #   type = "button",
+                                 #   class = "bttn-material-circle",
+                                 #   class = "btn action-button",
+                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                 # )
+                               )
+                             )
+                           )
+                           # actionBttn('submit2',div(
+                           #   strong("Start analysing"),align = 'center',
+                           #   icon("hand-right", lib = "glyphicon")))
+                         ),
+                         conditionalPanel(
                            condition = "input.tith == 'caInput02'",
                            div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
                            br(),
@@ -431,15 +476,22 @@ bodyITH <- tabItem("ITH",
                            id = 'tith',
                            height = "100%", 
                            width = "100%",
-                           selected = "caInput02",
+                           selected = "caInput00",
                            side = "left",
                            tabPanel(
-                             title = div(icon("chart-bar"), "MathScore"),
+                             title = div(icon("chart-bar"), "Tumor Mutational Burden (TMB)"),
+                             value = "caInput00",
+                             DT::dataTableOutput('mathScoreTMB'),
+                             br(),
+                             br(),
+                             uiOutput("msdbtmb")
+                           ),
+                           tabPanel(
+                             title = div(icon("chart-bar"), "MATH Score"),
                              value = "caInput02",
                              DT::dataTableOutput('mathScore'),
                              br(),
                              br(),
-                             DT::dataTableOutput('mathScoreTMB'),
                              uiOutput("msdb")
                            ),
                            tabPanel(
@@ -807,7 +859,7 @@ bodyfunction <- tabItem('function',
                               tabBox(
                                 id = 'fat',
                                 side = 'left',
-                                selected = 'F02',
+                                selected = 'F01',
                                 width = "100%",
                                 height = "100%",
                                 tabPanel(
@@ -817,6 +869,8 @@ bodyfunction <- tabItem('function',
                                   div(plotOutput('GOplot',height = "100%",width = "100%"),align = "center"),
                                   br(),
                                   uiOutput("GOdb"),
+                                  br(),
+                                  br(),
                                   uiOutput('gotui')
                                 ),
                                 tabPanel(
@@ -1224,6 +1278,9 @@ shinyUI(
                               top: calc(50% - 100px);
                               left: calc(50% + 100px);
                          }
+                         .dt-right {
+    text-align: justify !important;
+}
                          # .shiny-notification-close {
                          #      float: right;/*image size adjust  */
                          #      font-weight: bold;

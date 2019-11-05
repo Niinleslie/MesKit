@@ -293,7 +293,7 @@ shinyServer(function(input, output, session){
     ms()
   })
   ms2 <- reactive({
-    if(input$submit2 & stopButtonValue2$a != 1){
+    if(input$submit0){
       maf <- isolate(varsLs$maf)
       Meskit::mathScore(maf,tsb = c("All"),
                         minvaf = input$minvaf, 
@@ -317,6 +317,21 @@ shinyServer(function(input, output, session){
       )
     }
   })
+  
+  output$msdbtmb <- renderUI({
+    if(!is.null(ms2())){
+      fluidRow(
+        column(
+          width = 9
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadTMB', 'Download')
+        )
+      )
+    }
+  })
+  
   stopButtonValue3 <- reactiveValues(a = 0)
   observeEvent(input$stop3,{
     stopButtonValue3$a <- 1
@@ -704,7 +719,8 @@ shinyServer(function(input, output, session){
   })
   output$gotable <- renderDataTable({
     data <- GO()[[1]][[which(names(GO()[[1]]) == input$gl)]]
-    datatable(data,options = list(pageLength = 5, dom = 'tp', scrollX = T), rownames = FALSE,width = 5)
+    # targets <- which(colnames(data) %in% c("geneID"))-1
+    datatable(data,options = list(pageLength = 5, dom = 'tp', scrollX = TRUE, columnDefs=list(list(width="10em",targets="_all"))), rownames = FALSE, width = 5)
   })
   output$chooselist1 <- renderUI({
     if(!is.null(GO())){
@@ -862,13 +878,19 @@ shinyServer(function(input, output, session){
       }
 
         njtree <- isolate(varsLs$njtree)
-        df.signature <- Meskit::treeMutationalSig(njtree, 
-                                                  driverGenesFile=driverGenesFile, 
-                                                  mutThreshold=input$mutThreshold, 
-                                                  signaturesRef=input$signaturesRef,
-                                                  plot.signatures=FALSE, plot.branchTrunk=FALSE, 
-                                                  signif.level=0.05)
-        return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
+        df.signature <- treeMutationalSig(njtree, 
+                                          driverGenesFile=driverGenesFile, 
+                                          mutThreshold=input$mutThreshold, 
+                                          signaturesRef=input$signaturesRef,
+                                          plot.signatures=FALSE, 
+                                          plot.branchTrunk=FALSE, 
+                                          signif.level=0.05)
+        return(datatable(df.signature, 
+                         options = list(searching = TRUE, 
+                                        pageLength = 10, 
+                                        lengthMenu = c(5, 10, 15, 18), 
+                                        scrollX = TRUE), 
+                         rownames = FALSE))
 
     }
   })
@@ -904,7 +926,7 @@ shinyServer(function(input, output, session){
                                                      signaturesRef=input$signaturesRef1,
                                                      plot.signatures=TRUE, plot.branchTrunk=FALSE, 
                                                      signif.level=0.05)
-      return(list(df.signature.plot,df.signature))
+      return(list(df.signature.plot, df.signature))
       # return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
     }
   })
@@ -938,7 +960,7 @@ shinyServer(function(input, output, session){
     datatable(data, options = list(searching = TRUE, pageLength = 10, 
                                    lengthMenu = c(5, 10, 15, 18), 
                                    scrollX = TRUE, dom = "t",
-                                   fixedHeader = TRUE, ))
+                                   fixedHeader = TRUE))
   })
   stopButtonValueSig2 <- reactiveValues(a = 0)
   observeEvent(input$stopSig2,{
@@ -1143,6 +1165,17 @@ shinyServer(function(input, output, session){
     },
     content = function(file){
       data <- ms()
+      write.csv(data,file)
+    },
+    contentType = 'text/csv'
+  )
+  
+  output$DownloadTMB <- downloadHandler(
+    filename = function() {
+      paste("TMB_",Sys.Date(),".csv", sep = '')
+    },
+    content = function(file){
+      data <- ms2()
       write.csv(data,file)
     },
     contentType = 'text/csv'
