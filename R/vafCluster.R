@@ -30,6 +30,7 @@
 #' vafCluster(maf, plotOption="separate")
 #'
 #' @export vafCluster
+#' @export vafClusterRshiny
 #' 
 
 ## Main function for VAF plot

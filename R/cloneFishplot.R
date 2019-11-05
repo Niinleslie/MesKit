@@ -325,16 +325,18 @@ sciClone2fishplot <- function(tumorCN, relapseCN, tumorVAF, relapseVAF) {
     sc <- sciClone(vafs=list(v1,v2),
                    copyNumberCalls=list(cn1,cn2),
                    sampleNames=samples,
-                   useSexChrs=FALSE, doClusteringAlongMargins=FALSE) 
+                   useSexChrs=FALSE, 
+                   doClusteringAlongMargins=FALSE)
     
     ## prepare clonevol input
     vafs <- data.frame(cluster=sc@vafs.merged$cluster,
                       tvaf=sc@vafs.merged$Tumor.vaf,
-                      rvaf=sc@vafs.merged$Relapse.vaf,stringsAsFactors=F)
+                      rvaf=sc@vafs.merged$Relapse.vaf, 
+                      stringsAsFactors=F)
     vafs <- vafs[!is.na(vafs$cluster) & vafs$cluster > 0,]
     names(vafs)[2:3] <- samples
     
-    ## run clonevol
+    ############################ run clonevol (must used) ############################
     res <- infer.clonal.models(variants=vafs, cluster.col.name="cluster", vaf.col.names=samples,
                               subclonal.test="bootstrap", subclonal.test.model="non-parametric",
                               cluster.center="mean", num.boots=1000, founding.cluster=1,
