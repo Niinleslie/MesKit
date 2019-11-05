@@ -115,7 +115,7 @@ shinyServer(function(input, output, session){
       incProgress(amount=1)
       
       setProgress(message = paste("MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
-      Sys.sleep(1.8)
+      Sys.sleep(1)
 
     })
   })
@@ -285,11 +285,23 @@ shinyServer(function(input, output, session){
     if(input$submit2 & stopButtonValue2$a != 1){
       maf <- isolate(varsLs$maf)
       Meskit::mathScore(maf,tsb = c("All"),
-                        minvaf = input$minvaf,maxvaf = input$maxvaf)$sampleLevel
+                        minvaf = input$minvaf, 
+                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "MATH_score")]
     }
   })
   output$mathScore <- DT::renderDataTable({
     ms()
+  })
+  ms2 <- reactive({
+    if(input$submit2 & stopButtonValue2$a != 1){
+      maf <- isolate(varsLs$maf)
+      Meskit::mathScore(maf,tsb = c("All"),
+                        minvaf = input$minvaf, 
+                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "TMB(mutations/Mb)")]
+    }
+  })
+  output$mathScoreTMB <- DT::renderDataTable({
+    ms2()
   })
   
   output$msdb <- renderUI({
@@ -318,7 +330,10 @@ shinyServer(function(input, output, session){
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
       
       withProgress(min = 0, max = tsbmax+1, value = 0, {
-                     pic <- vafClusterRshiny(maf,plotOption = input$plotOption,themeOption = input$themeOption)
+                     pic <- vafClusterRshiny(maf,
+                                             plotOption = input$plotOption, 
+                                             themeOption = input$themeOption,
+                                             showMATH=FALSE)
                      
                      ## Rshiny: progress bar
                      incProgress(amount=1)
@@ -663,7 +678,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
     }
   })
@@ -750,7 +765,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
       return(list)
     }
@@ -830,6 +845,11 @@ shinyServer(function(input, output, session){
     stopButtonValueSig$a <- 0
   })
   sigOFA <- reactive({
+    if(is.null(input$driverGenesFile$datapath)){
+      driverGenesFile <- './example/putative_driver_genes.txt'
+    } else{
+      driverGenesFile <- input$driverGenesFile$datapath
+    }
     if(input$submitSig & stopButtonValueSig$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -840,14 +860,16 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      isolate({
-        maf <- isolate(varsLs$njtree)
-        df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+
+        njtree <- isolate(varsLs$njtree)
+        df.signature <- Meskit::treeMutationalSig(njtree, 
+                                                  driverGenesFile=driverGenesFile, 
+                                                  mutThreshold=input$mutThreshold, 
                                                   signaturesRef=input$signaturesRef,
                                                   plot.signatures=FALSE, plot.branchTrunk=FALSE, 
                                                   signif.level=0.05)
-        return(datatable(df.signature, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
-      })
+        return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
+
     }
   })
   output$sigOFA <- DT::renderDataTable({
@@ -871,7 +893,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                 signaturesRef=input$signaturesRef,
                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
@@ -936,7 +958,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      maf <- isolate(varsLs$njtree)
+      njtree <- isolate(varsLs$njtree)
       df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
                                                        mutThreshold=input$mutThreshold2, 
                                                        signaturesRef=input$signaturesRef2,
@@ -1053,7 +1075,7 @@ shinyServer(function(input, output, session){
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         if(input$phyloTreeType == 'njtree'){
-          maf <- isolate(varsLs$njtree)
+          njtree <- isolate(varsLs$njtree)
           if(input$useccf == T){
             validate(
               need(input$heatmap.type == "CCF","switch heatmap type to CCF")
@@ -1074,7 +1096,7 @@ shinyServer(function(input, output, session){
         }
       }
       else{
-        maf <- isolate(varsLs$njtree)
+        njtree <- isolate(varsLs$njtree)
         p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                                    heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
