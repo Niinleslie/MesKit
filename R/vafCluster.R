@@ -469,8 +469,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, 
                                           tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
             
         } else {
             ## generate character/string for ggplot and paint the picture
@@ -485,8 +485,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "stat=\"density\") + ", 
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
         } 
     }
     else {
@@ -509,8 +509,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "stat=\"density\") + ", 
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
         } else {
             ## generate character/string for ggplot and paint the picture
             vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
@@ -528,8 +528,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "stat=\"density\") + ", 
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
         }
     }
     return(eval(parse(text=vafDrawCha)))
@@ -558,8 +558,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                            "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                            "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ", 
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption),  
-                           "scale_color_", themeOption, "() + ", 
-                           "scale_fill_", themeOption, "() + ", 
+                           "ggsci::scale_color_", themeOption, "() + ", 
+                           "ggsci::scale_fill_", themeOption, "() + ", 
                            "labs(y = \"Sample\") + ", 
                            "scale_x_continuous(limits = ", "c(", as.character(minVaf), ",", as.character(maxVaf), "))", sep="")
     } else {
@@ -584,8 +584,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                            "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                            "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ",
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption), 
-                           "scale_color_", themeOption, "() + ", 
-                           "scale_fill_", themeOption, "() + ", 
+                           "ggsci::scale_color_", themeOption, "() + ", 
+                           "ggsci::scale_fill_", themeOption, "() + ", 
                            "labs(y = \"Sample\") + ", 
                            "geom_text(data=cbind(clusterAll %>% dplyr::group_by(Tumor_Sample_Barcode) %>% dplyr::summarise(), 
                                                  MATH=unique(clusterAll$MATH), 
