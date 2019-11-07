@@ -198,14 +198,14 @@ bodyITH <- tabItem("ITH",
                            tags$table(
                              tags$tr(id = "inline", 
                                      width = "100%",
-                                     tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min VAF:")),
+                                     tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.02, label = NULL)))
                            ), 
                            br(),
                            tags$table(
                              tags$tr(id = "inline",
                                      width = "100%",
-                                     tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max VAF:")),
+                                     tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
                            ), 
                            br(),
@@ -243,14 +243,14 @@ bodyITH <- tabItem("ITH",
                            tags$table(
                              tags$tr(id = "inline", 
                                      width = "100%",
-                                     tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min VAF:")),
+                                     tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.02, label = NULL)))
                            ), 
                            br(),
                            tags$table(
                              tags$tr(id = "inline",
                                      width = "100%",
-                                     tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max VAF:")),
+                                     tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
                            ), 
                            br(),
