@@ -28,12 +28,20 @@
 #' @export cloneFishPlot
 
 ## main function
-cloneFishPlot <- function(maf=NULL, inferMethod="clonevol", plotOption="fishplot", 
-                          schismCellularityFile=NULL, schismConsensusTree=NULL, 
-                          genotypePosition="space"){
+cloneFishPlot <- function(
+    ## common parameters(including clonevol)
+    maf=NULL, inferMethod="clonevol", plotOption="fishplot", 
+    ## schism parameters
+    schismCellularityFile=NULL, schismConsensusTree=NULL,
+    ## sciclone parameters
+    sciCloneObject=NULL,
+    ## plot options
+    genotypePosition="space"){
     if (inferMethod == "clonevol"){
         clusterTsvFile <- maf@ccf.cluster
         clonevol2Fishplot(clusterTsvFile, plotOption, genotypePosition)
+    } else if (!is.null(sciCloneObject)) {
+        sciclone2fishplot(sciCloneObject)
     } else if (inferMethod == "SCHISM"){
         if (!is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
             schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption, genotypePosition)
@@ -300,4 +308,39 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
     }
 }
 
-
+## sciClone Method
+sciClone2fishplot <- function(sciCloneObject) {
+    ## run sciclone to detect clusters
+    sc <- get(load(sciCloneObject))
+    
+    ## prepare clonevol input
+    vafs <- data.frame(cluster=sc@vafs.merged$cluster,
+                      tvaf=sc@vafs.merged$Tumor.vaf,
+                      rvaf=sc@vafs.merged$Relapse.vaf, 
+                      stringsAsFactors=F)
+    vafs <- vafs[!is.na(vafs$cluster) & vafs$cluster > 0,]
+    names(vafs)[2:3] <- samples
+    
+    ############################ run clonevol (must used) ############################
+    res <- infer.clonal.models(variants=vafs, cluster.col.name="cluster", vaf.col.names=samples,
+                              subclonal.test="bootstrap", subclonal.test.model="non-parametric",
+                              cluster.center="mean", num.boots=1000, founding.cluster=1,
+                              min.cluster.vaf=0.01, sum.p=0.01, alpha=0.1, random.seed=63108)
+    
+    # new clonevol
+    res <- convert.consensus.tree.clone.to.branch(res, branch.scale='sqrt')
+    
+    ## create a list of fish objects - one for each model (in this case, there's only one)
+    f <- generateFishplotInputs(results=res)
+    fishes <- createFishPlotObjects(f)
+    
+    ## plot each of these with fishplot
+    pdf('fish.pdf', width=8, height=4)
+    for (i in 1:length(fishes)){
+        fish <- layoutClones(fishes[[i]])
+        fish <- setCol(fish,f$clonevol.clone.colors)
+        fishPlot(fish,shape="spline", title.btm="PatientID", cex.title=0.7,
+                 vlines=seq(1, length(samples)), vlab=samples, pad.left=0.5)
+    }
+    dev <- dev.off()
+}

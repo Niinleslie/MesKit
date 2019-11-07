@@ -23,6 +23,7 @@ img {
 td, tr, th {
     text-overflow: ellipsis;
     overflow: hidden;
+    text-align: justify !important;
 }
 
 td:hover, tr:hover, th:hover {
@@ -33,3 +34,4 @@ td:hover, tr:hover, th:hover {
 .dataTables_wrapper  {
     white-space: nowrap;
 }
+

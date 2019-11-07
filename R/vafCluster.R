@@ -30,6 +30,7 @@
 #' vafCluster(maf, plotOption="separate")
 #'
 #' @export vafCluster
+#' @export vafClusterRshiny
 #' 
 
 ## Main function for VAF plot
@@ -468,8 +469,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, 
                                           tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
             
         } else {
             ## generate character/string for ggplot and paint the picture
@@ -484,8 +485,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "stat=\"density\") + ", 
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
         } 
     }
     else {
@@ -508,8 +509,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "stat=\"density\") + ", 
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
         } else {
             ## generate character/string for ggplot and paint the picture
             vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
@@ -527,8 +528,8 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                 "stat=\"density\") + ", 
                                 "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                                 .vlineVAF(clusterMt, picv, tsb_ls, plotOption),
-                                "scale_color_", themeOption, "() + ", 
-                                "scale_fill_", themeOption, "()", sep="")
+                                "ggsci::scale_color_", themeOption, "() + ", 
+                                "ggsci::scale_fill_", themeOption, "()", sep="")
         }
     }
     return(eval(parse(text=vafDrawCha)))
@@ -548,17 +549,17 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                            "panel.grid=element_blank(), ", 
                            "panel.border=element_blank(), ", 
                            "axis.line=element_line(size=0.25)) + ",
-                           "geom_density_ridges(fill=\"whitesmoke\", ",
+                           "ggridges::geom_density_ridges(fill=\"whitesmoke\", ",
                            "calc_ecdf=TRUE, alpha=0.8) + ",
                            "geom_point(aes(x=VAF, ", 
                            "y=Tumor_Sample_Barcode, ", 
                            "color=cluster), ", 
                            "alpha=0.5, show.legend=FALSE) + ", 
-                           "geom_density_ridges(color=\"#00C0EB\", ", 
+                           "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                            "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ", 
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption),  
-                           "scale_color_", themeOption, "() + ", 
-                           "scale_fill_", themeOption, "() + ", 
+                           "ggsci::scale_color_", themeOption, "() + ", 
+                           "ggsci::scale_fill_", themeOption, "() + ", 
                            "labs(y = \"Sample\") + ", 
                            "scale_x_continuous(limits = ", "c(", as.character(minVaf), ",", as.character(maxVaf), "))", sep="")
     } else {
@@ -574,17 +575,17 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                            "axis.line=element_line(size=0.25)) + ", 
                            "ggtitle(\"VAF density plot of ", patientID, ", MATH Score: ", 
                            as.character(mathscore), "\") + ", 
-                           "geom_density_ridges(fill=\"whitesmoke\", ", 
+                           "ggridges::geom_density_ridges(fill=\"whitesmoke\", ", 
                            "calc_ecdf=TRUE, alpha=0.8) + ",
                            "geom_point(aes(x=VAF, ", 
                            "y=Tumor_Sample_Barcode, ", 
                            "color=cluster), ", 
                            "alpha=0.5, show.legend=FALSE) + ", 
-                           "geom_density_ridges(color=\"#00C0EB\", ", 
+                           "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                            "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ",
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption), 
-                           "scale_color_", themeOption, "() + ", 
-                           "scale_fill_", themeOption, "() + ", 
+                           "ggsci::scale_color_", themeOption, "() + ", 
+                           "ggsci::scale_fill_", themeOption, "() + ", 
                            "labs(y = \"Sample\") + ", 
                            "geom_text(data=cbind(clusterAll %>% dplyr::group_by(Tumor_Sample_Barcode) %>% dplyr::summarise(), 
                                                  MATH=unique(clusterAll$MATH), 
@@ -653,7 +654,7 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
     .ofaVlineVAF <- ""
     ## density information of the curve for all tsbs
     gr <- ggplot(clusterAll, aes(x=VAF, y=Tumor_Sample_Barcode)) + 
-        geom_density_ridges() 
+        ggridges::geom_density_ridges() 
     ingredients <- ggplot_build(gr) %>% purrr::pluck("data", 1)
     
     for (tsb in tsbLs$samples)
