@@ -199,7 +199,7 @@ bodyITH <- tabItem("ITH",
                              tags$tr(id = "inline", 
                                      width = "100%",
                                      tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min VAF:")),
-                                     tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.00, label = NULL)))
+                                     tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.02, label = NULL)))
                            ), 
                            br(),
                            tags$table(
@@ -244,7 +244,7 @@ bodyITH <- tabItem("ITH",
                              tags$tr(id = "inline", 
                                      width = "100%",
                                      tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min VAF:")),
-                                     tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.00, label = NULL)))
+                                     tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.02, label = NULL)))
                            ), 
                            br(),
                            tags$table(
