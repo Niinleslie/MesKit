@@ -34,14 +34,14 @@ cloneFishPlot <- function(
     ## schism parameters
     schismCellularityFile=NULL, schismConsensusTree=NULL,
     ## sciclone parameters
-    tumorCN=NULL, relapseCN=NULL, tumorVAF=NULL, relapseVAF=NULL,
+    sciCloneObject=NULL,
     ## plot options
     genotypePosition="space"){
     if (inferMethod == "clonevol"){
         clusterTsvFile <- maf@ccf.cluster
         clonevol2Fishplot(clusterTsvFile, plotOption, genotypePosition)
-    } else if (!is.null(tumorCN) & !is.null(relapseCN) & !is.null(tumorVAF) & !is.null(relapseVAF)) {
-        sciclone2fishplot(tumorCN, relapseCN, tumorVAF, relapseVAF)
+    } else if (!is.null(sciCloneObject)) {
+        sciclone2fishplot(sciCloneObject)
     } else if (inferMethod == "SCHISM"){
         if (!is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
             schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption, genotypePosition)
@@ -309,24 +309,9 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
 }
 
 ## sciClone Method
-sciClone2fishplot <- function(tumorCN, relapseCN, tumorVAF, relapseVAF) {
-    ## read in the data - copy number
-    cn1 <- read.table(tumorCN, sep="\t",stringsAsFactors=F)
-    cn2 <- read.table(relapseCN,sep="\t",stringsAsFactors=F)
-    cn1 <- cn1[,c(1,2,3,5)]
-    cn2 <- cn2[,c(1,2,3,5)]
-    ## read in vaf data
-    v1 <- read.table(tumorVAF, sep="\t",stringsAsFactors=F,header=T)
-    v2 <- read.table(relapseVAF, sep="\t",stringsAsFactors=F,header=T)
-    
-    samples <- c("Tumor","Relapse")
-    
+sciClone2fishplot <- function(sciCloneObject) {
     ## run sciclone to detect clusters
-    sc <- sciClone(vafs=list(v1,v2),
-                   copyNumberCalls=list(cn1,cn2),
-                   sampleNames=samples,
-                   useSexChrs=FALSE, 
-                   doClusteringAlongMargins=FALSE)
+    sc <- load(sciCloneObject)
     
     ## prepare clonevol input
     vafs <- data.frame(cluster=sc@vafs.merged$cluster,
