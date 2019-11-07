@@ -53,6 +53,12 @@ shinyServer(function(input, output, session){
   heightsig2 <- reactive({
     return(input$heightsig2)
   })
+  width11 <- reactive({
+    return(input$width11)
+  })
+  height11 <- reactive({
+    return(input$height11)
+  })
   
   # maf <- reactiveValues()
   # observeEvent(input$submit1,{
@@ -682,6 +688,77 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit8,{
     stopButtonValue8$a <- 0
   })
+  
+  cfp <- reactive({
+    if(input$submit11){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      progress$set(message = 'Calculation in progress',
+                   detail = 'This may take a while...')
+      
+      for (i in 1:15) {
+        progress$set(value = i)
+        Sys.sleep(0.01)
+      }
+      if(input$inferMethod == "SCHISM"){
+        if(is.null(input$schismCellularityFile$datapath)){
+          schismCellularityFile <- './example/E1.cluster.cellularity'
+        }
+        else{
+          schismCellularityFile <- input$schismCellularityFile$datapath
+        }
+        if(is.null(input$schismConsensusTree$datapath)){
+          schismConsensusTree <- './example/E1.GA.consensusTree'
+        }
+        else{
+          schismConsensusTree <- input$schismConsensusTree$datapath
+        }
+        Meskit::cloneFishPlot(inferMethod=input$inferMethod, plotOption=input$plotOptionFish, schismCellularityFile=schismCellularityFile, schismConsensusTree=schismConsensusTree)
+      }
+    }
+  })
+  
+  output$clonefishplot <- renderPlot({
+    return(cfp())
+  },
+  width = width11,
+  height = height11,
+  res = 144
+  )
+  
+  output$timescape <- renderTimescape({
+    # if(input$inferMethod == "SCHISM"&input$plotOptionFish == "timescape"&input$submit11){
+    cloneFishPlot(inferMethod=input$inferMethod, plotOption="timescape",
+                  schismCellularityFile='./example/E1.cluster.cellularity',
+                  schismConsensusTree='./example/E1.GA.consensusTree')
+    
+  })
+  
+  output$cfpdb <- renderUI({
+    if(input$submit11){
+      fluidRow(
+        column(
+          width = 7
+        ),
+        column(
+          width = 2,
+          radioButtons('DownloadCloneFishPlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
+        ),
+        column(
+          width = 3,
+          div(downloadBttn('DownloadCloneFishPlot', 'Download'))
+        )
+      )
+    }
+  })
+  
+
   GO <- reactive({
     if(input$submit8 & stopButtonValue8$a != 1){
       progress <- Progress$new(session, min=1, max=15)
