@@ -7,9 +7,9 @@
 #'
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
-#' @param mut.type select proper variant classification you need
-#' @param mut.nonSilent 
-#' @param chr.silent
+#' @param mutType Default "All". And you can select proper variant classification you need. 
+#' @param mutNonSilent Default NULL. And you can list variant classifications that you do not want them to be silent.
+#' @param chrSilent Default NULL. And you can set some 
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
@@ -34,8 +34,7 @@
 
 ## read.maf main function
 readMaf <- function(mafFile, sampleInfoFile, 
-                    mut.type="All", mut.nonSilent=NULL, 
-                    chr.silent=NULL, 
+                    mutType="All", mutNonSilent=NULL, chrSilent=NULL, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
                     refBuild="hg19",
                     inputFileName = NULL){
@@ -106,25 +105,25 @@ readMaf <- function(mafFile, sampleInfoFile,
     # mafInput$Hugo_Symbol <- as.character(mafInput$Hugo_Symbol)
     
     ## filter variant classification
-    if (mut.type == "nonSilent"){
-        if (is.null(mut.nonSilent)){
+    if (mutType == "nonSilent"){
+        if (is.null(mutNonSilent)){
             nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
                           "Translation_Start_Site", "Nonsense_Mutation", 
                           "Nonstop_Mutation", "In_Frame_Del",
                           "In_Frame_Ins", "Missense_Mutation")
         } else {
-            nonSilent <- mut.nonSilent 
+            nonSilent <- mutNonSilent 
         }
         mafInput = mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
-    } else if (mut.type == "All"){
+    } else if (mutType == "All"){
         # message("All variant classification submitted")
     } else {
         error("mut.type setting error")
     }
     
     ## filter chromosome
-    if (!is.null(chr.silent)){
-        mafInput = mafInput[which(!mafInput$Chromosome %in% chr.silent), ]
+    if (!is.null(chrSilent)){
+        mafInput = mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
     }
     
     ## transform data.frame to data.table
