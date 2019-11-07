@@ -311,7 +311,7 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
 ## sciClone Method
 sciClone2fishplot <- function(sciCloneObject) {
     ## run sciclone to detect clusters
-    sc <- load(sciCloneObject)
+    sc <- get(load(sciCloneObject))
     
     ## prepare clonevol input
     vafs <- data.frame(cluster=sc@vafs.merged$cluster,
