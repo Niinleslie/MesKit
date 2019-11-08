@@ -77,7 +77,7 @@ shinyServer(function(input, output, session){
   #     color = "purple", fill = TRUE
   #   )
   # })
-  inputData <- reactive({
+  inputData <- eventReactive(input$submit1, {
     if(input$submit1){
       if(is.null(input$maf) | is.null(input$sampleInfo)){
         mafFile <- './example/311252.maf'
@@ -117,7 +117,7 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
-      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf), use.indel = input$use.indel)
+      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf), use.indel = input$useindel)
       incProgress(amount=1)
       
       setProgress(message = paste("MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
@@ -287,7 +287,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit2,{
     stopButtonValue2$a <- 0
   })
-  ms <- reactive({
+  ms <- eventReactive(input$submit2, {
     if(input$submit2 & stopButtonValue2$a != 1){
       maf <- isolate(varsLs$maf)
       Meskit::mathScore(maf,tsb = c("All"),
@@ -298,7 +298,7 @@ shinyServer(function(input, output, session){
   output$mathScore <- DT::renderDataTable({
     ms()
   })
-  ms2 <- reactive({
+  ms2 <- eventReactive(input$submit0, {
     if(input$submit0){
       maf <- isolate(varsLs$maf)
       Meskit::mathScore(maf,tsb = c("All"),
@@ -345,7 +345,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit3,{
     stopButtonValue3$a <- 0
   })
-  vc <- reactive({
+  vc <- eventReactive(input$submit3, {
     if(input$submit3 & stopButtonValue3$a != 1){
       maf <- isolate(varsLs$maf)
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
@@ -354,7 +354,7 @@ shinyServer(function(input, output, session){
                      pic <- vafClusterRshiny(maf,
                                              plotOption = input$plotOption, 
                                              themeOption = input$themeOption,
-                                             showMATH=FALSE)
+                                             showMATH = input$showMATH)
                      
                      ## Rshiny: progress bar
                      incProgress(amount=1)
@@ -414,7 +414,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit4,{
     stopButtonValue4$a <- 0
   })
-  msp <- reactive({
+  msp <- eventReactive(input$submit4, {
     if(input$submit4 & stopButtonValue4$a != 1){
       progress <- Progress$new(session, min=1, max=30)
       on.exit(progress$close())
@@ -467,7 +467,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit5,{
     stopButtonValue5$a <- 0
   })
-  stk <- reactive({
+  stk <- eventReactive(input$submit5, {
     if(input$submit5 & stopButtonValue5$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -534,7 +534,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit6,{
     stopButtonValue6$a <- 0
   })
-  ji <- reactive({
+  ji <- eventReactive(input$submit6, {
     if(stopButtonValue6$a != 1&input$submit6){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -597,7 +597,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit7,{
     stopButtonValue7$a <- 0
   })
-  clp <- reactive({
+  clp <- eventReactive(input$submit7, {
     if(input$submit7 & stopButtonValue7$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -624,7 +624,7 @@ shinyServer(function(input, output, session){
       }
     }
   })
-  clp <- reactive({
+  clp <- eventReactive(input$submit7, {
     if(input$submit7 & stopButtonValue7$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -689,7 +689,7 @@ shinyServer(function(input, output, session){
     stopButtonValue8$a <- 0
   })
   
-  cfp <- reactive({
+  cfp <- eventReactive(input$submit11, {
     if(input$submit11){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -759,7 +759,7 @@ shinyServer(function(input, output, session){
   })
   
 
-  GO <- reactive({
+  GO <- eventReactive(input$submit8, {
     if(input$submit8 & stopButtonValue8$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -847,7 +847,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit9,{
     stopButtonValue9$a <- 0
   })
-  Path <- reactive({
+  Path <- eventReactive(input$submit9, {
     if(input$submit9 != 0 & stopButtonValue9$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -937,23 +937,25 @@ shinyServer(function(input, output, session){
   observeEvent(input$submitSig,{
     stopButtonValueSig$a <- 0
   })
-  sigOFA <- reactive({
-    if(is.null(input$driverGenesFile$datapath)){
-      driverGenesFile <- './example/putative_driver_genes.txt'
-    } else{
-      driverGenesFile <- input$driverGenesFile$datapath
-    }
-    if(input$submitSig & stopButtonValueSig$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
+  sigOFA <- eventReactive(input$submitSig, {
+    if (input$oncogeneMapping) {
+      if(is.null(input$driverGenesFile$datapath)){
+        driverGenesFile <- './example/putative_driver_genes.txt'
+      } else{
+        driverGenesFile <- input$driverGenesFile$datapath
       }
-
+      
+      if(input$submitSig & stopButtonValueSig$a != 1){
+        progress <- Progress$new(session, min=1, max=15)
+        on.exit(progress$close())
+        progress$set(message = 'Calculation in progress',
+                     detail = 'This may take a while...')
+        
+        for (i in 1:15) {
+          progress$set(value = i)
+          Sys.sleep(0.01)
+        }
+        
         njtree <- isolate(varsLs$njtree)
         df.signature <- treeMutationalSig(njtree, 
                                           driverGenesFile=driverGenesFile, 
@@ -968,7 +970,36 @@ shinyServer(function(input, output, session){
                                         lengthMenu = c(5, 10, 15, 18), 
                                         scrollX = TRUE), 
                          rownames = FALSE))
-
+        
+      }
+    } else {
+      if(input$submitSig & stopButtonValueSig$a != 1){
+        progress <- Progress$new(session, min=1, max=15)
+        on.exit(progress$close())
+        progress$set(message = 'Calculation in progress',
+                     detail = 'This may take a while...')
+        
+        for (i in 1:15) {
+          progress$set(value = i)
+          Sys.sleep(0.01)
+        }
+        
+        njtree <- isolate(varsLs$njtree)
+        df.signature <- treeMutationalSig(njtree, 
+                                          driverGenesFile=NULL, 
+                                          mutThreshold=input$mutThreshold, 
+                                          signaturesRef=input$signaturesRef,
+                                          plot.signatures=FALSE, 
+                                          plot.branchTrunk=FALSE, 
+                                          signif.level=0.05)
+        return(datatable(df.signature, 
+                         options = list(searching = TRUE, 
+                                        pageLength = 10, 
+                                        lengthMenu = c(5, 10, 15, 18), 
+                                        scrollX = TRUE), 
+                         rownames = FALSE))
+        
+      }
     }
   })
   output$sigOFA <- DT::renderDataTable({
@@ -981,7 +1012,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submitSig1,{
     stopButtonValueSig1$a <- 0
   })
-  sigOFA1 <- reactive({
+  sigOFA1 <- eventReactive(input$submitSig1, {
     if(input$submitSig1 & stopButtonValueSig1$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -1046,7 +1077,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submitSig2,{
     stopButtonValueSig2$a <- 0
   })
-  sigOFA2 <- reactive({
+  sigOFA2 <- eventReactive(input$submitSig2, {
     if(input$submitSig2 & stopButtonValueSig2$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
@@ -1161,7 +1192,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit10,{
     stopButtonValue10$a <- 0
   })
-  pht <- reactive({
+  pht <- eventReactive(input$submit10, {
     if(input$submit10 &stopButtonValue10$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())

@@ -146,32 +146,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## collect branches' mutataional signature information
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
-    if (plot.signatures) {
-        pic <- .plotMutationalSig(sigsInput, mutSigsOutput)
-        message(paste(njtree@patientID, " mutaional signature plot generation done!", sep=""))
-        return(pic)
-        
-    } else if (plot.branchTrunk) {
-        pic <- .plotBranchTrunk(sigsInput, mutSigsOutput, signif.level)
-        message(paste(njtree@patientID, " branch-trunk plot generation done!", sep=""))
-        return(pic)
-        
-    } else if (!plot.branchTrunk & !plot.signatures){
-        message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
-        return(mutSigsOutput)
-    }
     
-}
-
-## plot.MutationalSigs
-.plotMutationalSig <- function(sigsInput, mutSigsOutput) {
-    ## calculate the Mutation Probability
-    sigsInputSum <- as.data.frame(apply(sigsInput, 1, function(x) sum(x)))
-    sigsInputTrans <- as.data.frame(t(sigsInput))
-    ls.branchesName <- as.character(rownames(sigsInput))
-    ls.mutationType <-as.character(rownames(sigsInputTrans))
-    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
-    sigsInputBranches <- data.frame()
     ## Aetiology from https://cancer.sanger.ac.uk/cosmic/signatures_v2 emm actually the additional feature may matter
     df.aetiology <- data.frame(
         aeti=c(
@@ -213,6 +188,65 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
               "Signature 25", "Signature 26", "Signature 27", "Signature 28", "Signature 29", "Signature 30", 
               "No Signature")
     )
+    
+    if (plot.signatures) {
+        pic <- .plotMutationalSig(sigsInput, mutSigsOutput, df.aetiology)
+        message(paste(njtree@patientID, " mutaional signature plot generation done!", sep=""))
+        return(pic)
+        
+    } else if (plot.branchTrunk) {
+        pic <- .plotBranchTrunk(sigsInput, mutSigsOutput, signif.level)
+        message(paste(njtree@patientID, " branch-trunk plot generation done!", sep=""))
+        return(pic)
+        
+    } else if (!plot.branchTrunk & !plot.signatures){
+        ## list of branch names
+        ls.branchesName <- mutSigsOutput$branch
+        ls.aeti <- c()
+
+        ## calculation process(maybe could be replaced by lapply)
+        for (branch in ls.branchesName) {
+            signature <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig)
+            aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
+            ls.aeti <- c(ls.aeti, aetiology)
+        }
+
+        
+        ## rearrange the order of columns
+        if (is.null(driverGenesFile)) {
+            mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
+                                        alias=mutSigsOutput$alias, 
+                                        mut.num=mutSigsOutput$mut.num, 
+                                        sig=mutSigsOutput$sig, 
+                                        sig.prob=mutSigsOutput$sig.prob, 
+                                        aeti=ls.aeti)
+            colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology")
+        } else {
+            mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
+                                        alias=mutSigsOutput$alias, 
+                                        mut.num=mutSigsOutput$mut.num, 
+                                        sig=mutSigsOutput$sig, 
+                                        sig.prob=mutSigsOutput$sig.prob,
+                                        aeti=ls.aeti,
+                                        putative_driver_genes=mutSigsOutput$putative_driver_genes)
+            colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology", "Oncogene list")
+        }
+        
+        message(paste(njtree@patientID, " mutaional signature generation done!", sep=""))
+        return(mutSigsOutput)
+    }
+    
+}
+
+## plot.MutationalSigs
+.plotMutationalSig <- function(sigsInput, mutSigsOutput, df.aetiology) {
+    ## calculate the Mutation Probability
+    sigsInputSum <- as.data.frame(apply(sigsInput, 1, function(x) sum(x)))
+    sigsInputTrans <- as.data.frame(t(sigsInput))
+    ls.branchesName <- as.character(rownames(sigsInput))
+    ls.mutationType <-as.character(rownames(sigsInputTrans))
+    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
+    sigsInputBranches <- data.frame()
     
     ## calculation process(maybe could be replaced by lapply)
     for (branch in ls.branchesName) {

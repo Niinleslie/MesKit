@@ -96,7 +96,7 @@ bodyIP <- tabItem("input",
                                                     list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
-                                                 ), 
+                                      ), 
                                       placeholder = "example data: 311252.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
@@ -109,7 +109,7 @@ bodyIP <- tabItem("input",
                                                     list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
-                                                  ), 
+                                      ), 
                                       placeholder = "example data: sample_info.txt", 
                                       width = 400),
                             checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
@@ -124,8 +124,8 @@ bodyIP <- tabItem("input",
                                                                     list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
                                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                                   )
-                                                                  ),
-                                        placeholder = "example data: 311252.cluster.tsv", width = 400),
+                              ),
+                              placeholder = "example data: 311252.cluster.tsv", width = 400),
                               fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight:600; ", 'ccf.loci file',
                                                                tags$button(
                                                                  Id = "iecontrol04",
@@ -135,10 +135,10 @@ bodyIP <- tabItem("input",
                                                                  list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
                                                                  style = " background-position: center;padding:0;margin-bottom:7px;"
                                                                )
-                                                               ),
-                                        placeholder = "example data: 311252.loci.tsv", width = 400)
+                              ),
+                              placeholder = "example data: 311252.loci.tsv", width = 400)
                             ),
-                            checkboxInput('use.indel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
+                            checkboxInput('useindel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
                             selectInput('ref', label = div(style = "font-size:18px; font-weight:600; ", 'Select reference genome(hg19/hg38)'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
@@ -310,6 +310,7 @@ bodyITH <- tabItem("ITH",
                                                    'The Simpsons' = 'simpsons',
                                                    GSEA = 'gsea'),
                                        selected = "aaas",width = 300),
+                           checkboxInput('showMATH',label = div(style = "font-size:15px; font-weight:400; ", 'Show MATH Score'),value = TRUE),
                            sliderInput('width1', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
                            br(),
                            br(),
@@ -334,11 +335,11 @@ bodyITH <- tabItem("ITH",
                                  # )
                                )
                              )
-                             )
+                           )
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput04'",
-                           div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                           div(strong("Parameter"), style = "font-size:25px; font-weight:600;"),
                            br(), 
                            checkboxInput('show.num1',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
                            br(),
@@ -471,7 +472,7 @@ bodyITH <- tabItem("ITH",
                          width = NULL,
                          div(strong("ITH evaluation"),style = "font-size:27px; font-weight:500;"),
                          p("MesKit offers several functions to estimate intra-tumoral heterogeneity with mutational data of bulk sequencing, including calculating MATH score identifying shared mutations and private mutations, clustering variant allele frequencies (VAF) etc.",
-                             style = "font-size:20px; font-weight:500;line-height:40px;"),
+                           style = "font-size:20px; font-weight:500;line-height:40px;"),
                          tabBox(
                            id = 'tith',
                            height = "100%", 
@@ -479,7 +480,7 @@ bodyITH <- tabItem("ITH",
                            selected = "caInput00",
                            side = "left",
                            tabPanel(
-                             title = div(icon("chart-bar"), "Tumor Mutational Burden (TMB)"),
+                             title = div(icon("chart-bar"), "TMB"),
                              value = "caInput00",
                              DT::dataTableOutput('mathScoreTMB'),
                              br(),
@@ -495,7 +496,7 @@ bodyITH <- tabItem("ITH",
                              uiOutput("msdb")
                            ),
                            tabPanel(
-                             title = div(icon("image"), "Vafplot"),
+                             title = div(icon("image"), "Vaf clustering"),
                              value = "caInput03",
                              conditionalPanel(
                                condition = "input.plotOption == 'separate' ",
@@ -503,7 +504,7 @@ bodyITH <- tabItem("ITH",
                              ),
                              div(plotOutput("vaf",height = "100%"),align = "center"), 
                              uiOutput("vcdb")
-
+                             
                            ),
                            tabPanel(
                              title = div(icon("map"), "Mutsharedprivateplot"),
@@ -520,7 +521,7 @@ bodyITH <- tabItem("ITH",
                              uiOutput("stkdb")
                            ),
                            tabPanel(
-                             title = div(icon("box"), "Jaccardindex"),
+                             title = div(icon("box"), "Paired-samples similarity"),
                              value = "caInput06",
                              div(plotOutput("JaccardIndex",height = "100%"),align = "center") ,
                              uiOutput("jidb")
@@ -695,14 +696,14 @@ bodyclone <- tabItem('clone',
                              width = "100%",
                              tabPanel(
                                value = 'c01',
-                               title = div(icon("newspaper"), "Tumorcloneplot"),
+                               title = div(icon("newspaper"), "Subclonal plot"),
                                div(plotOutput('cloneplot',height = "100%",width = "100%"),align = "center"),
                                br(),
                                uiOutput("clpdb")
                              ),
                              tabPanel(
                                value = 'c02',
-                               title = div(icon("newspaper"), "Clonefishplot"),
+                               title = div(icon("newspaper"), "Clonal fishplot"),
                                conditionalPanel(
                                  condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish == 'fishplot'",
                                  div(plotOutput('clonefishplot',height = "100%",width = "100%"),align = "center",style = "padding:0px;margin:0px"),
@@ -729,8 +730,8 @@ bodyclone <- tabItem('clone',
                          #     uiOutput("clpdb")
                          #   )
                          #  )
-                         )
-                        )
+                       )
+                     )
 )    
 
 
@@ -911,10 +912,14 @@ bodySignature <- tabItem('signature',
                                  condition = "input.sgt == 'S01'",
                                  div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
                                  br(),
-                                 fileInput(inputId = 'driverGenesFile', 
-                                           label = div(style = "font-size:18px; font-weight:600; ", 'Driver gene list'),
-                                           placeholder = "Default file: putative_driver_genes.txt", 
-                                           width = 400), 
+                                 checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
+                                 conditionalPanel(
+                                   condition = "input.oncogeneMapping == true",
+                                   fileInput(inputId = 'driverGenesFile', 
+                                             label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene list'),
+                                             placeholder = "Default file: putative_driver_genes.txt", 
+                                             width = 400)
+                                 ), 
                                  numericInput('mutThreshold', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
                                  selectInput("signaturesRef", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
                                              choices = c(signatures.cosmic = "signatures.cosmic",
@@ -1070,7 +1075,7 @@ bodySignature <- tabItem('signature',
                                    uiOutput('sigOFATableUI1')
                                  ), 
                                  tabPanel(
-                                   title = div(icon("image"), "Branch trunck"),
+                                   title = div(icon("image"), "TrunkOrBranch summary"),
                                    value = 'S03',
                                    div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
                                    uiOutput("sigpdb2")
@@ -1098,9 +1103,9 @@ bodySignature <- tabItem('signature',
                              #     uiOutput("sigpdb")
                              #   )
                              # )
-                            )
-                          )
-                        )
+                           )
+                         )
+)
 
 bodySurvival <- tabItem('Survival',
                         # h2('Phylotree visualiaztion'),
@@ -1195,24 +1200,24 @@ bodySurvival <- tabItem('Survival',
                                 style = "font-size:20px; font-weight:500;line-height:40px;"),
                               conditionalPanel(
                                 condition = 'input.submit10',
-                                  width = NULL,
-                                  height = "100%",
-                                  div(plotOutput("phylotree",height = 700,width = 1000),align = "center"),
-                                  br(),
-                                  uiOutput("phtdb")
+                                width = NULL,
+                                height = "100%",
+                                div(plotOutput("phylotree",height = 700,width = 1000),align = "center"),
+                                br(),
+                                uiOutput("phtdb")
                               )
                             )
                           )
                         )
 )
-                          
+
 
 
 
 #Main function----
 dbHeader <- dashboardHeader(title = "Meskit", titleWidth = 300, 
-                tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
-                tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))))
+                            tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
+                            tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))))
 dbHeader$children[[2]]$children <-  tags$a(href='https://github.com/Niinleslie/MesKit',
                                            tags$img(src='image/logo.png',height='65',width='250'))
 shinyUI(
@@ -1280,7 +1285,12 @@ shinyUI(
                          }
                          .dt-right {
     text-align: justify !important;
+                         }
+
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 10px 18px !important;
 }
+
                          # .shiny-notification-close {
                          #      float: right;/*image size adjust  */
                          #      font-weight: bold;
