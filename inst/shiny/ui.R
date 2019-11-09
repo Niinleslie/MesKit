@@ -48,7 +48,7 @@ bodyHome <- tabItem("home",
                         width = 12,
                         status = "info",
                         solidHeader = TRUE,
-                        title = div(strong("Overview of MesKit package"),style = "font-size:25px; font-weight:500;"),
+                        title = div(strong("Overview of MesKit package"),style = "font-size:2em; font-weight:500;"),
                         fluidRow(
                           column(
                             width = 7,
@@ -193,7 +193,7 @@ bodyITH <- tabItem("ITH",
                          width = NULL,
                          conditionalPanel(
                            condition = "input.tith == 'caInput00'",
-                           div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                           div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                            br(),
                            tags$table(
                              tags$tr(id = "inline", 
@@ -238,7 +238,7 @@ bodyITH <- tabItem("ITH",
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput02'",
-                           div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                           div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                            br(),
                            tags$table(
                              tags$tr(id = "inline", 
@@ -283,7 +283,7 @@ bodyITH <- tabItem("ITH",
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput03'",
-                           div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                           div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                            br(),
                            selectInput("plotOption", label = div(style = "font-size:18px; font-weight:600;  ", "Plot option"),
                                        choices = c(
@@ -338,39 +338,50 @@ bodyITH <- tabItem("ITH",
                            )
                          ),
                          conditionalPanel(
-                           condition = "input.tith == 'caInput04'",
-                           div(strong("Parameter"), style = "font-size:25px; font-weight:600;"),
-                           br(), 
-                           checkboxInput('show.num1',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
-                           br(),
-                           sliderInput('width2', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                           br(),
-                           fluidRow(
-                             column(
-                               width = 9,
-                               div(
-                                 tags$button(
-                                   id = "submit4", type = "button", class = "action-button bttn",
-                                   class = "bttn-unite", class = paste0("bttn-md"),
-                                   class = paste0("bttn-default"),
-                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
-                                   style = "margin-bottom:0px;margin-right:0px;"
+                           condition = "input.tith == 'caInput05'",
+                           div(strong("Parameter"), style = "font-size:2em; font-weight:600;"),
+                           
+                           selectInput(inputId = 'plotChoiceSpp', 
+                                       label = div(style = "font-size:1.8em; font-weight:600; ", 
+                                                   'Select a plot'), 
+                                       choices = c(
+                                         sharedPrivatePlot = "sharedPrivatePlot",
+                                         stackPlot = "stackPlot"
+                                       ), selected = "sharedPrivatePlot", width = 200),
+                          
+                           conditionalPanel(
+                             condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
+                             div(strong("- Shared-private plot"), style = "font-size:1.5em; font-weight:600;"),
+                             br(), 
+                             checkboxInput('show.num1',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
+                             br(),
+                             fluidRow(
+                               column(
+                                 width = 9,
+                                 div(
+                                   tags$button(
+                                     id = "submit4", type = "button", class = "action-button bttn",
+                                     class = "bttn-unite", class = paste0("bttn-md"),
+                                     class = paste0("bttn-default"),
+                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                     style = "margin-bottom:0px;margin-right:0px;"
+                                   )
+                                   # tags$button(
+                                   #   Id = "stop4",
+                                   #   type = "button",
+                                   #   class = "bttn-material-circle",
+                                   #   class = "btn action-button",
+                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                   # )
                                  )
-                                 # tags$button(
-                                 #   Id = "stop4",
-                                 #   type = "button",
-                                 #   class = "bttn-material-circle",
-                                 #   class = "btn action-button",
-                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                 # )
                                )
                              )
-                           )
-                         ),
-                         conditionalPanel(
-                           condition = "input.tith == 'caInput05'",
-                           div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                           ),
+                           
+                           conditionalPanel(
+                             condition = "input.plotChoiceSpp == 'stackPlot'",
+                           div(strong("- Stack plot"), style = "font-size:1.5em; font-weight:600;"),
                            br(),
                            fileInput(inputId = 'oncogeneListFile', 
                                      label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene list file'), 
@@ -400,7 +411,7 @@ bodyITH <- tabItem("ITH",
                                                    GSEA = 'gsea'),
                                        selected = "aaas",width = 300),
                            checkboxInput('show.percentage',label = div(style = "font-size:15px; font-weight:400; ", 'Show Percentage'),value = T),
-                           sliderInput('width3',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
+                           sliderInput('width2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
                            br(),
                            fluidRow(
                              column(
@@ -424,10 +435,11 @@ bodyITH <- tabItem("ITH",
                                )
                              )
                            )
+                           )
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput06'",
-                           div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                           div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                            br(), 
                            selectInput("JItype",h4(strong("Type")),
                                        choices = c(
@@ -507,18 +519,14 @@ bodyITH <- tabItem("ITH",
                              
                            ),
                            tabPanel(
-                             title = div(icon("map"), "Mutsharedprivateplot"),
-                             value = "caInput04",
-                             div(plotOutput("mutSharedPrivatePlot",height = "100%"),align ="center"),   
+                             title = div(icon("map"), "Mutsharedprivateplot & Stackplot"),
+                             value = "caInput05",
+                             
+                             div(plotOutput("mutSharedPrivatePlot",height = "100%"),align ="center"),  
+                             br(),
+                             
                              uiOutput("mspdb")
                              
-                           ),
-                           tabPanel(
-                             title = div(icon("chart-bar"), "Stackplot"),
-                             value = "caInput05",
-                             div(plotOutput("stackplot",height = "100%"),align = "center"),
-                             br(),
-                             uiOutput("stkdb")
                            ),
                            tabPanel(
                              title = div(icon("box"), "Paired-samples similarity"),
@@ -596,7 +604,7 @@ bodyclone <- tabItem('clone',
                            width = NULL,
                            conditionalPanel(
                              condition = "input.clt == 'c01'",
-                             div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                              br(),
                              sliderInput('width5',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                              br(),
@@ -626,7 +634,7 @@ bodyclone <- tabItem('clone',
                            ),
                            conditionalPanel(
                              condition = "input.clt == 'c02'",
-                             div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                              br(),
                              selectInput("inferMethod", label = div(style = "font-size:18px; font-weight:600;  ", "Infer method"),
                                          choices = c(
@@ -650,9 +658,9 @@ bodyclone <- tabItem('clone',
                                          width = 400)
                              ),
                              conditionalPanel(
-                               condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish != 'timescape'",
+                               condition = "true",
                                sliderInput('width11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 300,max = 600, value = 450,width = 450)
+                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 300,max = 600, value = 450,width = 450)
                              ),
                              br(),
                              br(),
@@ -710,8 +718,8 @@ bodyclone <- tabItem('clone',
                                  uiOutput("cfpdb")
                                ),
                                conditionalPanel(
-                                 condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish == 'timescape'",
-                                 timescapeOutput("timeScapePlot")
+                                 condition = "input.inferMethod == 'SCHISM'& input.plotOptionFish == 'timescape'",
+                                 timescapeOutput(outputId="timescape", height = "450px", width = "100%")
                                )
                              )
                            )
@@ -754,7 +762,7 @@ bodyfunction <- tabItem('function',
                               width = NULL,
                               conditionalPanel(
                                 condition = "input.fat == 'F01'",
-                                div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                                div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
                                 tags$table(
                                   tags$tr(id = "inline", 
@@ -802,7 +810,7 @@ bodyfunction <- tabItem('function',
                               ),
                               conditionalPanel(
                                 condition = "input.fat == 'F02'",
-                                div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                                div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
                                 tags$table(
                                   tags$tr(id = "inline", 
@@ -910,7 +918,7 @@ bodySignature <- tabItem('signature',
                                width = NULL,
                                conditionalPanel(
                                  condition = "input.sgt == 'S01'",
-                                 div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
                                  checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
                                  conditionalPanel(
@@ -955,7 +963,7 @@ bodySignature <- tabItem('signature',
                                ),
                                conditionalPanel(
                                  condition = "input.sgt == 'S02'",
-                                 div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
                                  fileInput('driverGenesFile1',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
                                  numericInput('mutThreshold1', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
@@ -995,7 +1003,7 @@ bodySignature <- tabItem('signature',
                                ),
                                conditionalPanel(
                                  condition = "input.sgt == 'S03'",
-                                 div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
                                  fileInput('driverGenesFile2',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
                                  numericInput('mutThreshold2', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50, step=10),
@@ -1126,7 +1134,7 @@ bodySurvival <- tabItem('Survival',
                             width = 3,
                             box(
                               width = NULL,
-                              div(strong("Parameter"),style = "font-size:25px; font-weight:600;"),
+                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                               br(),
                               selectInput('phyloTreeType',div(style = "font-size:18px; font-weight:600; ", 'Type'),
                                           c( 'njtree','newick','beast','PAML'),
@@ -1286,6 +1294,7 @@ shinyUI(
                          .dt-right {
     text-align: justify !important;
                          }
+
 
 table.dataTable tbody th, table.dataTable tbody td {
     padding: 10px 18px !important;
