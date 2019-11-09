@@ -7,13 +7,12 @@
 #'
 #' @param mafFile MAF file directory. 
 #' @param sampleInfoFile sample_info.txt file directory.
-#' @param mutType Default "All". And you can select proper variant classification you need. 
+#' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
 #' @param mutNonSilent Default NULL. And you can list variant classifications that you do not want them to be silent.
 #' @param chrSilent Default NULL. And you can set some 
 #' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
 #' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
-#' @param inputFileName Correct error of shiny app MAF file name 
 #' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
@@ -36,8 +35,7 @@
 readMaf <- function(mafFile, sampleInfoFile, 
                     mutType="All", mutNonSilent=NULL, chrSilent=NULL, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
-                    refBuild="hg19",
-                    inputFileName = NULL){
+                    refBuild="hg19"){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
@@ -54,10 +52,7 @@ readMaf <- function(mafFile, sampleInfoFile,
     ## get patientID
     fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
     patientID <- strsplit(fileName, ".maf")[[1]][1]
-    ## correct error of file name in shiny
-    if(patientID == "0"){
-      patientID <- strsplit(inputFileName, ".maf")[[1]][1]
-    }
+
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
