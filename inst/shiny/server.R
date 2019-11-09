@@ -79,28 +79,43 @@ shinyServer(function(input, output, session){
   # })
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
+      
+      if (input$mutNonSilent == "NULL"){
+        ls.mutNonSilent <- NULL
+      } else {
+        ls.mutNonSilent <- strsplit(input$mutNonSilent, ",")
+      }
+      
+      if (input$chrSilent == "NULL"){
+        ls.chrSilent <- NULL
+      } else {
+        ls.chrSilent <- strsplit(input$chrSilent, ",")
+      }
+      
       if(is.null(input$maf) | is.null(input$sampleInfo)){
         mafFile <- './example/311252.maf'
         sampleInfoFile <- './example/sample_info.txt'
         ccfClusterTsvFile <- './example/311252.cluster.tsv'
         ccfLociTsvFile <- './example/311252.loci.tsv'
-        maf <- Meskit::readMaf(mafFile = mafFile,
+        maf <- readMaf(mafFile = mafFile, 
                                sampleInfoFile = sampleInfoFile,
-                               ccfClusterTsvFile =  ccfClusterTsvFile,
-                               ccfLociTsvFile = ccfLociTsvFile)
+                               mutType=input$mutType, 
+                               mutNonSilent=ls.mutNonSilent, 
+                               chrSilent=ls.chrSilent, 
+                               ccfClusterTsvFile = ccfClusterTsvFile,
+                               ccfLociTsvFile = ccfLociTsvFile, 
+                               refBuild="hg19")
       }
       else{
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
           maf <- Meskit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath,
-                                 inputFileName = input$maf$name)
+                                 ccfLociTsvFile = input$ccf.loci$datapath)
         }
         else{
           maf <- readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath,
-                         inputFileName = input$maf$name)
+                         sampleInfoFile = input$sampleInfo$datapath)
         }
       }
       return(maf)
@@ -764,7 +779,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
+      Meskit::GO.njtree(njtree, 
+                        GO.type = input$GO.type, 
+                        plotType = input$plotType, 
+                        pAdjustMethod=input$pAdjustMethod, 
+                        qval = as.numeric(input$qval1), 
+                        pval = as.numeric(input$pval1), 
+                        showCategory = input$showCategory)
     }
   })
   # Datatable under GO plot
@@ -852,7 +873,14 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
+      list <- Meskit::Pathway.njtree(njtree, 
+                                     pathway.type=input$pathway.type, 
+                                     plotType = input$pathplotType, 
+                                     pAdjustMethod=input$pathpAdjustMethod, 
+                                     qval = as.numeric(input$qval2), 
+                                     pval = as.numeric(input$pval2),
+                                     showCategory = input$pathshowCategory
+                                     )
       return(list)
     }
   })

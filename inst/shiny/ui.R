@@ -112,6 +112,22 @@ bodyIP <- tabItem("input",
                                       ), 
                                       placeholder = "example data: sample_info.txt", 
                                       width = 400),
+                            
+                            selectInput(inputId = 'mutType', label = div(style = "font-size:18px; font-weight:600; ", 'mutType'),
+                                        choices = c(All = 'All',
+                                                    nonSilent = 'nonSilent'), 
+                                        selected = "All", width = 400), 
+                            
+                            textInput(inputId = "mutNonSilent", 
+                                      label = div(style = "font-size:18px; font-weight:600; ", 'mutNonSilent'), 
+                                      value = "NULL",
+                                      placeholder = "NULL"),
+                            
+                            textInput(inputId = "chrSilent", 
+                                      label = div(style = "font-size:18px; font-weight:600; ", 'chrSilent'), 
+                                      value = "NULL",
+                                      placeholder = "NULL"),
+                            
                             checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
                               condition = "input.useccf == true",
@@ -640,7 +656,7 @@ bodyclone <- tabItem('clone',
                                          choices = c(
                                            Clonevol = "clonevol",
                                            SCHISM = "SCHISM"
-                                         ), selected = "SCHISM",width = 300),
+                                         ), selected = "SCHISM", width = 300),
                              selectInput("plotOptionFish", label = div(style = "font-size:18px; font-weight:600;  ", "Plot option"),
                                          choices = c(
                                            Fishplot = "fishplot",
@@ -764,6 +780,34 @@ bodyfunction <- tabItem('function',
                                 condition = "input.fat == 'F01'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
+                                
+                                selectInput(inputId = "GO.type", 
+                                            label = div(style = "font-size:18px; font-weight:600;  ", "GO.type"),
+                                            choices = c(ALL = "ALL", 
+                                                        BP = "BP",
+                                                        MF = "MF", 
+                                                        CC = "CC"),
+                                            selected = "ALL"),
+                                
+                                selectInput(inputId = "plotType", 
+                                            label = div(style = "font-size:18px; font-weight:600;  ", "plotType"),
+                                            choices = c(dot = "dot",
+                                                        bar = "bar"),
+                                            selected = "dot"), 
+                                
+                                
+                                selectInput(inputId = "pAdjustMethod", 
+                                            label = div(style = "font-size:18px; font-weight:600;  ", "pAdjustMethod"),
+                                            choices = c(holm = "holm", 
+                                                        hochberg = "hochberg",
+                                                        hommel = "hommel", 
+                                                        bonferroni = "bonferroni",
+                                                        BH = "BH", 
+                                                        BY = "BY",
+                                                        fdr = "fdr", 
+                                                        none = "none"),
+                                            selected = "BH"), 
+                                
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
@@ -778,6 +822,11 @@ bodyfunction <- tabItem('function',
                                           tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
                                 ), 
                                 br(),
+                                
+                                numericInput(inputId = "showCategory", 
+                                             label = div(style = "font-size:18px; font-weight:600;  ", "showCategory"), 
+                                             value = 5),
+
                                 sliderInput('width6',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
                                 sliderInput('height6',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
                                 br(),
@@ -812,6 +861,34 @@ bodyfunction <- tabItem('function',
                                 condition = "input.fat == 'F02'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
+                                
+                                
+                                selectInput(inputId = "pathway.type", 
+                                            label = div(style = "font-size:18px; font-weight:600;  ", "Pathway.type"),
+                                            choices = c(KEGG = "KEGG", 
+                                                        Reactome = "Reactome"),
+                                            selected = "KEGG"),
+                                
+                                selectInput(inputId = "pathplotType", 
+                                            label = div(style = "font-size:18px; font-weight:600;  ", "plotType"),
+                                            choices = c(dot = "dot",
+                                                        bar = "bar"),
+                                            selected = "dot"), 
+                                
+                                
+                                selectInput(inputId = "pathpAdjustMethod", 
+                                            label = div(style = "font-size:18px; font-weight:600;  ", "pAdjustMethod"),
+                                            choices = c(holm = "holm", 
+                                                        hochberg = "hochberg",
+                                                        hommel = "hommel", 
+                                                        bonferroni = "bonferroni",
+                                                        BH = "BH", 
+                                                        BY = "BY",
+                                                        fdr = "fdr", 
+                                                        none = "none"),
+                                            selected = "BH"), 
+                                
+                                
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
@@ -826,6 +903,11 @@ bodyfunction <- tabItem('function',
                                           tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
                                 ), 
                                 br(),
+                                
+                                numericInput(inputId = "pathshowCategory", 
+                                             label = div(style = "font-size:18px; font-weight:600;  ", "showCategory"), 
+                                             value = 5),
+                                
                                 sliderInput('width7',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
                                 sliderInput('height7',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
                                 br(),
