@@ -51,7 +51,7 @@ readMaf <- function(mafFile, sampleInfoFile,
     
     ## get patientID
     fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
-    patientID <- strsplit(fileName, ".maf")[[1]][1]
+    patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
 
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
