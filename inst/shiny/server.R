@@ -633,11 +633,11 @@ shinyServer(function(input, output, session){
           need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
         )
         maf <- isolate(varsLs$maf)
-        Meskit::tumorClonesPlot(maf)
+        tumorClonesPlot(maf)
       }
       else{
         maf <- isolate(varsLs$maf)
-        Meskit::tumorClonesPlot(maf)
+        tumorClonesPlot(maf)
       }
     }
   })
