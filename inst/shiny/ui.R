@@ -371,6 +371,7 @@ bodyITH <- tabItem("ITH",
                              br(), 
                              checkboxInput('show.num1',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
                              br(),
+                             sliderInput('width2', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                              fluidRow(
                                column(
                                  width = 9,
@@ -427,7 +428,7 @@ bodyITH <- tabItem("ITH",
                                                    GSEA = 'gsea'),
                                        selected = "aaas",width = 300),
                            checkboxInput('show.percentage',label = div(style = "font-size:15px; font-weight:400; ", 'Show Percentage'),value = T),
-                           sliderInput('width2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
+                           sliderInput('width3',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
                            br(),
                            fluidRow(
                              column(
@@ -537,12 +538,18 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                              title = div(icon("map"), "Mutsharedprivateplot & Stackplot"),
                              value = "caInput05",
-                             
-                             div(plotOutput("mutSharedPrivatePlot",height = "100%"),align ="center"),  
-                             br(),
-                             
-                             uiOutput("mspdb")
-                             
+                             conditionalPanel(
+                               condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
+                               div(plotOutput("mutSharedPrivatePlot",height = "100%"),align ="center"),  
+                               br(),
+                               uiOutput("mspdb")
+                             ),
+                             conditionalPanel(
+                               condition = "input.plotChoiceSpp == 'stackPlot'",
+                               div(plotOutput("stackplot",height = "100%"),align ="center"),
+                               br(),
+                               uiOutput("stkdb")
+                             )
                            ),
                            tabPanel(
                              title = div(icon("box"), "Paired-samples similarity"),
@@ -1152,7 +1159,7 @@ bodySignature <- tabItem('signature',
                                  tabPanel(
                                    title = div(icon("newspaper"), "Summary"), 
                                    value = 'S01',
-                                   DT::dataTableOutput('sigOFA',width = "100%"),
+                                   DT::dataTableOutput('sigOFAt',width = "100%"),
                                    br(),
                                    uiOutput("sigpdb")
                                  ),

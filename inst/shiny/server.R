@@ -286,7 +286,7 @@ shinyServer(function(input, output, session){
     }
   })
   output$maftable <- DT::renderDataTable({
-    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T))
+    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T),rownames = F)
   })
   stopButtonValue2 <- reactiveValues(a = 0)
   observeEvent(input$stop2,{
@@ -454,43 +454,70 @@ shinyServer(function(input, output, session){
       return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
     }
   })
-  
+  # 
+  # output$mutSharedPrivatePlot <- renderPlot({
+  #   if (input$submit4 & input$plotChoiceSpp == "sharedPrivatePlot"){
+  #     msp()
+  #   } else if (input$submit5 & input$plotChoiceSpp == "stackPlot") {
+  #     stk()
+  #   }
+  # },
+  # width = width2,
+  # height = 560,
+  # res = 100
+  # )
   output$mutSharedPrivatePlot <- renderPlot({
-    if (input$submit4 & input$plotChoiceSpp == "sharedPrivatePlot"){
       msp()
-    } else if (input$submit5 & input$plotChoiceSpp == "stackPlot") {
-      stk()
-    }
   },
   width = width2,
   height = 560,
   res = 100
   )
-  
-  
   output$mspdb <- renderUI({
-    if(!is.null(msp()) | !is.null(msp())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadSharedPlotCheck',
-                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),
-                       choiceValues = c("png", "pdf"), 
-                       inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSharedPlot', 'Download')
+    if(!is.null(msp())){
+        fluidRow(
+          column(
+            width = 7
+          ),
+          column(
+            width = 2,
+            radioButtons('DownloadSharedPlotCheck',
+                         label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                         choiceNames = list(
+                           tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                           tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                         ),
+                         choiceValues = c("png", "pdf"), 
+                         inline = T)
+          ),
+          column(
+            width = 3,
+            downloadBttn('DownloadSharedPlot', 'Download')
+          )
         )
-      )
     }
+    # else if(!is.null(stk())){
+    #     fluidRow(
+    #       column(
+    #         width = 7
+    #       ),
+    #       column(
+    #         width = 2,
+    #         radioButtons('DownloadStackPlottCheck',
+    #                      label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+    #                      choiceNames = list(
+    #                        tags$span(style = "font-size:14.5px; font-weight:400; ", "png"),
+    #                        tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+    #                      ),
+    #                      choiceValues = c("png", "pdf"),
+    #                      inline = T)
+    #       ),
+    #       column(
+    #         width = 3,
+    #         downloadBttn('DownloadStackPlot', 'Download')
+    #       )
+    #     )
+    #   }
   })
   stopButtonValue5 <- reactiveValues(a = 0)
   observeEvent(input$stop5,{
@@ -528,37 +555,37 @@ shinyServer(function(input, output, session){
                            show.percentage = input$show.percentage)
     }
   })
-  # output$stackplot <- renderPlot({
-  #   stk()
-  # },
-  # width = width3,
-  # height = 560,
-  # res = 100
-  # )
-  # output$stkdb <- renderUI({
-  #   if(!is.null(stk())){
-  #     fluidRow(
-  #       column(
-  #         width = 6
-  #       ),
-  #       column(
-  #         width = 2,
-  #         radioButtons('DownloadStackPlotCheck',
-  #                      label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-  #                      choiceNames = list(
-  #                        tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-  #                        tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-  #                      ),
-  #                      choiceValues = c("png", "pdf"), 
-  #                      inline = T)
-  #       ),
-  #       column(
-  #         width = 3,
-  #         downloadBttn('DownloadStackPlot', 'Download')
-  #       )
-  #     )
-  #   }
-  # })
+  output$stackplot <- renderPlot({
+    stk()
+  },
+  width = width3,
+  height = 560,
+  res = 100
+  )
+  output$stkdb <- renderUI({
+    if(!is.null(stk())){
+      fluidRow(
+        column(
+          width = 6
+        ),
+        column(
+          width = 2,
+          radioButtons('DownloadStackPlotCheck',
+                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"),
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"),
+                       inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadStackPlot', 'Download')
+        )
+      )
+    }
+  })
   stopButtonValue6 <- reactiveValues(a = 0)
   observeEvent(input$stop6,{
     stopButtonValue6$a <- 1
@@ -985,13 +1012,7 @@ shinyServer(function(input, output, session){
                                           plot.signatures=FALSE, 
                                           plot.branchTrunk=FALSE, 
                                           signif.level=0.05)
-        return(datatable(df.signature, 
-                         options = list(searching = TRUE, 
-                                        pageLength = 10, 
-                                        lengthMenu = c(5, 10, 15, 18), 
-                                        scrollX = TRUE), 
-                         rownames = FALSE))
-        
+        return(df.signature)
       }
     } else {
       if(input$submitSig & stopButtonValueSig$a != 1){
@@ -1013,18 +1034,18 @@ shinyServer(function(input, output, session){
                                           plot.signatures=FALSE, 
                                           plot.branchTrunk=FALSE, 
                                           signif.level=0.05)
-        return(datatable(df.signature, 
-                         options = list(searching = TRUE, 
-                                        pageLength = 10, 
-                                        lengthMenu = c(5, 10, 15, 18), 
-                                        scrollX = TRUE), 
-                         rownames = FALSE))
+        return(df.signature)
         
       }
     }
   })
-  output$sigOFA <- DT::renderDataTable({
-    sigOFA()
+  output$sigOFAt <- DT::renderDataTable({
+    return(datatable(sigOFA(), 
+                     options = list(searching = TRUE, 
+                                    pageLength = 10, 
+                                    lengthMenu = c(5, 10, 15, 18), 
+                                    scrollX = TRUE), 
+                     rownames = FALSE))
   })
   stopButtonValueSig1 <- reactiveValues(a = 0)
   observeEvent(input$stopSig1,{
@@ -1065,6 +1086,7 @@ shinyServer(function(input, output, session){
         h4(strong('Signature summary')),
         br(),
         DT::dataTableOutput('sigOFATable1'),
+        br(),
         fluidRow(
           column(
             width = 9
@@ -1089,7 +1111,7 @@ shinyServer(function(input, output, session){
     datatable(data, options = list(searching = TRUE, pageLength = 10, 
                                    lengthMenu = c(5, 10, 15, 18), 
                                    scrollX = TRUE, dom = "t",
-                                   fixedHeader = TRUE))
+                                   fixedHeader = TRUE),rownames = F)
   })
   stopButtonValueSig2 <- reactiveValues(a = 0)
   observeEvent(input$stopSig2,{
@@ -1294,7 +1316,7 @@ shinyServer(function(input, output, session){
     },
     content = function(file){
       data <- ms()
-      write.csv(data,file)
+      write.csv(data,file,row.names = F)
     },
     contentType = 'text/csv'
   )
@@ -1305,7 +1327,7 @@ shinyServer(function(input, output, session){
     },
     content = function(file){
       data <- ms2()
-      write.csv(data,file)
+      write.csv(data,file,row.names = F)
     },
     contentType = 'text/csv'
   )
@@ -1316,10 +1338,10 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadVafPlotCheck == "png"){
-        png(file,width = input$width1 , height = 900,res = 144)
+        png(file,width = input$width1 , height = 560,res = 100)
       }
       else if (input$DownloadVafPlotCheck == "pdf"){
-        pdf(file,width = input$width1/100 , height = 9)
+        pdf(file,width = input$width1/100 , height = 6)
       }
       print(vc())
       dev.off()
@@ -1332,10 +1354,10 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadStackPlotCheck == "png"){
-        png(file,width = input$width3 , height = 900,res = 144)
+        png(file,width = input$width3 , height = 560,res = 100)
       }
       else if (input$DownloadStackPlotCheck == "pdf"){
-        pdf(file,width = input$width3/100 , height = 9)
+        pdf(file,width = input$width3/100 , height = 6)
       }
       print(stk())
       dev.off()
@@ -1348,12 +1370,12 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadJaccardIndexCheck == "png"){
-        png(file,width = input$width4 , height = 900,res = 144)
+        png(file,width = input$width4 , height = input$width4,res = 100)
       }
-      else if (input$DownloadStackPlotCheck == "pdf"){
-        pdf(file,width = input$width4/100 , height = 9)
+      else if (input$DownloadJaccardIndexCheck == "pdf"){
+        pdf(file,width = input$width4/100 , height = input$width4/100)
       }
-      print(ji())
+      ji()
       dev.off()
     },
     contentType = paste('image/',input$DownloadJaccardIndexCheck,sep="")
@@ -1364,11 +1386,11 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadSharedPlotCheck == "png"){
-        png(file,width = input$width2 , height = 900, res = 144)
+        png(file,width = input$width2 , height = 560, res = 100)
         
       }
       else if (input$DownloadSharedPlotCheck == "pdf"){
-        pdf(file,width = input$width2/100 , height = 9)
+        pdf(file,width = input$width2/100 , height = 6)
       }
       print(msp())
       dev.off()
@@ -1382,10 +1404,10 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadClonePlotCheck == "png"){
-        png(file,width = input$width5 , height = 800,res = 144)
+        png(file,width = input$width5 , height = 560,res = 100)
       }
       else if (input$DownloadClonePlotCheck == "pdf"){
-        pdf(file,width = input$width5/100 , height = 8)
+        pdf(file,width = input$width5/100 , height = 6)
       }
       clp()
       dev.off()
@@ -1398,23 +1420,23 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadPhyloTreeCheck == "png"){
-        png(file,width = 1000, height = 650,res = 80)
+        png(file,width = 1000, height = 650,res = 100)
       }
       else if (input$DownloadPhyloTreeCheck == "pdf"){
         pdf(file,width = 10, height = 6.5)
       }
-      print(pht)
+      print(pht())
       dev.off()
     }
   )
   
   output$DownloadGOPlot <- downloadHandler(
     filename = function() {
-      paste("GOPlot", '.',input$DownloadGOPlotCheck, sep='')
+      paste("GOPlot","_",input$gl,".",input$DownloadGOPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadGOPlotCheck == "png"){
-        png(file,width = input$width6, height = input$height6,res = 144)
+        png(file,width = input$width6, height = input$height6,res = 100)
       }
       else if (input$DownloadGOPlotCheck == "pdf"){
         pdf(file,width = input$width6/100, height = input$height6/100)
@@ -1430,17 +1452,17 @@ shinyServer(function(input, output, session){
     },
     content = function(file){
       data <- GO()[[1]][[which(names(GO()[[1]]) == input$gl)]]
-      write.csv(data,file)
+      write.csv(data,file,row.names = F)
     },
     contentType = 'text/csv'
   )
   output$DownloadPathPlot <- downloadHandler(
     filename = function() {
-      paste("Pathwaytplot",'.',input$DownloadPathPlotCheck, sep='')
+      paste("Pathwaytplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPathPlotCheck == "png"){
-        png(file,width = input$width7,height = input$height7,res = 144)
+        png(file,width = input$width7,height = input$height7,res = 100)
       }
       else if (input$DownloadPathPlotCheck == "pdf"){
         pdf(file,width = input$width7/100, height = input$height7/100)
@@ -1456,35 +1478,46 @@ shinyServer(function(input, output, session){
     },
     content = function(file){
       data <- Path()[[1]][[which(names(Path()[[1]]) == input$pl)]]
-      write.csv(data,file)
+      write.csv(data,file,row.names = F)
     },
     contentType = 'text/csv'
   )
   output$DownloadSignatureSummary <- downloadHandler(
     filename = function() {
-      paste("Pathway_",input$pl,"_",Sys.Date(),'.csv', sep='')
+      paste("Signature_summary_",Sys.Date(),'.csv', sep='')
     },
     content = function(file){
       data <- sigOFA()
-      write.csv(data,file)
+      write.csv(data,file,row.names = F)
     },
     contentType = 'text/csv'
   )
+  output$DownloadSigOFATable1 <- downloadHandler(
+    filename = function() {
+      paste("Signature_summary_",Sys.Date(),'.csv', sep='')
+    },
+    content = function(file){
+      data <- sigOFA1()[[2]][,c(1:2)]
+      write.csv(data,file,row.names = F)
+    },
+    contentType = 'text/csv'
+  )
+    
   output$DownloadSignaturePlot1 <- downloadHandler(
     filename = function() {
       paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck1, sep='')
     },
     content = function(file) {
-      if (input$DownloadSignaturePlotCheck == "png"){
-        png(file,width = input$widthsig1, height = input$heightsig1,res = 144)
+      if (input$DownloadSignaturePlotCheck1 == "png"){
+        png(file,width = input$widthsig1, height = input$heightsig1,res = 100)
       }
-      else if (input$DownloadSignaturePlotCheck == "pdf"){
+      else if (input$DownloadSignaturePlotCheck1 == "pdf"){
         pdf(file,width = input$widthsig1/100, height = input$heightsig1/100)
       }
       print(sigOFA1()[[1]])
       dev.off()
     },
-    contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
+    contentType = paste('image/',input$DownloadSignaturePlotCheck1,sep="")
   )
   
   output$DownloadSignaturePlot2 <- downloadHandler(
@@ -1492,16 +1525,16 @@ shinyServer(function(input, output, session){
       paste("Branch_trunck",'.',input$DownloadSignaturePlotCheck2, sep='')
     },
     content = function(file) {
-      if (input$DownloadSignaturePlotCheck == "png"){
-        png(file,width = input$widthsig2, height = input$heightsig2,res = 144)
+      if (input$DownloadSignaturePlotCheck2 == "png"){
+        png(file,width = input$widthsig2, height = input$heightsig2,res = 100)
       }
-      else if (input$DownloadSignaturePlotCheck == "pdf"){
+      else if (input$DownloadSignaturePlotCheck2 == "pdf"){
         pdf(file,width = input$widthsig2/100, height = input$heightsig2/100)
       }
       print(sigOFA2())
       dev.off()
     },
-    contentType = paste('image/',input$DownloadSignaturePlotCheck,sep="")
+    contentType = paste('image/',input$DownloadSignaturePlotCheck2,sep="")
   )
   
 })  

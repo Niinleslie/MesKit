@@ -89,7 +89,7 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     totalMut.sum <- pm[[1]]
     privateMut.proportion <- pm[[2]]
     PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.44,y = -0.12, width = 0.15)
-                   # + theme(plot.margin=unit(c(0,0,0.8,0),"cm"))
+    # + theme(plot.margin=unit(c(0,0,0.8,0),"cm"))
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMut.sum ,"; ",privateMut.proportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
     if(savePlot){
@@ -535,8 +535,8 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, phylotree.type, R
             row <- which(plot.data$node == adjust.node&
                            plot.data$end_num <= length(phylo$tip.label))
             row2 <- which(plot.data$node == plot.data$end_num[row1] &
-                          plot.data$angle != plot.data$horizon &  
-                          plot.data$end_num <= length(phylo$tip.label))
+                            plot.data$angle != plot.data$horizon &  
+                            plot.data$end_num <= length(phylo$tip.label))
             if(length(row)!=0 & length(row2)!=0){
               if(plot.data$angle[row] < pi/2 &
                  plot.data$angle[row2] < pi/2 &
@@ -678,12 +678,12 @@ addSignature <- function(phylo, plot.data, signature){
   plot.data$signature <- ''
   plot.data$alias <- ''
   t <- 1
-  while(t<=length(signature$branch)){
-    branch <- unlist(strsplit(as.character(signature$branch[[t]]) , split='∩'))
+  while(t<=length(signature$Branch)){
+    branch <- unlist(strsplit(as.character(signature$Branch[[t]]) , split='∩'))
     if(length(branch) == 1){
       row <-which(plot.data$sample == as.character(branch))
-      plot.data$signature[row] <- as.character(signature$sig[[t]]) 
-      plot.data$alias[row] <- as.character(signature$alias[[t]])
+      plot.data$signature[row] <- as.character(signature$Signature[[t]]) 
+      plot.data$alias[row] <- as.character(signature$Alias[[t]])
       t <- t + 1
       next
     }
@@ -698,8 +698,8 @@ addSignature <- function(phylo, plot.data, signature){
     # signature of NORMAL
     if(length(branch) == length(phylo$tip.label ) - 1){
       row <- which(plot.data$sample == 'NORMAL')
-      plot.data$signature[row] <-  as.character(signature$sig[(t)]) 
-      plot.data$alias[row] <- as.character(signature$alias[(t)])
+      plot.data$signature[row] <-  as.character(signature$Signature[(t)]) 
+      plot.data$alias[row] <- as.character(signature$Alias[(t)])
       t <- t+1
       next
     }
@@ -711,8 +711,8 @@ addSignature <- function(phylo, plot.data, signature){
           break
         }
       }
-      plot.data$signature[command.row] <-  as.character(signature$sig[(t)]) 
-      plot.data$alias[command.row] <-  as.character(signature$alias[(t)])
+      plot.data$signature[command.row] <-  as.character(signature$Signature[(t)]) 
+      plot.data$alias[command.row] <-  as.character(signature$Alias[(t)])
       t=t+1
       next
     }
@@ -721,19 +721,19 @@ addSignature <- function(phylo, plot.data, signature){
       lowest.row <- min(row.list)
       command.row <- which(plot.data$end_num == plot.data$node[lowest.row]) 
       if(length(command.row) != 0){
-        plot.data$signature[command.row] <- as.character(signature$sig[(t)]) 
-        plot.data$alias[command.row] <- as.character(signature$alias[(t)])
+        plot.data$signature[command.row] <- as.character(signature$Signature[(t)]) 
+        plot.data$alias[command.row] <- as.character(signature$Alias[(t)])
       }
     }else{
       row <- which(plot.data$sample == as.character(branch))
-      plot.data$signature[row] <-  as.character(signature$sig[(t)]) 
-      plot.data$alias[row] <-  as.character(signature$alias[(t)])
+      plot.data$signature[row] <-  as.character(signature$Signature[(t)]) 
+      plot.data$alias[row] <-  as.character(signature$Alias[(t)])
     }
     t = t + 1
   }
   if(plot.data$signature[which(plot.data$sample == 'NORMAL')] == ''){
-    plot.data$signature[which(plot.data$sample == 'NORMAL')] = as.character(signature$sig[1])
-    plot.data$signature[which(plot.data$alias == 'NORMAL')] = as.character(signature$alias[1])
+    plot.data$signature[which(plot.data$sample == 'NORMAL')] = as.character(signature$Signature[1])
+    plot.data$signature[which(plot.data$alias == 'NORMAL')] = as.character(signature$Alias[1])
   }
   plot.data <- plot.data[order(plot.data$signature), ]
   plot.data$signature <- gsub('No.Signature', 'No signature', plot.data$signature)
