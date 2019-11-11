@@ -135,7 +135,6 @@ vafCluster <-function(maf, vafColumn="VAF",
                     ncol = 1,
                     # rel_heights values control vertical title margins
                     rel_heights = c(0.1, 1))
-                return(suppressWarnings(suppressMessages(pic)))
                 
             } else {
                 pic <- eval(parse(text=paste("plot_grid(", 
@@ -144,9 +143,9 @@ vafCluster <-function(maf, vafColumn="VAF",
                                              ceiling(length(lsPicName)/2), 
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
-                return(suppressWarnings(suppressMessages(pic)))
             }
-            
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            return(suppressWarnings(suppressMessages(pic)))
         }
     }
     
@@ -183,6 +182,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         minVaf, maxVaf))))
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     
@@ -204,13 +204,12 @@ vafCluster <-function(maf, vafColumn="VAF",
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     else {
         stop("ERROR: plotOption settings failure.")
     }
-    message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-    
 }
 
 
@@ -245,6 +244,10 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         lsSep <- list()
         lsSampleName <- c()
         for (counterMt in seq_along(tsbLs[,1])){
+            ## Rshiny: progress bar
+            incProgress(amount=1)
+            setProgress(message = 'Processing', detail = paste(' sample ', as.character(tsbLs[,1][counterMt])))
+            
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
             mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, sampleName)
@@ -316,7 +319,6 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                     ncol = 1,
                     # rel_heights values control vertical title margins
                     rel_heights = c(0.1, 1))
-                return(suppressWarnings(suppressMessages(pic)))
                 
             } else {
                 pic <- eval(parse(text=paste("plot_grid(", 
@@ -325,9 +327,9 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                              ceiling(length(lsPicName)/2), 
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
-                return(suppressWarnings(suppressMessages(pic)))
             }
-            
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            return(suppressWarnings(suppressMessages(pic)))
         }
     }
     
@@ -338,10 +340,6 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         mathscore <- mathtbscoreLs$sampleLevel
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){
-            ## Rshiny: progress bar
-            incProgress(amount=1)
-            setProgress(message = 'Processing', detail = paste(' sample ', as.character(tsbLs[,1][counterMt])))
-            
             sampleName <- as.character(tsbLs[,1][counterMt])
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]
@@ -368,7 +366,7 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         minVaf, maxVaf))))
-        
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     
@@ -390,12 +388,12 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     else {
         stop("ERROR: plotOption settings failure.")
     }
-    message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
     
 }
 

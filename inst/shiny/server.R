@@ -376,10 +376,15 @@ shinyServer(function(input, output, session){
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
       
       withProgress(min = 0, max = tsbmax+1, value = 0, {
+        setProgress(message = 'vafCluster: Calculation in progress',
+                    detail = 'This may take a while...')
+        
                      pic <- vafClusterRshiny(maf,
                                              plotOption = input$plotOption, 
                                              themeOption = input$themeOption,
                                              showMATH = input$showMATH)
+                     
+                     
                      
                      ## Rshiny: progress bar
                      incProgress(amount=1)

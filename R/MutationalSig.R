@@ -162,7 +162,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ## list of branch names
         ls.branchesName <- mutSigsOutput$branch
         ls.aeti <- c()
-
+        
         ## calculation process(maybe could be replaced by lapply)
         if (signaturesRef =="signatures.cosmic") {
             ## Aetiology from https://cancer.sanger.ac.uk/cosmic/signatures_v2 emm actually the additional feature may matter
@@ -210,23 +210,23 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             ## Aetiology from https://www.nature.com/articles/nature12477#s1
             df.aetiology <- data.frame(
                 aeti=c(
-                        "Deamination of 5-methyl-cytosine",
-                        "Deamination of 5-methyl-cytosine", 
-                        "AID/APOBEC family of cytidine deaminases",
-                        "Defective homologous-recombination-based DNA double-strand break repair", 
-                        "Tobacco carcinogens", 
-                        "Smoking history, C>T and T>C mutations",
-                        "Defective DNA mismatch repair", 
-                        "Ultraviolet-light-induced mutations",
-                        "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts", 
-                        "Polymerase η, which is implicated with the activity of AID during somatic hypermutation",
-                        "Polymerase ε, altered activity of the error-prone polymerase Pol ε", 
-                        "Alkylating agent temozolomide", 
-                        "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts",
-                        "AID/APOBEC family of cytidine deaminases", 
-                        "Uncharacterized defects in DNA maintenance", 
-                        "Uncharacterized defects in DNA maintenance", 
-                        "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts",
+                    "Deamination of 5-methyl-cytosine",
+                    "Deamination of 5-methyl-cytosine", 
+                    "AID/APOBEC family of cytidine deaminases",
+                    "Defective homologous-recombination-based DNA double-strand break repair", 
+                    "Tobacco carcinogens", 
+                    "Smoking history, C>T and T>C mutations",
+                    "Defective DNA mismatch repair", 
+                    "Ultraviolet-light-induced mutations",
+                    "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts", 
+                    "Polymerase η, which is implicated with the activity of AID during somatic hypermutation",
+                    "Polymerase ε, altered activity of the error-prone polymerase Pol ε", 
+                    "Alkylating agent temozolomide", 
+                    "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts",
+                    "AID/APOBEC family of cytidine deaminases", 
+                    "Uncharacterized defects in DNA maintenance", 
+                    "Uncharacterized defects in DNA maintenance", 
+                    "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts",
                     "Unknown", 
                     "Unknown", 
                     "Unknown",
@@ -242,7 +242,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                       "Signature 7", "Signature 8", "Signature 9", "Signature 10", "Signature 11", "Signature 12", "Signature 13", 
                       "Signature 14", "Signature 15", "Signature 16", "Signature 17", "Signature 18", "Signature 19", "Signature 20", 
                       "Signature 21", "Signature R1", "Signature R2", "Signature R3", "Signature U1", "Signature U2", "No Signature"
-                      )
+                )
             )
         }
         
@@ -252,7 +252,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
             aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
             ls.aeti <- c(ls.aeti, aetiology)
         }
-
+        
         
         ## rearrange the order of columns
         if (is.null(driverGenesFile)) {
