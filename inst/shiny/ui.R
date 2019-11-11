@@ -170,15 +170,20 @@ bodyIP <- tabItem("input",
                           # )
                         )
                       ), 
-                      column(
-                        width = 9, 
-                        # box(
-                        #   width = NULL,
-                        #   withSpinner(DT::dataTableOutput('maftable', width = '100%')),
-                        #   uiOutput("ie1"),
-                        #   br(),
-                        #   uiOutput("ie2")
-                        # )
+                        column(
+                          width = 9, 
+                          box(
+                            width = NULL,box(
+                              width = NULL,
+                              div(strong("Maf Data Preview"),style = "font-size:27px; font-weight:500;"),
+                              p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
+                                style = "font-size:16px; font-weight:500;line-height:30px;"),
+                              h4(strong("Data Preview:")),
+                              DT::dataTableOutput('maftable', width = '100%')
+                              
+                            )
+                          )
+                        ), 
                         uiOutput("ie1"),
                         uiOutput("ie2"),
                         uiOutput("ie3"),
@@ -186,7 +191,7 @@ bodyIP <- tabItem("input",
                       )
                     )
                   )
-)
+
 
 
 bodyITH <- tabItem("ITH",

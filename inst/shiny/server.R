@@ -202,7 +202,7 @@ shinyServer(function(input, output, session){
   output$ied1 <- renderDataTable({
     if(input$iecontrol01){
       maftable <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(maftable, options = list(autoWidth = TRUE, dom = 't', scroller = TRUE, scrollX = T, lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
+      datatable(maftable, options = list(dom = 't', scroller = TRUE, scrollX = T, lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
     }
   })
   ## output Introduction of sampleinfo datatable
@@ -286,7 +286,7 @@ shinyServer(function(input, output, session){
     }
   })
   output$maftable <- DT::renderDataTable({
-    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T),rownames = F)
+    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
   })
   stopButtonValue2 <- reactiveValues(a = 0)
   observeEvent(input$stop2,{
