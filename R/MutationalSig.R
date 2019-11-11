@@ -17,7 +17,7 @@
 #' @param driverGenesFile the directory of the driver gene list. Default NULL.
 #' @param mutThreshold the threshold for the variants in a branch. Default 50.
 #' @param plot.signatures the parameter used to print the signautre summary plot by ggplot2
-#' @param signaturesRef
+#' @param signaturesRef 
 #' @param plot.signatures
 #' @param plot.branchTrunk
 #' @param signif.level
@@ -147,47 +147,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
     
-    ## Aetiology from https://cancer.sanger.ac.uk/cosmic/signatures_v2 emm actually the additional feature may matter
-    df.aetiology <- data.frame(
-        aeti=c(
-            "An endogenous mutational process initiated by spontaneous deamination of 5-methylcytosine",
-            "Activity of the AID/APOBEC family of cytidine deaminases", 
-            "Failure of DNA double-strand break-repair by homologous recombination",
-            "Tobacco mutagens", 
-            "Unknown", 
-            "Defective DNA mismatch repair and is found in microsatellite unstable tumours",
-            "Ultraviolet light exposure", 
-            "Unknown", 
-            "Polymerase η, which is implicated with the activity of AID during somatic hypermutation", 
-            "Recurrent POLE somatic mutations, viz., Pro286Arg and Val411Leu.",
-            "Treatments with the alkylating agent temozolomide", 
-            "Unknown", 
-            "Activity of the AID/APOBEC family of cytidine deaminases(C > U)",
-            "Unknown", 
-            "Defective DNA mismatch repair", 
-            "Unknown", 
-            "Unknown",
-            "Unknown", 
-            "Unknown", 
-            "Defective DNA mismatch repair", 
-            "Unknown",
-            "Exposures to aristolochic acid", 
-            "Unknown", 
-            "Exposures to aflatoxin",
-            "Unknown", 
-            "Defective DNA mismatch repair", 
-            "Unknown", 
-            "Unknown",
-            "Tobacco chewing habit", 
-            "Unknown", 
-            "Unknown"), 
-        sig=c("Signature 1", "Signature 2", "Signature 3", "Signature 4", "Signature 5", "Signature 6",
-              "Signature 7", "Signature 8", "Signature 9", "Signature 10", "Signature 11", "Signature 12", 
-              "Signature 13", "Signature 14", "Signature 15", "Signature 16", "Signature 17", "Signature 18",
-              "Signature 19", "Signature 20", "Signature 21", "Signature 22", "Signature 23", "Signature 24", 
-              "Signature 25", "Signature 26", "Signature 27", "Signature 28", "Signature 29", "Signature 30", 
-              "No Signature")
-    )
     
     if (plot.signatures) {
         pic <- .plotMutationalSig(sigsInput, mutSigsOutput, df.aetiology)
@@ -196,7 +155,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         
     } else if (plot.branchTrunk) {
         pic <- .plotBranchTrunk(sigsInput, mutSigsOutput, signif.level)
-        message(paste(njtree@patientID, " branch-trunk plot generation done!", sep=""))
+        message(paste(njtree@patientID, "branch-trunk plot generation done!", sep=""))
         return(pic)
         
     } else if (!plot.branchTrunk & !plot.signatures){
@@ -205,6 +164,89 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         ls.aeti <- c()
 
         ## calculation process(maybe could be replaced by lapply)
+        if (signaturesRef =="signatures.cosmic") {
+            ## Aetiology from https://cancer.sanger.ac.uk/cosmic/signatures_v2 emm actually the additional feature may matter
+            df.aetiology <- data.frame(
+                aeti=c(
+                    "An endogenous mutational process initiated by spontaneous deamination of 5-methylcytosine",
+                    "Activity of the AID/APOBEC family of cytidine deaminases", 
+                    "Failure of DNA double-strand break-repair by homologous recombination",
+                    "Tobacco mutagens", 
+                    "Unknown", 
+                    "Defective DNA mismatch repair and is found in microsatellite unstable tumours",
+                    "Ultraviolet light exposure", 
+                    "Unknown", 
+                    "Polymerase η, which is implicated with the activity of AID during somatic hypermutation", 
+                    "Recurrent POLE somatic mutations, viz., Pro286Arg and Val411Leu.",
+                    "Treatments with the alkylating agent temozolomide", 
+                    "Unknown", 
+                    "Activity of the AID/APOBEC family of cytidine deaminases(C > U)",
+                    "Unknown", 
+                    "Defective DNA mismatch repair", 
+                    "Unknown", 
+                    "Unknown",
+                    "Unknown", 
+                    "Unknown", 
+                    "Defective DNA mismatch repair", 
+                    "Unknown",
+                    "Exposures to aristolochic acid", 
+                    "Unknown", 
+                    "Exposures to aflatoxin",
+                    "Unknown", 
+                    "Defective DNA mismatch repair", 
+                    "Unknown", 
+                    "Unknown",
+                    "Tobacco chewing habit", 
+                    "Unknown", 
+                    "Unknown"), 
+                sig=c("Signature 1", "Signature 2", "Signature 3", "Signature 4", "Signature 5", "Signature 6",
+                      "Signature 7", "Signature 8", "Signature 9", "Signature 10", "Signature 11", "Signature 12", 
+                      "Signature 13", "Signature 14", "Signature 15", "Signature 16", "Signature 17", "Signature 18",
+                      "Signature 19", "Signature 20", "Signature 21", "Signature 22", "Signature 23", "Signature 24", 
+                      "Signature 25", "Signature 26", "Signature 27", "Signature 28", "Signature 29", "Signature 30", 
+                      "No Signature")
+            )
+        } else if (signaturesRef =="signatures.nature2013") {
+            ## Aetiology from https://www.nature.com/articles/nature12477#s1
+            df.aetiology <- data.frame(
+                aeti=c(
+                        "Deamination of 5-methyl-cytosine",
+                        "Deamination of 5-methyl-cytosine", 
+                        "AID/APOBEC family of cytidine deaminases",
+                        "Defective homologous-recombination-based DNA double-strand break repair", 
+                        "Tobacco carcinogens", 
+                        "Smoking history, C>T and T>C mutations",
+                        "Defective DNA mismatch repair", 
+                        "Ultraviolet-light-induced mutations",
+                        "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts", 
+                        "Polymerase η, which is implicated with the activity of AID during somatic hypermutation",
+                        "Polymerase ε, altered activity of the error-prone polymerase Pol ε", 
+                        "Alkylating agent temozolomide", 
+                        "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts",
+                        "AID/APOBEC family of cytidine deaminases", 
+                        "Uncharacterized defects in DNA maintenance", 
+                        "Uncharacterized defects in DNA maintenance", 
+                        "Exogenous carcinogens, transcription-coupled nucleotide excision repair acting on bulky DNA adducts",
+                    "Unknown", 
+                    "Unknown", 
+                    "Unknown",
+                    "Unknown",
+                    "Uncharacterized defects in DNA maintenance", 
+                    "Unknown",
+                    "Unknown",
+                    "Unknown", 
+                    "Unknown", 
+                    "Unknown", 
+                    "Unknown"), 
+                sig=c("Signature 1A", "Signature 1B", "Signature 2", "Signature 3", "Signature 4", "Signature 5", "Signature 6",
+                      "Signature 7", "Signature 8", "Signature 9", "Signature 10", "Signature 11", "Signature 12", "Signature 13", 
+                      "Signature 14", "Signature 15", "Signature 16", "Signature 17", "Signature 18", "Signature 19", "Signature 20", 
+                      "Signature 21", "Signature R1", "Signature R2", "Signature R3", "Signature U1", "Signature U2", "No Signature"
+                      )
+            )
+        }
+        
+        
         for (branch in ls.branchesName) {
             signature <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig)
             aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
@@ -220,7 +262,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                         sig=mutSigsOutput$sig, 
                                         sig.prob=mutSigsOutput$sig.prob, 
                                         aeti=ls.aeti)
-            colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology")
+            colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology(Cosmic)")
         } else {
             mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
                                         alias=mutSigsOutput$alias, 
