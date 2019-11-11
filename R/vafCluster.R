@@ -340,6 +340,10 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         mathscore <- mathtbscoreLs$sampleLevel
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){
+            ## Rshiny: progress bar
+            incProgress(amount=1)
+            setProgress(message = 'Processing', detail = paste(' sample ', as.character(tsbLs[,1][counterMt])))
+            
             sampleName <- as.character(tsbLs[,1][counterMt])
             sampleMt <- vafInputMt[which(
                 vafInputMt$Samples %in% sampleName),]

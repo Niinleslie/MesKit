@@ -75,14 +75,13 @@ bodyHome <- tabItem("home",
 )
 
 bodyIP <- tabItem("input",
-                  h2('Input section'),
                   fluidRow(
                     column(
                       width = 12, 
                       column(
                         width = 3,
                         box(
-                          title = div(shiny::icon("gear"), "Upload", inline =TRUE),
+                          title = div(shiny::icon("gear"), "Input Section", inline =TRUE),
                           width = NULL,
                           conditionalPanel(
                             condition = "true",
@@ -525,9 +524,9 @@ bodyITH <- tabItem("ITH",
                              value = "caInput03",
                              conditionalPanel(
                                condition = "input.plotOption == 'separate' ",
-                               uiOutput("chooselistvaf")
+                               uiOutput("chooselistvaf"), 
+                               div(plotOutput("vaf",height = "100%"),align = "center")
                              ),
-                             div(plotOutput("vaf",height = "100%"),align = "center"), 
                              uiOutput("vcdb")
                              
                            ),
