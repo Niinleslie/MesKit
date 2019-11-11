@@ -358,7 +358,7 @@ bodyITH <- tabItem("ITH",
                            div(strong("Parameter"), style = "font-size:2em; font-weight:600;"),
                            
                            selectInput(inputId = 'plotChoiceSpp', 
-                                       label = div(style = "font-size:1.8em; font-weight:600; ", 
+                                       label = div(style = "font-size:1.5em; font-weight:500; ", 
                                                    'Select a plot'), 
                                        choices = c(
                                          sharedPrivatePlot = "sharedPrivatePlot",
@@ -367,8 +367,6 @@ bodyITH <- tabItem("ITH",
                           
                            conditionalPanel(
                              condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
-                             div(strong("- Shared-private plot"), style = "font-size:1.5em; font-weight:600;"),
-                             br(), 
                              checkboxInput('show.num1',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
                              br(),
                              sliderInput('width2', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
@@ -398,8 +396,6 @@ bodyITH <- tabItem("ITH",
                            
                            conditionalPanel(
                              condition = "input.plotChoiceSpp == 'stackPlot'",
-                           div(strong("- Stack plot"), style = "font-size:1.5em; font-weight:600;"),
-                           br(),
                            fileInput(inputId = 'oncogeneListFile', 
                                      label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene list file'), 
                                      placeholder = "Defalut file: oncogene.list.txt", 
@@ -536,7 +532,7 @@ bodyITH <- tabItem("ITH",
                              
                            ),
                            tabPanel(
-                             title = div(icon("map"), "Mutsharedprivateplot & Stackplot"),
+                             title = div(icon("map"), "TrunkOrBranch summary"),
                              value = "caInput05",
                              conditionalPanel(
                                condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
@@ -1172,7 +1168,7 @@ bodySignature <- tabItem('signature',
                                    uiOutput('sigOFATableUI1')
                                  ), 
                                  tabPanel(
-                                   title = div(icon("image"), "TrunkOrBranch summary"),
+                                   title = div(icon("image"), "Mutational trunkOrBranch plot"),
                                    value = 'S03',
                                    div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
                                    uiOutput("sigpdb2")
@@ -1236,8 +1232,8 @@ bodySurvival <- tabItem('Survival',
                               ),
                               conditionalPanel(
                                 condition = "input.phyloTreeType == 'njtree'",
-                                checkboxInput('show.mutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
-                                checkboxInput('show.heatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
+                                checkboxInput('showmutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
+                                checkboxInput('showheatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
                                 # radioButtons(
                                 #   inputId = "sig.name", 
                                 #   label = div(style = "font-size:18px; font-weight:600; ", "Signature name"), 
@@ -1248,6 +1244,9 @@ bodySurvival <- tabItem('Survival',
                                 #   choiceValues = c("default", "alias"),
                                 #   selected = "alias", 
                                 #   inline = TRUE),
+                              ), 
+                              conditionalPanel(
+                                condition = "input.showheatmap == true",
                                 radioButtons(
                                   inputId = "heatmap.type",
                                   label = div(style = "font-size:18px; font-weight:600; ", "Heatmap type"),
@@ -1259,7 +1258,7 @@ bodySurvival <- tabItem('Survival',
                                   selected = "binary", 
                                   inline = TRUE
                                 )
-                              ),
+                              ), 
                               fluidRow(
                                 column(
                                   width = 9,

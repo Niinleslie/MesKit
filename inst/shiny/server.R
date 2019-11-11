@@ -1256,7 +1256,7 @@ shinyServer(function(input, output, session){
           }
           p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                                      heatmap.type = input$heatmap.type, sig.name = "default",
-                                     show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+                                     show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
           return(p)
         }
         else{
@@ -1272,7 +1272,7 @@ shinyServer(function(input, output, session){
         njtree <- isolate(varsLs$njtree)
         p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                                    heatmap.type = input$heatmap.type, sig.name = "default",
-                                   show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
       }
