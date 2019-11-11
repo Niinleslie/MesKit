@@ -523,12 +523,11 @@ bodyITH <- tabItem("ITH",
                              title = div(icon("image"), "Vaf clustering"),
                              value = "caInput03",
                              conditionalPanel(
-                               condition = "input.plotOption == 'separate' ",
-                               uiOutput("chooselistvaf"), 
-                               div(plotOutput("vaf",height = "100%"),align = "center")
+                               condition = "input.plotOption == 'separate'",
+                               uiOutput("chooselistvaf")
                              ),
+                             div(plotOutput("vaf",height = "100%"),align = "center"),
                              uiOutput("vcdb")
-                             
                            ),
                            tabPanel(
                              title = div(icon("map"), "TrunkOrBranch summary"),

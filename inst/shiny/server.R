@@ -384,35 +384,40 @@ shinyServer(function(input, output, session){
                                              themeOption = input$themeOption,
                                              showMATH = input$showMATH)
                      
-                     ## Rshiny: progress bar
-                     incProgress(amount=1)
-                     setProgress(message = 'Generating ', detail = paste("VAF density plot - ", input$plotOption, " mode", sep="")) 
+                     output$chooselistvaf <- renderUI({
+                       names <- names(pic)
+                       selectInput("vsl","Branch",
+                                   choices = names, selected = names[1], width = 600)
+                     })
                      
-                     return(pic)
+                     output$vaf <- renderPlot({
+                       if(input$plotOption == "separate"){
+                         print(pic[[which(names(pic) == getOption())]])
+                       }
+                       else{
+                         print(pic)
+                       }
+                     }, 
+                     width = width1,
+                     height = 560,
+                     res = 100
+                     )
+                     
                    })
+      
 
+      
     }
   })
-  output$chooselistvaf <- renderUI({
-    names <- names(vc())
-    selectInput("vsl","Branch",
-                choices = names, selected = names[1], width = 600)
-  })
   
-  getOption <- eventReactive(input$vsl, {return(input$vsl)})
+  getOption <- eventReactive(input$vsl, {
+    if (input$plotOption == "separate"){
+      return(input$vsl)
+    }
+    })
   
-  output$vaf <- renderPlot({
-    if(input$plotOption == "separate"){
-      print(vc()[[which(names(vc()) == getOption())]])
-    }
-    else{
-      print(vc())
-    }
-  }, 
-  width = width1,
-  height = 560,
-  res = 100
-  )
+
+  
   output$vcdb <- renderUI({
     if(!is.null(vc())){
       fluidRow(

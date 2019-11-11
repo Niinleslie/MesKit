@@ -101,6 +101,7 @@ vafCluster <-function(maf, vafColumn="VAF",
         }
         if (plotOption == "separate"){
             names(lsSep) <- lsSampleName
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
             return(lsSep)
         }
         ## combine: print VAF pictures for all samples in one document
@@ -285,6 +286,7 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         }
         if (plotOption == "separate"){
             names(lsSep) <- lsSampleName
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
             return(lsSep)
         }
         ## combine: print VAF pictures for all samples in one document
@@ -328,6 +330,9 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
             }
+            ## Rshiny: progress bar
+            incProgress(amount=1)
+            setProgress(message = 'Generating ', detail = paste("VAF density plot - ", plotOption, " mode", sep=""))
             message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
             return(suppressWarnings(suppressMessages(pic)))
         }
@@ -370,6 +375,9 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         minVaf, maxVaf))))
+        ## Rshiny: progress bar
+        incProgress(amount=1)
+        setProgress(message = 'Generating ', detail = paste("VAF density plot - ", plotOption, " mode", sep=""))
         message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
