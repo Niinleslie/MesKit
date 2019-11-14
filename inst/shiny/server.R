@@ -791,7 +791,9 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
+      Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1),
+                        GO.type = input$GO.type, plotType = input$plotType1,
+                        pAdjustMethod = input$pAdjustMethod1, showCategory = as.numeric(input$showCategory1)  )
     }
   })
   # Datatable under GO plot
@@ -879,7 +881,9 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
+      list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2), pval = as.numeric(input$pval2),
+                                     plotType = input$plotType2, pathway.type = input$pathway.type,
+                                     pAdjustMethod = input$pAdjustMethod2, showCategory = as.numeric(input$showCategory2) )
       return(list)
     }
   })
