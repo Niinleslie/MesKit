@@ -27,9 +27,8 @@
 #' PAML.file <- system.file("extdata/PAML", "sample.paml", package="Meskit")
 #' plotPhyloTree(phylotree.dat = PAML.file , phylotree.type = 'PAML')
 
-plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = FALSE, 
-                          show.mutSig = TRUE, sig.name = "default",show.heatmap = TRUE,
-                          heatmap.type = 'binary', phylotree.dat = NULL){
+plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', show.mutSig = TRUE,
+                          sig.name = "default",show.heatmap = TRUE, heatmap.type = 'binary', phylotree.dat = NULL){
   if(heatmap.type == 'binary'){
     use.ccf = FALSE
   }else{
