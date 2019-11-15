@@ -63,13 +63,12 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile,
               text=element_text(size=18),  
               panel.grid=element_blank(), 
               panel.border=element_blank(), 
-              axis.line=element_line(size=0.25), 
-              axis.title.x = element_blank(), 
-              axis.ticks.length=unit(0.5,'cm'), 
+              axis.line=element_line(size=0.25),
+              axis.title.x=element_blank(), 
               legend.title=element_blank()) + 
         ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
         labs(y = "Variant number") + 
-        ggsciFillPalette 
+        ggsciFillPalette
     
 }
 
