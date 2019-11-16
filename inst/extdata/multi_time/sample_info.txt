@@ -1,9 +1,0 @@
-sample          patient                lesion              time
-WGC033391D      C1                     -                   T1
-WGC033392D      C1                     -                   T2
-WGC033393D      C1                     -                   T3
-WGC033386D      C1                     -                   T4
-WGC033387D      C1                     -                   T5
-WGC033388D      C1                     -                   T6
-WGC033389D      C1                     -                   T7
-
