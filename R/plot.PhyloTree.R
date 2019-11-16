@@ -3,10 +3,9 @@
 #' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggrepel
 #' 
 #' @param njtree NJtree object
-#' @param phylotree.type Phylotree format,you can choose "njtree","newick","beast","PAML" with root 
-#' @param show.mutSig if show Mutational Signature in Images
-#' @param sig.name choose "alias" when showing alias in branch 
-#' @param sig.min.mut.number minimum mutation number in each branch
+#' @param phylotree.type Phylotree format,Choose one of "njtree","newick","beast","PAML" 
+#' @param show.mutSig If show Mutational Signature in Images.Default is True
+#' @param sig.name Default is "default",choosing  "alias"  when showing alias in branch 
 #' @param show.heatmap if plot heatmap that show mutation distribution in each branch
 #' @param heatmap.type type of heatmap,choose 'CCF' if use ccf
 #' @param phylotree.dat If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter
@@ -28,10 +27,8 @@
 #' PAML.file <- system.file("extdata/PAML", "sample.paml", package="Meskit")
 #' plotPhyloTree(phylotree.dat = PAML.file , phylotree.type = 'PAML')
 
-plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = FALSE, 
-                          show.mutSig = TRUE, sig.min.mut.number = 50, sig.name = "default",
-                          show.heatmap = TRUE, heatmap.type = 'binary',
-                          savePlot = FALSE, phylotree.dat = NULL){
+plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', show.mutSig = TRUE,
+                          sig.name = "default",show.heatmap = TRUE, heatmap.type = 'binary', phylotree.dat = NULL){
   if(heatmap.type == 'binary'){
     use.ccf = FALSE
   }else{
@@ -92,36 +89,36 @@ plotPhyloTree <- function(njtree = NULL, phylotree.type = 'njtree', use.indel = 
     # + theme(plot.margin=unit(c(0,0,0.8,0),"cm"))
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMut.sum ,"; ",privateMut.proportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
-    if(savePlot){
-      output.dir = getwd()
-      if(!use.ccf){
-        if(use.indel){
-          ggsave(filename = paste(output.dir,"/", fileID, ".useindel.pdf", sep = ""),
-                 plot = PH, width = 10, height = 6.5)
-        }
-        else{
-          ggsave(filename = paste(output.dir,"/", fileID, ".pdf", sep = ""),
-                 plot = PH, width = 10, height = 6.5)
-        }
-      }
-      else{
-        if(use.indel){
-          ggsave(filename = paste(output.dir,"/", fileID, ".useindel.ccf.pdf", sep = ""),
-                 plot = PH, width = 10, height = 6.5)
-        }else{
-          ggsave(filename = paste(output.dir,"/", fileID, ".ccf.pdf", sep = ""),
-                 plot = PH, width = 10, height = 6.5)
-        }
-      }
-    }
+    # if(savePlot){
+    #   output.dir = getwd()
+    #   if(!use.ccf){
+    #     if(use.indel){
+    #       ggsave(filename = paste(output.dir,"/", fileID, ".useindel.pdf", sep = ""),
+    #              plot = PH, width = 10, height = 6.5)
+    #     }
+    #     else{
+    #       ggsave(filename = paste(output.dir,"/", fileID, ".pdf", sep = ""),
+    #              plot = PH, width = 10, height = 6.5)
+    #     }
+    #   }
+    #   else{
+    #     if(use.indel){
+    #       ggsave(filename = paste(output.dir,"/", fileID, ".useindel.ccf.pdf", sep = ""),
+    #              plot = PH, width = 10, height = 6.5)
+    #     }else{
+    #       ggsave(filename = paste(output.dir,"/", fileID, ".ccf.pdf", sep = ""),
+    #              plot = PH, width = 10, height = 6.5)
+    #     }
+    #   }
+    # }
     return(PH)
   }
   else{
-    if(savePlot){
-      output.dir = getwd()
-      ggsave(filename = paste(output.dir, "/", phylotree.type, ".pdf", sep = ""), 
-             plot = phylotree, width = 10, height = 6.5)
-    }
+    # if(savePlot){
+    #   output.dir = getwd()
+    #   ggsave(filename = paste(output.dir, "/", phylotree.type, ".pdf", sep = ""), 
+    #          plot = phylotree, width = 10, height = 6.5)
+    # }
     return(phylotree)
   }
 }
