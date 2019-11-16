@@ -202,7 +202,7 @@ shinyServer(function(input, output, session){
   output$ied1 <- renderDataTable({
     if(input$iecontrol01){
       maftable <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(maftable, options = list(dom = 't', scroller = TRUE, scrollX = T, lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
+      datatable(maftable, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
   ## output Introduction of sampleinfo datatable
@@ -238,13 +238,13 @@ shinyServer(function(input, output, session){
   output$ied2_1 <- renderDataTable({
     if(input$iecontrol02){
       spd1 <- read.table('dom/sampleinfo1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd1, options = list(pageLength = 5, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+      datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
   output$ied2_2 <- renderDataTable({
     if(input$iecontrol02){
       spd1 <- read.table('dom/sampleinfo2.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd1, options = list(pageLength = 5, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+      datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
   ## output Introduction of ccf.cluster
@@ -263,7 +263,7 @@ shinyServer(function(input, output, session){
   output$ied3 <- renderDataTable({
     if(input$iecontrol03){
       spd3 <- read.table('dom/ccf.cluster.CSV',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd3, options = list(pageLength = 6, dom = 't', scrollX = T), rownames = FALSE,width = 5)
+      datatable(spd3, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
   ## output Introduction of ccf.loci
@@ -282,7 +282,7 @@ shinyServer(function(input, output, session){
   output$ied4 <- renderDataTable({
     if(input$iecontrol04){
       spd4 <- read.table('dom/ccf.loci.CSV',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd4, options = list(pageLength = 6, dom = 't', scrollX = T, fixedColumns = TRUE), rownames = FALSE,width = 5)
+      datatable(spd4, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
   output$maftable <- DT::renderDataTable({
