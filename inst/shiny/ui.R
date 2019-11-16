@@ -75,19 +75,18 @@ bodyHome <- tabItem("home",
 )
 
 bodyIP <- tabItem("input",
-                  h2('Input section'),
                   fluidRow(
                     column(
                       width = 12, 
                       column(
                         width = 3,
                         box(
-                          title = div(shiny::icon("gear"), "Upload", inline =TRUE),
+                          title = div(shiny::icon("gear"), "Input Section", inline =TRUE),
                           width = NULL,
                           conditionalPanel(
                             condition = "true",
                             fileInput(inputId = 'maf', 
-                                      label = div(style = "font-size:18px; font-weight:600;",'MAF file',
+                                      label = div(style = "font-size:1.5em; font-weight:600;",'MAF file',
                                                   tags$button(
                                                     Id = "iecontrol01",
                                                     type = "button",
@@ -100,7 +99,7 @@ bodyIP <- tabItem("input",
                                       placeholder = "example data: 311252.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:18px; font-weight:600; ", 'Sample information document',
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information document',
                                                   tags$button(
                                                     Id = "iecontrol02",
                                                     type = "button",
@@ -112,10 +111,26 @@ bodyIP <- tabItem("input",
                                       ), 
                                       placeholder = "example data: sample_info.txt", 
                                       width = 400),
+                            
+                            selectInput(inputId = 'mutType', label = div(style = "font-size:1.5em; font-weight:600; ", 'mutType'),
+                                        choices = c(All = 'All',
+                                                    nonSilent = 'nonSilent'), 
+                                        selected = "All", width = 400), 
+                            
+                            textInput(inputId = "mutNonSilent", 
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'mutNonSilent'), 
+                                      value = "NULL",
+                                      placeholder = "NULL"),
+                            
+                            textInput(inputId = "chrSilent", 
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'chrSilent'), 
+                                      value = "NULL",
+                                      placeholder = "NULL"),
+                            
                             checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
                               condition = "input.useccf == true",
-                              fileInput('ccf.cluster',label = div(style = "font-size:18px; font-weight:600; ", 'ccf.cluster file',
+                              fileInput('ccf.cluster',label = div(style = "font-size:1.5em; font-weight:600; ", 'ccf.cluster file',
                                                                   tags$button(
                                                                     Id = "iecontrol03",
                                                                     type = "button",
@@ -126,7 +141,7 @@ bodyIP <- tabItem("input",
                                                                   )
                               ),
                               placeholder = "example data: 311252.cluster.tsv", width = 400),
-                              fileInput('ccf.loci',label = div(style = "font-size:18px; font-weight:600; ", 'ccf.loci file',
+                              fileInput('ccf.loci',label = div(style = "font-size:1.5em; font-weight:600; ", 'ccf.loci file',
                                                                tags$button(
                                                                  Id = "iecontrol04",
                                                                  type = "button",
@@ -139,7 +154,7 @@ bodyIP <- tabItem("input",
                               placeholder = "example data: 311252.loci.tsv", width = 400)
                             ),
                             checkboxInput('useindel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
-                            selectInput('ref', label = div(style = "font-size:18px; font-weight:600; ", 'Select reference genome(hg19/hg38)'),
+                            selectInput('ref', label = div(style = "font-size:1.5em; font-weight:600; ", 'Select genome reference'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
                           actionBttn('submit1',div(
@@ -155,23 +170,31 @@ bodyIP <- tabItem("input",
                           # )
                         )
                       ), 
-                      column(
-                        width = 9, 
-                        # box(
-                        #   width = NULL,
-                        #   withSpinner(DT::dataTableOutput('maftable', width = '100%')),
-                        #   uiOutput("ie1"),
-                        #   br(),
-                        #   uiOutput("ie2")
-                        # )
-                        uiOutput("ie1"),
-                        uiOutput("ie2"),
-                        uiOutput("ie3"),
-                        uiOutput("ie4")
+                        column(
+                          width = 9, 
+                          box(
+                            width = NULL,box(
+                              width = NULL,
+                              div(strong("Maf Data Preview"),style = "font-size:27px; font-weight:500;"),
+                              p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
+                                style = "font-size:16px; font-weight:500;line-height:30px;"),
+                              h4(strong("Data Preview:")),
+                              DT::dataTableOutput('maftable', width = '100%'),
+                              uiOutput("ie1"),
+                              uiOutput("ie2"),
+                              uiOutput("ie3"),
+                              uiOutput("ie4")
+                            )
+                          )
+                        )
+                        # uiOutput("ie1"),
+                        # uiOutput("ie2"),
+                        # uiOutput("ie3"),
+                        # uiOutput("ie4")
                       )
                     )
                   )
-)
+
 
 
 bodyITH <- tabItem("ITH",
@@ -198,14 +221,14 @@ bodyITH <- tabItem("ITH",
                            tags$table(
                              tags$tr(id = "inline", 
                                      width = "100%",
-                                     tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min vaf:")),
+                                     tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.02, label = NULL)))
                            ), 
                            br(),
                            tags$table(
                              tags$tr(id = "inline",
                                      width = "100%",
-                                     tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max vaf:")),
+                                     tags$td(width = "30%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Max vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
                            ), 
                            br(),
@@ -243,14 +266,14 @@ bodyITH <- tabItem("ITH",
                            tags$table(
                              tags$tr(id = "inline", 
                                      width = "100%",
-                                     tags$td(width = "30%", div(style = "font-size:18px; font-weight:600; ", "Min vaf:")),
+                                     tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "minvaf", value = 0.02, label = NULL)))
                            ), 
                            br(),
                            tags$table(
                              tags$tr(id = "inline",
                                      width = "100%",
-                                     tags$td(width = "30%", tags$div(style = "font-size:18px; font-weight:600; ", "Max vaf:")),
+                                     tags$td(width = "30%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Max vaf:")),
                                      tags$td(width = "70%", textInput(inputId = "maxvaf", value = 1.00, label = NULL)))
                            ), 
                            br(),
@@ -285,13 +308,13 @@ bodyITH <- tabItem("ITH",
                            condition = "input.tith == 'caInput03'",
                            div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                            br(),
-                           selectInput("plotOption", label = div(style = "font-size:18px; font-weight:600;  ", "Plot option"),
+                           selectInput("plotOption", label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot option"),
                                        choices = c(
                                          Compare = "compare",
                                          Combine = "combine",
                                          Separate = "separate"
                                        ), selected = "compare",width = 300),
-                           selectInput("themeOption", label = div(style = "font-size:18px; font-weight:600;  ", "Theme option"),
+                           selectInput("themeOption", label = div(style = "font-size:1.5em; font-weight:600;  ", "Theme option"),
                                        choices = c(NPG = "npg",
                                                    AAAS = "aaas",
                                                    NEJM = "nejm",
@@ -311,7 +334,7 @@ bodyITH <- tabItem("ITH",
                                                    GSEA = 'gsea'),
                                        selected = "aaas",width = 300),
                            checkboxInput('showMATH',label = div(style = "font-size:15px; font-weight:400; ", 'Show MATH Score'),value = TRUE),
-                           sliderInput('width1', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
+                           sliderInput('width1', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
                            br(),
                            br(),
                            fluidRow(
@@ -340,22 +363,20 @@ bodyITH <- tabItem("ITH",
                          conditionalPanel(
                            condition = "input.tith == 'caInput05'",
                            div(strong("Parameter"), style = "font-size:2em; font-weight:600;"),
-                           
+                           br(),
                            selectInput(inputId = 'plotChoiceSpp', 
-                                       label = div(style = "font-size:1.8em; font-weight:600; ", 
-                                                   'Select a plot'), 
+                                       label = div(style = "font-size:1.5em; font-weight:600; ", 
+                                                   'Select'), 
                                        choices = c(
                                          sharedPrivatePlot = "sharedPrivatePlot",
                                          stackPlot = "stackPlot"
-                                       ), selected = "sharedPrivatePlot", width = 200),
+                                       ), selected = "sharedPrivatePlot", width = 300),
                           
                            conditionalPanel(
                              condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
-                             div(strong("- Shared-private plot"), style = "font-size:1.5em; font-weight:600;"),
-                             br(), 
                              checkboxInput('show.num1',label = div(style = "font-size:15px; font-weight:400; ", 'Show mutation number'),width = 200),
                              br(),
-                             sliderInput('width2', label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                             sliderInput('width2', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                              fluidRow(
                                column(
                                  width = 9,
@@ -382,17 +403,15 @@ bodyITH <- tabItem("ITH",
                            
                            conditionalPanel(
                              condition = "input.plotChoiceSpp == 'stackPlot'",
-                           div(strong("- Stack plot"), style = "font-size:1.5em; font-weight:600;"),
-                           br(),
                            fileInput(inputId = 'oncogeneListFile', 
-                                     label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene list file'), 
+                                     label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list file'), 
                                      placeholder = "Defalut file: oncogene.list.txt", 
                                      width = 400),
                            fileInput(inputId = 'tsgListFile', 
-                                     label = div(style = "font-size:18px; font-weight:600; ", 'TSG list file'), 
+                                     label = div(style = "font-size:1.5em; font-weight:600; ", 'TSG list file'), 
                                      placeholder = "Defalut file: TSG.list.txt", 
                                      width = 400),
-                           selectInput("themeOption2",label = div(style = "font-size:18px; font-weight:600;  ", "Theme option"),
+                           selectInput("themeOption2",label = div(style = "font-size:1.5em; font-weight:600;  ", "Theme option"),
                                        choices = c(NPG = "npg",
                                                    AAAS = "aaas",
                                                    NEJM = "nejm",
@@ -412,7 +431,7 @@ bodyITH <- tabItem("ITH",
                                                    GSEA = 'gsea'),
                                        selected = "aaas",width = 300),
                            checkboxInput('show.percentage',label = div(style = "font-size:15px; font-weight:400; ", 'Show Percentage'),value = T),
-                           sliderInput('width3',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
+                           sliderInput('width3',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
                            br(),
                            fluidRow(
                              column(
@@ -448,7 +467,7 @@ bodyITH <- tabItem("ITH",
                                          Upper = "upper",
                                          Full = "full"
                                        ), selected = "lower",width = 300),
-                           sliderInput('width4',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'), min = 400, max = 1000, value = 500, width = 500),
+                           sliderInput('width4',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'), min = 400, max = 1000, value = 500, width = 500),
                            br(),
                            br(),
                            fluidRow(
@@ -512,15 +531,14 @@ bodyITH <- tabItem("ITH",
                              title = div(icon("image"), "Vaf clustering"),
                              value = "caInput03",
                              conditionalPanel(
-                               condition = "input.plotOption == 'separate' ",
+                               condition = "input.plotOption == 'separate'",
                                uiOutput("chooselistvaf")
                              ),
-                             div(plotOutput("vaf",height = "100%"),align = "center"), 
+                             div(plotOutput("vaf",height = "100%"),align = "center"),
                              uiOutput("vcdb")
-                             
                            ),
                            tabPanel(
-                             title = div(icon("map"), "Mutsharedprivateplot & Stackplot"),
+                             title = div(icon("map"), "TrunkOrBranch summary"),
                              value = "caInput05",
                              conditionalPanel(
                                condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
@@ -613,7 +631,7 @@ bodyclone <- tabItem('clone',
                              condition = "input.clt == 'c01'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                              br(),
-                             sliderInput('width5',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                             sliderInput('width5',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                              br(),
                              br(),
                              fluidRow(
@@ -643,12 +661,12 @@ bodyclone <- tabItem('clone',
                              condition = "input.clt == 'c02'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                              br(),
-                             selectInput("inferMethod", label = div(style = "font-size:18px; font-weight:600;  ", "Infer method"),
+                             selectInput("inferMethod", label = div(style = "font-size:1.5em; font-weight:600;  ", "Infer method"),
                                          choices = c(
                                            Clonevol = "clonevol",
                                            SCHISM = "SCHISM"
-                                         ), selected = "SCHISM",width = 300),
-                             selectInput("plotOptionFish", label = div(style = "font-size:18px; font-weight:600;  ", "Plot option"),
+                                         ), selected = "SCHISM", width = 300),
+                             selectInput("plotOptionFish", label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot option"),
                                          choices = c(
                                            Fishplot = "fishplot",
                                            Timescape = "timescape"
@@ -656,18 +674,18 @@ bodyclone <- tabItem('clone',
                              conditionalPanel(
                                condition = "input.inferMethod == 'SCHISM'",
                                fileInput(inputId = 'schismCellularityFile', 
-                                         label = div(style = "font-size:18px; font-weight:600; ", 'SCHISM cellularity file'), 
+                                         label = div(style = "font-size:1.5em; font-weight:600; ", 'SCHISM cellularity file'), 
                                          placeholder = "Defalut file: E1.cluster.cellularity", 
                                          width = 400),
                                fileInput(inputId = 'schismConsensusTree', 
-                                         label = div(style = "font-size:18px; font-weight:600; ", 'SCHISM consensus tree'), 
+                                         label = div(style = "font-size:1.5em; font-weight:600; ", 'SCHISM consensus tree'), 
                                          placeholder = "Defalut file: E1.GA.consensusTree", 
                                          width = 400)
                              ),
                              conditionalPanel(
                                condition = "true",
-                               sliderInput('width11',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                               sliderInput('height11',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 300,max = 600, value = 450,width = 450)
+                               sliderInput('width11',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                               sliderInput('height11',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 300,max = 600, value = 450,width = 450)
                              ),
                              br(),
                              br(),
@@ -771,40 +789,69 @@ bodyfunction <- tabItem('function',
                                 condition = "input.fat == 'F01'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
-                                selectInput("plotType1", label = div(style = "font-size:18px; font-weight:600;  ", "Plot type"),
-                                            choices = c(
-                                              Bar = "bar",
-                                              Dot = "dot"
-                                            ),
-                                            selected = "bar",width = 300),
-                                selectInput("GO.type", label = div(style = "font-size:18px; font-weight:600;  ", "GO type"),
-                                            choices = c(
-                                              MF = "MF",
-                                              BP = "BP",
-                                              CC = "CC"
-                                            ),
-                                            selected = "BP",width = 300),
-                                selectInput("pAdjustMethod1", label = div(style = "font-size:18px; font-weight:600;  ", "Pval adjust method"),
-                                            choices = c(Holm = "holm",
-                                                        Hochberg = "hochberg",
-                                                        Hommel = "hommel",
-                                                        Bonferroni = "bonferroni",
-                                                        BH = "BH",
+# <<<<<<< HEAD
+#                                 selectInput("plotType1", label = div(style = "font-size:18px; font-weight:600;  ", "Plot type"),
+#                                             choices = c(
+#                                               Bar = "bar",
+#                                               Dot = "dot"
+#                                             ),
+#                                             selected = "bar",width = 300),
+#                                 selectInput("GO.type", label = div(style = "font-size:18px; font-weight:600;  ", "GO type"),
+#                                             choices = c(
+#                                               MF = "MF",
+#                                               BP = "BP",
+#                                               CC = "CC"
+#                                             ),
+#                                             selected = "BP",width = 300),
+#                                 selectInput("pAdjustMethod1", label = div(style = "font-size:18px; font-weight:600;  ", "Pval adjust method"),
+#                                             choices = c(Holm = "holm",
+#                                                         Hochberg = "hochberg",
+#                                                         Hommel = "hommel",
+#                                                         Bonferroni = "bonferroni",
+#                                                         BH = "BH",
+#                                                         BY = "BY",
+#                                                         FDR = "fdr",
+#                                                         None = "none"),
+#                                             selected = "BH",width = 300),
+# =======
+#                                 
+                                selectInput(inputId = "GO.type", 
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "GO.type"),
+                                            choices = c(ALL = "ALL", 
+                                                        BP = "BP",
+                                                        MF = "MF", 
+                                                        CC = "CC"),
+                                            selected = "ALL"),
+                                
+                                selectInput(inputId = "plotType", 
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "plotType"),
+                                            choices = c(dot = "dot",
+                                                        bar = "bar"),
+                                            selected = "dot"), 
+                                
+                                
+                                selectInput(inputId = "pAdjustMethod", 
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
+                                            choices = c(holm = "holm", 
+                                                        hochberg = "hochberg",
+                                                        hommel = "hommel", 
+                                                        bonferroni = "bonferroni",
+                                                        BH = "BH", 
                                                         BY = "BY",
-                                                        FDR = "fdr",
-                                                        None = "none"),
-                                            selected = "BH",width = 300),
+                                                        fdr = "fdr", 
+                                                        none = "none"),
+                                            selected = "BH"), 
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
-                                          tags$td(width = "20%", div(style = "font-size:18px; font-weight:600;  ", "Pval:")),
+                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600;  ", "Pval:")),
                                           tags$td(width = "70%", textInput(inputId = "pval1", value = 0.05, label = NULL)))
                                 ), 
                                 br(),
                                 tags$table(
                                   tags$tr(id = "inline",
                                           width = "100%",
-                                          tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:600; ", "Qval:")),
+                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Qval:")),
                                           tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
                                 ),
                                 br(),
@@ -815,8 +862,13 @@ bodyfunction <- tabItem('function',
                                           tags$td(width = "50%", textInput(inputId = "showCategory1", value =  5, label = NULL)))
                                 ),
                                 br(),
-                                sliderInput('width6',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                sliderInput('height6',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
+                                
+                                numericInput(inputId = "showCategory", 
+                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "showCategory"), 
+                                             value = 5),
+
+                                sliderInput('width6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+                                sliderInput('height6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
                                 br(),
                                 fluidRow(
                                   column(
@@ -848,39 +900,67 @@ bodyfunction <- tabItem('function',
                                 condition = "input.fat == 'F02'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
-                                selectInput("plotType2", label = div(style = "font-size:18px; font-weight:600;  ", "Plot type"),
-                                            choices = c(
-                                              Bar = "bar",
-                                              Dot = "dot"
-                                            ),
-                                            selected = "dot",width = 300),
-                                selectInput("pathway.type", label = div(style = "font-size:18px; font-weight:600;  ", "Pathway type"),
-                                            choices = c(
-                                              KEGG = "KEGG",
-                                              Reactome = "Reactome"
-                                            ),
-                                            selected = "BP",width = 300),
-                                selectInput("pAdjustMethod2", label = div(style = "font-size:18px; font-weight:600;  ", "Pval adjust method"),
-                                            choices = c(Holm = "holm",
-                                                        Hochberg = "hochberg",
-                                                        Hommel = "hommel",
-                                                        Bonferroni = "bonferroni",
-                                                        BH = "BH",
+# <<<<<<< HEAD
+#                                 selectInput("plotType2", label = div(style = "font-size:18px; font-weight:600;  ", "Plot type"),
+#                                             choices = c(
+#                                               Bar = "bar",
+#                                               Dot = "dot"
+#                                             ),
+#                                             selected = "dot",width = 300),
+#                                 selectInput("pathway.type", label = div(style = "font-size:18px; font-weight:600;  ", "Pathway type"),
+#                                             choices = c(
+#                                               KEGG = "KEGG",
+#                                               Reactome = "Reactome"
+#                                             ),
+#                                             selected = "BP",width = 300),
+#                                 selectInput("pAdjustMethod2", label = div(style = "font-size:18px; font-weight:600;  ", "Pval adjust method"),
+#                                             choices = c(Holm = "holm",
+#                                                         Hochberg = "hochberg",
+#                                                         Hommel = "hommel",
+#                                                         Bonferroni = "bonferroni",
+#                                                         BH = "BH",
+#                                                         BY = "BY",
+#                                                         FDR = "fdr",
+#                                                         None = "none"),
+#                                             selected = "BH",width = 300),
+# =======
+#                                 
+                                
+                                selectInput(inputId = "pathway.type", 
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Pathway.type"),
+                                            choices = c(KEGG = "KEGG", 
+                                                        Reactome = "Reactome"),
+                                            selected = "KEGG"),
+                                
+                                selectInput(inputId = "pathplotType", 
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "plotType"),
+                                            choices = c(dot = "dot",
+                                                        bar = "bar"),
+                                            selected = "dot"), 
+                                
+                                
+                                selectInput(inputId = "pathpAdjustMethod", 
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
+                                            choices = c(holm = "holm", 
+                                                        hochberg = "hochberg",
+                                                        hommel = "hommel", 
+                                                        bonferroni = "bonferroni",
+                                                        BH = "BH", 
                                                         BY = "BY",
-                                                        FDR = "fdr",
-                                                        None = "none"),
-                                            selected = "BH",width = 300),
+                                                        fdr = "fdr", 
+                                                        none = "none"),
+                                            selected = "BH"), 
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
-                                          tags$td(width = "20%", div(style = "font-size:18px; font-weight:600; ", "Pval:")),
+                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600; ", "Pval:")),
                                           tags$td(width = "70%", textInput(inputId = "pval2", value = 0.05, label = NULL)))
                                 ), 
                                 br(),
                                 tags$table(
                                   tags$tr(id = "inline",
                                           width = "100%",
-                                          tags$td(width = "20%", tags$div(style = "font-size:18px; font-weight:600; ", "Qval:")),
+                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Qval:")),
                                           tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
                                 ),
                                 br(),
@@ -891,8 +971,13 @@ bodyfunction <- tabItem('function',
                                           tags$td(width = "50%", textInput(inputId = "showCategory2", value =  5, label = NULL)))
                                 ),
                                 br(),
-                                sliderInput('width7',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                sliderInput('height7',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
+                                
+                                numericInput(inputId = "pathshowCategory", 
+                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "showCategory"), 
+                                             value = 5),
+                                
+                                sliderInput('width7',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+                                sliderInput('height7',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
                                 br(),
                                 fluidRow(
                                   column(
@@ -985,16 +1070,16 @@ bodySignature <- tabItem('signature',
                                  condition = "input.sgt == 'S01'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
-                                 checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
+                                 checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
                                  conditionalPanel(
                                    condition = "input.oncogeneMapping == true",
                                    fileInput(inputId = 'driverGenesFile', 
-                                             label = div(style = "font-size:18px; font-weight:600; ", 'Oncogene list'),
+                                             label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list'),
                                              placeholder = "Default file: putative_driver_genes.txt", 
                                              width = 400)
                                  ), 
-                                 numericInput('mutThreshold', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
-                                 selectInput("signaturesRef", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
+                                 numericInput('mutThreshold', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
+                                 selectInput("signaturesRef", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
                                              choices = c(signatures.cosmic = "signatures.cosmic",
                                                          signatures.nature2013 = "signatures.nature2013"),
                                              selected = "signatures.cosmic"),
@@ -1030,14 +1115,14 @@ bodySignature <- tabItem('signature',
                                  condition = "input.sgt == 'S02'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
-                                 fileInput('driverGenesFile1',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
-                                 numericInput('mutThreshold1', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
-                                 selectInput("signaturesRef1", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
+                                 fileInput('driverGenesFile1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driverGenesFile')), 
+                                 numericInput('mutThreshold1', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
+                                 selectInput("signaturesRef1", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
                                              choices = c(signatures.cosmic = "signatures.cosmic",
                                                          signatures.nature2013 = "signatures.nature2013"),
                                              selected = "signatures.cosmic"),
-                                 sliderInput(inputId='widthsig1',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                 sliderInput(inputId='heightsig1',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
+                                 sliderInput(inputId='widthsig1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
+                                 sliderInput(inputId='heightsig1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
                                  br(),
                                  br(),
                                  fluidRow(
@@ -1070,15 +1155,15 @@ bodySignature <- tabItem('signature',
                                  condition = "input.sgt == 'S03'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
-                                 fileInput('driverGenesFile2',label = div(style = "font-size:18px; font-weight:600; ", 'Upload driverGenesFile')), 
-                                 numericInput('mutThreshold2', div(style = "font-size:18px; font-weight:600;  ", 'Mutation quantity threshold'), value = 50, step=10),
-                                 selectInput("signaturesRef2", label = div(style = "font-size:18px; font-weight:600;  ", "Signautre reference"),
+                                 fileInput('driverGenesFile2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driverGenesFile')), 
+                                 numericInput('mutThreshold2', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50, step=10),
+                                 selectInput("signaturesRef2", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
                                              choices = c(signatures.cosmic = "signatures.cosmic",
                                                          signatures.nature2013 = "signatures.nature2013"),
                                              selected = "signatures.cosmic"),
                                  # radioButtons(
                                  #   inputId = "sigplot", 
-                                 #   label = div(style = "font-size:18px; font-weight:600; ", "Plot option"), 
+                                 #   label = div(style = "font-size:1.5em; font-weight:600; ", "Plot option"), 
                                  #   choiceNames = list(
                                  #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
                                  #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-trunk")
@@ -1086,9 +1171,9 @@ bodySignature <- tabItem('signature',
                                  #   choiceValues = c("signaturesprob", "branchtrunk"),
                                  #   selected = "signaturesprob", 
                                  #   inline = TRUE), 
-                                 numericInput('signiflevel', div(style = "font-size:18px; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1),
-                                 sliderInput(inputId='widthsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                 sliderInput(inputId='heightsig2',label = div(style = "font-size:18px; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
+                                 numericInput('signiflevel', div(style = "font-size:1.5em; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1),
+                                 sliderInput(inputId='widthsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
+                                 sliderInput(inputId='heightsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
                                  br(),
                                  br(),
                                  fluidRow(
@@ -1148,7 +1233,7 @@ bodySignature <- tabItem('signature',
                                    uiOutput('sigOFATableUI1')
                                  ), 
                                  tabPanel(
-                                   title = div(icon("image"), "TrunkOrBranch summary"),
+                                   title = div(icon("image"), "Mutational trunkOrBranch plot"),
                                    value = 'S03',
                                    div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
                                    uiOutput("sigpdb2")
@@ -1201,22 +1286,22 @@ bodySurvival <- tabItem('Survival',
                               width = NULL,
                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                               br(),
-                              selectInput('phyloTreeType',div(style = "font-size:18px; font-weight:600; ", 'Type'),
+                              selectInput('phyloTreeType',div(style = "font-size:1.5em; font-weight:600; ", 'Type'),
                                           c( 'njtree','newick','beast','PAML'),
                                           selected = 'njtree'),
                               conditionalPanel(
                                 condition = "input.phyloTreeType != 'njtree'",
                                 fileInput(inputId = 'phylotree.dir', 
-                                          label = div(style = "font-size:18px; font-weight:600; ", 'Phylotree file'), 
+                                          label = div(style = "font-size:1.5em; font-weight:600; ", 'Phylotree file'), 
                                           width = 400)
                               ),
                               conditionalPanel(
                                 condition = "input.phyloTreeType == 'njtree'",
-                                checkboxInput('show.mutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
-                                checkboxInput('show.heatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
+                                checkboxInput('showmutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
+                                checkboxInput('showheatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
                                 # radioButtons(
                                 #   inputId = "sig.name", 
-                                #   label = div(style = "font-size:18px; font-weight:600; ", "Signature name"), 
+                                #   label = div(style = "font-size:1.5em; font-weight:600; ", "Signature name"), 
                                 #   choiceNames = list(
                                 #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Default"), 
                                 #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Alias")
@@ -1224,9 +1309,12 @@ bodySurvival <- tabItem('Survival',
                                 #   choiceValues = c("default", "alias"),
                                 #   selected = "alias", 
                                 #   inline = TRUE),
+                              ), 
+                              conditionalPanel(
+                                condition = "input.showheatmap == true",
                                 radioButtons(
                                   inputId = "heatmap.type",
-                                  label = div(style = "font-size:18px; font-weight:600; ", "Heatmap type"),
+                                  label = div(style = "font-size:1.5em; font-weight:600; ", "Heatmap type"),
                                   choiceNames = list(
                                     tags$span(style = "font-size:14.5px; font-weight:400; ", "Binary"), 
                                     tags$span(style = "font-size:14.5px; font-weight:400; ", "CCF")
@@ -1235,7 +1323,7 @@ bodySurvival <- tabItem('Survival',
                                   selected = "binary", 
                                   inline = TRUE
                                 )
-                              ),
+                              ), 
                               fluidRow(
                                 column(
                                   width = 9,
@@ -1362,7 +1450,7 @@ shinyUI(
 
 
 table.dataTable tbody th, table.dataTable tbody td {
-    padding: 10px 18px !important;
+    padding: 10px 1.5em !important;
 }
 
                          # .shiny-notification-close {
