@@ -79,28 +79,43 @@ shinyServer(function(input, output, session){
   # })
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
+      
+      if (input$mutNonSilent == "NULL"){
+        ls.mutNonSilent <- NULL
+      } else {
+        ls.mutNonSilent <- strsplit(input$mutNonSilent, ",")
+      }
+      
+      if (input$chrSilent == "NULL"){
+        ls.chrSilent <- NULL
+      } else {
+        ls.chrSilent <- strsplit(input$chrSilent, ",")
+      }
+      
       if(is.null(input$maf) | is.null(input$sampleInfo)){
         mafFile <- './example/311252.maf'
         sampleInfoFile <- './example/sample_info.txt'
         ccfClusterTsvFile <- './example/311252.cluster.tsv'
         ccfLociTsvFile <- './example/311252.loci.tsv'
-        maf <- Meskit::readMaf(mafFile = mafFile,
+        maf <- readMaf(mafFile = mafFile, 
                                sampleInfoFile = sampleInfoFile,
-                               ccfClusterTsvFile =  ccfClusterTsvFile,
-                               ccfLociTsvFile = ccfLociTsvFile)
+                               mutType=input$mutType, 
+                               mutNonSilent=ls.mutNonSilent, 
+                               chrSilent=ls.chrSilent, 
+                               ccfClusterTsvFile = ccfClusterTsvFile,
+                               ccfLociTsvFile = ccfLociTsvFile, 
+                               refBuild="hg19")
       }
       else{
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
           maf <- Meskit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath,
-                                 inputFileName = input$maf$name)
+                                 ccfLociTsvFile = input$ccf.loci$datapath)
         }
         else{
           maf <- readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath,
-                         inputFileName = input$maf$name)
+                         sampleInfoFile = input$sampleInfo$datapath)
         }
       }
       return(maf)
@@ -187,7 +202,7 @@ shinyServer(function(input, output, session){
   output$ied1 <- renderDataTable({
     if(input$iecontrol01){
       maftable <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(maftable, options = list(autoWidth = TRUE, dom = 't', scroller = TRUE, scrollX = T, lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
+      datatable(maftable, options = list(dom = 't', scroller = TRUE, scrollX = T, lengthMenu = c(5, 100, 200, 18)), rownames = FALSE)
     }
   })
   ## output Introduction of sampleinfo datatable
@@ -271,7 +286,7 @@ shinyServer(function(input, output, session){
     }
   })
   output$maftable <- DT::renderDataTable({
-    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T),rownames = F)
+    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
   })
   stopButtonValue2 <- reactiveValues(a = 0)
   observeEvent(input$stop2,{
@@ -361,38 +376,48 @@ shinyServer(function(input, output, session){
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
       
       withProgress(min = 0, max = tsbmax+1, value = 0, {
+        setProgress(message = 'vafCluster: Calculation in progress',
+                    detail = 'This may take a while...')
+        
                      pic <- vafClusterRshiny(maf,
                                              plotOption = input$plotOption, 
                                              themeOption = input$themeOption,
                                              showMATH = input$showMATH)
                      
-                     ## Rshiny: progress bar
-                     incProgress(amount=1)
-                     setProgress(message = 'Generating ', detail = paste("VAF density plot - ", input$plotOption, " mode", sep="")) 
+                     output$chooselistvaf <- renderUI({
+                       names <- names(pic)
+                       selectInput("vsl","Branch",
+                                   choices = names, selected = names[1], width = 600)
+                     })
                      
-                     print(pic)
+                     output$vaf <- renderPlot({
+                       if(input$plotOption == "separate"){
+                         print(pic[[which(names(pic) == getOption())]])
+                       }
+                       else{
+                         print(pic)
+                       }
+                     }, 
+                     width = width1,
+                     height = 560,
+                     res = 100
+                     )
+                     
                    })
+      
 
+      
     }
   })
-  output$chooselistvaf <- renderUI({
-    names <- names(vc())
-    selectInput("vsl","Branch",
-                choices = names ,selected = names[1],width = 600)
-  })
-  output$vaf <- renderPlot({
-    if(input$plotOption == "separate"){
-      return(vc()[[which(names(vc()) == input$vsl)]])
-      print(names(vc()))
+  
+  getOption <- eventReactive(input$vsl, {
+    if (input$plotOption == "separate"){
+      return(input$vsl)
     }
-    else{
-      vc()
-    }
-  }, 
-  width = width1,
-  height = 560,
-  res = 100
-  )
+    })
+  
+
+  
   output$vcdb <- renderUI({
     if(!is.null(vc())){
       fluidRow(
@@ -660,11 +685,11 @@ shinyServer(function(input, output, session){
           need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
         )
         maf <- isolate(varsLs$maf)
-        Meskit::tumorClonesPlot(maf)
+        tumorClonesPlot(maf)
       }
       else{
         maf <- isolate(varsLs$maf)
-        Meskit::tumorClonesPlot(maf)
+        tumorClonesPlot(maf)
       }
     }
   })
@@ -791,7 +816,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      Meskit::GO.njtree(njtree, qval = as.numeric(input$qval1) ,pval = as.numeric(input$pval1))
+      Meskit::GO.njtree(njtree, 
+                        GO.type = input$GO.type, 
+                        plotType = input$plotType, 
+                        pAdjustMethod=input$pAdjustMethod, 
+                        qval = as.numeric(input$qval1), 
+                        pval = as.numeric(input$pval1), 
+                        showCategory = input$showCategory)
     }
   })
   # Datatable under GO plot
@@ -879,7 +910,14 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      list <- Meskit::Pathway.njtree(njtree, qval = as.numeric(input$qval2) ,pval = as.numeric(input$pval2))
+      list <- Meskit::Pathway.njtree(njtree, 
+                                     pathway.type=input$pathway.type, 
+                                     plotType = input$pathplotType, 
+                                     pAdjustMethod=input$pathpAdjustMethod, 
+                                     qval = as.numeric(input$qval2), 
+                                     pval = as.numeric(input$pval2),
+                                     showCategory = input$pathshowCategory
+                                     )
       return(list)
     }
   })
@@ -1228,7 +1266,7 @@ shinyServer(function(input, output, session){
           }
           p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                                      heatmap.type = input$heatmap.type, sig.name = "default",
-                                     show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+                                     show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
           return(p)
         }
         else{
@@ -1244,7 +1282,7 @@ shinyServer(function(input, output, session){
         njtree <- isolate(varsLs$njtree)
         p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
                                    heatmap.type = input$heatmap.type, sig.name = "default",
-                                   show.mutSig = input$show.mutSig, show.heatmap = input$show.heatmap)
+                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
       }

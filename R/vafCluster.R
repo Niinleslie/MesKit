@@ -101,6 +101,7 @@ vafCluster <-function(maf, vafColumn="VAF",
         }
         if (plotOption == "separate"){
             names(lsSep) <- lsSampleName
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
             return(lsSep)
         }
         ## combine: print VAF pictures for all samples in one document
@@ -135,7 +136,6 @@ vafCluster <-function(maf, vafColumn="VAF",
                     ncol = 1,
                     # rel_heights values control vertical title margins
                     rel_heights = c(0.1, 1))
-                return(suppressWarnings(suppressMessages(pic)))
                 
             } else {
                 pic <- eval(parse(text=paste("plot_grid(", 
@@ -144,9 +144,9 @@ vafCluster <-function(maf, vafColumn="VAF",
                                              ceiling(length(lsPicName)/2), 
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
-                return(suppressWarnings(suppressMessages(pic)))
             }
-            
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            return(suppressWarnings(suppressMessages(pic)))
         }
     }
     
@@ -183,6 +183,7 @@ vafCluster <-function(maf, vafColumn="VAF",
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         minVaf, maxVaf))))
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     
@@ -204,13 +205,12 @@ vafCluster <-function(maf, vafColumn="VAF",
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     else {
         stop("ERROR: plotOption settings failure.")
     }
-    message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-    
 }
 
 
@@ -245,6 +245,10 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         lsSep <- list()
         lsSampleName <- c()
         for (counterMt in seq_along(tsbLs[,1])){
+            ## Rshiny: progress bar
+            incProgress(amount=1)
+            setProgress(message = 'Processing', detail = paste(' sample ', as.character(tsbLs[,1][counterMt])))
+            
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
             mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, sampleName)
@@ -282,6 +286,7 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         }
         if (plotOption == "separate"){
             names(lsSep) <- lsSampleName
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
             return(lsSep)
         }
         ## combine: print VAF pictures for all samples in one document
@@ -316,7 +321,6 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                     ncol = 1,
                     # rel_heights values control vertical title margins
                     rel_heights = c(0.1, 1))
-                return(suppressWarnings(suppressMessages(pic)))
                 
             } else {
                 pic <- eval(parse(text=paste("plot_grid(", 
@@ -325,9 +329,12 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                              ceiling(length(lsPicName)/2), 
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
-                return(suppressWarnings(suppressMessages(pic)))
             }
-            
+            ## Rshiny: progress bar
+            incProgress(amount=1)
+            setProgress(message = 'Generating ', detail = paste("VAF density plot - ", plotOption, " mode", sep=""))
+            message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            return(suppressWarnings(suppressMessages(pic)))
         }
     }
     
@@ -368,7 +375,10 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         minVaf, maxVaf))))
-        
+        ## Rshiny: progress bar
+        incProgress(amount=1)
+        setProgress(message = 'Generating ', detail = paste("VAF density plot - ", plotOption, " mode", sep=""))
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     
@@ -390,12 +400,12 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, themeOption, 
                         plotOption, mathscore)
+        message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }
     else {
         stop("ERROR: plotOption settings failure.")
     }
-    message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
     
 }
 
@@ -547,16 +557,18 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                       theme(title=element_text(size=16), ", 
                            "text=element_text(size=18), ", 
                            "panel.grid=element_blank(), ", 
-                           "panel.border=element_blank(), ", 
+                           "panel.border=element_blank(), ",
+                           "axis.title=element_text(size=16), ", 
+                           "axis.text=element_text(size=12), ", 
                            "axis.line=element_line(size=0.25)) + ",
                            "ggridges::geom_density_ridges(fill=\"whitesmoke\", ",
-                           "calc_ecdf=TRUE, alpha=0.2) + ",
+                           "calc_ecdf=TRUE, alpha=0.5) + ",
                            "geom_point(aes(x=VAF, ", 
                            "y=Tumor_Sample_Barcode, ", 
                            "color=cluster), ", 
-                           "alpha=0.2, show.legend=FALSE) + ", 
+                           "alpha=0.5, show.legend=FALSE) + ", 
                            "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
-                           "fill=NA, calc_ecdf=TRUE, alpha=0.2, size=1) + ", 
+                           "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ", 
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption),  
                            "ggsci::scale_color_", themeOption, "() + ", 
                            "ggsci::scale_fill_", themeOption, "() + ", 
@@ -572,17 +584,19 @@ vafClusterRshiny <-function(maf, vafColumn="VAF",
                            "text=element_text(size=18), ", 
                            "panel.grid=element_blank(), ", 
                            "panel.border=element_blank(), ", 
+                           "axis.title=element_text(size=16), ", 
+                           "axis.text=element_text(size=12), ", 
                            "axis.line=element_line(size=0.25)) + ", 
                            "ggtitle(\"VAF density plot of ", patientID, ", MATH Score: ", 
                            as.character(mathscore), "\") + ", 
                            "ggridges::geom_density_ridges(fill=\"whitesmoke\", ", 
-                           "calc_ecdf=TRUE, alpha=0.2) + ",
+                           "calc_ecdf=TRUE, alpha=0.5) + ",
                            "geom_point(aes(x=VAF, ", 
                            "y=Tumor_Sample_Barcode, ", 
                            "color=cluster), ", 
-                           "alpha=0.2, show.legend=FALSE) + ", 
+                           "alpha=0.5, show.legend=FALSE) + ", 
                            "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
-                           "fill=NA, calc_ecdf=TRUE, alpha=0.2, size=1) + ",
+                           "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ",
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption), 
                            "ggsci::scale_color_", themeOption, "() + ", 
                            "ggsci::scale_fill_", themeOption, "() + ", 
