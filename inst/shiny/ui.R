@@ -1281,20 +1281,17 @@ bodySurvival <- tabItem('Survival',
                             box(
                               width = NULL,
                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                              br(),
-                              selectInput('phyloTreeType',div(style = "font-size:1.5em; font-weight:600; ", 'Type'),
-                                          c( 'njtree','newick','beast','PAML'),
-                                          selected = 'njtree'),
-                              conditionalPanel(
-                                condition = "input.phyloTreeType != 'njtree'",
-                                fileInput(inputId = 'phylotree.dir', 
-                                          label = div(style = "font-size:1.5em; font-weight:600; ", 'Phylotree file'), 
-                                          width = 400)
-                              ),
-                              conditionalPanel(
-                                condition = "input.phyloTreeType == 'njtree'",
-                                checkboxInput('showmutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
-                                checkboxInput('showheatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
+                              # selectInput('phyloTreeType',div(style = "font-size:1.5em; font-weight:600; ", 'Type'),
+                              #             c( 'njtree','newick','beast','PAML'),
+                              #             selected = 'njtree'),
+                              # conditionalPanel(
+                              #   condition = "input.phyloTreeType != 'njtree'",
+                              #   fileInput(inputId = 'phylotree.dir', 
+                              #             label = div(style = "font-size:1.5em; font-weight:600; ", 'Phylotree file'), 
+                              #             width = 400)
+                              # ),
+                              checkboxInput('showmutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
+                              checkboxInput('showheatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
                                 # radioButtons(
                                 #   inputId = "sig.name", 
                                 #   label = div(style = "font-size:1.5em; font-weight:600; ", "Signature name"), 
@@ -1305,7 +1302,6 @@ bodySurvival <- tabItem('Survival',
                                 #   choiceValues = c("default", "alias"),
                                 #   selected = "alias", 
                                 #   inline = TRUE),
-                              ), 
                               conditionalPanel(
                                 condition = "input.showheatmap == true",
                                 radioButtons(
