@@ -1257,32 +1257,28 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        if(input$phyloTreeType == 'njtree'){
           njtree <- isolate(varsLs$njtree)
           if(input$useccf == T){
             validate(
               need(input$heatmap.type == "CCF","switch heatmap type to CCF")
             )
           }
-          p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                                     heatmap.type = input$heatmap.type, sig.name = "default",
+          p <- Meskit::plotPhyloTree(njtree,heatmap.type = input$heatmap.type, sig.name = "default",
                                      show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
           return(p)
-        }
-        else{
-          validate(
-            need(!is.null(input$phylotree.dir),"Upload your phylotree file")
-          )
-          p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
-                                     phylotree.type = input$phyloTreeType)
-          return(p)
-        }
+        # else{
+        #   validate(
+        #     need(!is.null(input$phylotree.dir),"Upload your phylotree file")
+        #   )
+        #   p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
+        #                              phylotree.type = input$phyloTreeType)
+        #   return(p)
+        # }
       }
       else{
         njtree <- isolate(varsLs$njtree)
-        p <- Meskit::plotPhyloTree(njtree, phylotree.type = input$phyloTreeType, 
-                                   heatmap.type = input$heatmap.type, sig.name = "default",
-                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
+        p <- plotPhyloTree(njtree,heatmap.type = input$heatmap.type, sig.name = "default",
+                           show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
       }
