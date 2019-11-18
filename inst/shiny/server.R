@@ -1277,7 +1277,7 @@ shinyServer(function(input, output, session){
       }
       else{
         njtree <- isolate(varsLs$njtree)
-        p <- plotPhyloTree(njtree,heatmap.type = input$heatmap.type, sig.name = "default",
+        p <- Meskit::plotPhyloTree(njtree,heatmap.type = input$heatmap.type, sig.name = "default",
                            show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
