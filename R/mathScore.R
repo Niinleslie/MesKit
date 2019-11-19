@@ -60,26 +60,26 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
 
 ## Data cleaning
 .dataClean <- function(vafInputMt, tsb, minvaf, maxvaf){
-    vafColumn <- vafInputMt[which(
+    vafColumnMATH <- vafInputMt[which(
         vafInputMt$Tumor_Sample_Barcode == tsb), ]$VAF
-    vafColumn <- vafColumn[which(
-        !is.na(vafColumn))][which(
-            vafColumn > minvaf & vafColumn < maxvaf)]
-    vafColumn <- as.numeric(
-        as.character(vafColumn))[which(!is.na(vafColumn))]
-    return(vafColumn)
+    vafColumnMATH <- vafColumnMATH[which(
+        !is.na(vafColumnMATH))][which(
+            vafColumnMATH > minvaf & vafColumnMATH < maxvaf)]
+    vafColumnMATH <- as.numeric(
+        as.character(vafColumnMATH))[which(!is.na(vafColumnMATH))]
+    return(vafColumnMATH)
 }
 
 ## MATH Caculation
-.calMATH <- function(vafColumn){
-    MAD <- 1.4826*median(abs(vafColumn - median(vafColumn)))
-    MATH <- 100 * MAD / median(vafColumn)
+.calMATH <- function(vafColumnMATH){
+    MAD <- 1.4826*median(abs(vafColumnMATH - median(vafColumnMATH)))
+    MATH <- 100 * MAD / median(vafColumnMATH)
     return(round(MATH, digits=3))
 }
 
 ## Tumor burden Caculation
-.calTumorBurden <- function(vafColumn){
-    tumorBurden <- length(vafColumn)/40
+.calTumorBurden <- function(vafColumnMATH){
+    tumorBurden <- length(vafColumnMATH)/40
     return(tumorBurden)
 }
 
@@ -88,13 +88,13 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
     samplesMATH <- data.frame()
     for (counter in seq_along(tsbLs[,1])){
         for (sampleNameMt in tsbLs){
-            vafColumn <- .dataClean(
+            vafColumnMATH <- .dataClean(
                 vafInputMt, 
                 as.character(sampleNameMt)[counter], 
                 minvaf, maxvaf)
             sampleMATH <- data.frame(
                 as.character(sampleNameMt)[counter], 
-                .calMATH(vafColumn), .calTumorBurden(vafColumn))
+                .calMATH(vafColumnMATH), .calTumorBurden(vafColumnMATH))
             samplesMATH <- rbind(samplesMATH, sampleMATH)
         }
     }
@@ -105,15 +105,15 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
 
 ## MATH patient calcualtion
 .patientMATH <- function(vafInputMt, tsbLs, minvaf, maxvaf){
-    vafColumn <- vafInputMt$VAF
+    vafColumnMATH <- vafInputMt$VAF
     tsbNum <- nrow(tsbLs)
-    vafColumn <- vafColumn[which(
-        !is.na(vafColumn))][which(
-            vafColumn > minvaf & vafColumn < maxvaf)]
-    vafColumn <- as.numeric(
-        as.character(vafColumn))[which(
-            !is.na(vafColumn))]
-    result <- data.frame(MATH_score=.calMATH(vafColumn), 
-                         Tumor_Burden=length(vafColumn)/40/tsbNum)
+    vafColumnMATH <- vafColumnMATH[which(
+        !is.na(vafColumnMATH))][which(
+            vafColumnMATH > minvaf & vafColumnMATH < maxvaf)]
+    vafColumnMATH <- as.numeric(
+        as.character(vafColumnMATH))[which(
+            !is.na(vafColumnMATH))]
+    result <- data.frame(MATH_score=.calMATH(vafColumnMATH), 
+                         Tumor_Burden=length(vafColumnMATH)/40/tsbNum)
     return(result)
 }

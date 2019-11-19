@@ -5,14 +5,16 @@
 #'
 #' @import ggplot2
 #'
-#' @param mafFile MAF file directory. 
-#' @param sampleInfoFile sample_info.txt file directory.
+#' @param mafFile MAF file. 
+#' @param sampleInfoFile sample_info.txt file.
+#' @param vafColumn Default "VAF. You can select the column containing VAF values by the column name.
 #' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
 #' @param mutNonSilent Default NULL. And you can list variant classifications that you do not want them to be silent.
-#' @param chrSilent Default NULL. And you can set some 
-#' @param ccfClusterTsvFile CCF cluster.tsv file directory if ccf data provided. Default NULL.
-#' @param ccfLociTsvFile CCF loci.tsv file directory if ccf data provided. Default NULL.
-#' @param refBuild BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.
+#' @param chrSilent Default NULL. select the chromosomes you want to dismiss.
+#' @param use.indel Seclet SNP in Variant type
+#' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL.
+#' @param ccfLociTsvFile CCF loci.tsv file if ccf data provided. Default NULL.
+#' @param refBuild Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.
 #' 
 #' @return a classMaf object/class includes information of sample_info and 
 #' mut.id and summary figure of it
@@ -32,10 +34,15 @@
 #' @export readMaf
 
 ## read.maf main function
-readMaf <- function(mafFile, sampleInfoFile, vafColumn="VAF", 
-                    mutType="All", mutNonSilent=NULL, chrSilent=NULL, 
-                    ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
-                    refBuild="hg19"){
+readMaf <- function(
+    ## maf parameters
+    mafFile, sampleInfoFile, vafColumn="VAF", 
+    ## filter selection
+    mutType="All", mutNonSilent=NULL, chrSilent=NULL, use.indel=FALSE, 
+    ## ccf parameters             
+    ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
+    ## supplyment
+    refBuild="hg19"){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
@@ -116,6 +123,11 @@ readMaf <- function(mafFile, sampleInfoFile, vafColumn="VAF",
         error("mut.type setting error")
     }
     
+    ## use.indel filter
+    if(!use.indel){
+        mafInput <- mafInput[which(mafInput$Variant_Type == "SNP"),]
+    }
+    
     ## filter chromosome
     if (!is.null(chrSilent)){
         mafInput = mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
@@ -134,6 +146,8 @@ readMaf <- function(mafFile, sampleInfoFile, vafColumn="VAF",
                     ref.build=refBuild)
     
     colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
+    
+
     
     return(maf)
 }
