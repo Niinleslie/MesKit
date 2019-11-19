@@ -60,10 +60,13 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
 ##generate plot data 
 phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
   phylo <- ape::root(phylo, phylo$tip.label[which(phylo$tip.label == Root.label)])
-  phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
-  phylo$edge <- phylo$edge[-1,]
-  phylo$edge.length <- phylo$edge.length[-1]
-  phylo$Nnode <- phylo$Nnode - 1
+  ## remove redundant outgroup
+  if(0 %in% phylo$edge.length){
+    phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
+    phylo$edge <- phylo$edge[-1,]
+    phylo$edge.length <- phylo$edge.length[-1]
+    phylo$Nnode <- phylo$Nnode - 1
+  }
   phylo$edge.length <- phylo$edge.length/100
   edge <-  phylo$edge
   distance <- phylo$edge.length
@@ -158,7 +161,7 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
     #     angle.list2[x] <- angle.list2[x] + pi/18
     #   }
     # }
-    #Angle adjustment (select a branch Angle to align with the previous internal node)
+    ## Angle adjustment (select a branch Angle to align with the previous internal node)
     a <- which(sub.edge[,2] %in% verticalPath)
     if(length(a) != 0){
       if(target.node == Root.node){
