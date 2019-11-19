@@ -560,8 +560,8 @@ shinyServer(function(input, output, session){
         tsgListFile <- input$tsgListFile$datapath
       }
       maf <- isolate(varsLs$maf)
-      Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                           tsgListFile = tsgListFile, themeOption=input$themeOption2,
+      mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+                           tsgListFile = tsgListFile, 
                            show.percentage = input$show.percentage)
     }
   })

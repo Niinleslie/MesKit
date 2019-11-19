@@ -34,12 +34,10 @@
 #' 
 
 ## Main function for VAF plot
-vafCluster <-function(maf, vafColumn="VAF", 
-                      minVaf=0.02, maxVaf=1, showMATH=TRUE, 
+vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE, 
                       plotOption="combine", themeOption="aaas"){
     ## original data preparation
     ## read .maf file
-    colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
     mafInput <- maf@data
     if (max(mafInput$VAF, na.rm=TRUE) > 1){
         mafInput$VAF <- mafInput$VAF/100

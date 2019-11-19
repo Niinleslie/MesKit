@@ -40,8 +40,12 @@ cloneFishPlot <- function(
     if (inferMethod == "clonevol"){
         clusterTsvFile <- maf@ccf.cluster
         clonevol2Fishplot(clusterTsvFile, plotOption, genotypePosition)
-    } else if (!is.null(sciCloneObject)) {
-        sciclone2fishplot(sciCloneObject)
+    } else if (inferMethod == "sciclone") {
+        if (!is.null(sciCloneObject)) {
+            sciclone2fishplot(sciCloneObject)
+        } else {
+            warning("Missing sciclone object. The sciCloneObject should be the sco.RData file exported by sciClone()")
+        }
     } else if (inferMethod == "SCHISM"){
         if (!is.null(schismCellularityFile) & !is.null(schismConsensusTree)){
             schism2Fishplot(schismCellularityFile, schismConsensusTree, plotOption, genotypePosition)
@@ -281,12 +285,19 @@ schism2Fishplot <- function(schismCellularityFile, schismConsensusTree, plotOpti
                                    stringsAsFactors=FALSE, header=TRUE)
         names(GAconsensusTree) <- c("source", "target")
         
-        ## clone_colours generation
-        pal_colour <- append(pal_npg("nrc")(10), pal_aaas("default")(10))
         cloneList <- unique(clonalPrev$clone_id)
         treeEdges <- GAconsensusTree
+        pal_colour <- append(pal_npg("nrc")(10), pal_jama("default")(7), pal_nejm("default")(8)[c(2, 4, 6, 7)])
+        
+        ## clone_colours generation
+        while (length(cloneList) >= length(pal_colour)) {
+                pal_colour <- append(pal_colour, pal_colour)
+        }
+        
         clone_colours <- data.frame(clone_id = cloneList, 
                                     colour = pal_colour[1:length(cloneList)])
+
+
         
         
         ## timescape plot
@@ -315,17 +326,17 @@ sciClone2fishplot <- function(sciCloneObject) {
     
     ## prepare clonevol input
     vafs <- data.frame(cluster=sc@vafs.merged$cluster,
-                      tvaf=sc@vafs.merged$Tumor.vaf,
-                      rvaf=sc@vafs.merged$Relapse.vaf, 
-                      stringsAsFactors=F)
+                       tvaf=sc@vafs.merged$Tumor.vaf,
+                       rvaf=sc@vafs.merged$Relapse.vaf, 
+                       stringsAsFactors=F)
     vafs <- vafs[!is.na(vafs$cluster) & vafs$cluster > 0,]
     names(vafs)[2:3] <- samples
     
     ############################ run clonevol (must used) ############################
     res <- infer.clonal.models(variants=vafs, cluster.col.name="cluster", vaf.col.names=samples,
-                              subclonal.test="bootstrap", subclonal.test.model="non-parametric",
-                              cluster.center="mean", num.boots=1000, founding.cluster=1,
-                              min.cluster.vaf=0.01, sum.p=0.01, alpha=0.1, random.seed=63108)
+                               subclonal.test="bootstrap", subclonal.test.model="non-parametric",
+                               cluster.center="mean", num.boots=1000, founding.cluster=1,
+                               min.cluster.vaf=0.01, sum.p=0.01, alpha=0.1, random.seed=63108)
     
     # new clonevol
     res <- convert.consensus.tree.clone.to.branch(res, branch.scale='sqrt')

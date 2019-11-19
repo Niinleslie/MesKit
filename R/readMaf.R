@@ -32,7 +32,7 @@
 #' @export readMaf
 
 ## read.maf main function
-readMaf <- function(mafFile, sampleInfoFile, 
+readMaf <- function(mafFile, sampleInfoFile, vafColumn="VAF", 
                     mutType="All", mutNonSilent=NULL, chrSilent=NULL, 
                     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
                     refBuild="hg19"){
@@ -132,6 +132,8 @@ readMaf <- function(mafFile, sampleInfoFile,
                     ccf.loci=ccfLociTsv, 
                     patientID=patientID, 
                     ref.build=refBuild)
+    
+    colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
     
     return(maf)
 }
