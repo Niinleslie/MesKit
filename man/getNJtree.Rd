@@ -4,14 +4,12 @@
 \alias{getNJtree}
 \title{Class NJtree}
 \usage{
-getNJtree(maf, use.indel = FALSE, vafColumn = "VAF", minVaf = 0.02,
-  maxVaf = 1, ccf.mutation.id = c("Hugo_Symbol", "Chromosome",
-  "Start_Position"), ccf.mutation.sep = ":")
+getNJtree(maf, minVaf = 0.02, maxVaf = 1,
+  ccf.mutation.id = c("Hugo_Symbol", "Chromosome", "Start_Position"),
+  ccf.mutation.sep = ":")
 }
 \arguments{
 \item{maf}{return from readMaf()}
-
-\item{use.indel}{Seclet SNP in Variant type}
 
 \item{minVaf}{the minimum value of vaf}
 

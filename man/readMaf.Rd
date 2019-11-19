@@ -4,26 +4,30 @@
 \alias{readMaf}
 \title{MAF/CCF/Sample_info Reader}
 \usage{
-readMaf(mafFile, sampleInfoFile, mut.type = "All",
-  mut.nonSilent = NULL, chr.silent = NULL, ccfClusterTsvFile = NULL,
-  ccfLociTsvFile = NULL, refBuild = "hg19", inputFileName = NULL)
+readMaf(mafFile, sampleInfoFile, vafColumn = "VAF", mutType = "All",
+  mutNonSilent = NULL, chrSilent = NULL, use.indel = FALSE,
+  ccfClusterTsvFile = NULL, ccfLociTsvFile = NULL, refBuild = "hg19")
 }
 \arguments{
-\item{mafFile}{MAF file directory.}
+\item{mafFile}{MAF file.}
 
-\item{sampleInfoFile}{sample_info.txt file directory.}
+\item{sampleInfoFile}{sample_info.txt file.}
 
-\item{mut.type}{select proper variant classification you need}
+\item{vafColumn}{Default "VAF. You can select the column containing VAF values by the column name.}
 
-\item{mut.nonSilent}{}
+\item{mutType}{Default "All". "nonSilent" And you can select proper variant classification you need.}
 
-\item{ccfClusterTsvFile}{CCF cluster.tsv file directory if ccf data provided. Default NULL.}
+\item{mutNonSilent}{Default NULL. And you can list variant classifications that you do not want them to be silent.}
 
-\item{ccfLociTsvFile}{CCF loci.tsv file directory if ccf data provided. Default NULL.}
+\item{chrSilent}{Default NULL. select the chromosomes you want to dismiss.}
 
-\item{refBuild}{BSgenome.Hsapiens.UCSC reference. Default "hg19". Full genome sequences for Homo sapiens (Human) as provided by UCSC.}
+\item{use.indel}{Seclet SNP in Variant type}
 
-\item{inputFileName}{Correct error of shiny app MAF file name}
+\item{ccfClusterTsvFile}{CCF cluster.tsv file if ccf data provided. Default NULL.}
+
+\item{ccfLociTsvFile}{CCF loci.tsv file if ccf data provided. Default NULL.}
+
+\item{refBuild}{Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.}
 }
 \value{
 a classMaf object/class includes information of sample_info and 

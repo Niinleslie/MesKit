@@ -24,13 +24,8 @@ determined by parameters. VAF can be on the scale 0-1 and you could filter
 VAF with minvaf and maxvaf.
 }
 \examples{
-## data information
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-## generate MATH scores for all tsbs
-mathScore(maf, tsb=c("All"), minvaf=0, maxvaf=1)
+mathScore(maf, tsb=c("All"), minvaf=0.02, maxvaf=1)
 ## generate MATH score for specific tsbs
-mathScore(maf, tsb=c("311252-S"))
-mathScore(maf, tsb=c("311252-S", "311252-V"))
+mathScore(maf, tsb=c("SRR3670035"))
 
 }

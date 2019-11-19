@@ -11,9 +11,9 @@ LazyData: true
 Imports: utils, ape, methods, plotrix, gridExtra,
         DO.db, tidyr, dplyr, Hmisc, ggrepel,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
-        deconstructSigs, timescape, grid, 
+        deconstructSigs, grid, 
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
-        clonevol, fishplot, pdp, corrplot, mclust, treeio       
+        pdp, corrplot, mclust, treeio
 Remotes: hdng/clonevol, chrisamiller/fishplot, GuangchuangYu/treeio
 RoxygenNote: 6.1.1
 Suggests: Shiny, plolty, knitr, rmarkdown

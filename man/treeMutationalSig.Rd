@@ -15,6 +15,8 @@ treeMutationalSig(njtree, driverGenesFile = NULL, mutThreshold = 50,
 
 \item{mutThreshold}{the threshold for the variants in a branch. Default 50.}
 
+\item{signaturesRef}{}
+
 \item{plot.signatures}{the parameter used to print the signautre summary plot by ggplot2}
 }
 \value{
