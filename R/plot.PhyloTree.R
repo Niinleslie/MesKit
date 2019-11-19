@@ -60,10 +60,10 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
 ##generate plot data 
 phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
   phylo <- ape::root(phylo, phylo$tip.label[which(phylo$tip.label == Root.label)])
-  phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
-  phylo$edge <- phylo$edge[-1,]
-  phylo$edge.length <- phylo$edge.length[-1]
-  phylo$Nnode <- phylo$Nnode - 1
+  # phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
+  # phylo$edge <- phylo$edge[-1,]
+  # phylo$edge.length <- phylo$edge.length[-1]
+  # phylo$Nnode <- phylo$Nnode - 1
   phylo$edge.length <- phylo$edge.length/100
   edge <-  phylo$edge
   distance <- phylo$edge.length

@@ -13,8 +13,8 @@ Imports: utils, ape, methods, plotrix, gridExtra,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
         deconstructSigs, timescape, grid, 
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
-        clonevol, fishplot, pdp, corrplot, mclust, treeio       
-Remotes: hdng/clonevol, chrisamiller/fishplot, GuangchuangYu/treeio
+        clonevol, fishplot, pdp, corrplot, mclust       
+Remotes: hdng/clonevol, chrisamiller/fishplot
 RoxygenNote: 6.1.1
 Suggests: Shiny, plolty, knitr, rmarkdown
 VignetteBuilder: knitr
