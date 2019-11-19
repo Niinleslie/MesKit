@@ -1264,7 +1264,7 @@ shinyServer(function(input, output, session){
               need(input$heatmap.type == "CCF","switch heatmap type to CCF")
             )
           }
-          p <- Meskit::plotPhyloTree(njtree,heatmap.type = input$heatmap.type, sig.name = "default",
+          p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                      show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
           return(p)
         # else{
@@ -1278,7 +1278,7 @@ shinyServer(function(input, output, session){
       }
       else{
         njtree <- isolate(varsLs$njtree)
-        p <- Meskit::plotPhyloTree(njtree,heatmap.type = input$heatmap.type, sig.name = "default",
+        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
