@@ -99,7 +99,7 @@ bodyIP <- tabItem("input",
                                       placeholder = "example data: 311252.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information document',
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample_info File',
                                                   tags$button(
                                                     Id = "iecontrol02",
                                                     type = "button",

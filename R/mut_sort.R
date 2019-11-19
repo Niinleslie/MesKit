@@ -7,7 +7,7 @@ maf_preprocess <- function(maf.dat, use.ccf = F, ccf, ccf.mutation.id, ccf.mutat
     if(is.null(ccf)){
       stop("Missing ccf file. Check whether maf@ccf.loci is NULL")
     }
-    ccf.mut.id <- as.vector(dplyr::select(tidyr::unite(maf.dat, "ccf.mut.id", ccf.mutation.id, sep = ccf.mutation.sep), ccf.mut.id))    
+    ccf.mut.id <- as.vector(dplyr::select(tidyr::unite(maf.dat, "ccf.mut.id", ccf.mutation.id, sep = ccf.mutation.sep), ccf.mut.id))
     M <- cbind(M, ccf.mut.id=ccf.mut.id)
     M <- dplyr::select(merge(x = M, y = ccf, by.x = c("ccf.mut.id","sample"), by.y = c("mutation_id", "sample_id"), all.x =T), mut.id, sample, cellular_prevalence)
     colnames(M) <- c("mut.id", "sample", "CCF")

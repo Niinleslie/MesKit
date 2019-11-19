@@ -102,6 +102,7 @@ shinyServer(function(input, output, session){
                                mutType=input$mutType, 
                                mutNonSilent=ls.mutNonSilent, 
                                chrSilent=ls.chrSilent, 
+                               use.indel = input$useindel, 
                                ccfClusterTsvFile = ccfClusterTsvFile,
                                ccfLociTsvFile = ccfLociTsvFile, 
                                refBuild="hg19")
@@ -132,7 +133,7 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Input data: Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
-      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf), use.indel = input$useindel)
+      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf))
       incProgress(amount=1)
       
       setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
