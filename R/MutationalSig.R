@@ -92,7 +92,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         }else{
             ## deconstructSigs
             sigsInput <- suppressWarnings(
-                mut.to.sigs.input(mut.ref=mutSigRef, 
+                deconstructSigs::mut.to.sigs.input(mut.ref=mutSigRef, 
                                   sample.id="Sample", 
                                   chr="chr", 
                                   pos="pos", 
