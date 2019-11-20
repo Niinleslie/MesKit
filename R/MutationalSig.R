@@ -99,7 +99,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                   ref="ref", 
                                   alt="alt",
                                   bsg=get(refBuild)))
-            sigsWhich <- whichSignatures(tumor.ref=sigsInput, 
+            sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
                                          signatures.ref=get(signaturesRef), 
                                          sample.id=branchName,
                                          contexts.needed=TRUE)
