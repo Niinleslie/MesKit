@@ -4,8 +4,8 @@
 \alias{maf_preprocess}
 \title{get the sorted binary| ccf mutation matrix}
 \usage{
-maf_preprocess(maf.dat, use.indel = F, use.ccf = F, ccf,
-  ccf.mutation.id, ccf.mutation.sep)
+maf_preprocess(maf.dat, use.ccf = F, ccf, ccf.mutation.id,
+  ccf.mutation.sep)
 }
 \description{
 get the sorted binary| ccf mutation matrix

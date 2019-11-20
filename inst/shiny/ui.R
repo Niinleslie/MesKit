@@ -99,7 +99,7 @@ bodyIP <- tabItem("input",
                                       placeholder = "example data: 311252.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information document',
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample_info File',
                                                   tags$button(
                                                     Id = "iecontrol02",
                                                     type = "button",
@@ -407,25 +407,6 @@ bodyITH <- tabItem("ITH",
                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'TSG list file'), 
                                      placeholder = "Defalut file: TSG.list.txt", 
                                      width = 400),
-                           selectInput("themeOption2",label = div(style = "font-size:1.5em; font-weight:600;  ", "Theme option"),
-                                       choices = c(NPG = "npg",
-                                                   AAAS = "aaas",
-                                                   NEJM = "nejm",
-                                                   Lancet = "lancet",
-                                                   JAMA = "jama",
-                                                   JCO = "jco",
-                                                   UCSCGB = "ucscgb",
-                                                   D3 = "d3",
-                                                   LocusZoom = "locuszoom",
-                                                   IGV = "igv",
-                                                   UChicago = "uchicago",
-                                                   'Star Trek' = "startrek",
-                                                   'Tron Legacy' = 'tron',
-                                                   Futurama = "futurama",
-                                                   'Rick and Morty' = 'rickandmorty',
-                                                   'The Simpsons' = 'simpsons',
-                                                   GSEA = 'gsea'),
-                                       selected = "aaas",width = 300),
                            checkboxInput('show.percentage',label = div(style = "font-size:15px; font-weight:400; ", 'Show Percentage'),value = T),
                            sliderInput('width3',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
                            br(),
@@ -652,61 +633,6 @@ bodyclone <- tabItem('clone',
                                  )
                                )
                              )
-                           ),
-                           conditionalPanel(
-                             condition = "input.clt == 'c02'",
-                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                             br(),
-                             selectInput("inferMethod", label = div(style = "font-size:1.5em; font-weight:600;  ", "Infer method"),
-                                         choices = c(
-                                           Clonevol = "clonevol",
-                                           SCHISM = "SCHISM"
-                                         ), selected = "SCHISM", width = 300),
-                             selectInput("plotOptionFish", label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot option"),
-                                         choices = c(
-                                           Fishplot = "fishplot",
-                                           Timescape = "timescape"
-                                         ), selected = "timescape",width = 300),
-                             conditionalPanel(
-                               condition = "input.inferMethod == 'SCHISM'",
-                               fileInput(inputId = 'schismCellularityFile', 
-                                         label = div(style = "font-size:1.5em; font-weight:600; ", 'SCHISM cellularity file'), 
-                                         placeholder = "Defalut file: E1.cluster.cellularity", 
-                                         width = 400),
-                               fileInput(inputId = 'schismConsensusTree', 
-                                         label = div(style = "font-size:1.5em; font-weight:600; ", 'SCHISM consensus tree'), 
-                                         placeholder = "Defalut file: E1.GA.consensusTree", 
-                                         width = 400)
-                             ),
-                             conditionalPanel(
-                               condition = "true",
-                               sliderInput('width11',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                               sliderInput('height11',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 300,max = 600, value = 450,width = 450)
-                             ),
-                             br(),
-                             br(),
-                             fluidRow(
-                               column(
-                                 width = 9,
-                                 div(
-                                   tags$button(
-                                     id = "submit11", type = "button", class = "action-button bttn",
-                                     class = "bttn-unite", class = paste0("bttn-md"),
-                                     class = paste0("bttn-default"),
-                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
-                                     style = "margin-bottom:0px;margin-right:0px;"
-                                   )
-                                   # tags$button(
-                                   #   Id = "stop7",
-                                   #   type = "button",
-                                   #   class = "bttn-material-circle",
-                                   #   class = "btn action-button",
-                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                   # )
-                                 )
-                               )
-                             )
                            )
                          )
                        ),
@@ -729,19 +655,6 @@ bodyclone <- tabItem('clone',
                                div(plotOutput('cloneplot',height = "100%",width = "100%"),align = "center"),
                                br(),
                                uiOutput("clpdb")
-                             ),
-                             tabPanel(
-                               value = 'c02',
-                               title = div(icon("newspaper"), "Clonal fishplot"),
-                               conditionalPanel(
-                                 condition = "input.inferMethod == 'SCHISM'&input.plotOptionFish == 'fishplot'",
-                                 div(plotOutput('clonefishplot',height = "100%",width = "100%"),align = "center",style = "padding:0px;margin:0px"),
-                                 uiOutput("cfpdb")
-                               ),
-                               conditionalPanel(
-                                 condition = "input.inferMethod == 'SCHISM'& input.plotOptionFish == 'timescape'",
-                                 timescapeOutput(outputId="timescape", height = "450px", width = "100%")
-                               )
                              )
                            )
                          )

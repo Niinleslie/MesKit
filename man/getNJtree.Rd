@@ -4,14 +4,12 @@
 \alias{getNJtree}
 \title{Class NJtree}
 \usage{
-getNJtree(maf, use.indel = FALSE, vafColumn = "VAF", minVaf = 0.02,
-  maxVaf = 1, ccf.mutation.id = c("Hugo_Symbol", "Chromosome",
-  "Start_Position"), ccf.mutation.sep = ":")
+getNJtree(maf, minVaf = 0.02, maxVaf = 1,
+  ccf.mutation.id = c("Hugo_Symbol", "Chromosome", "Start_Position"),
+  ccf.mutation.sep = ":")
 }
 \arguments{
 \item{maf}{return from readMaf()}
-
-\item{use.indel}{Seclet SNP in Variant type}
 
 \item{minVaf}{the minimum value of vaf}
 
@@ -28,10 +26,10 @@ NJtree object
 Class NJtree
 }
 \examples{
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
-pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-maf <- readMaf(patientID="311252", mafFile=maf.File, sampleInfoFile=sampleInfoFile, refBuild="hg19")
+maf.File <- system.file("extdata/maf", "311252.maf", package = "Meskit")
+sampleInfo.File <- system.file("extdata", "sample_info.txt", package = "Meskit")
+pyCloneCluster <- system.file("extdata/ccf", "311252.cluster.tsv", package = "Meskit")
+pyCloneLoci <- system.file("extdata/ccf", "311252.loci.tsv", package = "Meskit")
+maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfoFile, refBuild="hg19")
 njtree <- getNJtree(maf)
 }

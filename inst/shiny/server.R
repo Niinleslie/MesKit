@@ -102,6 +102,7 @@ shinyServer(function(input, output, session){
                                mutType=input$mutType, 
                                mutNonSilent=ls.mutNonSilent, 
                                chrSilent=ls.chrSilent, 
+                               use.indel = input$useindel, 
                                ccfClusterTsvFile = ccfClusterTsvFile,
                                ccfLociTsvFile = ccfLociTsvFile, 
                                refBuild="hg19")
@@ -132,7 +133,7 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Input data: Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
-      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf), use.indel = input$useindel)
+      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf))
       incProgress(amount=1)
       
       setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
@@ -560,8 +561,8 @@ shinyServer(function(input, output, session){
         tsgListFile <- input$tsgListFile$datapath
       }
       maf <- isolate(varsLs$maf)
-      Meskit::mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                           tsgListFile = tsgListFile, themeOption=input$themeOption2,
+      mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+                           tsgListFile = tsgListFile, 
                            show.percentage = input$show.percentage)
     }
   })
@@ -729,78 +730,6 @@ shinyServer(function(input, output, session){
   })
   observeEvent(input$submit8,{
     stopButtonValue8$a <- 0
-  })
-  
-  cfp <- eventReactive(input$submit11, {
-    if(input$submit11){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'Clonal fishplot: Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
-      if(input$inferMethod == "SCHISM"){
-        if(is.null(input$schismCellularityFile$datapath)){
-          schismCellularityFile <- './example/E1.cluster.cellularity'
-        }
-        else{
-          schismCellularityFile <- input$schismCellularityFile$datapath
-        }
-        if(is.null(input$schismConsensusTree$datapath)){
-          schismConsensusTree <- './example/E1.GA.consensusTree'
-        }
-        else{
-          schismConsensusTree <- input$schismConsensusTree$datapath
-        }
-        Meskit::cloneFishPlot(inferMethod=input$inferMethod, plotOption=input$plotOptionFish, schismCellularityFile=schismCellularityFile, schismConsensusTree=schismConsensusTree)
-      }
-    }
-  })
-  
-  output$clonefishplot <- renderPlot({
-    cfp()
-  },
-  width = width11,
-  height = height11,
-  res = 144
-  )
-
-  
-  cfpts <- eventReactive(input$submit11, {
-    cloneFishPlot(inferMethod=input$inferMethod, plotOption="timescape",
-                  schismCellularityFile='./example/E1.cluster.cellularity',
-                  schismConsensusTree='./example/E1.GA.consensusTree')
-  })
-  
-  output$timescape <- renderTimescape({
-    cfpts()
-  })
-  
-  output$cfpdb <- renderUI({
-    if(input$submit11){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadCloneFishPlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),
-                       choiceValues = c("png", "pdf"), 
-                       inline = T)
-        ),
-        column(
-          width = 3,
-          div(downloadBttn('DownloadCloneFishPlot', 'Download'))
-        )
-      )
-    }
   })
   
 

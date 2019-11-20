@@ -4,27 +4,19 @@
 \alias{plotPhyloTree}
 \title{A  phylogenetic tree painter}
 \usage{
-plotPhyloTree(njtree = NULL, phylotree.type = "njtree",
-  use.indel = FALSE, show.mutSig = TRUE, sig.min.mut.number = 50,
-  sig.name = "default", show.heatmap = TRUE, heatmap.type = "binary",
-  savePlot = FALSE, phylotree.dat = NULL)
+plotPhyloTree(njtree = NULL, show.mutSig = TRUE,
+  sig.name = "default", show.heatmap = TRUE, heatmap.type = "binary")
 }
 \arguments{
 \item{njtree}{NJtree object}
 
-\item{phylotree.type}{Phylotree format,you can choose "njtree","newick","beast","PAML" with root}
+\item{show.mutSig}{If show Mutational Signature on tree.Default is "True"}
 
-\item{show.mutSig}{if show Mutational Signature in Images}
+\item{sig.name}{Choose "alias"  when you want showing alias in branch.Default is "default"}
 
-\item{sig.min.mut.number}{minimum mutation number in each branch}
+\item{show.heatmap}{If plot heatmap showing mutation distribution in each branch.Default is True}
 
-\item{sig.name}{choose "alias" when showing alias in branch}
-
-\item{show.heatmap}{if plot heatmap that show mutation distribution in each branch}
-
-\item{heatmap.type}{type of heatmap,choose 'CCF' if use ccf}
-
-\item{phylotree.dat}{If the format of the phylotree is not "njtree", upload the path of the file to be analyzed with this parameter}
+\item{heatmap.type}{Type of heatmap,choose 'CCF' if use ccf.Default is True}
 }
 \value{
 Images of Phylotree
@@ -35,13 +27,6 @@ A  phylogenetic tree painter
 \examples{
 plotPhyloTree(njtree)
 plotPhyloTree(njtree)
-# if use ccf 
+## Use ccf 
 plotPhyloTree(njtree, heatmap.type = 'CCF')
-# use other tree format
-newick.file <- system.file("extdata/newick", "1.nwk", package="Meskit")
-plotPhyloTree(phylotree.dat = newick.file, phylotree.type = 'newick')
-beast.file <- system.file("extdata/BEAST", "sample.beast", package="Meskit")
-plotPhyloTree(phylotree.dat = beast.file , phylotree.type = 'beast')
-PAML.file <- system.file("extdata/PAML", "sample.paml", package="Meskit")
-plotPhyloTree(phylotree.dat = PAML.file , phylotree.type = 'PAML')
 }

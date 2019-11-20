@@ -25,8 +25,7 @@
 #' 
 #' @export mutStackPlot
 
-mutStackPlot <- function(maf, oncogeneListFile, tsgListFile, 
-                         themeOption="aaas", show.percentage=FALSE) {
+mutStackPlot <- function(maf, oncogeneListFile, tsgListFile, show.percentage=FALSE) {
     ## prepare maf data with mut.id
     patientID <- maf@patientID
     mafData <- maf@data
@@ -48,7 +47,8 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile,
     plotData <- rbind(oncogeneData, tsgData)
 
     ## generate stack plot
-    ggsciFillPalette <- eval(parse(text=paste("scale_fill_", themeOption, "()", sep="")))
+    # ggsciFillPalette <- eval(parse(text=paste("scale_fill_", themeOption, "()", sep="")))
+    
     if (show.percentage){
         plotPercentage <- geom_text(color="white", size=3.5, position = position_stack(vjust = 0.5))
     } else {
@@ -68,8 +68,10 @@ mutStackPlot <- function(maf, oncogeneListFile, tsgListFile,
               legend.title=element_blank()) + 
         ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
         labs(y = "Variant number") + 
-        ggsciFillPalette
-    
+    scale_fill_manual("legend", values = c("Private" = pal_npg("nrc")(10)[1], 
+                                           "Shared" = pal_npg("nrc")(10)[3], 
+                                           "Parital-shared" = pal_npg("nrc")(10)[6]))
+    # ggsciFillPalette
 }
 
 .stackDataFilter <- function(mafData, geneLs, tsbLs, geneType) {
