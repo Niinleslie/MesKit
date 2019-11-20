@@ -233,7 +233,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
       )
     }
     
-    
     if (plot.signatures) {
         pic <- .plotMutationalSig(sigsInput, mutSigsOutput, df.aetiology)
         message(paste(njtree@patientID, " mutaional signature plot generation done!", sep=""))
