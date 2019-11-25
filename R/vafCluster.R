@@ -43,6 +43,11 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
     }
     patientID <- maf@patientID
     
+    ## fileter by minVaf and maxVaf
+    mafInput <- mafInput[which(
+      !is.na(mafInput$VAF)), ][which(
+        mafInput$VAF > minVaf & mafInput$VAF < maxVaf), ]
+    
     ## extract vaf info
     n <- length(mafInput$Hugo_Symbol)
     vafInputMt <- data.frame(mafInput$Hugo_Symbol, 
@@ -110,8 +115,8 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
                     mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
                     ]$MATH_score
                 ## set the columns of the picture and generate all single pictures
-                combineTitle <- ggdraw() + 
-                    draw_label(
+                combineTitle <-  cowplot::ggdraw() + 
+                  cowplot::draw_label(
                         paste("VAF density plot of ", patientID, ", MATH Score: ", as.character(combineMathScore), sep=""),
                         fontface = 'bold',
                         x = 0,
@@ -122,20 +127,20 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
                         # so title is aligned with left edge of first plot
                         plot.margin = margin(0, 0, 0, 7)
                     )
-                pic <- eval(parse(text=paste("plot_grid(", 
+                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
                                              paste(lsPicName, collapse=","), 
                                              ", nrow=", 
                                              ceiling(length(lsPicName)/2), 
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
-                pic <- plot_grid(
+                pic <- cowplot::plot_grid(
                     combineTitle, pic,
                     ncol = 1,
                     # rel_heights values control vertical title margins
                     rel_heights = c(0.1, 1))
                 
             } else {
-                pic <- eval(parse(text=paste("plot_grid(", 
+                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
                                              paste(lsPicName, collapse=","), 
                                              ", nrow=", 
                                              ceiling(length(lsPicName)/2), 
@@ -223,6 +228,11 @@ vafClusterRshiny <-function(maf,
     }
     patientID <- maf@patientID
     
+    ## fileter by minVaf and maxVaf
+    mafInput <- mafInput[which(
+      !is.na(mafInput$VAF)), ][which(
+        mafInput$VAF > minVaf & mafInput$VAF < maxVaf), ]
+    
     ## extract vaf info
     n <- length(mafInput$Hugo_Symbol)
     vafInputMt <- data.frame(mafInput$Hugo_Symbol, 
@@ -294,8 +304,8 @@ vafClusterRshiny <-function(maf,
                     mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
                     ]$MATH_score
                 ## set the columns of the picture and generate all single pictures
-                combineTitle <- ggdraw() + 
-                    draw_label(
+                combineTitle <- cowplot::ggdraw() + 
+                  cowplot::draw_label(
                         paste("VAF density plot of ", patientID, ", MATH Score: ", as.character(combineMathScore), sep=""),
                         fontface = 'bold',
                         x = 0,
@@ -306,20 +316,20 @@ vafClusterRshiny <-function(maf,
                         # so title is aligned with left edge of first plot
                         plot.margin = margin(0, 0, 0, 7)
                     )
-                pic <- eval(parse(text=paste("plot_grid(", 
+                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
                                              paste(lsPicName, collapse=","), 
                                              ", nrow=", 
                                              ceiling(length(lsPicName)/2), 
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
-                pic <- plot_grid(
+                pic <- cowplot::plot_grid(
                     combineTitle, pic,
                     ncol = 1,
                     # rel_heights values control vertical title margins
                     rel_heights = c(0.1, 1))
                 
             } else {
-                pic <- eval(parse(text=paste("plot_grid(", 
+                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
                                              paste(lsPicName, collapse=","), 
                                              ", nrow=", 
                                              ceiling(length(lsPicName)/2), 
@@ -557,19 +567,19 @@ vafClusterRshiny <-function(maf,
                            "axis.title=element_text(size=16), ", 
                            "axis.text=element_text(size=12), ", 
                            "axis.line=element_line(size=0.25)) + ",
-                           "ggridges::geom_density_ridges(fill=\"whitesmoke\", ",
+                      "ggridges::geom_density_ridges(fill=\"whitesmoke\", ",
                            "calc_ecdf=TRUE, alpha=0.5) + ",
-                           "geom_point(aes(x=VAF, ", 
+                      "geom_point(aes(x=VAF, ", 
                            "y=Tumor_Sample_Barcode, ", 
                            "color=cluster), ", 
                            "alpha=0.5, show.legend=FALSE) + ", 
-                           "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
+                      "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                            "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ", 
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption),  
-                           "ggsci::scale_color_", themeOption, "() + ", 
-                           "ggsci::scale_fill_", themeOption, "() + ", 
-                           "labs(y = \"Sample\") + ", 
-                           "scale_x_continuous(limits = ", "c(", as.character(minVaf), ",", as.character(maxVaf), "))", sep="")
+                      "ggsci::scale_color_", themeOption, "() + ", 
+                      "ggsci::scale_fill_", themeOption, "() + ", 
+                      "labs(y = \"Sample\") + ", 
+                      "scale_x_continuous(limits = ", "c(", as.character(minVaf), ",", as.character(maxVaf), "))", sep="")
     } else {
         vafOFACha <- paste("ggplot(clusterAll, ", 
                            "aes(x=VAF, y=Tumor_Sample_Barcode)) +
@@ -583,26 +593,26 @@ vafClusterRshiny <-function(maf,
                            "axis.title=element_text(size=16), ", 
                            "axis.text=element_text(size=12), ", 
                            "axis.line=element_line(size=0.25)) + ", 
-                           "ggtitle(\"VAF density plot of ", patientID, ", MATH Score: ", 
+                      "ggtitle(\"VAF density plot of ", patientID, ", MATH Score: ", 
                            as.character(mathscore), "\") + ", 
-                           "ggridges::geom_density_ridges(fill=\"whitesmoke\", ", 
+                      "ggridges::geom_density_ridges(fill=\"whitesmoke\", ", 
                            "calc_ecdf=TRUE, alpha=0.5) + ",
                            "geom_point(aes(x=VAF, ", 
                            "y=Tumor_Sample_Barcode, ", 
                            "color=cluster), ", 
                            "alpha=0.5, show.legend=FALSE) + ", 
-                           "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
+                      "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                            "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ",
                            .ofaVlineVAF(clusterAll, tsbLs, plotOption), 
-                           "ggsci::scale_color_", themeOption, "() + ", 
-                           "ggsci::scale_fill_", themeOption, "() + ", 
-                           "labs(y = \"Sample\") + ", 
-                           "geom_text(data=cbind(clusterAll %>% dplyr::group_by(Tumor_Sample_Barcode) %>% dplyr::summarise(), 
+                      "ggsci::scale_color_", themeOption, "() + ", 
+                      "ggsci::scale_fill_", themeOption, "() + ", 
+                      "labs(y = \"Sample\") + ", 
+                      "geom_text(data=cbind(clusterAll %>% dplyr::group_by(Tumor_Sample_Barcode) %>% dplyr::summarise(), 
                                                  MATH=unique(clusterAll$MATH), 
                                                  VAF=(clusterAll %>% dplyr::group_by(Tumor_Sample_Barcode) %>% dplyr::summarise(VAF=max(VAF)))$VAF),
                                      aes(x=0.85*max(VAF), label=paste(\"MATH Score:\", sprintf(\"%1.3f\", MATH), sep=\"\")), 
-                                     position=position_nudge(y=0.65), colour=\"black\", size=3.5) + ", 
-                           "scale_x_continuous(limits = ", "c(", as.character(minVaf), ",", as.character(maxVaf), "))", sep="")
+                                     position=position_nudge(y=0.5), colour=\"black\", size=3.5) + ", 
+                      "scale_x_continuous(limits = ", "c(", as.character(minVaf), ",", as.character(maxVaf), "))", sep="")
     }
     vafOFACha
 }
