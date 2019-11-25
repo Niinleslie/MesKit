@@ -764,16 +764,8 @@ bodyfunction <- tabItem('function',
                                           tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
                                 ),
                                 br(),
-                                tags$table(
-                                  tags$tr(id = "inline",
-                                          width = "100%",
-                                          tags$td(width = "50%", tags$div(style = "font-size:18px; font-weight:600; ", "Show category:")),
-                                          tags$td(width = "50%", textInput(inputId = "showCategory1", value =  5, label = NULL)))
-                                ),
-                                br(),
-                                
                                 numericInput(inputId = "showCategory", 
-                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "showCategory"), 
+                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "show Category"), 
                                              value = 5),
 
                                 sliderInput('width6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
