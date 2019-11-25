@@ -96,10 +96,10 @@ bodyIP <- tabItem("input",
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
                                       ), 
-                                      placeholder = "example data: 311252.maf", 
+                                      placeholder = "example data: HCC6046.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample_info File',
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information File',
                                                   tags$button(
                                                     Id = "iecontrol02",
                                                     type = "button",
@@ -109,7 +109,7 @@ bodyIP <- tabItem("input",
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
                                       ), 
-                                      placeholder = "example data: sample_info.txt", 
+                                      placeholder = "example data: HCC6046.sampleInfo.txt", 
                                       width = 400),
                             
                             selectInput(inputId = 'mutType', label = div(style = "font-size:1.5em; font-weight:600; ", 'mutType'),
@@ -121,6 +121,8 @@ bodyIP <- tabItem("input",
                                       label = div(style = "font-size:1.5em; font-weight:600; ", 'mutNonSilent'), 
                                       value = "NULL",
                                       placeholder = "NULL"),
+                            
+                            checkboxInput('useindel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
                             
                             textInput(inputId = "chrSilent", 
                                       label = div(style = "font-size:1.5em; font-weight:600; ", 'chrSilent'), 
@@ -140,7 +142,7 @@ bodyIP <- tabItem("input",
                                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                                   )
                               ),
-                              placeholder = "example data: 311252.cluster.tsv", width = 400),
+                              placeholder = "example data: HCC6046.cluster.tsv", width = 400),
                               fileInput('ccf.loci',label = div(style = "font-size:1.5em; font-weight:600; ", 'ccf.loci file',
                                                                tags$button(
                                                                  Id = "iecontrol04",
@@ -151,9 +153,8 @@ bodyIP <- tabItem("input",
                                                                  style = " background-position: center;padding:0;margin-bottom:7px;"
                                                                )
                               ),
-                              placeholder = "example data: 311252.loci.tsv", width = 400)
+                              placeholder = "example data: HCC6046.loci.tsv", width = 400)
                             ),
-                            checkboxInput('useindel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
                             selectInput('ref', label = div(style = "font-size:1.5em; font-weight:600; ", 'Select genome reference'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),

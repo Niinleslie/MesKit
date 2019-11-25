@@ -60,23 +60,6 @@ shinyServer(function(input, output, session){
     return(input$height11)
   })
   
-  # maf <- reactiveValues()
-  # observeEvent(input$submit1,{
-  #   mafFile <- './example/311252.maf'
-  #   sampleInfoFile <- './example/sample_info.txt'
-  #   ccfClusterTsvFile <- './example/311252.cluster.tsv'
-  #   ccfLociTsvFile <- './example/311252.loci.tsv'
-  #   maf$a <- Meskit::readMaf(mafFile = mafFile,
-  #                          sampleInfoFile = sampleInfoFile,
-  #                          ccfClusterTsvFile =  ccfClusterTsvFile,
-  #                          ccfLociTsvFile = ccfLociTsvFile)
-  # })
-  # output$progressBox2 <- renderInfoBox({
-  #   infoBox(
-  #     "Progress", paste0(25 + input$submit10, "%"), icon = icon("list"),
-  #     color = "purple", fill = TRUE
-  #   )
-  # })
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
       
@@ -93,10 +76,10 @@ shinyServer(function(input, output, session){
       }
       
       if(is.null(input$maf) | is.null(input$sampleInfo)){
-        mafFile <- './example/311252.maf'
-        sampleInfoFile <- './example/sample_info.txt'
-        ccfClusterTsvFile <- './example/311252.cluster.tsv'
-        ccfLociTsvFile <- './example/311252.loci.tsv'
+        mafFile <- './example/HCC6046.maf'
+        sampleInfoFile <- './example/HCC6046.sampleInfo.txt'
+        ccfClusterTsvFile <- './example/HCC6046.cluster.tsv'
+        ccfLociTsvFile <- './example/HCC6046.loci.tsv'
         maf <- readMaf(mafFile = mafFile, 
                                sampleInfoFile = sampleInfoFile,
                                mutType=input$mutType, 
