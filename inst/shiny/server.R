@@ -371,7 +371,7 @@ shinyServer(function(input, output, session){
                      output$chooselistvaf <- renderUI({
                        names <- names(pic)
                        selectInput("vsl", "Branch",
-                                   choices = names, selected = names[1], width = 600)
+                                   choices = names, width = 600)
                      })
                      
                      output$vaf <- renderPlot({
