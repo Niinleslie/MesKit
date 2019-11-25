@@ -33,7 +33,7 @@
 #' ## use different signature reference
 #' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
 #' ## print mutational signature plot
-#' signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.Signatures=TRUE)
+#' signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.signatures=TRUE)
 #' 
 #' @export treeMutationalSig
 #'
@@ -243,7 +243,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         message(paste(njtree@patientID, "branch-trunk plot generation done!", sep=""))
         return(pic)
         
-    } else if (!plot.branchTrunk & !plot.signatures){
+    } else {
         ## list of branch names
         ls.branchesName <- mutSigsOutput$branch
         ls.aeti <- c()
