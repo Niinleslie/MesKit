@@ -59,6 +59,9 @@ shinyServer(function(input, output, session){
   height11 <- reactive({
     return(input$height11)
   })
+  widthccfDen <- reactive({
+    return(input$widthccfden)
+  })
   
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
@@ -81,14 +84,14 @@ shinyServer(function(input, output, session){
         ccfClusterTsvFile <- './example/HCC6046.cluster.tsv'
         ccfLociTsvFile <- './example/HCC6046.loci.tsv'
         maf <- readMaf(mafFile = mafFile, 
-                               sampleInfoFile = sampleInfoFile,
-                               mutType=input$mutType, 
-                               mutNonSilent=ls.mutNonSilent, 
-                               chrSilent=ls.chrSilent, 
-                               use.indel = input$useindel, 
-                               ccfClusterTsvFile = ccfClusterTsvFile,
-                               ccfLociTsvFile = ccfLociTsvFile, 
-                               refBuild="hg19")
+                       sampleInfoFile = sampleInfoFile,
+                       mutType=input$mutType, 
+                       mutNonSilent=ls.mutNonSilent, 
+                       chrSilent=ls.chrSilent, 
+                       use.indel = input$useindel, 
+                       ccfClusterTsvFile = ccfClusterTsvFile,
+                       ccfLociTsvFile = ccfLociTsvFile, 
+                       refBuild="hg19")
       }
       else{
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
@@ -121,7 +124,7 @@ shinyServer(function(input, output, session){
       
       setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
       Sys.sleep(1)
-
+      
     })
   })
   
@@ -358,47 +361,61 @@ shinyServer(function(input, output, session){
     if(input$submit3 & stopButtonValue3$a != 1){
       maf <- isolate(varsLs$maf)
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
+      picSep <- NULL
       
       withProgress(min = 0, max = tsbmax+1, value = 0, {
         setProgress(message = 'vafCluster: Calculation in progress',
                     detail = 'This may take a while...')
-        
-                     pic <- vafClusterRshiny(maf,
-                                             plotOption = input$plotOption, 
-                                             themeOption = input$themeOption,
-                                             showMATH = input$showMATH)
-                     
-                     output$chooselistvaf <- renderUI({
-                       names <- names(pic)
-                       selectInput("vsl", "Branch",
-                                   choices = names, width = 600)
-                     })
-                     
-                     output$vaf <- renderPlot({
-                       if(input$plotOption == "separate"){
-                         print(pic[[which(names(pic) == getOption())]])
-                       }
-                       else{
-                         print(pic)
-                       }
-                     }, 
-                     width = width1,
-                     height = 560,
-                     res = 100
-                     )
-                     
-                   })
-      
+        if (input$plotOption == "separate") {
+          picSep <- vafClusterRshiny(maf,
+                                     plotOption = input$plotOption, 
+                                     themeOption = input$themeOption,
+                                     showMATH = input$showMATH)
+          
+          output$chooselistvaf <- renderUI({
+            if(!is.null(picSep)){
+              names <- names(picSep)
+              selectInput("vsl", "Branch",
+                          choices = names, width = 600)
+            }
+          })
+          
+          output$vaf <- renderPlot({
+            print(picSep[[which(names(picSep) == getOption())]])
+          }, 
+          width = width1,
+          height = 560,
+          res = 100
+          )
+          
+        } else {
+          pic <- vafClusterRshiny(maf,
+                                  plotOption = input$plotOption, 
+                                  themeOption = input$themeOption,
+                                  showMATH = input$showMATH)
+          
+          output$vaf <- renderPlot({
+            print(pic)
+          }, 
+          width = width1,
+          height = 560,
+          res = 100
+          )
+        }
+
+        })
     }
   })
+  
+
   
   getOption <- eventReactive(input$vsl, {
     if (input$plotOption == "separate"){
       return(input$vsl)
     }
-    })
+  })
   
-
+  
   
   output$vcdb <- renderUI({
     if(!is.null(vc())){
@@ -459,7 +476,7 @@ shinyServer(function(input, output, session){
   # res = 100
   # )
   output$mutSharedPrivatePlot <- renderPlot({
-      msp()
+    msp()
   },
   width = width2,
   height = 560,
@@ -467,26 +484,26 @@ shinyServer(function(input, output, session){
   )
   output$mspdb <- renderUI({
     if(!is.null(msp())){
-        fluidRow(
-          column(
-            width = 7
-          ),
-          column(
-            width = 2,
-            radioButtons('DownloadSharedPlotCheck',
-                         label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                         choiceNames = list(
-                           tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                           tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                         ),
-                         choiceValues = c("png", "pdf"), 
-                         inline = T)
-          ),
-          column(
-            width = 3,
-            downloadBttn('DownloadSharedPlot', 'Download')
-          )
+      fluidRow(
+        column(
+          width = 7
+        ),
+        column(
+          width = 2,
+          radioButtons('DownloadSharedPlotCheck',
+                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadSharedPlot', 'Download')
         )
+      )
     }
     # else if(!is.null(stk())){
     #     fluidRow(
@@ -543,8 +560,8 @@ shinyServer(function(input, output, session){
       }
       maf <- isolate(varsLs$maf)
       mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
-                           tsgListFile = tsgListFile, 
-                           show.percentage = input$show.percentage)
+                   tsgListFile = tsgListFile, 
+                   show.percentage = input$show.percentage)
     }
   })
   output$stackplot <- renderPlot({
@@ -705,6 +722,50 @@ shinyServer(function(input, output, session){
       )
     }
   })
+  
+  ccfden <- eventReactive(input$submitccfden, {
+    if(input$submitccfden){
+      progress <- Progress$new(session, min=0, max=1)
+      on.exit(progress$close())
+      progress$set(message = 'CCF Density: Calculation in progress',
+                   detail = 'This may take a while...')
+      maf <- isolate(varsLs$maf)
+      cd <- ccfDensity(maf, show.density = input$showdensity)
+      progress$set(value = 1)
+      return(cd)
+    }
+  })
+  output$ccfdenplot <- renderPlot({
+    ccfden()
+  },
+  width = widthccfDen,
+  height = 560,
+  res = 100
+  )
+  output$ccfdendb <- renderUI({
+    if(!is.null(ccfden())){
+      fluidRow(
+        column(
+          width = 7
+        ),
+        column(
+          width = 2,
+          radioButtons('DownloadCCFDensityCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                       choiceNames = list(
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                       ),
+                       choiceValues = c("png", "pdf"), 
+                       inline = T)
+        ),
+        column(
+          width = 3,
+          div(downloadBttn('DownloadCCFDensity', 'Download'))
+        )
+      )
+    }
+  })
+  
   stopButtonValue8 <- reactiveValues(a = 0)
   observeEvent(input$stop8,{
     stopButtonValue8$a <- 1
@@ -712,8 +773,6 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit8,{
     stopButtonValue8$a <- 0
   })
-  
-
   GO <- eventReactive(input$submit8, {
     if(input$submit8 & stopButtonValue8$a != 1){
       progress <- Progress$new(session, min=1, max=15)
@@ -827,7 +886,7 @@ shinyServer(function(input, output, session){
                                      qval = as.numeric(input$qval2), 
                                      pval = as.numeric(input$pval2),
                                      showCategory = input$pathshowCategory
-                                     )
+      )
       return(list)
     }
   })
@@ -1020,11 +1079,11 @@ shinyServer(function(input, output, session){
     }
   })
   output$sigOFAPlot1 <- renderPlot({
-      return(sigOFA1()[[1]])
-    },
-    width = widthsig1,
-    height = heightsig1,
-    res = 100
+    return(sigOFA1()[[1]])
+  },
+  width = widthsig1,
+  height = heightsig1,
+  res = 100
   )
   output$sigOFATable1 <- DT::renderDataTable({
     data <- sigOFA1()[[2]][,c(1:2)]
@@ -1167,15 +1226,15 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-          njtree <- isolate(varsLs$njtree)
-          if(input$useccf == T){
-            validate(
-              need(input$heatmap.type == "CCF","switch heatmap type to CCF")
-            )
-          }
-          p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
-                                     show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
-          return(p)
+        njtree <- isolate(varsLs$njtree)
+        if(input$useccf == T){
+          validate(
+            need(input$heatmap.type == "CCF","switch heatmap type to CCF")
+          )
+        }
+        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
+        return(p)
         # else{
         #   validate(
         #     need(!is.null(input$phylotree.dir),"Upload your phylotree file")
@@ -1224,8 +1283,8 @@ shinyServer(function(input, output, session){
       )
     }
   })
-
-## Download control  
+  
+  ## Download control  
   output$DownloadMathScore <- downloadHandler(
     filename = function() {
       paste("MathScore_",Sys.Date(),".csv", sep = '')
@@ -1259,11 +1318,12 @@ shinyServer(function(input, output, session){
       else if (input$DownloadVafPlotCheck == "pdf"){
         pdf(file,width = input$width1/100 , height = 6)
       }
-      print(vc())
+      vc()
       dev.off()
     },
     contentType = paste('image/',input$DownloadVafPlotCheck,sep="")
   )
+  
   output$DownloadStackPlot <- downloadHandler(
     filename = function() {
       paste("StackPlot",'.',input$DownloadStackPlotCheck, sep='')
@@ -1278,7 +1338,7 @@ shinyServer(function(input, output, session){
       print(stk())
       dev.off()
     },
-    contentType = paste('image/',input$DownloadVafPlotCheck,sep="")
+    contentType = paste('image/',input$DownloadStackPlotCheck,sep="")
   )
   output$DownloadJaccardIndex <- downloadHandler(
     filename = function() {
@@ -1313,7 +1373,22 @@ shinyServer(function(input, output, session){
     },
     contentType = paste('image/',input$DownloadSharedPlotCheck,sep="")
   )
-  
+  output$DownloadCCFDensity <- downloadHandler(
+    filename = function() {
+      paste("ClonePlot",'.',input$DownloadClonePlotCheck, sep='')
+    },
+    content = function(file) {
+      if (input$DownloadCCFDensityCheck == "png"){
+        png(file,width = input$widthccfden , height = 560,res = 100)
+      }
+      else if (input$DownloadCCFDensityCheck == "pdf"){
+        pdf(file,width = input$widthccfden/100 , height = 6)
+      }
+      print(ccfden())
+      dev.off()
+    },
+    contentType = paste('image/',input$DownloadCCFDensityCheck,sep="")
+  )
   output$DownloadClonePlot <- downloadHandler(
     filename = function() {
       paste("ClonePlot",'.',input$DownloadClonePlotCheck, sep='')
@@ -1418,7 +1493,7 @@ shinyServer(function(input, output, session){
     },
     contentType = 'text/csv'
   )
-    
+  
   output$DownloadSignaturePlot1 <- downloadHandler(
     filename = function() {
       paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck1, sep='')

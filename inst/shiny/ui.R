@@ -634,6 +634,38 @@ bodyclone <- tabItem('clone',
                                  )
                                )
                              )
+                           ), 
+                           conditionalPanel(
+                             condition = "input.clt == 'c02'",
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             br(),
+                             checkboxInput('showdensity', label = div(style = "font-size:15px; ", 'Show density'),value = FALSE,width = 400),
+                             br(),
+                             sliderInput('widthccfden',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                             br(),
+                             br(),
+                             fluidRow(
+                               column(
+                                 width = 9,
+                                 div(
+                                   tags$button(
+                                     id = "submitccfden", type = "button", class = "action-button bttn",
+                                     class = "bttn-unite", class = paste0("bttn-md"),
+                                     class = paste0("bttn-default"),
+                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                     style = "margin-bottom:0px;margin-right:0px;"
+                                   )
+                                   # tags$button(
+                                   #   Id = "stop7",
+                                   #   type = "button",
+                                   #   class = "bttn-material-circle",
+                                   #   class = "btn action-button",
+                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                   # )
+                                 )
+                               )
+                             )
                            )
                          )
                        ),
@@ -652,10 +684,17 @@ bodyclone <- tabItem('clone',
                              width = "100%",
                              tabPanel(
                                value = 'c01',
-                               title = div(icon("newspaper"), "Subclonal plot"),
-                               div(plotOutput('cloneplot',height = "100%",width = "100%"),align = "center"),
+                               title = div(icon("newspaper"), "Subclonal plot"), 
+                               div(plotOutput('cloneplot', height = "100%", width = "100%"), align = "center"),
                                br(),
                                uiOutput("clpdb")
+                             ),
+                             tabPanel(
+                               value = 'c02',
+                               title = div(icon("newspaper"), "CCF Density"), 
+                               div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
+                               br(),
+                               uiOutput("ccfdendb")
                              )
                            )
                          )
