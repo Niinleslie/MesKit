@@ -35,7 +35,7 @@ ccfDensity <- function(maf, show.density = TRUE){
       theme(panel.background = element_blank()) +
       theme(panel.background = element_rect(colour = "black", size = 0.4)) +
       labs(x = S1, y = S2) +
-      ggtitle(paste("CCF density plot in paired samples: ", S1, "-", S2, sep = "")) +
+      ggtitle(paste("CCF density plot in paired samples:\n ", S1, "-", S2, sep = "")) +
       theme(plot.title = element_text(hjust = 0.5))
     
     if (show.density){
