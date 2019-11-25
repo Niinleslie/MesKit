@@ -48,9 +48,10 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
     pm <- getPrivateMutation(njtree)
     totalMut.sum <- pm[[1]]
     privateMut.proportion <- pm[[2]]
-    PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.44,y = -0.12, width = 0.15)
+    PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.46,y = -0.12, width = 0.15)
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMut.sum ,"; ",privateMut.proportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
+    # ggsave(filename = "./tree.pdf",plot = PH, width = 10, height = 6.5)
     return(PH)
   }
   else{
@@ -330,7 +331,6 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
     }
     t = t + 1
   }
-  
   #right part of tree
   t=1
   sample.right <- plot.data[which(plot.data$sample != 'internal node' & 
