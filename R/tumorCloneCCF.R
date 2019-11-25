@@ -19,7 +19,8 @@ tumorClonesPlot <- function(maf, clone.min.mut = 5, clone.min.aveCCF = 0.1){
   ccfCluster <- ccfCluster[which(ccfCluster$size>=5 & ccfCluster$mean>=0.1),c(1,2,4)]
   cluster.ids <- unique(ccfCluster$cluster_id)
 
-
+  mean <- max(ccfCluster$mean)
+  label <- factor(ccfCluster$sample_id)
   ccfLoci <- maf@ccf.loci
   if(is.null(ccfCluster)){
     stop("ccf data of loci was not found when readMaf")
@@ -29,8 +30,7 @@ tumorClonesPlot <- function(maf, clone.min.mut = 5, clone.min.aveCCF = 0.1){
   
   radar_plot <- ggplot(ccfCluster, aes(x=sample_id, y=mean, fill=factor(cluster_id))) + geom_bar(stat="identity") + coord_polar()+ 
           theme_bw() + scale_fill_npg(labels=as.character(seq(length(cluster.ids))))+
-            geom_text(y = 2*mean, label = label,
-                      position = position_identity())+
+            geom_text(y = 2*mean, label = label,position = position_identity())+
             theme(panel.grid = element_blank(),
             panel.border= element_blank(),
             axis.text.x = element_blank(), 
