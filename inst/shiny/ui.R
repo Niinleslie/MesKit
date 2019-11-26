@@ -8,6 +8,7 @@ suppressMessages(library(shinydashboard))
 suppressMessages(library(shinyWidgets))
 suppressMessages(library(shinycssloaders))
 suppressMessages(library(shinyjs))
+suppressMessages(library(shinyBS))
 suppressMessages(library(Meskit))
 suppressMessages(library(timescape))
 
@@ -96,10 +97,10 @@ bodyIP <- tabItem("input",
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
                                       ), 
-                                      placeholder = "example data: 311252.maf", 
+                                      placeholder = "example data: HCC6046.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample_info File',
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information File',
                                                   tags$button(
                                                     Id = "iecontrol02",
                                                     type = "button",
@@ -109,23 +110,49 @@ bodyIP <- tabItem("input",
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
                                       ), 
-                                      placeholder = "example data: sample_info.txt", 
+                                      placeholder = "example data: HCC6046.sampleInfo.txt", 
                                       width = 400),
                             
-                            selectInput(inputId = 'mutType', label = div(style = "font-size:1.5em; font-weight:600; ", 'mutType'),
+                            selectInput(inputId = 'mutType', 
+                                        label = div(style = "font-size:1.5em; font-weight:600; ", 'Filter option'),
                                         choices = c(All = 'All',
                                                     nonSilent = 'nonSilent'), 
                                         selected = "All", width = 400), 
+                            bsTooltip(id = "mutType", 
+                                      title = "Choose whether use nonsilent list to filter variant classification.", 
+                                      placement = "right", 
+                                      trigger = "hover", 
+                                      options = NULL), 
                             
-                            textInput(inputId = "mutNonSilent", 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'mutNonSilent'), 
-                                      value = "NULL",
-                                      placeholder = "NULL"),
+                            conditionalPanel(
+                              condition="input.mutType == 'nonSilent'", 
+                              selectInput(inputId = 'mutNonSilent', 
+                                          label = div(style = "font-size:1.5em; font-weight:600; ", 'Variant classification filter(Inclusive)'),
+                                          choices = c(),
+                                          multiple = TRUE, 
+                                          width = 400), 
+                              bsTooltip(id = "mutNonSilent", 
+                                        title = "Select variant classification needed to be silent", 
+                                        placement = "right", 
+                                        trigger = "hover", 
+                                        options = NULL), 
+
+                            ), 
+                            
+                            checkboxInput('useindel', 
+                                          label = div(style = "font-size:15px; ", 'use indel'), 
+                                          value = FALSE, 
+                                          width = 400),
                             
                             textInput(inputId = "chrSilent", 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'chrSilent'), 
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Chromosome filter(Exclusive)'), 
                                       value = "NULL",
                                       placeholder = "NULL"),
+                            bsTooltip(id = "chrSilent", 
+                                      title = "Choose chromosomes needed to be silent in this analysis", 
+                                      placement = "right", 
+                                      trigger = "hover", 
+                                      options = NULL), 
                             
                             checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
@@ -140,7 +167,7 @@ bodyIP <- tabItem("input",
                                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                                   )
                               ),
-                              placeholder = "example data: 311252.cluster.tsv", width = 400),
+                              placeholder = "example data: HCC6046.cluster.tsv", width = 400),
                               fileInput('ccf.loci',label = div(style = "font-size:1.5em; font-weight:600; ", 'ccf.loci file',
                                                                tags$button(
                                                                  Id = "iecontrol04",
@@ -151,9 +178,8 @@ bodyIP <- tabItem("input",
                                                                  style = " background-position: center;padding:0;margin-bottom:7px;"
                                                                )
                               ),
-                              placeholder = "example data: 311252.loci.tsv", width = 400)
+                              placeholder = "example data: HCC6046.loci.tsv", width = 400)
                             ),
-                            checkboxInput('useindel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
                             selectInput('ref', label = div(style = "font-size:1.5em; font-weight:600; ", 'Select genome reference'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
@@ -365,7 +391,7 @@ bodyITH <- tabItem("ITH",
                                                    'Select'), 
                                        choices = c(
                                          sharedPrivatePlot = "sharedPrivatePlot",
-                                         stackPlot = "stackPlot"
+                                         mutOncoTSG = "mutOncoTSG"
                                        ), selected = "sharedPrivatePlot", width = 300),
                           
                            conditionalPanel(
@@ -398,7 +424,7 @@ bodyITH <- tabItem("ITH",
                            ),
                            
                            conditionalPanel(
-                             condition = "input.plotChoiceSpp == 'stackPlot'",
+                             condition = "input.plotChoiceSpp == 'mutOncoTSG'",
                            fileInput(inputId = 'oncogeneListFile', 
                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list file'), 
                                      placeholder = "Defalut file: oncogene.list.txt", 
@@ -524,8 +550,8 @@ bodyITH <- tabItem("ITH",
                                uiOutput("mspdb")
                              ),
                              conditionalPanel(
-                               condition = "input.plotChoiceSpp == 'stackPlot'",
-                               div(plotOutput("stackplot",height = "100%"),align ="center"),
+                               condition = "input.plotChoiceSpp == 'mutOncoTSG'",
+                               div(plotOutput("mutoncotsg",height = "100%"),align ="center"),
                                br(),
                                uiOutput("stkdb")
                              )
@@ -633,6 +659,38 @@ bodyclone <- tabItem('clone',
                                  )
                                )
                              )
+                           ), 
+                           conditionalPanel(
+                             condition = "input.clt == 'c02'",
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             br(),
+                             checkboxInput('showdensity', label = div(style = "font-size:15px; ", 'Show density'),value = FALSE,width = 400),
+                             br(),
+                             sliderInput('widthccfden',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                             br(),
+                             br(),
+                             fluidRow(
+                               column(
+                                 width = 9,
+                                 div(
+                                   tags$button(
+                                     id = "submitccfden", type = "button", class = "action-button bttn",
+                                     class = "bttn-unite", class = paste0("bttn-md"),
+                                     class = paste0("bttn-default"),
+                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                     style = "margin-bottom:0px;margin-right:0px;"
+                                   )
+                                   # tags$button(
+                                   #   Id = "stop7",
+                                   #   type = "button",
+                                   #   class = "bttn-material-circle",
+                                   #   class = "btn action-button",
+                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                   # )
+                                 )
+                               )
+                             )
                            )
                          )
                        ),
@@ -651,10 +709,17 @@ bodyclone <- tabItem('clone',
                              width = "100%",
                              tabPanel(
                                value = 'c01',
-                               title = div(icon("newspaper"), "Subclonal plot"),
-                               div(plotOutput('cloneplot',height = "100%",width = "100%"),align = "center"),
+                               title = div(icon("newspaper"), "Subclonal plot"), 
+                               div(plotOutput('cloneplot', height = "100%", width = "100%"), align = "center"),
                                br(),
                                uiOutput("clpdb")
+                             ),
+                             tabPanel(
+                               value = 'c02',
+                               title = div(icon("newspaper"), "CCF Density"), 
+                               div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
+                               br(),
+                               uiOutput("ccfdendb")
                              )
                            )
                          )
@@ -738,7 +803,6 @@ bodyfunction <- tabItem('function',
                                                         bar = "bar"),
                                             selected = "dot"), 
                                 
-                                
                                 selectInput(inputId = "pAdjustMethod", 
                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
                                             choices = c(holm = "holm", 
@@ -750,6 +814,7 @@ bodyfunction <- tabItem('function',
                                                         fdr = "fdr", 
                                                         none = "none"),
                                             selected = "BH"), 
+
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
@@ -764,16 +829,8 @@ bodyfunction <- tabItem('function',
                                           tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
                                 ),
                                 br(),
-                                tags$table(
-                                  tags$tr(id = "inline",
-                                          width = "100%",
-                                          tags$td(width = "50%", tags$div(style = "font-size:18px; font-weight:600; ", "Show category:")),
-                                          tags$td(width = "50%", textInput(inputId = "showCategory1", value =  5, label = NULL)))
-                                ),
-                                br(),
-                                
                                 numericInput(inputId = "showCategory", 
-                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "showCategory"), 
+                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "show Category"), 
                                              value = 5),
 
                                 sliderInput('width6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
@@ -1356,6 +1413,10 @@ shinyUI(
 
 table.dataTable tbody th, table.dataTable tbody td {
     padding: 10px 1.5em !important;
+}
+
+.tooltip {
+    min-width: 15em !important;
 }
 
                          # .shiny-notification-close {
