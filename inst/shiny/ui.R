@@ -391,7 +391,7 @@ bodyITH <- tabItem("ITH",
                                                    'Select'), 
                                        choices = c(
                                          sharedPrivatePlot = "sharedPrivatePlot",
-                                         stackPlot = "stackPlot"
+                                         mutOncoTSG = "mutOncoTSG"
                                        ), selected = "sharedPrivatePlot", width = 300),
                           
                            conditionalPanel(
@@ -424,7 +424,7 @@ bodyITH <- tabItem("ITH",
                            ),
                            
                            conditionalPanel(
-                             condition = "input.plotChoiceSpp == 'stackPlot'",
+                             condition = "input.plotChoiceSpp == 'mutOncoTSG'",
                            fileInput(inputId = 'oncogeneListFile', 
                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list file'), 
                                      placeholder = "Defalut file: oncogene.list.txt", 
@@ -550,8 +550,8 @@ bodyITH <- tabItem("ITH",
                                uiOutput("mspdb")
                              ),
                              conditionalPanel(
-                               condition = "input.plotChoiceSpp == 'stackPlot'",
-                               div(plotOutput("stackplot",height = "100%"),align ="center"),
+                               condition = "input.plotChoiceSpp == 'mutOncoTSG'",
+                               div(plotOutput("mutoncotsg",height = "100%"),align ="center"),
                                br(),
                                uiOutput("stkdb")
                              )

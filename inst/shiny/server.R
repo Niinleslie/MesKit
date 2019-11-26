@@ -98,21 +98,27 @@ shinyServer(function(input, output, session){
                                    "Translation_Start_Site", "Nonsense_Mutation", 
                                    "Nonstop_Mutation", "In_Frame_Del",
                                    "In_Frame_Ins", "Missense_Mutation"))
+    return(colMt)
   })
   
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
       
-      if (input$mutNonSilent == "NULL"){
-        ls.mutNonSilent <- NULL
-      } else {
+      if (!is.null(input$mutNonSilent)){
         ls.mutNonSilent <- strsplit(input$mutNonSilent, ",")
+      } else {
+        ls.mutNonSilent <- "Default"
+        updateSelectInput(session, "mutNonSilent", 
+                          selected = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+                                       "Translation_Start_Site", "Nonsense_Mutation", 
+                                       "Nonstop_Mutation", "In_Frame_Del",
+                                       "In_Frame_Ins", "Missense_Mutation"))
       }
       
-      if (input$chrSilent == "NULL"){
-        ls.chrSilent <- NULL
-      } else {
+      if (!is.null(input$chrSilent)){
         ls.chrSilent <- strsplit(input$chrSilent, ",")
+      } else {
+        ls.chrSilent <- NULL
       }
       
       if(is.null(input$maf) | is.null(input$sampleInfo)){
@@ -575,7 +581,7 @@ shinyServer(function(input, output, session){
     if(input$submit5 & stopButtonValue5$a != 1){
       progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
-      progress$set(message = 'Stackplot: Calculation in progress',
+      progress$set(message = 'mutOncoTSG: Calculation in progress',
                    detail = 'This may take a while...')
       
       for (i in 1:15) {
@@ -595,12 +601,12 @@ shinyServer(function(input, output, session){
         tsgListFile <- input$tsgListFile$datapath
       }
       maf <- isolate(varsLs$maf)
-      mutStackPlot(maf, oncogeneListFile = oncogeneListFile,
+      mutOncoTSG(maf, oncogeneListFile = oncogeneListFile,
                    tsgListFile = tsgListFile, 
                    show.percentage = input$show.percentage)
     }
   })
-  output$stackplot <- renderPlot({
+  output$mutoncotsg <- renderPlot({
     stk()
   },
   width = width3,
@@ -1362,7 +1368,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadStackPlot <- downloadHandler(
     filename = function() {
-      paste("StackPlot",'.',input$DownloadStackPlotCheck, sep='')
+      paste("mutOncoTSG",'.',input$DownloadStackPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadStackPlotCheck == "png"){
