@@ -8,6 +8,7 @@ suppressMessages(library(shinydashboard))
 suppressMessages(library(shinyWidgets))
 suppressMessages(library(shinycssloaders))
 suppressMessages(library(shinyjs))
+suppressMessages(library(shinyBS))
 suppressMessages(library(Meskit))
 suppressMessages(library(timescape))
 
@@ -113,15 +114,30 @@ bodyIP <- tabItem("input",
                                       width = 400),
                             
                             selectInput(inputId = 'mutType', 
-                                        label = div(style = "font-size:1.5em; font-weight:600; ", 'Mutational type filter'),
+                                        label = div(style = "font-size:1.5em; font-weight:600; ", 'Filter option'),
                                         choices = c(All = 'All',
                                                     nonSilent = 'nonSilent'), 
                                         selected = "All", width = 400), 
+                            bsTooltip(id = "mutType", 
+                                      title = "Choose whether use nonsilent list to filter variant classification.", 
+                                      placement = "right", 
+                                      trigger = "hover", 
+                                      options = NULL), 
                             
-                            textInput(inputId = "mutNonSilent", 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Variant classification filter'), 
-                                      value = "NULL",
-                                      placeholder = "NULL"),
+                            conditionalPanel(
+                              condition="input.mutType == 'nonSilent'", 
+                              selectInput(inputId = 'mutNonSilent', 
+                                          label = div(style = "font-size:1.5em; font-weight:600; ", 'Variant classification filter(Inclusive)'),
+                                          choices = c(),
+                                          multiple = TRUE, 
+                                          width = 400), 
+                              bsTooltip(id = "mutNonSilent", 
+                                        title = "Select variant classification needed to be silent", 
+                                        placement = "right", 
+                                        trigger = "hover", 
+                                        options = NULL), 
+
+                            ), 
                             
                             checkboxInput('useindel', 
                                           label = div(style = "font-size:15px; ", 'use indel'), 
@@ -129,9 +145,14 @@ bodyIP <- tabItem("input",
                                           width = 400),
                             
                             textInput(inputId = "chrSilent", 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Chromosome filter'), 
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Chromosome filter(Exclusive)'), 
                                       value = "NULL",
                                       placeholder = "NULL"),
+                            bsTooltip(id = "chrSilent", 
+                                      title = "Choose chromosomes needed to be silent in this analysis", 
+                                      placement = "right", 
+                                      trigger = "hover", 
+                                      options = NULL), 
                             
                             checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
                             conditionalPanel(
@@ -782,7 +803,6 @@ bodyfunction <- tabItem('function',
                                                         bar = "bar"),
                                             selected = "dot"), 
                                 
-                                
                                 selectInput(inputId = "pAdjustMethod", 
                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
                                             choices = c(holm = "holm", 
@@ -794,6 +814,7 @@ bodyfunction <- tabItem('function',
                                                         fdr = "fdr", 
                                                         none = "none"),
                                             selected = "BH"), 
+
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
@@ -1392,6 +1413,10 @@ shinyUI(
 
 table.dataTable tbody th, table.dataTable tbody td {
     padding: 10px 1.5em !important;
+}
+
+.tooltip {
+    min-width: 15em !important;
 }
 
                          # .shiny-notification-close {

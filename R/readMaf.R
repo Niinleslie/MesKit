@@ -116,7 +116,7 @@ readMaf <- function(
         } else {
             nonSilent <- mutNonSilent 
         }
-        mafInput = mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
+        mafInput <- mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
     } else if (mutType == "All"){
         # message("All variant classification submitted")
     } else {
@@ -130,7 +130,7 @@ readMaf <- function(
     
     ## filter chromosome
     if (!is.null(chrSilent)){
-        mafInput = mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
+        mafInput <- mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
     }
     
     ## transform data.frame to data.table

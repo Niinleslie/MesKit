@@ -63,6 +63,43 @@ shinyServer(function(input, output, session){
     return(input$widthccfden)
   })
   
+
+  
+  inputSilent <- observe({
+    if (!is.null(input$maf)) {
+      mafFile <- input$maf$datapath
+      .substrRight <- function(x, n){
+        substr(x, nchar(x)-n+1, nchar(x))
+      }
+      ## read maf file
+      if (.substrRight(mafFile, 3) == ".gz") {
+        mafInput <- read.table(mafGz <- gzfile(mafFile, "r"), quote="",
+                               header=TRUE, fill=TRUE,
+                               sep='\t')
+        close(mafGz)
+      } else {
+        mafInput <- read.table(mafFile, quote="",
+                               header=TRUE, fill=TRUE,
+                               sep='\t')
+      }
+    } else {
+      mafFile <- './example/HCC6046.maf'
+      sampleInfoFile <- './example/HCC6046.sampleInfo.txt'
+      ccfClusterTsvFile <- './example/HCC6046.cluster.tsv'
+      ccfLociTsvFile <- './example/HCC6046.loci.tsv'
+      mafInput <- read.table(mafFile, quote="",
+                             header=TRUE, fill=TRUE,
+                             sep='\t')
+    }
+    colMt <- unique(mafInput$Variant_Classification)
+    updateSelectInput(session, "mutNonSilent", 
+                      choices=colMt, 
+                      selected = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+                                   "Translation_Start_Site", "Nonsense_Mutation", 
+                                   "Nonstop_Mutation", "In_Frame_Del",
+                                   "In_Frame_Ins", "Missense_Mutation"))
+  })
+  
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
       
@@ -92,8 +129,7 @@ shinyServer(function(input, output, session){
                        ccfClusterTsvFile = ccfClusterTsvFile,
                        ccfLociTsvFile = ccfLociTsvFile, 
                        refBuild="hg19")
-      }
-      else{
+      } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
           maf <- Meskit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
