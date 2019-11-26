@@ -11,10 +11,10 @@
 #' @param driverGenesFile the directory of the driver gene list. Default NULL.
 #' @param mutThreshold the threshold for the variants in a branch. Default 50.
 #' @param plot.signatures the parameter used to print the signautre summary plot by ggplot2
-#' @param signaturesRef 
-#' @param plot.signatures
-#' @param plot.branchTrunk
-#' @param signif.level
+#' @param signaturesRef Default "signature.cosmic". Option: "signature2013". the parameter used for deconstructSig.
+#' @param plot.signatures choose whether plot signatures
+#' @param plot.branchTrunk choose whether output a branch-Trunk plot.
+#' @param signif.level the significance level to vertify whether the kind of mutation is significant.
 #' @return data frame of each set/branch's mutational signature.
 #' 
 #' @examples
