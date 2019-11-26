@@ -112,20 +112,24 @@ bodyIP <- tabItem("input",
                                       placeholder = "example data: HCC6046.sampleInfo.txt", 
                                       width = 400),
                             
-                            selectInput(inputId = 'mutType', label = div(style = "font-size:1.5em; font-weight:600; ", 'mutType'),
+                            selectInput(inputId = 'mutType', 
+                                        label = div(style = "font-size:1.5em; font-weight:600; ", 'Mutational type filter'),
                                         choices = c(All = 'All',
                                                     nonSilent = 'nonSilent'), 
                                         selected = "All", width = 400), 
                             
                             textInput(inputId = "mutNonSilent", 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'mutNonSilent'), 
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Variant classification filter'), 
                                       value = "NULL",
                                       placeholder = "NULL"),
                             
-                            checkboxInput('useindel', label = div(style = "font-size:15px; ", 'use indel'),value = FALSE,width = 400),
+                            checkboxInput('useindel', 
+                                          label = div(style = "font-size:15px; ", 'use indel'), 
+                                          value = FALSE, 
+                                          width = 400),
                             
                             textInput(inputId = "chrSilent", 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'chrSilent'), 
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Chromosome filter'), 
                                       value = "NULL",
                                       placeholder = "NULL"),
                             
