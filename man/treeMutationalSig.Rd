@@ -15,9 +15,15 @@ treeMutationalSig(njtree, driverGenesFile = NULL, mutThreshold = 50,
 
 \item{mutThreshold}{the threshold for the variants in a branch. Default 50.}
 
-\item{signaturesRef}{}
+\item{signaturesRef}{Default "signature.cosmic". Option: "signature2013". the parameter used for deconstructSig.}
 
 \item{plot.signatures}{the parameter used to print the signautre summary plot by ggplot2}
+
+\item{plot.branchTrunk}{choose whether output a branch-Trunk plot.}
+
+\item{signif.level}{the significance level to vertify whether the kind of mutation is significant.}
+
+\item{plot.signatures}{choose whether plot signatures}
 }
 \value{
 data frame of each set/branch's mutational signature.
@@ -45,6 +51,6 @@ signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File
 ## use different signature reference
 signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
 ## print mutational signature plot
-signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.Signatures=TRUE)
+signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.signatures=TRUE)
 
 }
