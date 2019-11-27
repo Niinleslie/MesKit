@@ -9,7 +9,7 @@
 #' @param sampleInfoFile sample_info.txt file.
 #' @param vafColumn Default "VAF. You can select the column containing VAF values by the column name.
 #' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
-#' @param mutNonSilent Default NULL. And you can list variant classifications that you do not want them to be silent.
+#' @param mutNonSilent Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.
 #' @param chrSilent Default NULL. select the chromosomes you want to dismiss.
 #' @param use.indel Seclet SNP in Variant type
 #' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL.
@@ -108,7 +108,7 @@ readMaf <- function(
     
     ## filter variant classification
     if (mutType == "nonSilent"){
-        if (is.null(mutNonSilent)){
+        if (mutNonSilent == "Default"){
             nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
                           "Translation_Start_Site", "Nonsense_Mutation", 
                           "Nonstop_Mutation", "In_Frame_Del",
@@ -116,7 +116,7 @@ readMaf <- function(
         } else {
             nonSilent <- mutNonSilent 
         }
-        mafInput = mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
+        mafInput <- mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
     } else if (mutType == "All"){
         # message("All variant classification submitted")
     } else {
@@ -130,7 +130,7 @@ readMaf <- function(
     
     ## filter chromosome
     if (!is.null(chrSilent)){
-        mafInput = mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
+        mafInput <- mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
     }
     
     ## transform data.frame to data.table

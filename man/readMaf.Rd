@@ -17,7 +17,7 @@ readMaf(mafFile, sampleInfoFile, vafColumn = "VAF", mutType = "All",
 
 \item{mutType}{Default "All". "nonSilent" And you can select proper variant classification you need.}
 
-\item{mutNonSilent}{Default NULL. And you can list variant classifications that you do not want them to be silent.}
+\item{mutNonSilent}{Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.}
 
 \item{chrSilent}{Default NULL. select the chromosomes you want to dismiss.}
 
