@@ -83,10 +83,10 @@ shinyServer(function(input, output, session){
                                sep='\t')
       }
     } else {
-      mafFile <- './example/HCC6046.maf'
-      sampleInfoFile <- './example/HCC6046.sampleInfo.txt'
-      ccfClusterTsvFile <- './example/HCC6046.cluster.tsv'
-      ccfLociTsvFile <- './example/HCC6046.loci.tsv'
+      mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
+      sampleInfoFile <-  system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
+      ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
+      ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
       mafInput <- read.table(mafFile, quote="",
                              header=TRUE, fill=TRUE,
                              sep='\t')
@@ -122,10 +122,10 @@ shinyServer(function(input, output, session){
       }
       
       if(is.null(input$maf) | is.null(input$sampleInfo)){
-        mafFile <- './example/HCC6046.maf'
-        sampleInfoFile <- './example/HCC6046.sampleInfo.txt'
-        ccfClusterTsvFile <- './example/HCC6046.cluster.tsv'
-        ccfLociTsvFile <- './example/HCC6046.loci.tsv'
+        mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
+        sampleInfoFile <-  system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
+        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
+        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
         maf <- readMaf(mafFile = mafFile, 
                        sampleInfoFile = sampleInfoFile,
                        mutType=input$mutType, 
@@ -589,13 +589,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(is.null(input$oncogeneListFile$datapath)){
-        oncogeneListFile <- './example/oncogene.list.txt'
+        oncogeneListFile <- system.file("extdata","oncogene.list.txt", package = "Meskit")
       }
       else{
         oncogeneListFile <- input$oncogeneListFile$datapath
       }
       if(is.null(input$tsgListFile$datapath)){
-        tsgListFile <- './example/TSG.list.txt'
+        tsgListFile <- system.file("extdata","TSG.list.txt", package = "Meskit")
       }
       else{
         tsgListFile <- input$tsgListFile$datapath
@@ -1009,7 +1009,7 @@ shinyServer(function(input, output, session){
   sigOFA <- eventReactive(input$submitSig, {
     if (input$oncogeneMapping) {
       if(is.null(input$driverGenesFile$datapath)){
-        driverGenesFile <- './example/putative_driver_genes.txt'
+        driverGenesFile <- system.file("extdata","putative_driver_genes.txt", package = "Meskit")
       } else{
         driverGenesFile <- input$driverGenesFile$datapath
       }
@@ -1453,10 +1453,10 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadPhyloTreeCheck == "png"){
-        png(file,width = 1000, height = 650,res = 100)
+        png(file,width = 950, height = 650,res = 100)
       }
       else if (input$DownloadPhyloTreeCheck == "pdf"){
-        pdf(file,width = 10, height = 6.5)
+        pdf(file,width = 9.5, height = 6)
       }
       print(pht())
       dev.off()
