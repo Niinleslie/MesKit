@@ -11,7 +11,7 @@
 #' @param driverGenesFile the directory of the driver gene list. Default NULL.
 #' @param mutThreshold the threshold for the variants in a branch. Default 50.
 #' @param plot.signatures the parameter used to print the signautre summary plot by ggplot2
-#' @param signaturesRef Default "signature.cosmic". Option: "signature2013". the parameter used for deconstructSig.
+#' @param signaturesRef Default "cosmic". Option: "nature2013". the parameter used for deconstructSig.
 #' @param plot.signatures choose whether plot signatures
 #' @param plot.branchTrunk choose whether output a branch-Trunk plot.
 #' @param signif.level the significance level to vertify whether the kind of mutation is significant.
@@ -31,16 +31,16 @@
 #' putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver_genes.txt", package = "Meskit")
 #' signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 #' ## use different signature reference
-#' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
+#' signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="nature2013")
 #' ## print mutational signature plot
-#' signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.signatures=TRUE)
+#' signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="nature2013", plot.signatures=TRUE)
 #' 
 #' @export treeMutationalSig
 #'
 
 ## Mutational Signature function
 treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, 
-                              signaturesRef="signatures.cosmic",
+                              signaturesRef="cosmic",
                               plot.signatures=FALSE, plot.branchTrunk=FALSE, 
                               signif.level=0.05){
     ## refBuild limitation: only hg19 or hg38
@@ -93,12 +93,12 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                   ref="ref", 
                                   alt="alt",
                                   bsg=get(refBuild)))
-            if (signaturesRef == "signatures.cosmic") {
+            if (signaturesRef == "cosmic") {
               sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
                                                             signatures.ref=deconstructSigs::signatures.cosmic, 
                                                             sample.id=branchName,
                                                             contexts.needed=TRUE)
-            } else if (signaturesRef == "signatures.nature2013") {
+            } else if (signaturesRef == "nature2013") {
               sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
                                                             signatures.ref=deconstructSigs::signatures.nature2013, 
                                                             sample.id=branchName,
@@ -151,7 +151,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
     
     
     ## calculation process(maybe could be replaced by lapply)
-    if (signaturesRef =="signatures.cosmic") {
+    if (signaturesRef =="cosmic") {
       ## Aetiology from https://cancer.sanger.ac.uk/cosmic/signatures_v2 emm actually the additional feature may matter
       df.aetiology <- data.frame(
         aeti=c(
@@ -193,7 +193,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
               "Signature 25", "Signature 26", "Signature 27", "Signature 28", "Signature 29", "Signature 30", 
               "No Signature")
       )
-    } else if (signaturesRef =="signatures.nature2013") {
+    } else if (signaturesRef =="nature2013") {
       ## Aetiology from https://www.nature.com/articles/nature12477#s1
       df.aetiology <- data.frame(
         aeti=c(
