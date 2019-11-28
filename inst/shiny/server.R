@@ -339,9 +339,9 @@ shinyServer(function(input, output, session){
     
     if(input$submit2 & stopButtonValue2$a != 1){
       maf <- isolate(varsLs$maf)
-      Meskit::mathScore(maf,tsb = c("All"),
-                        minvaf = input$minvaf, 
-                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "MATH_score")]
+      getMATH(maf,tsb = c("All"),
+                      minvaf = input$minvaf, 
+                      maxvaf = input$maxvaf)$sampleLevel
     }
   })
   output$mathScore <- DT::renderDataTable({
@@ -355,9 +355,9 @@ shinyServer(function(input, output, session){
     
     if(input$submit0){
       maf <- isolate(varsLs$maf)
-      Meskit::mathScore(maf,tsb = c("All"),
+      getTMB(maf,tsb = c("All"),
                         minvaf = input$minvaf, 
-                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "TMB(mutations/Mb)")]
+                        maxvaf = input$maxvaf)$sampleLevel
     }
   })
   output$mathScoreTMB <- DT::renderDataTable({
