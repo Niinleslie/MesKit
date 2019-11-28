@@ -111,9 +111,10 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
       if (showMATH){
         mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, "compare", sampleName)
         # mathtbscore <- mathtbscoreLs$patientLevel
-        combineMathScore <- mathtbscore[which(
-          mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
-          ]$MATH_score
+        # combineMathScore <- mathtbscore[which(
+        #   mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
+        #   ]$MATH_score
+        
         ## set the columns of the picture and generate all single pictures
         combineTitle <- cowplot::ggdraw() + 
           cowplot::draw_label(
@@ -193,6 +194,7 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
   else if (plotOption %in% unique(vafInputMt$Samples))
   {
     ## data preparation
+    sampleName <- plotOption
     sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
     ## data cleaning
     sampleMt <- sampleMt[complete.cases(sampleMt), ]
@@ -202,7 +204,7 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
     }
     clusterMt <- .clusterGenerator(mafInput, sampleName)
     ## calculate ScoreMATH
-    mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, plotOption)
+    mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, sampleName)
     ## VAF plot for specifc sample
     pic <- .drawVAF(clusterMt, themeOption, plotOption, mathscore)
     message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
@@ -298,9 +300,10 @@ vafClusterRshiny <-function(maf,
       if (showMATH){
         mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, "compare", sampleName)
         # mathtbscore <- mathtbscoreLs$patientLevel
-        combineMathScore <- mathtbscore[which(
-          mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
-          ]$MATH_score
+        # combineMathScore <- mathtbscore[which(
+        #   mathtbscore$Tumor_Sample_Barcode == maf@patientID), 
+        #   ]$MATH_score
+        
         ## set the columns of the picture and generate all single pictures
         combineTitle <- cowplot::ggdraw() + 
           cowplot::draw_label(
@@ -390,8 +393,8 @@ vafClusterRshiny <-function(maf,
   else if (plotOption %in% unique(vafInputMt$Samples))
   {
     ## data preparation
-    sampleMt <- vafInputMt[which(
-      vafInputMt$Samples %in% plotOption),]
+    sampleName <- plotOption
+    sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
     ## data cleaning
     sampleMt <- sampleMt[complete.cases(sampleMt), ]
     sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
@@ -429,7 +432,7 @@ vafClusterRshiny <-function(maf,
       mathtbscoreLs <- mathScore(maf, c("All"), minvaf=minVaf, maxvaf=maxVaf)
       mathscore <- mathtbscoreLs
     }
-    else if (plotOption %in% unique(vafInputMt$Samples)) {
+    else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
       mathtbscoreLs <- mathScore(maf, c(sampleName), minvaf=minVaf, maxvaf=maxVaf)
       mathtbscore <- mathtbscoreLs$sampleLevel
       mathscore <- mathtbscore[which(
