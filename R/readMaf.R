@@ -4,7 +4,6 @@
 #'
 #' @param mafFile MAF file. 
 #' @param sampleInfoFile sample information file.
-#' @param vafColumn Default "VAF. You can select the column containing VAF values by the column name.
 #' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
 #' @param mutNonSilent Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.
 #' @param chrSilent Default NULL. select the chromosomes you want to dismiss.
@@ -33,7 +32,7 @@
 ## read.maf main function
 readMaf <- function(
     ## maf parameters
-    mafFile, sampleInfoFile, vafColumn="VAF", 
+    mafFile, sampleInfoFile,
     ## filter selection
     mutType="All", mutNonSilent=NULL, chrSilent=NULL, use.indel=FALSE, 
     ## ccf parameters             
@@ -142,7 +141,8 @@ readMaf <- function(
                     patientID=patientID, 
                     ref.build=refBuild)
     
-    colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
+    # ## , vafColumn="VAF", 
+    # colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
     
 
     
