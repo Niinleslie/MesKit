@@ -33,22 +33,14 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
     if (any(tsb == c("All"))){
         ## list all samples' MATH scores
         mathOFA <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
-        mathAll <- .patientMATH(vafInputMt, tsbLs, minvaf, maxvaf)
-        mathAll <- data.frame(Tumor_Sample_Barcode=maf@patientID, 
-                              MATH_score=c(mathAll$MATH_score), 
-                              Tumor_Burden=c(mathAll$Tumor_Burden))
         colnames(mathOFA) <- c("Tumor_Sample_Barcode", "MATH_score", 
                                "TMB(mutations/Mb)")
-        mathResult <- list(patientLevel=mathAll, sampleLevel=mathOFA)
+        mathResult <- list(sampleLevel=mathOFA)
         return(mathResult)
     } else{
         ## calculate specific samples' MATH score
         tsbLs <- data.frame(tsb)
         mathSp <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
-        mathAll <- .patientMATH(vafInputMt, tsbLs, minvaf, maxvaf)
-        mathAll <- data.frame(Tumor_Sample_Barcode=maf@patientID, 
-                              MATH_score=c(mathAll$MATH_score), 
-                              Tumor_Burden=c(mathAll$Tumor_Burden))
         colnames(mathSp) <- c("Tumor_Sample_Barcode", "MATH_score", 
                               "TMB(mutations/Mb)")
         mathResult <- list(sampleLevel=mathSp)
@@ -103,17 +95,17 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
     return(samplesMATH)
 }
 
-## MATH patient calcualtion
-.patientMATH <- function(vafInputMt, tsbLs, minvaf, maxvaf){
-    vafColumnMATH <- vafInputMt$VAF
-    tsbNum <- nrow(tsbLs)
-    vafColumnMATH <- vafColumnMATH[which(
-        !is.na(vafColumnMATH))][which(
-            vafColumnMATH > minvaf & vafColumnMATH < maxvaf)]
-    vafColumnMATH <- as.numeric(
-        as.character(vafColumnMATH))[which(
-            !is.na(vafColumnMATH))]
-    result <- data.frame(MATH_score=.calMATH(vafColumnMATH), 
-                         Tumor_Burden=length(vafColumnMATH)/40/tsbNum)
-    return(result)
-}
+# ## MATH patient calcualtion
+# .patientMATH <- function(vafInputMt, tsbLs, minvaf, maxvaf){
+#     vafColumnMATH <- vafInputMt$VAF
+#     tsbNum <- nrow(tsbLs)
+#     vafColumnMATH <- vafColumnMATH[which(
+#         !is.na(vafColumnMATH))][which(
+#             vafColumnMATH > minvaf & vafColumnMATH < maxvaf)]
+#     vafColumnMATH <- as.numeric(
+#         as.character(vafColumnMATH))[which(
+#             !is.na(vafColumnMATH))]
+#     result <- data.frame(MATH_score=.calMATH(vafColumnMATH), 
+#                          Tumor_Burden=length(vafColumnMATH)/40/tsbNum)
+#     return(result)
+# }
