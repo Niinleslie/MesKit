@@ -15,84 +15,122 @@
 #' mathScore(maf, tsb=c("SRR3670035"))
 #' 
 #' @export mathScore
+#' @export getTMB
 #' 
 
 ## MATH Score main function
 mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
-    ## get vaf-related infomation
-    mafData <- maf@data
-    dataHugoSymbol <- mafData$Hugo_Symbol
-    dataVaf <- mafData$VAF
-    dataTsb <- data.frame(mafData$Tumor_Sample_Barcode)
-    vafInputMt <- data.frame(dataHugoSymbol, dataVaf, dataTsb)
-    colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Tumor_Sample_Barcode")
-    ## get all sample names
-    tsbLs <- data.frame(unique(vafInputMt$Tumor_Sample_Barcode))
-    
-    ## MATH results for one/all sample
-    if (any(tsb == c("All"))){
-        ## list all samples' MATH scores
-        mathOFA <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
-        colnames(mathOFA) <- c("Tumor_Sample_Barcode", "MATH_score", 
-                               "TMB(mutations/Mb)")
-        mathResult <- list(sampleLevel=mathOFA)
-        return(mathResult)
-    } else{
-        ## calculate specific samples' MATH score
-        tsbLs <- data.frame(tsb)
-        mathSp <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
-        colnames(mathSp) <- c("Tumor_Sample_Barcode", "MATH_score", 
-                              "TMB(mutations/Mb)")
-        mathResult <- list(sampleLevel=mathSp)
-        return(mathResult)
-    }
-    message("MATH Score Calculation Done!")
+  ## get vaf-related infomation
+  mafData <- maf@data
+  dataHugoSymbol <- mafData$Hugo_Symbol
+  dataVaf <- mafData$VAF
+  dataTsb <- data.frame(mafData$Tumor_Sample_Barcode)
+  vafInputMt <- data.frame(dataHugoSymbol, dataVaf, dataTsb)
+  colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Tumor_Sample_Barcode")
+  ## get all sample names
+  tsbLs <- data.frame(unique(vafInputMt$Tumor_Sample_Barcode))
+  
+  ## MATH results for one/all sample
+  if (any(tsb == c("All"))){
+    ## list all samples' MATH scores
+    mathOFA <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
+    colnames(mathOFA) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                           "TMB(mutations/Mb)")
+    mathOFA <- mathOFA[, c("Tumor_Sample_Barcode", "MATH_score")]
+    mathResult <- list(sampleLevel=mathOFA)
+    return(mathResult)
+  } else{
+    ## calculate specific samples' MATH score
+    tsbLs <- data.frame(tsb)
+    mathSp <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
+    colnames(mathSp) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                          "TMB(mutations/Mb)")
+    mathSp <- mathSp[, c("Tumor_Sample_Barcode", "MATH_score")]
+    mathResult <- list(sampleLevel=mathSp)
+    return(mathResult)
+  }
+  message("MATH Score Calculation Done!")
 }
+
+## TMB main function (actually could be combined as a lighter tool)
+getTMB <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
+  ## get vaf-related infomation
+  mafData <- maf@data
+  dataHugoSymbol <- mafData$Hugo_Symbol
+  dataVaf <- mafData$VAF
+  dataTsb <- data.frame(mafData$Tumor_Sample_Barcode)
+  vafInputMt <- data.frame(dataHugoSymbol, dataVaf, dataTsb)
+  colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Tumor_Sample_Barcode")
+  ## get all sample names
+  tsbLs <- data.frame(unique(vafInputMt$Tumor_Sample_Barcode))
+  
+  ## MATH results for one/all sample
+  if (any(tsb == c("All"))){
+    ## list all samples' MATH scores
+    mathOFA <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
+    colnames(mathOFA) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                           "TMB(mutations/Mb)")
+    TMB <- mathOFA[, c("Tumor_Sample_Barcode", "TMB(mutations/Mb)")]
+    TMBResult <- list(sampleLevel=TMB)
+    return(TMBResult)
+  } else{
+    ## calculate specific samples' MATH score
+    tsbLs <- data.frame(tsb)
+    mathSp <- .multiSampleMATH(vafInputMt, tsbLs, minvaf, maxvaf)
+    colnames(mathSp) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                          "TMB(mutations/Mb)")
+    TMB <- mathSp[, c("Tumor_Sample_Barcode", "TMB(mutations/Mb)")]
+    TMBResult <- list(sampleLevel=TMB)
+    return(TMBResult)
+  }
+  message("TMB Calculation Done!")
+}
+
 
 
 ## Data cleaning
 .dataClean <- function(vafInputMt, tsb, minvaf, maxvaf){
-    vafColumnMATH <- vafInputMt[which(
-        vafInputMt$Tumor_Sample_Barcode == tsb), ]$VAF
-    vafColumnMATH <- vafColumnMATH[which(
-        !is.na(vafColumnMATH))][which(
-            vafColumnMATH > minvaf & vafColumnMATH < maxvaf)]
-    vafColumnMATH <- as.numeric(
-        as.character(vafColumnMATH))[which(!is.na(vafColumnMATH))]
-    return(vafColumnMATH)
+  vafColumnMATH <- vafInputMt[which(
+    vafInputMt$Tumor_Sample_Barcode == tsb), ]$VAF
+  vafColumnMATH <- vafColumnMATH[which(
+    !is.na(vafColumnMATH))][which(
+      vafColumnMATH > minvaf & vafColumnMATH < maxvaf)]
+  vafColumnMATH <- as.numeric(
+    as.character(vafColumnMATH))[which(!is.na(vafColumnMATH))]
+  return(vafColumnMATH)
 }
 
 ## MATH Caculation
 .calMATH <- function(vafColumnMATH){
-    MAD <- 1.4826*median(abs(vafColumnMATH - median(vafColumnMATH)))
-    MATH <- 100 * MAD / median(vafColumnMATH)
-    return(round(MATH, digits=3))
+  MAD <- 1.4826*median(abs(vafColumnMATH - median(vafColumnMATH)))
+  MATH <- 100 * MAD / median(vafColumnMATH)
+  return(round(MATH, digits=3))
 }
 
 ## Tumor burden Caculation
 .calTumorBurden <- function(vafColumnMATH){
-    tumorBurden <- length(vafColumnMATH)/40
-    return(tumorBurden)
+  tumorBurden <- length(vafColumnMATH)/40
+  return(tumorBurden)
 }
 
 ## MATH multi-sample process
 .multiSampleMATH <- function(vafInputMt, tsbLs, minvaf, maxvaf){
-    samplesMATH <- data.frame()
-    for (counter in seq_along(tsbLs[,1])){
-        for (sampleNameMt in tsbLs){
-            vafColumnMATH <- .dataClean(
-                vafInputMt, 
-                as.character(sampleNameMt)[counter], 
-                minvaf, maxvaf)
-            sampleMATH <- data.frame(
-                as.character(sampleNameMt)[counter], 
-                .calMATH(vafColumnMATH), .calTumorBurden(vafColumnMATH))
-            samplesMATH <- rbind(samplesMATH, sampleMATH)
-        }
+  samplesMATH <- data.frame()
+  for (counter in seq_along(tsbLs[,1])){
+    for (sampleNameMt in tsbLs){
+      vafColumnMATH <- .dataClean(
+        vafInputMt, 
+        as.character(sampleNameMt)[counter], 
+        minvaf, maxvaf)
+      sampleMATH <- data.frame(
+        as.character(sampleNameMt)[counter], 
+        .calMATH(vafColumnMATH), .calTumorBurden(vafColumnMATH))
+      samplesMATH <- rbind(samplesMATH, sampleMATH)
     }
-    colnames(samplesMATH) <- c("Tumor_Sample_Barcode", "MATH_score", 
-                               "Tumor_Burden")
-    return(samplesMATH)
+  }
+  colnames(samplesMATH) <- c("Tumor_Sample_Barcode", "MATH_score", 
+                             "Tumor_Burden")
+  return(samplesMATH)
 }
 
 # ## MATH patient calcualtion

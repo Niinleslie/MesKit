@@ -45,6 +45,7 @@ readMaf <- function(
         mafInput <- read.table(mafGz <- gzfile(mafFile, "r"), quote="", 
                                header=TRUE, fill=TRUE, 
                                sep='\t', stringsAsFactors=FALSE)
+        
         close(mafGz)
     } else {
         mafInput <- read.table(mafFile, quote="", 
