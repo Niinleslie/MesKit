@@ -1,30 +1,26 @@
-#' MAF/CCF/Sample_info Reader
-#' @description Add sample information and ccf data to the original maf file 
-#' to get a new maf. The new maf data adds three pieces of information:lesion, 
-#' patient and time.
+#' @description Read tab delimited MAF (can be plain text or gz compressed) file along with sample information file.
 #'
 #' @import ggplot2
 #'
 #' @param mafFile MAF file. 
-#' @param sampleInfoFile sample_info.txt file.
+#' @param sampleInfoFile sample information file.
 #' @param vafColumn Default "VAF. You can select the column containing VAF values by the column name.
 #' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
 #' @param mutNonSilent Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.
 #' @param chrSilent Default NULL. select the chromosomes you want to dismiss.
-#' @param use.indel Seclet SNP in Variant type
+#' @param use.indel Select SNP in Variant type
 #' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file if ccf data provided. Default NULL.
 #' @param refBuild Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.
 #' 
-#' @return a classMaf object/class includes information of sample_info and 
-#' mut.id and summary figure of it
+#' @return a Maf object/class 
 #' 
 #' @examples
 #' ## data information
-#' maf.File <- system.file("extdata/maf", "311252.maf", package = "Meskit")
-#' sampleInfo.File <- system.file("extdata", "sample_info.txt", package = "Meskit")
-#' pyCloneCluster <- system.file("extdata/ccf", "311252.cluster.tsv", package = "Meskit")
-#' pyCloneLoci <- system.file("extdata/ccf", "311252.loci.tsv", package = "Meskit")
+#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
+#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
+#' pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
+#' pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
 #' ## manually usage
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 #' ## if ccf data provided
@@ -32,6 +28,7 @@
 #' 
 #' @exportClass classMaf
 #' @export readMaf
+
 
 ## read.maf main function
 readMaf <- function(
@@ -48,12 +45,12 @@ readMaf <- function(
     if (.substrRight(mafFile, 3) == ".gz"){
         mafInput <- read.table(mafGz <- gzfile(mafFile, "r"), quote="", 
                                header=TRUE, fill=TRUE, 
-                               sep='\t')
+                               sep='\t', stringsAsFactors=FALSE)
         close(mafGz)
     } else {
         mafInput <- read.table(mafFile, quote="", 
                                header=TRUE, fill=TRUE, 
-                               sep='\t')
+                               sep='\t', stringsAsFactors=FALSE)
     }
     
     ## get patientID
@@ -79,7 +76,7 @@ readMaf <- function(
     ## Generate patient,lesion and time information
     mafInput$patient <- ""
     mafInput$lesion <- ""
-    mafInput$time <- ""
+    #mafInput$time <- ""
     
     ## combine sample_info_input with maf_input
     tsbSampleInfo <- unique(sampleInfoInput$sample)
@@ -92,15 +89,15 @@ readMaf <- function(
         lesion <- as.character(
             sampleInfoInput[which(
                 sampleInfoInput$sample == tsb),]$lesion)
-        time <- as.character(
-            sampleInfoInput[which(
-                sampleInfoInput$sample == tsb),]$time)
+        #time <- as.character(
+        #    sampleInfoInput[which(
+        #        sampleInfoInput$sample == tsb),]$time)
         mafInput[which(
             mafInput$Tumor_Sample_Barcode == tsb),]$patient <- patient
         mafInput[which(
             mafInput$Tumor_Sample_Barcode == tsb),]$lesion <- lesion
-        mafInput[which(
-            mafInput$Tumor_Sample_Barcode == tsb),]$time <- time
+        #mafInput[which(
+        #    mafInput$Tumor_Sample_Barcode == tsb),]$time <- time
     }
     
     # ## fix: Error in setattr(x, "row.names", rn)
