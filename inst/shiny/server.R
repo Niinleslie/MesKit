@@ -339,7 +339,7 @@ shinyServer(function(input, output, session){
     
     if(input$submit2 & stopButtonValue2$a != 1){
       maf <- isolate(varsLs$maf)
-      getMATH(maf,tsb = c("All"),
+      mathScore(maf,tsb = c("All"),
                       minvaf = input$minvaf, 
                       maxvaf = input$maxvaf)$sampleLevel
     }
