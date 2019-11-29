@@ -263,7 +263,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
                                         sig=mutSigsOutput$sig, 
                                         sig.prob=mutSigsOutput$sig.prob, 
                                         aeti=ls.aeti)
-            colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology(Cosmic)")
+            colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology")
         } else {
             mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
                                         alias=mutSigsOutput$alias, 
