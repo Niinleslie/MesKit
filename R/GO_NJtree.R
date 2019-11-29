@@ -69,12 +69,11 @@ GO.njtree <- function(njtree, GO.type = "BP", pval = 0.05, pAdjustMethod = "BH",
                 qval, patientID, branchID)
     
     if(!is.null(ego.branch)){
-      egoResult.list[[i]] <- ego.branch@result
+      egoResult.list[[x]] <- ego.branch@result
       result.branchNames <- c(result.branchNames, branchID)
+      x <- x+1
       if(min(ego.branch@result$p.adjust) > pval | min(ego.branch@result$qvalue, na.rm = T) > qval){
         message(paste("0 enriched term found for branch ", branchID, sep = ""))
-
-        x <- x+1
       }
       else{      
         plot.branchNames <- c(plot.branchNames, branchID)
