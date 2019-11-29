@@ -1,6 +1,0 @@
-sample          patient                lesion              time
-SRR3670033          P1                 T1                   -
-SRR3670034          P1                 T2                   -
-SRR3670035          P1                 T3                   -
-SRR3670036          P1                 T4                   -
-SRR3670037          P1                 T5                   -
