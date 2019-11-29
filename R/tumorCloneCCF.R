@@ -55,12 +55,12 @@ tumorClonesPlot <- function(maf, clone.min.mut = 5, clone.min.aveCCF = 0.1){
           axis.title.y = element_text(size = 11, face = "bold"))+
           labs(y = "Cellular prevalence")+
           theme(legend.position = "none")
-
+  title <- ggdraw() + draw_label("Clonal frequency of tumor clones and the corresponding mutation", fontface = "bold")
   # radar_dotplot <- grid.arrange(radar_plot, loci_dotplot, ncol = 2)
-  radar_dotplot <- ggdraw(xlim = c(0,1.05))+draw_plot(radar_plot, x = 0, y = 0, width = 0.5) + draw_plot(loci_dotplot, x = 0.55, y = 0, width = 0.5)
+  p <- ggdraw(xlim = c(0,1.05))+draw_plot(radar_plot, x = 0, y = 0, width = 0.5) + draw_plot(loci_dotplot, x = 0.55, y = 0, width = 0.5)
+  radar_dotplot <- plot_grid(title, p, ncol = 1, rel_heights=c(0.09, 1))
   # ggsave(paste("./radar_dotplot.pdf", sep = "/"), radar_dotplot, width = 9, height = 6.5)
   return(radar_dotplot)
-   
 }
 
 
