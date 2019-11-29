@@ -82,7 +82,7 @@ GO.njtree <- function(njtree, GO.type = "BP", pval = 0.05, pAdjustMethod = "BH",
         }else if (plotType == "bar"){
           go.plot <- barplot(ego.branch, showCategory = showCategory) + ggtitle(branchID)
         }
-        egoPlot.list[[x]] <- go.plot
+        egoPlot.list[[y]] <- go.plot
         y <- y+1
       }
     }
