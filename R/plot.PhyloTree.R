@@ -24,9 +24,9 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
   }else{
     use.ccf = TRUE
   }
-  if(is.null(njtree)){
-      stop("You need to generate njtree using NJtree.R")
-  }
+  # if(is.null(njtree)){
+  #     stop("You need to generate njtree using NJtree.R")
+  # }
   phylo <- njtree@nj
   refBuild <- njtree@refBuild
   signature <- treeMutationalSig(njtree)
@@ -584,7 +584,7 @@ addSignature <- function(phylo, plot.data, signature){
   plot.data$alias <- ''
   t <- 1
   while(t<=length(signature$Branch)){
-    branch <- unlist(strsplit(as.character(signature$Branch[[t]]) , split='∩'))
+    branch <- unlist(strsplit(as.character(signature$Branch[[t]]) , split='b)'))
     if(length(branch) == 1){
       row <-which(plot.data$sample == as.character(branch))
       plot.data$signature[row] <- as.character(signature$Signature[[t]]) 
@@ -647,7 +647,7 @@ addSignature <- function(phylo, plot.data, signature){
 }
 ##color scale set
 colorSet <- function(signatures){
-  ## FF6A5A:Sig19、
+  ## FF6A5A:Sig19c 
   all.color.scale <- c("#E41A1C","#377EB8","#7F0000",
                        "#35978f","#FC8D62","#2166ac",
                        "#E78AC3","#A6D854","#FFD92F",
@@ -758,7 +758,7 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, sig.nam
 getPrivateMutation <- function(njtree){
   totalMut <- njtree@mut_branches
   private.order <- unlist(lapply(names(totalMut),
-                                 function(x){return(length(strsplit(x,"∩")[[1]]) == 1)})) 
+                                 function(x){return(length(strsplit(x,"b)")[[1]]) == 1)})) 
   privateMut <- totalMut[private.order]
   countMutation <- function(mut){
     sum <- 0
