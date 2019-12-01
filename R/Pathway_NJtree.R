@@ -136,4 +136,4 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
 
   return(pathway)
 
-  }
+}
