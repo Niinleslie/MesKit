@@ -606,7 +606,7 @@ vafClusterRshiny <-function(maf,
                        "geom_text(data=cbind(clusterAll %>% dplyr::group_by(Tumor_Sample_Barcode) %>% dplyr::summarise(), 
                                                  MATH=unique(clusterAll$MATH), 
                                                  VAF=(clusterAll %>% dplyr::group_by(Tumor_Sample_Barcode) %>% dplyr::summarise(VAF=max(VAF)))$VAF),
-                                     aes(x=0.85*max(VAF), label=paste(\"MATH Score:\", sprintf(\"%1.3f\", MATH), sep=\"\")), 
+                                     aes(x=0.85*max(VAF), label=paste(\"MATH Score: \", sprintf(\"%1.3f\", MATH), sep=\"\")), 
                                      position=position_nudge(y=0.5), colour=\"black\", size=3.5) + ", 
                        "scale_x_continuous(limits = ", "c(", as.character(minVaf), ",", as.character(maxVaf), "))", sep="")
   }
