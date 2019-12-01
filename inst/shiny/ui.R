@@ -10,7 +10,6 @@ suppressMessages(library(shinycssloaders))
 suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
 suppressMessages(library(Meskit))
-suppressMessages(library(timescape))
 
 
 #sider bar----

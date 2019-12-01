@@ -2,18 +2,16 @@
 % Please edit documentation in R/readMaf.R
 \name{readMaf}
 \alias{readMaf}
-\title{MAF/CCF/Sample_info Reader}
+\title{ReadMaf}
 \usage{
-readMaf(mafFile, sampleInfoFile, vafColumn = "VAF", mutType = "All",
-  mutNonSilent = NULL, chrSilent = NULL, use.indel = FALSE,
-  ccfClusterTsvFile = NULL, ccfLociTsvFile = NULL, refBuild = "hg19")
+readMaf(mafFile, sampleInfoFile, mutType = "All", mutNonSilent = NULL,
+  chrSilent = NULL, use.indel = FALSE, ccfClusterTsvFile = NULL,
+  ccfLociTsvFile = NULL, refBuild = "hg19")
 }
 \arguments{
 \item{mafFile}{MAF file.}
 
-\item{sampleInfoFile}{sample_info.txt file.}
-
-\item{vafColumn}{Default "VAF. You can select the column containing VAF values by the column name.}
+\item{sampleInfoFile}{sample information file.}
 
 \item{mutType}{Default "All". "nonSilent" And you can select proper variant classification you need.}
 
@@ -21,7 +19,7 @@ readMaf(mafFile, sampleInfoFile, vafColumn = "VAF", mutType = "All",
 
 \item{chrSilent}{Default NULL. select the chromosomes you want to dismiss.}
 
-\item{use.indel}{Seclet SNP in Variant type}
+\item{use.indel}{Select SNP in Variant type}
 
 \item{ccfClusterTsvFile}{CCF cluster.tsv file if ccf data provided. Default NULL.}
 
@@ -30,20 +28,17 @@ readMaf(mafFile, sampleInfoFile, vafColumn = "VAF", mutType = "All",
 \item{refBuild}{Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.}
 }
 \value{
-a classMaf object/class includes information of sample_info and 
-mut.id and summary figure of it
+a Maf object/class
 }
 \description{
-Add sample information and ccf data to the original maf file 
-to get a new maf. The new maf data adds three pieces of information:lesion, 
-patient and time.
+Read tab delimited MAF (can be plain text or gz compressed) file along with sample information file.
 }
 \examples{
 ## data information
-maf.File <- system.file("extdata/maf", "311252.maf", package = "Meskit")
-sampleInfo.File <- system.file("extdata", "sample_info.txt", package = "Meskit")
-pyCloneCluster <- system.file("extdata/ccf", "311252.cluster.tsv", package = "Meskit")
-pyCloneLoci <- system.file("extdata/ccf", "311252.loci.tsv", package = "Meskit")
+maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
+sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
+pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
+pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
 ## manually usage
 maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 ## if ccf data provided

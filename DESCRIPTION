@@ -13,7 +13,8 @@ Imports: utils, ape, methods, plotrix, gridExtra,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
         deconstructSigs, grid, 
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
-        pdp, corrplot, mclust
+        pdp, corrplot, mclust, 
+        shiny, shinyBS, shinyjs, shinycssloaders, shinyWidgets, shinydashboard, DT
 Remotes: raerose01/deconstructSigs 
 RoxygenNote: 6.1.1
 Suggests: Shiny, plolty, knitr, rmarkdown

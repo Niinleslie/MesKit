@@ -5,7 +5,7 @@
 \title{Check Mutational Signature for each branch of phylogenetic tree}
 \usage{
 treeMutationalSig(njtree, driverGenesFile = NULL, mutThreshold = 50,
-  signaturesRef = "signatures.cosmic", plot.signatures = FALSE,
+  signaturesRef = "cosmic", plot.signatures = FALSE,
   plot.branchTrunk = FALSE, signif.level = 0.05)
 }
 \arguments{
@@ -15,7 +15,7 @@ treeMutationalSig(njtree, driverGenesFile = NULL, mutThreshold = 50,
 
 \item{mutThreshold}{the threshold for the variants in a branch. Default 50.}
 
-\item{signaturesRef}{Default "signature.cosmic". Option: "signature2013". the parameter used for deconstructSig.}
+\item{signaturesRef}{Default "cosmic". Option: "nature2013". the parameter used for deconstructSig.}
 
 \item{plot.signatures}{the parameter used to print the signautre summary plot by ggplot2}
 
@@ -49,8 +49,8 @@ signature1 <- treeMutationalSig(njtree, mutThreshold=50)
 putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver_genes.txt", package = "Meskit")
 signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 ## use different signature reference
-signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013")
+signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="nature2013")
 ## print mutational signature plot
-signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="signatures.nature2013", plot.signatures=TRUE)
+signature4 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="nature2013", plot.signatures=TRUE)
 
 }
