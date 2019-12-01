@@ -23,7 +23,7 @@ RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
 
 # Download and install shiny server
 #RUN R -e "options(repos='https://mirrors.tuna.tsinghua.edu.cn/CRAN')"
-RUN R -e "install.packages(c('shiny', 'shinydashboard', 'shinyWidgets', 'shinycssloaders', 'shinyjs', 'devtools', 'BiocManager'), repos='https://mirrors.tuna.tsinghua.edu.cn/CRAN')"
+RUN R -e "install.packages(c('shiny', 'shinydashboard', 'shinyWidgets', 'shinyBS', 'shinycssloaders', 'shinyjs', 'devtools', 'BiocManager'), repos='https://mirrors.tuna.tsinghua.edu.cn/CRAN')"
 RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.923-amd64.deb \
     && gdebi -n shiny-server-1.5.9.923-amd64.deb \
     && rm -f shiny-server-1.5.9.923-amd64.deb
