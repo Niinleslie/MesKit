@@ -597,13 +597,13 @@ addSignature <- function(phylo, plot.data, signature){
   #add signature to plot.data
   plot.data$signature <- ''
   plot.data$alias <- ''
-  sigs <- strsplit(as.character(signature$Branch),"???")
-  sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "???"))})
+  sigs <- strsplit(as.character(signature$Branch),"∩")
+  sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
   t <- 1
-  while(t<=length(signature$Branch)){
+  while(t<=length(sigs)){
     pos <- which(plot.data$label == sigs[t])
-    plot.data$signature[t] <- as.character(signature$Signature[pos]) 
-    plot.data$alias[t] <- as.character(signature$Alias[pos])
+    plot.data$signature[pos] <- as.character(signature$Signature[t]) 
+    plot.data$alias[pos] <- as.character(signature$Alias[t])
     t <- t + 1
   }
   if(plot.data$signature[which(plot.data$sample == 'NORMAL')] == ''){
@@ -825,7 +825,7 @@ labelBranch <- function(phylo){
       }
     }
   }
-  g <- lapply(result, function(x){return(paste(sort(phylo$tip.label[x[-1]], decreasing = T),collapse = "???"))})
+  g <- lapply(result, function(x){return(paste(sort(phylo$tip.label[x[-1]], decreasing = T),collapse = "∩"))})
   return(g)
 }
 
