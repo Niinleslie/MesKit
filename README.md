@@ -220,7 +220,7 @@ names(GO.result$GO.plot)
 GO.result$GO.plot[["SRR3670036"]]
 ```
 
-![GOplot](/vignettes/GOplot.png)
+![GOplot](/vignettes/GOlot.png)
 
 ```R
 pathway.result <- Pathway.njtree(njtree, pathway.type = "KEGG", pval = 0.05, 
