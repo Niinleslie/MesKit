@@ -589,13 +589,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(is.null(input$oncogeneListFile$datapath)){
-        oncogeneListFile <- './example/oncogene.list.txt'
+        oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "MesKit")
       }
       else{
         oncogeneListFile <- input$oncogeneListFile$datapath
       }
       if(is.null(input$tsgListFile$datapath)){
-        tsgListFile <- './example/TSG.list.txt'
+        tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
       }
       else{
         tsgListFile <- input$tsgListFile$datapath
@@ -1009,7 +1009,7 @@ shinyServer(function(input, output, session){
   sigOFA <- eventReactive(input$submitSig, {
     if (input$oncogeneMapping) {
       if(is.null(input$driverGenesFile$datapath)){
-        driverGenesFile <- './example/putative_driver_genes.txt'
+        driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
       } else{
         driverGenesFile <- input$driverGenesFile$datapath
       }
@@ -1442,7 +1442,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadClonePlotCheck == "pdf"){
         pdf(file,width = input$width5/100 , height = 6)
       }
-      clp()
+      print(clp())
       dev.off()
     },
     contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
@@ -1491,7 +1491,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadPathPlot <- downloadHandler(
     filename = function() {
-      paste("Pathwaytplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
+      paste("Pathwayplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPathPlotCheck == "png"){
