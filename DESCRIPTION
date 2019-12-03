@@ -1,6 +1,6 @@
-Package: Meskit
+Package: MesKit
 Type: Package
-Title: Analyse and visualize multi-region whole-exome sequencing data
+Title: Dissect cancer evolution from multi-region derived tumor biopsies via somatic mutations
 Version: 0.1.0
 Authors@R: c(person("Mengni", "Liu", ,"niinleslie@gmail.com", role = c("aut", "cre")))
 Maintainer: Mengni Liu <niinleslie@gmail.com>
@@ -18,7 +18,7 @@ Remotes: raerose01/deconstructSigs
 RoxygenNote: 6.1.1
 Suggests: Shiny, plolty, knitr, rmarkdown
 VignetteBuilder: knitr
-biocViews: WESeq, Intra-tumor Heterogeneity, Evolution, Visualization
+biocViews: WESeq, Intra-tumor heterogeneity, Evolution, Visualization
 NeedsCompilation: no
 git_url: https://github.com/Niinleslie/MesKit
 git_last_commit_date: 2019-6-1

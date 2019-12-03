@@ -94,18 +94,10 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
     if(!is.null(Pathway.branch)){
       pathResult.list[[x]] <- Pathway.branch@result
       result.branchNames <- c(result.branchNames, branchID)
+      x <- x+1
       if(min(Pathway.branch@result$p.adjust) > pval | min(Pathway.branch@result$qvalue, na.rm = T) > qval){
         message(paste("0 enriched pathway found for branch ", branchID, sep = ""))
-
-      x <- x+1
       }else{
-        #str_length = max(nchar(Pathway.branch@result$Description))      
-        #str_height = showCategory
-        #if (str_height > 15){
-          #fig.height = str_height/4
-        #}else{
-          #fig.height = 4
-        #}
         plot.branchNames <- c(plot.branchNames, branchID)
         if (plotType == "dot"){
           path.plot <- dotplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
@@ -144,4 +136,4 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
 
   return(pathway)
 
-  }
+}
