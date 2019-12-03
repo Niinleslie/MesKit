@@ -1,6 +1,8 @@
 <img src="/vignettes/logo.png" height="80" width="240" />
 
-- [MesKit]
+
+## Table of content  
+- [MesKit](#meskit)
   * [Introduction](#introduction)
   * [Installation](#installation)
   * [Usage](#usage)
@@ -27,11 +29,10 @@ remotes::install_github("Niinleslie/MesKit")
 ```
 
 ## Usage
-
-For details, please visit https://github.com/Niinleslie/MesKit/blob/master/vignettes/MesKit.Rmd 
+A complete documentation of MesKit can be found [here.](https://github.com/Niinleslie/MesKit/blob/master/vignettes/MesKit.Rmd)
 
 <div  align="center">    
-<img src="/vignettes/overview.png" height="560" width="700" align = center/>
+<img src="/vignettes/overview.png" height="500" width="600" align = center/>
 </div>
    
 
@@ -61,7 +62,7 @@ runMesKit()
 
 ## Use MesKit with Docker Container
 
-To use MesKit with docker container, please visit https://github.com/Niinleslie/MesKit/blob/master/MesKit.docker.md
+To use MesKit with docker container, please visit [here.](https://github.com/Niinleslie/MesKit/blob/master/MesKit.docker.md)
 
 
 ## Designers
@@ -70,18 +71,19 @@ To use MesKit with docker container, please visit https://github.com/Niinleslie/
 * Mengni Liu, liumn5@mail2.sysu.edu.cn
  
 ## Credit
-This software were developed by:
+This software was developed by:
 
 * [Mengni Liu](liumn5@mail2.sysu.edu.cn), Sun Yat-sen university 
 * [Jianyu Chen](chenjy327@mail2.sysu.edu.cn), Sun Yat-sen university 
 * [Chengwei Wang](wangchw8@outlook.com), Sun Yat-sen university 
 
 ## Maintainer
-Mengni Liu
+Mengni Liu <br/>
+Please feel free contact us. <br/>
 
 ## Copyright
-Copyright © 2014-2018. RenLab from SYSUCC. All Rights Reserved
-For more useful tools/applications, please go to renbal.org
+Copyright © 2014-2018. RenLab from SYSUCC. All Rights Reserved<br/>
+For more useful tools/applications, please go to [renbal.org](http://www.renlab.org)
 
 ## Citation
 `Citation (from within R, enter citation("MesKit")):`
