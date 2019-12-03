@@ -62,6 +62,11 @@ shinyServer(function(input, output, session){
   widthccfDen <- reactive({
     return(input$widthccfden)
   })
+  mafName <- reactive({
+    name <- input$maf$name
+    patientID <- strsplit(name,"\\.")[[1]][1]
+    return(patientID)
+  })
   
 
   
@@ -137,14 +142,16 @@ shinyServer(function(input, output, session){
                        refBuild="hg19")
       } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
+          name <- mafName()
           maf <- MesKit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath)
+                                 ccfLociTsvFile = input$ccf.loci$datapath,name = name)
         }
         else{
-          maf <- readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath)
+          name <- mafName()
+          maf <-  MesKit::readMaf(mafFile = input$maf$datapath,
+                         sampleInfoFile = input$sampleInfo$datapath,name = name)
         }
       }
       return(maf)
@@ -1274,6 +1281,10 @@ shinyServer(function(input, output, session){
             need(input$heatmap.type == "CCF","switch heatmap type to CCF")
           )
         }
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
         p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
@@ -1288,6 +1299,10 @@ shinyServer(function(input, output, session){
       }
       else{
         njtree <- isolate(varsLs$njtree)
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
         p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
