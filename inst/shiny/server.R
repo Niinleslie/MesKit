@@ -83,10 +83,10 @@ shinyServer(function(input, output, session){
                                sep='\t')
       }
     } else {
-      mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-      sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-      ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-      ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+      mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+      sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+      ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+      ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
       mafInput <- read.table(mafFile, quote="",
                              header=TRUE, fill=TRUE,
                              sep='\t')
@@ -122,10 +122,10 @@ shinyServer(function(input, output, session){
       }
       
       if(is.null(input$maf) | is.null(input$sampleInfo)){
-        mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-        sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+        mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+        sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
         maf <- readMaf(mafFile = mafFile, 
                        sampleInfoFile = sampleInfoFile,
                        mutType=input$mutType, 
