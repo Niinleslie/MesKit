@@ -17,10 +17,10 @@
 #' 
 #' @examples
 #' ## data information
-#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-#' pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-#' pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+#' pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+#' pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
 #' ## manually usage
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 #' ## if ccf data provided

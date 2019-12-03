@@ -9,7 +9,7 @@ suppressMessages(library(shinyWidgets))
 suppressMessages(library(shinycssloaders))
 suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
-suppressMessages(library(Meskit))
+suppressMessages(library(MesKit))
 
 
 #sider bar----

@@ -137,7 +137,7 @@ shinyServer(function(input, output, session){
                        refBuild="hg19")
       } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
-          maf <- Meskit::readMaf(mafFile = input$maf$datapath,
+          maf <- MesKit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
                                  ccfLociTsvFile = input$ccf.loci$datapath)
@@ -161,7 +161,7 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Input data: Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
-      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf))
+      varsLs[['njtree']] <-  njtree <- MesKit::getNJtree(isolate(varsLs$maf))
       incProgress(amount=1)
       
       setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
@@ -502,7 +502,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(2)
       }
       maf <- isolate(varsLs$maf)
-      return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
+      return(MesKit::mutSharedPrivate(maf,show.num = input$show.num1))
     }
   })
   # 
@@ -656,7 +656,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       maf <- isolate(varsLs$maf)
-      return(Meskit::JaccardIndex(maf,type = input$JItype))
+      return(MesKit::JaccardIndex(maf,type = input$JItype))
     }
     # progress <- Progress$new(session, min=1, max=15)
     # on.exit(progress$close())
@@ -668,7 +668,7 @@ shinyServer(function(input, output, session){
     #   Sys.sleep(0.01)
     # }
     # maf <- isolate(varsLs$maf)
-    # return(Meskit::JaccardIndex(maf,type = input$JItype))
+    # return(MesKit::JaccardIndex(maf,type = input$JItype))
   })
   output$JaccardIndex <- renderPlot({
     ji()
@@ -827,7 +827,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      Meskit::GO.njtree(njtree, 
+      MesKit::GO.njtree(njtree, 
                         GO.type = input$GO.type, 
                         plotType = input$plotType, 
                         pAdjustMethod=input$pAdjustMethod, 
@@ -921,7 +921,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      list <- Meskit::Pathway.njtree(njtree, 
+      list <- MesKit::Pathway.njtree(njtree, 
                                      pathway.type=input$pathway.type, 
                                      plotType = input$pathplotType, 
                                      pAdjustMethod=input$pathpAdjustMethod, 
@@ -1087,11 +1087,11 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+      df.signature <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                 signaturesRef=input$signaturesRef,
                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
                                                 signif.level=0.05)
-      df.signature.plot <- Meskit::treeMutationalSig(njtree,
+      df.signature.plot <- MesKit::treeMutationalSig(njtree,
                                                      driverGenesFile=input$driverGenesFile1$datapath,
                                                      mutThreshold=input$mutThreshold1, 
                                                      signaturesRef=input$signaturesRef1,
@@ -1153,7 +1153,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
+      df.branchTrunk.plot <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
                                                        mutThreshold=input$mutThreshold2, 
                                                        signaturesRef=input$signaturesRef2,
                                                        plot.signatures=FALSE, plot.branchTrunk=TRUE, 
@@ -1274,21 +1274,21 @@ shinyServer(function(input, output, session){
             need(input$heatmap.type == "CCF","switch heatmap type to CCF")
           )
         }
-        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # else{
         #   validate(
         #     need(!is.null(input$phylotree.dir),"Upload your phylotree file")
         #   )
-        #   p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
+        #   p <- MesKit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
         #                              phylotree.type = input$phyloTreeType)
         #   return(p)
         # }
       }
       else{
         njtree <- isolate(varsLs$njtree)
-        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
