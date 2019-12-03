@@ -13,11 +13,11 @@
 #' percentage of different intersections will print in the stack plot or not
 #'
 #' @examples
-#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
+#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, sampleInfo = sampleInfo.File)
-#' oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "Meskit")
-#' tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "Meskit")
+#' oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "MesKit")
+#' tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
 #' mutOncoTSG(maf, oncogeneListFile, tsgListFile, show.percentage=TRUE)
 #' 
 #' @export mutOncoTSG
