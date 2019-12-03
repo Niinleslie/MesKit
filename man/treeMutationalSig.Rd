@@ -37,16 +37,16 @@ signatures.
 }
 \examples{
 ## data information
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
-pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
+maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "MesKit")
+sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "MesKit")
+pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "MesKit")
+pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "MesKit")
 maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfoFile = sampleInfo.File, refBuild = "hg19")
 njtree <- getNJtree(maf)
 ## general
 signature1 <- treeMutationalSig(njtree, mutThreshold=50)
 ## use driverGenesFile
-putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver_genes.txt", package = "Meskit")
+putativeDriverGenes.File <- system.file("extdata/multi_lesion", "putative_driver_genes.txt", package = "MesKit")
 signature2 <- treeMutationalSig(njtree, driverGenesFile=putativeDriverGenes.File, mutThreshold=50)
 ## use different signature reference
 signature3 <- treeMutationalSig(njtree, mutThreshold=50, signaturesRef="nature2013")

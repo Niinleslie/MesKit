@@ -11,17 +11,17 @@ mutSharedPrivate(maf, show.num = FALSE)
 
 \item{show.num}{a logic parameter to determine whether to show the number of each mutations in the stack plot}
 }
-\value{
-mutSharedPrivate
-}
 \description{
 Use R code to find the intersect mutations and their types in several samples of one patient
 }
 \examples{
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "Meskit")
-sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "Meskit")
-pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "Meskit")
-pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "Meskit")
-maf <- readMaf(patientID = "311252", mafFile = maf.File, sampleInfo = sampleInfo.File, refBuild = "hg19")
+maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
+sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
+ccf.cluster.File <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
+ccf.loci.File <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+maf <- readMaf(mafFile = maf.File, sampleInfo = sampleInfo.File, 
+                ccfClusterTsvFile = ccf.cluster.File, 
+                ccfLociTsvFile = ccf.loci.File,
+                refBuild = "hg19")
 mutSharedPrivate(maf)
 }
