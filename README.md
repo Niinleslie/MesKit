@@ -1,4 +1,4 @@
-<img src="https://github.com/Niinleslie/MesKit/tree/CHENJY/vignettes/logo.png" height="80" width="240" />
+<img src="/vignettes/logo.png" height="80" width="240" />
 
 ## MesKit
 
@@ -33,7 +33,7 @@ remotes::install_github("Niinleslie/MesKit")
 For details, please visit https://github.com/Niinleslie/MesKit/blob/master/vignettes/MesKit.Rmd 
 
 <div  align="center">    
-<img src="https://github.com/Niinleslie/MesKit/tree/CHENJY/vignettes/overview.png" height="560" width="700" align = center/>
+<img src="/vignettes/overview.png" height="560" width="700" align = center/>
 </div>
    
 
