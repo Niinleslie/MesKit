@@ -32,9 +32,7 @@ RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.92
 
 # MesKit part:
 #RUN R -e "BiocManager::install(c('org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))"
-RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))" \
-    && R -e 'library(BSgenome.Hsapiens.UCSC.hg19)' \ 
-    && R -e 'library(BSgenome.Hsapiens.UCSC.hg38)'
+RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))" 
 
 #RUN R -e "options(BioC_mirror='https://mirrors.tuna.tsinghua.edu.cn/bioconductor')"
 RUN R -e "devtools::install_github('Ninomoriaty/MesKit', ref = 'master')"
