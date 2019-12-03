@@ -28,11 +28,14 @@ RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.92
     && gdebi -n shiny-server-1.5.9.923-amd64.deb \
     && rm -f shiny-server-1.5.9.923-amd64.deb
 
+
 # MesKit part:
+#RUN R -e "BiocManager::install(c('org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))"
+RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19'))"
+
 #RUN R -e "options(BioC_mirror='https://mirrors.tuna.tsinghua.edu.cn/bioconductor')"
 RUN R -e "devtools::install_github('Niinleslie/Meskit', ref = 'master')"
-#RUN R -e "BiocManager::install(c('org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))"
-RUN R -e "BiocManager::install(c('org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19'))"
+
 
 # shiny server application & configuration
 COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
