@@ -11,6 +11,8 @@ suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
 
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 
 #sider bar----
 
