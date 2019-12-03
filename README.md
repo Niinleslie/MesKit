@@ -1,13 +1,11 @@
 <img src="/vignettes/logo.png" height="80" width="240" />
 
-## MesKit
-
-## Table of content   
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Shiny APP](#shiny-app)
-- [Use MesKit with Docker Container](#use-meskit-with-docker-container)
+- [MesKit]
+  * [Introduction](#introduction)
+  * [Installation](#installation)
+  * [Usage](#usage)
+  * [Shiny APP](#shiny-app)
+  * [Use MesKit with Docker Container](#use-meskit-with-docker-container)
 - [Designers](#designers)
 - [Credit](#credit)
 - [Maintainer](#maintainer)
@@ -67,24 +65,26 @@ To use MesKit with docker container, please visit https://github.com/Niinleslie/
 
 
 ## Designers
-* Jian Ren,renjian.sysu@gmail.com.
-* Qi Zhao,zhaoqi3@mail2.sysu.edu.cn.
-* Mengni Liu,liumn5@mail2.sysu.edu.cn
+* Jian Ren, renjian.sysu@gmail.com
+* Qi Zhao, zhaoqi3@mail2.sysu.edu.cn
+* Mengni Liu, liumn5@mail2.sysu.edu.cn
  
 ## Credit
 This software were developed by:
 
-* Mengni Liu,liumn5@mail2.sysu.edu.cn
-* Jianyu Chen,chenjy327@mail2.sysu.edu.cn
-* Chengwei Wang,wangchw8@outlook.com
+* [Mengni Liu](liumn5@mail2.sysu.edu.cn), Sun Yat-sen university 
+* [Jianyu Chen](chenjy327@mail2.sysu.edu.cn), Sun Yat-sen university 
+* [Chengwei Wang](wangchw8@outlook.com), Sun Yat-sen university 
 
 ## Maintainer
 Mengni Liu
+
 ## Copyright
 Copyright © 2014-2018. RenLab from SYSUCC. All Rights Reserved
 For more useful tools/applications, please go to renbal.org
+
 ## Citation
-Citation (from within R, enter citation("MesKit")):
+`Citation (from within R, enter citation("MesKit")):`
 
 _MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations_
 
