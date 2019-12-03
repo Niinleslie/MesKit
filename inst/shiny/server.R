@@ -131,7 +131,7 @@ shinyServer(function(input, output, session){
         sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
         ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
         ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
-        maf <- readMaf(mafFile = mafFile, 
+        maf <- MesKit::readMaf(mafFile = mafFile, 
                        sampleInfoFile = sampleInfoFile,
                        mutType=input$mutType, 
                        mutNonSilent=ls.mutNonSilent, 
