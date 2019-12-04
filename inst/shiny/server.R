@@ -62,6 +62,11 @@ shinyServer(function(input, output, session){
   widthccfDen <- reactive({
     return(input$widthccfden)
   })
+  mafName <- reactive({
+    name <- input$maf$name
+    patientID <- strsplit(name,"\\.")[[1]][1]
+    return(patientID)
+  })
   
 
   
@@ -83,10 +88,10 @@ shinyServer(function(input, output, session){
                                sep='\t')
       }
     } else {
-      mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-      sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-      ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-      ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+      mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+      sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+      ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+      ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
       mafInput <- read.table(mafFile, quote="",
                              header=TRUE, fill=TRUE,
                              sep='\t')
@@ -122,10 +127,10 @@ shinyServer(function(input, output, session){
       }
       
       if(is.null(input$maf) | is.null(input$sampleInfo)){
-        mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-        sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+        mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+        sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
         maf <- readMaf(mafFile = mafFile, 
                        sampleInfoFile = sampleInfoFile,
                        mutType=input$mutType, 
@@ -137,14 +142,16 @@ shinyServer(function(input, output, session){
                        refBuild="hg19")
       } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
-          maf <- Meskit::readMaf(mafFile = input$maf$datapath,
+          name <- mafName()
+          maf <- MesKit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath)
+                                 ccfLociTsvFile = input$ccf.loci$datapath,name = name)
         }
         else{
-          maf <- readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath)
+          name <- mafName()
+          maf <-  MesKit::readMaf(mafFile = input$maf$datapath,
+                         sampleInfoFile = input$sampleInfo$datapath,name = name)
         }
       }
       return(maf)
@@ -161,7 +168,7 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Input data: Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
-      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf))
+      varsLs[['njtree']] <-  njtree <- MesKit::getNJtree(isolate(varsLs$maf))
       incProgress(amount=1)
       
       setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
@@ -502,7 +509,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(2)
       }
       maf <- isolate(varsLs$maf)
-      return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
+      return(MesKit::mutSharedPrivate(maf,show.num = input$show.num1))
     }
   })
   # 
@@ -589,13 +596,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(is.null(input$oncogeneListFile$datapath)){
-        oncogeneListFile <- './example/oncogene.list.txt'
+        oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "MesKit")
       }
       else{
         oncogeneListFile <- input$oncogeneListFile$datapath
       }
       if(is.null(input$tsgListFile$datapath)){
-        tsgListFile <- './example/TSG.list.txt'
+        tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
       }
       else{
         tsgListFile <- input$tsgListFile$datapath
@@ -656,7 +663,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       maf <- isolate(varsLs$maf)
-      return(Meskit::JaccardIndex(maf,type = input$JItype))
+      return(MesKit::JaccardIndex(maf,type = input$JItype))
     }
     # progress <- Progress$new(session, min=1, max=15)
     # on.exit(progress$close())
@@ -668,7 +675,7 @@ shinyServer(function(input, output, session){
     #   Sys.sleep(0.01)
     # }
     # maf <- isolate(varsLs$maf)
-    # return(Meskit::JaccardIndex(maf,type = input$JItype))
+    # return(MesKit::JaccardIndex(maf,type = input$JItype))
   })
   output$JaccardIndex <- renderPlot({
     ji()
@@ -827,7 +834,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      Meskit::GO.njtree(njtree, 
+      MesKit::GO.njtree(njtree, 
                         GO.type = input$GO.type, 
                         plotType = input$plotType, 
                         pAdjustMethod=input$pAdjustMethod, 
@@ -921,7 +928,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      list <- Meskit::Pathway.njtree(njtree, 
+      list <- MesKit::Pathway.njtree(njtree, 
                                      pathway.type=input$pathway.type, 
                                      plotType = input$pathplotType, 
                                      pAdjustMethod=input$pathpAdjustMethod, 
@@ -1009,7 +1016,7 @@ shinyServer(function(input, output, session){
   sigOFA <- eventReactive(input$submitSig, {
     if (input$oncogeneMapping) {
       if(is.null(input$driverGenesFile$datapath)){
-        driverGenesFile <- './example/putative_driver_genes.txt'
+        driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
       } else{
         driverGenesFile <- input$driverGenesFile$datapath
       }
@@ -1087,11 +1094,11 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+      df.signature <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                 signaturesRef=input$signaturesRef,
                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
                                                 signif.level=0.05)
-      df.signature.plot <- Meskit::treeMutationalSig(njtree,
+      df.signature.plot <- MesKit::treeMutationalSig(njtree,
                                                      driverGenesFile=input$driverGenesFile1$datapath,
                                                      mutThreshold=input$mutThreshold1, 
                                                      signaturesRef=input$signaturesRef1,
@@ -1153,7 +1160,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
+      df.branchTrunk.plot <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
                                                        mutThreshold=input$mutThreshold2, 
                                                        signaturesRef=input$signaturesRef2,
                                                        plot.signatures=FALSE, plot.branchTrunk=TRUE, 
@@ -1274,21 +1281,29 @@ shinyServer(function(input, output, session){
             need(input$heatmap.type == "CCF","switch heatmap type to CCF")
           )
         }
-        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
+        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # else{
         #   validate(
         #     need(!is.null(input$phylotree.dir),"Upload your phylotree file")
         #   )
-        #   p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
+        #   p <- MesKit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
         #                              phylotree.type = input$phyloTreeType)
         #   return(p)
         # }
       }
       else{
         njtree <- isolate(varsLs$njtree)
-        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
+        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
@@ -1442,7 +1457,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadClonePlotCheck == "pdf"){
         pdf(file,width = input$width5/100 , height = 6)
       }
-      clp()
+      print(clp())
       dev.off()
     },
     contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
@@ -1491,7 +1506,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadPathPlot <- downloadHandler(
     filename = function() {
-      paste("Pathwaytplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
+      paste("Pathwayplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPathPlotCheck == "png"){

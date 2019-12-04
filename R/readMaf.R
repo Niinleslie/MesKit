@@ -38,7 +38,9 @@ readMaf <- function(
     ## ccf parameters             
     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
     ## supplyment
-    refBuild="hg19"){
+    refBuild="hg19",
+    ## supply in shiny
+    name=NULL){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
@@ -56,7 +58,10 @@ readMaf <- function(
     ## get patientID
     fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
     patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
-
+    ## correct error name of fileinput on shiny app
+    if(patientID == 0){
+      patientID <- strsplit(name,"\\.")[[1]][1]
+    }
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
