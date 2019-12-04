@@ -1285,7 +1285,7 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           njtree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # else{
@@ -1303,7 +1303,7 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           njtree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot

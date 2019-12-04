@@ -728,7 +728,7 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, sig.nam
 getPrivateMutation <- function(njtree){
   totalMut <- njtree@mut_branches
   private.order <- unlist(lapply(names(totalMut),
-                                 function(x){return(length(strsplit(x,"b)")[[1]]) == 1)})) 
+                                 function(x){return(length(strsplit(x,"∩")[[1]]) == 1)})) 
   privateMut <- totalMut[private.order]
   countMutation <- function(mut){
     sum <- 0
