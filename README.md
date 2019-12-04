@@ -60,7 +60,7 @@ This software was mainly developed by :
 
 ## Supervised by 
 
-* [Jian Ren](renjian@sysucc.org.cn)and [Qi Zhao](zhaoqi@sysucc.org.cn) from Bioinformatic Center of Sun Yat-sen University Cancer Center 
+* [Jian Ren](renjian@sysucc.org.cn) and [Qi Zhao](zhaoqi@sysucc.org.cn) from Bioinformatic Center of Sun Yat-sen University Cancer Center 
 
 ## Maintainer
 [Mengni Liu](liumn5@mail2.sysu.edu.cn), Sun Yat-sen university  <br/>
