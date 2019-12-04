@@ -11,6 +11,7 @@
 #' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file if ccf data provided. Default NULL.
 #' @param refBuild Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.
+#' @param name Default NULL. Correct name error of shiny fileinput
 #' 
 #' @return a Maf object/class 
 #' 
