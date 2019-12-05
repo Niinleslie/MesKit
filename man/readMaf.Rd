@@ -6,7 +6,7 @@
 \usage{
 readMaf(mafFile, sampleInfoFile, mutType = "All", mutNonSilent = NULL,
   chrSilent = NULL, use.indel = FALSE, ccfClusterTsvFile = NULL,
-  ccfLociTsvFile = NULL, refBuild = "hg19")
+  ccfLociTsvFile = NULL, refBuild = "hg19", name = NULL)
 }
 \arguments{
 \item{mafFile}{MAF file.}
@@ -26,6 +26,8 @@ readMaf(mafFile, sampleInfoFile, mutType = "All", mutNonSilent = NULL,
 \item{ccfLociTsvFile}{CCF loci.tsv file if ccf data provided. Default NULL.}
 
 \item{refBuild}{Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.}
+
+\item{name}{Default NULL. Correct name error of shiny fileinput}
 }
 \value{
 a Maf object/class

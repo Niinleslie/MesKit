@@ -7,7 +7,7 @@
 runMesKit()
 }
 \description{
-\code{runIDEA} run MesKit locally
+\code{runMesKit} run MesKit locally
 }
 \author{
 Mengni Liu
