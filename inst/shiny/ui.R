@@ -12,7 +12,7 @@ suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
 
 suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
-suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+# suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 
 #sider bar----
 
@@ -1415,6 +1415,10 @@ table.dataTable tbody th, table.dataTable tbody td {
 
 .tooltip {
     min-width: 15em !important;
+}
+
+.progress-message, .progress-detail {
+    display: block !important;
 }
 
                          # .shiny-notification-close {
