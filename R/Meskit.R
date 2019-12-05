@@ -4,5 +4,5 @@
 #' @author Mengni Liu
 #' @export 
 runMesKit<-function(){ 
-  shiny::runApp(system.file("shiny", package = "Meskit"))
+  shiny::runApp(system.file("shiny", package = "MesKit"))
 } 
