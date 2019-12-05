@@ -5,6 +5,7 @@
 #'
 #' @param mafFile MAF file. 
 #' @param sampleInfoFile sample information file.
+#' @param ID Default NULL. Correct name error of shiny fileinput
 #' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
 #' @param mutNonSilent Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.
 #' @param chrSilent Default NULL. select the chromosomes you want to dismiss.
@@ -12,7 +13,7 @@
 #' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL.
 #' @param ccfLociTsvFile CCF loci.tsv file if ccf data provided. Default NULL.
 #' @param refBuild Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.
-#' @param name Default NULL. Correct name error of shiny fileinput
+#' 
 #' 
 #' @return a Maf object/class 
 #' 
@@ -34,15 +35,14 @@
 ## read.maf main function
 readMaf <- function(
     ## maf parameters
-    mafFile, sampleInfoFile,
+    mafFile, sampleInfoFile, ID=NULL, 
     ## filter selection
     mutType="All", mutNonSilent=NULL, chrSilent=NULL, use.indel=FALSE, 
     ## ccf parameters             
     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
     ## supplyment
-    refBuild="hg19",
-    ## supply in shiny
-    name=NULL){
+    refBuild="hg19"
+    ){
     
     ## read maf file
     if (.substrRight(mafFile, 3) == ".gz"){
@@ -60,9 +60,11 @@ readMaf <- function(
     ## get patientID
     fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
     patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
-    ## correct error name of fileinput on shiny app
+    ## correct error name of fileinput on shiny app (Original para patientID could solve the problem)
     if(patientID == 0){
-      patientID <- strsplit(name,"\\.")[[1]][1]
+      patientID <- strsplit(ID,"\\.")[[1]][1]
+    } else if (!is.null(ID)) {
+      patientID <- ID
     }
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 

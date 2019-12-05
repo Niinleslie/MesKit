@@ -143,15 +143,15 @@ shinyServer(function(input, output, session){
       } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
           name <- mafName()
-          maf <- MesKit::readMaf(mafFile = input$maf$datapath,
+          maf <- readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath,name = name)
+                                 ccfLociTsvFile = input$ccf.loci$datapath,ID = name)
         }
         else{
           name <- mafName()
-          maf <-  MesKit::readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath,name = name)
+          maf <-  readMaf(mafFile = input$maf$datapath,
+                         sampleInfoFile = input$sampleInfo$datapath,ID = name)
         }
       }
       return(maf)
