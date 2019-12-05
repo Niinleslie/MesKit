@@ -62,6 +62,11 @@ shinyServer(function(input, output, session){
   widthccfDen <- reactive({
     return(input$widthccfden)
   })
+  mafName <- reactive({
+    name <- input$maf$name
+    patientID <- strsplit(name,"\\.")[[1]][1]
+    return(patientID)
+  })
   
 
   
@@ -126,7 +131,7 @@ shinyServer(function(input, output, session){
         sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
         ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
         ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
-        maf <- readMaf(mafFile = mafFile, 
+        maf <- MesKit::readMaf(mafFile = mafFile, 
                        sampleInfoFile = sampleInfoFile,
                        mutType=input$mutType, 
                        mutNonSilent=ls.mutNonSilent, 
@@ -137,14 +142,16 @@ shinyServer(function(input, output, session){
                        refBuild="hg19")
       } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
+          name <- mafName()
           maf <- MesKit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath)
+                                 ccfLociTsvFile = input$ccf.loci$datapath,name = name)
         }
         else{
-          maf <- readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath)
+          name <- mafName()
+          maf <-  MesKit::readMaf(mafFile = input$maf$datapath,
+                         sampleInfoFile = input$sampleInfo$datapath,name = name)
         }
       }
       return(maf)
@@ -589,13 +596,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(is.null(input$oncogeneListFile$datapath)){
-        oncogeneListFile <- './example/oncogene.list.txt'
+        oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "MesKit")
       }
       else{
         oncogeneListFile <- input$oncogeneListFile$datapath
       }
       if(is.null(input$tsgListFile$datapath)){
-        tsgListFile <- './example/TSG.list.txt'
+        tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
       }
       else{
         tsgListFile <- input$tsgListFile$datapath
@@ -1009,7 +1016,7 @@ shinyServer(function(input, output, session){
   sigOFA <- eventReactive(input$submitSig, {
     if (input$oncogeneMapping) {
       if(is.null(input$driverGenesFile$datapath)){
-        driverGenesFile <- './example/putative_driver_genes.txt'
+        driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
       } else{
         driverGenesFile <- input$driverGenesFile$datapath
       }
@@ -1274,7 +1281,11 @@ shinyServer(function(input, output, session){
             need(input$heatmap.type == "CCF","switch heatmap type to CCF")
           )
         }
-        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # else{
@@ -1288,7 +1299,11 @@ shinyServer(function(input, output, session){
       }
       else{
         njtree <- isolate(varsLs$njtree)
-        p <- MesKit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
@@ -1442,7 +1457,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadClonePlotCheck == "pdf"){
         pdf(file,width = input$width5/100 , height = 6)
       }
-      clp()
+      print(clp())
       dev.off()
     },
     contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
@@ -1491,7 +1506,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadPathPlot <- downloadHandler(
     filename = function() {
-      paste("Pathwaytplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
+      paste("Pathwayplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPathPlotCheck == "png"){
