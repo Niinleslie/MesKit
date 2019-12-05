@@ -57,6 +57,7 @@ This software was mainly developed by :
 * [Mengni Liu](liumn5@mail2.sysu.edu.cn), Sun Yat-sen university 
 * [Jianyu Chen](chenjy327@mail2.sysu.edu.cn), Sun Yat-sen university 
 * [Chengwei Wang](wangchw8@outlook.com), Sun Yat-sen university 
+* [Xin Wang](wangx555@mail2.sysu.edu.cn), Sun Yat-sen university
 
 ## Supervised by 
 

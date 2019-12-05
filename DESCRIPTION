@@ -1,10 +1,10 @@
 Package: MesKit
 Type: Package
 Title: Dissect cancer evolution from multi-region derived tumor biopsies via somatic mutations
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(person("Mengni", "Liu", ,"niinleslie@gmail.com", role = c("aut", "cre")))
 Maintainer: Mengni Liu <niinleslie@gmail.com>
-Description: Analysis and visualize multi-region whole-exome sequencing data.This package provides various functions to perform most commonly used analyses in cancer genomics and to create feature rich customizable visualzations with minimal effort.
+Description: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
