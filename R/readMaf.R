@@ -5,7 +5,7 @@
 #'
 #' @param mafFile MAF file. 
 #' @param sampleInfoFile sample information file.
-#' @param ID Default NULL. Correct name error of shiny fileinput
+#' @param ID Default NULL. Input your expected patientID as well as correct name error of shiny fileinput
 #' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
 #' @param mutNonSilent Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.
 #' @param chrSilent Default NULL. select the chromosomes you want to dismiss.
