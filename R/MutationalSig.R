@@ -369,7 +369,9 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50,
         scale_y_continuous(limits=c(-0.03, 0.2), breaks=seq(0, 0.2, 0.1)) + 
         ## signature notes and text parts
         geom_text(data = df.sigsInputText, 
-                  aes(x=-Inf, y=Inf, label=paste(Signature, ": ", SigsWeight, "    ", 
+                  aes(x=-Inf, y=Inf, label=paste(Signature, ": ", 
+                                                 round(as.numeric(levels(SigsWeight)[SigsWeight]), 3), 
+                                                 "    ", 
                                                  "Aetiology: ", Aetiology, sep="")), 
                   hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=2.75) + 
         ## Mutational Type Labels

@@ -1033,7 +1033,7 @@ shinyServer(function(input, output, session){
         }
         
         njtree <- isolate(varsLs$njtree)
-        df.signature <- treeMutationalSig(njtree, 
+        df.signature <-  MesKit::treeMutationalSig(njtree, 
                                           driverGenesFile=driverGenesFile, 
                                           mutThreshold=input$mutThreshold, 
                                           signaturesRef=input$signaturesRef,
@@ -1055,7 +1055,7 @@ shinyServer(function(input, output, session){
         }
         
         njtree <- isolate(varsLs$njtree)
-        df.signature <- treeMutationalSig(njtree, 
+        df.signature <-  MesKit::treeMutationalSig(njtree, 
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold, 
                                           signaturesRef=input$signaturesRef,
