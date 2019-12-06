@@ -660,8 +660,8 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, sig.nam
                           data = plot.data[plot.data$sample != Root.label&plot.data$sample != 'internal node',], 
                           size=1.5, show.legend = T)
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
-                            data = plot.data[plot.data$sample == Root.label,], 
-                            size = 1.5, show.legend = F )
+                          data = plot.data[plot.data$sample == Root.label,], 
+                          size = 1.5, show.legend = F )
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
                           data = plot.data[plot.data$sample == 'internal node',], 
                           size = 1.5, show.legend = F )

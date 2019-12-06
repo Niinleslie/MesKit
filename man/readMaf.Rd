@@ -4,30 +4,30 @@
 \alias{readMaf}
 \title{ReadMaf}
 \usage{
-readMaf(mafFile, sampleInfoFile, mutType = "All", mutNonSilent = NULL,
-  chrSilent = NULL, use.indel = FALSE, ccfClusterTsvFile = NULL,
-  ccfLociTsvFile = NULL, refBuild = "hg19", name = NULL)
+readMaf(mafFile, sampleInfoFile, ID = NULL, mutType = "All",
+  mutNonSilent = NULL, chrSilent = NULL, use.indel = FALSE,
+  ccfClusterTsvFile = NULL, ccfLociTsvFile = NULL, refBuild = "hg19")
 }
 \arguments{
-\item{mafFile}{MAF file.}
+\item{mafFile}{MAF-format data file.}
 
 \item{sampleInfoFile}{sample information file.}
 
+\item{ID}{Default NULL. Input your expected patientID character as well as correct the name error of shiny fileinput}
+
 \item{mutType}{Default "All". "nonSilent" And you can select proper variant classification you need.}
 
-\item{mutNonSilent}{Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.}
+\item{mutNonSilent}{Default NULL. Option: "Default". And you can list variant classifications that you do not want them to be silent.}
 
-\item{chrSilent}{Default NULL. select the chromosomes you want to dismiss.}
+\item{chrSilent}{Default NULL. Select chromosomes needed to be dismissed.}
 
-\item{use.indel}{Select SNP in Variant type}
+\item{use.indel}{Default FALSE. Option: TRUE. A logic parameter to determine whether to use other variant type besides SNP.}
 
-\item{ccfClusterTsvFile}{CCF cluster.tsv file if ccf data provided. Default NULL.}
+\item{ccfClusterTsvFile}{Default NULL. CCF cluster.tsv file if ccf data provided.}
 
-\item{ccfLociTsvFile}{CCF loci.tsv file if ccf data provided. Default NULL.}
+\item{ccfLociTsvFile}{Default NULL. CCF loci.tsv file if ccf data provided.}
 
-\item{refBuild}{Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.}
-
-\item{name}{Default NULL. Correct name error of shiny fileinput}
+\item{refBuild}{Default "hg19".Option: "hg38". You could choose human reference genome versions of hg19 or hg38 by UCSC.}
 }
 \value{
 a Maf object/class
@@ -36,14 +36,11 @@ a Maf object/class
 Read tab delimited MAF (can be plain text or gz compressed) file along with sample information file.
 }
 \examples{
-## data information
 maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
 sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
 pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
 pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
-## manually usage
 maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-## if ccf data provided
 maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 
 }

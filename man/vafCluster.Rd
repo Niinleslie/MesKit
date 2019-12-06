@@ -2,7 +2,7 @@
 % Please edit documentation in R/vafCluster.R
 \name{vafCluster}
 \alias{vafCluster}
-\title{A VAF plot painter}
+\title{VAFCluster}
 \usage{
 vafCluster(maf, minVaf = 0.02, maxVaf = 1, showMATH = TRUE,
   plotOption = "combine", themeOption = "aaas")

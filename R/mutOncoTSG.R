@@ -1,3 +1,4 @@
+#' mutOncoTSG
 #' @description With the gene list passed by oncogeneList and tsgList, 
 #' mutOncoTSG can calculate the proportion of shared/partial-shared/private variants
 #' that occurs in oncogenes and tumor suppressors genes(TSGs)
@@ -43,7 +44,7 @@ mutOncoTSG <- function(maf, oncogeneListFile, tsgListFile, show.percentage=FALSE
     oncogeneData <- .stackDataFilter(mafData, oncogeneLs, tsbLs, geneType="Oncogene")
     tsgData <- .stackDataFilter(mafData, tsgLs, tsbLs, geneType="TSG")
     plotData <- rbind(oncogeneData, tsgData)
-
+    
     ## generate stack plot
     # ggsciFillPalette <- eval(parse(text=paste("scale_fill_", themeOption, "()", sep="")))
     
@@ -66,9 +67,9 @@ mutOncoTSG <- function(maf, oncogeneListFile, tsgListFile, show.percentage=FALSE
               legend.title=element_blank()) + 
         ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
         labs(y = "Variant number") + 
-    scale_fill_manual("legend", values = c("Private" = ggsci::pal_npg("nrc")(10)[1], 
-                                           "Shared" = ggsci::pal_npg("nrc")(10)[3], 
-                                           "Parital-shared" = ggsci::pal_npg("nrc")(10)[6]))
+        scale_fill_manual("legend", values = c("Private" = ggsci::pal_npg("nrc")(10)[1], 
+                                               "Shared" = ggsci::pal_npg("nrc")(10)[3], 
+                                               "Parital-shared" = ggsci::pal_npg("nrc")(10)[6]))
     # ggsciFillPalette
 }
 
