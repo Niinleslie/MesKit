@@ -70,7 +70,6 @@ mathScore <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
 #' 
 #' @export getTMB
 
-
 ## TMB main function (actually could be combined as a lighter tool)
 getTMB <- function(maf, tsb=c("All"), minvaf=0.02, maxvaf=1){
     ## get vaf-related infomation
