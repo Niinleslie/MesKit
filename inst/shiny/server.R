@@ -436,6 +436,7 @@ shinyServer(function(input, output, session){
           height = 560,
           res = 100
           )
+          return(picSep[[which(names(picSep) == getOption())]])
           
         } else {
           pic <- vafClusterRshiny(maf,
@@ -450,6 +451,7 @@ shinyServer(function(input, output, session){
           height = 560,
           res = 100
           )
+          return(pic)
         }
 
         })
@@ -1373,7 +1375,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadVafPlotCheck == "pdf"){
         pdf(file,width = input$width1/100 , height = 6)
       }
-      vc()
+      print(vc())
       dev.off()
     },
     contentType = paste('image/',input$DownloadVafPlotCheck,sep="")
