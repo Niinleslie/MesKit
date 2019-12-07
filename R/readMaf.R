@@ -3,14 +3,14 @@
 #'
 #' @param mafFile MAF-format data file. 
 #' @param sampleInfoFile Sample information file.
-#' @param ID Default NULL. Input your expected patientID character as well as correct the name error of shiny fileinput
-#' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
-#' @param mutNonSilent Default NULL. Option: "Default". And you can list variant classifications that you do not want them to be silent.
-#' @param chrSilent Default NULL. Select chromosomes needed to be dismissed.
-#' @param use.indel Default FALSE. Option: TRUE. A logic parameter to determine whether to use other variant type besides SNP.
-#' @param ccfClusterTsvFile Default NULL. CCF cluster.tsv file if ccf data provided.
-#' @param ccfLociTsvFile Default NULL. CCF loci.tsv file if ccf data provided.
-#' @param refBuild Default "hg19".Option: "hg38". You could choose human reference genome versions of hg19 or hg38 by UCSC.
+#' @param ID Input your expected patientID character as well as correct the name error of shiny fileinput. Default NULL. 
+#' @param mutType Select proper variant classification you need. Default "All".Option: "nonSilent". 
+#' @param mutNonSilentAnd List variant classifications that you do not want them to be silent.  Default NULL. Option: "Default". 
+#' @param chrSilent Select chromosomes needed to be dismissed. Default NULL. 
+#' @param use.indel A logic parameter to determine whether to use other variant type besides SNP. Default FALSE. Option: TRUE. 
+#' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL. 
+#' @param ccfLociTsvFile CCF loci.tsv file if ccf data provided. Default NULL. 
+#' @param refBuild Choose human reference genome versions of hg19 or hg38 by UCSC. Default "hg19". Option: "hg38". 
 #' 
 #' @return a Maf object/class 
 #' 

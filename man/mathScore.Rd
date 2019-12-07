@@ -11,9 +11,9 @@ mathScore(maf, tsb = c("All"), minvaf = 0.02, maxvaf = 1)
 
 \item{tsb}{Specify Tumor_Sample_Barcodes for single or all samples from maf of the patient}
 
-\item{minvaf}{Default: 0. Option: on the scale of 0 to 1. Filter low frequency variants.}
+\item{minvaf}{Filter low frequency variants. Default: 0. Option: on the scale of 0 to 1.}
 
-\item{maxvaf}{Default: 0. Option: on the scale of 0 to 1. Filter extremely high frequency variants.}
+\item{maxvaf}{Filter extremely high frequency variants. Default: 0. Option: on the scale of 0 to 1.}
 }
 \value{
 A list containing MATH scores of all/selected samples.

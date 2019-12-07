@@ -13,21 +13,21 @@ readMaf(mafFile, sampleInfoFile, ID = NULL, mutType = "All",
 
 \item{sampleInfoFile}{Sample information file.}
 
-\item{ID}{Default NULL. Input your expected patientID character as well as correct the name error of shiny fileinput}
+\item{ID}{Input your expected patientID character as well as correct the name error of shiny fileinput. Default NULL.}
 
-\item{mutType}{Default "All". "nonSilent" And you can select proper variant classification you need.}
+\item{mutType}{Select proper variant classification you need. Default "All".Option: "nonSilent".}
 
-\item{mutNonSilent}{Default NULL. Option: "Default". And you can list variant classifications that you do not want them to be silent.}
+\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
-\item{chrSilent}{Default NULL. Select chromosomes needed to be dismissed.}
+\item{use.indel}{A logic parameter to determine whether to use other variant type besides SNP. Default FALSE. Option: TRUE.}
 
-\item{use.indel}{Default FALSE. Option: TRUE. A logic parameter to determine whether to use other variant type besides SNP.}
+\item{ccfClusterTsvFile}{CCF cluster.tsv file if ccf data provided. Default NULL.}
 
-\item{ccfClusterTsvFile}{Default NULL. CCF cluster.tsv file if ccf data provided.}
+\item{ccfLociTsvFile}{CCF loci.tsv file if ccf data provided. Default NULL.}
 
-\item{ccfLociTsvFile}{Default NULL. CCF loci.tsv file if ccf data provided.}
+\item{refBuild}{Choose human reference genome versions of hg19 or hg38 by UCSC. Default "hg19". Option: "hg38".}
 
-\item{refBuild}{Default "hg19".Option: "hg38". You could choose human reference genome versions of hg19 or hg38 by UCSC.}
+\item{mutNonSilentAnd}{List variant classifications that you do not want them to be silent.  Default NULL. Option: "Default".}
 }
 \value{
 a Maf object/class
