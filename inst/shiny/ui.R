@@ -9,9 +9,7 @@ suppressMessages(library(shinyWidgets))
 suppressMessages(library(shinycssloaders))
 suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
-suppressMessages(library(Meskit))
-suppressMessages(library(timescape))
-
+suppressMessages(library(MesKit))
 
 #sider bar----
 
@@ -1335,11 +1333,11 @@ bodySurvival <- tabItem('Survival',
 
 
 #Main function----
-dbHeader <- dashboardHeader(title = "Meskit", titleWidth = 300, 
+dbHeader <- dashboardHeader(title = "MesKit", titleWidth = 300, 
                             tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
                             tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))))
 dbHeader$children[[2]]$children <-  tags$a(href='https://github.com/Niinleslie/MesKit',
-                                           tags$img(src='image/logo.png',height='65',width='250'))
+                                           tags$img(src='image/logo1.jpg',height='65',width='250'))
 shinyUI(
   dashboardPage(
     skin = "blue",
@@ -1383,7 +1381,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> Meskit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
       })
      ')), 
       

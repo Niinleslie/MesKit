@@ -24,9 +24,9 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
   }else{
     use.ccf = TRUE
   }
-  if(is.null(njtree)){
-      stop("You need to generate njtree using NJtree.R")
-  }
+  # if(is.null(njtree)){
+  #     stop("You need to generate njtree using NJtree.R")
+  # }
   phylo <- njtree@nj
   refBuild <- njtree@refBuild
   signature <- treeMutationalSig(njtree)
@@ -77,6 +77,7 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
   Root.node <- edge[Root.row, 1]
   Root.edge <- edge[Root.row, 3]
   verticalPath <- calVerticalPath(phylo,Root.label)
+  branch.label <- labelBranch(phylo)
   #store the sample name or node in a list
   name.list <- c('')
   #Store the list of nodes by plot order
@@ -573,6 +574,20 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
     }
   }
   if(show.mutSig){
+    plot.data$label <- ""
+    for(i in 1:nrow(plot.data)){
+      if(plot.data$sample[i] == "NORMAL"){
+        plot.data$label[i] <- branch.label[[Root.node]]
+      }
+      else{
+        if(plot.data$end_num[i] > length(phylo$tip.label)){
+          plot.data$label[i] <- branch.label[[plot.data$end_num[i]]]
+        }
+        else{
+          plot.data$label[i] <- as.character(plot.data$sample[i]) 
+        }
+      }
+    }
     plot.data <- addSignature(phylo, plot.data, signature)
   }
   return(plot.data)
@@ -582,59 +597,14 @@ addSignature <- function(phylo, plot.data, signature){
   #add signature to plot.data
   plot.data$signature <- ''
   plot.data$alias <- ''
+  sigs <- strsplit(as.character(signature$Branch),"∩")
+  sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
   t <- 1
-  while(t<=length(signature$Branch)){
-    branch <- unlist(strsplit(as.character(signature$Branch[[t]]) , split='∩'))
-    if(length(branch) == 1){
-      row <-which(plot.data$sample == as.character(branch))
-      plot.data$signature[row] <- as.character(signature$Signature[[t]]) 
-      plot.data$alias[row] <- as.character(signature$Alias[[t]])
-      t <- t + 1
-      next
-    }
-    #find Find the row corresponding to the sample or internal in the plot.data
-    row.list <- c()
-    for(i in 1:length(branch)){
-      sample <- as.character(branch[i]) 
-      row <- which(plot.data$sample == sample)
-      row.list <- append(row.list, row)
-    }
-    # the sample in sample_list share one common node(previous node  to the lowest row )
-    # signature of NORMAL
-    if(length(branch) == length(phylo$tip.label ) - 1){
-      row <- which(plot.data$sample == 'NORMAL')
-      plot.data$signature[row] <-  as.character(signature$Signature[(t)]) 
-      plot.data$alias[row] <- as.character(signature$Alias[(t)])
-      t <- t+1
-      next
-    }
-    #Internal nodes connected to NORMAL
-    else if(length(branch) == length(phylo$tip.label ) - 2){
-      for(i in 1 : length(plot.data$sample)){
-        if(plot.data$end_num[i] > length(phylo$tip.label)){
-          command.row <- i
-          break
-        }
-      }
-      plot.data$signature[command.row] <-  as.character(signature$Signature[(t)]) 
-      plot.data$alias[command.row] <-  as.character(signature$Alias[(t)])
-      t=t+1
-      next
-    }
-    # if signature does not belong to non- NORMAL sample
-    if(length(branch) != 1){
-      lowest.row <- min(row.list)
-      command.row <- which(plot.data$end_num == plot.data$node[lowest.row]) 
-      if(length(command.row) != 0){
-        plot.data$signature[command.row] <- as.character(signature$Signature[(t)]) 
-        plot.data$alias[command.row] <- as.character(signature$Alias[(t)])
-      }
-    }else{
-      row <- which(plot.data$sample == as.character(branch))
-      plot.data$signature[row] <-  as.character(signature$Signature[(t)]) 
-      plot.data$alias[row] <-  as.character(signature$Alias[(t)])
-    }
-    t = t + 1
+  while(t<=length(sigs)){
+    pos <- which(plot.data$label == sigs[t])
+    plot.data$signature[pos] <- as.character(signature$Signature[t]) 
+    plot.data$alias[pos] <- as.character(signature$Alias[t])
+    t <- t + 1
   }
   if(plot.data$signature[which(plot.data$sample == 'NORMAL')] == ''){
     plot.data$signature[which(plot.data$sample == 'NORMAL')] = as.character(signature$Signature[1])
@@ -647,7 +617,7 @@ addSignature <- function(phylo, plot.data, signature){
 }
 ##color scale set
 colorSet <- function(signatures){
-  ## FF6A5A:Sig19、
+  ## FF6A5A:Sig19
   all.color.scale <- c("#E41A1C","#377EB8","#7F0000",
                        "#35978f","#FC8D62","#2166ac",
                        "#E78AC3","#A6D854","#FFD92F",
@@ -829,5 +799,33 @@ calVerticalPath <- function(phylo,Root.label){
   }
   result <- path[[which.max(distance.table)]]
 }
-
+## label sample in each branch                            
+labelBranch <- function(phylo){
+  Root <- which(phylo$tip.label == "NORMAL")
+  internalNodes <- sort(unique(phylo$edge[,1]))
+  result <- list()
+  for(i in 1:(length(phylo$edge.length)+1)){
+    result[[i]] <- NA
+  }
+  end <- phylo$edge[which(phylo$edge[,2] == Root),1]
+  for(i in 1:length(phylo$tip.label)){
+    row <- phylo$edge[which(phylo$edge[,2] == i), ]
+    if(i == Root){
+      next
+    }
+    while (TRUE) {
+      node <- row[1]
+      if(node == end){
+        result[[node]] <- append(result[[node]], i)
+        break
+      }
+      else{
+        result[[node]] <- append(result[[node]], i)
+        row <- phylo$edge[which(phylo$edge[,2] == node),]
+      }
+    }
+  }
+  g <- lapply(result, function(x){return(paste(sort(phylo$tip.label[x[-1]], decreasing = T),collapse = "∩"))})
+  return(g)
+}
 

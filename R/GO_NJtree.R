@@ -1,7 +1,3 @@
-options(stringsAsFactors = T)
-options(bitmapType='cairo')
-options(warn = -1)
-
 #' Use R code to do the GO analysis.
 #' @import clusterProfiler pdp
 #' 
@@ -36,7 +32,7 @@ GO_analysis <- function(genes = NULL, GO.type = GO.type, pval = pval, pAdjustMet
                   qvalueCutoff  = qval
   )
    
-  if (!is.null(ego) & nrow(ego@result) > 0){
+  if (!is.null(ego) && nrow(ego@result) > 0){
     if(name == "All"){
       ego@result$Case <- patientID
     }else{
@@ -60,67 +56,61 @@ GO.njtree <- function(njtree, GO.type = "BP", pval = 0.05, pAdjustMethod = "BH",
   result.branchNames <- c()
 
   x <- 1
+  y <- 1 
   for (i in 1:length(branches)){
     branch <- branches[[i]]
     branchID <- names(branches)[i]
     #split the gene symbol by ","
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
+    
+    message(paste("Processing branch: ", branchID, sep = ""))
     ego.branch <- GO_analysis(geneSymbol, GO.type, pval, pAdjustMethod,
                 qval, patientID, branchID)
-    egoResult.list[[i]] <- ego.branch@result
-    result.branchNames <- c(result.branchNames, branchID)
-    if(min(ego.branch@result$p.adjust) > pval | min(ego.branch@result$qvalue, na.rm = T) > qval){
-      message(paste("0 enriched term found for branch ", branchID, sep = ""))
+    
+    if(!is.null(ego.branch)){
+      egoResult.list[[x]] <- ego.branch@result
+      result.branchNames <- c(result.branchNames, branchID)
+      x <- x+1
+      if(min(ego.branch@result$p.adjust) > pval | min(ego.branch@result$qvalue, na.rm = T) > qval){
+        message(paste("0 enriched term found for branch ", branchID, sep = ""))
+      }
+      else{      
+        plot.branchNames <- c(plot.branchNames, branchID)
+        if (plotType == "dot"){
+          go.plot <- dotplot(ego.branch, showCategory = showCategory) + ggtitle(branchID)
+        }else if (plotType == "bar"){
+          go.plot <- barplot(ego.branch, showCategory = showCategory) + ggtitle(branchID)
+        }
+        egoPlot.list[[y]] <- go.plot
+        y <- y+1
+      }
     }
-    else{      
-      #str_length = max(nchar(ego.branch@result$Description))
-      #str_height = showCategory
-      
-      #if (str_height > 15){
-        #fig.height = str_height/4
-      #}else{fig.height = 4}
-      
-      plot.branchNames <- c(plot.branchNames, branchID)
-      if (plotType == "dot"){
-        go.plot <- dotplot(ego.branch, showCategory = showCategory) + ggtitle(branchID)
-      }else if (plotType == "bar"){
-        go.plot <- barplot(ego.branch, showCategory = showCategory) + ggtitle(branchID)
-      }
-        egoPlot.list[[x]] <- go.plot
-        x <- x+1
-      }
-
-    #ego.branch.result <- rbind(GO.branch.result, ego.branch@result)
   }
 
   ego.all <- GO_analysis(unique(all.genes), GO.type, pval, pAdjustMethod,
    qval, patientID, name = "All")
   ego.all.result <- ego.all@result
-  egoResult.list[[i+1]] <- ego.all.result
+  egoResult.list[[x]] <- ego.all.result
   result.branchNames <- c(result.branchNames, "All")
   if(min(ego.all.result$p.adjust) > pval | min(ego.all.result$qvalue, na.rm = T) > qval){
       message(paste("0 enriched terms found in ", patientID, sep = ""))
     }else{
-    #str_length = max(nchar(ego.all.result$Description))
-    #str_height = showCategory
-
-    #if (str_height > 15){
-      #fig.height = str_height/4
-    #}else{fig.height = 4}
     plot.branchNames <- c(plot.branchNames, "All")
     if (plotType == "dot"){
       go.plot <- dotplot(ego.all, showCategory = showCategory) + ggtitle(ego.all.result$Case)
     }else if (plotType == "bar"){
       go.plot <- barplot(ego.all, showCategory = showCategory)+ ggtitle(ego.all.result$Case)
     }
-    egoPlot.list[[x]] <- go.plot  
+    egoPlot.list[[y]] <- go.plot  
   }
 
-  names(egoPlot.list) <- plot.branchNames
   names(egoResult.list) <- result.branchNames
+  names(egoPlot.list) <- plot.branchNames
+  ego <- list(egoResult.list, egoPlot.list)
+  names(ego) <- c("GO.category", "GO.plot")
 
-  return(list(egoResult.list, egoPlot.list))
+  return(ego)
 
   #ego.results <- list()
   #if(is.null(ego.branch.result)){
@@ -142,6 +132,5 @@ GO.njtree <- function(njtree, GO.type = "BP", pval = 0.05, pAdjustMethod = "BH",
   #else if(length(grob.list) > 1){
     #arrangeGrob(grobs = grob.list, ncol = 2)
   #}
-
 }
 

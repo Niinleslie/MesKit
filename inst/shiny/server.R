@@ -62,6 +62,11 @@ shinyServer(function(input, output, session){
   widthccfDen <- reactive({
     return(input$widthccfden)
   })
+  mafName <- reactive({
+    name <- input$maf$name
+    patientID <- strsplit(name,"\\.")[[1]][1]
+    return(patientID)
+  })
   
 
   
@@ -83,10 +88,17 @@ shinyServer(function(input, output, session){
                                sep='\t')
       }
     } else {
+<<<<<<< HEAD
       mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
       sampleInfoFile <-  system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
       ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
       ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+=======
+      mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+      sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+      ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+      ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
+>>>>>>> JY
       mafInput <- read.table(mafFile, quote="",
                              header=TRUE, fill=TRUE,
                              sep='\t')
@@ -122,11 +134,11 @@ shinyServer(function(input, output, session){
       }
       
       if(is.null(input$maf) | is.null(input$sampleInfo)){
-        mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-        sampleInfoFile <-  system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
-        maf <- readMaf(mafFile = mafFile, 
+        mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+        sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
+        maf <- MesKit::readMaf(mafFile = mafFile, 
                        sampleInfoFile = sampleInfoFile,
                        mutType=input$mutType, 
                        mutNonSilent=ls.mutNonSilent, 
@@ -137,14 +149,16 @@ shinyServer(function(input, output, session){
                        refBuild="hg19")
       } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
-          maf <- Meskit::readMaf(mafFile = input$maf$datapath,
+          name <- mafName()
+          maf <- MesKit::readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath)
+                                 ccfLociTsvFile = input$ccf.loci$datapath,name = name)
         }
         else{
-          maf <- readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath)
+          name <- mafName()
+          maf <-  MesKit::readMaf(mafFile = input$maf$datapath,
+                         sampleInfoFile = input$sampleInfo$datapath,name = name)
         }
       }
       return(maf)
@@ -161,7 +175,7 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Input data: Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
-      varsLs[['njtree']] <-  njtree <- Meskit::getNJtree(isolate(varsLs$maf))
+      varsLs[['njtree']] <-  njtree <- MesKit::getNJtree(isolate(varsLs$maf))
       incProgress(amount=1)
       
       setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
@@ -339,9 +353,9 @@ shinyServer(function(input, output, session){
     
     if(input$submit2 & stopButtonValue2$a != 1){
       maf <- isolate(varsLs$maf)
-      Meskit::mathScore(maf,tsb = c("All"),
-                        minvaf = input$minvaf, 
-                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "MATH_score")]
+      mathScore(maf,tsb = c("All"),
+                      minvaf = input$minvaf, 
+                      maxvaf = input$maxvaf)$sampleLevel
     }
   })
   output$mathScore <- DT::renderDataTable({
@@ -355,9 +369,9 @@ shinyServer(function(input, output, session){
     
     if(input$submit0){
       maf <- isolate(varsLs$maf)
-      Meskit::mathScore(maf,tsb = c("All"),
+      getTMB(maf,tsb = c("All"),
                         minvaf = input$minvaf, 
-                        maxvaf = input$maxvaf)$sampleLevel[,c("Tumor_Sample_Barcode", "TMB(mutations/Mb)")]
+                        maxvaf = input$maxvaf)$sampleLevel
     }
   })
   output$mathScoreTMB <- DT::renderDataTable({
@@ -502,7 +516,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(2)
       }
       maf <- isolate(varsLs$maf)
-      return(Meskit::mutSharedPrivate(maf,show.num = input$show.num1))
+      return(MesKit::mutSharedPrivate(maf,show.num = input$show.num1))
     }
   })
   # 
@@ -589,13 +603,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(is.null(input$oncogeneListFile$datapath)){
-        oncogeneListFile <- system.file("extdata","oncogene.list.txt", package = "Meskit")
+        oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "MesKit")
       }
       else{
         oncogeneListFile <- input$oncogeneListFile$datapath
       }
       if(is.null(input$tsgListFile$datapath)){
-        tsgListFile <- system.file("extdata","TSG.list.txt", package = "Meskit")
+        tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
       }
       else{
         tsgListFile <- input$tsgListFile$datapath
@@ -656,7 +670,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       maf <- isolate(varsLs$maf)
-      return(Meskit::JaccardIndex(maf,type = input$JItype))
+      return(MesKit::JaccardIndex(maf,type = input$JItype))
     }
     # progress <- Progress$new(session, min=1, max=15)
     # on.exit(progress$close())
@@ -668,7 +682,7 @@ shinyServer(function(input, output, session){
     #   Sys.sleep(0.01)
     # }
     # maf <- isolate(varsLs$maf)
-    # return(Meskit::JaccardIndex(maf,type = input$JItype))
+    # return(MesKit::JaccardIndex(maf,type = input$JItype))
   })
   output$JaccardIndex <- renderPlot({
     ji()
@@ -726,11 +740,13 @@ shinyServer(function(input, output, session){
           need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
         )
         maf <- isolate(varsLs$maf)
-        tumorClonesPlot(maf)
+        p <- MesKit::tumorClonesPlot(maf)
+        return(p)
       }
       else{
         maf <- isolate(varsLs$maf)
-        tumorClonesPlot(maf)
+        p <- MesKit::tumorClonesPlot(maf)
+        return(p)
       }
     }
   })
@@ -827,7 +843,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      Meskit::GO.njtree(njtree, 
+      MesKit::GO.njtree(njtree, 
                         GO.type = input$GO.type, 
                         plotType = input$plotType, 
                         pAdjustMethod=input$pAdjustMethod, 
@@ -921,7 +937,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      list <- Meskit::Pathway.njtree(njtree, 
+      list <- MesKit::Pathway.njtree(njtree, 
                                      pathway.type=input$pathway.type, 
                                      plotType = input$pathplotType, 
                                      pAdjustMethod=input$pathpAdjustMethod, 
@@ -1009,7 +1025,7 @@ shinyServer(function(input, output, session){
   sigOFA <- eventReactive(input$submitSig, {
     if (input$oncogeneMapping) {
       if(is.null(input$driverGenesFile$datapath)){
-        driverGenesFile <- system.file("extdata","putative_driver_genes.txt", package = "Meskit")
+        driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
       } else{
         driverGenesFile <- input$driverGenesFile$datapath
       }
@@ -1087,11 +1103,11 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.signature <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
+      df.signature <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
                                                 signaturesRef=input$signaturesRef,
                                                 plot.signatures=FALSE, plot.branchTrunk=FALSE, 
                                                 signif.level=0.05)
-      df.signature.plot <- Meskit::treeMutationalSig(njtree,
+      df.signature.plot <- MesKit::treeMutationalSig(njtree,
                                                      driverGenesFile=input$driverGenesFile1$datapath,
                                                      mutThreshold=input$mutThreshold1, 
                                                      signaturesRef=input$signaturesRef1,
@@ -1153,7 +1169,7 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.branchTrunk.plot <- Meskit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
+      df.branchTrunk.plot <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
                                                        mutThreshold=input$mutThreshold2, 
                                                        signaturesRef=input$signaturesRef2,
                                                        plot.signatures=FALSE, plot.branchTrunk=TRUE, 
@@ -1274,21 +1290,29 @@ shinyServer(function(input, output, session){
             need(input$heatmap.type == "CCF","switch heatmap type to CCF")
           )
         }
-        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # else{
         #   validate(
         #     need(!is.null(input$phylotree.dir),"Upload your phylotree file")
         #   )
-        #   p <- Meskit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
+        #   p <- MesKit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
         #                              phylotree.type = input$phyloTreeType)
         #   return(p)
         # }
       }
       else{
         njtree <- isolate(varsLs$njtree)
-        p <- Meskit::plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
+        if(njtree@patientID == "0"){
+          id <- input$maf$name
+          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+        }
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
@@ -1328,9 +1352,7 @@ shinyServer(function(input, output, session){
   
   ## Download control  
   output$DownloadMathScore <- downloadHandler(
-    filename = function() {
-      paste("MathScore_",Sys.Date(),".csv", sep = '')
-    },
+    filename = 'Rtable.csv',
     content = function(file){
       data <- ms()
       write.csv(data,file,row.names = F)
@@ -1339,9 +1361,7 @@ shinyServer(function(input, output, session){
   )
   
   output$DownloadTMB <- downloadHandler(
-    filename = function() {
-      paste("TMB_",Sys.Date(),".csv", sep = '')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- ms2()
       write.csv(data,file,row.names = F)
@@ -1351,7 +1371,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadVafPlot <- downloadHandler(
     filename = function() {
-      paste("VafPlot",'.',input$DownloadVafPlotCheck, sep='')
+      paste("Rplot.",input$DownloadVafPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadVafPlotCheck == "png"){
@@ -1368,7 +1388,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadStackPlot <- downloadHandler(
     filename = function() {
-      paste("mutOncoTSG",'.',input$DownloadStackPlotCheck, sep='')
+      paste("Rplot.",input$DownloadStackPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadStackPlotCheck == "png"){
@@ -1384,7 +1404,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadJaccardIndex <- downloadHandler(
     filename = function() {
-      paste("JaccardIndex",'.',input$DownloadJaccardIndexCheck, sep='')
+      paste("Rplot.",input$DownloadJaccardIndexCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadJaccardIndexCheck == "png"){
@@ -1400,7 +1420,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadSharedPlot <- downloadHandler(
     filename = function() {
-      paste("mutPrivateSharedPlot",'.',input$DownloadSharedPlotCheck, sep='')
+      paste("Rplot.",input$DownloadSharedPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadSharedPlotCheck == "png"){
@@ -1417,7 +1437,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadCCFDensity <- downloadHandler(
     filename = function() {
-      paste("ClonePlot",'.',input$DownloadClonePlotCheck, sep='')
+      paste("Rplot.",input$DownloadClonePlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadCCFDensityCheck == "png"){
@@ -1433,7 +1453,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadClonePlot <- downloadHandler(
     filename = function() {
-      paste("ClonePlot",'.',input$DownloadClonePlotCheck, sep='')
+      paste("Rplot.",input$DownloadClonePlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadClonePlotCheck == "png"){
@@ -1442,14 +1462,14 @@ shinyServer(function(input, output, session){
       else if (input$DownloadClonePlotCheck == "pdf"){
         pdf(file,width = input$width5/100 , height = 6)
       }
-      clp()
+      print(clp())
       dev.off()
     },
     contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
   )
   output$DownloadPhyloTree <- downloadHandler(
     filename = function() {
-      paste("PhyloTree",'.',input$DownloadPhyloTreeCheck, sep='')
+      paste("Rplot.",input$DownloadPhyloTreeCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPhyloTreeCheck == "png"){
@@ -1465,7 +1485,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadGOPlot <- downloadHandler(
     filename = function() {
-      paste("GOPlot","_",input$gl,".",input$DownloadGOPlotCheck, sep='')
+      paste("Rplot.",input$DownloadGOPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadGOPlotCheck == "png"){
@@ -1480,9 +1500,7 @@ shinyServer(function(input, output, session){
     contentType = paste('image/',input$DownloadGOPlotCheck,sep="")
   )
   output$DownloadGOTable <- downloadHandler(
-    filename = function() {
-      paste("GO_",input$gl,"_",Sys.Date(),'.csv', sep='')
-    },
+    filename = 'Rtable.csv',
     content = function(file){
       data <- GO()[[1]][[which(names(GO()[[1]]) == input$gl)]]
       write.csv(data,file,row.names = F)
@@ -1491,7 +1509,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadPathPlot <- downloadHandler(
     filename = function() {
-      paste("Pathwaytplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
+      paste("Pathwayplot.",input$DownloadPathPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPathPlotCheck == "png"){
@@ -1506,9 +1524,7 @@ shinyServer(function(input, output, session){
     contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
   )
   output$DownloadPathTable <- downloadHandler(
-    filename = function() {
-      paste("Pathway_",input$pl,"_",Sys.Date(),'.csv', sep='')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- Path()[[1]][[which(names(Path()[[1]]) == input$pl)]]
       write.csv(data,file,row.names = F)
@@ -1516,9 +1532,7 @@ shinyServer(function(input, output, session){
     contentType = 'text/csv'
   )
   output$DownloadSignatureSummary <- downloadHandler(
-    filename = function() {
-      paste("Signature_summary_",Sys.Date(),'.csv', sep='')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- sigOFA()
       write.csv(data,file,row.names = F)
@@ -1526,9 +1540,7 @@ shinyServer(function(input, output, session){
     contentType = 'text/csv'
   )
   output$DownloadSigOFATable1 <- downloadHandler(
-    filename = function() {
-      paste("Signature_summary_",Sys.Date(),'.csv', sep='')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- sigOFA1()[[2]][,c(1:2)]
       write.csv(data,file,row.names = F)
@@ -1538,7 +1550,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadSignaturePlot1 <- downloadHandler(
     filename = function() {
-      paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck1, sep='')
+      paste("Rplot.", input$DownloadSignaturePlotCheck1, sep='')
     },
     content = function(file) {
       if (input$DownloadSignaturePlotCheck1 == "png"){
@@ -1555,7 +1567,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadSignaturePlot2 <- downloadHandler(
     filename = function() {
-      paste("Branch_trunck",'.',input$DownloadSignaturePlotCheck2, sep='')
+      paste("Rplot.",input$DownloadSignaturePlotCheck2, sep='')
     },
     content = function(file) {
       if (input$DownloadSignaturePlotCheck2 == "png"){

@@ -1,5 +1,5 @@
-#options(stringsAsFactors = F)
-#options(bitmapType='cairo')
+# options(stringsAsFactors = F)
+# options(bitmapType = 'cairo')
 options(warn = -1)
 
 #' USE R code to do the pathway analysis.
@@ -80,6 +80,7 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
   result.branchNames <- c()
 
   x <- 1
+  y <- 1 
   for (i in 1:length(branches)){
     branch <- branches[[i]]
     branchID <- names(branches)[i]
@@ -87,73 +88,52 @@ Pathway.njtree <- function(njtree, pathway.type = "KEGG", pval = 0.05, pAdjustMe
     geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
     all.genes <- unique(c(all.genes, geneSymbol))
     
+    message(paste("Processing branch: ", branchID, sep = ""))
     Pathway.branch <- Pathway_analysis(geneSymbol, pathway.type, pval, pAdjustMethod,
                                 qval, patientID, branchID)
-    pathResult.list[[i]] <- Pathway.branch@result
-    result.branchNames <- c(result.branchNames, branchID)
-    if(min(Pathway.branch@result$p.adjust) > pval | min(Pathway.branch@result$qvalue, na.rm = T) > qval){
-       message(paste("0 enriched pathway found for branch ", branchID, sep = ""))
-    }else{
-      #str_length = max(nchar(Pathway.branch@result$Description))      
-      #str_height = showCategory
-      #if (str_height > 15){
-        #fig.height = str_height/4
-      #}else{
-        #fig.height = 4
-      #}
-      plot.branchNames <- c(plot.branchNames, branchID)
-      if (plotType == "dot"){
-        path.plot <- dotplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
-      }else if (plotType == "bar"){
-        path.plot <- barplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
-      }
-      pathPlot.list[[x]] <- path.plot
+    if(!is.null(Pathway.branch)){
+      pathResult.list[[x]] <- Pathway.branch@result
+      result.branchNames <- c(result.branchNames, branchID)
       x <- x+1
+      if(min(Pathway.branch@result$p.adjust) > pval | min(Pathway.branch@result$qvalue, na.rm = T) > qval){
+        message(paste("0 enriched pathway found for branch ", branchID, sep = ""))
+      }else{
+        plot.branchNames <- c(plot.branchNames, branchID)
+        if (plotType == "dot"){
+          path.plot <- dotplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
+        }else if (plotType == "bar"){
+          path.plot <- barplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
+        }
+        pathPlot.list[[y]] <- path.plot
+        y <- y+1
+      }      
     }
+
   }  
   Pathway.all <- Pathway_analysis(all.genes, pathway.type, pval, pAdjustMethod,
                                      qval, patientID, Name = "All")
   Pathway.all.result <- Pathway.all@result
-  pathResult.list[[i+1]] <- Pathway.all.result
+  pathResult.list[[x]] <- Pathway.all.result
   result.branchNames <- c(result.branchNames, "All")
   if(min(Pathway.all.result$p.adjust) > pval | min(Pathway.all.result$qvalue, na.rm = T) > qval){
       message(paste("0 enriched pathway found in ", patientID, sep = ""))
   }else{
-    #str_length = max(nchar(Pathway.all.result$Description))
-    #str_height = showCategory
-#    
-    #if (str_height > 15){
-      #fig.height = str_height/4
-    #}else{fig.height = 4}
     plot.branchNames <- c(plot.branchNames, "All")
     if (plotType == "dot"){
       path.plot <- dotplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
     }else if (plotType == "bar"){
       path.plot <- barplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
     }
-    pathPlot.list[[x]] <- path.plot
+    pathPlot.list[[y]] <- path.plot
 }
 
-  names(pathPlot.list) <- plot.branchNames
   names(pathResult.list) <- result.branchNames
+  names(pathPlot.list) <- plot.branchNames
 
-  return(list(pathResult.list, pathPlot.list))
-  #pathway.results <- list()
-  #if(is.null(Pathway.branch.result)){
-    #pathway.results[[1]] <- NA
-  #}else{
-    #pathway.results[[1]] <- Pathway.branch.result
-  #}
-  #if(is.null(Pathway.all.result)){
-    #pathway.results[[2]] <- NA
-  #}else{
-    #pathway.results[[2]] <- Pathway.all.result
-  #}
-#
-  #if(length(grob.list) == 1){
-    #grid.arrange(grobs = pathPlot.list, ncol =1)
-  #}else if(length(pathPlot.list) > 1){
-    #grid.arrange(grobs = pathPlot.list, ncol =2 )
-  #}
 
-  }
+  pathway <- list(pathResult.list, pathPlot.list)
+  names(pathway) <- c("pathway.category", "pathway.plot")
+
+  return(pathway)
+
+}
