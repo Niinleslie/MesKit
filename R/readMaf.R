@@ -2,7 +2,7 @@
 #' @description Read tab delimited MAF (can be plain text or gz compressed) file along with sample information file.
 #'
 #' @param mafFile MAF-format data file. 
-#' @param sampleInfoFile sample information file.
+#' @param sampleInfoFile Sample information file.
 #' @param ID Default NULL. Input your expected patientID character as well as correct the name error of shiny fileinput
 #' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
 #' @param mutNonSilent Default NULL. Option: "Default". And you can list variant classifications that you do not want them to be silent.

@@ -11,7 +11,7 @@ readMaf(mafFile, sampleInfoFile, ID = NULL, mutType = "All",
 \arguments{
 \item{mafFile}{MAF-format data file.}
 
-\item{sampleInfoFile}{sample information file.}
+\item{sampleInfoFile}{Sample information file.}
 
 \item{ID}{Default NULL. Input your expected patientID character as well as correct the name error of shiny fileinput}
 
