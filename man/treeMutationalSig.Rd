@@ -2,7 +2,7 @@
 % Please edit documentation in R/MutationalSig.R
 \name{treeMutationalSig}
 \alias{treeMutationalSig}
-\title{treeMutationalSig}
+\title{TreeMutationalSig}
 \usage{
 treeMutationalSig(njtree, driverGenesFile = NULL, mutThreshold = 50,
   signaturesRef = "cosmic")

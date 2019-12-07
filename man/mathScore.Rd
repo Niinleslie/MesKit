@@ -2,7 +2,7 @@
 % Please edit documentation in R/mathScore.R
 \name{mathScore}
 \alias{mathScore}
-\title{mathScore}
+\title{MathScore}
 \usage{
 mathScore(maf, tsb = c("All"), minvaf = 0.02, maxvaf = 1)
 }
