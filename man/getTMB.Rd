@@ -11,21 +11,18 @@ getTMB(maf, tsb = c("All"), minvaf = 0.02, maxvaf = 1)
 
 \item{tsb}{specify excute ITH asessment for single or all samples from the same patient(Tumor_Sample_Barcodes)}
 
-\item{minvaf}{filter low frequency variants caused by sequencing error. Default 0. (on the scale of 0 to 1)}
+\item{minvaf}{Default: 0. Option: on the scale of 0 to 1. Filter low frequency variants.}
 
-\item{maxvaf}{filter high frequency variants due to copy number alterations or impure tumor. Default 1. (on the scale of 0 to 1)}
+\item{maxvaf}{Default: 0. Option: on the scale of 0 to 1. Filter extremely high frequency variants.}
 }
 \value{
-MATH score list for all/selected samples or a MATH score value.
+a list containing MATH scores of all/selected samples.
 }
 \description{
-Calculate MATH score and present results in different ways 
-determined by parameters. VAF can be on the scale 0-1 and you could filter 
-VAF with minvaf and maxvaf.
+Calculate tumor mutational burden(TMB) and VAF value could be filtered with minvaf and maxvaf.
 }
 \examples{
-mathScore(maf, tsb=c("All"), minvaf=0.02, maxvaf=1)
-## generate MATH score for specific tsbs
-mathScore(maf, tsb=c("SRR3670035"))
+getTMB(maf, tsb=c("All"), minvaf=0.02, maxvaf=1)
+getTMB(maf, tsb=c("SRR3670035"))
 
 }
