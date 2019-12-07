@@ -1,4 +1,4 @@
-#' mutOncoTSG
+#' MutOncoTSG
 #' @description With the gene list passed by oncogeneList and tsgList, 
 #' mutOncoTSG can calculate the proportion of shared/partial-shared/private variants
 #' that occurs in oncogenes and tumor suppressors genes(TSGs)

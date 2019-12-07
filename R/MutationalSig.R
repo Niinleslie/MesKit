@@ -1,4 +1,4 @@
-#' treeMutationalSig
+#' TreeMutationalSig
 #' @description Figure out the intersection of the variants on different branches
 #' by .treeMutationalBranches and combine the intersection information into njtree
 #' object. Check the mutational signatures for each branch of phylogenetic tree

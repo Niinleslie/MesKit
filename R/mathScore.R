@@ -1,4 +1,4 @@
-#' mathScore
+#' MathScore
 #' @description Calculate MATH score and present results in different ways 
 #' determined by parameters. VAF can be on the scale 0-1 and you could filter 
 #' VAF with minvaf and maxvaf.

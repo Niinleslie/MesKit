@@ -276,7 +276,7 @@ Additionally, ```treeMutationalSig``` function visualises signature information 
 plotMutationalSig(treeMSOutput)
 ```
 
-When plotting the boxplot by ```plotBranchTrunk```, the significant level for the boxplot can also be tuned by using parameter ```signif.level```.
+When plotting the boxplot by ```plotBranchTrunk```, the confidence level for the boxplot can also be tuned by using parameter ```conf.level```.
 
 ```{r, warning = FALSE, message=FALSE}
 plotBranchTrunk(treeMSOutput, conf.level = 0.95)
