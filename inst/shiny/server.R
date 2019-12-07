@@ -436,6 +436,7 @@ shinyServer(function(input, output, session){
           height = 560,
           res = 100
           )
+          return(picSep[[which(names(picSep) == getOption())]])
           
         } else {
           pic <- vafClusterRshiny(maf,
@@ -450,6 +451,7 @@ shinyServer(function(input, output, session){
           height = 560,
           res = 100
           )
+          return(pic)
         }
 
         })
@@ -733,11 +735,13 @@ shinyServer(function(input, output, session){
           need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
         )
         maf <- isolate(varsLs$maf)
-        tumorClonesPlot(maf)
+        p <- MesKit::tumorClonesPlot(maf)
+        return(p)
       }
       else{
         maf <- isolate(varsLs$maf)
-        tumorClonesPlot(maf)
+        p <- MesKit::tumorClonesPlot(maf)
+        return(p)
       }
     }
   })
@@ -1343,9 +1347,7 @@ shinyServer(function(input, output, session){
   
   ## Download control  
   output$DownloadMathScore <- downloadHandler(
-    filename = function() {
-      paste("MathScore_",Sys.Date(),".csv", sep = '')
-    },
+    filename = 'Rtable.csv',
     content = function(file){
       data <- ms()
       write.csv(data,file,row.names = F)
@@ -1354,9 +1356,7 @@ shinyServer(function(input, output, session){
   )
   
   output$DownloadTMB <- downloadHandler(
-    filename = function() {
-      paste("TMB_",Sys.Date(),".csv", sep = '')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- ms2()
       write.csv(data,file,row.names = F)
@@ -1366,7 +1366,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadVafPlot <- downloadHandler(
     filename = function() {
-      paste("VafPlot",'.',input$DownloadVafPlotCheck, sep='')
+      paste("Rplot.",input$DownloadVafPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadVafPlotCheck == "png"){
@@ -1375,7 +1375,7 @@ shinyServer(function(input, output, session){
       else if (input$DownloadVafPlotCheck == "pdf"){
         pdf(file,width = input$width1/100 , height = 6)
       }
-      vc()
+      print(vc())
       dev.off()
     },
     contentType = paste('image/',input$DownloadVafPlotCheck,sep="")
@@ -1383,7 +1383,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadStackPlot <- downloadHandler(
     filename = function() {
-      paste("mutOncoTSG",'.',input$DownloadStackPlotCheck, sep='')
+      paste("Rplot.",input$DownloadStackPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadStackPlotCheck == "png"){
@@ -1399,7 +1399,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadJaccardIndex <- downloadHandler(
     filename = function() {
-      paste("JaccardIndex",'.',input$DownloadJaccardIndexCheck, sep='')
+      paste("Rplot.",input$DownloadJaccardIndexCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadJaccardIndexCheck == "png"){
@@ -1415,7 +1415,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadSharedPlot <- downloadHandler(
     filename = function() {
-      paste("mutPrivateSharedPlot",'.',input$DownloadSharedPlotCheck, sep='')
+      paste("Rplot.",input$DownloadSharedPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadSharedPlotCheck == "png"){
@@ -1432,7 +1432,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadCCFDensity <- downloadHandler(
     filename = function() {
-      paste("ClonePlot",'.',input$DownloadClonePlotCheck, sep='')
+      paste("Rplot.",input$DownloadClonePlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadCCFDensityCheck == "png"){
@@ -1448,7 +1448,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadClonePlot <- downloadHandler(
     filename = function() {
-      paste("ClonePlot",'.',input$DownloadClonePlotCheck, sep='')
+      paste("Rplot.",input$DownloadClonePlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadClonePlotCheck == "png"){
@@ -1464,14 +1464,14 @@ shinyServer(function(input, output, session){
   )
   output$DownloadPhyloTree <- downloadHandler(
     filename = function() {
-      paste("PhyloTree",'.',input$DownloadPhyloTreeCheck, sep='')
+      paste("Rplot.",input$DownloadPhyloTreeCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPhyloTreeCheck == "png"){
-        png(file,width = 1000, height = 650,res = 100)
+        png(file,width = 950, height = 650,res = 100)
       }
       else if (input$DownloadPhyloTreeCheck == "pdf"){
-        pdf(file,width = 10, height = 6.5)
+        pdf(file,width = 9.5, height = 6)
       }
       print(pht())
       dev.off()
@@ -1480,7 +1480,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadGOPlot <- downloadHandler(
     filename = function() {
-      paste("GOPlot","_",input$gl,".",input$DownloadGOPlotCheck, sep='')
+      paste("Rplot.",input$DownloadGOPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadGOPlotCheck == "png"){
@@ -1495,9 +1495,7 @@ shinyServer(function(input, output, session){
     contentType = paste('image/',input$DownloadGOPlotCheck,sep="")
   )
   output$DownloadGOTable <- downloadHandler(
-    filename = function() {
-      paste("GO_",input$gl,"_",Sys.Date(),'.csv', sep='')
-    },
+    filename = 'Rtable.csv',
     content = function(file){
       data <- GO()[[1]][[which(names(GO()[[1]]) == input$gl)]]
       write.csv(data,file,row.names = F)
@@ -1506,7 +1504,7 @@ shinyServer(function(input, output, session){
   )
   output$DownloadPathPlot <- downloadHandler(
     filename = function() {
-      paste("Pathwayplot","_",input$pl,".",input$DownloadPathPlotCheck, sep='')
+      paste("Pathwayplot.",input$DownloadPathPlotCheck, sep='')
     },
     content = function(file) {
       if (input$DownloadPathPlotCheck == "png"){
@@ -1521,9 +1519,7 @@ shinyServer(function(input, output, session){
     contentType = paste('image/',input$DownloadPathPlotCheck,sep="")
   )
   output$DownloadPathTable <- downloadHandler(
-    filename = function() {
-      paste("Pathway_",input$pl,"_",Sys.Date(),'.csv', sep='')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- Path()[[1]][[which(names(Path()[[1]]) == input$pl)]]
       write.csv(data,file,row.names = F)
@@ -1531,9 +1527,7 @@ shinyServer(function(input, output, session){
     contentType = 'text/csv'
   )
   output$DownloadSignatureSummary <- downloadHandler(
-    filename = function() {
-      paste("Signature_summary_",Sys.Date(),'.csv', sep='')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- sigOFA()
       write.csv(data,file,row.names = F)
@@ -1541,9 +1535,7 @@ shinyServer(function(input, output, session){
     contentType = 'text/csv'
   )
   output$DownloadSigOFATable1 <- downloadHandler(
-    filename = function() {
-      paste("Signature_summary_",Sys.Date(),'.csv', sep='')
-    },
+    filename = "Rtable.csv",
     content = function(file){
       data <- sigOFA1()[[2]][,c(1:2)]
       write.csv(data,file,row.names = F)
@@ -1553,7 +1545,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadSignaturePlot1 <- downloadHandler(
     filename = function() {
-      paste("SignaturePlot",'.',input$DownloadSignaturePlotCheck1, sep='')
+      paste("Rplot.", input$DownloadSignaturePlotCheck1, sep='')
     },
     content = function(file) {
       if (input$DownloadSignaturePlotCheck1 == "png"){
@@ -1570,7 +1562,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadSignaturePlot2 <- downloadHandler(
     filename = function() {
-      paste("Branch_trunck",'.',input$DownloadSignaturePlotCheck2, sep='')
+      paste("Rplot.",input$DownloadSignaturePlotCheck2, sep='')
     },
     content = function(file) {
       if (input$DownloadSignaturePlotCheck2 == "png"){

@@ -1323,7 +1323,7 @@ bodySurvival <- tabItem('Survival',
                                 condition = 'input.submit10',
                                 width = NULL,
                                 height = "100%",
-                                div(plotOutput("phylotree",height = 700,width = 1000),align = "center"),
+                                div(plotOutput("phylotree",height = 600,width = 950),align = "center"),
                                 br(),
                                 uiOutput("phtdb")
                               )
