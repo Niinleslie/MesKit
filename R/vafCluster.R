@@ -253,7 +253,7 @@ vafClusterRshiny <-function(maf,
         for (counterMt in seq_along(tsbLs[,1])){
             ## Rshiny: progress bar
             incProgress(amount=1)
-            setProgress(message = 'Processing', detail = paste(' sample ', as.character(tsbLs[,1][counterMt])))
+            setProgress(message = paste('Processing', ' sample ', as.character(tsbLs[,1][counterMt])))
             
             sampleName <- as.character(tsbLs[,1][counterMt])
             ## calculate ScoreMATH
@@ -339,7 +339,7 @@ vafClusterRshiny <-function(maf,
             }
             ## Rshiny: progress bar
             incProgress(amount=1)
-            setProgress(message = 'Generating ', detail = paste("VAF density plot - ", plotOption, " mode", sep=""))
+            setProgress(message = paste('Generating ', "VAF density plot - ", plotOption, " mode", sep=""))
             message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
             return(suppressWarnings(suppressMessages(pic)))
         }
@@ -354,7 +354,7 @@ vafClusterRshiny <-function(maf,
         for (counterMt in seq_along(tsbLs[,1])){
             ## Rshiny: progress bar
             incProgress(amount=1)
-            setProgress(message = 'Processing', detail = paste(' sample ', as.character(tsbLs[,1][counterMt])))
+            setProgress(message = paste('Processing', ' sample ', as.character(tsbLs[,1][counterMt])))
             
             sampleName <- as.character(tsbLs[,1][counterMt])
             sampleMt <- vafInputMt[which(
@@ -384,7 +384,7 @@ vafClusterRshiny <-function(maf,
                                                         minVaf, maxVaf))))
         ## Rshiny: progress bar
         incProgress(amount=1)
-        setProgress(message = 'Generating ', detail = paste("VAF density plot - ", plotOption, " mode", sep=""))
+        setProgress(message = paste('Generating ', "VAF density plot - ", plotOption, " mode", sep=""))
         message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
         return(suppressWarnings(suppressMessages(pic)))
     }

@@ -430,13 +430,14 @@ shinyServer(function(input, output, session){
           })
           
           output$vaf <- renderPlot({
-            print(picSep[[which(names(picSep) == getOption())]])
+            pic <- picSep[[which(names(picSep) == getOption())]]
+            print(pic)
           }, 
           width = width1,
           height = 560,
           res = 100
           )
-          return(picSep[[which(names(picSep) == getOption())]])
+          return(pic)
           
         } else {
           pic <- vafClusterRshiny(maf,
