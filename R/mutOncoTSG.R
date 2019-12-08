@@ -1,8 +1,8 @@
 #' @description With the gene list passed by oncogeneList and tsgList, 
 #' mutOncoTSG can calculate the proportion of shared/partial-shared/private variants
 #' that occurs in oncogenes and tumor suppressors genes(TSGs)
-#' 1. Private: variants specific for each samples; 2. Parital-shared: variants shared 
-#' by multiple samples but not existing in all samples; 
+#' 1. Private: variants specific for each samples; 
+#' 2. Parital-shared: variants shared by multiple samples but not existing in all samples; 
 #' 3. Shared: variants shared by all samples.
 #' 
 #' 
