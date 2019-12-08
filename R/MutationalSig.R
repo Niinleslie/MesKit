@@ -423,7 +423,7 @@ plotMutationalSig <- function(treeMSOutput) {
 #' 
 #' @export mutBranchTrunk
 
-mutBranchTrunk <- function(treeMSOutput) {
+mutBranchTrunk <- function(treeMSOutput, conf.level = 0.95) {
     ls.BT <- .dataProcessBT(treeMSOutput)
     df.pValue <- ls.BT$df.pValue
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
@@ -432,14 +432,17 @@ mutBranchTrunk <- function(treeMSOutput) {
     output <- data.frame(matrix(nrow=6, ncol=2))
     colnames(output) <- c("Trunk", "Branch")
     output <- cbind(Group=ls.mutationGroup, output)
+    output <- merge(output, df.pValue, by=c("Group"))
     for (mutationGroup in ls.mutationGroup) {
         output$Branch[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
             sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Branch"),]$mut.num)
         output$Trunk[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
             sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Trunk"),]$mut.num)
     }
+    output <- cbind(output, Significance=rep(NA, nrow(output)))
+    output[which(output$p.value >= conf.level), ]$Significance <- "*"
+    output[which(output$p.value < conf.level), ]$Significance <- " "
     
-    output <- merge(output, df.pValue, by=c("Group"))
     return(output)
 }
 
@@ -465,7 +468,7 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
 
     ## p values of mutational list
-    if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value <= (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value >= conf.level) {
         CApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -475,7 +478,7 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1) 
     }
     
-    if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value <= (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value >= conf.level) {
         CGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -485,7 +488,7 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value <= (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value >= conf.level) {
         CTpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -495,7 +498,7 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value <= (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value >= conf.level) {
         TApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
                   digits = 3)), "*", sep=""),
@@ -505,7 +508,7 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value <= (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value >= conf.level) {
         TCpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
                   digits = 3)), "*", sep=""),
@@ -515,7 +518,7 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value <= (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value >= conf.level) {
         TGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
                   digits = 3)), "*", sep=""),
