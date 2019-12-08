@@ -2,51 +2,45 @@
 % Please edit documentation in R/readMaf.R
 \name{readMaf}
 \alias{readMaf}
-\title{MAF/CCF/Sample_info Reader}
+\title{ReadMaf}
 \usage{
-readMaf(mafFile, sampleInfoFile, vafColumn = "VAF", mutType = "All",
+readMaf(mafFile, sampleInfoFile, ID = NULL, mutType = "All",
   mutNonSilent = NULL, chrSilent = NULL, use.indel = FALSE,
   ccfClusterTsvFile = NULL, ccfLociTsvFile = NULL, refBuild = "hg19")
 }
 \arguments{
-\item{mafFile}{MAF file.}
+\item{mafFile}{MAF-format data file.}
 
-\item{sampleInfoFile}{sample_info.txt file.}
+\item{sampleInfoFile}{Sample information file.}
 
-\item{vafColumn}{Default "VAF. You can select the column containing VAF values by the column name.}
+\item{ID}{Input your expected patientID character as well as correct the name error of shiny fileinput. Default NULL.}
 
-\item{mutType}{Default "All". "nonSilent" And you can select proper variant classification you need.}
+\item{mutType}{Select proper variant classification you need. Default "All".Option: "nonSilent".}
 
-\item{mutNonSilent}{Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.}
+\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
-\item{chrSilent}{Default NULL. select the chromosomes you want to dismiss.}
-
-\item{use.indel}{Seclet SNP in Variant type}
+\item{use.indel}{A logic parameter to determine whether to use other variant type besides SNP. Default FALSE. Option: TRUE.}
 
 \item{ccfClusterTsvFile}{CCF cluster.tsv file if ccf data provided. Default NULL.}
 
 \item{ccfLociTsvFile}{CCF loci.tsv file if ccf data provided. Default NULL.}
 
-\item{refBuild}{Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.}
+\item{refBuild}{Choose human reference genome versions of hg19 or hg38 by UCSC. Default "hg19". Option: "hg38".}
+
+\item{mutNonSilentAnd}{List variant classifications that you do not want them to be silent.  Default NULL. Option: "Default".}
 }
 \value{
-a classMaf object/class includes information of sample_info and 
-mut.id and summary figure of it
+a Maf object/class
 }
 \description{
-Add sample information and ccf data to the original maf file 
-to get a new maf. The new maf data adds three pieces of information:lesion, 
-patient and time.
+Read tab delimited MAF (can be plain text or gz compressed) file along with sample information file.
 }
 \examples{
-## data information
-maf.File <- system.file("extdata/maf", "311252.maf", package = "Meskit")
-sampleInfo.File <- system.file("extdata", "sample_info.txt", package = "Meskit")
-pyCloneCluster <- system.file("extdata/ccf", "311252.cluster.tsv", package = "Meskit")
-pyCloneLoci <- system.file("extdata/ccf", "311252.loci.tsv", package = "Meskit")
-## manually usage
+maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-## if ccf data provided
 maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 
 }

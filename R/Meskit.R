@@ -1,6 +1,6 @@
 #' Run the default MesKit app for analysis locally 
 #' 
-#' \code{runIDEA} run MesKit locally 
+#' \code{runMesKit} run MesKit locally 
 #' @author Mengni Liu
 #' @export 
 runMesKit<-function(){ 

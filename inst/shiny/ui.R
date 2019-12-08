@@ -11,6 +11,9 @@ suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
 
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
+# suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+
 #sider bar----
 
 sidebar <- dashboardSidebar(
@@ -1041,9 +1044,9 @@ bodySignature <- tabItem('signature',
                                  ), 
                                  numericInput('mutThreshold', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
                                  selectInput("signaturesRef", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                                             choices = c(signatures.cosmic = "signatures.cosmic",
-                                                         signatures.nature2013 = "signatures.nature2013"),
-                                             selected = "signatures.cosmic"),
+                                             choices = c(cosmic = "cosmic",
+                                                         nature2013 = "nature2013"),
+                                             selected = "cosmic"),
                                  br(),
                                  br(),
                                  fluidRow(
@@ -1079,9 +1082,9 @@ bodySignature <- tabItem('signature',
                                  fileInput('driverGenesFile1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driverGenesFile')), 
                                  numericInput('mutThreshold1', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
                                  selectInput("signaturesRef1", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                                             choices = c(signatures.cosmic = "signatures.cosmic",
-                                                         signatures.nature2013 = "signatures.nature2013"),
-                                             selected = "signatures.cosmic"),
+                                             choices = c(cosmic = "cosmic",
+                                                         nature2013 = "nature2013"),
+                                             selected = "cosmic"),
                                  sliderInput(inputId='widthsig1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
                                  sliderInput(inputId='heightsig1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
                                  br(),
@@ -1111,7 +1114,7 @@ bodySignature <- tabItem('signature',
                                  # actionBttn('submitSig1',div(
                                  #   strong("Start analysing"),align = 'center',
                                  #   icon("hand-right", lib = "glyphicon")))
-                               ),
+                               ), 
                                conditionalPanel(
                                  condition = "input.sgt == 'S03'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
@@ -1119,9 +1122,9 @@ bodySignature <- tabItem('signature',
                                  fileInput('driverGenesFile2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driverGenesFile')), 
                                  numericInput('mutThreshold2', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50, step=10),
                                  selectInput("signaturesRef2", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                                             choices = c(signatures.cosmic = "signatures.cosmic",
-                                                         signatures.nature2013 = "signatures.nature2013"),
-                                             selected = "signatures.cosmic"),
+                                             choices = c(cosmic = "cosmic",
+                                                         nature2013 = "nature2013"),
+                                             selected = "cosmic"),
                                  # radioButtons(
                                  #   inputId = "sigplot", 
                                  #   label = div(style = "font-size:1.5em; font-weight:600; ", "Plot option"), 
@@ -1132,7 +1135,7 @@ bodySignature <- tabItem('signature',
                                  #   choiceValues = c("signaturesprob", "branchtrunk"),
                                  #   selected = "signaturesprob", 
                                  #   inline = TRUE), 
-                                 numericInput('signiflevel', div(style = "font-size:1.5em; font-weight:600;  ", 'Significant level'), value = 0.05, min=0, max=1, step=0.1),
+                                 numericInput('conflevel', div(style = "font-size:1.5em; font-weight:600;  ", 'Confidence level'), value = 0.95, min=0, max=1, step=0.05),
                                  sliderInput(inputId='widthsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
                                  sliderInput(inputId='heightsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
                                  br(),
@@ -1162,6 +1165,51 @@ bodySignature <- tabItem('signature',
                                  # actionBttn('submitSig2',div(
                                  #   strong("Start analysing"),align = 'center',
                                  #   icon("hand-right", lib = "glyphicon")))
+                               ), 
+                               conditionalPanel(
+                                   condition = "input.sgt == 'S04'",
+                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                   br(),
+                                   checkboxInput(inputId="oncogeneMapping4", label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
+                                   conditionalPanel(
+                                       condition = "input.oncogeneMapping4 == true",
+                                       fileInput(inputId = 'driverGenesFile4', 
+                                                 label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list'),
+                                                 placeholder = "Default file: putative_driver_genes.txt", 
+                                                 width = 400)
+                                   ), 
+                                   numericInput('mutThreshold4', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
+                                   selectInput("signaturesRef4", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
+                                               choices = c(cosmic = "cosmic",
+                                                           nature2013 = "nature2013"),
+                                               selected = "cosmic"),
+                                   br(),
+                                   br(),
+                                   fluidRow(
+                                       column(
+                                           width = 9,
+                                           div(
+                                               tags$button(
+                                                   id = "submitSig4", type = "button", class = "action-button bttn",
+                                                   class = "bttn-unite", class = paste0("bttn-md"),
+                                                   class = paste0("bttn-default"),
+                                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                                   style = "margin-bottom:0px;margin-right:0px;"
+                                               )
+                                               # tags$button(
+                                               #   Id = "stopSig",
+                                               #   type = "button",
+                                               #   class = "bttn-material-circle",
+                                               #   class = "btn action-button",
+                                               #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                               #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                               # )
+                                           )
+                                       )
+                                   )
+                                   # actionBttn('submitSig',div(
+                                   #   strong("Start analysing"),align = 'center',
+                                   #   icon("hand-right", lib = "glyphicon")))
                                )
                              )
                            ),
@@ -1175,31 +1223,38 @@ bodySignature <- tabItem('signature',
                                tabBox(
                                  id = 'sgt',
                                  side = 'left',
-                                 selected = 'S01',
+                                 selected = 'S04',
                                  width = "100%",
                                  height = "100%",
                                  tabPanel(
-                                   title = div(icon("newspaper"), "Summary"), 
-                                   value = 'S01',
-                                   DT::dataTableOutput('sigOFAt',width = "100%"),
-                                   br(),
-                                   uiOutput("sigpdb")
+                                     title = div(icon("newspaper"), "Summary-Trunk or branch"), 
+                                     value = 'S04',
+                                     DT::dataTableOutput('sigBTt',width = "100%"),
+                                     br(),
+                                     uiOutput("sigbtdb")
                                  ),
                                  tabPanel(
-                                   title = div(icon("microsoft"), "Signature"), 
+                                     title = div(icon("image"), "Mutational trunkOrBranch plot"),
+                                     value = 'S03',
+                                     div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
+                                     uiOutput("sigpdb2")
+                                     # br(),
+                                     # uiOutput('sigOFATableUI2')
+                                 ), 
+                                 tabPanel(
+                                     title = div(icon("newspaper"), "Summary-Signature"), 
+                                     value = 'S01',
+                                     DT::dataTableOutput('sigOFAt',width = "100%"),
+                                     br(),
+                                     uiOutput("sigpdb")
+                                 ),
+                                 tabPanel(
+                                   title = div(icon("microsoft"), "Signature plot"), 
                                    value = 'S02',
                                    div(plotOutput('sigOFAPlot1', height = "100%", width = "100%"),align = "center"),
                                    uiOutput("sigpdb1"),
                                    br(),
                                    uiOutput('sigOFATableUI1')
-                                 ), 
-                                 tabPanel(
-                                   title = div(icon("image"), "Mutational trunkOrBranch plot"),
-                                   value = 'S03',
-                                   div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
-                                   uiOutput("sigpdb2")
-                                   # br(),
-                                   # uiOutput('sigOFATableUI2')
                                  )
                                )
                              )
@@ -1320,7 +1375,7 @@ bodySurvival <- tabItem('Survival',
                                 condition = 'input.submit10',
                                 width = NULL,
                                 height = "100%",
-                                div(plotOutput("phylotree",height = 700,width = 1000),align = "center"),
+                                div(plotOutput("phylotree",height = 600,width = 950),align = "center"),
                                 br(),
                                 uiOutput("phtdb")
                               )
@@ -1412,6 +1467,10 @@ table.dataTable tbody th, table.dataTable tbody td {
 
 .tooltip {
     min-width: 15em !important;
+}
+
+.progress-message, .progress-detail {
+    display: block !important;
 }
 
                          # .shiny-notification-close {

@@ -1,29 +1,25 @@
+#' ReadMaf
 #' @description Read tab delimited MAF (can be plain text or gz compressed) file along with sample information file.
 #'
-#' @import ggplot2
-#'
-#' @param mafFile MAF file. 
-#' @param sampleInfoFile sample information file.
-#' @param mutType Default "All". "nonSilent" And you can select proper variant classification you need. 
-#' @param mutNonSilent Default NULL. Option: "Default".And you can list variant classifications that you do not want them to be silent.
-#' @param chrSilent Default NULL. select the chromosomes you want to dismiss.
-#' @param use.indel Select SNP in Variant type
-#' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL.
-#' @param ccfLociTsvFile CCF loci.tsv file if ccf data provided. Default NULL.
-#' @param refBuild Default "hg19". You could choose human reference genome versions of hg19 or hg38 by UCSC.
-#' @param name Default NULL. Correct name error of shiny fileinput
+#' @param mafFile MAF-format data file. 
+#' @param sampleInfoFile Sample information file.
+#' @param ID Input your expected patientID character as well as correct the name error of shiny fileinput. Default NULL. 
+#' @param mutType Select proper variant classification you need. Default "All".Option: "nonSilent". 
+#' @param mutNonSilentAnd List variant classifications that you do not want them to be silent.  Default NULL. Option: "Default". 
+#' @param chrSilent Select chromosomes needed to be dismissed. Default NULL. 
+#' @param use.indel A logic parameter to determine whether to use other variant type besides SNP. Default FALSE. Option: TRUE. 
+#' @param ccfClusterTsvFile CCF cluster.tsv file if ccf data provided. Default NULL. 
+#' @param ccfLociTsvFile CCF loci.tsv file if ccf data provided. Default NULL. 
+#' @param refBuild Choose human reference genome versions of hg19 or hg38 by UCSC. Default "hg19". Option: "hg38". 
 #' 
 #' @return a Maf object/class 
 #' 
 #' @examples
-#' ## data information
-#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-#' pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-#' pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
-#' ## manually usage
+#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
+#' pyCloneCluster <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
+#' pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
-#' ## if ccf data provided
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 #' 
 #' @exportClass classMaf
@@ -33,17 +29,16 @@
 ## read.maf main function
 readMaf <- function(
     ## maf parameters
-    mafFile, sampleInfoFile,
+    mafFile, sampleInfoFile, ID=NULL, 
     ## filter selection
     mutType="All", mutNonSilent=NULL, chrSilent=NULL, use.indel=FALSE, 
     ## ccf parameters             
     ccfClusterTsvFile=NULL, ccfLociTsvFile=NULL, 
     ## supplyment
-    refBuild="hg19",
-    ## supply in shiny
-    name=NULL){
+    refBuild="hg19"
+){
     
-    ## read maf file
+    ## read maf file from .maf or .gz file
     if (.substrRight(mafFile, 3) == ".gz"){
         mafInput <- read.table(mafGz <- gzfile(mafFile, "r"), quote="", 
                                header=TRUE, fill=TRUE, 
@@ -57,17 +52,24 @@ readMaf <- function(
     }
     
     ## get patientID
-    fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
-    patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
-    ## correct error name of fileinput on shiny app
-    if(patientID == 0){
-      patientID <- strsplit(name,"\\.")[[1]][1]
+    if (!is.null(ID)) {
+        ## customize patientID if it is not the same as the filename
+        patientID <- ID
+    } else {
+        ## if the filename is exactly the patientID
+        fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
+        patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
+        ## correct error name of fileinput on shiny app (Original para patientID could solve the problem)
+        if(patientID == 0){
+            patientID <- strsplit(ID,"\\.")[[1]][1]
+        }
     }
+    
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
                                    header=TRUE, fill=TRUE, 
                                    sep='', stringsAsFactors=FALSE)
-    ## read ccf file
+    ## read ccf files
     if (!is.null(ccfClusterTsvFile) & !is.null(ccfLociTsvFile)) {
         ccfClusterInput <- read.table(ccfClusterTsvFile, quote="", 
                                       header=TRUE, fill=TRUE, 
@@ -113,9 +115,9 @@ readMaf <- function(
     if (mutType == "nonSilent"){
         if (mutNonSilent == "Default"){
             nonSilent <- c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
-                          "Translation_Start_Site", "Nonsense_Mutation", 
-                          "Nonstop_Mutation", "In_Frame_Del",
-                          "In_Frame_Ins", "Missense_Mutation")
+                           "Translation_Start_Site", "Nonsense_Mutation", 
+                           "Nonstop_Mutation", "In_Frame_Del",
+                           "In_Frame_Ins", "Missense_Mutation")
         } else {
             nonSilent <- mutNonSilent 
         }
@@ -123,7 +125,9 @@ readMaf <- function(
     } else if (mutType == "All"){
         # message("All variant classification submitted")
     } else {
-        error("mut.type setting error")
+        error("parameter `mut.type` error. 
+              The mut.type should be either 'All' or 'nonSilent'. 
+              You could further settle the filter by parameter 'mutNonSilent'.")
     }
     
     ## use.indel filter
@@ -131,7 +135,7 @@ readMaf <- function(
         mafInput <- mafInput[which(mafInput$Variant_Type == "SNP"),]
     }
     
-    ## filter chromosome
+    ## chromosome filter 
     if (!is.null(chrSilent)){
         mafInput <- mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
     }
@@ -148,10 +152,10 @@ readMaf <- function(
                     patientID=patientID, 
                     ref.build=refBuild)
     
-    # ## , vafColumn="VAF", 
+    # ## for parameter vafColumn="VAF", select particular VAF column
     # colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
     
-
+    
     
     return(maf)
 }
