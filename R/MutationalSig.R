@@ -13,10 +13,11 @@
 #' 
 #' @examples
 #' ## data information
-#' maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "MesKit")
-#' sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "MesKit")
-#' pyCloneCluster <- system.file("extdata/multi_lesion/ccf", "311252.cluster.tsv", package = "MesKit")
-#' pyCloneLoci <- system.file("extdata/multi_lesion/ccf", "311252.loci.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/maf", "311252.maf", package = "MesKit")
+#' sampleInfo.File <- system.file("extdata", "sample_info.txt", package = "MesKit")
+#' pyCloneCluster <- system.file("extdata/ccf", "311252.cluster.tsv", package = "MesKit")
+#' pyCloneLoci <- system.file("extdata/ccf", "311252.loci.tsv", package = "MesKit")
+#' putative_driver_genes <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 #' njtree <- getNJtree(maf)
 #' treeMSOutput <- treeMutationalSig(njtree, driverGenesFile=NULL, mutThreshold=50, signaturesRef="cosmic")
@@ -53,6 +54,15 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
     ## get the mutational signature of the branch 
     mutSigsOutput <- data.frame()
     lsPicName <- c()
+    ## deconstructSigs
+    sigsInput <- suppressWarnings(
+        deconstructSigs::mut.to.sigs.input(mut.ref=mutSigRef, 
+                                           sample.id="Sample", 
+                                           chr="chr", 
+                                           pos="pos", 
+                                           ref="ref", 
+                                           alt="alt",
+                                           bsg=get(refBuild)))
     for (branchCounter in length(branchesNameList):1){
         ## generate a single branch
         branch <- Filter(Negate(is.na), 
@@ -68,15 +78,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
                           sep = ""))
             # next()
         }else{
-            ## deconstructSigs
-            sigsInput <- suppressWarnings(
-                deconstructSigs::mut.to.sigs.input(mut.ref=mutSigRef, 
-                                                   sample.id="Sample", 
-                                                   chr="chr", 
-                                                   pos="pos", 
-                                                   ref="ref", 
-                                                   alt="alt",
-                                                   bsg=get(refBuild)))
+
             if (signaturesRef == "cosmic") {
                 sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
                                                               signatures.ref=deconstructSigs::signatures.cosmic, 
@@ -222,7 +224,7 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
     return(treeMSOutput)
 }
 
-#' sumMutationalSig
+#' mutSigSummary
 #' @description Provide a summary data frame for signatures in different branches.
 #' 
 #' @param treeMSOutput The output of function treeMutationalSig.
@@ -232,9 +234,9 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
 #' @examples
 #' signature1 <- sumMutationalSig(treeMSOutput)
 #' 
-#' @export sumMutationalSig
+#' @export mutSigSummary
 
-sumMutationalSig <- function(treeMSOutput){
+mutSigSummary <- function(treeMSOutput){
     mutSigsOutput <- treeMSOutput$mutSigsOutput
     df.aetiology <- treeMSOutput$df.aetiology
     
@@ -250,7 +252,7 @@ sumMutationalSig <- function(treeMSOutput){
     
     
     ## rearrange the order of columns
-    if (is.null(driverGenesFile)) {
+    if (is.null(mutSigsOutput$putative_driver_genes)) {
         mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
                                     alias=mutSigsOutput$alias, 
                                     mut.num=mutSigsOutput$mut.num, 
@@ -268,6 +270,7 @@ sumMutationalSig <- function(treeMSOutput){
                                     putative_driver_genes=mutSigsOutput$putative_driver_genes)
         colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology", "Oncogene list")
     }
+    
     return(mutSigsOutput)
 }
 
@@ -407,6 +410,40 @@ plotMutationalSig <- function(treeMSOutput) {
     return(pic)
 }
 
+#' mutBranchTrunk
+#' @description Draw box plots based on mutational categories
+#' 
+#' @param treeMSOutput The output of function treeMutationalSig.
+#' @param conf.level The confidence level to vertify whether the kind of mutation is significant. Default: 0.95. Option: on the scale of 0 to 1.
+#' 
+#' @return Box plots based on mutational categories
+#' 
+#' @examples
+#' mutBranchTrunk(treeMSOutput, conf.level = 0.95)
+#' 
+#' @export mutBranchTrunk
+
+mutBranchTrunk <- function(treeMSOutput) {
+    ls.BT <- .dataProcessBT(treeMSOutput)
+    df.pValue <- ls.BT$df.pValue
+    sigsInputBoxplot <- ls.BT$sigsInputBoxplot
+    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
+    
+    output <- data.frame(matrix(nrow=6, ncol=2))
+    colnames(output) <- c("Trunk", "Branch")
+    output <- cbind(Group=ls.mutationGroup, output)
+    for (mutationGroup in ls.mutationGroup) {
+        output$Branch[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
+            sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Branch"),]$mut.num)
+        output$Trunk[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
+            sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Trunk"),]$mut.num)
+    }
+    
+    output <- merge(output, df.pValue, by=c("Group"))
+    return(output)
+}
+
+
 #' plotBranchTrunk
 #' @description Draw box plots based on mutational categories
 #' 
@@ -423,81 +460,10 @@ plotMutationalSig <- function(treeMSOutput) {
 #' @export plotBranchTrunk
 
 plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
-    sigsInput <- treeMSOutput$sigsInput
-    mutSigsOutput <- treeMSOutput$mutSigsOutput
-    
-    if (any(mutSigsOutput$alias == "T")){
-        trunkName <- mutSigsOutput[which(mutSigsOutput$alias == "T"), ]$branch
-    } else {
-        stop("Trunk ERROR: There is no trunk mutation and the branch-trunk plot could not be plotted.
-             Warnings and outputs from function getNJtree should be checked.")
-    } 
-    sigsInput.trunk <- sigsInput[which(rownames(sigsInput) == trunkName), ]
-    sigsInput.branch <- sigsInput[which(rownames(sigsInput) != trunkName), ]
-    sigsInput.branch <- colSums(sigsInput.branch)
-    sigsInputBT <- rbind(Trunk=sigsInput.trunk, Branch=sigsInput.branch)
-    sigsInputBTTrans <- data.frame(Mutational_Type=colnames(sigsInputBT), t(sigsInputBT))
-    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
-    
-    ## generate Mutation Type for every column
-    for (mutationGroup in ls.mutationGroup) {
-        sigsInputBTTrans$Group[which(grepl(mutationGroup, sigsInputBTTrans$Mutational_Type))] <- mutationGroup
-    }
-    
-    sigsInputBSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
-    sigsInputTSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
-    
-    for (mutationGroup in ls.mutationGroup) {
-        groupBSum <- sigsInputBSum$sum[which(sigsInputBSum$Group == mutationGroup)]
-        if (groupBSum == 0) {
-            sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch <- 0
-        }
-        groupTSum <- sigsInputTSum$sum[which(sigsInputTSum$Group == mutationGroup)]
-        if (groupBSum == 0) {
-            sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk <- 0
-        }
-        sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch <- 
-            100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch/groupBSum
-        sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk <- 
-            100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk/groupTSum
-    }
-    
-    sigsInputBoxplot <- data.frame(matrix(nrow=0, ncol=4))
-    colnames(sigsInputBoxplot) <- c("GroupBT", "Group", "BT", "mut.frac")
-    
-    for (mutationGroup in ls.mutationGroup) {
-        dat.group <- sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]
-        df.groupB <- data.frame(rep(paste(mutationGroup, "Branch", sep=" "), nrow(dat.group)), 
-                                rep(mutationGroup, nrow(dat.group)), 
-                                rep("Branch", nrow(dat.group)), 
-                                dat.group$Branch)
-        df.groupT <- data.frame(rep(paste(mutationGroup, "Trunk", sep=" "), nrow(dat.group)), 
-                                rep(mutationGroup, nrow(dat.group)), 
-                                rep("Trunk", nrow(dat.group)),
-                                dat.group$Trunk)
-        colnames(df.groupB) <- c("GroupBT", "Group", "BT", "mut.frac")
-        colnames(df.groupT) <- c("GroupBT", "Group", "BT", "mut.frac")
-        sigsInputBoxplot <- rbind(sigsInputBoxplot, df.groupB, df.groupT)
-    }
-    
-    df.pValue <- data.frame(matrix(ncol = 2, nrow = 0))
-    colnames(df.pValue) <- c("Group", "p.value")
-    for (mutationGroup in ls.mutationGroup) {
-        pValue <- wilcox.test(
-            sigsInputBoxplot[
-                which(sigsInputBoxplot$Group == mutationGroup & 
-                          sigsInputBoxplot$BT == "Branch"), ]$mut.frac, 
-            sigsInputBoxplot[
-                which(sigsInputBoxplot$Group == mutationGroup & 
-                          sigsInputBoxplot$BT == "Trunk"), ]$mut.frac, 
-            paired=TRUE, alternative = "two.sided", conf.level=conf.level, 
-            exact=FALSE
-        )$p.value
-        row.pValue <- data.frame(mutationGroup, pValue)
-        colnames(row.pValue) <- c("Group", "p.value")
-        df.pValue <- rbind(df.pValue, row.pValue)
-    }
-    
+    ls.BT <- .dataProcessBT(treeMSOutput)
+    df.pValue <- ls.BT$df.pValue
+    sigsInputBoxplot <- ls.BT$sigsInputBoxplot
+
     ## p values of mutational list
     if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value <= (1-conf.level)) {
         CApV <- grid::textGrob(paste("p = ", as.character(
@@ -688,9 +654,91 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
         mutBranchesOutput[[branchName]] <- branch.mut
     }
     return(mutBranchesOutput)
-    
 }
 
+.dataProcessBT <- function(treeMSOutput) {
+    sigsInput <- treeMSOutput$sigsInput
+    mutSigsOutput <- treeMSOutput$mutSigsOutput
+    
+    if (any(mutSigsOutput$alias == "T")){
+        trunkName <- mutSigsOutput[which(mutSigsOutput$alias == "T"), ]$branch
+    } else {
+        stop("Trunk ERROR: There is no trunk mutation and the branch-trunk plot could not be plotted.
+             Warnings and outputs from function getNJtree should be checked.")
+    } 
+    sigsInput.trunk <- sigsInput[which(rownames(sigsInput) == trunkName), ]
+    sigsInput.branch <- sigsInput[which(rownames(sigsInput) != trunkName), ]
+    sigsInput.branch <- colSums(sigsInput.branch)
+    sigsInputBT <- rbind(Trunk=sigsInput.trunk, Branch=sigsInput.branch)
+    sigsInputBTTrans <- data.frame(Mutational_Type=colnames(sigsInputBT), t(sigsInputBT))
+    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
+    
+    ## generate Mutation Type for every column
+    for (mutationGroup in ls.mutationGroup) {
+        sigsInputBTTrans$Group[which(grepl(mutationGroup, sigsInputBTTrans$Mutational_Type))] <- mutationGroup
+    }
+    
+    sigsInputBSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
+    sigsInputTSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
+    
+    sigsInputBTTrans <- cbind(sigsInputBTTrans, 
+                              BranchFrac=rep(0, nrow(sigsInputBTTrans)), 
+                              TrunkFrac=rep(0, nrow(sigsInputBTTrans)))
+    for (mutationGroup in ls.mutationGroup) {
+        groupBSum <- sigsInputBSum$sum[which(sigsInputBSum$Group == mutationGroup)]
+        if (groupBSum == 0) {
+            sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch <- 0
+        }
+        groupTSum <- sigsInputTSum$sum[which(sigsInputTSum$Group == mutationGroup)]
+        if (groupBSum == 0) {
+            sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk <- 0
+        }
+        
+        sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$BranchFrac <- 
+            100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch/groupBSum
+        sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$TrunkFrac <- 
+            100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk/groupTSum
+    }
+    
+    sigsInputBoxplot <- data.frame(matrix(nrow=0, ncol=5))
+    colnames(sigsInputBoxplot) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
+    for (mutationGroup in ls.mutationGroup) {
+        dat.group <- sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]
+        df.groupB <- data.frame(rep(paste(mutationGroup, "Branch", sep=" "), nrow(dat.group)), 
+                                rep(mutationGroup, nrow(dat.group)), 
+                                rep("Branch", nrow(dat.group)), 
+                                dat.group$BranchFrac, 
+                                dat.group$Branch)
+        df.groupT <- data.frame(rep(paste(mutationGroup, "Trunk", sep=" "), nrow(dat.group)), 
+                                rep(mutationGroup, nrow(dat.group)), 
+                                rep("Trunk", nrow(dat.group)),
+                                dat.group$TrunkFrac, 
+                                dat.group$Trunk)
+        colnames(df.groupB) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
+        colnames(df.groupT) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
+        sigsInputBoxplot <- rbind(sigsInputBoxplot, df.groupB, df.groupT)
+    }
+    
+    df.pValue <- data.frame(matrix(ncol = 2, nrow = 0))
+    colnames(df.pValue) <- c("Group", "p.value")
+    for (mutationGroup in ls.mutationGroup) {
+        pValue <- wilcox.test(
+            sigsInputBoxplot[
+                which(sigsInputBoxplot$Group == mutationGroup & 
+                          sigsInputBoxplot$BT == "Branch"), ]$mut.frac, 
+            sigsInputBoxplot[
+                which(sigsInputBoxplot$Group == mutationGroup & 
+                          sigsInputBoxplot$BT == "Trunk"), ]$mut.frac, 
+            paired=TRUE, alternative = "two.sided", conf.level=conf.level, 
+            exact=FALSE
+        )$p.value
+        row.pValue <- data.frame(mutationGroup, pValue)
+        colnames(row.pValue) <- c("Group", "p.value")
+        df.pValue <- rbind(df.pValue, row.pValue)
+    }
+    output <- list(df.pValue=df.pValue, sigsInputBoxplot=sigsInputBoxplot)
+    return(output)
+}
 
 
 
