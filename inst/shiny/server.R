@@ -1038,20 +1038,18 @@ shinyServer(function(input, output, session){
         }
         
         njtree <- isolate(varsLs$njtree)
-        df.signature <-  MesKit::treeMutationalSig(njtree, 
+        treeMSOutput <- treeMutationalSig(njtree, 
                                           driverGenesFile=driverGenesFile, 
                                           mutThreshold=input$mutThreshold, 
-                                          signaturesRef=input$signaturesRef,
-                                          plot.signatures=FALSE, 
-                                          plot.branchTrunk=FALSE, 
-                                          signif.level=0.05)
+                                          signaturesRef=input$signaturesRef)
+        df.signature <- mutSigSummary(treeMSOutput)
         return(df.signature)
       }
     } else {
       if(input$submitSig & stopButtonValueSig$a != 1){
         progress <- Progress$new(session, min=1, max=15)
         on.exit(progress$close())
-        progress$set(message = 'Signature data summary: Calculation in progress',
+        progress$set(message = 'Signature summary: Calculation in progress',
                      detail = 'This may take a while...')
         
         for (i in 1:15) {
@@ -1059,14 +1057,11 @@ shinyServer(function(input, output, session){
           Sys.sleep(0.01)
         }
         
-        njtree <- isolate(varsLs$njtree)
-        df.signature <-  MesKit::treeMutationalSig(njtree, 
+        treeMSOutput <- treeMutationalSig(njtree, 
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold, 
-                                          signaturesRef=input$signaturesRef,
-                                          plot.signatures=FALSE, 
-                                          plot.branchTrunk=FALSE, 
-                                          signif.level=0.05)
+                                          signaturesRef=input$signaturesRef)
+        df.signature <- mutSigSummary(treeMSOutput)
         return(df.signature)
         
       }
@@ -1099,16 +1094,13 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.signature <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile$datapath, mutThreshold=input$mutThreshold, 
-                                                signaturesRef=input$signaturesRef,
-                                                plot.signatures=FALSE, plot.branchTrunk=FALSE, 
-                                                signif.level=0.05)
-      df.signature.plot <- MesKit::treeMutationalSig(njtree,
-                                                     driverGenesFile=input$driverGenesFile1$datapath,
-                                                     mutThreshold=input$mutThreshold1, 
-                                                     signaturesRef=input$signaturesRef1,
-                                                     plot.signatures=TRUE, plot.branchTrunk=FALSE, 
-                                                     signif.level=0.05)
+      treeMSOutput <- treeMutationalSig(njtree, 
+                                        driverGenesFile=NULL, 
+                                        mutThreshold=input$mutThreshold, 
+                                        signaturesRef=input$signaturesRef)
+      df.signature <- mutSigSummary(treeMSOutput)
+      df.signature.plot <- plotMutationalSig(treeMSOutput)
+      
       return(list(df.signature.plot, df.signature))
       # return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
     }
@@ -1165,11 +1157,12 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
-      df.branchTrunk.plot <- MesKit::treeMutationalSig(njtree, driverGenesFile=input$driverGenesFile2$datapath,
-                                                       mutThreshold=input$mutThreshold2, 
-                                                       signaturesRef=input$signaturesRef2,
-                                                       plot.signatures=FALSE, plot.branchTrunk=TRUE, 
-                                                       signif.level=input$signiflevel)
+      treeMSOutput <- treeMutationalSig(njtree, 
+                                        driverGenesFile=NULL, 
+                                        mutThreshold=input$mutThreshold, 
+                                        signaturesRef=input$signaturesRef)
+      df.branchTrunk.plot <- plotBranchTrunk(treeMSOutput, conf.level = input$conflevel)
+      
       return(df.branchTrunk.plot)
     }
   })
