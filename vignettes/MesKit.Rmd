@@ -253,7 +253,7 @@ head(pathway.result$pathway.category[["All"]])
   
 #### 8.3 Mutational signature analysis
   
-```treeMutationalSig``` function identifies potential signatures which could be attributed to known mutational processes for trunks/branches of phylogenetic trees. 
+```treeMutationalSig``` function can identifies potential signatures for trunks/branches of phylogenetic trees and output a list containing three data.frame for further analysis.
 This function is based on R package [deconstructSigs](https://github.com/raerose01/deconstructSigs) and you can set signatures matrix via ```signaturesRef``` (```cosmic``` or ```nature2013```). Parameter ```mutThreshold``` specifies the minimum number of mutations (Default: 50) required to perform mutation signature analysis. Moreover, you could provide a driver genes list via ```driverGenesFile``` and the final result would contain an additional column recording driver genes for particular mutation intersections.  
   
   
@@ -277,7 +277,7 @@ head(mutSig)
 plotMutationalSig(treeMSOutput)
 ```
 
-Function ```mutBranchTrunk``` conludes the relationship and categories of muttations. When plotting the boxplot by ```plotBranchTrunk```, mutBranchTrunk shows the distribution of branch or trunk mutations, and the confidence level for both functions above can be tuned by parameter ```conf.level```.
+Function ```mutBranchTrunk``` conludes the relationship and categories of muttations. With the confidence level tuned by parameter ```conf.level```, ```mutBranchTrunk``` functions also provide Wilcoxon tests results and show the p-value for different mutational categories. When plotting the boxplot by ```plotBranchTrunk```, mutBranchTrunk shows the distribution of branch or trunk mutations and specially present corresponding p-values for significant mutational categories. 
 
 ```{r, warning = FALSE, message=FALSE}
 mutBT <- mutBranchTrunk(treeMSOutput, conf.level = 0.95)

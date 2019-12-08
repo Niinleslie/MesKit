@@ -1029,7 +1029,7 @@ shinyServer(function(input, output, session){
       if(input$submitSig & stopButtonValueSig$a != 1){
         progress <- Progress$new(session, min=1, max=15)
         on.exit(progress$close())
-        progress$set(message = 'Signature data summary: Calculation in progress',
+        progress$set(message = 'Signature summary: Calculation in progress',
                      detail = 'This may take a while...')
         
         for (i in 1:15) {
@@ -1056,7 +1056,7 @@ shinyServer(function(input, output, session){
           progress$set(value = i)
           Sys.sleep(0.01)
         }
-        
+        njtree <- isolate(varsLs$njtree)
         treeMSOutput <- treeMutationalSig(njtree, 
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold, 
@@ -1075,6 +1075,67 @@ shinyServer(function(input, output, session){
                                     scrollX = TRUE), 
                      rownames = FALSE))
   })
+  
+  sigBT <- eventReactive(input$submitSig4, {
+    if (input$oncogeneMapping) {
+      if(is.null(input$driverGenesFile4$datapath)){
+        driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
+      } else{
+        driverGenesFile <- input$driverGenesFile4$datapath
+      }
+      
+      if(input$submitSig4){
+        progress <- Progress$new(session, min=1, max=15)
+        on.exit(progress$close())
+        progress$set(message = 'Signature data summary: Calculation in progress',
+                     detail = 'This may take a while...')
+        
+        for (i in 1:15) {
+          progress$set(value = i)
+          Sys.sleep(0.01)
+        }
+        
+        njtree <- isolate(varsLs$njtree)
+        treeMSOutput <- treeMutationalSig(njtree, 
+                                          driverGenesFile=driverGenesFile, 
+                                          mutThreshold=input$mutThreshold4, 
+                                          signaturesRef=input$signaturesRef4)
+        df.signature <- mutBranchTrunk(treeMSOutput)
+        return(df.signature)
+      }
+    } else {
+      if(input$submitSig4){
+        progress <- Progress$new(session, min=1, max=15)
+        on.exit(progress$close())
+        progress$set(message = 'Signature summary: Calculation in progress',
+                     detail = 'This may take a while...')
+        
+        for (i in 1:15) {
+          progress$set(value = i)
+          Sys.sleep(0.01)
+        }
+        
+        njtree <- isolate(varsLs$njtree)
+        treeMSOutput <- treeMutationalSig(njtree, 
+                                          driverGenesFile=NULL, 
+                                          mutThreshold=input$mutThreshold4, 
+                                          signaturesRef=input$signaturesRef4)
+        df.signature <- mutBranchTrunk(treeMSOutput)
+        return(df.signature)
+      }
+    }
+  })
+ 
+  output$sigBTt <- DT::renderDataTable({
+    return(datatable(sigBT(), 
+                     options = list(searching = TRUE, 
+                                    pageLength = 10, 
+                                    lengthMenu = c(5, 10, 15, 18), 
+                                    scrollX = TRUE), 
+                     rownames = FALSE))
+  })
+  
+  
   stopButtonValueSig1 <- reactiveValues(a = 0)
   observeEvent(input$stopSig1,{
     stopButtonValueSig1$a <- 1
@@ -1208,6 +1269,22 @@ shinyServer(function(input, output, session){
         column(
           width = 3,
           downloadBttn('DownloadSignatureSummary', 'Download')
+        )
+      )
+    }
+  })
+  output$sigbtdb <- renderUI({
+    if(!is.null(sigBT())){
+      fluidRow(
+        column(
+          width = 7
+        ),
+        column(
+          width = 2
+        ),
+        column(
+          width = 3,
+          downloadBttn('DownloadSignatureBT', 'Download')
         )
       )
     }
@@ -1524,6 +1601,14 @@ shinyServer(function(input, output, session){
     filename = "Rtable.csv",
     content = function(file){
       data <- sigOFA()
+      write.csv(data,file,row.names = F)
+    },
+    contentType = 'text/csv'
+  )
+  output$DownloadSignatureBT <- downloadHandler(
+    filename = "Rtable.csv",
+    content = function(file){
+      data <- sigBT()
       write.csv(data,file,row.names = F)
     },
     contentType = 'text/csv'

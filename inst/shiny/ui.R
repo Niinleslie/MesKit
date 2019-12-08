@@ -1114,7 +1114,7 @@ bodySignature <- tabItem('signature',
                                  # actionBttn('submitSig1',div(
                                  #   strong("Start analysing"),align = 'center',
                                  #   icon("hand-right", lib = "glyphicon")))
-                               ),
+                               ), 
                                conditionalPanel(
                                  condition = "input.sgt == 'S03'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
@@ -1165,6 +1165,51 @@ bodySignature <- tabItem('signature',
                                  # actionBttn('submitSig2',div(
                                  #   strong("Start analysing"),align = 'center',
                                  #   icon("hand-right", lib = "glyphicon")))
+                               ), 
+                               conditionalPanel(
+                                   condition = "input.sgt == 'S04'",
+                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                   br(),
+                                   checkboxInput(inputId="oncogeneMapping4", label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
+                                   conditionalPanel(
+                                       condition = "input.oncogeneMapping4 == true",
+                                       fileInput(inputId = 'driverGenesFile4', 
+                                                 label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list'),
+                                                 placeholder = "Default file: putative_driver_genes.txt", 
+                                                 width = 400)
+                                   ), 
+                                   numericInput('mutThreshold4', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
+                                   selectInput("signaturesRef4", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
+                                               choices = c(cosmic = "cosmic",
+                                                           nature2013 = "nature2013"),
+                                               selected = "cosmic"),
+                                   br(),
+                                   br(),
+                                   fluidRow(
+                                       column(
+                                           width = 9,
+                                           div(
+                                               tags$button(
+                                                   id = "submitSig4", type = "button", class = "action-button bttn",
+                                                   class = "bttn-unite", class = paste0("bttn-md"),
+                                                   class = paste0("bttn-default"),
+                                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                                   style = "margin-bottom:0px;margin-right:0px;"
+                                               )
+                                               # tags$button(
+                                               #   Id = "stopSig",
+                                               #   type = "button",
+                                               #   class = "bttn-material-circle",
+                                               #   class = "btn action-button",
+                                               #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
+                                               #   style = " background-position: center;padding:0;margin-bottom:7px;"
+                                               # )
+                                           )
+                                       )
+                                   )
+                                   # actionBttn('submitSig',div(
+                                   #   strong("Start analysing"),align = 'center',
+                                   #   icon("hand-right", lib = "glyphicon")))
                                )
                              )
                            ),
@@ -1178,31 +1223,38 @@ bodySignature <- tabItem('signature',
                                tabBox(
                                  id = 'sgt',
                                  side = 'left',
-                                 selected = 'S01',
+                                 selected = 'S04',
                                  width = "100%",
                                  height = "100%",
                                  tabPanel(
-                                   title = div(icon("newspaper"), "Summary"), 
-                                   value = 'S01',
-                                   DT::dataTableOutput('sigOFAt',width = "100%"),
-                                   br(),
-                                   uiOutput("sigpdb")
+                                     title = div(icon("newspaper"), "Summary-Trunk or branch"), 
+                                     value = 'S04',
+                                     DT::dataTableOutput('sigBTt',width = "100%"),
+                                     br(),
+                                     uiOutput("sigbtdb")
                                  ),
                                  tabPanel(
-                                   title = div(icon("microsoft"), "Signature"), 
+                                     title = div(icon("image"), "Mutational trunkOrBranch plot"),
+                                     value = 'S03',
+                                     div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
+                                     uiOutput("sigpdb2")
+                                     # br(),
+                                     # uiOutput('sigOFATableUI2')
+                                 ), 
+                                 tabPanel(
+                                     title = div(icon("newspaper"), "Summary-Signature"), 
+                                     value = 'S01',
+                                     DT::dataTableOutput('sigOFAt',width = "100%"),
+                                     br(),
+                                     uiOutput("sigpdb")
+                                 ),
+                                 tabPanel(
+                                   title = div(icon("microsoft"), "Signature plot"), 
                                    value = 'S02',
                                    div(plotOutput('sigOFAPlot1', height = "100%", width = "100%"),align = "center"),
                                    uiOutput("sigpdb1"),
                                    br(),
                                    uiOutput('sigOFATableUI1')
-                                 ), 
-                                 tabPanel(
-                                   title = div(icon("image"), "Mutational trunkOrBranch plot"),
-                                   value = 'S03',
-                                   div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
-                                   uiOutput("sigpdb2")
-                                   # br(),
-                                   # uiOutput('sigOFATableUI2')
                                  )
                                )
                              )
