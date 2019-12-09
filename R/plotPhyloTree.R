@@ -29,7 +29,7 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
   # }
   phylo <- njtree@nj
   refBuild <- njtree@refBuild
-  signature <- treeMutationalSig(njtree)
+  signature <- treeMutationalSig(njtree)$mutSigsOutput
   patientID <- njtree@patientID
   fileID <- paste(njtree@patientID, ".NJtree", sep = "")
   Root.label <- 'NORMAL'
@@ -597,27 +597,26 @@ addSignature <- function(phylo, plot.data, signature){
   #add signature to plot.data
   plot.data$signature <- ''
   plot.data$alias <- ''
-  sigs <- strsplit(as.character(signature$Branch),"∩")
+  sigs <- strsplit(as.character(signature$branch),"∩")
   sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
   t <- 1
   while(t<=length(sigs)){
-    pos <- which(plot.data$label == sigs[t])
-    plot.data$signature[pos] <- as.character(signature$Signature[t]) 
-    plot.data$alias[pos] <- as.character(signature$Alias[t])
+    pos <- which(plot.data$label == sigs[[t]])
+    plot.data$signature[pos] <- as.character(signature$sig[t]) 
+    plot.data$alias[pos] <- as.character(signature$alias[t])
     t <- t + 1
   }
   if(plot.data$signature[which(plot.data$sample == 'NORMAL')] == ''){
-    plot.data$signature[which(plot.data$sample == 'NORMAL')] = as.character(signature$Signature[1])
-    plot.data$signature[which(plot.data$alias == 'NORMAL')] = as.character(signature$Alias[1])
+    plot.data$signature[which(plot.data$sample == 'NORMAL')] = as.character(signature$sig[1])
+    plot.data$signature[which(plot.data$alias == 'NORMAL')] = as.character(signature$alias[1])
   }
   plot.data <- plot.data[order(plot.data$signature), ]
-  plot.data$signature <- gsub('No.Signature', 'No signature', plot.data$signature)
-  plot.data$signature <- gsub('Signature.', '', plot.data$signature)
+  plot.data$signature <- gsub('No Signature', 'No signature', plot.data$signature)
+  plot.data$signature <- gsub('Signature ', '', plot.data$signature)
   return(plot.data)
 }
 ##color scale set
 colorSet <- function(signatures){
-  ## FF6A5A:Sig19
   all.color.scale <- c("#E41A1C","#377EB8","#7F0000",
                        "#35978f","#FC8D62","#2166ac",
                        "#E78AC3","#A6D854","#FFD92F",
@@ -649,10 +648,6 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, sig.nam
   dx <- max(plot.data$x2)-min(plot.data$x2)
   if(show.mutSig){
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature), size=1.5)
-    #the color of signature.1~signature.30 is
-    #   ["#E41A1C" "#377EB8" "#4DAF4A""#66C2A5" "#FC8D62" "#8DA0CB" "#E78AC3" "#A6D854" "#FFD92F" "#E5C494"
-    #   "#8DD3C7" "#FFFFB3" "#BEBADA" "#FB8072" "#80B1D3" "#FDB462" "#B3DE69" "#FCCDE5" "#D9D9D9" "#BC80BD"
-    #    "#CCEBC5" "#FFED6F""#1B9E77" "#D95F02" "#7570B3" "#E7298A" "#66A61E" "#E6AB02" "#A6761D" "#666666"]
     p <- p + scale_color_manual(values = color.scale)
   }
   else{
