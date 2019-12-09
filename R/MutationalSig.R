@@ -442,8 +442,8 @@ mutTrunkBranch <- function(treeMSOutput, conf.level = 0.95) {
             sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Trunk"),]$mut.num)
     }
     output <- cbind(output, Significance=rep(NA, nrow(output)))
-    output[which(output$p.value >= conf.level), ]$Significance <- "*"
-    output[which(output$p.value < conf.level), ]$Significance <- " "
+    output[which(output$p.value < (1-conf.level)), ]$Significance <- "*"
+    output[which(output$p.value >= (1-conf.level)), ]$Significance <- " "
     
     return(output)
 }
@@ -471,7 +471,7 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
 
     ## p values of mutational list
-    if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value >= conf.level) {
+    if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value < (1-conf.level)) {
         CApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -481,7 +481,7 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1) 
     }
     
-    if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value >= conf.level) {
+    if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < (1-conf.level)) {
         CGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -491,7 +491,7 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value >= conf.level) {
+    if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < (1-conf.level)) {
         CTpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -501,7 +501,7 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value >= conf.level) {
+    if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < (1-conf.level)) {
         TApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
                   digits = 3)), "*", sep=""),
@@ -511,7 +511,7 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value >= conf.level) {
+    if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < (1-conf.level)) {
         TCpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
                   digits = 3)), "*", sep=""),
@@ -521,7 +521,7 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
                                gp=gpar(fontsize=12),vjust=0,hjust=1)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value >= conf.level) {
+    if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < (1-conf.level)) {
         TGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
                   digits = 3)), "*", sep=""),
@@ -688,8 +688,8 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
         sigsInputBTTrans$Group[which(grepl(mutationGroup, sigsInputBTTrans$Mutational_Type))] <- mutationGroup
     }
     
-    sigsInputBSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
-    sigsInputTSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
+    sigsInputBSum <- sigsInputBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
+    sigsInputTSum <- sigsInputBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
     
     sigsInputBTTrans <- cbind(sigsInputBTTrans, 
                               BranchFrac=rep(0, nrow(sigsInputBTTrans)), 
