@@ -9,7 +9,7 @@ plotTrunkBranch(treeMSOutput, conf.level = 0.95)
 \arguments{
 \item{treeMSOutput}{The output of function treeMutationalSig.}
 
-\item{conf.level}{The confidence level to vertify whether the kind of mutation is significant. Default: 0.95. Option: on the scale of 0 to 1.}
+\item{conf.level}{The confidence level used for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.}
 }
 \value{
 Box plots based on mutational categories

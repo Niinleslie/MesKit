@@ -15,7 +15,7 @@ mutTrunkBranch(treeMSOutput, conf.level = 0.95)
 Box plots based on mutational categories
 }
 \description{
-Draw box plots based on mutational categories
+Provide a summary data frame for mutations in trunk or branches in phylotree.
 }
 \examples{
 mutTrunkBranch(treeMSOutput, conf.level = 0.95)

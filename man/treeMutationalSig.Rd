@@ -32,6 +32,6 @@ pyCloneLoci <- system.file("extdata/ccf", "311252.loci.tsv", package = "MesKit")
 putative_driver_genes <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 njtree <- getNJtree(maf)
-treeMSOutput <- treeMutationalSig(njtree, driverGenesFile=NULL, mutThreshold=50, signaturesRef="cosmic")
+treeMSOutput <- treeMutationalSig(njtree, driverGenesFile=putative_driver_genes, mutThreshold=50, signaturesRef="cosmic")
 
 }
