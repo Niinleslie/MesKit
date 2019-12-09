@@ -688,8 +688,8 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
         sigsInputBTTrans$Group[which(grepl(mutationGroup, sigsInputBTTrans$Mutational_Type))] <- mutationGroup
     }
     
-    sigsInputBSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
-    sigsInputTSum <- sigsInputBTTrans %>% group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
+    sigsInputBSum <- sigsInputBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
+    sigsInputTSum <- sigsInputBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
     
     sigsInputBTTrans <- cbind(sigsInputBTTrans, 
                               BranchFrac=rep(0, nrow(sigsInputBTTrans)), 
