@@ -410,7 +410,7 @@ plotMutationalSig <- function(treeMSOutput) {
     return(pic)
 }
 
-#' mutBranchTrunk
+#' mutTrunkBranch
 #' @description Draw box plots based on mutational categories
 #' 
 #' @param treeMSOutput The output of function treeMutationalSig.
@@ -419,11 +419,11 @@ plotMutationalSig <- function(treeMSOutput) {
 #' @return Box plots based on mutational categories
 #' 
 #' @examples
-#' mutBranchTrunk(treeMSOutput, conf.level = 0.95)
+#' mutTrunkBranch(treeMSOutput, conf.level = 0.95)
 #' 
-#' @export mutBranchTrunk
+#' @export mutTrunkBranch
 
-mutBranchTrunk <- function(treeMSOutput, conf.level = 0.95) {
+mutTrunkBranch <- function(treeMSOutput, conf.level = 0.95) {
     ls.BT <- .dataProcessBT(treeMSOutput)
     df.pValue <- ls.BT$df.pValue
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
@@ -447,7 +447,7 @@ mutBranchTrunk <- function(treeMSOutput, conf.level = 0.95) {
 }
 
 
-#' plotBranchTrunk
+#' plotTrunkBranch
 #' @description Draw box plots based on mutational categories
 #' 
 #' @import ggplot2 grDevices graphics utils cowplot
@@ -458,11 +458,11 @@ mutBranchTrunk <- function(treeMSOutput, conf.level = 0.95) {
 #' @return Box plots based on mutational categories
 #' 
 #' @examples
-#' plotBranchTrunk(treeMSOutput, conf.level = 0.95)
+#' plotTrunkBranch(treeMSOutput, conf.level = 0.95)
 #' 
-#' @export plotBranchTrunk
+#' @export plotTrunkBranch
 
-plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
+plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
     ls.BT <- .dataProcessBT(treeMSOutput)
     df.pValue <- ls.BT$df.pValue
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot

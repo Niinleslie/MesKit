@@ -1100,7 +1100,7 @@ shinyServer(function(input, output, session){
                                           driverGenesFile=driverGenesFile, 
                                           mutThreshold=input$mutThreshold4, 
                                           signaturesRef=input$signaturesRef4)
-        df.signature <- mutBranchTrunk(treeMSOutput)
+        df.signature <- mutTrunkBranch(treeMSOutput)
         return(df.signature)
       }
     } else {
@@ -1120,7 +1120,7 @@ shinyServer(function(input, output, session){
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold4, 
                                           signaturesRef=input$signaturesRef4)
-        df.signature <- mutBranchTrunk(treeMSOutput)
+        df.signature <- mutTrunkBranch(treeMSOutput)
         return(df.signature)
       }
     }
@@ -1222,7 +1222,7 @@ shinyServer(function(input, output, session){
                                         driverGenesFile=NULL, 
                                         mutThreshold=input$mutThreshold, 
                                         signaturesRef=input$signaturesRef)
-      df.branchTrunk.plot <- plotBranchTrunk(treeMSOutput, conf.level = input$conflevel)
+      df.branchTrunk.plot <- plotTrunkBranch(treeMSOutput, conf.level = input$conflevel)
       
       return(df.branchTrunk.plot)
     }
