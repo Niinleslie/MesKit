@@ -31,11 +31,8 @@ Generate variant allele frequency(VAF) frequency distribution
  curve in different mode.
 }
 \examples{
-maf.File <- system.file("extdata/multi_lesion/maf", "311252.maf", package = "MesKit")
-sampleInfo.File <- system.file("extdata/multi_lesion", "sample_info.txt", package = "MesKit")
-maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, refBuild="hg19")
 vafCluster(maf, plotOption="compare")
-vafCluster(maf, plotOption="combine")
-vafCluster(maf, plotOption="separate")
+vafCluster(maf, plotOption="combine", showMATH=FALSE)
+vafCluster(maf, plotOption="separate", themeOption="npg")
 
 }

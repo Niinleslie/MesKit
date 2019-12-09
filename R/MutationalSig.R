@@ -405,6 +405,8 @@ plotMutationalSig <- function(treeMSOutput) {
 #' mutTrunkBranch
 #' @description Provide a summary data frame for mutations in trunk or branches in phylotree.
 #' 
+#' @import dplyr
+#' 
 #' @param treeMSOutput The output of function treeMutationalSig.
 #' @param conf.level The confidence level to vertify whether the kind of mutation is significant. Default: 0.95. Option: on the scale of 0 to 1.
 #' 
@@ -444,7 +446,7 @@ mutTrunkBranch <- function(treeMSOutput, conf.level = 0.95) {
 #' plotTrunkBranch
 #' @description Draw box plots based on mutational categories
 #' 
-#' @import ggplot2 grDevices graphics utils cowplot
+#' @import ggplot2 grDevices graphics utils cowplot dplyr
 #' 
 #' @param treeMSOutput The output of function treeMutationalSig.
 #' @param conf.level The confidence level used for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.
