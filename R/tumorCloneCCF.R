@@ -45,7 +45,7 @@ tumorClonesPlot <- function(maf, clone.min.mut = 5, clone.min.aveCCF = 0.1){
           theme(plot.margin = unit(c(0.2, 0.05, 0.2, 0.05), "inches"))
 
   loci_dotplot <- ggplot(data=loci, aes(x=sample_id, y=cellular_prevalence, color=factor(cluster_id))) + 
-          geom_point(size=1.5)+ theme_bw()+ scale_color_npg()+
+          geom_point(size=1.5)+ theme_bw()+ ggsci::scale_color_npg()+
           theme(panel.border = element_blank(),axis.line = element_line(colour = "black"))+
           theme(panel.grid = element_blank(),
           panel.border= element_blank(),
