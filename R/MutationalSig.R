@@ -20,7 +20,7 @@
 #' putative_driver_genes <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, sampleInfoFile=sampleInfo.File, ccfClusterTsvFile=pyCloneCluster, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
 #' njtree <- getNJtree(maf)
-#' treeMSOutput <- treeMutationalSig(njtree, driverGenesFile=NULL, mutThreshold=50, signaturesRef="cosmic")
+#' treeMSOutput <- treeMutationalSig(njtree, driverGenesFile=putative_driver_genes, mutThreshold=50, signaturesRef="cosmic")
 #' 
 #' @export treeMutationalSig
 
@@ -410,8 +410,8 @@ plotMutationalSig <- function(treeMSOutput) {
     return(pic)
 }
 
-#' mutBranchTrunk
-#' @description Draw box plots based on mutational categories
+#' mutTrunkBranch
+#' @description Provide a summary data frame for mutations in trunk or branches in phylotree.
 #' 
 #' @param treeMSOutput The output of function treeMutationalSig.
 #' @param conf.level The confidence level to vertify whether the kind of mutation is significant. Default: 0.95. Option: on the scale of 0 to 1.
@@ -419,16 +419,18 @@ plotMutationalSig <- function(treeMSOutput) {
 #' @return Box plots based on mutational categories
 #' 
 #' @examples
-#' mutBranchTrunk(treeMSOutput, conf.level = 0.95)
+#' mutTrunkBranch(treeMSOutput, conf.level = 0.95)
 #' 
-#' @export mutBranchTrunk
+#' @export mutTrunkBranch
 
-mutBranchTrunk <- function(treeMSOutput, conf.level = 0.95) {
+mutTrunkBranch <- function(treeMSOutput, conf.level = 0.95) {
+    ## input data from treeMSOutput
     ls.BT <- .dataProcessBT(treeMSOutput)
     df.pValue <- ls.BT$df.pValue
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
     
+    ## generate output data.frame with quantity of mutations in different categories
     output <- data.frame(matrix(nrow=6, ncol=2))
     colnames(output) <- c("Trunk", "Branch")
     output <- cbind(Group=ls.mutationGroup, output)
@@ -447,22 +449,23 @@ mutBranchTrunk <- function(treeMSOutput, conf.level = 0.95) {
 }
 
 
-#' plotBranchTrunk
+#' plotTrunkBranch
 #' @description Draw box plots based on mutational categories
 #' 
 #' @import ggplot2 grDevices graphics utils cowplot
 #' 
 #' @param treeMSOutput The output of function treeMutationalSig.
-#' @param conf.level The confidence level to vertify whether the kind of mutation is significant. Default: 0.95. Option: on the scale of 0 to 1.
+#' @param conf.level The confidence level used for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.
 #' 
 #' @return Box plots based on mutational categories
 #' 
 #' @examples
-#' plotBranchTrunk(treeMSOutput, conf.level = 0.95)
+#' plotTrunkBranch(treeMSOutput, conf.level = 0.95)
 #' 
-#' @export plotBranchTrunk
+#' @export plotTrunkBranch
 
-plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
+plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
+    ## input data from treeMSOutput
     ls.BT <- .dataProcessBT(treeMSOutput)
     df.pValue <- ls.BT$df.pValue
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
@@ -660,15 +663,19 @@ plotBranchTrunk <- function(treeMSOutput, conf.level=0.95) {
 }
 
 .dataProcessBT <- function(treeMSOutput) {
+    ## input data from treeMSOutput
     sigsInput <- treeMSOutput$sigsInput
     mutSigsOutput <- treeMSOutput$mutSigsOutput
     
+    ## label the Trunk
     if (any(mutSigsOutput$alias == "T")){
         trunkName <- mutSigsOutput[which(mutSigsOutput$alias == "T"), ]$branch
     } else {
         stop("Trunk ERROR: There is no trunk mutation and the branch-trunk plot could not be plotted.
              Warnings and outputs from function getNJtree should be checked.")
     } 
+    
+    ## separate trunk and branch data
     sigsInput.trunk <- sigsInput[which(rownames(sigsInput) == trunkName), ]
     sigsInput.branch <- sigsInput[which(rownames(sigsInput) != trunkName), ]
     sigsInput.branch <- colSums(sigsInput.branch)

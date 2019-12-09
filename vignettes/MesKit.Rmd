@@ -110,7 +110,9 @@ maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
 Install the latest version of this package by typing the commands below in R console:  
   
 ```{r eval=FALSE}
-install.packages("remotes")
+if (!require("remotes")){
+  install.packages("remotes")
+}
 remotes::install_github("Niinleslie/MesKit")
 ```  
   
@@ -277,12 +279,12 @@ head(mutSig)
 plotMutationalSig(treeMSOutput)
 ```
 
-Function ```mutBranchTrunk``` conludes the relationship and categories of muttations. With the confidence level tuned by parameter ```conf.level```, ```mutBranchTrunk``` functions also provide Wilcoxon tests results and show the p-value for different mutational categories. When plotting the boxplot by ```plotBranchTrunk```, mutBranchTrunk shows the distribution of branch or trunk mutations and specially present corresponding p-values for significant mutational categories. 
+Function ```mutTrunkBranch``` conludes the relationship and categories of muttations. With the confidence level tuned by parameter ```conf.level```, ```mutTrunkBranch``` functions also provide Wilcoxon tests results and show the p-value for different mutational categories. When plotting the boxplot by ```plotTrunkBranch```, mutTrunkBranch shows the distribution of branch or trunk mutations and specially present corresponding p-values for significant mutational categories. 
 
 ```{r, warning = FALSE, message=FALSE}
-mutBT <- mutBranchTrunk(treeMSOutput, conf.level = 0.95)
+mutBT <- mutTrunkBranch(treeMSOutput, conf.level = 0.95)
 head(mutBT)
-plotBranchTrunk(treeMSOutput, conf.level = 0.95)
+plotTrunkBranch(treeMSOutput, conf.level = 0.95)
 
 ```
   
