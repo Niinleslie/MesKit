@@ -54,7 +54,7 @@ bodyHome <- tabItem("home",
                         fluidRow(
                           column(
                             width = 7,
-                            div(img(src = "images/result_viewer.png", width = 900,height = 720),style="text-align: left;")
+                            div(img(src = "image/MesKit_workflow.tif", width = 900,height = 720),style="text-align: left;")
                           ),
                           column(
                             width = 5,
@@ -1392,7 +1392,7 @@ dbHeader <- dashboardHeader(title = "MesKit", titleWidth = 300,
                             tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
                             tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))))
 dbHeader$children[[2]]$children <-  tags$a(href='https://github.com/Niinleslie/MesKit',
-                                           tags$img(src='image/logo1.jpg',height='65',width='250'))
+                                           tags$img(src='image/logo.jpg',height='65',width='250'))
 shinyUI(
   dashboardPage(
     skin = "blue",
