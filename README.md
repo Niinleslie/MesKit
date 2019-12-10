@@ -16,8 +16,8 @@ remotes::install_github("Niinleslie/MesKit")
 ## Usage
 A complete documentation of MesKit can be found [here.](http://meskit.renlab.org/)
 
-<div  align="center">    
-<img src="/vignettes/MesKit_workflow.png" height="500" width="600" align = "left"/>
+<div  align="left">    
+<img src="/vignettes/MesKit_workflow.png" height="500" width="600" />
 </div>
    
 
