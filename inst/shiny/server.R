@@ -1479,7 +1479,8 @@ shinyServer(function(input, output, session){
       else if (input$DownloadJaccardIndexCheck == "pdf"){
         pdf(file,width = input$width4/100 , height = input$width4/100)
       }
-      ji()
+     maf <- isolate(varsLs$maf)
+     MesKit::JaccardIndex(maf,type = input$JItype)
       dev.off()
     },
     contentType = paste('image/',input$DownloadJaccardIndexCheck,sep="")
