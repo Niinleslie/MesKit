@@ -53,24 +53,36 @@ bodyHome <- tabItem("home",
                         title = div(strong("Overview of MesKit package"),style = "font-size:2em; font-weight:500;"),
                         fluidRow(
                           column(
-                            width = 7,
-                            div(img(src = "image/MesKit_workflow.tif", width = 900,height = 720),style="text-align: left;")
-                          ),
-                          column(
-                            width = 5,
-                            h3(strong("With this MesKit's Shiny APP:")),
-                            p("- Evaluate the intra-tumoral heterogeneity (ITH) .",br(),
-                              " - Perform clonal analysis.",br(),
-                              "- Perform enrichment analysis of GO ontology and pathway.",br(),
-                              "- Perform mutational signature analysis.",br(),
-                              "- Construct phylogenetic trees.",
-                              style = "font-size:18px; font-weight:500;line-height:50px;")
-                            # br(),
-                            # p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
-                            #   style = "font-si16pt"),
-                            # br(),
-                            # includeMarkdown("dom/Results_viewer.md")
+                            width = 12,
+                            div(
+                              div(img(src = "image/MesKit_workflow.png", width = 900,height = 720),style="text-align: left;float:left"),
+                              div(
+                                  h3(strong("With this MesKit's Shiny APP:")),
+                                  p("- Evaluate the intra-tumoral heterogeneity (ITH) .",br(),
+                                    " - Perform clonal analysis.",br(),
+                                    "- Perform enrichment analysis of GO ontology and pathway.",br(),
+                                    "- Perform mutational signature analysis.",br(),
+                                    "- Construct phylogenetic trees.",
+                                    style = "font-size:18px; font-weight:500;line-height:50px"),
+                                  style = "float:left;padding-left:20px"
+                              )
+                            )
                           )
+                          # column(
+                          #   width = 5,
+                          #   # h3(strong("With this MesKit's Shiny APP:")),
+                          #   # p("- Evaluate the intra-tumoral heterogeneity (ITH) .",br(),
+                          #   #   " - Perform clonal analysis.",br(),
+                          #   #   "- Perform enrichment analysis of GO ontology and pathway.",br(),
+                          #   #   "- Perform mutational signature analysis.",br(),
+                          #   #   "- Construct phylogenetic trees.",
+                          #   #   style = "font-size:18px; font-weight:500;line-height:50px;float:left")
+                          #   # br(),
+                          #   # p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
+                          #   #   style = "font-si16pt"),
+                          #   # br(),
+                          #   # includeMarkdown("dom/Results_viewer.md")
+                          # )
                         )
                       )
                     )
