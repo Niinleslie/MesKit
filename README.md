@@ -14,7 +14,7 @@ remotes::install_github("Niinleslie/MesKit")
 ```
 
 ## Usage
-A complete documentation of MesKit can be found [here.](https://github.com/Niinleslie/MesKit/blob/master/vignettes/MesKit.Rmd)
+A complete documentation of MesKit can be found [here.](http://meskit.renlab.org/)
 
 <div  align="center">    
 <img src="/vignettes/overview.png" height="500" width="600" align = center/>
