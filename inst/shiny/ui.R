@@ -36,10 +36,9 @@ bodyHome <- tabItem("home",
                         width = 12,
                         status = "info",
                         solidHeader = TRUE,
-                        # title = strong("Wellcome to the MesKit reporter"),
                         title = div(strong("Introduction"),style = "font-size:27px; font-weight:500;"),
                         # h3(strong("Introduction")),
-                        p("Malignant tumor, is considered one of the most serious threats to human health. Among numerous causes attributable to tumor, the intra-tumoral heterogeneity (ITH), once ignored, is now thought to have been a key factor contributing to the therapeutic failure. Today, with the rapid development of high-throughput sequencing technologies, sequencing of spatially or temporally distinct tumor regions has begun to uncover the bewildering extent of diversity within tumors. To facilitate the rapid analysis, we present an R package, MesKit, providing comprehensive analysis that are commonly used in cancer genomic ITH studies, including ITH evaluation, enrichment, signature, clone evolution analysis, also allowing visualizing phylogenetic trees.",
+                        p("Malignant tumor is considered one of the most serious threats to human health. Among numerous causes attributable to tumor, the intra-tumor heterogeneity (ITH), once ignored, is now thought to be a key factor contributing to the therapeutic failure. Today, with the rapid development of high-throughput sequencing technologies, sequencing of spatially or temporally distinct tumor regions has begun to uncover the bewildering extent of diversity within tumors. To facilitate the rapid analysis, we present an R package, MesKit, which provides comprehensive analysis that are commonly used in cancer genomic ITH studies, including ITH evaluation, clonal evolution analysis, functional exploration, also allows to visualize phylogenetic trees.",
                           style = "font-size:18px; font-weight:500;line-height:40px;"),
                         br()
                       )
@@ -58,8 +57,8 @@ bodyHome <- tabItem("home",
                           ),
                           column(
                             width = 5,
-                            h3(strong("With this MesKit's Shiny APP:")),
-                            p("- Evaluate the intra-tumoral heterogeneity (ITH) .",br(),
+                            h3(strong("With this MesKit Shiny APP:")),
+                            p("- Evaluate the intra-tumor heterogeneity (ITH) .",br(),
                               " - Perform clonal analysis.",br(),
                               "- Perform enrichment analysis of GO ontology and pathway.",br(),
                               "- Perform mutational signature analysis.",br(),
@@ -504,7 +503,7 @@ bodyITH <- tabItem("ITH",
                        box(
                          width = NULL,
                          div(strong("ITH evaluation"),style = "font-size:27px; font-weight:500;"),
-                         p("MesKit offers several functions to estimate intra-tumoral heterogeneity (ITH) with mutational data of bulk sequencing, including calculating MATH score, clustering variant allele frequencies (VAF) etc, identifying shared mutations and private mutations and measures similarity between samples by Jaccard similarity coefficients.",
+                         p("MesKit offers several functions to estimate intra-tumoral heterogeneity (ITH) with mutational data of bulk sequencing, including calculating MATH score, clustering variant allele frequencies (VAF), identifying shared mutations/private mutations and measuring similarity between samples by Jaccard similarity coefficients.",
                            style = "font-size:20px; font-weight:500;line-height:40px;"),
                          tabBox(
                            id = 'tith',
@@ -1436,7 +1435,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: dissect cancer evolution from multi-region derived tumor biopsies</span>\');
       })
      ')), 
       
