@@ -3,10 +3,10 @@
 #' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggrepel
 #' 
 #' @param njtree NJtree object
-#' @param show.mutSig If show Mutational Signature on tree.Default is "True"
-#' @param sig.name Choose "alias"  when you want showing alias in branch.Default is "default"
-#' @param show.heatmap If plot heatmap showing mutation distribution in each branch.Default is True
-#' @param heatmap.type Type of heatmap,choose 'CCF' if use ccf.Default is True
+#' @param showMutSig If show Mutational Signature on tree.Default is "True"
+#' @param sigName Choose "alias"  when you want showing alias in branch.Default is "default"
+#' @param showHeatMap If plot heatmap showing mutation distribution in each branch.Default is True
+#' @param heatMapType Type of heatmap,choose 'CCF' if use ccf.Default is True
 #' 
 #' @return Images of Phylotree
 #' 
@@ -18,8 +18,8 @@
 #' ## Use ccf 
 #' plotPhyloTree(njtree, heatmap.type = 'CCF')
 
-plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default",show.heatmap = TRUE, heatmap.type = 'binary'){
-  if(heatmap.type == 'binary'){
+plotPhyloTree <- function(njtree = NULL, showMutSig = TRUE, sigName = "default",showHeatMap = TRUE, heatMapType = 'binary'){
+  if(heatMapType == 'binary'){
     use.ccf = FALSE
   }else{
     use.ccf = TRUE
@@ -32,24 +32,24 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
   signature <- treeMutationalSig(njtree)$mutSigsOutput
   patientID <- njtree@patientID
   fileID <- paste(njtree@patientID, ".NJtree", sep = "")
-  Root.label <- 'NORMAL'
+  rootLabel <- 'NORMAL'
   # generate phylotree data
-  phylotree.input.data <- phylotreeInput(phylo, signature, show.mutSig ,Root.label)
-  phylotree.input.data <- phylotree.input.data[(phylotree.input.data$distance!=0|phylotree.input.data$sample == Root.label),]
-  if(show.mutSig){
+  phylotreeOutputData <- phylotreeInput(phylo, signature, showMutSig ,rootLabel)
+  phylotreeOutputData <- phylotreeOutputData[(phylotreeOutputData$distance!=0|phylotreeOutputData$sample == rootLabel),]
+  if(showMutSig){
     #Set the color
-    color.scale <- colorSet(unique(phylotree.input.data$signature))
+    colorScale <- colorSet(unique(phylotreeOutputData$signature))
     fileID <- paste(fileID, ".mutsig", sep = "")
   }
   #plot phylotree
-  phylotree <- generatePlotObject(phylotree.input.data, color.scale, show.mutSig, sig.name = sig.name, Root.label = Root.label)
-  if(show.heatmap){
+  phylotree <- generatePlotObject(phylotreeOutputData, colorScale, showMutSig, sigName = sigName, rootLabel = rootLabel)
+  if(showHeatMap){
     heatmap <- mut.heatmap(njtree, use.ccf)
     pm <- getPrivateMutation(njtree)
-    totalMut.sum <- pm[[1]]
-    privateMut.proportion <- pm[[2]]
+    totalMutSum <- pm[[1]]
+    privateMutProportion <- pm[[2]]
     PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.46,y = -0.12, width = 0.15)
-    title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMut.sum ,"; ",privateMut.proportion,")",sep = ""),fontface = "bold")
+    title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
     # ggsave(filename = "./tree",plot = PH, width = 10, height = 6.5)
     return(PH)
@@ -59,8 +59,8 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE,sig.name = "default"
   }
 }
 ##generate plot data 
-phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
-  phylo <- ape::root(phylo, phylo$tip.label[which(phylo$tip.label == Root.label)])
+phylotreeInput <- function(phylo, signature = '', showMutSig, rootLabel){
+  phylo <- ape::root(phylo, phylo$tip.label[which(phylo$tip.label == rootLabel)])
   # phylo$edge[which(phylo$edge == phylo$edge[1,2])] = phylo$edge[1,1]
   # phylo$edge <- phylo$edge[-1,]
   # phylo$edge.length <- phylo$edge.length[-1]
@@ -69,75 +69,75 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
   edge <-  phylo$edge
   distance <- phylo$edge.length
   edge <- matrix(c(edge, distance), nrow = length(edge[, 1]))
-  NO.Root <- which(phylo$tip.label == Root.label)
-  Root.tip <- NO.Root
+  numRoot <- which(phylo$tip.label == rootLabel)
+  rootTip <- numRoot
   #the position of NORMAL in edge 
-  Root.row <- which(edge[,2] == NO.Root)
+  rootRow <- which(edge[,2] == numRoot)
   # the  Node connected to NORMAL
-  Root.node <- edge[Root.row, 1]
-  Root.edge <- edge[Root.row, 3]
-  verticalPath <- calVerticalPath(phylo,Root.label)
-  branch.label <- labelBranch(phylo)
+  rootNode <- edge[rootRow, 1]
+  rootEdge <- edge[rootRow, 3]
+  verticalPath <- calVerticalPath(phylo,rootLabel)
+  branchLabel <- labelBranch(phylo)
   #store the sample name or node in a list
-  name.list <- c('')
+  nameList <- c('')
   #Store the list of nodes by plot order
-  node.list <- c(Root.node)
+  nodeList <- c(rootNode)
   #X1, y1 are the starting point, x2 and y2 are the end point.Horizon stands for the Angle between the line and the positive x axis;W stands for the Angle occupied by branches (explained in the paper)
   #Distance means distance;Node is the internal node with the start;End_num is the number of each node in edge;
-  plot.data <- data.frame('x1'=0, 'y1' = 0, 'x2' = 0, 'y2' = 0, 'horizon' = pi/2,
+  plotData <- data.frame('x1'=0, 'y1' = 0, 'x2' = 0, 'y2' = 0, 'horizon' = pi/2,
                           'w' = 1/6*pi, 'distance' = 0, 'node' = 0, 'end_num' = 0,
                           'angle' = 0)
   
-  SetPhylotree <- function(sub.edge, x0, y0, w, horizon, name.list,
-                           plot.data, point.list, target.node, Root.node, edge.left){
+  setPhylotree <- function(subEdge, x0, y0, w, horizon, nameList,
+                           plotData, pointList, targetNode, rootNode, edgeRemain){
     #total vertex of tree
-    vertex.total = 0
+    totalVertexs = 0
     #Stores the list of angles
-    angle.list = c()
+    angleList = c()
     #Stores the list of vertexes
-    vertex.list = c()
-    vertex.sub = 0
+    vertexList = c()
+    vertexSub = 0
     angle = 0
-    for(i in 1 : length(point.list)){
+    for(i in 1 : length(pointList)){
       #if it is sample, the number of vertices plus one
-      if(point.list[i] <= length(phylo$tip.label)){
-        vertex.total <- vertex.total + 1
-        vertex.list <- append(vertex.list, 1)
+      if(pointList[i] <= length(phylo$tip.label)){
+        totalVertexs <- totalVertexs + 1
+        vertexList <- append(vertexList, 1)
       }
       #If it is an internal node, it counts several vertices connected to the internal node
       else{
-        if(length(point.list[point.list > length(phylo$tip.label )]) == 1){
-          vertex.total <- vertex.total+length(edge.left[, 1])
-          vertex.sub <- length(edge.left[, 1])
+        if(length(pointList[pointList > length(phylo$tip.label )]) == 1){
+          totalVertexs <- totalVertexs+length(edgeRemain[, 1])
+          vertexSub <- length(edgeRemain[, 1])
         }
         else{
-          for(i1 in 1 : length(edge.left[, 1])){
-            if(point.list[i] %in% edge.left[i1, ]){
-              vertex.total <- vertex.total + 1
-              vertex.sub <- vertex.sub + 1
+          for(i1 in 1 : length(edgeRemain[, 1])){
+            if(pointList[i] %in% edgeRemain[i1, ]){
+              totalVertexs <- totalVertexs + 1
+              vertexSub <- vertexSub + 1
             } 
           }
         }
-        vertex.list <- append(vertex.list, (vertex.sub))
-        vertex.sub <- 0
+        vertexList <- append(vertexList, (vertexSub))
+        vertexSub <- 0
       }
     }
     #if(w <= pi/6 ){
     #w <- w + pi/6
     #}
     #The Angle assignment is based on the proportion of the number of vertices
-    for(i in 1 : length(vertex.list)){
-      angle.sub <- (vertex.list[i]/vertex.total)*w
+    for(i in 1 : length(vertexList)){
+      angleSub <- (vertexList[i]/totalVertexs)*w
       #Assign angles and put them into a list
-      angle.list  <- append(angle.list, angle.sub)
+      angleList  <- append(angleList, angleSub)
     }
     #Calculate the Angle with the X axis
-    angle.list2 <- c()
-    for(i in 1:length(angle.list)){
+    angleList2 <- c()
+    for(i in 1:length(angleList)){
       if(i == 1){
-        angle=(pi-w)/2 + angle.list [i]/2 + horizon - pi/2
+        angle=(pi-w)/2 + angleList [i]/2 + horizon - pi/2
       }else{
-        angle <- angle+angle.list [(i-1)]/2 + angle.list [i]/2 + horizon - pi/2
+        angle <- angle+angleList [(i-1)]/2 + angleList [i]/2 + horizon - pi/2
       }
       # if(angle == horizon){
       #   if(horizon >= pi/2){
@@ -147,87 +147,87 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
       #     angle <- angle - pi/144
       #   }
       # }
-      angle.list2 <- append(angle.list2, angle)
+      angleList2 <- append(angleList2, angle)
     }
-    # x <- which(!(sub.edge[,2] %in% verticalPath))
+    # x <- which(!(subEdge[,2] %in% verticalPath))
     # if(horizon == pi/2){
-    #   if(angle.list2[x] < pi/2 &
-    #      as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
-    #     angle.list2[x] <- angle.list2[x] - pi/18
+    #   if(angleList2[x] < pi/2 &
+    #      as.numeric(subEdge[x,2]) > length(phylo$tip.label)){
+    #     angleList2[x] <- angleList2[x] - pi/18
     #   }
-    #   else if(angle.list2[x] > pi/2 &
-    #           as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
-    #     angle.list2[x] <- angle.list2[x] + pi/18
+    #   else if(angleList2[x] > pi/2 &
+    #           as.numeric(subEdge[x,2]) > length(phylo$tip.label)){
+    #     angleList2[x] <- angleList2[x] + pi/18
     #   }
     # }
     ## Angle adjustment (select a branch Angle to align with the previous internal node)
-    a <- which(sub.edge[,2] %in% verticalPath)
+    a <- which(subEdge[,2] %in% verticalPath)
     if(length(a) != 0){
-      if(target.node == Root.node){
-        # if(sub.edge[a,2] > length(phylo$tip.label)){
-        #   angle.list2[a[1]] <- horizon
+      if(targetNode == rootNode){
+        # if(subEdge[a,2] > length(phylo$tip.label)){
+        #   angleList2[a[1]] <- horizon
         # }
         # else{
-        #   a <- which(vertex.list == max(vertex.list))
+        #   a <- which(vertexList == max(vertexList))
         #   if(length(a) > 1){
-        #     a <- which(sub.edge[,3] == max(sub.edge[,3]))
+        #     a <- which(subEdge[,3] == max(subEdge[,3]))
         #   }
-        #   angle.list2[a[1]] <- horizon
+        #   angleList2[a[1]] <- horizon
         # }
-        angle.list2[a[1]] <- horizon
+        angleList2[a[1]] <- horizon
       }
       else{
-        angle.list2[a[1]] <- horizon
+        angleList2[a[1]] <- horizon
         ##xxx
-        left <- nrow(plot.data[(plot.data$angle > pi/2&plot.data$end_num!= NO.Root),])
-        right <- nrow(plot.data[(plot.data$angle < pi/2&plot.data$end_num!= NO.Root),])-1
+        left <- nrow(plotData[(plotData$angle > pi/2&plotData$end_num!= numRoot),])
+        right <- nrow(plotData[(plotData$angle < pi/2&plotData$end_num!= numRoot),])-1
         if(left > right){
-          if(angle.list2[which(angle.list2 != horizon)]> pi/2){
-            angle.list2[which(angle.list2 != horizon)] <- abs(pi - angle.list2[which(angle.list2 != horizon)])
+          if(angleList2[which(angleList2 != horizon)]> pi/2){
+            angleList2[which(angleList2 != horizon)] <- abs(pi - angleList2[which(angleList2 != horizon)])
           }
         }
         else if(left < right){
-          if(angle.list2[which(angle.list2 != horizon)] < pi/2){
-            angle.list2[which(angle.list2 != horizon)] <- abs(pi - angle.list2[which(angle.list2 != horizon)])
+          if(angleList2[which(angleList2 != horizon)] < pi/2){
+            angleList2[which(angleList2 != horizon)] <- abs(pi - angleList2[which(angleList2 != horizon)])
           }
         }
       }
     }
     else{
-      a <- which(vertex.list == max(vertex.list))
+      a <- which(vertexList == max(vertexList))
       if(length(a) > 1){
-        a <- which(sub.edge[,3] == max(sub.edge[,3]))
+        a <- which(subEdge[,3] == max(subEdge[,3]))
       }
-      angle.list2[a[1]] <- horizon
+      angleList2[a[1]] <- horizon
     }
-    x <- which(angle.list2!= pi/2)
+    x <- which(angleList2!= pi/2)
     if(length(x) == 1){
       if(horizon == pi/2){
-        if(angle.list2[x] < pi/2 &
-           as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
-          angle.list2[x] <- angle.list2[x] - pi/18
+        if(angleList2[x] < pi/2 &
+           as.numeric(subEdge[x,2]) > length(phylo$tip.label)){
+          angleList2[x] <- angleList2[x] - pi/18
         }
-        else if(angle.list2[x] > pi/2 &
-                as.numeric(sub.edge[x,2]) > length(phylo$tip.label)){
-          angle.list2[x] <- angle.list2[x] + pi/18
+        else if(angleList2[x] > pi/2 &
+                as.numeric(subEdge[x,2]) > length(phylo$tip.label)){
+          angleList2[x] <- angleList2[x] + pi/18
         }
       }
     }
     i = 1
-    while (i <= length(sub.edge[,1])) {
-      if(point.list[i] > length(phylo$tip.label)){
+    while (i <= length(subEdge[,1])) {
+      if(pointList[i] > length(phylo$tip.label)){
         n <- 'internal node'
       }
       #If the number is greater than the length label of labels, it is an internal node, otherwise it is a sample
       else {
-        n <- phylo$tip.label[point.list[i]]
+        n <- phylo$tip.label[pointList[i]]
       }
       #Merge the sample name into a list for coloring
-      name.list <- append(name.list, n)
+      nameList <- append(nameList, n)
       #get the distance 
-      distance <- as.numeric(sub.edge[i,3])
+      distance <- as.numeric(subEdge[i,3])
       #Calculate the coordinate
-      angle <- angle.list2[i]
+      angle <- angleList2[i]
       # if(angle <= 34*pi/36 & angle >= 30*pi/36){
       # angle = angle - pi/12
       # }
@@ -242,123 +242,123 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
       }
       y <- sin(angle)*distance + y0
       #Merge data
-      row <- list(x0, y0, x, y, horizon, angle.list[i],
-                  distance, target.node, point.list[i], angle)
-      plot.data <- rbind(plot.data, row)
+      row <- list(x0, y0, x, y, horizon, angleList[i],
+                  distance, targetNode, pointList[i], angle)
+      plotData <- rbind(plotData, row)
       i <- i+1
     }
     #Return the data of the plotting and the list of sample names
-    result <- list(plot.data, name.list)
+    result <- list(plotData, nameList)
     return(result)
   }
   t=1
   while(t <= phylo$Nnode){
     #The first diagram is of the internal node connected to NORMAL
-    target.node <- node.list[t]
+    targetNode <- nodeList[t]
     #he position of the target t node in the matrix (the first data point is to find the NORMAL)
-    row.list <- c()
+    rowList <- c()
     for(i1 in 1:length(edge[, 1])){
-      if(target.node %in% edge[i1,1:2]){
-        if(edge[i1,2] != NO.Root){
-          row.list <- append(row.list, i1)
+      if(targetNode %in% edge[i1,1:2]){
+        if(edge[i1,2] != numRoot){
+          rowList <- append(rowList, i1)
         }
       }
     }
     #Filter out the submatrix with target_node
-    sub.edge <- matrix(edge[row.list, ], nrow = length(row.list))
+    subEdge <- matrix(edge[rowList, ], nrow = length(rowList))
     #Edge removes the sub_edge matrix
-    edge <- edge[-row.list, ]
+    edge <- edge[-rowList, ]
     #Extract the point that is concatenated with targe_node and put it in the list
-    point.list <- c()
-    for( i2 in 1 : length(sub.edge[, 1])){
-      point <- sub.edge[i2, 1 : 2][sub.edge[i2, 1 : 2] != target.node]
-      point.list <- append(point.list, point)
+    pointList <- c()
+    for( i2 in 1 : length(subEdge[, 1])){
+      point <- subEdge[i2, 1 : 2][subEdge[i2, 1 : 2] != targetNode]
+      pointList <- append(pointList, point)
     }
     #first internal node(NORMAL)
     if(t == 1){
-      p.n <- SetPhylotree(sub.edge, 0, 0, pi*2/3, pi/2, name.list, 
-                          plot.data, point.list, target.node, Root.node, edge)
-      plot.data <- p.n[[1]]
-      name.list <- p.n[[2]]
-      Root.info <- list(0, 0, 0, -(Root.edge), 0, pi/2, Root.edge, Root.node, NO.Root, 0)
-      plot.data <- rbind(plot.data, Root.info)
-      name.list <- append(name.list, "NORMAL")
+      pn <- setPhylotree(subEdge, 0, 0, pi*2/3, pi/2, nameList, 
+                          plotData, pointList, targetNode, rootNode, edge)
+      plotData <- pn[[1]]
+      nameList <- pn[[2]]
+      rootInfo <- list(0, 0, 0, -(rootEdge), 0, pi/2, rootEdge, rootNode, numRoot, 0)
+      plotData <- rbind(plotData, rootInfo)
+      nameList <- append(nameList, "NORMAL")
     }
     else{
       #Find the current starting coordinate in the plot data
-      row.num <- which(plot.data$end_num == target.node)
-      p.n <- SetPhylotree(sub.edge, plot.data$x2[row.num], plot.data$y2[row.num],
-                          plot.data$w[row.num], plot.data$angle[row.num], name.list, plot.data, point.list,
-                          target.node, Root.node, edge)
-      plot.data <- p.n[[1]]
-      name.list <- p.n[[2]]
+      rowNum <- which(plotData$end_num == targetNode)
+      pn <- setPhylotree(subEdge, plotData$x2[rowNum], plotData$y2[rowNum],
+                          plotData$w[rowNum], plotData$angle[rowNum], nameList, plotData, pointList,
+                          targetNode, rootNode, edge)
+      plotData <- pn[[1]]
+      nameList <- pn[[2]]
     }
-    node.list<-append(node.list, point.list[point.list>length(phylo$tip.label)])
+    nodeList<-append(nodeList, pointList[pointList>length(phylo$tip.label)])
     t=t+1 
   }
   #Add the sample_name to the plot data
-  plot.data <- cbind(plot.data, sample = name.list)
-  plot.data <- plot.data[-1, ]
+  plotData <- cbind(plotData, sample = nameList)
+  plotData <- plotData[-1, ]
   #Adjust Angle of non-NORMAL sample and internal nodes
   t=1
-  while(t <= length(plot.data[, 1])){
-    if (all(plot.data$end_num[t] <= length(phylo$tip.label),
-            plot.data$sample[t] != 'internal node',
-            plot.data$sample[t] != Root.label,
-            plot.data$angle[t] != plot.data$horizon[t])){
+  while(t <= length(plotData[, 1])){
+    if (all(plotData$end_num[t] <= length(phylo$tip.label),
+            plotData$sample[t] != 'internal node',
+            plotData$sample[t] != rootLabel,
+            plotData$angle[t] != plotData$horizon[t])){
       #the angles less than ninety degrees are adjust to thirty degrees
-      if(plot.data$x1[t] > 0){
-        plot.data$angle[t] <- pi*(1/6-1/36) 
-        angle <- plot.data$angle[t]
-        plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
-        plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
-      else if(plot.data$x1[t] < 0){
-        plot.data$angle[t] <- pi*(5/6+1/36) 
-        angle <- plot.data$angle[t]
-        plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
-        plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
+      if(plotData$x1[t] > 0){
+        plotData$angle[t] <- pi*(1/6-1/36) 
+        angle <- plotData$angle[t]
+        plotData$x2[t] <- plotData$distance[t]*cos(angle) + plotData$x1[t]
+        plotData$y2[t] <- plotData$distance[t]*sin(angle) + plotData$y1[t]}
+      else if(plotData$x1[t] < 0){
+        plotData$angle[t] <- pi*(5/6+1/36) 
+        angle <- plotData$angle[t]
+        plotData$x2[t] <- plotData$distance[t]*cos(angle) + plotData$x1[t]
+        plotData$y2[t] <- plotData$distance[t]*sin(angle) + plotData$y1[t]}
       else{
-        if(plot.data$angle[t] < pi/2){
-          plot.data$angle[t] <- pi*(1/6-1/36) 
-          angle <- plot.data$angle[t]
-          plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
-          plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
-        else if(plot.data$angle[t] > pi/2){
-          plot.data$angle[t] <- pi*(5/6+1/36)
-          angle <- plot.data$angle[t]
-          plot.data$x2[t] <- plot.data$distance[t]*cos(angle) + plot.data$x1[t]
-          plot.data$y2[t] <- plot.data$distance[t]*sin(angle) + plot.data$y1[t]}
+        if(plotData$angle[t] < pi/2){
+          plotData$angle[t] <- pi*(1/6-1/36) 
+          angle <- plotData$angle[t]
+          plotData$x2[t] <- plotData$distance[t]*cos(angle) + plotData$x1[t]
+          plotData$y2[t] <- plotData$distance[t]*sin(angle) + plotData$y1[t]}
+        else if(plotData$angle[t] > pi/2){
+          plotData$angle[t] <- pi*(5/6+1/36)
+          angle <- plotData$angle[t]
+          plotData$x2[t] <- plotData$distance[t]*cos(angle) + plotData$x1[t]
+          plotData$y2[t] <- plotData$distance[t]*sin(angle) + plotData$y1[t]}
       }
     }
     t = t + 1
   }
   #right part of tree
   t=1
-  sample.right <- plot.data[which(plot.data$sample != 'internal node' & 
-                                    plot.data$sample != Root.label &
-                                    plot.data$angle <= pi/2 & 
-                                    plot.data$angle > 0&
-                                    plot.data$angle != plot.data$horizon), ]
-  while(t <= length(sample.right[, 1])){
+  sampleRight <- plotData[which(plotData$sample != 'internal node' & 
+                                    plotData$sample != rootLabel &
+                                    plotData$angle <= pi/2 & 
+                                    plotData$angle > 0&
+                                    plotData$angle != plotData$horizon), ]
+  while(t <= length(sampleRight[, 1])){
     u=1
-    while(u <= (length(sample.right[, 1]) - 1)){
-      if (sample.right$y1[u] == sample.right$y1[(u + 1)]){
-        if (sample.right$angle[u] < sample.right$angle[(u + 1)]){
+    while(u <= (length(sampleRight[, 1]) - 1)){
+      if (sampleRight$y1[u] == sampleRight$y1[(u + 1)]){
+        if (sampleRight$angle[u] < sampleRight$angle[(u + 1)]){
           u <- u+1
           next
         }else{
-          data.1 <- sample.right[u, ]
-          data.2 <- sample.right[(u+1), ]
-          sample.right[(u+1), ] <- data.1
-          sample.right[(u), ] <- data.2
+          dataOne <- sampleRight[u, ]
+          dataTwo <- sampleRight[(u+1), ]
+          sampleRight[(u+1), ] <- dataOne
+          sampleRight[(u), ] <- dataTwo
           u <- u+1; next
         }
       }
-      else if(sample.right$y1[u]>sample.right$y1[(u+1)]){
-        data.1 <- sample.right[u, ]
-        data.2 <- sample.right[(u + 1),]
-        sample.right[(u+1), ] <- data.1
-        sample.right[(u), ] <- data.2
+      else if(sampleRight$y1[u]>sampleRight$y1[(u+1)]){
+        dataOne <- sampleRight[u, ]
+        dataTwo <- sampleRight[(u + 1),]
+        sampleRight[(u+1), ] <- dataOne
+        sampleRight[(u), ] <- dataTwo
         u <- u+1
         next
       }else{
@@ -369,35 +369,35 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
     }
     t <- t+ 1
   }
-  list.right <- as.character(sample.right$sample)
+  listRight <- as.character(sampleRight$sample)
   #left part of tree
   t <- 1
-  sample.left <- plot.data[which(plot.data$sample!='internal node' & 
-                                   plot.data$sample!=Root.label & 
-                                   plot.data$angle >= pi/2 & 
-                                   plot.data$angle < pi&
-                                   plot.data$angle != plot.data$horizon), ]
-  while(t<=length(sample.left[, 1])){
+  sampleLeft <- plotData[which(plotData$sample!='internal node' & 
+                                   plotData$sample!=rootLabel & 
+                                   plotData$angle >= pi/2 & 
+                                   plotData$angle < pi&
+                                   plotData$angle != plotData$horizon), ]
+  while(t<=length(sampleLeft[, 1])){
     u=1
-    while(u<=(length(sample.left[, 1]) - 1)){
-      if(sample.left$y1[u] == sample.left$y1[(u+1)]){
-        if(sample.left$angle[u]<sample.left$angle[(u+1)]){
+    while(u<=(length(sampleLeft[, 1]) - 1)){
+      if(sampleLeft$y1[u] == sampleLeft$y1[(u+1)]){
+        if(sampleLeft$angle[u]<sampleLeft$angle[(u+1)]){
           u=u+1
           next
         }else{
-          data.1 <- sample.left[u, ]
-          data.2 <- sample.left[(u+1), ]
-          sample.left[(u+1), ] <- data.1
-          sample.left[(u), ] <- data.2
+          dataOne <- sampleLeft[u, ]
+          dataTwo <- sampleLeft[(u+1), ]
+          sampleLeft[(u+1), ] <- dataOne
+          sampleLeft[(u), ] <- dataTwo
           u <- u+1
           next
         }
       }
-      else if (sample.left$y1[u] < sample.left$y1[(u + 1)]){
-        data.1 <- sample.left[u, ]
-        data.2 <- sample.left[(u+1), ]
-        sample.left[(u+1), ] <- data.1
-        sample.left[(u), ] <- data.2
+      else if (sampleLeft$y1[u] < sampleLeft$y1[(u + 1)]){
+        dataOne <- sampleLeft[u, ]
+        dataTwo <- sampleLeft[(u+1), ]
+        sampleLeft[(u+1), ] <- dataOne
+        sampleLeft[(u), ] <- dataTwo
         u <- u+1
         next
       }else{
@@ -408,150 +408,150 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
     }
     t <- t+1
   }
-  list.left <- as.character(sample.left$sample)
+  listLeft <- as.character(sampleLeft$sample)
   #Adjust the Angle again
   t=1
-  adjust.node.list <- c()
-  while(t <= length(plot.data[,1])){
+  adjustNodeList <- c()
+  while(t <= length(plotData[,1])){
     row <- ''
     row1 <- ''
-    if(all(plot.data$end_num[t] <= length(phylo$tip.label),
-           plot.data$sample[t] != 'internal node',
-           plot.data$sample[t] != Root.label,
-           plot.data$angle[t] != plot.data$horizon[t])){
-      # if(nrow(plot.data[plot.data$x2 > 0,]) == 2|nrow(plot.data[plot.data$x2 < 0,]) == 2){
+    if(all(plotData$end_num[t] <= length(phylo$tip.label),
+           plotData$sample[t] != 'internal node',
+           plotData$sample[t] != rootLabel,
+           plotData$angle[t] != plotData$horizon[t])){
+      # if(nrow(plotData[plotData$x2 > 0,]) == 2|nrow(plotData[plotData$x2 < 0,]) == 2){
       #   break
       # }
-      internal.node <- plot.data$node[t]
-      row1 <- which(plot.data$end_num == internal.node)
+      internalNode <- plotData$node[t]
+      row1 <- which(plotData$end_num == internalNode)
       if (length(row1) != 0){
-        adjust.node <- plot.data$node[row1]
-        if(adjust.node == Root.node){
+        adjustNode <- plotData$node[row1]
+        if(adjustNode == rootNode){
           t <- t+1
           next
         }
-        if(adjust.node %in% adjust.node.list){
+        if(adjustNode %in% adjustNodeList){
           t <- t+1
           next
         }else{
-          if(length(NO.Root)== 0){
+          if(length(numRoot)== 0){
             break
           }
-          if(plot.data$distance[row1] < mean(phylo$edge.length)/5){
-            row <- which(plot.data$node == adjust.node&
-                           plot.data$end_num <= length(phylo$tip.label))
-            row2 <- which(plot.data$node == plot.data$end_num[row1] &
-                            plot.data$angle != plot.data$horizon &  
-                            plot.data$end_num <= length(phylo$tip.label))
+          if(plotData$distance[row1] < mean(phylo$edge.length)/5){
+            row <- which(plotData$node == adjustNode&
+                           plotData$end_num <= length(phylo$tip.label))
+            row2 <- which(plotData$node == plotData$end_num[row1] &
+                            plotData$angle != plotData$horizon &  
+                            plotData$end_num <= length(phylo$tip.label))
             if(length(row)!=0 & length(row2)!=0){
-              if(plot.data$angle[row] < pi/2 &
-                 plot.data$angle[row2] < pi/2 &
-                 plot.data$sample[row] == list.right[1]){
-                if(nrow(plot.data[plot.data$x2 > 0,]) == 2){
+              if(plotData$angle[row] < pi/2 &
+                 plotData$angle[row2] < pi/2 &
+                 plotData$sample[row] == listRight[1]){
+                if(nrow(plotData[plotData$x2 > 0,]) == 2){
                   break
                 }
-                plot.data$angle[row] <- plot.data$angle[row] - pi*1/10
-                angle <- plot.data$angle[row]
-                plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
-                plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
+                plotData$angle[row] <- plotData$angle[row] - pi*1/10
+                angle <- plotData$angle[row]
+                plotData$x2[row] <- plotData$distance[row]*cos(angle) + plotData$x1[row]
+                plotData$y2[row] <- plotData$distance[row]*sin(angle) + plotData$y1[row]
               }
-              else if(plot.data$angle[row] > pi/2 &
-                      plot.data$angle[row2] > pi/2 &
-                      plot.data$sample[row] == list.left[length(list.left)]){
-                if(nrow(plot.data[plot.data$x2 < 0,]) == 2){
+              else if(plotData$angle[row] > pi/2 &
+                      plotData$angle[row2] > pi/2 &
+                      plotData$sample[row] == listLeft[length(listLeft)]){
+                if(nrow(plotData[plotData$x2 < 0,]) == 2){
                   break
                 }
-                if(plot.data$angle[row] == max(plot.data$angle)){
-                  plot.data$angle[row] <- plot.data$angle[row] + pi*1/10
-                  angle <- plot.data$angle[row]
-                  plot.data$x2[row] <- plot.data$distance[row]*cos(angle)+plot.data$x1[row]
-                  plot.data$y2[row] <- plot.data$distance[row]*sin(angle)+plot.data$y1[row]
+                if(plotData$angle[row] == max(plotData$angle)){
+                  plotData$angle[row] <- plotData$angle[row] + pi*1/10
+                  angle <- plotData$angle[row]
+                  plotData$x2[row] <- plotData$distance[row]*cos(angle)+plotData$x1[row]
+                  plotData$y2[row] <- plotData$distance[row]*sin(angle)+plotData$y1[row]
                 }
               }
             }
           }
-          adjust.node.list <- append(adjust.node.list, adjust.node)
+          adjustNodeList <- append(adjustNodeList, adjustNode)
         }
       }
     }
     t = t + 1
   }
   ##Bisect the branches angle
-  bisectBranchAngle <- function(list.part, plot.data){
+  bisectBranchAngle <- function(listPart, plotData){
     t = F
     while(t == F){
-      # if(length(list.part) == 1|length(list.part) == 2){
+      # if(length(listPart) == 1|length(listPart) == 2){
       #   break
       # }
-      if(length(list.part) == 1){
+      if(length(listPart) == 1){
         break
       }
-      else if(length(list.part) == 2){
-        judge.angle <- plot.data$angle[which(plot.data$sample == list.part[1])]
-        if(judge.angle > 0 & judge.angle < pi/2 & nrow(plot.data[plot.data$x2 > 0,]) == 2){
-          first.angle <- plot.data$angle[which(plot.data$sample==list.part[1])] 
-          final.angle <- pi/2
-          row <- which(plot.data$sample == list.part[2])
-          angle <- (final.angle - first.angle)/2 + first.angle
-          plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
-          plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
+      else if(length(listPart) == 2){
+        judgeAngle <- plotData$angle[which(plotData$sample == listPart[1])]
+        if(judgeAngle > 0 & judgeAngle < pi/2 & nrow(plotData[plotData$x2 > 0,]) == 2){
+          firstAngle <- plotData$angle[which(plotData$sample==listPart[1])] 
+          finalAngle <- pi/2
+          row <- which(plotData$sample == listPart[2])
+          angle <- (finalAngle - firstAngle)/2 + firstAngle
+          plotData$x2[row] <- plotData$distance[row]*cos(angle) + plotData$x1[row]
+          plotData$y2[row] <- plotData$distance[row]*sin(angle) + plotData$y1[row]
           break
         }
-        else if(judge.angle > pi/2 & judge.angle < pi & nrow(plot.data[plot.data$x2 < 0,]) == 2){
-          first.angle <- pi/2
-          final.angle <- plot.data$angle[which(plot.data$sample==list.part[2])] 
-          row <- which(plot.data$sample == list.part[1])
-          angle <- (final.angle - first.angle)/2 + first.angle
-          plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
-          plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
+        else if(judgeAngle > pi/2 & judgeAngle < pi & nrow(plotData[plotData$x2 < 0,]) == 2){
+          firstAngle <- pi/2
+          finalAngle <- plotData$angle[which(plotData$sample==listPart[2])] 
+          row <- which(plotData$sample == listPart[1])
+          angle <- (finalAngle - firstAngle)/2 + firstAngle
+          plotData$x2[row] <- plotData$distance[row]*cos(angle) + plotData$x1[row]
+          plotData$y2[row] <- plotData$distance[row]*sin(angle) + plotData$y1[row]
           break
         }
         else{
           break
         }
       }
-      else if(length(list.part)==3){
-        first.angle <-plot.data$angle[which(plot.data$sample==list.part[1])] 
-        final.angle <- plot.data$angle[which(plot.data$sample==list.part[length(list.part)])]
-        part.total.nodes <- length(list.part)
-        average.angle <- (final.angle - first.angle)/part.total.nodes
-        angle <- first.angle+average.angle
-        for(i in 2 : (length(list.part) - 1)){
-          row <- which(plot.data$sample == list.part[i])
-          plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
-          plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
-          angle <- angle + average.angle
+      else if(length(listPart)==3){
+        firstAngle <-plotData$angle[which(plotData$sample==listPart[1])] 
+        finalAngle <- plotData$angle[which(plotData$sample==listPart[length(listPart)])]
+        partTotalNodes <- length(listPart)
+        averageAngle <- (finalAngle - firstAngle)/partTotalNodes
+        angle <- firstAngle+averageAngle
+        for(i in 2 : (length(listPart) - 1)){
+          row <- which(plotData$sample == listPart[i])
+          plotData$x2[row] <- plotData$distance[row]*cos(angle) + plotData$x1[row]
+          plotData$y2[row] <- plotData$distance[row]*sin(angle) + plotData$y1[row]
+          angle <- angle + averageAngle
         }
         break
       }else{
         #Judge whether the adjustment area is on the left or right
-        judge.angle <- plot.data$angle[which(plot.data$sample == list.part[2])]
-        if(length(judge.angle != 0)){
-          if(judge.angle > pi/2){
-            first.angle <-plot.data$angle[which(plot.data$sample == list.part[1])] 
-            final.angle <- plot.data$angle[which(plot.data$sample == list.part[length(list.part) - 2])]
-            part.total.nodes <- length(list.part)
-            average.angle <- (final.angle - first.angle)/(part.total.nodes - 2)
-            angle <- first.angle+average.angle
-            for(i in 2:(length(list.part)-2)){
-              row <- which(plot.data$sample == list.part[i])
-              plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
-              plot.data$y2[row] <- plot.data$distance[row]*sin(angle) + plot.data$y1[row]
-              angle = angle+average.angle
+        judgeAngle <- plotData$angle[which(plotData$sample == listPart[2])]
+        if(length(judgeAngle != 0)){
+          if(judgeAngle > pi/2){
+            firstAngle <-plotData$angle[which(plotData$sample == listPart[1])] 
+            finalAngle <- plotData$angle[which(plotData$sample == listPart[length(listPart) - 2])]
+            partTotalNodes <- length(listPart)
+            averageAngle <- (finalAngle - firstAngle)/(partTotalNodes - 2)
+            angle <- firstAngle+averageAngle
+            for(i in 2:(length(listPart)-2)){
+              row <- which(plotData$sample == listPart[i])
+              plotData$x2[row] <- plotData$distance[row]*cos(angle) + plotData$x1[row]
+              plotData$y2[row] <- plotData$distance[row]*sin(angle) + plotData$y1[row]
+              angle = angle+averageAngle
             }
             break
           }
           else{
-            first.angle <- plot.data$angle[which(plot.data$sample == list.part[2])] 
-            final.angle <- plot.data$angle[which(plot.data$sample == list.part[length(list.part)])]
-            part.total.nodes <- length(list.part)
-            average.angle <- (final.angle - first.angle)/(part.total.nodes - 2)
-            angle <- first.angle+average.angle
-            for(i in 3 : (length(list.part) - 1)){
-              row <- which(plot.data$sample == list.part[i])
-              plot.data$x2[row] <- plot.data$distance[row]*cos(angle) + plot.data$x1[row]
-              plot.data$y2[row] <- plot.data$distance[ row]*sin(angle) + plot.data$y1[row]
-              angle <- angle+average.angle
+            firstAngle <- plotData$angle[which(plotData$sample == listPart[2])] 
+            finalAngle <- plotData$angle[which(plotData$sample == listPart[length(listPart)])]
+            partTotalNodes <- length(listPart)
+            averageAngle <- (finalAngle - firstAngle)/(partTotalNodes - 2)
+            angle <- firstAngle+averageAngle
+            for(i in 3 : (length(listPart) - 1)){
+              row <- which(plotData$sample == listPart[i])
+              plotData$x2[row] <- plotData$distance[row]*cos(angle) + plotData$x1[row]
+              plotData$y2[row] <- plotData$distance[ row]*sin(angle) + plotData$y1[row]
+              angle <- angle+averageAngle
             }
             break
           }
@@ -559,65 +559,65 @@ phylotreeInput <- function(phylo, signature = '', show.mutSig, Root.label){
         else{break}
       }
     }
-    return(plot.data)
+    return(plotData)
   }
-  plot.data <- bisectBranchAngle(list.left, plot.data)
-  plot.data <- bisectBranchAngle(list.right, plot.data)
+  plotData <- bisectBranchAngle(listLeft, plotData)
+  plotData <- bisectBranchAngle(listRight, plotData)
   # Adjust the Angle of data with only two samples
-  if(nrow(plot.data) == 3){
-    angle.list <- c(pi/6, 5*pi/6)
-    for(i in 2:nrow(plot.data)){
-      angle <- angle.list[i - 1]
-      plot.data$angle[i] <- angle
-      plot.data$x2[i] <- plot.data$distance[i]*cos(angle)
-      plot.data$y2[i] <- plot.data$distance[i]*sin(angle)
+  if(nrow(plotData) == 3){
+    angleList <- c(pi/6, 5*pi/6)
+    for(i in 2:nrow(plotData)){
+      angle <- angleList[i - 1]
+      plotData$angle[i] <- angle
+      plotData$x2[i] <- plotData$distance[i]*cos(angle)
+      plotData$y2[i] <- plotData$distance[i]*sin(angle)
     }
   }
-  if(show.mutSig){
-    plot.data$label <- ""
-    for(i in 1:nrow(plot.data)){
-      if(plot.data$sample[i] == "NORMAL"){
-        plot.data$label[i] <- branch.label[[Root.node]]
+  if(showMutSig){
+    plotData$label <- ""
+    for(i in 1:nrow(plotData)){
+      if(plotData$sample[i] == "NORMAL"){
+        plotData$label[i] <- branchLabel[[rootNode]]
       }
       else{
-        if(plot.data$end_num[i] > length(phylo$tip.label)){
-          plot.data$label[i] <- branch.label[[plot.data$end_num[i]]]
+        if(plotData$end_num[i] > length(phylo$tip.label)){
+          plotData$label[i] <- branchLabel[[plotData$end_num[i]]]
         }
         else{
-          plot.data$label[i] <- as.character(plot.data$sample[i]) 
+          plotData$label[i] <- as.character(plotData$sample[i]) 
         }
       }
     }
-    plot.data <- addSignature(phylo, plot.data, signature)
+    plotData <- addSignature(phylo, plotData, signature)
   }
-  return(plot.data)
+  return(plotData)
 }
 ##add signature
-addSignature <- function(phylo, plot.data, signature){
-  #add signature to plot.data
-  plot.data$signature <- ''
-  plot.data$alias <- ''
+addSignature <- function(phylo, plotData, signature){
+  #add signature to plotData
+  plotData$signature <- ''
+  plotData$alias <- ''
   sigs <- strsplit(as.character(signature$branch),"∩")
   sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
   t <- 1
   while(t<=length(sigs)){
-    pos <- which(plot.data$label == sigs[[t]])
-    plot.data$signature[pos] <- as.character(signature$sig[t]) 
-    plot.data$alias[pos] <- as.character(signature$alias[t])
+    pos <- which(plotData$label == sigs[[t]])
+    plotData$signature[pos] <- as.character(signature$sig[t]) 
+    plotData$alias[pos] <- as.character(signature$alias[t])
     t <- t + 1
   }
-  if(plot.data$signature[which(plot.data$sample == 'NORMAL')] == ''){
-    plot.data$signature[which(plot.data$sample == 'NORMAL')] = as.character(signature$sig[1])
-    plot.data$signature[which(plot.data$alias == 'NORMAL')] = as.character(signature$alias[1])
+  if(plotData$signature[which(plotData$sample == 'NORMAL')] == ''){
+    plotData$signature[which(plotData$sample == 'NORMAL')] = as.character(signature$sig[1])
+    plotData$signature[which(plotData$alias == 'NORMAL')] = as.character(signature$alias[1])
   }
-  plot.data <- plot.data[order(plot.data$signature), ]
-  plot.data$signature <- gsub('No Signature', 'No signature', plot.data$signature)
-  plot.data$signature <- gsub('Signature ', '', plot.data$signature)
-  return(plot.data)
+  plotData <- plotData[order(plotData$signature), ]
+  plotData$signature <- gsub('No Signature', 'No signature', plotData$signature)
+  plotData$signature <- gsub('Signature ', '', plotData$signature)
+  return(plotData)
 }
 ##color scale set
 colorSet <- function(signatures){
-  all.color.scale <- c("#E41A1C","#377EB8","#7F0000",
+  allColorScale <- c("#E41A1C","#377EB8","#7F0000",
                        "#35978f","#FC8D62","#2166ac",
                        "#E78AC3","#A6D854","#FFD92F",
                        "#E5C494","#8DD3C7", "#6E016B" ,
@@ -627,38 +627,38 @@ colorSet <- function(signatures){
                        "#fb9a99","#B6646A", "#9F994E", 
                        "#7570B3" ,"#c51b7d" ,"#66A61E" ,
                        "#E6AB02" ,"#003c30", "#666666",'black')
-  all.signature <- append(gsub('Signature.', '',row.names(deconstructSigs::signatures.cosmic)), 'No signature')
-  color.scale <- c()
+  allSignature <- append(gsub('Signature.', '',row.names(deconstructSigs::signatures.cosmic)), 'No signature')
+  colorScale <- c()
   for(i in 1:length(signatures)){
-    color <- all.color.scale[which(all.signature == signatures[i])]
-    color.scale <- append(color.scale, color)
+    color <- allColorScale[which(allSignature == signatures[i])]
+    colorScale <- append(colorScale, color)
   }
-  if('black' %in% color.scale){
-    num <- which(color.scale == 'black')
-    color.scale <- color.scale[-num]
-    color.scale <- append(color.scale, 'black')
+  if('black' %in% colorScale){
+    num <- which(colorScale == 'black')
+    colorScale <- colorScale[-num]
+    colorScale <- append(colorScale, 'black')
   }
-  return(color.scale)
+  return(colorScale)
 }
 ## plot PhyloTree 
-generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, sig.name, Root.label){
-  p <- ggplot(data = plot.data)
-  text.adjust <- mean(as.numeric(plot.data$distance))
-  dy <- max(plot.data$y2)-min(plot.data$y2)
-  dx <- max(plot.data$x2)-min(plot.data$x2)
-  if(show.mutSig){
+generatePlotObject <- function(plotData, colorScale = '', showMutSig, sigName, rootLabel){
+  p <- ggplot(data = plotData)
+  textAdjust <- mean(as.numeric(plotData$distance))
+  dy <- max(plotData$y2)-min(plotData$y2)
+  dx <- max(plotData$x2)-min(plotData$x2)
+  if(showMutSig){
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature), size=1.5)
-    p <- p + scale_color_manual(values = color.scale)
+    p <- p + scale_color_manual(values = colorScale)
   }
   else{
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
-                          data = plot.data[plot.data$sample != Root.label&plot.data$sample != 'internal node',], 
+                          data = plotData[plotData$sample != rootLabel&plotData$sample != 'internal node',], 
                           size=1.5, show.legend = T)
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
-                          data = plot.data[plot.data$sample == Root.label,], 
+                          data = plotData[plotData$sample == rootLabel,], 
                           size = 1.5, show.legend = F )
     p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
-                          data = plot.data[plot.data$sample == 'internal node',], 
+                          data = plotData[plotData$sample == 'internal node',], 
                           size = 1.5, show.legend = F )
   }
   p <- p + theme(axis.title.x = element_blank(),
@@ -674,43 +674,43 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, sig.nam
                  legend.title = element_text(face="bold"),
                  legend.position = 'top',
                  legend.direction = "horizontal") + guides(color = guide_legend(nrow=1))+coord_fixed(ratio= 1)               
-  if(sig.name == "default"){
+  if(sigName == "default"){
     p <- p + geom_text_repel(aes(x = x2*1.5, y = y2, label = sample),vjust = 1,
-                             nudge_y = text.adjust/5, segment.alpha = 0,
-                             data = plot.data[(plot.data$sample != 'internal node'&plot.data$sample != Root.label), ],
+                             nudge_y = textAdjust/5, segment.alpha = 0,
+                             data = plotData[(plotData$sample != 'internal node'&plotData$sample != rootLabel), ],
                              fontface = 'bold', size = 3)
   }
   else{
     p <- p + geom_text_repel(aes(x = x2*1.2, y = y2, label = alias),vjust = 1,
-                             nudge_y = text.adjust/8, segment.alpha = 0,
-                             data = plot.data[(plot.data$sample != 'internal node'&plot.data$sample != Root.label), ],
+                             nudge_y = textAdjust/8, segment.alpha = 0,
+                             data = plotData[(plotData$sample != 'internal node'&plotData$sample != rootLabel), ],
                              fontface = 'bold', size = 4) 
   }
-  if(sig.name == "default"){
-    p <- p + geom_text_repel(aes(x = x2,y = y2), label = Root.label, vjust = 0, 
-                             nudge_y = -text.adjust/5, segment.alpha = 0,
-                             data = plot.data[(plot.data$sample == Root.label),], 
+  if(sigName == "default"){
+    p <- p + geom_text_repel(aes(x = x2,y = y2), label = rootLabel, vjust = 0, 
+                             nudge_y = -textAdjust/5, segment.alpha = 0,
+                             data = plotData[(plotData$sample == rootLabel),], 
                              fontface = 'bold', size = 3)
   }
   else{
     p <- p + geom_text_repel(aes(x = x2,y = y2), label = "T", vjust = 0, 
-                             nudge_y = -text.adjust/5, segment.alpha = 0,
-                             data = plot.data[(plot.data$sample == Root.label),], 
+                             nudge_y = -textAdjust/5, segment.alpha = 0,
+                             data = plotData[(plotData$sample == rootLabel),], 
                              fontface = 'bold', size = 4)
   }
   #Leaf nodes and internal nodes are distinguished by point size
   p <- p + geom_point(aes(x = x2,y = y2), 
-                      data = plot.data[plot.data$sample == 'internal node',],
+                      data = plotData[plotData$sample == 'internal node',],
                       size = 1.7, color = "#8c510a", fill = "#8c510a", shape = 21, 
                       stroke = 0.5)
   p <- p + geom_point(aes(x = x2, y = y2), 
-                      data = plot.data[plot.data$sample != 'internal node',],
+                      data = plotData[plotData$sample != 'internal node',],
                       size = 3,color = "#67001F", fill = 'white', shape = 21, stroke = 1)
   # if(phylotree.type!= "njtree"){
   #   p <- p + geom_point(x = 0, y = 0, 
   #                       size = 3, color = "#8c510a", fill = 'white', shape = 21, stroke = 1)
   # }
-  Nd <- plot.data$distance[which(plot.data$sample == Root.label)]
+  Nd <- plotData$distance[which(plotData$sample == rootLabel)]
   if(length(Nd)!=0){
     if(Nd != 0){
       p <- p + geom_point(aes(x =0 , y = 0), size = 1.7, color = "#8c510a",
@@ -722,9 +722,9 @@ generatePlotObject <- function(plot.data, color.scale = '', show.mutSig, sig.nam
 
 getPrivateMutation <- function(njtree){
   totalMut <- njtree@mut_branches
-  private.order <- unlist(lapply(names(totalMut),
+  privateOrder <- unlist(lapply(names(totalMut),
                                  function(x){return(length(strsplit(x,"∩")[[1]]) == 1)})) 
-  privateMut <- totalMut[private.order]
+  privateMut <- totalMut[privateOrder]
   countMutation <- function(mut){
     sum <- 0
     for(i in 1:length(mut)){
@@ -733,66 +733,66 @@ getPrivateMutation <- function(njtree){
     }
     return(sum)
   }
-  totalMut.sum <- countMutation(totalMut)
-  privateMut.sum <- countMutation(privateMut)
-  privateMut.proportion <- paste(round((privateMut.sum/totalMut.sum)*100,1),"%",sep = "")
-  return(list(totalMut.sum, privateMut.proportion))
+  totalMutSum <- countMutation(totalMut)
+  privateMutSum <- countMutation(privateMut)
+  privateMutProportion <- paste(round((privateMutSum/totalMutSum)*100,1),"%",sep = "")
+  return(list(totalMutSum, privateMutProportion))
 }
 
-calVerticalPath <- function(phylo,Root.label){
+calVerticalPath <- function(phylo,rootLabel){
   #Generate the adjacency matrix
   edge <-  phylo$edge
   #Add the third column of the matrix to the node distance
   distance <- phylo$edge.length
   edge <- matrix(c(edge, distance), nrow = length(edge[, 1]))
-  if(Root.label == "NORMAL"){
-    NO.Root <- which(phylo$tip.label == Root.label)
-    NO.Root <- which(phylo$tip.label == Root.label)
+  if(rootLabel == "NORMAL"){
+    numRoot <- which(phylo$tip.label == rootLabel)
+    numRoot <- which(phylo$tip.label == rootLabel)
     #the position of NORMAL in edge 
-    Root.row <- which(edge[,2] == NO.Root)
+    rootRow <- which(edge[,2] == numRoot)
     # the  Node connected to NORMAL
-    Root.node <- edge[Root.row, 1]
-    edge <- edge[-Root.row,]
+    rootNode <- edge[rootRow, 1]
+    edge <- edge[-rootRow,]
   }
   else{
-    NO.Root <- length(phylo$tip.label) + 1
+    numRoot <- length(phylo$tip.label) + 1
     # the  Node connected to NORMAL
-    Root.node <- NO.Root
-    Root.tip <- NO.Root
+    rootNode <- numRoot
+    rootTip <- numRoot
   }
-  distance.table <- data.frame(x = 0)
+  distanceTable <- data.frame(x = 0)
   for(i in 1:(length(phylo$tip.label)-1)){
-    distance.table <- cbind(distance.table, -1)
+    distanceTable <- cbind(distanceTable, -1)
   }
-  distance.table <- distance.table[,(-1)]
-  if(Root.label == "NORMAL"){
-    names(distance.table) <- phylo$tip.label[which(phylo$tip.label != Root.label)]
+  distanceTable <- distanceTable[,(-1)]
+  if(rootLabel == "NORMAL"){
+    names(distanceTable) <- phylo$tip.label[which(phylo$tip.label != rootLabel)]
   }
   else{
-    distance.table <- cbind(distance.table, -1)
-    names(distance.table) <- phylo$tip.label
+    distanceTable <- cbind(distanceTable, -1)
+    names(distanceTable) <- phylo$tip.label
   }
   t <- 1
   path <- list()
-  while(t <= length(distance.table)){
-    subpath <- c()
+  while(t <= length(distanceTable)){
+    subPath <- c()
     end <- t
     dis <- 0
     while (TRUE) {
       p <- which(edge[,2] == end)
       dis <- dis + edge[p,3]
       start <- edge[p,1]
-      subpath <- append(subpath,end)
+      subPath <- append(subPath,end)
       end <- start
-      if(start == Root.node){
+      if(start == rootNode){
         break
       }
     }
-    path[[t]] <- subpath
-    distance.table[t] <- dis
+    path[[t]] <- subPath
+    distanceTable[t] <- dis
     t <- t + 1
   }
-  result <- path[[which.max(distance.table)]]
+  result <- path[[which.max(distanceTable)]]
 }
 ## label sample in each branch                            
 labelBranch <- function(phylo){

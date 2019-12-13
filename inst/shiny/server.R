@@ -67,9 +67,6 @@ shinyServer(function(input, output, session){
     patientID <- strsplit(name,"\\.")[[1]][1]
     return(patientID)
   })
-  
-
-  
   inputSilent <- observe({
     if (!is.null(input$maf)) {
       mafFile <- input$maf$datapath
@@ -168,7 +165,15 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Input data: Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
-      varsLs[['njtree']] <-  njtree <- MesKit::getNJtree(isolate(varsLs$maf))
+      colNames <- colnames(inputData()@data)
+      standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
+                       "Variant_Classification", "Variant_Type", "Reference_Allele",
+                       "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode", "patient",
+                       "lesion")
+      is <- intersect(colNames,standardCol)
+      if(length(is)==12){
+          varsLs[['njtree']] <-  njtree <- MesKit::getNJtree(isolate(varsLs$maf))
+      }
       incProgress(amount=1)
       
       setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
@@ -222,12 +227,9 @@ shinyServer(function(input, output, session){
           width = NULL,
           div(
             h3(strong("The MAF files")),
-            p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
-              style = "font-size:16px; font-weight:500;line-height:30px;"),
             p("Hugo_Symbol, Chromosome, Start_Position, End_Position, Variant_Classification, Variant_Type, Reference_Allele, Tumor_Seq_Allele2, VAF, Tumor_Sample_Barcode.",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
-            h4(strong("Example MAF file")),
-            style = "width: 800px"
+            h4(strong("Example MAF file"))
           ),
           DT::dataTableOutput("ied1",width = "100%"),
           br()
@@ -321,8 +323,26 @@ shinyServer(function(input, output, session){
       datatable(spd4, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
+  output$datapreview <- renderUI({
+      if(input$submit1){
+          colNames <- colnames(inputData()@data)
+          standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
+                           "Variant_Classification", "Variant_Type", "Reference_Allele",
+                           "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode", "patient",
+                           "lesion")
+          is <- intersect(colNames,standardCol)
+          if(length(is) == 12){
+              DT::dataTableOutput('maftable', width = '100%')
+          }
+          else{
+              uiOutput("warningMessage00")
+          }
+      }
+  })
   output$maftable <- DT::renderDataTable({
-    datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+    if(input$submit1){
+        datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
+    }
   })
   stopButtonValue2 <- reactiveValues(a = 0)
   observeEvent(input$stop2,{
@@ -346,6 +366,9 @@ shinyServer(function(input, output, session){
     
     if(input$submit2 & stopButtonValue2$a != 1){
       maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(maf)), "")
+      )
       mathScore(maf,tsb = c("All"),
                       minvaf = input$minvaf, 
                       maxvaf = input$maxvaf)$sampleLevel
@@ -362,6 +385,9 @@ shinyServer(function(input, output, session){
     
     if(input$submit0){
       maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(maf)), "")
+      )
       getTMB(maf,tsb = c("All"),
                         minvaf = input$minvaf, 
                         maxvaf = input$maxvaf)$sampleLevel
@@ -409,6 +435,9 @@ shinyServer(function(input, output, session){
   vc <- eventReactive(input$submit3, {
     if(input$submit3 & stopButtonValue3$a != 1){
       maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(maf)), "")
+      )
       tsbmax <- length(unique(maf@data$Tumor_Sample_Barcode))
       picSep <- NULL
       
@@ -502,17 +531,20 @@ shinyServer(function(input, output, session){
   })
   msp <- eventReactive(input$submit4, {
     if(input$submit4 & stopButtonValue4$a != 1){
-      progress <- Progress$new(session, min=1, max=30)
+      progress <- Progress$new(session, min=1, max=15)
       on.exit(progress$close())
       progress$set(message = 'Mutsharedprivateplot: Calculation in progress',
                    detail = 'This may take a while...')
       
-      for (i in 1:30) {
+      for (i in 1:15) {
         progress$set(value = i)
-        Sys.sleep(2)
+        Sys.sleep(0.01)
       }
       maf <- isolate(varsLs$maf)
-      return(MesKit::mutSharedPrivate(maf,show.num = input$show.num1))
+      validate(
+          need(!(is.null(maf)), "")
+      )
+      return(MesKit::mutSharedPrivate(maf,showNum = input$show.num1))
     }
   })
   # 
@@ -611,6 +643,9 @@ shinyServer(function(input, output, session){
         tsgListFile <- input$tsgListFile$datapath
       }
       maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(maf)), "")
+      )
       mutOncoTSG(maf, oncogeneListFile = oncogeneListFile,
                    tsgListFile = tsgListFile, 
                    show.percentage = input$show.percentage)
@@ -666,6 +701,9 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(maf)), "")
+      )
       return(MesKit::JaccardIndex(maf,type = input$JItype))
     }
     # progress <- Progress$new(session, min=1, max=15)
@@ -736,6 +774,9 @@ shinyServer(function(input, output, session){
           need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
         )
         maf <- isolate(varsLs$maf)
+        validate(
+            need(!(is.null(maf)), "")
+        )
         p <- MesKit::tumorClonesPlot(maf)
         return(p)
       }
@@ -784,6 +825,9 @@ shinyServer(function(input, output, session){
       progress$set(message = 'CCF Density: Calculation in progress',
                    detail = 'This may take a while...')
       maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(maf)), "")
+      )
       cd <- ccfDensity(maf, show.density = input$showdensity)
       progress$set(value = 1)
       return(cd)
@@ -839,6 +883,10 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
+      maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(njtree)), "")
+      )
       MesKit::GO.njtree(njtree, 
                         GO.type = input$GO.type, 
                         plotType = input$plotType, 
@@ -871,7 +919,7 @@ shinyServer(function(input, output, session){
   output$gotable <- renderDataTable({
     data <- GO()[[1]][[which(names(GO()[[1]]) == input$gl)]]
     # targets <- which(colnames(data) %in% c("geneID"))-1
-    datatable(data,options = list(pageLength = 5, dom = 'tp', scrollX = TRUE, columnDefs=list(list(width="10em",targets="_all"))), rownames = FALSE, width = 5)
+    datatable(data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
   })
   output$chooselist1 <- renderUI({
     if(!is.null(GO())){
@@ -933,6 +981,10 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
+      maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(njtree)), "")
+      )
       list <- MesKit::Pathway.njtree(njtree, 
                                      pathway.type=input$pathway.type, 
                                      plotType = input$pathplotType, 
@@ -1002,7 +1054,8 @@ shinyServer(function(input, output, session){
   })
   output$pathtable <- renderDataTable({
     data <- Path()[[1]][[which(names(Path()[[1]]) == input$pl)]]
-    return(DT::datatable(data,options = list(pageLength = 5, dom = 'tp', scrollX = T), rownames = FALSE,width = 5)) 
+    return(DT::datatable(data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)) 
+    
   })
   output$Pathwayplot <- renderPlot({
     return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]]) 
@@ -1038,6 +1091,10 @@ shinyServer(function(input, output, session){
         }
         
         njtree <- isolate(varsLs$njtree)
+        maf <- isolate(varsLs$maf)
+        validate(
+            need(!(is.null(njtree)), "")
+        )
         treeMSOutput <- treeMutationalSig(njtree, 
                                           driverGenesFile=driverGenesFile, 
                                           mutThreshold=input$mutThreshold, 
@@ -1057,6 +1114,10 @@ shinyServer(function(input, output, session){
           Sys.sleep(0.01)
         }
         njtree <- isolate(varsLs$njtree)
+        maf <- isolate(varsLs$maf)
+        validate(
+            need(!(is.null(njtree)), "")
+        )
         treeMSOutput <- treeMutationalSig(njtree, 
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold, 
@@ -1096,6 +1157,10 @@ shinyServer(function(input, output, session){
         }
         
         njtree <- isolate(varsLs$njtree)
+        maf <- isolate(varsLs$maf)
+        validate(
+            need(!(is.null(njtree)), "")
+        )
         treeMSOutput <- treeMutationalSig(njtree, 
                                           driverGenesFile=driverGenesFile, 
                                           mutThreshold=input$mutThreshold4, 
@@ -1116,6 +1181,10 @@ shinyServer(function(input, output, session){
         }
         
         njtree <- isolate(varsLs$njtree)
+        maf <- isolate(varsLs$maf)
+        validate(
+            need(!(is.null(njtree)), "")
+        )
         treeMSOutput <- treeMutationalSig(njtree, 
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold4, 
@@ -1155,6 +1224,10 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
+      maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(njtree)), "")
+      )
       treeMSOutput <- treeMutationalSig(njtree, 
                                         driverGenesFile=NULL, 
                                         mutThreshold=input$mutThreshold, 
@@ -1218,6 +1291,10 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       njtree <- isolate(varsLs$njtree)
+      maf <- isolate(varsLs$maf)
+      validate(
+          need(!(is.null(njtree)), "")
+      )
       treeMSOutput <- treeMutationalSig(njtree, 
                                         driverGenesFile=NULL, 
                                         mutThreshold=input$mutThreshold, 
@@ -1351,6 +1428,10 @@ shinyServer(function(input, output, session){
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
         njtree <- isolate(varsLs$njtree)
+        maf <- isolate(varsLs$maf)
+        validate(
+            need(!(is.null(njtree)), "")
+        )
         if(input$useccf == T){
           validate(
             need(input$heatmap.type == "CCF","switch heatmap type to CCF")
@@ -1360,8 +1441,8 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           njtree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
-                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
+        p <- plotPhyloTree(njtree, heatMapType = input$heatmap.type, sigName = "default",
+                                   showMutSig = input$showmutSig, showHeatMap = input$showheatmap)
         return(p)
         # else{
         #   validate(
@@ -1374,12 +1455,16 @@ shinyServer(function(input, output, session){
       }
       else{
         njtree <- isolate(varsLs$njtree)
+        maf <- isolate(varsLs$maf)
+        validate(
+            need(!(is.null(njtree)), "")
+        )
         if(njtree@patientID == "0"){
           id <- input$maf$name
           njtree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type, sig.name = "default",
-                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
+        p <- plotPhyloTree(njtree, heatMapType = input$heatmap.type, sigName = "default",
+                                   showMutSig = input$showmutSig, showHeatMap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
       }
@@ -1656,5 +1741,256 @@ shinyServer(function(input, output, session){
     },
     contentType = paste('image/',input$DownloadSignaturePlotCheck2,sep="")
   )
+  output$warningMessage00 <- renderUI({
+      if(input$submit1){
+          maf <- isolate(varsLs$maf)
+          colNames <- colnames(maf@data)
+          standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
+                           "Variant_Classification", "Variant_Type", "Reference_Allele",
+                           "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode", "patient",
+                           "lesion")
+          is <- intersect(colNames,standardCol)
+          if(length(is) != 12){
+              tagList(
+                  tags$p("Wrong data format!",br(),"please click the button",
+                         tags$img(src = 'image/button.png',width = "60px",height = "60px"),
+                         " to see the example file",
+                         style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")) 
+          }
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage01 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit0){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage02 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit2){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage03 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit3){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage04 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit4){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage05 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit5){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage06 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit6){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage07 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit7){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage08 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submitccfden){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage09 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit8){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage10 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit9){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage11 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submitSig4){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage12 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submitSig2){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage13 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submitSig){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage14 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submitSig1){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  output$warningMessage15 <- renderUI({
+      maf <- isolate(varsLs$maf)
+      if(is.null(maf)&input$submit10){
+          tagList(
+              tags$p("Please upload data in session 'Input Data'!",
+                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
+                     style = "color: red;
+                          font-size:27px; 
+                          font-weight:500;")
+          )
+      }
+      else{
+          return(NULL)
+      }
+  })
+  
+  
+  
   
 })  
