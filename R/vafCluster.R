@@ -111,7 +111,7 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
                 ## set the columns of the picture and generate all single pictures
                 combineTitle <- cowplot::ggdraw() + 
                     cowplot::draw_label(
-                        paste("VAF Clustering of ", patientID, sep=""),
+                        paste("VAF clustering of ", patientID, sep=""),
                         fontface = 'bold',
                         x = 0,
                         hjust = 0
@@ -300,7 +300,7 @@ vafClusterRshiny <-function(maf,
                 ## set the columns of the picture and generate all single pictures
                 combineTitle <- cowplot::ggdraw() + 
                     cowplot::draw_label(
-                        paste("VAF Clustering of ", patientID, sep=""),
+                        paste("VAF clustering of ", patientID, sep=""),
                         fontface = 'bold',
                         x = 0,
                         hjust = 0
@@ -632,7 +632,7 @@ vafClusterRshiny <-function(maf,
                            "axis.title=element_text(size=16), ", 
                            "axis.text=element_text(size=12), ", 
                            "axis.line=element_line(size=0.25)) + ", 
-                           "ggtitle(\"VAF Clustering of ", patientID, "\") + ", 
+                           "ggtitle(\"VAF clustering of ", patientID, "\") + ", 
                            "ggridges::geom_density_ridges(fill=\"whitesmoke\", ", 
                            "calc_ecdf=TRUE, alpha=0.5) + ",
                            "geom_point(aes(x=VAF, ", 
