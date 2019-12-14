@@ -6,8 +6,8 @@ suppressMessages(library(deconstructSigs))
 suppressMessages(library(DT))
 suppressMessages(library(shinydashboard))
 suppressMessages(library(shinyWidgets))
-suppressMessages(library(shinycssloaders))
-suppressMessages(library(shinyjs))
+# suppressMessages(library(shinycssloaders))
+# suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
 
@@ -1016,8 +1016,31 @@ bodySurvival <- tabItem('Survival',
 
 #Main function----
 dbHeader <- dashboardHeader(title = "MesKit", titleWidth = 300, 
-                            tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
-                            tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))))
+                            # tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
+                            # tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))),
+                            dropdownMenu(
+                                type = "notifications", 
+                                icon = icon("question-circle"),
+                                badgeStatus = NULL,
+                                headerText = "Help:",
+                                notificationItem("MesKit github page", icon = icon("file"),
+                                                 href = "https://github.com/Niinleslie/MesKit")
+                            ),
+                            dropdownMenu(
+                                type = "notifications", 
+                                icon = icon("envelope"),
+                                badgeStatus = NULL,
+                                headerText = "",
+                                tags$li(p("Mengni Liu, liumn5@mail2.sysu.edu.cn")),
+                                tags$li(p("Chengwei Wang, wangchw8@outlook.com")),
+                                tags$li(p("Jianyu Chen, chenjy327@mail2.sysu.edu.cn")),
+                                tags$li(p("Xin Wang, wangx555@mail2.sysu.edu.cn"))
+                                # notificationItem("Mengni Liu, liumn5@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "liumn5@mail2.sysu.edu.cn"),
+                                # notificationItem("Chengwei Wang, wangchw8@outlook.com, Sun Yat-sen university", icon = icon("user"),href = "wangchw8@outlook.com"),
+                                # notificationItem("Jianyu Chen, chenjy327@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "chenjy327@mail2.sysu.edu.cn"),
+                                # notificationItem("Xin Wang, wangx555@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "wangx555@mail2.sysu.edu.cn")
+                            )
+                            )
 dbHeader$children[[2]]$children <-  tags$a(href='https://github.com/Niinleslie/MesKit',
                                            tags$img(src='image/logo.jpg',height='65',width='250'))
 shinyUI(

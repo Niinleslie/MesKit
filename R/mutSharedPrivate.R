@@ -107,7 +107,7 @@ mutSharedPrivate <- function(maf, showNum = FALSE){
   finalFrame <- finalFrame[-1,]
   pointLineFrame <- pointLineFrame[-1,]
   finalFrame$Sample  <-  factor(finalFrame$Sample, levels = rev(unique(finalFrame$Sample)))
-  finalFrame$Type  <-  factor(finalFrame$Type, levels = unique(finalFrame$Type))
+  finalFrame$Type  <-  factor(finalFrame$Type, levels = sort(unique(finalFrame$Type)))
   finalFrame$Number <- as.integer(finalFrame$Number)
   sample <- rev(unique(finalFrame$Sample))
   sampleNum <- unlist(lapply(sample,function(x){
@@ -132,7 +132,7 @@ mutSharedPrivate <- function(maf, showNum = FALSE){
     geom_bar(stat = "identity",position = "stack",width = 0.7)+
     labs(x = "",width = 1.0)+
     labs(y = "Mutation number")
-  if (show.num == "TRUE") {
+  if (showNum == "TRUE") {
     keyPoint <- keyPoint +
       geom_text(aes(label = Number), size = 3, colour = 'black',
                 hjust = .5, position = position_stack(vjust=0.5))

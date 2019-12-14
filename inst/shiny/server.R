@@ -544,7 +544,7 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(maf)), "")
       )
-      return(MesKit::mutSharedPrivate(maf,showNum = input$show.num1))
+      return(mutSharedPrivate(maf,showNum = input$show.num1))
     }
   })
   # 
