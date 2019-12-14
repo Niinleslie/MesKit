@@ -6,8 +6,8 @@ suppressMessages(library(deconstructSigs))
 suppressMessages(library(DT))
 suppressMessages(library(shinydashboard))
 suppressMessages(library(shinyWidgets))
-suppressMessages(library(shinycssloaders))
-suppressMessages(library(shinyjs))
+# suppressMessages(library(shinycssloaders))
+# suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
 
@@ -36,10 +36,8 @@ bodyHome <- tabItem("home",
                         width = 12,
                         status = "info",
                         solidHeader = TRUE,
-                        # title = strong("Wellcome to the MesKit reporter"),
                         title = div(strong("Introduction"),style = "font-size:27px; font-weight:500;"),
-                        # h3(strong("Introduction")),
-                        p("Malignant tumor, is considered one of the most serious threats to human health. Among numerous causes attributable to tumor, the intra-tumoral heterogeneity (ITH), once ignored, is now thought to have been a key factor contributing to the therapeutic failure. Today, with the rapid development of high-throughput sequencing technologies, sequencing of spatially or temporally distinct tumor regions has begun to uncover the bewildering extent of diversity within tumors. To facilitate the rapid analysis, we present an R package, MesKit, providing comprehensive analysis that are commonly used in cancer genomic ITH studies, including ITH evaluation, enrichment, signature, clone evolution analysis, also allowing visualizing phylogenetic trees.",
+                        p("Malignant tumor is considered one of the most serious threats to human health. Among numerous causes attributable to tumor, the intra-tumor heterogeneity (ITH), once ignored, is now thought to be a key factor contributing to the therapeutic failure. Today, with the rapid development of high-throughput sequencing technologies, sequencing of spatially or temporally distinct tumor regions has begun to uncover the bewildering extent of diversity within tumors. To facilitate the rapid analysis, we present an R package, MesKit, which provides comprehensive analysis that are commonly used in cancer genomic ITH studies, including ITH evaluation, clonal evolution analysis, functional exploration, also allows to visualize phylogenetic trees.",
                           style = "font-size:18px; font-weight:500;line-height:40px;"),
                         br()
                       )
@@ -53,23 +51,37 @@ bodyHome <- tabItem("home",
                         title = div(strong("Overview of MesKit package"),style = "font-size:2em; font-weight:500;"),
                         fluidRow(
                           column(
-                            width = 7,
-                            div(img(src = "images/result_viewer.png", width = 900,height = 720),style="text-align: left;")
+                            # width = 12,
+                            # div(
+                            #   div(img(src = "image/MesKit_workflow.png", width = "50%",height = "40%"),
+                            #       style="text-align: left;float:left"),
+                            #   div(
+                            #       h3(strong("With this MesKit Shiny APP:")),
+                            #       p("- Evaluate the intra-tumor heterogeneity (ITH) .",br(),
+                            #         " - Perform clonal analysis.",br(),
+                            #         "- Perform enrichment analysis of GO ontology and pathway.",br(),
+                            #         "- Perform mutational signature analysis.",br(),
+                            #         "- Visualize phylogenetic trees.",
+                            #         style = "font-size:18px; font-weight:500;line-height:50px"),
+                            #       style = "float:left;padding-left:20px"
+                            #   )
+                            # )
+                              width = 7,
+                                div(img(src = "image/MesKit_workflow.png", width = "90%",height = "72%"),
+                                    style="text-align: center;float:left;margin:0;padding:0")
                           ),
                           column(
-                            width = 5,
-                            h3(strong("With this MesKit's Shiny APP:")),
-                            p("- Evaluate the intra-tumoral heterogeneity (ITH) .",br(),
-                              " - Perform clonal analysis.",br(),
-                              "- Perform enrichment analysis of GO ontology and pathway.",br(),
-                              "- Perform mutational signature analysis.",br(),
-                              "- Construct phylogenetic trees.",
-                              style = "font-size:18px; font-weight:500;line-height:50px;")
-                            # br(),
-                            # p("The typical workflow begins with MAF object creation by reading an MAF file combind with sample information. Based on Maf object, both ITH assessment and clonal analysis can be conducted. Furthermore, MesKit can perform function analysis and mutation analsysi on njtree object, which is converted from Maf object.",
-                            #   style = "font-si16pt"),
-                            # br(),
-                            # includeMarkdown("dom/Results_viewer.md")
+                              width = 5,
+                              div(
+                                  h3(strong("With this MesKit Shiny APP:")),
+                                  p("- Evaluate the intra-tumor heterogeneity (ITH) .",br(),
+                                    " - Perform clonal analysis.",br(),
+                                    "- Perform enrichment analysis of GO ontology and pathway.",br(),
+                                    "- Perform mutational signature analysis.",br(),
+                                    "- Visualize phylogenetic trees.",
+                                    style = "font-size:18px; font-weight:500;line-height:50px"),
+                                  style = "text-align: left;float:left;padding-left:0px;margin:0px"
+                              )
                           )
                         )
                       )
@@ -101,7 +113,7 @@ bodyIP <- tabItem("input",
                                       placeholder = "example data: HCC6046.maf", 
                                       width = 400),
                             fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information File',
+                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information file',
                                                   tags$button(
                                                     Id = "iecontrol02",
                                                     type = "button",
@@ -183,15 +195,6 @@ bodyIP <- tabItem("input",
                           ),
                           actionBttn('submit1',div(
                             strong("Upload data"),align = 'center'))
-                          # uiOutput("pb1")
-                          # progressBar(
-                          #   id = "pb1",
-                          #   value = 0,
-                          #   total = 100,
-                          #   title = "Wait",
-                          #   display_pct = FALSE, 
-                          #   status = "custom"
-                          # )
                         )
                       ), 
                         column(
@@ -199,11 +202,13 @@ bodyIP <- tabItem("input",
                           box(
                             width = NULL,box(
                               width = NULL,
-                              div(strong("Maf Data Preview"),style = "font-size:27px; font-weight:500;"),
+                              div(strong("Maf data preview"),style = "font-size:27px; font-weight:500;"),
                               p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
                                 style = "font-size:16px; font-weight:500;line-height:30px;"),
-                              h4(strong("Data Preview:")),
-                              DT::dataTableOutput('maftable', width = '100%')
+                              h4(strong("Data preview:")),
+                              # uiOutput("warningMessage00"),
+                              uiOutput("datapreview")
+                              # DT::dataTableOutput('maftable', width = '100%')
                             ),
                             uiOutput("ie1"),
                             uiOutput("ie2"),
@@ -218,17 +223,6 @@ bodyIP <- tabItem("input",
 
 
 bodyITH <- tabItem("ITH",
-                   # h2('ITH evaluation'),
-                   # fluidRow(
-                   #   box(
-                   #     width = 7,
-                   #     title = div(strong("ITH evaluation"),style = "font-size:27px; font-weight:500;"),
-                   #     status = "info",
-                   #     solidHeader = TRUE,
-                   #     p("MesKit offers several functions to estimate intra-tumoral heterogeneity with mutational data of bulk sequencing, including calculating MATH score identifying shared mutations and private mutations, clustering variant allele frequencies (VAF) etc.",
-                   #       style = "font-size:20px; font-weight:500;line-height:40px;")
-                   #   )
-                   # ),
                    fluidRow(
                      column(
                        width = 3,
@@ -261,23 +255,12 @@ bodyITH <- tabItem("ITH",
                                    id = "submit0", type = "button", class = "action-button bttn",
                                    class = "bttn-unite", class = paste0("bttn-md"),
                                    class = paste0("bttn-default"),
-                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
                                  )
-                                 # tags$button(
-                                 #   Id = "stop2",
-                                 #   type = "button",
-                                 #   class = "bttn-material-circle",
-                                 #   class = "btn action-button",
-                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                 # )
                                )
                              )
                            )
-                           # actionBttn('submit2',div(
-                           #   strong("Start analysing"),align = 'center',
-                           #   icon("hand-right", lib = "glyphicon")))
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput02'",
@@ -306,23 +289,12 @@ bodyITH <- tabItem("ITH",
                                    id = "submit2", type = "button", class = "action-button bttn",
                                    class = "bttn-unite", class = paste0("bttn-md"),
                                    class = paste0("bttn-default"),
-                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
                                  )
-                                 # tags$button(
-                                 #   Id = "stop2",
-                                 #   type = "button",
-                                 #   class = "bttn-material-circle",
-                                 #   class = "btn action-button",
-                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                 # )
                                )
                              )
                            )
-                           # actionBttn('submit2',div(
-                           #   strong("Start analysing"),align = 'center',
-                           #   icon("hand-right", lib = "glyphicon")))
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput03'",
@@ -353,7 +325,7 @@ bodyITH <- tabItem("ITH",
                                                    'The Simpsons' = 'simpsons',
                                                    GSEA = 'gsea'),
                                        selected = "aaas",width = 300),
-                           checkboxInput('showMATH',label = div(style = "font-size:15px; font-weight:400; ", 'Show MATH Score'),value = TRUE),
+                           checkboxInput('showMATH',label = div(style = "font-size:15px; font-weight:400; ", 'Show MATH score'),value = TRUE),
                            sliderInput('width1', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
                            br(),
                            br(),
@@ -365,17 +337,9 @@ bodyITH <- tabItem("ITH",
                                    id = "submit3", type = "button", class = "action-button bttn",
                                    class = "bttn-unite", class = paste0("bttn-md"),
                                    class = paste0("bttn-default"),
-                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
                                  )
-                                 # tags$button(
-                                 #   Id = "stop3",
-                                 #   type = "button",
-                                 #   class = "bttn-material-circle",
-                                 #   class = "btn action-button",
-                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                 # )
                                )
                              )
                            )
@@ -405,17 +369,9 @@ bodyITH <- tabItem("ITH",
                                      id = "submit4", type = "button", class = "action-button bttn",
                                      class = "bttn-unite", class = paste0("bttn-md"),
                                      class = paste0("bttn-default"),
-                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                      style = "margin-bottom:0px;margin-right:0px;"
                                    )
-                                   # tags$button(
-                                   #   Id = "stop4",
-                                   #   type = "button",
-                                   #   class = "bttn-material-circle",
-                                   #   class = "btn action-button",
-                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                   # )
                                  )
                                )
                              )
@@ -442,17 +398,9 @@ bodyITH <- tabItem("ITH",
                                    id = "submit5", type = "button", class = "action-button bttn",
                                    class = "bttn-unite", class = paste0("bttn-md"),
                                    class = paste0("bttn-default"),
-                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
                                  )
-                                 # tags$button(
-                                 #   Id = "stop5",
-                                 #   type = "button",
-                                 #   class = "bttn-material-circle",
-                                 #   class = "btn action-button",
-                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                 # )
                                )
                              )
                            )
@@ -462,7 +410,7 @@ bodyITH <- tabItem("ITH",
                            condition = "input.tith == 'caInput06'",
                            div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                            br(), 
-                           selectInput("JItype",h4(strong("Type")),
+                           selectInput("JItype",div(style = "font-size:1.5em; font-weight:600; ", 'Type'),
                                        choices = c(
                                          Lower = "lower",
                                          Upper = "upper",
@@ -479,23 +427,12 @@ bodyITH <- tabItem("ITH",
                                    id = "submit6", type = "button", class = "action-button bttn",
                                    class = "bttn-unite", class = paste0("bttn-md"),
                                    class = paste0("bttn-default"),
-                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                    style = "margin-bottom:0px;margin-right:0px;"
                                  )
-                                 # tags$button(
-                                 #   Id = "stop6",
-                                 #   type = "button",
-                                 #   class = "bttn-material-circle",
-                                 #   class = "btn action-button",
-                                 #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                 #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                 # )
                                )
                              )
                            )
-                           # actionBttn('submit6',div(
-                           #   strong("Start analysing"),align = 'center',
-                           #   icon("hand-right", lib = "glyphicon")))
                          )
                        )
                      ),
@@ -504,7 +441,7 @@ bodyITH <- tabItem("ITH",
                        box(
                          width = NULL,
                          div(strong("ITH evaluation"),style = "font-size:27px; font-weight:500;"),
-                         p("MesKit offers several functions to estimate intra-tumoral heterogeneity (ITH) with mutational data of bulk sequencing, including calculating MATH score, clustering variant allele frequencies (VAF) etc, identifying shared mutations and private mutations and measures similarity between samples by Jaccard similarity coefficients.",
+                         p("MesKit offers several functions to estimate intra-tumoral heterogeneity (ITH) with mutational data of bulk sequencing, including calculating MATH score, clustering variant allele frequencies (VAF), identifying shared mutations/private mutations and measuring similarity between samples by Jaccard similarity coefficients.",
                            style = "font-size:20px; font-weight:500;line-height:40px;"),
                          tabBox(
                            id = 'tith',
@@ -515,14 +452,16 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                              title = div(icon("chart-bar"), "TMB"),
                              value = "caInput00",
+                             uiOutput('warningMessage01'),
                              DT::dataTableOutput('mathScoreTMB'),
                              br(),
                              br(),
                              uiOutput("msdbtmb")
                            ),
                            tabPanel(
-                             title = div(icon("chart-bar"), "MATH Score"),
+                             title = div(icon("chart-bar"), "MATH score"),
                              value = "caInput02",
+                             uiOutput('warningMessage02'),
                              DT::dataTableOutput('mathScore'),
                              br(),
                              br(),
@@ -535,6 +474,7 @@ bodyITH <- tabItem("ITH",
                                condition = "input.plotOption == 'separate'",
                                uiOutput("chooselistvaf")
                              ),
+                             uiOutput('warningMessage03'),
                              div(plotOutput("vaf",height = "100%"),align = "center"),
                              uiOutput("vcdb")
                            ),
@@ -543,12 +483,14 @@ bodyITH <- tabItem("ITH",
                              value = "caInput05",
                              conditionalPanel(
                                condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
+                               uiOutput('warningMessage04'),
                                div(plotOutput("mutSharedPrivatePlot",height = "100%"),align ="center"),  
                                br(),
                                uiOutput("mspdb")
                              ),
                              conditionalPanel(
                                condition = "input.plotChoiceSpp == 'mutOncoTSG'",
+                               uiOutput('warningMessage05'),
                                div(plotOutput("mutoncotsg",height = "100%"),align ="center"),
                                br(),
                                uiOutput("stkdb")
@@ -557,72 +499,17 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                              title = div(icon("box"), "Paired-samples similarity"),
                              value = "caInput06",
+                             uiOutput('warningMessage06'),
                              div(plotOutput("JaccardIndex",height = "100%"),align = "center") ,
                              uiOutput("jidb")
                            )
                          )
-                         
                        )
-                       # tabBox(
-                       #   id = 'tith',
-                       #   height = "100%", 
-                       #   width = "100%",
-                       #   selected = "caInput02",
-                       #   side = "left",
-                       #   tabPanel(
-                       #     title = div(icon("chart-bar"), "MathScore"),
-                       #     value = "caInput02",
-                       #     withSpinner(DT::dataTableOutput('mathScore')),
-                       #     br(),
-                       #     br(),
-                       #     uiOutput("msdb")
-                       #    ),
-                       #   tabPanel(
-                       #     title = div(icon("image"), "Vafplot"),
-                       #     value = "caInput03",
-                       #     conditionalPanel(
-                       #       condition = "input.plotOption == 'separate' ",
-                       #       uiOutput("chooselistvaf")
-                       #     ),
-                       #     withSpinner(plotOutput("vaf",height = "100%")), 
-                       #     uiOutput("vcdb")
-                       #   ),
-                       #   tabPanel(
-                       #     title = div(icon("map"), "Mutsharedprivateplot"),
-                       #     value = "caInput04",
-                       #     withSpinner(plotOutput("mutSharedPrivatePlot",height = "100%")),   
-                       #     uiOutput("mspdb")
-                       #   ),
-                       #   tabPanel(
-                       #     title = div(icon("chart-bar"), "Stackplot"),
-                       #     value = "caInput05",
-                       #     withSpinner(plotOutput("stackplot",height = "100%")),
-                       #     br(),
-                       #     uiOutput("stkdb")
-                       #   ),
-                       #   tabPanel(
-                       #     title = div(icon("box"), "Jaccardindex"),
-                       #     value = "caInput06",
-                       #     withSpinner(plotOutput("JaccardIndex",height = "100%")) ,
-                       #     uiOutput("jidb")
-                       #   )
-                       # )
                      )
                    )
 )
 
 bodyclone <- tabItem('clone',
-                     # h2('Clonal analysis'),
-                     # fluidRow(
-                     #   box(
-                     #     width = 7,
-                     #     title = div(strong("Clonal analysis"),style = "font-size:27px; font-weight:500;"),
-                     #     status = "info",
-                     #     solidHeader = TRUE,
-                     #     p("MesKit can decipher tumor clone distribution based on CCF (Cancer Cell Frequency) data generated by PyClone. For mutational data from multi-sample across different time points, MesKit infers subclonal relationship based on R package clonevol.",
-                     #       style = "font-size:20px; font-weight:500;line-height:40px;")
-                     #   )
-                     # ),
                      fluidRow(
                        column(
                          width = 3,
@@ -643,17 +530,9 @@ bodyclone <- tabItem('clone',
                                      id = "submit7", type = "button", class = "action-button bttn",
                                      class = "bttn-unite", class = paste0("bttn-md"),
                                      class = paste0("bttn-default"),
-                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                      style = "margin-bottom:0px;margin-right:0px;"
                                    )
-                                   # tags$button(
-                                   #   Id = "stop7",
-                                   #   type = "button",
-                                   #   class = "bttn-material-circle",
-                                   #   class = "btn action-button",
-                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                   # )
                                  )
                                )
                              )
@@ -675,17 +554,9 @@ bodyclone <- tabItem('clone',
                                      id = "submitccfden", type = "button", class = "action-button bttn",
                                      class = "bttn-unite", class = paste0("bttn-md"),
                                      class = paste0("bttn-default"),
-                                     list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                      style = "margin-bottom:0px;margin-right:0px;"
                                    )
-                                   # tags$button(
-                                   #   Id = "stop7",
-                                   #   type = "button",
-                                   #   class = "bttn-material-circle",
-                                   #   class = "btn action-button",
-                                   #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                   #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                   # )
                                  )
                                )
                              )
@@ -707,51 +578,28 @@ bodyclone <- tabItem('clone',
                              width = "100%",
                              tabPanel(
                                value = 'c01',
-                               title = div(icon("newspaper"), "Subclonal plot"), 
+                               title = div(icon("newspaper"), "Subclonal plot"),
+                               uiOutput('warningMessage07'),
                                div(plotOutput('cloneplot', height = "100%", width = "100%"), align = "center"),
                                br(),
                                uiOutput("clpdb")
                              ),
                              tabPanel(
                                value = 'c02',
-                               title = div(icon("newspaper"), "CCF Density"), 
+                               title = div(icon("newspaper"), "CCF density"), 
+                               uiOutput('warningMessage08'),
                                div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
                                br(),
                                uiOutput("ccfdendb")
                              )
                            )
                          )
-                         # tabBox(
-                         #   id = 'clt',
-                         #   selected = 'c01',
-                         #   side = 'left',
-                         #   height = "100%",
-                         #   width = "100%",
-                         #   tabPanel(
-                         #     value = 'c01',
-                         #     title = div(icon("newspaper"), "Tumorcloneplot"),
-                         #     withSpinner(plotOutput('cloneplot',height = "100%")),
-                         #     br(),
-                         #     uiOutput("clpdb")
-                         #   )
-                         #  )
                        )
                      )
 )    
 
 
 bodyfunction <- tabItem('function',
-                        # h2('Functional analysis'),
-                        # fluidRow(
-                        #   box(
-                        #     width = 7,
-                        #     title = div(strong("Functional analysis"),style = "font-size:27px; font-weight:500;"),
-                        #     status = "info",
-                        #     solidHeader = TRUE,
-                        #     p("MesKit supports GO and pathway enrichment analysis (KEGG and Reactome) both on whole-tree-level and branch-level of phylogenetic tree object .",
-                        #       style = "font-size:20px; font-weight:500;line-height:40px;")
-                        #   )
-                        # ),
                         fluidRow(
                           column(
                             width = 3,
@@ -761,34 +609,8 @@ bodyfunction <- tabItem('function',
                                 condition = "input.fat == 'F01'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
-# <<<<<<< HEAD
-#                                 selectInput("plotType1", label = div(style = "font-size:18px; font-weight:600;  ", "Plot type"),
-#                                             choices = c(
-#                                               Bar = "bar",
-#                                               Dot = "dot"
-#                                             ),
-#                                             selected = "bar",width = 300),
-#                                 selectInput("GO.type", label = div(style = "font-size:18px; font-weight:600;  ", "GO type"),
-#                                             choices = c(
-#                                               MF = "MF",
-#                                               BP = "BP",
-#                                               CC = "CC"
-#                                             ),
-#                                             selected = "BP",width = 300),
-#                                 selectInput("pAdjustMethod1", label = div(style = "font-size:18px; font-weight:600;  ", "Pval adjust method"),
-#                                             choices = c(Holm = "holm",
-#                                                         Hochberg = "hochberg",
-#                                                         Hommel = "hommel",
-#                                                         Bonferroni = "bonferroni",
-#                                                         BH = "BH",
-#                                                         BY = "BY",
-#                                                         FDR = "fdr",
-#                                                         None = "none"),
-#                                             selected = "BH",width = 300),
-# =======
-#                                 
                                 selectInput(inputId = "GO.type", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "GO.type"),
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "GO type"),
                                             choices = c(ALL = "ALL", 
                                                         BP = "BP",
                                                         MF = "MF", 
@@ -796,13 +618,13 @@ bodyfunction <- tabItem('function',
                                             selected = "ALL"),
                                 
                                 selectInput(inputId = "plotType", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "plotType"),
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot type"),
                                             choices = c(dot = "dot",
                                                         bar = "bar"),
                                             selected = "dot"), 
                                 
                                 selectInput(inputId = "pAdjustMethod", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "P-value adjust method"),
                                             choices = c(holm = "holm", 
                                                         hochberg = "hochberg",
                                                         hommel = "hommel", 
@@ -816,19 +638,19 @@ bodyfunction <- tabItem('function',
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
-                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600;  ", "Pval:")),
+                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600;  ", "P-value:")),
                                           tags$td(width = "70%", textInput(inputId = "pval1", value = 0.05, label = NULL)))
                                 ), 
                                 br(),
                                 tags$table(
                                   tags$tr(id = "inline",
                                           width = "100%",
-                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Qval:")),
+                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Q-value:")),
                                           tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
                                 ),
                                 br(),
                                 numericInput(inputId = "showCategory", 
-                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "showCategory"), 
+                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Show category"), 
                                              value = 5),
 
                                 sliderInput('width6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
@@ -842,69 +664,32 @@ bodyfunction <- tabItem('function',
                                         id = "submit8", type = "button", class = "action-button bttn",
                                         class = "bttn-unite", class = paste0("bttn-md"),
                                         class = paste0("bttn-default"),
-                                        list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                        list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                         style = "margin-bottom:0px;margin-right:0px;"
                                       )
-                                      # tags$button(
-                                      #   Id = "stop8",
-                                      #   type = "button",
-                                      #   class = "bttn-material-circle",
-                                      #   class = "btn action-button",
-                                      #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                      #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                      # )
                                     )
                                   )
                                 )
-                                # actionBttn('submit8',div(
-                                #   strong("Start analysing"),align = 'center',
-                                #   icon("hand-right", lib = "glyphicon")))
                               ),
                               conditionalPanel(
                                 condition = "input.fat == 'F02'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
-# <<<<<<< HEAD
-#                                 selectInput("plotType2", label = div(style = "font-size:18px; font-weight:600;  ", "Plot type"),
-#                                             choices = c(
-#                                               Bar = "bar",
-#                                               Dot = "dot"
-#                                             ),
-#                                             selected = "dot",width = 300),
-#                                 selectInput("pathway.type", label = div(style = "font-size:18px; font-weight:600;  ", "Pathway type"),
-#                                             choices = c(
-#                                               KEGG = "KEGG",
-#                                               Reactome = "Reactome"
-#                                             ),
-#                                             selected = "BP",width = 300),
-#                                 selectInput("pAdjustMethod2", label = div(style = "font-size:18px; font-weight:600;  ", "Pval adjust method"),
-#                                             choices = c(Holm = "holm",
-#                                                         Hochberg = "hochberg",
-#                                                         Hommel = "hommel",
-#                                                         Bonferroni = "bonferroni",
-#                                                         BH = "BH",
-#                                                         BY = "BY",
-#                                                         FDR = "fdr",
-#                                                         None = "none"),
-#                                             selected = "BH",width = 300),
-# =======
-#                                 
-                                
                                 selectInput(inputId = "pathway.type", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Pathway.type"),
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Pathway type"),
                                             choices = c(KEGG = "KEGG", 
                                                         Reactome = "Reactome"),
                                             selected = "KEGG"),
                                 
                                 selectInput(inputId = "pathplotType", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "plotType"),
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot type"),
                                             choices = c(dot = "dot",
                                                         bar = "bar"),
                                             selected = "dot"), 
                                 
                                 
                                 selectInput(inputId = "pathpAdjustMethod", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
+                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "P-value adjust method"),
                                             choices = c(holm = "holm", 
                                                         hochberg = "hochberg",
                                                         hommel = "hommel", 
@@ -917,27 +702,19 @@ bodyfunction <- tabItem('function',
                                 tags$table(
                                   tags$tr(id = "inline", 
                                           width = "100%",
-                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600; ", "Pval:")),
+                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600; ", "P-value:")),
                                           tags$td(width = "70%", textInput(inputId = "pval2", value = 0.05, label = NULL)))
                                 ), 
                                 br(),
                                 tags$table(
                                   tags$tr(id = "inline",
                                           width = "100%",
-                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Qval:")),
+                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Q-value:")),
                                           tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
                                 ),
                                 br(),
-                                # tags$table(
-                                #   tags$tr(id = "inline",
-                                #           width = "100%",
-                                #           tags$td(width = "50%", tags$div(style = "font-size:18px; font-weight:600; ", "Show category:")),
-                                #           tags$td(width = "50%", textInput(inputId = "showCategory2", value =  5, label = NULL)))
-                                # ),
-                                # br(),
-                                
                                 numericInput(inputId = "pathshowCategory", 
-                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "showCategory"), 
+                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Show category"), 
                                              value = 5),
                                 
                                 sliderInput('width7',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
@@ -951,23 +728,12 @@ bodyfunction <- tabItem('function',
                                         id = "submit9", type = "button", class = "action-button bttn",
                                         class = "bttn-unite", class = paste0("bttn-md"),
                                         class = paste0("bttn-default"),
-                                        list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                        list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                         style = "margin-bottom:0px;margin-right:0px;"
                                       )
-                                      # tags$button(
-                                      #   Id = "stop9",
-                                      #   type = "button",
-                                      #   class = "bttn-material-circle",
-                                      #   class = "btn action-button",
-                                      #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                      #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                      # )
                                     )
                                   )
                                 )
-                                # actionBttn('submit9',div(
-                                #   strong("Start analysing"),align = 'center',
-                                #   icon("hand-right", lib = "glyphicon")))
                               )
                             )
                           ),
@@ -989,6 +755,7 @@ bodyfunction <- tabItem('function',
                                   title = div(icon("lightbulb"), "GO analysis"),
                                   value = 'F01',
                                   uiOutput("chooselist1"),
+                                  uiOutput('warningMessage09'),
                                   div(plotOutput('GOplot',height = "100%",width = "100%"),align = "center"),
                                   br(),
                                   uiOutput("GOdb"),
@@ -1000,6 +767,7 @@ bodyfunction <- tabItem('function',
                                   title = div(icon("microsoft"), "Pathway analysis"),
                                   value = 'F02',
                                   uiOutput("chooselist2"),
+                                  uiOutput('warningMessage10'),
                                   div(plotOutput('Pathwayplot',height = "100%"),align = "center"),
                                   br(),
                                   uiOutput("Pathdb"),
@@ -1014,17 +782,6 @@ bodyfunction <- tabItem('function',
 
 
 bodySignature <- tabItem('signature',
-                         # h2('Mutational signature analysis'),
-                         # fluidRow(
-                         #   box(
-                         #     width = 7,
-                         #     title = div(strong("Mutational signature analysis"),style = "font-size:27px; font-weight:500;"),
-                         #     status = "info",
-                         #     solidHeader = TRUE,
-                         #     p("MesKit integrates mutational signature analysis by implementing R package deconstructSig, identifying potential signatures which could be attributed to known mutational processes for each branch/trunk of the NJtree object.",
-                         #       style = "font-size:20px; font-weight:500;line-height:40px;")
-                         #   )
-                         # ),
                          fluidRow(
                            column(
                              width = 3,
@@ -1034,11 +791,11 @@ bodySignature <- tabItem('signature',
                                  condition = "input.sgt == 'S01'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
-                                 checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
+                                 checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes mapping'), value = FALSE),
                                  conditionalPanel(
                                    condition = "input.oncogeneMapping == true",
                                    fileInput(inputId = 'driverGenesFile', 
-                                             label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list'),
+                                             label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
                                              placeholder = "Default file: putative_driver_genes.txt", 
                                              width = 400)
                                  ), 
@@ -1057,29 +814,18 @@ bodySignature <- tabItem('signature',
                                          id = "submitSig", type = "button", class = "action-button bttn",
                                          class = "bttn-unite", class = paste0("bttn-md"),
                                          class = paste0("bttn-default"),
-                                         list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                         list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                          style = "margin-bottom:0px;margin-right:0px;"
                                        )
-                                       # tags$button(
-                                       #   Id = "stopSig",
-                                       #   type = "button",
-                                       #   class = "bttn-material-circle",
-                                       #   class = "btn action-button",
-                                       #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                       #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                       # )
                                      )
                                    )
                                  )
-                                 # actionBttn('submitSig',div(
-                                 #   strong("Start analysing"),align = 'center',
-                                 #   icon("hand-right", lib = "glyphicon")))
                                ),
                                conditionalPanel(
                                  condition = "input.sgt == 'S02'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
-                                 fileInput('driverGenesFile1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driverGenesFile')), 
+                                 fileInput('driverGenesFile1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driver genes file')), 
                                  numericInput('mutThreshold1', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
                                  selectInput("signaturesRef1", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
                                              choices = c(cosmic = "cosmic",
@@ -1097,23 +843,12 @@ bodySignature <- tabItem('signature',
                                          id = "submitSig1", type = "button", class = "action-button bttn",
                                          class = "bttn-unite", class = paste0("bttn-md"),
                                          class = paste0("bttn-default"),
-                                         list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                         list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                          style = "margin-bottom:0px;margin-right:0px;"
                                        )
-                                       # tags$button(
-                                       #   Id = "stopSig1",
-                                       #   type = "button",
-                                       #   class = "bttn-material-circle",
-                                       #   class = "btn action-button",
-                                       #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                       #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                       # )
                                      )
                                    )
                                  )
-                                 # actionBttn('submitSig1',div(
-                                 #   strong("Start analysing"),align = 'center',
-                                 #   icon("hand-right", lib = "glyphicon")))
                                ), 
                                conditionalPanel(
                                  condition = "input.sgt == 'S03'",
@@ -1125,16 +860,6 @@ bodySignature <- tabItem('signature',
                                              choices = c(cosmic = "cosmic",
                                                          nature2013 = "nature2013"),
                                              selected = "cosmic"),
-                                 # radioButtons(
-                                 #   inputId = "sigplot", 
-                                 #   label = div(style = "font-size:1.5em; font-weight:600; ", "Plot option"), 
-                                 #   choiceNames = list(
-                                 #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Signature probability"), 
-                                 #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Branch-trunk")
-                                 #   ),
-                                 #   choiceValues = c("signaturesprob", "branchtrunk"),
-                                 #   selected = "signaturesprob", 
-                                 #   inline = TRUE), 
                                  numericInput('conflevel', div(style = "font-size:1.5em; font-weight:600;  ", 'Confidence level'), value = 0.95, min=0, max=1, step=0.05),
                                  sliderInput(inputId='widthsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
                                  sliderInput(inputId='heightsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
@@ -1148,33 +873,22 @@ bodySignature <- tabItem('signature',
                                          id = "submitSig2", type = "button", class = "action-button bttn",
                                          class = "bttn-unite", class = paste0("bttn-md"),
                                          class = paste0("bttn-default"),
-                                         list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                         list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                          style = "margin-bottom:0px;margin-right:0px;"
                                        )
-                                       # tags$button(
-                                       #   Id = "stopSig2",
-                                       #   type = "button",
-                                       #   class = "bttn-material-circle",
-                                       #   class = "btn action-button",
-                                       #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                       #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                       # )
                                      )
                                    )
                                  )
-                                 # actionBttn('submitSig2',div(
-                                 #   strong("Start analysing"),align = 'center',
-                                 #   icon("hand-right", lib = "glyphicon")))
                                ), 
                                conditionalPanel(
                                    condition = "input.sgt == 'S04'",
                                    div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                    br(),
-                                   checkboxInput(inputId="oncogeneMapping4", label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene mapping'), value = FALSE),
+                                   checkboxInput(inputId="oncogeneMapping4", label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes mapping'), value = FALSE),
                                    conditionalPanel(
                                        condition = "input.oncogeneMapping4 == true",
                                        fileInput(inputId = 'driverGenesFile4', 
-                                                 label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list'),
+                                                 label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
                                                  placeholder = "Default file: putative_driver_genes.txt", 
                                                  width = 400)
                                    ), 
@@ -1193,23 +907,12 @@ bodySignature <- tabItem('signature',
                                                    id = "submitSig4", type = "button", class = "action-button bttn",
                                                    class = "bttn-unite", class = paste0("bttn-md"),
                                                    class = paste0("bttn-default"),
-                                                   list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                                    style = "margin-bottom:0px;margin-right:0px;"
                                                )
-                                               # tags$button(
-                                               #   Id = "stopSig",
-                                               #   type = "button",
-                                               #   class = "bttn-material-circle",
-                                               #   class = "btn action-button",
-                                               #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                               #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                               # )
                                            )
                                        )
                                    )
-                                   # actionBttn('submitSig',div(
-                                   #   strong("Start analysing"),align = 'center',
-                                   #   icon("hand-right", lib = "glyphicon")))
                                )
                              )
                            ),
@@ -1229,6 +932,7 @@ bodySignature <- tabItem('signature',
                                  tabPanel(
                                      title = div(icon("newspaper"), "Summary-Trunk or branch"), 
                                      value = 'S04',
+                                     uiOutput('warningMessage11'),
                                      DT::dataTableOutput('sigBTt',width = "100%"),
                                      br(),
                                      uiOutput("sigbtdb")
@@ -1236,14 +940,14 @@ bodySignature <- tabItem('signature',
                                  tabPanel(
                                      title = div(icon("image"), "Mutational trunkOrBranch plot"),
                                      value = 'S03',
+                                     uiOutput('warningMessage12'),
                                      div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
                                      uiOutput("sigpdb2")
-                                     # br(),
-                                     # uiOutput('sigOFATableUI2')
                                  ), 
                                  tabPanel(
                                      title = div(icon("newspaper"), "Summary-Signature"), 
                                      value = 'S01',
+                                     uiOutput('warningMessage13'),
                                      DT::dataTableOutput('sigOFAt',width = "100%"),
                                      br(),
                                      uiOutput("sigpdb")
@@ -1251,6 +955,7 @@ bodySignature <- tabItem('signature',
                                  tabPanel(
                                    title = div(icon("microsoft"), "Signature plot"), 
                                    value = 'S02',
+                                   uiOutput('warningMessage14'),
                                    div(plotOutput('sigOFAPlot1', height = "100%", width = "100%"),align = "center"),
                                    uiOutput("sigpdb1"),
                                    br(),
@@ -1258,70 +963,19 @@ bodySignature <- tabItem('signature',
                                  )
                                )
                              )
-                             # tabBox(
-                             #   id = 'sgt',
-                             #   side = 'left',
-                             #   selected = 'S01',
-                             #   width = "100%",
-                             #   height = "100%",
-                             #   tabPanel(
-                             #     title = div(icon("newspaper"), "Summary"), 
-                             #     value = 'S01',
-                             #     withSpinner(DT::dataTableOutput('sigOFA'))
-                             #   ), 
-                             #   tabPanel(
-                             #     title = div(icon("image"), "Visulization"),
-                             #     value = 'S02',
-                             #     withSpinner(plotOutput('sigOFA2', height = "100%", width = "100%")),
-                             #     br(),
-                             #     uiOutput("sigpdb")
-                             #   )
-                             # )
                            )
                          )
 )
 
 bodySurvival <- tabItem('Survival',
-                        # h2('Phylotree visualiaztion'),
-                        # fluidRow(
-                        #   box(
-                        #     width = 7,
-                        #     title = div(strong("Phylotree visualiaztion"),style = "font-size:27px; font-weight:500;"),
-                        #     status = "info",
-                        #     solidHeader = TRUE,
-                        #     p("Phylogenetic tree becomes more widely used in depicting evolutionary relationships among tumors. Here, MesKit is able to plot tree-like phylogentic", 
-                        #        br(),"trees with mutational signature information, along with a CCF heatmap (if CCF data is available) ",
-                        #       style = "font-size:20px; font-weight:500;line-height:40px;")
-                        #   )
-                        #   # infoBoxOutput("progressBox2")
-                        # ),
                         fluidRow(
                           column(
                             width = 3,
                             box(
                               width = NULL,
                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                              # selectInput('phyloTreeType',div(style = "font-size:1.5em; font-weight:600; ", 'Type'),
-                              #             c( 'njtree','newick','beast','PAML'),
-                              #             selected = 'njtree'),
-                              # conditionalPanel(
-                              #   condition = "input.phyloTreeType != 'njtree'",
-                              #   fileInput(inputId = 'phylotree.dir', 
-                              #             label = div(style = "font-size:1.5em; font-weight:600; ", 'Phylotree file'), 
-                              #             width = 400)
-                              # ),
                               checkboxInput('showmutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
                               checkboxInput('showheatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
-                                # radioButtons(
-                                #   inputId = "sig.name", 
-                                #   label = div(style = "font-size:1.5em; font-weight:600; ", "Signature name"), 
-                                #   choiceNames = list(
-                                #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Default"), 
-                                #     tags$span(style = "font-size:14.5px; font-weight:400; ", "Alias")
-                                #   ),
-                                #   choiceValues = c("default", "alias"),
-                                #   selected = "alias", 
-                                #   inline = TRUE),
                               conditionalPanel(
                                 condition = "input.showheatmap == true",
                                 radioButtons(
@@ -1344,23 +998,12 @@ bodySurvival <- tabItem('Survival',
                                       id = "submit10", type = "button", class = "action-button bttn",
                                       class = "bttn-unite", class = paste0("bttn-md"),
                                       class = paste0("bttn-default"),
-                                      list(strong("Start analysing"),icon("hand-right", lib = "glyphicon")),
+                                      list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
                                       style = "margin-bottom:0px;margin-right:0px;"
                                     )
-                                    # tags$button(
-                                    #   Id = "stop10",
-                                    #   type = "button",
-                                    #   class = "bttn-material-circle",
-                                    #   class = "btn action-button",
-                                    #   list(tags$img(src = "image/stop.png",width = "40px",height = "40px")),
-                                    #   style = " background-position: center;padding:0;margin-bottom:7px;"
-                                    # )
                                   )
                                 )
                               )
-                              # actionBttn('submit10',div(
-                              #   strong("Start analysing"),align = 'center',
-                              #   icon("hand-right", lib = "glyphicon")))
                             )
                           ),
                           column(
@@ -1375,6 +1018,7 @@ bodySurvival <- tabItem('Survival',
                                 condition = 'input.submit10',
                                 width = NULL,
                                 height = "100%",
+                                uiOutput('warningMessage15'),
                                 div(plotOutput("phylotree",height = 600,width = 950),align = "center"),
                                 br(),
                                 uiOutput("phtdb")
@@ -1389,10 +1033,33 @@ bodySurvival <- tabItem('Survival',
 
 #Main function----
 dbHeader <- dashboardHeader(title = "MesKit", titleWidth = 300, 
-                            tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
-                            tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))))
+                            # tags$li(class = "dropdown", actionLink(inputId = "help", label = div(style = "font-size:15px; font-weight:400; ", "Help"))), 
+                            # tags$li(class = "dropdown", actionLink(inputId = "contact", label = div(style = "font-size:15px; font-weight:400; ", "Contact"))),
+                            dropdownMenu(
+                                type = "notifications", 
+                                icon = icon("question-circle"),
+                                badgeStatus = NULL,
+                                headerText = "Help:",
+                                notificationItem("MesKit github page", icon = icon("file"),
+                                                 href = "https://github.com/Niinleslie/MesKit")
+                            ),
+                            dropdownMenu(
+                                type = "notifications", 
+                                icon = icon("envelope"),
+                                badgeStatus = NULL,
+                                headerText = "",
+                                tags$li(p("Mengni Liu, liumn5@mail2.sysu.edu.cn")),
+                                tags$li(p("Chengwei Wang, wangchw8@outlook.com")),
+                                tags$li(p("Jianyu Chen, chenjy327@mail2.sysu.edu.cn")),
+                                tags$li(p("Xin Wang, wangx555@mail2.sysu.edu.cn"))
+                                # notificationItem("Mengni Liu, liumn5@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "liumn5@mail2.sysu.edu.cn"),
+                                # notificationItem("Chengwei Wang, wangchw8@outlook.com, Sun Yat-sen university", icon = icon("user"),href = "wangchw8@outlook.com"),
+                                # notificationItem("Jianyu Chen, chenjy327@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "chenjy327@mail2.sysu.edu.cn"),
+                                # notificationItem("Xin Wang, wangx555@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "wangx555@mail2.sysu.edu.cn")
+                            )
+                            )
 dbHeader$children[[2]]$children <-  tags$a(href='https://github.com/Niinleslie/MesKit',
-                                           tags$img(src='image/logo1.jpg',height='65',width='250'))
+                                           tags$img(src='image/logo.jpg',height='65',width='250'))
 shinyUI(
   dashboardPage(
     skin = "blue",
@@ -1436,7 +1103,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: Analysis and visualize multi-sample whole-exome sequencing data</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: dissect cancer evolution from multi-region derived tumor biopsies</span>\');
       })
      ')), 
       
@@ -1459,6 +1126,11 @@ shinyUI(
                          .dt-right {
     text-align: justify !important;
                          }
+                         .shiny-output-error-validation {
+                            color: green;
+                            font-size:27px; 
+                            font-weight:500;
+                            }
 
 
 table.dataTable tbody th, table.dataTable tbody td {
