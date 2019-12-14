@@ -51,9 +51,27 @@ bodyHome <- tabItem("home",
                         title = div(strong("Overview of MesKit package"),style = "font-size:2em; font-weight:500;"),
                         fluidRow(
                           column(
-                            width = 12,
-                            div(
-                              div(img(src = "image/MesKit_workflow.png", width = 900,height = 720),style="text-align: left;float:left"),
+                            # width = 12,
+                            # div(
+                            #   div(img(src = "image/MesKit_workflow.png", width = "50%",height = "40%"),
+                            #       style="text-align: left;float:left"),
+                            #   div(
+                            #       h3(strong("With this MesKit Shiny APP:")),
+                            #       p("- Evaluate the intra-tumor heterogeneity (ITH) .",br(),
+                            #         " - Perform clonal analysis.",br(),
+                            #         "- Perform enrichment analysis of GO ontology and pathway.",br(),
+                            #         "- Perform mutational signature analysis.",br(),
+                            #         "- Visualize phylogenetic trees.",
+                            #         style = "font-size:18px; font-weight:500;line-height:50px"),
+                            #       style = "float:left;padding-left:20px"
+                            #   )
+                            # )
+                              width = 7,
+                                div(img(src = "image/MesKit_workflow.png", width = "90%",height = "72%"),
+                                    style="text-align: center;float:left;margin:0;padding:0")
+                          ),
+                          column(
+                              width = 5,
                               div(
                                   h3(strong("With this MesKit Shiny APP:")),
                                   p("- Evaluate the intra-tumor heterogeneity (ITH) .",br(),
@@ -62,9 +80,8 @@ bodyHome <- tabItem("home",
                                     "- Perform mutational signature analysis.",br(),
                                     "- Visualize phylogenetic trees.",
                                     style = "font-size:18px; font-weight:500;line-height:50px"),
-                                  style = "float:left;padding-left:20px"
+                                  style = "text-align: left;float:left;padding-left:0px;margin:0px"
                               )
-                            )
                           )
                         )
                       )

@@ -1752,9 +1752,9 @@ shinyServer(function(input, output, session){
           is <- intersect(colNames,standardCol)
           if(length(is) != 12){
               tagList(
-                  tags$p("Wrong data format!",br(),"please click the button",
-                         tags$img(src = 'image/button.png',width = "60px",height = "60px"),
-                         " to see the example file",
+                  tags$p("Wrong data format!",br(),"Please click the button",
+                         tags$img(src = 'image/button.png',width = "40px",height = "40px"),
+                         " to see the example file.",
                          style = "color: red;
                           font-size:27px; 
                           font-weight:500;")) 
@@ -1769,7 +1769,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit0){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1784,7 +1783,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit2){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1799,7 +1797,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit3){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1814,7 +1811,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit4){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1829,7 +1825,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit5){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1844,7 +1839,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit6){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1859,7 +1853,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit7){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1874,7 +1867,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submitccfden){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1889,7 +1881,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit8){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1904,7 +1895,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit9){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1919,7 +1909,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submitSig4){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1934,7 +1923,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submitSig2){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1949,7 +1937,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submitSig){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1964,7 +1951,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submitSig1){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
@@ -1979,7 +1965,6 @@ shinyServer(function(input, output, session){
       if(is.null(maf)&input$submit10){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
-                     tags$img(src = 'image/inputdata.png',width = "250px",height = "60px"),
                      style = "color: red;
                           font-size:27px; 
                           font-weight:500;")
