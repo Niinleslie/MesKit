@@ -1,6 +1,6 @@
 #' Use R code to find the intersect mutations and their types in several samples of one patient
 #' @param maf Maf object return from read.Maf()
-#' @param showNum a logic parameter to determine whether to show the number of each mutations in the stack plot
+#' @param showNumber a logic parameter to determine whether to show the number of each mutations in the stack plot
 #'
 #' @importFrom tidyr unite
 #' @importFrom dplyr select
@@ -16,7 +16,7 @@
 #' mutSharedPrivate(maf)
 #' @export mutSharedPrivate
 
-mutSharedPrivate <- function(maf, showNum = FALSE){
+mutSharedPrivate <- function(maf, showNumber = FALSE){
   df <- maf@data
   patientID <- maf@patientID
   primitiveLength <- length(df$Hugo_Symbol)
@@ -132,7 +132,7 @@ mutSharedPrivate <- function(maf, showNum = FALSE){
     geom_bar(stat = "identity",position = "stack",width = 0.7)+
     labs(x = "",width = 1.0)+
     labs(y = "Mutation number")
-  if (showNum == "TRUE") {
+  if (showNumber == "TRUE") {
     keyPoint <- keyPoint +
       geom_text(aes(label = Number), size = 3, colour = 'black',
                 hjust = .5, position = position_stack(vjust=0.5))
