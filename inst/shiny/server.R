@@ -551,7 +551,7 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(maf)), "")
       )
-      return(mutSharedPrivate(maf,showNumber = input$show.num1))
+      return(mutPrivateShared(maf, show.num = input$show.num1))
     }
   })
   # 
@@ -1448,8 +1448,8 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           njtree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(njtree, heatMapType = input$heatmap.type, sigName = "default",
-                                   showMutSig = input$showmutSig, showHeatMap = input$showheatmap)
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type,
+                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # else{
         #   validate(
@@ -1470,8 +1470,8 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           njtree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(njtree, heatMapType = input$heatmap.type, sigName = "default",
-                                   showMutSig = input$showmutSig, showHeatMap = input$showheatmap)
+        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type,
+                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot
       }
