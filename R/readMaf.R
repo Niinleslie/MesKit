@@ -3,7 +3,6 @@
 #'
 #' @param mafFile MAF-format data file. 
 #' @param sampleInfoFile Sample information file.
-#' @param ID Input your expected patientID character as well as correct the name error of shiny fileinput. Default NULL. 
 #' @param mutType Select proper variant classification you need. Default "All".Option: "nonSilent". 
 #' @param mutNonSilentAnd List variant classifications that you do not want them to be silent.  Default NULL. Option: "Default". 
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL. 
@@ -29,7 +28,7 @@
 ## read.maf main function
 readMaf <- function(
     ## maf parameters
-    mafFile, sampleInfoFile, ID=NULL, 
+    mafFile, sampleInfoFile, 
     ## filter selection
     mutType="All", mutNonSilent=NULL, chrSilent=NULL, use.indel=FALSE, 
     ## ccf parameters             
@@ -51,19 +50,9 @@ readMaf <- function(
                                sep='\t', stringsAsFactors=FALSE)
     }
     
-    ## get patientID
-    if (!is.null(ID)) {
-        ## customize patientID if it is not the same as the filename
-        patientID <- ID
-    } else {
-        ## if the filename is exactly the patientID
-        fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
-        patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
-        ## correct error name of fileinput on shiny app (Original para patientID could solve the problem)
-        if(patientID == 0){
-            patientID <- strsplit(ID,"\\.")[[1]][1]
-        }
-    }
+    ## if the filename is exactly the patientID
+    fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
+    patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
     
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 

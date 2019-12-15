@@ -139,16 +139,23 @@ shinyServer(function(input, output, session){
                        refBuild="hg19")
       } else {
         if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
-          name <- mafName()
+          
           maf <- readMaf(mafFile = input$maf$datapath,
                                  sampleInfoFile = input$sampleInfo$datapath,
                                  ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath,ID = name)
+                                 ccfLociTsvFile = input$ccf.loci$datapath)          
+          if(maf@patientID == "0"){
+              name <- as.character(mafName()) 
+              maf@patientID <- name
+          }
         }
         else{
-          name <- mafName()
           maf <-  readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath,ID = name)
+                         sampleInfoFile = input$sampleInfo$datapath)
+          if(maf@patientID == "0"){
+              name <- as.character(mafName()) 
+              maf@patientID <- name
+          }
         }
       }
       return(maf)
@@ -239,7 +246,7 @@ shinyServer(function(input, output, session){
   })
   output$ied1 <- renderDataTable({
     if(input$iecontrol01){
-      maftable <- read.table('dom/maf1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      maftable <- read.table('dom/maf.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
       datatable(maftable, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
@@ -300,7 +307,7 @@ shinyServer(function(input, output, session){
   })
   output$ied3 <- renderDataTable({
     if(input$iecontrol03){
-      spd3 <- read.table('dom/ccf.cluster.CSV',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      spd3 <- read.table('dom/ccf.cluster.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
       datatable(spd3, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
@@ -319,7 +326,7 @@ shinyServer(function(input, output, session){
   })
   output$ied4 <- renderDataTable({
     if(input$iecontrol04){
-      spd4 <- read.table('dom/ccf.loci.CSV',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      spd4 <- read.table('dom/ccf.loci.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
       datatable(spd4, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
