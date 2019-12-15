@@ -2,7 +2,7 @@
 
 export(GO.njtree)
 export(JaccardIndex)
-export(Pathway.njtree)
+export(Pathway_analysis)
 export(ccfDensity)
 export(getNJtree)
 export(getTMB)

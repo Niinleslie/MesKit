@@ -8,8 +8,6 @@ read.njtree(mat.nj)
 }
 \arguments{
 \item{mat.nj}{a nj tree object generated from ape}
-
-\item{patientID}{represent the ID of the specific patient}
 }
 \value{
 a dataframe with sampleID of each branch and trunk
