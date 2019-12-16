@@ -72,12 +72,27 @@ mutPrivateShared <- function(maf, show.num = FALSE){
   i = 1
   while(i <= length(sample.combination)){
       isData <- apply(sample.combination[[i]],2,function(x){
-          neededData <- lapply(x,function(s){
-              return(df[which(df$Tumor_Sample_Barcode == s),]$neededData)
-          })
-          isneededData <- Reduce(intersect, neededData)
-          isDf <- df[which(df$Tumor_Sample_Barcode %in% x & df$neededData %in% isneededData),]
-          if(length(isneededData) != 0){
+          if(length(x) == 1){
+              neededData <- df[which(df$Tumor_Sample_Barcode == x),]$neededData
+              neededData <- unlist(lapply(neededData, function(j){
+                  sampleGet <- unique(df[which(df$neededData == j),]$Tumor_Sample_Barcode)
+                  if(length(sampleGet) > 1){
+                      return(NULL)
+                  }
+                  else{
+                      return(j)
+                  }
+              }))
+               isNeededData <- neededData
+          }
+          else{
+              neededData <- lapply(x,function(s){
+                  return(df[which(df$Tumor_Sample_Barcode == s),]$neededData)
+              })          
+              isNeededData <- Reduce(intersect, neededData)
+          }
+          isDf <- df[which(df$Tumor_Sample_Barcode %in% x & df$neededData %in% isNeededData),]
+          if(length(isNeededData) != 0){
              isType <- as.character(unique(isDf$Variant_Classification) ) 
              numList <-  unlist(lapply(isType, function(g){
                  num <- length(which(isDf$Variant_Classification == g)) 
