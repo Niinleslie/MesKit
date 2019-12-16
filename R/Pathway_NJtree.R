@@ -15,7 +15,7 @@ options(warn = -1)
 #' @return pathway enrichment results
 #' @importFrom ReactomePA enrichPathway
 #' @importFrom clusterProfiler enrichKEGG
-#' @export
+#' @export Pathway.njtree
 
 
 Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, 
