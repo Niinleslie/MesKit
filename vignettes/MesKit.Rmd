@@ -228,7 +228,7 @@ names(GO.result$GO.plot)
 ```
   
 ```{r, message=FALSE}
-head(GO.result$GO.category[["SRR3670033"]])
+head(GO.result$GO.category[["SRR3670036"]])
 ```
   
 ```{r, fig.align='left', fig.height=4.5, fig.width=8.5, message=FALSE}
