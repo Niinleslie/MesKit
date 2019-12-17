@@ -1,6 +1,0 @@
-With this MesKit's Shiny APP:
-- Evaluate the intra-tumoral heterogeneity (ITH) .
-- Perform clonal analysis.
-- Perform enrichment analysis of GO ontology and pathway.
-- Perform mutational signature analysis.
-- Construct phylogenetic trees.
