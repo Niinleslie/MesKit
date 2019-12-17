@@ -28,7 +28,7 @@
 ## read.maf main function
 readMaf <- function(
     ## maf parameters
-    mafFile, sampleInfoFile,
+    mafFile, sampleInfoFile, 
     ## filter selection
     mutType="All", mutNonSilent=NULL, chrSilent=NULL, use.indel=FALSE, 
     ## ccf parameters             
@@ -50,14 +50,9 @@ readMaf <- function(
                                sep='\t', stringsAsFactors=FALSE)
     }
     
-
     ## if the filename is exactly the patientID
     fileName <- unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
     patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
-    ## correct error name of fileinput on shiny app (Original para patientID could solve the problem)
-    if(patientID == 0){
-        patientID <- strsplit(ID,"\\.")[[1]][1]
-    }
     
     ## read sample_info file
     sampleInfoInput <-  read.table(sampleInfoFile, quote="", 
