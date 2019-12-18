@@ -1,4 +1,4 @@
-#' MutOncoTSG
+#' mutOncoTSG
 #' @description With the oncogenes and tumor suppressors genes(TSGs) list, the function
 #' mutOncoTSG can calculate the proportion of shared/ partial-shared/ private variants
 #' that occurs in oncogenes and TSGs lists

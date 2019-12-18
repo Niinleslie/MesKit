@@ -1,4 +1,6 @@
-#' Use R code to find the intersect mutations and their types in several samples of one patient
+#' mutSharedPrivate
+#' 
+#' @description  Use R code to find the intersect mutations and their types in several samples of one patient
 #' @param maf Maf object return from read.Maf()
 #' @param showNumber a logic parameter to determine whether to show the number of each mutations in the stack plot
 #'

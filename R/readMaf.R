@@ -1,4 +1,4 @@
-#' ReadMaf
+#' readMaf
 #' @description Read tab delimited MAF (can be plain text or gz compressed) file along with sample information file.
 #'
 #' @param mafFile MAF-format data file. 

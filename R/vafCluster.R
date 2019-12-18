@@ -1,4 +1,4 @@
-#' VAFCluster
+#' vafCluster
 #' @description Generate variant allele frequency(VAF) frequency distribution
 #'  curve in different mode.
 #'  
