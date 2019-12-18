@@ -10,10 +10,12 @@
 #'
 #' @examples
 #' JaccardIndex(maf)
+#' @return the graphical display of correlation matrix via Jaccard similarity coefficient method
+#' @import corrplot
 #' @export JaccardIndex
 
 
-JaccardIndex <- function(maf, type = "lower"){
+JaccardIndex <- function(maf, type = "full"){
 	dat <- maf@data
 	TSBs <- unique(dat$Tumor_Sample_Barcode)
 

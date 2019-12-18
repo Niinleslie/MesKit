@@ -146,7 +146,7 @@ maf <- readMaf(mafFile = maf.File, sampleInfo = sampleInfo.File,
   
 ### 5. ITH evaluation  
   
-MesKit offers several functions to estimate intratumoral heterogeneity (ITH) with bulk-tumor WES data, including  ```mathScore```, ```vafCluster```, ```mutSharedPrivate``` and ```JaccardSimilarity```.  
+MesKit offers several functions to estimate intratumoral heterogeneity (ITH) with bulk-tumor WES data, including  ```mathScore```, ```vafCluster```, ```mutPrivateShared``` and ```JaccardSimilarity```.  
   
 ```mathScore``` function estimates ITH of single sample using MATH approach. Typically, the higher the MATH score, the more heterogeneous a tumor is.   
   
@@ -161,10 +161,10 @@ Parameters ```minVaf``` and ```maxVaf``` can be set to filter mutations. In addi
 vafCluster(maf, plotOption = "combine", showMATH = TRUE)
 ```  
   
-For each patient, ```mutSharedPrivate``` function identifies mutations shared by all samples as shared mutations (trunk mutations), mutations observed in a subset of samples as partial-shared mutations, and others which are unique to a single sample as private mutations (branch mutations). This function provides an overview of mutations using stack plots. Parameter ```show.num``` determines whether to show the numbers of mutations in the plot.  
+For each patient, ```mutPrivateShared``` function identifies mutations shared by all samples as shared mutations (trunk mutations), mutations observed in a subset of samples as partial-shared mutations, and others which are unique to a single sample as private mutations (branch mutations). This function provides an overview of mutations using stack plots. Parameter ```show.num``` determines whether to show the numbers of mutations in the plot.  
   
 ```{r,fig.align='left',fig.width=7, fig.height=5}
-mutSharedPrivate(maf, show.num = FALSE)
+mutPrivateShared(maf, show.num = FALSE)
 ```  
   
 ```mutOncoTSG``` function calculates the proportion of shared/partial-shared/private mutations that occur in oncogenes and tumor suppressor genes (TSGs), separately. The default oncogenes list and TSGs list of pan-cancer were collected from previous publications and public databases.  
@@ -228,7 +228,7 @@ names(GO.result$GO.plot)
 ```
   
 ```{r, message=FALSE}
-head(GO.result$GO.category[["SRR3670033"]])
+head(GO.result$GO.category[["SRR3670036"]])
 ```
   
 ```{r, fig.align='left', fig.height=4.5, fig.width=8.5, message=FALSE}
