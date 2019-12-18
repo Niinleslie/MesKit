@@ -15,31 +15,6 @@
 #' @import clusterProfiler pdp
 #' @export GO.njtree
 
-GO_analysis <- function(genes=NULL, GO.type=GO.type, pval=pval, pAdjustMethod=pAdjustMethod,
-                        qval=qval, patientID=patientID, name=name){
-  GO.type <- toupper(GO.type)
-  GO.type <- match.arg(GO.type, c("BP", "MF", "CC", "ALL"))
-  
-  ego <- enrichGO(gene          = genes,
-                  OrgDb         = org.Hs.eg.db,
-                  keyType       = 'SYMBOL',
-                  ont           = GO.type,
-                  pvalueCutoff  = pval,
-                  pAdjustMethod = pAdjustMethod,
-                  qvalueCutoff  = qval
-  )
-   
-  if (!is.null(ego) && nrow(ego@result) > 0){
-    if(name == "All"){
-      ego@result$Case <- patientID
-    }else{
-      ego@result$branch <- name
-    }
-  }
-  return(ego)
-}
-
-
 GO.njtree <- function(njtree, GO.type="BP", pval=0.05, pAdjustMethod="BH", 
                       qval=0.2, plotType="dot", showCategory=5){
   branches <- njtree@mut_branches
@@ -108,5 +83,30 @@ GO.njtree <- function(njtree, GO.type="BP", pval=0.05, pAdjustMethod="BH",
   names(ego) <- c("GO.category", "GO.plot")
 
   return(ego)
+}
+
+
+GO_analysis <- function(genes=NULL, GO.type=GO.type, pval=pval, pAdjustMethod=pAdjustMethod,
+                        qval=qval, patientID=patientID, name=name){
+    GO.type <- toupper(GO.type)
+    GO.type <- match.arg(GO.type, c("BP", "MF", "CC", "ALL"))
+    
+    ego <- enrichGO(gene          = genes,
+                    OrgDb         = org.Hs.eg.db,
+                    keyType       = 'SYMBOL',
+                    ont           = GO.type,
+                    pvalueCutoff  = pval,
+                    pAdjustMethod = pAdjustMethod,
+                    qvalueCutoff  = qval
+    )
+    
+    if (!is.null(ego) && nrow(ego@result) > 0){
+        if(name == "All"){
+            ego@result$Case <- patientID
+        }else{
+            ego@result$branch <- name
+        }
+    }
+    return(ego)
 }
 

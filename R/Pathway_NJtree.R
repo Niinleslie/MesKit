@@ -18,49 +18,6 @@ options(warn = -1)
 #' @importFrom clusterProfiler enrichKEGG
 #' @export Pathway.njtree
 
-
-Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, 
-                             patientID = patientID, Name = Name){
-  
-  trans = suppressMessages(bitr(genes, fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db"))
-  
-  pathway.type <- toupper(pathway.type)
-  pathway.type <- match.arg(pathway.type, c("KEGG", "REACTOME"))
-  
-  if (pathway.type == "KEGG"){
-    pathway <- enrichKEGG(
-      gene          = trans$ENTREZID,                      
-      organism      = 'hsa',
-      keyType       = 'kegg',                    
-      pvalueCutoff  = pval,
-      pAdjustMethod = pAdjustMethod,
-      qvalueCutoff  = qval,
-    )
-  }
-  else{
-    pathway <- enrichPathway(
-      gene          = trans$ENTREZID,                              
-      organism      = 'human',                              
-      pvalueCutoff  = pval,
-      pAdjustMethod = pAdjustMethod,
-      qvalueCutoff  = qval,
-    )
-    
-  }
-
-  
-  if (!is.null(pathway) && nrow(pathway@result) > 0){     
-    if(Name == "All"){
-      pathway@result$Case <- patientID
-    }
-    else{
-      pathway@result$branch <- Name
-    }
-  } 
-  return(pathway)
-}  
-
-
 #Pathway analysis
 Pathway.njtree <- function(njtree, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",
                            qval=0.2,  plotType="dot", showCategory=5){
@@ -132,3 +89,45 @@ Pathway.njtree <- function(njtree, pathway.type="KEGG", pval=0.05, pAdjustMethod
   return(pathway)
 
 }
+
+
+Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = pval, pAdjustMethod = "BH", qval = qval, 
+                             patientID = patientID, Name = Name){
+    
+    trans = suppressMessages(bitr(genes, fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db"))
+    
+    pathway.type <- toupper(pathway.type)
+    pathway.type <- match.arg(pathway.type, c("KEGG", "REACTOME"))
+    
+    if (pathway.type == "KEGG"){
+        pathway <- enrichKEGG(
+            gene          = trans$ENTREZID,                      
+            organism      = 'hsa',
+            keyType       = 'kegg',                    
+            pvalueCutoff  = pval,
+            pAdjustMethod = pAdjustMethod,
+            qvalueCutoff  = qval,
+        )
+    }
+    else{
+        pathway <- enrichPathway(
+            gene          = trans$ENTREZID,                              
+            organism      = 'human',                              
+            pvalueCutoff  = pval,
+            pAdjustMethod = pAdjustMethod,
+            qvalueCutoff  = qval,
+        )
+        
+    }
+    
+    
+    if (!is.null(pathway) && nrow(pathway@result) > 0){     
+        if(Name == "All"){
+            pathway@result$Case <- patientID
+        }
+        else{
+            pathway@result$branch <- Name
+        }
+    } 
+    return(pathway)
+}  
