@@ -2,15 +2,11 @@
 % Please edit documentation in R/NJtree.R
 \name{getNJtree}
 \alias{getNJtree}
-\title{Class NJtree}
+\title{getNJtree}
 \usage{
-getNJtree(
-  maf,
-  minVaf = 0.02,
-  maxVaf = 1,
+getNJtree(maf, minVaf = 0.02, maxVaf = 1,
   ccf.mutation.id = c("Hugo_Symbol", "Chromosome", "Start_Position"),
-  ccf.mutation.sep = ":"
-)
+  ccf.mutation.sep = ":")
 }
 \arguments{
 \item{minVaf}{the minimum value of vaf}
@@ -27,7 +23,7 @@ getNJtree(
 an object of class NJtree
 }
 \description{
-Class NJtree
+getNJtree
 }
 \examples{
 maf.File <- system.file("extdata/maf", "311252.maf", package = "Meskit")
