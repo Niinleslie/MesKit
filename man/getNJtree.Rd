@@ -4,9 +4,13 @@
 \alias{getNJtree}
 \title{getNJtree}
 \usage{
-getNJtree(maf, minVaf = 0.02, maxVaf = 1,
+getNJtree(
+  maf,
+  minVaf = 0.02,
+  maxVaf = 1,
   ccf.mutation.id = c("Hugo_Symbol", "Chromosome", "Start_Position"),
-  ccf.mutation.sep = ":")
+  ccf.mutation.sep = ":"
+)
 }
 \arguments{
 \item{minVaf}{the minimum value of vaf}
