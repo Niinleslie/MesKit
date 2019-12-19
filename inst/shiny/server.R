@@ -376,7 +376,7 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(maf)), "")
       )
-      mathScore(maf,tsb = c("All"),
+      mathScore(maf,tsb = NULL,
                       minvaf = input$minvaf, 
                       maxvaf = input$maxvaf)$sampleLevel
     }
@@ -395,7 +395,7 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(maf)), "")
       )
-      getTMB(maf,tsb = c("All"),
+      getTMB(maf,tsb = NULL,
                         minvaf = input$minvaf, 
                         maxvaf = input$maxvaf)$sampleLevel
     }

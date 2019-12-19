@@ -202,8 +202,7 @@ vafCluster <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE,
 
 
 ## Special version of vafCluster for Rshiny App
-vafClusterRshiny <-function(maf, 
-                            minVaf=0.02, maxVaf=1, showMATH=TRUE, 
+vafClusterRshiny <-function(maf, minVaf=0.02, maxVaf=1, showMATH=TRUE, 
                             plotOption="combine", themeOption="aaas"){
     ## original data preparation
     ## read .maf file
@@ -414,7 +413,7 @@ vafClusterRshiny <-function(maf,
                 ]$MATH_score
         }
         else if (plotOption == "compare"){
-            mathtbscoreLs <- mathScore(maf, c("All"), minvaf=minVaf, maxvaf=maxVaf)
+            mathtbscoreLs <- mathScore(maf, NULL, minvaf=minVaf, maxvaf=maxVaf)
             mathscore <- mathtbscoreLs
         }
         else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
