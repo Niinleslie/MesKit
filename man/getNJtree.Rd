@@ -2,7 +2,7 @@
 % Please edit documentation in R/NJtree.R
 \name{getNJtree}
 \alias{getNJtree}
-\title{Class NJtree}
+\title{getNJtree}
 \usage{
 getNJtree(
   maf,
@@ -27,7 +27,7 @@ getNJtree(
 an object of class NJtree
 }
 \description{
-Class NJtree
+getNJtree
 }
 \examples{
 maf.File <- system.file("extdata/maf", "311252.maf", package = "Meskit")

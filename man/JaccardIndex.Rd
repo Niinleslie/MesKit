@@ -2,7 +2,7 @@
 % Please edit documentation in R/JaccardIndex.R
 \name{JaccardIndex}
 \alias{JaccardIndex}
-\title{Visualize genetic heterogeneity between samples based on Jaccard Similarity coefficients of variants}
+\title{JaccardIndex}
 \usage{
 JaccardIndex(maf, type = "full")
 }
@@ -15,8 +15,8 @@ JaccardIndex(maf, type = "full")
 the graphical display of correlation matrix via Jaccard similarity coefficient method
 }
 \description{
-The Jaccard similarity coefficient is defined as the ratio of shared variants to all 
-(shared plus discordant) variants for two samples.
+Visualize genetic heterogeneity between samples based on Jaccard Similarity coefficients of variants. 
+The Jaccard similarity coefficient is defined as the ratio of shared variants to all (shared plus discordant) variants for two samples.
 }
 \examples{
 JaccardIndex(maf)

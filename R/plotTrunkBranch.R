@@ -1,4 +1,4 @@
-#' plotTrunkBranch
+#' @title plotTrunkBranch
 #' @description Prints the distribution of branch/trunk mutations based on mutational categories.
 #' 
 #' @param treeMSOutput the output of function treeMutationalSig.

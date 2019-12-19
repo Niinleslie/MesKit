@@ -2,7 +2,7 @@
 % Please edit documentation in R/mutOncoTSG.R
 \name{mutOncoTSG}
 \alias{mutOncoTSG}
-\title{MutOncoTSG}
+\title{mutOncoTSG}
 \usage{
 mutOncoTSG(maf, oncogeneListFile, tsgListFile, show.percentage = FALSE)
 }
