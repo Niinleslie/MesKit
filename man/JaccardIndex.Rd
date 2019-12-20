@@ -15,8 +15,8 @@ JaccardIndex(maf, type = "full")
 the graphical display of correlation matrix via Jaccard similarity coefficient method
 }
 \description{
-Visualize genetic heterogeneity between samples based on Jaccard Similarity coefficients of variants. 
-The Jaccard similarity coefficient is defined as the ratio of shared variants to all (shared plus discordant) variants for two samples.
+The Jaccard similarity coefficient is defined as the ratio of shared variants to all 
+(shared plus discordant) variants for two samples.
 }
 \examples{
 JaccardIndex(maf)

@@ -4,17 +4,9 @@
 \alias{readMaf}
 \title{readMaf}
 \usage{
-readMaf(
-  mafFile,
-  sampleInfoFile,
-  mutType = "All",
-  mutNonSilent = NULL,
-  chrSilent = NULL,
-  use.indel = FALSE,
-  ccfClusterTsvFile = NULL,
-  ccfLociTsvFile = NULL,
-  refBuild = "hg19"
-)
+readMaf(mafFile, sampleInfoFile, mutType = "All", mutNonSilent = NULL,
+  chrSilent = NULL, use.indel = FALSE, ccfClusterTsvFile = NULL,
+  ccfLociTsvFile = NULL, refBuild = "hg19")
 }
 \arguments{
 \item{mafFile}{tab delimited MAF file (plain text or *.gz compressed). The prefix to the filename of mafFile is considered as "patientID", which will be used for downstream analysis and visualization. Required.}

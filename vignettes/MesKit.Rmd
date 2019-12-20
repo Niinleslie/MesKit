@@ -278,7 +278,6 @@ head(mutBT)
 
 ```{r, warning = FALSE, message=FALSE}
 plotTrunkBranch(treeMutSig, conf.level = 0.95)
-
 ```
 
 ```mutSigSummary``` function takes the ```treeMutationalSig``` output and summarizes mutational signature of trunk/branches. 
