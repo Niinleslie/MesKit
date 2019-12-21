@@ -23,7 +23,7 @@ $ docker pull niinleslie/mesKit
 After pulling MesKit image checked by `docker images`, you should run the `docker run` command below to initiate the docker container and make sure that the port is suitable for shiny-server's configuration: 
 
 ```shell
-$ docker run -p 3838:3838 Niinleslie/MesKit shiny-server
+$ docker run -p 3838:3838 niinleslie/MesKit shiny-server
 ```
 
 If the command was workable, the docker container would start running and the shiny server of MesKit would be deployed. To , you could see the following messages:
