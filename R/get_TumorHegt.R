@@ -42,8 +42,9 @@ ccfAUC <- function(mutCCF, tsb=NULL){
         }
         
         ## Heterogeneous or Homogeneous
-        if (area > 0.52) {
+        if (area > 0.145) {
             Heterogeneity <- "Heterogeneous"
+            sample.id <- paste(sample.id, "*", sep="")
         } else {
             Heterogeneity <- "Homogeneous"
         }
@@ -58,8 +59,7 @@ ccfAUC <- function(mutCCF, tsb=NULL){
     ## visualise the mutCCF.sort.all data
     ggplot(mutCCF.sort.all, aes(x=ccf, y=prop, group=TumorSampleBarcode, color=TumorSampleBarcode))+ 
         theme_bw()+ 
-        geom_point(alpha=0.1)+
-        geom_line()+
+        geom_line(size=0.6)+
         theme(
             #legend.position='none', 
             title=element_text(size=10), 
@@ -78,11 +78,3 @@ ccfAUC <- function(mutCCF, tsb=NULL){
     output <- list(data.AUC=df.AUC, plot.AUC=pic)
     return(output)
 }
-
-
-需求：
-拟合曲线 area的值标注在图的右上角 
-AUC同质性判断（阈值为0.052，大于阈值异质性，小于阈值同质性），星号 Heterogeneous(>0.052); Homogeneous
-
-问题：
-星号的位置在最后一个点的上方

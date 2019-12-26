@@ -24,7 +24,6 @@ mutSigSummary <- function(treeMSOutput){
         ls.aeti <- c(ls.aeti, aetiology)
     }
     
-    
     ## rearrange the order of columns
     if (is.null(mutSigsOutput$putative_driver_genes)) {
         mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
