@@ -57,7 +57,7 @@ ccfAUC <- function(mutCCF, tsb=NULL){
     }
     
     ## visualise the mutCCF.sort.all data
-    ggplot(mutCCF.sort.all, aes(x=ccf, y=prop, group=TumorSampleBarcode, color=TumorSampleBarcode))+ 
+    pic <- ggplot(mutCCF.sort.all, aes(x=ccf, y=prop, group=TumorSampleBarcode, color=TumorSampleBarcode))+ 
         theme_bw()+ 
         geom_line(size=0.6)+
         theme(
