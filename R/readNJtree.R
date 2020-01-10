@@ -1,5 +1,6 @@
 #' Get sampleID of private branchs and shared branches/trunk in NJtree
 #' @param mat.nj a nj tree object generated from ape
+#' @param patientID represent the ID of the specific patient
 #' @return a dataframe with sampleID of each branch and trunk
 #'
 #' @examples
