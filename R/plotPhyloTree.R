@@ -43,7 +43,7 @@ plotPhyloTree <- function(njtree = NULL, show.mutSig = TRUE, show.heatmap = TRUE
     pm <- getPrivateMutation(njtree)
     totalMutSum <- pm[[1]]
     privateMutProportion <- pm[[2]]
-    PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.46,y = -0.12, width = 0.15)
+    PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.6,y = -0.12, width = 0.15)
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
     ggsave(filename = paste0(fileID,".pdf"),plot = PH, width =9, height = 6.5)
@@ -691,7 +691,7 @@ generatePlotObject <- function(treeData, colorScale = '', show.mutSig, rootLabel
                  legend.position = 'top',
                  legend.direction = "horizontal") + guides(color = guide_legend(nrow=1))+coord_fixed(ratio= 1)               
   p <- p + geom_text_repel(aes(x = x2*1.5, y = y2, label = sample),vjust = 1,
-                             nudge_y = textAdjust/5, segment.alpha = 0,
+                             nudge_y = textAdjust/6, segment.alpha = 0,
                              data = treeData[(treeData$sample != 'internal node'&treeData$sample != rootLabel), ],
                              fontface = 'bold', size = 3)
   print(myBoots)
