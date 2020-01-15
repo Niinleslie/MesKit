@@ -1,4 +1,4 @@
-#' plotTrunkBranch
+#' @title plotTrunkBranch
 #' @description Prints the distribution of branch/trunk mutations based on mutational categories.
 #' 
 #' @param treeMSOutput the output of function treeMutationalSig.
@@ -22,69 +22,69 @@ plotTrunkBranch <- function(treeMSOutput, conf.level=0.95) {
         CApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
-            gp=gpar(fontsize=12),vjust=0,hjust=1)    
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)    
     } else {
         CApV <- grid::textGrob(expression(""), 
-                               gp=gpar(fontsize=12),vjust=0,hjust=1) 
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1) 
     }
     
     if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < (1-conf.level)) {
         CGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
-            gp=gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     } else {
         CGpV <- grid::textGrob(expression(""), 
-                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     }
     
     if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < (1-conf.level)) {
         CTpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
-            gp=gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     } else {
         CTpV <- grid::textGrob(expression(""), 
-                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     }
     
     if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < (1-conf.level)) {
         TApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
                   digits = 3)), "*", sep=""),
-            gp=gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     } else {
         TApV <- grid::textGrob(expression(""), 
-                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     }
     
     if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < (1-conf.level)) {
         TCpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
                   digits = 3)), "*", sep=""),
-            gp=gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     } else {
         TCpV <- grid::textGrob(expression(""), 
-                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     }
     
     if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < (1-conf.level)) {
         TGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
                   digits = 3)), "*", sep=""),
-            gp=gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     } else {
         TGpV <- grid::textGrob(expression(""), 
-                               gp=gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
     }
     
     ## names of mutational list
-    CA <- grid::textGrob(expression(bold("C > A")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    CG <- grid::textGrob(expression(bold("C > G")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    CT <- grid::textGrob(expression(bold("C > T")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    TA <- grid::textGrob(expression(bold("T > A")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    TC <- grid::textGrob(expression(bold("T > C")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    TG <- grid::textGrob(expression(bold("T > G")),gp=gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CA <- grid::textGrob(expression(bold("C > A")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CG <- grid::textGrob(expression(bold("C > G")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CT <- grid::textGrob(expression(bold("C > T")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TA <- grid::textGrob(expression(bold("T > A")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TC <- grid::textGrob(expression(bold("T > C")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TG <- grid::textGrob(expression(bold("T > G")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
     
     group.colors <- ggsci::pal_npg("nrc", alpha=1)(6)
     pic <- ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 

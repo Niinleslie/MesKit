@@ -2,7 +2,7 @@
 % Please edit documentation in R/mutOncoTSG.R
 \name{mutOncoTSG}
 \alias{mutOncoTSG}
-\title{MutOncoTSG}
+\title{mutOncoTSG}
 \usage{
 mutOncoTSG(maf, oncogeneListFile, tsgListFile, show.percentage = FALSE)
 }
@@ -16,7 +16,9 @@ mutOncoTSG(maf, oncogeneListFile, tsgListFile, show.percentage = FALSE)
 \item{show.percentage}{logical. Whether to print the percentage of different intersections in the stack plot. Default FALSE.}
 }
 \description{
-Calculate the proportion of shared/partial-shared/private variants that occurs in oncogenes and tumor suppressor genes (TSGs).
+With the oncogenes and tumor suppressors genes(TSGs) list, the function
+mutOncoTSG can calculate the proportion of shared/ partial-shared/ private variants
+that occurs in oncogenes and TSGs lists
 1. Private: variants specific for each samples; 
 2. Parital-shared: variants shared by multiple samples but not existing in all samples; 
 3. Shared: variants shared by all samples.

@@ -1,4 +1,4 @@
-#' Visualize genetic heterogeneity between samples based on Jaccard Similarity coefficients of variants
+#' JaccardIndex 
 #' 
 #' @description The Jaccard similarity coefficient is defined as the ratio of shared variants to all 
 #' (shared plus discordant) variants for two samples. 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/JaccardIndex.R
 \name{JaccardIndex}
 \alias{JaccardIndex}
-\title{Visualize genetic heterogeneity between samples based on Jaccard Similarity coefficients of variants}
+\title{JaccardIndex}
 \usage{
 JaccardIndex(maf, type = "full")
 }

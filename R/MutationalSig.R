@@ -215,9 +215,6 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
     return(treeMSOutput)
 }
 
-
-
-
 ## Branches' mutation collection
 .treeMutationalBranches <- function(maf.dat, branchAlias, mut_sort.id){
     ## get mutationalSigs-related  infomation
