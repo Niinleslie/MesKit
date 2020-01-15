@@ -32,11 +32,11 @@ fst.hudson <- function(maf.pair, minVAF) {
 
 calFst <- function(maf, min.clonal.CCF = 0.6, minVAF=0.08){
 	maf.dat <- maf@data
-	if(! "CCF" %in% colnames(mafData)){
+	if(! "CCF" %in% colnames(maf.data){
 		stop("Calculation of Fst requires CCF data. No CCF data was found when readMaf")
 	}
 	else {
-		mergedCCF <- getMergedCCF(maf)
+		mergedCCF <- getMergedCCF(maf.dat)
 		clonalSNV <- as.vector(mergedCCF[mergedCCF$mergedCCF >= min.clonal.CCF, "mutation_id"])
 		
 		## filter clonal SNVs which does not contribute to ITH
