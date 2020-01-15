@@ -12,9 +12,9 @@
 #' 
 #' @examples
 #' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
-#' pyCloneLoci <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
-#' maf <- readMaf(mafFile=maf.File, snvDepthFile= refBuild="hg19")
-#' maf <- readMaf(mafFile=maf.File, ccfLociTsvFile=pyCloneLoci, refBuild="hg19")
+#' ccf.File <- system.file("extdata/", "HCC6046.CCF.txt", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
+#' maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
 #' @return an object of class Maf. 
 #' 
 #' @exportClass classMaf
