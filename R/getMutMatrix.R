@@ -3,18 +3,24 @@
 ## add a new column(0) representing normal sample
 getMutMatrix <- function(mafData, use.ccf = FALSE){
     M <- mafData %>% 
-    tidyr::unite("mutation_id", c("Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE) %>% 
+    tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE) %>% 
     dplyr::select(mutation_id, Tumor_Sample_Barcode)
+    
 
     M$mutation <- 1
-    mutBinary <- suppressMessages(tidyr::spread(M, Tumor_Sample_Barcode, mutation)) %>%
-      dplyr::select(-mutation_id) 
+    mutBinary <- suppressMessages(tidyr::spread(M, Tumor_Sample_Barcode, mutation))
+    mut.id <- mutBinary$mutation_id
+    mutBinary <- dplyr::select(mutBinary, -mutation_id)
+  
+
     mutBinary[!is.na(mutBinary)] <- 1
     mutBinary[is.na(mutBinary)] <- 0
     mutBinary$NORMAL <- 0
-    mutBinary <- t(apply(mutBinary, 2, as.numeric))
 
-    sampleOrder <- sort(rowSums(mutBinary), decreasing=TRUE, index.return=TRUE)$ix
+    mutBinary <- apply(mutBinary, 2, as.numeric)
+    mutBinary.trans <- t(mutBinary)
+
+    sampleOrder <- sort(rowSums(mutBinary.trans), decreasing=TRUE, index.return=TRUE)$ix
     scoreCol <- function(x) {
       score <- 0;
       for(i in 1:length(x)) {
@@ -24,10 +30,11 @@ getMutMatrix <- function(mafData, use.ccf = FALSE){
       }
       return(score)
     }
-    scores <- apply(mutBinary[sampleOrder, ], 2, scoreCol)    
+    scores <- apply(mutBinary.trans[sampleOrder, ], 2, scoreCol)    
     geneOrder <- sort(scores, decreasing = TRUE, index.return = TRUE)$ix
     
-    mutMatrix <- t(mutBinary[sampleOrder, geneOrder])
+    rownames(mutBinary) <- mut.id
+    mutMatrix <- mutBinary[geneOrder, sampleOrder]
   
   ## get CCF matrix
   if(use.ccf & !"CCF" %in% colnames(mafData)){
@@ -39,12 +46,15 @@ getMutMatrix <- function(mafData, use.ccf = FALSE){
     M[is.na(M$CCF),'CCF'] <- 2
 
     mutCCF <- select(M, -mutation) %>%
-      tidyr::spread(key=Tumor_Sample_Barcode, value=CCF) %>%
-      dplyr::select(-mutation_id)
+      tidyr::spread(key=Tumor_Sample_Barcode, value=CCF)
+
+    mut.id <- mutCCF$mutation_id
+    mutCCF <- dplyr::select(mutCCF, -mutation_id)
 
     mutCCF[is.na(mutCCF)] <- 0
     mutCCF$NORMAL <- 0
     mutCCF <- apply(mutCCF, 2, as.numeric)
+    rownames(mutCCF) <- mut.id
     mutMatrix <- mutCCF[geneOrder, sampleOrder]
   }
 

@@ -13,7 +13,7 @@
 #' GO.njtree(njtree, GO.type = "BP")
 #' @return GO enrichment results
 #' @import clusterProfiler pdp
-#' @export GO.njtree
+#' @export GOtree
 
 GO.njtree <- function(njtree, GO.type="BP", pval=0.05, pAdjustMethod="BH", 
                       qval=0.2, plotType="dot", showCategory=5){
