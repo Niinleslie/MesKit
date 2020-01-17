@@ -26,7 +26,7 @@ readMaf <- function(
     ## maf parameters
     mafFile,
     ## filter selection
-    mutType="All", mutNonSilent=NULL, chrSilent=NULL, use.indel=FALSE, 
+    mutType="All", mutNonSilent="Default", chrSilent=NULL, use.indel=FALSE, 
     ## ccf parameters             
     ccfFile=NULL, 
     ## supplyment
