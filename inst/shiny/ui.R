@@ -51,21 +51,6 @@ bodyHome <- tabItem("home",
                         title = div(strong("Overview of MesKit package"),style = "font-size:2em; font-weight:500;"),
                         fluidRow(
                           column(
-                            # width = 12,
-                            # div(
-                            #   div(img(src = "image/MesKit_workflow.png", width = "50%",height = "40%"),
-                            #       style="text-align: left;float:left"),
-                            #   div(
-                            #       h3(strong("With this MesKit Shiny APP:")),
-                            #       p("- Evaluate the intra-tumor heterogeneity (ITH) .",br(),
-                            #         " - Perform clonal analysis.",br(),
-                            #         "- Perform enrichment analysis of GO ontology and pathway.",br(),
-                            #         "- Perform mutational signature analysis.",br(),
-                            #         "- Visualize phylogenetic trees.",
-                            #         style = "font-size:18px; font-weight:500;line-height:50px"),
-                            #       style = "float:left;padding-left:20px"
-                            #   )
-                            # )
                               width = 7,
                                 div(img(src = "image/MesKit_workflow.png", width = "90%",height = "72%"),
                                     style="text-align: center;float:left;margin:0;padding:0")
@@ -112,20 +97,27 @@ bodyIP <- tabItem("input",
                                       ), 
                                       placeholder = "example data: HCC6046.maf", 
                                       width = 400),
-                            fileInput(inputId = 'sampleInfo', 
-                                      label = div(style = "font-size:1.5em; font-weight:600; ", 'Sample information file',
-                                                  tags$button(
-                                                    Id = "iecontrol02",
-                                                    type = "button",
-                                                    class = "bttn-material-circle",
-                                                    class = "btn action-button",
-                                                    list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
-                                                    style = " background-position: center;padding:0;margin-bottom:7px;"
-                                                  )
-                                      ), 
-                                      placeholder = "example data: HCC6046.sampleInfo.txt", 
-                                      width = 400),
-                            
+                            checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
+                            conditionalPanel(
+                                condition = "input.useccf == true",
+                                fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
+                                                                tags$button(
+                                                                    Id = "iecontrol03",
+                                                                    type = "button",
+                                                                    class = "bttn-material-circle",
+                                                                    class = "btn action-button",
+                                                                    list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
+                                                                    style = " background-position: center;padding:0;margin-bottom:7px;"
+                                                                )
+                                ),
+                                placeholder = "example data: HCC6046.CCF.txt", width = 400)
+                            ),
+                            selectInput("method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Method to construct phylotree"),
+                                        choices = c(
+                                            "Neibor joining" = "NJ",
+                                            "Maximum parsimony" = "MP",
+                                            "Maximum likelihood" = "ML"
+                                        ), selected = "NJ",width = 300),
                             selectInput(inputId = 'mutType', 
                                         label = div(style = "font-size:1.5em; font-weight:600; ", 'Filter option'),
                                         choices = c(All = 'All',
@@ -135,7 +127,6 @@ bodyIP <- tabItem("input",
                                       title = "Choose whether use nonsilent list to filter variant classification.", 
                                       placement = "right", 
                                       trigger = "hover"), 
-                            
                             conditionalPanel(
                               condition="input.mutType == 'nonSilent'", 
                               selectInput(inputId = 'mutNonSilent', 
@@ -163,33 +154,6 @@ bodyIP <- tabItem("input",
                                       title = "Choose chromosomes needed to be silent in this analysis", 
                                       placement = "right", 
                                       trigger = "hover"), 
-                            
-                            checkboxInput(inputId = 'useccf', label = div(style = "font-size:15px; ", 'use ccf'),value = FALSE, width = 200),
-                            conditionalPanel(
-                              condition = "input.useccf == true",
-                              fileInput('ccf.cluster',label = div(style = "font-size:1.5em; font-weight:600; ", 'ccf.cluster file',
-                                                                  tags$button(
-                                                                    Id = "iecontrol03",
-                                                                    type = "button",
-                                                                    class = "bttn-material-circle",
-                                                                    class = "btn action-button",
-                                                                    list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
-                                                                    style = " background-position: center;padding:0;margin-bottom:7px;"
-                                                                  )
-                              ),
-                              placeholder = "example data: HCC6046.cluster.tsv", width = 400),
-                              fileInput('ccf.loci',label = div(style = "font-size:1.5em; font-weight:600; ", 'ccf.loci file',
-                                                               tags$button(
-                                                                 Id = "iecontrol04",
-                                                                 type = "button",
-                                                                 class = "bttn-material-circle",
-                                                                 class = "btn action-button",
-                                                                 list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
-                                                                 style = " background-position: center;padding:0;margin-bottom:7px;"
-                                                               )
-                              ),
-                              placeholder = "example data: HCC6046.loci.tsv", width = 400)
-                            ),
                             selectInput('ref', label = div(style = "font-size:1.5em; font-weight:600; ", 'Select genome reference'),
                                         choices = c('hg19','hg38'),selected = "hg19", width = 400)
                           ),
@@ -976,6 +940,7 @@ bodySurvival <- tabItem('Survival',
                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                               checkboxInput('showmutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
                               checkboxInput('showheatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
+                              checkboxInput('usebox',div(style = "font-size:15px; font-weight:400; ", 'Use box'),value = TRUE),
                               conditionalPanel(
                                 condition = "input.showheatmap == true",
                                 radioButtons(

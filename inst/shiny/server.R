@@ -86,9 +86,7 @@ shinyServer(function(input, output, session){
       }
     } else {
       mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
-      sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
-      ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
-      ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
+      ccfFile <- system.file("extdata/", "HCC6046.CCF.txt", package = "MesKit")
       mafInput <- read.table(mafFile, quote="",
                              header=TRUE, fill=TRUE,
                              sep='\t')
@@ -123,35 +121,28 @@ shinyServer(function(input, output, session){
         ls.chrSilent <- NULL
       }
       
-      if(is.null(input$maf) | is.null(input$sampleInfo)){
+      if(is.null(input$maf)){
         mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
-        sampleInfoFile <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "MesKit")
-        ccfClusterTsvFile <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "MesKit")
-        ccfLociTsvFile <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "MesKit")
+        ccfFile <- system.file("extdata/", "HCC6046.CCF.txt", package = "MesKit")
         maf <- MesKit::readMaf(mafFile = mafFile, 
-                       sampleInfoFile = sampleInfoFile,
                        mutType=input$mutType, 
                        mutNonSilent=ls.mutNonSilent, 
                        chrSilent=ls.chrSilent, 
                        use.indel = input$useindel, 
-                       ccfClusterTsvFile = ccfClusterTsvFile,
-                       ccfLociTsvFile = ccfLociTsvFile, 
+                       ccfFile = ccfFile,
                        refBuild="hg19")
       } else {
-        if(!is.null(input$ccf.cluster)&!is.null(input$ccf.loci)){
+        if(!is.null(input$ccfFile)){
           
           maf <- readMaf(mafFile = input$maf$datapath,
-                                 sampleInfoFile = input$sampleInfo$datapath,
-                                 ccfClusterTsvFile =  input$ccf.cluster$datapath,
-                                 ccfLociTsvFile = input$ccf.loci$datapath)          
+                         ccfFile =  input$ccfFile$datapath)          
           if(maf@patientID == "0"){
               name <- as.character(mafName()) 
               maf@patientID <- name
           }
         }
         else{
-          maf <-  readMaf(mafFile = input$maf$datapath,
-                         sampleInfoFile = input$sampleInfo$datapath)
+          maf <-  readMaf(mafFile = input$maf$datapath)
           if(maf@patientID == "0"){
               name <- as.character(mafName()) 
               maf@patientID <- name
@@ -171,19 +162,18 @@ shinyServer(function(input, output, session){
       incProgress(amount=1)
       
       ## Rshiny: progress bar
-      setProgress(message = 'Input data: Generating ', detail = paste("NJtree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
+      setProgress(message = 'Input data: Generating ', detail = paste("phyloTree from MAF ", isolate(varsLs$maf)@patientID, sep="")) 
       colNames <- colnames(inputData()@data)
       standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
                        "Variant_Classification", "Variant_Type", "Reference_Allele",
-                       "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode", "patient",
-                       "lesion")
+                       "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
       is <- intersect(colNames,standardCol)
       if(length(is)==12){
-          varsLs[['njtree']] <-  njtree <- MesKit::getNJtree(isolate(varsLs$maf))
+          varsLs[['phyloTree']] <-  phyloTree <- MesKit::getPhyloTree(isolate(varsLs$maf),method = input$method)
       }
       incProgress(amount=1)
       
-      setProgress(message = paste("Input data: MAF and NJtree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
+      setProgress(message = paste("Input data: MAF and phyloTree Generation for ", isolate(varsLs$maf)@patientID, " Done!", sep=""), detail = "") 
       Sys.sleep(1)
       
     })
@@ -251,54 +241,54 @@ shinyServer(function(input, output, session){
     }
   })
   ## output Introduction of sampleinfo datatable
-  output$ie2 <- renderUI({
-    if(buttonValue$b == 1){
-      box(
-        width = NULL,
-        tagList(
-          div(
-            h3(strong("Information of samples")),
-            p("Below is an example of the first four rows of sample_info.txt. It should contain the sampleID, patientID, lesion and sampling time. The input files are located under the '/inst/extdata/' folder.",
-              style = "font-size:16px; font-weight:500;line-height:30px;"),
-            style = "width : 800px"
-          ),
-          tags$li(strong("tumors sampling across multiple spatially-distinct regions"),
-                  style = "width : 800px;font-size:16px; font-weight:500;"),
-          br(),
-          DT::dataTableOutput("ied2_1",width = "70%"),
-          br(),
-          tags$li(strong("tumors sampling across multiple time points"),
-                  style = "width : 800px;font-size:16px; font-weight:500;"),
-          br(),
-          DT::dataTableOutput("ied2_2",width = "70%"),
-          br(),
-          div(tags$span("Note:",style = "font-size:16px; font-weight:700;"),
-              tags$span("'-' represents sampling at the same time or sampling from the same site.",
-                        style = "font-size:16px; font-weight:500;")),
-          br()
-        )
-      )
-    }
-  })
-  output$ied2_1 <- renderDataTable({
-    if(input$iecontrol02){
-      spd1 <- read.table('dom/sampleinfo1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
-    }
-  })
-  output$ied2_2 <- renderDataTable({
-    if(input$iecontrol02){
-      spd1 <- read.table('dom/sampleinfo2.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
-    }
-  })
-  ## output Introduction of ccf.cluster
+  # output$ie2 <- renderUI({
+  #   if(buttonValue$b == 1){
+  #     box(
+  #       width = NULL,
+  #       tagList(
+  #         div(
+  #           h3(strong("Information of samples")),
+  #           p("Below is an example of the first four rows of sample_info.txt. It should contain the sampleID, patientID, lesion and sampling time. The input files are located under the '/inst/extdata/' folder.",
+  #             style = "font-size:16px; font-weight:500;line-height:30px;"),
+  #           style = "width : 800px"
+  #         ),
+  #         tags$li(strong("tumors sampling across multiple spatially-distinct regions"),
+  #                 style = "width : 800px;font-size:16px; font-weight:500;"),
+  #         br(),
+  #         DT::dataTableOutput("ied2_1",width = "70%"),
+  #         br(),
+  #         tags$li(strong("tumors sampling across multiple time points"),
+  #                 style = "width : 800px;font-size:16px; font-weight:500;"),
+  #         br(),
+  #         DT::dataTableOutput("ied2_2",width = "70%"),
+  #         br(),
+  #         div(tags$span("Note:",style = "font-size:16px; font-weight:700;"),
+  #             tags$span("'-' represents sampling at the same time or sampling from the same site.",
+  #                       style = "font-size:16px; font-weight:500;")),
+  #         br()
+  #       )
+  #     )
+  #   }
+  # })
+  # output$ied2_1 <- renderDataTable({
+  #   if(input$iecontrol02){
+  #     spd1 <- read.table('dom/sampleinfo1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+  #     datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+  #   }
+  # })
+  # output$ied2_2 <- renderDataTable({
+  #   if(input$iecontrol02){
+  #     spd1 <- read.table('dom/sampleinfo2.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+  #     datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+  #   }
+  # })
+  ## output Introduction of CCF
   output$ie3 <- renderUI({
     if(buttonValue$c == 1){
       box(
         width = NULL,
         tagList(
-          h3(strong("Example ccf.cluster file")),
+          h3(strong("Example CCF file")),
           DT::dataTableOutput("ied3"),
           br()
         )
@@ -307,29 +297,29 @@ shinyServer(function(input, output, session){
   })
   output$ied3 <- renderDataTable({
     if(input$iecontrol03){
-      spd3 <- read.table('dom/ccf.cluster.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      spd3 <- read.table('dom/ccf.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
       datatable(spd3, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }
   })
   ## output Introduction of ccf.loci
-  output$ie4 <- renderUI({
-    if(buttonValue$d == 1){
-      box(
-        width = NULL,
-        tagList(
-          h3(strong("Example ccf.loci file")),
-          DT::dataTableOutput("ied4"),
-          br()
-        )
-      )
-    }
-  })
-  output$ied4 <- renderDataTable({
-    if(input$iecontrol04){
-      spd4 <- read.table('dom/ccf.loci.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd4, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
-    }
-  })
+  # output$ie4 <- renderUI({
+  #   if(buttonValue$d == 1){
+  #     box(
+  #       width = NULL,
+  #       tagList(
+  #         h3(strong("Example ccf.loci file")),
+  #         DT::dataTableOutput("ied4"),
+  #         br()
+  #       )
+  #     )
+  #   }
+  # })
+  # output$ied4 <- renderDataTable({
+  #   if(input$iecontrol04){
+  #     spd4 <- read.table('dom/ccf.loci.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+  #     datatable(spd4, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+  #   }
+  # })
   output$datapreview <- renderUI({
       if(input$submit1){
           colNames <- colnames(inputData()@data)
@@ -889,12 +879,12 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- isolate(varsLs$njtree)
+      phyloTree <- isolate(varsLs$phyloTree)
       maf <- isolate(varsLs$maf)
       validate(
-          need(!(is.null(njtree)), "")
+          need(!(is.null(phyloTree)), "")
       )
-      MesKit::GO.njtree(njtree, 
+      MesKit::GOTree(phyloTree, 
                         GO.type = input$GO.type, 
                         plotType = input$plotType, 
                         pAdjustMethod=input$pAdjustMethod, 
@@ -987,12 +977,12 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- isolate(varsLs$njtree)
+      phyloTree <- isolate(varsLs$phyloTree)
       maf <- isolate(varsLs$maf)
       validate(
-          need(!(is.null(njtree)), "")
+          need(!(is.null(phyloTree)), "")
       )
-      list <- MesKit::Pathway.njtree(njtree, 
+      list <- MesKit::pathwayTree(phyloTree, 
                                      pathway.type=input$pathway.type, 
                                      plotType = input$pathplotType, 
                                      pAdjustMethod=input$pathpAdjustMethod, 
@@ -1097,12 +1087,12 @@ shinyServer(function(input, output, session){
           Sys.sleep(0.01)
         }
         
-        njtree <- isolate(varsLs$njtree)
+        phyloTree <- isolate(varsLs$phyloTree)
         maf <- isolate(varsLs$maf)
         validate(
-            need(!(is.null(njtree)), "")
+            need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(njtree, 
+        treeMSOutput <- treeMutationalSig(phyloTree, 
                                           driverGenesFile=driverGenesFile, 
                                           mutThreshold=input$mutThreshold, 
                                           signaturesRef=input$signaturesRef)
@@ -1120,12 +1110,12 @@ shinyServer(function(input, output, session){
           progress$set(value = i)
           Sys.sleep(0.01)
         }
-        njtree <- isolate(varsLs$njtree)
+        phyloTree <- isolate(varsLs$phyloTree)
         maf <- isolate(varsLs$maf)
         validate(
-            need(!(is.null(njtree)), "")
+            need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(njtree, 
+        treeMSOutput <- treeMutationalSig(phyloTree, 
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold, 
                                           signaturesRef=input$signaturesRef)
@@ -1163,12 +1153,12 @@ shinyServer(function(input, output, session){
           Sys.sleep(0.01)
         }
         
-        njtree <- isolate(varsLs$njtree)
+        phyloTree <- isolate(varsLs$phyloTree)
         maf <- isolate(varsLs$maf)
         validate(
-            need(!(is.null(njtree)), "")
+            need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(njtree, 
+        treeMSOutput <- treeMutationalSig(phyloTree, 
                                           driverGenesFile=driverGenesFile, 
                                           mutThreshold=input$mutThreshold4, 
                                           signaturesRef=input$signaturesRef4)
@@ -1187,12 +1177,12 @@ shinyServer(function(input, output, session){
           Sys.sleep(0.01)
         }
         
-        njtree <- isolate(varsLs$njtree)
+        phyloTree <- isolate(varsLs$phyloTree)
         maf <- isolate(varsLs$maf)
         validate(
-            need(!(is.null(njtree)), "")
+            need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(njtree, 
+        treeMSOutput <- treeMutationalSig(phyloTree, 
                                           driverGenesFile=NULL, 
                                           mutThreshold=input$mutThreshold4, 
                                           signaturesRef=input$signaturesRef4)
@@ -1230,12 +1220,12 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- isolate(varsLs$njtree)
+      phyloTree <- isolate(varsLs$phyloTree)
       maf <- isolate(varsLs$maf)
       validate(
-          need(!(is.null(njtree)), "")
+          need(!(is.null(phyloTree)), "")
       )
-      treeMSOutput <- treeMutationalSig(njtree, 
+      treeMSOutput <- treeMutationalSig(phyloTree, 
                                         driverGenesFile=NULL, 
                                         mutThreshold=input$mutThreshold, 
                                         signaturesRef=input$signaturesRef)
@@ -1297,12 +1287,12 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      njtree <- isolate(varsLs$njtree)
+      phyloTree <- isolate(varsLs$phyloTree)
       maf <- isolate(varsLs$maf)
       validate(
-          need(!(is.null(njtree)), "")
+          need(!(is.null(phyloTree)), "")
       )
-      treeMSOutput <- treeMutationalSig(njtree, 
+      treeMSOutput <- treeMutationalSig(phyloTree, 
                                         driverGenesFile=NULL, 
                                         mutThreshold=input$mutThreshold, 
                                         signaturesRef=input$signaturesRef)
@@ -1434,22 +1424,23 @@ shinyServer(function(input, output, session){
         Sys.sleep(0.01)
       }
       if(!is.null(input$maf) & !is.null(input$sampleInfo)){
-        njtree <- isolate(varsLs$njtree)
+        phyloTree <- isolate(varsLs$phyloTree)
         maf <- isolate(varsLs$maf)
         validate(
-            need(!(is.null(njtree)), "")
+            need(!(is.null(phyloTree)), "")
         )
         if(input$useccf == T){
           validate(
             need(input$heatmap.type == "CCF","switch heatmap type to CCF")
           )
         }
-        if(njtree@patientID == "0"){
+        if(phyloTree@patientID == "0"){
           id <- input$maf$name
-          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+          phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type,
-                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
+        p <- plotPhyloTree(phyloTree, heatmap.type = input$heatmap.type,
+                           show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
+                           use.box = input$usebox)
         return(p)
         # else{
         #   validate(
@@ -1461,16 +1452,16 @@ shinyServer(function(input, output, session){
         # }
       }
       else{
-        njtree <- isolate(varsLs$njtree)
+        phyloTree <- isolate(varsLs$phyloTree)
         maf <- isolate(varsLs$maf)
         validate(
-            need(!(is.null(njtree)), "")
+            need(!(is.null(phyloTree)), "")
         )
-        if(njtree@patientID == "0"){
+        if(phyloTree@patientID == "0"){
           id <- input$maf$name
-          njtree@patientID <- strsplit(id,"\\.")[[1]][1]
+          phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(njtree, heatmap.type = input$heatmap.type,
+        p <- plotPhyloTree(phyloTree, heatmap.type = input$heatmap.type,
                                    show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
         return(p)
         # inputData()$phylotreeplot

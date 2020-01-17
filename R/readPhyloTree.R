@@ -6,7 +6,7 @@
 #' @examples
 #  njtree.branches <- read.njtree(njtree)
 
-read.njtree <- function(mat.nj){
+readPhyloTree <- function(mat.nj){
   # edges <- mat.nj$edge
   # tips <- mat.nj$tip.label
   # leaf_nodes <- seq(1, length(tips))
