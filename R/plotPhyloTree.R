@@ -38,20 +38,20 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
     fileID <- paste(fileID, ".mutsig", sep = "")
   }
   ## plot phylotree
-  phylotree <- generatePlotObject(phylotreeOutputData, colorScale, show.mutSig, rootLabel = rootLabel, myBoots = myBoots, box = box)
+  P <- generatePlotObject(phylotreeOutputData, colorScale, show.mutSig, rootLabel = rootLabel, myBoots = myBoots, use.box = use.box)
   if(show.heatmap){
-    heatmap <- mut.heatmap(phyloTree, use.ccf)
+    H <- mut.heatmap(phyloTree, use.ccf)
     pm <- getPrivateMutation(phyloTree)
     totalMutSum <- pm[[1]]
     privateMutProportion <- pm[[2]]
-    PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(phylotree, x = -0.05,y = 0, width = 0.7) + draw_plot(heatmap, x = 0.48,y = -0.12, width = 0.15)
+    PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(P, x = -0.05,y = 0, width = 0.7) + draw_plot(H, x = 0.48,y = -0.12, width = 0.15)
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
-    ggsave(filename = paste0(fileID,".pdf"),plot = PH, width = 10, height = 6.5)
+    # ggsave(filename = paste0(fileID,".pdf"),plot = PH, width = 10, height = 6.5)
     return(PH)
   }
   else{
-    return(phylotree)
+    return(P)
   }
 }
 ##generate plot data 

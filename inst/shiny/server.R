@@ -168,7 +168,7 @@ shinyServer(function(input, output, session){
                        "Variant_Classification", "Variant_Type", "Reference_Allele",
                        "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
       is <- intersect(colNames,standardCol)
-      if(length(is)==12){
+      if(length(is)== 10){
           varsLs[['phyloTree']] <-  phyloTree <- MesKit::getPhyloTree(isolate(varsLs$maf),method = input$method)
       }
       incProgress(amount=1)
@@ -325,10 +325,9 @@ shinyServer(function(input, output, session){
           colNames <- colnames(inputData()@data)
           standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
                            "Variant_Classification", "Variant_Type", "Reference_Allele",
-                           "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode", "patient",
-                           "lesion")
+                           "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
           is <- intersect(colNames,standardCol)
-          if(length(is) == 12){
+          if(length(is) == 10){
               DT::dataTableOutput('maftable', width = '100%')
           }
           else{
@@ -1745,10 +1744,9 @@ shinyServer(function(input, output, session){
           colNames <- colnames(maf@data)
           standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
                            "Variant_Classification", "Variant_Type", "Reference_Allele",
-                           "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode", "patient",
-                           "lesion")
+                           "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
           is <- intersect(colNames,standardCol)
-          if(length(is) != 12){
+          if(length(is) != 10){
               tagList(
                   tags$p("Wrong data format!",br(),"Please click the button",
                          tags$img(src = 'image/button.png',width = "40px",height = "40px"),
