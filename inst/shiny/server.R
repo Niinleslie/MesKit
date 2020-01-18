@@ -1422,7 +1422,7 @@ shinyServer(function(input, output, session){
         progress$set(value = i)
         Sys.sleep(0.01)
       }
-      if(!is.null(input$maf) & !is.null(input$sampleInfo)){
+      if(!is.null(input$maf)){
         phyloTree <- isolate(varsLs$phyloTree)
         maf <- isolate(varsLs$maf)
         validate(
@@ -1437,9 +1437,9 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(phyloTree, heatmap.type = input$heatmap.type,
+        p <- MesKit::plotPhyloTree(phyloTree, heatmap.type = input$heatmap.type,
                            show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
-                           use.box = input$usebox)
+                           use.box = input$usebox,show.bootstrap = input$showbootstrap)
         return(p)
         # else{
         #   validate(
@@ -1461,7 +1461,8 @@ shinyServer(function(input, output, session){
           phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
         p <- plotPhyloTree(phyloTree, heatmap.type = input$heatmap.type,
-                                   show.mutSig = input$showmutSig, show.heatmap = input$showheatmap)
+                           show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
+                           use.box = input$usebox,show.bootstrap = input$showbootstrap)
         return(p)
         # inputData()$phylotreeplot
       }

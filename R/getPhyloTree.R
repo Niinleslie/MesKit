@@ -47,7 +47,7 @@ getPhyloTree <- function(maf,
       tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
       fitJC <- phangorn::pml(mat.nj, tree_dat)
       fitJC <- phangorn::optim.pml(fitJC)
-      mat.nj <- phangorn::fitJC$tree
+      mat.nj <- fitJC$tree
   }
   branchAlias <- readPhyloTree(mat.nj)
   mut.branches <- .treeMutationalBranches(maf.dat, branchAlias, binary.matrix)

@@ -536,18 +536,18 @@ bodyclone <- tabItem('clone',
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
-                             selected = 'c01',
+                             selected = 'c02',
                              side = 'left',
                              height = "100%",
                              width = "100%",
-                             tabPanel(
-                               value = 'c01',
-                               title = div(icon("newspaper"), "Subclonal plot"),
-                               uiOutput('warningMessage07'),
-                               div(plotOutput('cloneplot', height = "100%", width = "100%"), align = "center"),
-                               br(),
-                               uiOutput("clpdb")
-                             ),
+                             # tabPanel(
+                             #   value = 'c01',
+                             #   title = div(icon("newspaper"), "Subclonal plot"),
+                             #   uiOutput('warningMessage07'),
+                             #   div(plotOutput('cloneplot', height = "100%", width = "100%"), align = "center"),
+                             #   br(),
+                             #   uiOutput("clpdb")
+                             # ),
                              tabPanel(
                                value = 'c02',
                                title = div(icon("newspaper"), "CCF density"), 
@@ -940,7 +940,11 @@ bodySurvival <- tabItem('Survival',
                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                               checkboxInput('showmutSig',div(style = "font-size:15px; font-weight:400; ", 'Show mutation signature'),value = TRUE),
                               checkboxInput('showheatmap',div(style = "font-size:15px; font-weight:400; ", 'Show heatmap'),value = TRUE),
-                              checkboxInput('usebox',div(style = "font-size:15px; font-weight:400; ", 'Use box'),value = TRUE),
+                              checkboxInput('showbootstrap',div(style = "font-size:15px; font-weight:400; ", 'Show bootstrap value'),value = TRUE),
+                              conditionalPanel(
+                                  condition = "input.showbootstrap == true",
+                                  checkboxInput('usebox',div(style = "font-size:15px; font-weight:400; ", 'Use box'),value = TRUE)
+                              ),
                               conditionalPanel(
                                 condition = "input.showheatmap == true",
                                 radioButtons(

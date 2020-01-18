@@ -4,6 +4,7 @@
 #' @param show.mutSig logical. Whether to show mutational signature on tree. Default is TRUE.
 #' @param show.heatmap logical. Whether to show heatmap of somatic mutations. Default is TRUE.
 #' @param heatmap.type character. "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap. This parameter is only useful when show.mutSig = TRUE.
+#' @param show.bootstrap logical.Whether to add bootstrap value on internal nodes.Default is TRUE.
 #' @param use.box logical.Whether to add box arround bootstrap value on tree. Default is TRUE.
 #' @examples
 #' plotPhyloTree(phyloTree)
@@ -15,7 +16,8 @@
 #' @export plotPhyloTree
 #' 
 
-plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = TRUE, heatmap.type = 'binary', use.box = TRUE){
+plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = TRUE,
+                          heatmap.type = 'binary', show.bootstrap = TRUE, use.box = TRUE){
   set.seed(123)
   if(heatmap.type == 'binary'){
     use.ccf = FALSE
@@ -38,16 +40,17 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
     fileID <- paste(fileID, ".mutsig", sep = "")
   }
   ## plot phylotree
-  P <- generatePlotObject(phylotreeOutputData, colorScale, show.mutSig, rootLabel = rootLabel, myBoots = myBoots, use.box = use.box)
+  P <- generatePlotObject(phylotreeOutputData, colorScale, show.mutSig, rootLabel = rootLabel,
+                          myBoots = myBoots, show.bootstrap = show.bootstrap, use.box = use.box)
   if(show.heatmap){
-    H <- mut.heatmap(phyloTree, use.ccf)
+    H <- mutHeatmap(phyloTree, use.ccf)
     pm <- getPrivateMutation(phyloTree)
     totalMutSum <- pm[[1]]
     privateMutProportion <- pm[[2]]
     PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(P, x = -0.05,y = 0, width = 0.7) + draw_plot(H, x = 0.48,y = -0.12, width = 0.15)
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
-    # ggsave(filename = paste0(fileID,".pdf"),plot = PH, width = 10, height = 6.5)
+    ggsave(filename = paste0(fileID,".pdf"),plot = PH, width = 10, height = 6.5)
     return(PH)
   }
   else{
@@ -545,7 +548,7 @@ colorSet <- function(signatures){
   return(colorScale)
 }
 ## plot PhyloTree 
-generatePlotObject <- function(treeData, colorScale = '', show.mutSig, rootLabel, myBoots, use.box){
+generatePlotObject <- function(treeData, colorScale = '', show.mutSig, rootLabel, myBoots, show.bootstrap, use.box){
   myBoots <- myBoots*100
   rootNode <- treeData$node[which(treeData$sample == rootLabel)]
   bootsData <- rbind(treeData[treeData$sample == 'internal node',][,c(3,4,8,9)],c(0,0,rootNode,rootNode))
@@ -632,16 +635,18 @@ generatePlotObject <- function(treeData, colorScale = '', show.mutSig, rootLabel
                           fill = 'white', shape = 21, stroke = 0.5)
     }
   }
-  if(use.box){
-      p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
-                               data = bootsData,
-                               fontface = 'bold', size = 2.2,box.padding=unit(0, "lines"),point.padding=unit(0, "lines"),
-                               segment.colour = "grey50",segment.size = 0.5,force = 10)
-  }else{
-      p <- p + geom_text_repel(aes(x = x2, y = y2,label = boots),
-                               data = bootsData,
-                               fontface = 'bold', size = 2.2,box.padding=unit(0, "lines"),point.padding=unit(0, "lines"),
-                               segment.colour = "grey50",segment.size = 0.5,force = 10)
+  if(show.bootstrap){
+      if(use.box){
+          p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
+                                    data = bootsData,
+                                    fontface = 'bold', size = 2.2,box.padding=unit(0, "lines"),point.padding=unit(0, "lines"),
+                                    segment.colour = "grey50",segment.size = 0.5,force = 10)
+      }else{
+          p <- p + geom_text_repel(aes(x = x2, y = y2,label = boots),
+                                   data = bootsData,
+                                   fontface = 'bold', size = 2.2,box.padding=unit(0, "lines"),point.padding=unit(0, "lines"),
+                                   segment.colour = "grey50",segment.size = 0.5,force = 10)
+      }
   }
   return(p)
 }
