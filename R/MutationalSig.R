@@ -67,9 +67,10 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
             message(paste("Branch ", branchName,
                           ": Number of mutations is less than mutThreshold.",
                           sep = ""))
-            # next()
+            if (any(mutSigRef[which(mutSigRef$Sample == branchName), ]$mut_id == "NoSigTag")) {
+                mut.num <- 0
+            }
         }else{
-
             if (signaturesRef == "cosmic") {
                 sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
                                                               signatures.ref=deconstructSigs::signatures.cosmic, 
@@ -88,10 +89,19 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
             sigsMaxName <- colnames(sigsMax)
             sigsMaxName <- gsub('[.]', ' ', sigsMaxName)
             sigsMaxProb <- sigsMax[,1]
+            
+            mut.num <- length(mutSigRef[which(mutSigRef$Sample == branchName), 1])
         }
         
         ## vectorize branch name
         # branch <- gsub(paste(patientID,"-",sep=""), "", branch)
+        
+        mutSigsBranch <- data.frame(
+            branch=c(branchName), 
+            alias=as.character(unique(mutSigRef[which(mutSigRef$Sample == branchName), ]$alias)), 
+            sig=sigsMaxName, 
+            mut.num=mut.num, 
+            sig.prob=format(round(sigsMaxProb, digits = 3), nsmall = 3))
         
         ## figure out putative driver genes
         if (!is.null(driverGenesFile)){
@@ -104,24 +114,10 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
                     as.character(mutSigRef$Hugo_Symbol) %in% driverGenes),]
             pdgBranch <- as.character(pdgMut$Hugo_Symbol)
             ## collect branches' mutataional signature and potative driver genes
-            mutSigsBranch <- data.frame(
-                branch=c(branchName), 
-                alias=as.character(unique(mutSigRef[which(mutSigRef$Sample == branchName), ]$alias)), 
-                sig=sigsMaxName, 
-                mut.num=length(
-                    mutSigRef[which(
-                        mutSigRef$Sample == branchName), 1]), 
-                sig.prob=format(round(sigsMaxProb, digits = 3), nsmall = 3), 
-                putative_driver_genes=c(paste(pdgBranch, collapse = ",")))
-        } else{
-            mutSigsBranch <- data.frame(
-                branch=c(branchName), 
-                alias=as.character(unique(mutSigRef[which(mutSigRef$Sample == branchName), ]$alias)), 
-                sig=sigsMaxName, 
-                mut.num=length(mutSigRef[which(
-                    mutSigRef$Sample == branchName), 1]), 
-                sig.prob=format(round(sigsMaxProb, digits = 3), nsmall = 3))
+            mutSigsBranch <- cbind(mutSigsBranch, putative_driver_genes=c(paste(pdgBranch, collapse = ",")))
         }
+        
+        
         ## collect branches' mutataional signature information
         mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
     }
@@ -255,11 +251,24 @@ treeMutationalSig <- function(njtree, driverGenesFile=NULL, mutThreshold=50, sig
         ## generate mutation intersection for specific branch
         branch.intersection <- dplyr::intersect(
             mut_sort.id %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1)), 
-            mut_sort.id %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0))) 
+            mut_sort.id %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0)))
+        
+        ## special situation: branch.intersection NULL
         if (nrow(branch.intersection) == 0){
             message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
+            branch.mut <- data.frame(Sample=branchName, 
+                                     chr=NA,
+                                     pos=NA,
+                                     pos_end=NA,
+                                     ref=NA,
+                                     alt=NA,
+                                     Hugo_Symbol=NA,
+                                     mut_id="NoSigTag",
+                                     Alias=as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias))
+            mutBranchesOutput[[branchName]] <- branch.mut
             next()
         }
+        
         branch.mut.id <- branch.intersection$mut.id
         
         ## data duplication
