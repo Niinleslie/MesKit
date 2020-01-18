@@ -133,7 +133,6 @@ shinyServer(function(input, output, session){
                        refBuild="hg19")
       } else {
         if(!is.null(input$ccfFile)){
-          
           maf <- readMaf(mafFile = input$maf$datapath,
                          ccfFile =  input$ccfFile$datapath)          
           if(maf@patientID == "0"){
@@ -169,7 +168,7 @@ shinyServer(function(input, output, session){
                        "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
       is <- intersect(colNames,standardCol)
       if(length(is)== 10){
-          varsLs[['phyloTree']] <-  phyloTree <- MesKit::getPhyloTree(isolate(varsLs$maf),method = input$method)
+          varsLs[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsLs$maf),method = input$method)
       }
       incProgress(amount=1)
       

@@ -36,6 +36,9 @@ getPhyloTree <- function(maf,
   if("CCF" %in% colnames(maf.dat)){
       ccf.matrix <- getMutMatrix(maf.dat, use.ccf = TRUE)
   }
+  else{
+      ccf.matrix <- matrix() 
+  }
   mut_dat <- t(binary.matrix)
   mat.nj <- nj(dist.gene(mut_dat))
   if(method == "MP"){
