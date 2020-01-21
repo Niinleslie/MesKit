@@ -11,8 +11,12 @@ ccfDensity(maf, show.density = TRUE)
 
 \item{show.density}{logical. If TRUE, the default, perform density estimation.}
 }
+\value{
+
+}
 \description{
 Density plot of CCFs in paired samples of the patient
+This function is only available when the Maf object was generated along with CCF data.
 }
 \examples{
 ccfDensity(maf, show.density = T)

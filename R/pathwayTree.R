@@ -15,12 +15,12 @@
 #' @return pathway enrichment results
 #' @importFrom ReactomePA enrichPathway
 #' @importFrom clusterProfiler enrichKEGG
-#' @export Pathway.phyloTree
+#' @export pathwayTree
 
 #Pathway analysis
 pathwayTree <- function(phyloTree, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",
                            qval=0.2,  plotType="dot", showCategory=5){
-  branches <- phyloTree@mut_branches
+  branches <- phyloTree@mut.branches
   patientID <- phyloTree@patientID
   
   Pathway.branch.result <- data.frame()

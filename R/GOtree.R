@@ -17,7 +17,7 @@
 
 GOTree <- function(phyloTree, GO.type="BP", pval=0.05, pAdjustMethod="BH", 
                       qval=0.2, plotType="dot", showCategory=5){
-  branches <- phyloTree@mut_branches
+  branches <- phyloTree@mut.branches
   patientID <- phyloTree@patientID
   
   GO.branch.result <- data.frame()

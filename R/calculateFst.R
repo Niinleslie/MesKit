@@ -32,7 +32,7 @@ fst.hudson <- function(maf.pair, minVAF) {
 
 calFst <- function(maf, min.clonal.CCF = 0.6, minVAF=0.08){
 	maf.dat <- maf@data
-	if(! "CCF" %in% colnames(maf.data){
+	if(! "CCF" %in% colnames(maf.data)){
 		stop("Calculation of Fst requires CCF data. No CCF data was found when readMaf")
 	}
 	else {
