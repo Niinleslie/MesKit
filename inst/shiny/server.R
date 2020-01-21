@@ -115,11 +115,11 @@ shinyServer(function(input, output, session){
                                        "In_Frame_Ins", "Missense_Mutation"))
       }
       
-      if (!is.null(input$chrSilent)){
-        ls.chrSilent <- strsplit(input$chrSilent, ",")
-      } else {
-        ls.chrSilent <- NULL
-      }
+      # if (!is.null(input$chrSilent)){
+      #   ls.chrSilent <- strsplit(input$chrSilent, ",")
+      # } else {
+      #   ls.chrSilent <- NULL
+      # }
       
       if(is.null(input$maf)){
         mafFile <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
@@ -127,7 +127,7 @@ shinyServer(function(input, output, session){
         maf <- MesKit::readMaf(mafFile = mafFile, 
                        mutType=input$mutType, 
                        mutNonSilent=ls.mutNonSilent, 
-                       chrSilent=ls.chrSilent, 
+                       # chrSilent=ls.chrSilent, 
                        use.indel = input$useindel, 
                        ccfFile = ccfFile,
                        refBuild="hg19")
@@ -168,7 +168,7 @@ shinyServer(function(input, output, session){
                        "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
       is <- intersect(colNames,standardCol)
       if(length(is)== 10){
-          varsLs[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsLs$maf),method = input$method)
+          varsLs[['phyloTree']] <-  phyloTree <- MesKit::getPhyloTree(isolate(varsLs$maf),method = input$method)
       }
       incProgress(amount=1)
       
@@ -539,7 +539,7 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(maf)), "")
       )
-      return(mutPrivateShared(maf, show.num = input$show.num1))
+      return(mutPrivateShared(maf, show.num = input$showNum1))
     }
   })
   # 
@@ -643,7 +643,7 @@ shinyServer(function(input, output, session){
       )
       mutOncoTSG(maf, oncogeneListFile = oncogeneListFile,
                    tsgListFile = tsgListFile, 
-                   show.percentage = input$show.percentage)
+                   show.percentage = input$showPercentage)
     }
   })
   output$mutoncotsg <- renderPlot({
@@ -883,7 +883,7 @@ shinyServer(function(input, output, session){
           need(!(is.null(phyloTree)), "")
       )
       MesKit::GOTree(phyloTree, 
-                        GO.type = input$GO.type, 
+                        GO.type = input$GOtype, 
                         plotType = input$plotType, 
                         pAdjustMethod=input$pAdjustMethod, 
                         qval = as.numeric(input$qval1), 
@@ -981,7 +981,7 @@ shinyServer(function(input, output, session){
           need(!(is.null(phyloTree)), "")
       )
       list <- MesKit::pathwayTree(phyloTree, 
-                                     pathway.type=input$pathway.type, 
+                                     pathway.type=input$pathwaytype, 
                                      plotType = input$pathplotType, 
                                      pAdjustMethod=input$pathpAdjustMethod, 
                                      qval = as.numeric(input$qval2), 
@@ -1436,7 +1436,7 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- MesKit::plotPhyloTree(phyloTree, heatmap.type = input$heatmap.type,
+        p <- MesKit::plotPhyloTree(phyloTree, heatmap.type = input$heatmaptype,
                            show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
                            use.box = input$usebox,show.bootstrap = input$showbootstrap)
         return(p)
@@ -1459,7 +1459,7 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(phyloTree, heatmap.type = input$heatmap.type,
+        p <- plotPhyloTree(phyloTree, heatmap.type = input$heatmaptype,
                            show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
                            use.box = input$usebox,show.bootstrap = input$showbootstrap)
         return(p)
@@ -1622,10 +1622,10 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadPhyloTreeCheck == "png"){
-        png(file,width = 950, height = 650,res = 100)
+        png(file,width = 1000, height = 650,res = 100)
       }
       else if (input$DownloadPhyloTreeCheck == "pdf"){
-        pdf(file,width = 9.5, height = 6)
+        pdf(file,width = 10, height = 6.5)
       }
       print(pht())
       dev.off()
