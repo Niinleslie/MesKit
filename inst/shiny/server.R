@@ -223,6 +223,9 @@ shinyServer(function(input, output, session){
           width = NULL,
           div(
             h3(strong("The MAF files")),
+            p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
+              style = "font-size:16px; font-weight:500;line-height:30px;"),
+            h4(strong("Mandatory fields:")),
             p("Hugo_Symbol, Chromosome, Start_Position, End_Position, Variant_Classification, Variant_Type, Reference_Allele, Tumor_Seq_Allele2, VAF, Tumor_Sample_Barcode.",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
             h4(strong("Example MAF file"))
@@ -287,7 +290,13 @@ shinyServer(function(input, output, session){
       box(
         width = NULL,
         tagList(
-          h3(strong("Example CCF file")),
+          h3(strong("The CCF file")),
+          p("CCF files contain cancer cell fraction of each mutation.",
+            style = "font-size:16px; font-weight:500;line-height:30px;"),
+          h4(strong("Mandatory fields:")),
+          p("Chromosome,Start,Sample,CCF",
+            style = "font-size:16px; font-weight:500;line-height:30px;"),
+          h4(strong("Example CCF file:")),
           DT::dataTableOutput("ied3"),
           br()
         )
@@ -427,6 +436,15 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit3,{
     stopButtonValue3$a <- 0
   })
+  sg <- eventReactive(input$useseg,{
+      if(!is.null(input$segFile)){
+          seg <- readSegment(segCN.file = input$segFile$datapath)
+      }
+      else{
+          segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
+          seg <- readSegment(segCN.file = segCN.file)
+      }
+  })
   vc <- eventReactive(input$submit3, {
     if(input$submit3 & stopButtonValue3$a != 1){
       maf <- isolate(varsLs$maf)
@@ -440,10 +458,21 @@ shinyServer(function(input, output, session){
         setProgress(message = 'vafCluster: Calculation in progress',
                     detail = 'This may take a while...')
         if (input$plotOption == "separate") {
-          picSep <- vafClusterRshiny(maf,
-                                     plotOption = input$plotOption, 
-                                     themeOption = input$themeOption,
-                                     showMATH = input$showMATH)
+          if(input$useseg){
+              seg <- sg()
+             picSep <- vafClusterRshiny(maf,seg = seg,
+                                            plotOption = input$plotOption, 
+                                            themeOption = input$themeOption,
+                                            showMATH = input$showMATH,
+                                            segFile = segFile) 
+          }
+          else{
+              picSep <- vafClusterRshiny(maf,
+                                         plotOption = input$plotOption, 
+                                         themeOption = input$themeOption,
+                                         showMATH = input$showMATH,
+                                         segFile = input$segFile)
+          }
           
           output$chooselistvaf <- renderUI({
             if(!is.null(picSep)){
@@ -464,10 +493,21 @@ shinyServer(function(input, output, session){
           return(pic)
           
         } else {
-          pic <- vafClusterRshiny(maf,
-                                  plotOption = input$plotOption, 
-                                  themeOption = input$themeOption,
-                                  showMATH = input$showMATH)
+            if(input$useseg){
+                seg <- sg()
+                pic <- vafClusterRshiny(maf,seg = seg,
+                                               plotOption = input$plotOption, 
+                                               themeOption = input$themeOption,
+                                               showMATH = input$showMATH,
+                                               segFile = input$segFile) 
+            }
+            else{
+                pic <- vafClusterRshiny(maf,
+                                           plotOption = input$plotOption, 
+                                           themeOption = input$themeOption,
+                                           showMATH = input$showMATH,
+                                           segFile = input$segFile)
+            }
           
           output$vaf <- renderPlot({
             print(pic)
@@ -882,13 +922,24 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(phyloTree)), "")
       )
-      MesKit::GOTree(phyloTree, 
+      if (input$driverGenesMapping1) {
+          if(is.null(input$driverGenesFile1$datapath)){
+              driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
+          } else{
+              driverGenesFile <- input$driverGenesFile1$datapath
+          }
+      }
+      else{
+          driverGenesFile <- NULL
+      }
+      treeGO(phyloTree, 
                         GO.type = input$GOtype, 
                         plotType = input$plotType, 
                         pAdjustMethod=input$pAdjustMethod, 
                         qval = as.numeric(input$qval1), 
                         pval = as.numeric(input$pval1), 
-                        showCategory = input$showCategory)
+                        showCategory = input$showCategory,
+                        driverGenesFile = driverGenesFile)
     }
   })
   # Datatable under GO plot
@@ -980,13 +1031,24 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(phyloTree)), "")
       )
-      list <- MesKit::pathwayTree(phyloTree, 
+      if (input$driverGenesMapping2) {
+          if(is.null(input$driverGenesFile2$datapath)){
+              driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
+          } else{
+              driverGenesFile <- input$driverGenesFile2$datapath
+          }
+      }
+      else{
+          driverGenesFile <- NULL
+      }
+      list <- treePathway(phyloTree, driverGenesFile = driverGenesFile,
                                      pathway.type=input$pathwaytype, 
                                      plotType = input$pathplotType, 
                                      pAdjustMethod=input$pathpAdjustMethod, 
                                      qval = as.numeric(input$qval2), 
                                      pval = as.numeric(input$pval2),
                                      showCategory = input$pathshowCategory
+                                     
       )
       return(list)
     }

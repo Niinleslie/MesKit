@@ -28,7 +28,6 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
   refBuild <- phyloTree@refBuild
   signature <- treeMutationalSig(phyloTree)$mutSigsOutput
   patientID <- phyloTree@patientID
-  fileID <- paste(phyloTree@patientID, ".phyloTree", sep = "")
   rootLabel <- 'NORMAL'
   numRoot <- which(tree$tip.label == rootLabel)
   myBoots <- ape::boot.phylo(tree, t(phyloTree@binary.matrix), function(e) root(nj(dist.gene(e)),numRoot),B = 1000)/1000
