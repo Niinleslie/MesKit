@@ -48,9 +48,9 @@ plotCNA <- function(seg, sample.as.col = FALSE, show.GISTIC.gene = FALSE){
   colType <- c("Loss" = "#6baed6", "Deletion" = "#084594",
                 "Gain" = "#f4a582","Amplification" = "#d73027")
   if(sample.as.col){
-    ComplexHeatmap::Heatmap(mat, col = colType, name = "Type", na_col = "#f0f0f0")
+    ComplexHeatmap::Heatmap(mat, col = colType, name = "Type", na_col = "#f0f0f0", row_labels = rownames(mat))
   }
   else{
-    ComplexHeatmap::Heatmap(t(mat), col = colType, name = "Type", na_col = "#f0f0f0", row_names_side = "left")
+    ComplexHeatmap::Heatmap(t(mat), col = colType, name = "Type", na_col = "#f0f0f0", row_names_side = "left", column_labels = colnames(t(mat)))
   }
 }
