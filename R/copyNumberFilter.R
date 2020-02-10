@@ -18,7 +18,7 @@ copyNumberFilter <- function(maf, seg){
                                           Reference_Allele, Tumor_Seq_Allele2,Tumor_Sample_Barcode, 
                                           sep=":"), ID)
   seg$Chromosome <- as.character(seg$Chromosome)
-  seg <- rename(seg,c("Sample" = 'Tumor_Sample_Barcode'))
+  seg <- dplyr::rename(seg,Tumor_Sample_Barcode = Sample)
   data.table::setkey(x = seg,Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position)
   sampleNames <- unique(seg[,Tumor_Sample_Barcode])
   sampleDat <- mafDat[Tumor_Sample_Barcode %in% sampleNames,]
@@ -28,8 +28,8 @@ copyNumberFilter <- function(maf, seg){
                                                 'Start_Position', 'End_Position'))
   overlapsDat <-  overlapsDat[,.(Hugo_Symbol, Chromosome, i.Start_Position, i.End_Position,
                        Tumor_Sample_Barcode, VAF, Start_Position, End_Position, CopyNumber, Type, ID)] %>% 
-                       rename(c("i.Start_Position" = "Start_Position", "i.End_Position" = "End_Position",
-                                "Start_Position" = "Segment_Start", "End_Position" = "Segment_End"))
+                        dplyr::rename(Start_Position = i.Start_Position, End_Position = i.End_Position,
+                                Segment_Start = Start_Position , Segment_End= End_Position)
   # colnames(overlapsDat)[c(3:4, 7:8)] <-  c('Start_Position', 'End_Position', 'Segment_Start', 'Segment_End')
   if(nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]) > 0){
     message(paste('Removed ', nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]), ' variants with no copy number data.', sep = ''))

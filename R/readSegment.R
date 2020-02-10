@@ -16,6 +16,10 @@
 #' gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 #' seg <- readSegment(segCN.file = segCN.file, gtf.dat = gtf.dat, gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
 #'
+#' @importFrom data.table setkey
+#' @importFrom data.table as.data.table
+#' @importFrom data.table data.table
+#' @importFrom data.table foverlaps
 #' @export readSegment
 #'
 
@@ -60,10 +64,7 @@ readSegment <- function(segCN.file = NULL, gtf.dat = NULL,
       dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size)
 
   if(!is.null(gtf.dat)){
-      segDat <- GenomicRanges::GRanges(seqnames=seg$Chromosome,
-                                       ranges=IRanges(start=seg$Start,end = seg$End),
-                                       strand=rep("*",nrow(seg)),
-                                       seg[,c("Sample","CopyNumber","Type")]) %>% as.data.table()
+      segDat <- dplyr::rename(seg, seqnames = Chromosome, start = Start, end = End) %>% as.data.table()
       genesDat <- gtf.dat
       data.table::setkey(x = genesDat, seqnames, start, end)
       data.table::setkey(x = segDat, seqnames, start, end)
@@ -107,8 +108,7 @@ readSegment <- function(segCN.file = NULL, gtf.dat = NULL,
           # mapDat$Gistic.type <- ifelse(test = is.na(mapDat$Gistic.type), yes = "NA", no = mapDat$Gistic.type)
           result <- dplyr::select(mapDat, Type, Gistic.type, Sample, i.Gene, CopyNumber, Chromosome, i.Start_Position, i.End_Position) %>%
               dplyr::distinct(.)
-          result <- rename(result, c("i.Gene" = "Gene","i.Start_Position" = "Start_Position", "i.End_Position" = "End_Position")) %>% 
-              plyr::arrange(Chromosome, Start_Position, End_Position)
+          result <- dplyr::rename(result, Gene = i.Gene, Start_Position = i.Start_Position, End_Position = i.End_Position)
           
           seg <- result
       }

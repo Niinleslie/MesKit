@@ -42,7 +42,7 @@ vafCluster <-function(maf, seg = NULL,
     ## Ignoring variants in copy number altered regions
     if(!is.null(seg)){
         maf@data <- mafDat
-        maf <- copyNumberFilter(maf, seg)
+        maf <- MesKit::copyNumberFilter(maf, seg)
     }
     ## extract vaf info
     n <- length(mafDat$Hugo_Symbol)
@@ -227,7 +227,7 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
     ## Ignoring variants in copy number altered regions
     if(!is.null(seg)){
         maf@data <- mafDat
-        maf <- copyNumberFilter(maf, seg)
+        maf <- MesKit::copyNumberFilter(maf, seg)
     }
     ## extract vaf info
     n <- length(mafDat$Hugo_Symbol)

@@ -13,6 +13,7 @@
 #' seg <- readSegment(segCN.file = segCN.file, gtf.dat = gtf.dat, gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
 #' plotCNA(seg)
 #'
+#' @import ComplexHeatmap
 #' @export plotCNA
 #'
 
