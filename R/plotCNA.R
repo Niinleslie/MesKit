@@ -20,7 +20,7 @@
 plotCNA <- function(seg, sample.as.col = FALSE, show.GISTIC.gene = FALSE){
   if(show.GISTIC.gene){
     if(!"Gistic.type" %in% colnames(seg)){
-      stop("seg does not contain GISTIC gene information")
+      stop("GISTIC genes information were not found. Please check readSegment")
     }
   }
   s <- seg[,round(mean(CopyNumber)),by = .(Sample,Gene)]
