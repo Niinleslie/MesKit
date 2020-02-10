@@ -13,8 +13,8 @@
 
 
 ## calculate merged CCF
-getMergedCCF <- function(maf){
-	mafData <- maf@data
+getMergedCCF <- function(mafData){
+	#mafData <- maf@data
 	if("CCF" %in% colnames(mafData)){
 		maf_totalDepth <- mafData %>% 
 			dplyr::filter(Variant_Type == "SNP") %>%
@@ -30,7 +30,7 @@ getMergedCCF <- function(maf){
 			if(snv.mergedCCF > 1){snv.mergeCCF = 1}
 			mergedCCF <- c(mergedCCF, snv.mergedCCF)
 		}
-		return(data.frame(mutation_id=mutID, mergedCCF=mergedCCF))		
+		return(data.frame(mutation_id=mutID, mergedCCF=mergedCCF,stringsAsFactors = FALSE))		
 	}
 	else{
 		stop("No ccf data was found when readMaf")

@@ -7,7 +7,7 @@
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL. 
 #' @param use.indel logic. whether to use INDELs besides somatic SNVs. Default FALSE. 
 #' @param ccfFile CCF file of SNVs. Default NULL. 
-#' @param refBuild human reference genome versions of hg19 or hg38 by UCSC. Default "hg19". Option: "hg38". 
+#' @param refBuild human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19". 
 #' 
 #' 
 #' @examples
@@ -35,13 +35,13 @@ readMaf <- function(
     
     ## read maf file from .maf or .gz file
     if (.substrRight(mafFile, 3) == ".gz"){
-        mafInput <- read.table(mafGz <- gzfile(mafFile, "r"), quote="", 
+        mafData <- read.table(mafGz <- gzfile(mafFile, "r"), quote="", 
                                header=TRUE, fill=TRUE, 
                                sep='\t', stringsAsFactors=FALSE)
         
         close(mafGz)
     } else {
-        mafInput <- read.table(mafFile, quote="", 
+        mafData <- read.table(mafFile, quote="", 
                                header=TRUE, fill=TRUE, 
                                sep='\t', stringsAsFactors=FALSE)
     }
@@ -58,12 +58,7 @@ readMaf <- function(
                                       sep='\t', stringsAsFactors=FALSE)
 
 
-        mafInput <- tidyr::unite(mafInput, "mutID", c("Tumor_Sample_Barcode", "Chromosome", "Start_Position", "Variant_Type"), sep = ":", remove = FALSE)
-        snvCCF <- mutate(ccfInput, Variant_Type="SNP") %>%
-            tidyr::unite("mutID", c("Sample", "Chromosome", "Start", "Variant_Type"), sep = ":", remove = FALSE) %>%
-            dplyr::select(mutID, CCF)
-        mafInput <- merge(mafInput, snvCCF, by="mutID", all.x = TRUE) %>%
-            dplyr::select(-mutID) 
+        mafData <- uniteCCF(mafData, ccf)
     } 
 
     
@@ -77,7 +72,7 @@ readMaf <- function(
         } else {
             nonSilent <- mutNonSilent 
         }
-        mafInput <- mafInput[which(mafInput$Variant_Classification %in% nonSilent), ]
+        mafData <- mafData[which(mafData$Variant_Classification %in% nonSilent), ]
     } else if (mutType == "All"){
         # message("All variant classification submitted")
     } else {
@@ -88,27 +83,23 @@ readMaf <- function(
     
     ## use.indel filter
     if(!use.indel){
-        mafInput <- mafInput[which(mafInput$Variant_Type == "SNP"),]
+        mafData <- mafData[which(mafData$Variant_Type == "SNP"),]
     }
     
     ## chromosome filter 
     if (!is.null(chrSilent)){
-        mafInput <- mafInput[which(!mafInput$Chromosome %in% chrSilent), ]
+        mafData <- mafData[which(!mafData$Chromosome %in% chrSilent), ]
     }
-    
-    ## transform data.frame to data.table
-    mafData <- data.table::setDT(mafInput)
+
     
     ## generate classMaf
-    maf <- classMaf(data=mafData,  
+    maf <- classMaf(data=data.table::setDT(mafData),  
                     patientID=patientID, 
                     ref.build=refBuild)
     
     # ## for parameter vafColumn="VAF", select particular VAF column
     # colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
-    
-    
-    
+       
     return(maf)
 }
 
@@ -116,7 +107,24 @@ readMaf <- function(
     substr(x, nchar(x)-n+1, nchar(x))
 }
 
-## classMaf class
+
+##--- combine CCF into maf object
+uniteCCF <- function(maf, ccf){
+    maf <- tidyr::unite(
+        maf, "mutID", c("Tumor_Sample_Barcode", "Chromosome", "Start_Position", "Variant_Type"), 
+        sep=":", remove = FALSE
+        )
+    ccf <- mutate(
+        ccfInput, Variant_Type="SNP") %>%
+        tidyr::unite("mutID", c("Sample_ID", "Chromosome", "Start_Position", "Variant_Type"), sep = ":", remove = FALSE) %>%
+        dplyr::select(mutID, CCF, CCF_std)
+
+    maf_merge_ccf <- merge(maf, ccf, by="mutID", all.x=TRUE)%>%
+        dplyr::select(-mutID) 
+}
+
+
+##--- classMaf class
 classMaf <- setClass(Class="classMaf", 
                      slots= c(data='data.table', patientID='character', 
                               ref.build='character'))
