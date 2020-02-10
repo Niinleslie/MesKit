@@ -27,7 +27,7 @@ readMaf(
 
 \item{ccfFile}{CCF file of SNVs. Default NULL.}
 
-\item{refBuild}{human reference genome versions of hg19 or hg38 by UCSC. Default "hg19". Option: "hg38".}
+\item{refBuild}{human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".}
 }
 \value{
 an object of class Maf.

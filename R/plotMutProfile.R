@@ -78,13 +78,13 @@ genHeatmapPlotMatrix <-
         if (is.null(driverGenesFile)) {
            mat_data <-
                 maf_data %>%
-                dplyr::slice(n = topGenesCount)
+                dplyr::slice(1:topGenesCount)
        } else {
             geneSelect <-
                 read.table(driverGenesFile, col.names = "gene_Name")$gene_Name
             mat_data <- maf_data %>%
                 dplyr::filter(any(strsplit(Hugo_Symbol, ",|;") %in% geneSelect)) %>%
-                dplyr::slice(n = topGenesCount)
+                dplyr::slice(1:topGenesCount)
         }
         #   View(mat_data)
         

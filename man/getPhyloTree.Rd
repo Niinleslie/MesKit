@@ -7,7 +7,7 @@
 getPhyloTree(maf, method = "NJ", minVaf = 0.02, maxVaf = 1)
 }
 \arguments{
-\item{method}{Method to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood).}
+\item{method}{Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood).}
 
 \item{minVaf}{the minimum value of vaf}
 
