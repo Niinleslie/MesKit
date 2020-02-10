@@ -24,7 +24,7 @@ plotPhyloTree(
 
 \item{show.bootstrap}{logical.Whether to add bootstrap value on internal nodes.Default is TRUE.}
 
-\item{use.box}{logical.Whether to add box arround bootstrap value on tree. Default is TRUE.}
+\item{use.box}{logical.Whether to add box around bootstrap value on tree. Default is TRUE.}
 }
 \value{
 Prints plot.

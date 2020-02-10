@@ -5,7 +5,7 @@
 #' @param show.heatmap logical. Whether to show heatmap of somatic mutations. Default is TRUE.
 #' @param heatmap.type character. "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap. This parameter is only useful when show.mutSig = TRUE.
 #' @param show.bootstrap logical.Whether to add bootstrap value on internal nodes.Default is TRUE.
-#' @param use.box logical.Whether to add box arround bootstrap value on tree. Default is TRUE.
+#' @param use.box logical.Whether to add box around bootstrap value on tree. Default is TRUE.
 #' @examples
 #' plotPhyloTree(phyloTree)
 #' ## Use ccf 

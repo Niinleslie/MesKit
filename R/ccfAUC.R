@@ -12,33 +12,35 @@
 #' @export ccfAUC
 
 
-ccfAUC <- function(maf, tsb=NULL){
-    ## extract the loci data from maf
-    mutCCF.all <- maf@ccf.loci
+ccfAUC <- function(maf, tsb=NULL, auc.cutoff = 0.145){
+    mafData <- maf@data
+    
     df.AUC <- data.frame(matrix(ncol=3, nrow=0), stringsAsFactors = FALSE)
-    colnames(df.AUC) <- c("TumorSampleBarcode", "AUC", "Heterogeneity")
+    colnames(df.AUC) <- c("Tumor_SampleBarcode", "AUC", "Heterogeneity")
     mutCCF.sort.all <- data.frame(matrix(ncol=3, nrow=0), stringsAsFactors = FALSE)
-    colnames(mutCCF.sort.all) <- c("TumorSampleBarcode", "ccf", "prop")
+    colnames(mutCCF.sort.all) <- c("Tumor_Sample_Barcode", "ccf", "prop")
     
     ## specify sample.id
     if (is.null(tsb)) {
-        tsb <- unique(mutCCF.all$sample_id)
+        tsb <- unique(mafData$Tumor_Sample_Barcode)
     }
     
     ## calculate AUC
     for (sample.id in tsb) {
-        mutCCF <- mutCCF.all[which(mutCCF.all$sample_id == sample.id), ]
+        mutCCF <- dplyr::filter(
+            mafData, Tumor_Sample_Barcode==sample.id
+            ) %>%
+            dplyr::select(CCF) %>%
+            dplyr::filter(!is.na(CCF))
         
-        ## calculate each sample's AUC value
-        mutCCF.sort <- data.frame(ccf=sort(mutCCF$cellular_prevalence), prop=c(1:nrow(mutCCF))/nrow(mutCCF))
+        ## calculate each sample's AUC value    
+        mutCCF.sort <- data.frame(ccf=as.vector(sort(mutCCF$CCF)), prop=c(1:nrow(mutCCF))/nrow(mutCCF))
         area <- 0
-        
-        ## TODO: maybe there will be more accurate method using calculus
         for (i in (1:(nrow(mutCCF)-1))){
-            mutArea <- (mutCCF.sort[i,2]+mutCCF.sort[i+1,2])*(mutCCF.sort[i+1,1]-mutCCF.sort[i,1])/2
+            mutArea <- (mutCCF.sort[i,2] + mutCCF.sort[i+1, 2])*(mutCCF.sort[i+1, 1]-mutCCF.sort[i, 1])/2
             area <- mutArea + area
         }
-        
+
         ## Heterogeneous or Homogeneous
         if (area > 0.145) {
             Heterogeneity <- "Heterogeneous"
@@ -48,16 +50,16 @@ ccfAUC <- function(maf, tsb=NULL){
         }
         
         ## generate elements for mutCCF.sort.all and df.AUC
-        row.mutCCF.sort <- cbind(TumorSampleBarcode=rep(sample.id, nrow(mutCCF.sort)), mutCCF.sort)
+        row.mutCCF.sort <- cbind(Tumor_Sample_Barcode=rep(sample.id, nrow(mutCCF.sort)), mutCCF.sort)
         mutCCF.sort.all <- rbind(mutCCF.sort.all, row.mutCCF.sort)
-        row.AUC <- data.frame(TumorSampleBarcode=sample.id, AUC=area, Heterogeneity=Heterogeneity)
+        row.AUC <- data.frame(Tumor_Sample_Barcode=sample.id, AUC=area, Heterogeneity=Heterogeneity)
         df.AUC <- rbind(df.AUC, row.AUC)
     }
-    
+
     ## visualise the mutCCF.sort.all data
-    pic <- ggplot(mutCCF.sort.all, aes(x=ccf, y=prop, group=TumorSampleBarcode, color=TumorSampleBarcode))+ 
+    p<- ggplot2::ggplot(mutCCF.sort.all, aes(x=ccf, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))+ 
         theme_bw()+ 
-        geom_line(size=0.6)+
+        geom_line(size=0.8)+
         theme(
             #legend.position='none', 
             title=element_text(size=10), 
@@ -71,6 +73,6 @@ ccfAUC <- function(maf, tsb=NULL){
         ggsci::scale_fill_npg()
         
     ## result 
-    output <- list(data.AUC=df.AUC, plot.AUC=pic)
+    output <- list(AUC.value=df.AUC, AUC.plot=p)
     return(output)
 }

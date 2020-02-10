@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
 Imports: utils, ape, methods, plotrix, gridExtra,
-        DO.db, tidyr, dplyr, Hmisc, ggrepel,
+        DO.db, tidyr, dplyr, Hmisc, ggrepel, ComplexHeatmap,
         ggplot2, RColorBrewer, ggridges, ggsci, graphics, cowplot,
         deconstructSigs, grid, 
         packcircles, clusterProfiler, ReactomePA, htmlwidgets,
