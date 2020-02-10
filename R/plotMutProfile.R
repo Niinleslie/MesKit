@@ -52,7 +52,7 @@ genHeatmapPlotMatrix <-
             dplyr::group_by(mutation_id) %>%
             dplyr::summarise(unique_sample_count = dplyr::n_distinct(Tumor_Sample_Barcode))
         
-        maf_data <-
+        maf_data <- suppressMessages(
             maf_data %>%
             dplyr::left_join(mutation_count) %>%
             dplyr::filter(!is.na(Status)) %>%
@@ -73,6 +73,7 @@ genHeatmapPlotMatrix <-
             ) %>%
             dplyr::arrange(dplyr::desc(max_sample_count)) %>%
             dplyr::ungroup()
+            )
         
 
         if (is.null(driverGenesFile)) {
@@ -108,15 +109,6 @@ plotMutProfile <-
                                  topGenesCount = topGenesCount,
                                  driverGenesFile = driverGenesFile)
         # View(mat)
-        
-        if (!is.null(driverGenesFile) & length(mat) == 0) {
-            stop(
-                paste0(
-                    "No mutation profile, please check driverGenesFile: ",
-                    driverGenesFile
-                )
-            )
-        }
         
         types <- c(
                 "Private_Clonal",
