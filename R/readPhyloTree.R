@@ -1,13 +1,13 @@
 #' Get sampleID of private branchs and shared branches/trunk in NJtree
-#' @param mat.nj a nj tree object generated from ape
+#' @param matTree a nj tree object generated from ape
 #' @return a dataframe with sampleID of each branch and trunk
 #'
 #' @examples
-#  branches <- readPhyloTree(mat.nj)
+#  branches <- readPhyloTree(matTree)
 
-readPhyloTree <- function(mat.nj){
-  # edges <- mat.nj$edge
-  # tips <- mat.nj$tip.label
+readPhyloTree <- function(matTree){
+  # edges <- matTree$edge
+  # tips <- matTree$tip.label
   # leaf_nodes <- seq(1, length(tips))
   # mid_nodes <- seq(length(tips)+1, max(edges))
   # root <- which(tips == "NORMAL")
@@ -31,9 +31,9 @@ readPhyloTree <- function(mat.nj){
   # Node_dist[root_R] <- 1
   # Node_after <- list(NULL)
   # length(Node_after) <- max(edges)
-  # for (i in 2:mat.nj$Nnode){
+  # for (i in 2:matTree$Nnode){
   #   i_B <- i-1
-  #   if(length(unlist(dist)) < mat.nj$Nnode){
+  #   if(length(unlist(dist)) < matTree$Nnode){
   #     for(N in dist[[i_B]]){
   #       R_Nodes <- get_adjacent_node(N)
   #       R_Nodes <- R_Nodes[!(R_Nodes %in% unlist(dist))]
@@ -93,15 +93,15 @@ readPhyloTree <- function(mat.nj){
   #     edges_label <- c(edges_label, tips[min(edge)])
   #   }
   # }
-  Root <- which(mat.nj$tip.label == "NORMAL")
-  mat.nj <- root(mat.nj, Root)
+  Root <- which(matTree$tip.label == "NORMAL")
+  matTree <- root(matTree, Root)
   result <- list()
-  for(i in 1:(length(mat.nj$edge.length)+1)){
+  for(i in 1:(length(matTree$edge.length)+1)){
       result[[i]] <- NA
   }
-  end <- mat.nj$edge[which(mat.nj$edge[,2] == Root),1]
-  for(i in 1:length(mat.nj$tip.label)){
-      row <- mat.nj$edge[which(mat.nj$edge[,2] == i), ]
+  end <- matTree$edge[which(matTree$edge[,2] == Root),1]
+  for(i in 1:length(matTree$tip.label)){
+      row <- matTree$edge[which(matTree$edge[,2] == i), ]
       if(i == Root){
           next
       }
@@ -114,14 +114,14 @@ readPhyloTree <- function(mat.nj){
           }
           else{
               result[[node]] <- append(result[[node]], i)
-              row <- mat.nj$edge[which(mat.nj$edge[,2] == node),]
+              row <- matTree$edge[which(matTree$edge[,2] == node),]
           }
       }
   }
-  g <- lapply(result, function(x){return(paste(sort(mat.nj$tip.label[x[-1]], decreasing = T),collapse = "∩"))})
+  g <- lapply(result, function(x){return(paste(sort(matTree$tip.label[x[-1]], decreasing = T),collapse = "∩"))})
   edges_label <- unlist(g)[-Root]
 
-  nodes.num <- seq_along(mat.nj$tip.label)-1
+  nodes.num <- seq_along(matTree$tip.label)-1
   NJtree_branch <- edges_label[order(unlist(lapply(edges_label, function(x) length(unlist(strsplit(x, split = "∩"))))))]
   edges.num <- length(strsplit(tail(NJtree_branch,1), split = "∩")[[1]])
   NJtree_branch_Alias <- c(paste(rep("B", length(NJtree_branch)-1), (length(NJtree_branch)-1):1, sep = ""), "T")

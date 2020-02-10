@@ -24,19 +24,19 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
   }else{
     use.ccf = TRUE
   }
-  tree <- phyloTree@nj
+  tree <- phyloTree@tree
   refBuild <- phyloTree@refBuild
   signature <- treeMutationalSig(phyloTree)$mutSigsOutput
   patientID <- phyloTree@patientID
   rootLabel <- 'NORMAL'
-  numRoot <- which(tree$tip.label == rootLabel)
-  myBoots <- ape::boot.phylo(tree, t(phyloTree@binary.matrix), function(e) root(nj(dist.gene(e)),numRoot),B = 1000)/1000
+  # numRoot <- which(tree$tip.label == rootLabel)
+  myBoots <- phyloTree@bootstrap.value
   ## generate phylotree data
   phylotreeOutputData <- phyloTreeInput(tree, signature, show.mutSig ,rootLabel)
   phylotreeOutputData <- phylotreeOutputData[(phylotreeOutputData$distance!=0|phylotreeOutputData$sample == rootLabel),]
   if(show.mutSig){
     colorScale <- colorSet(unique(phylotreeOutputData$signature))
-    fileID <- paste(fileID, ".mutsig", sep = "")
+    # fileID <- paste(fileID, ".mutsig", sep = "")
   }
   ## plot phylotree
   P <- generatePlotObject(phylotreeOutputData, colorScale, show.mutSig, rootLabel = rootLabel,

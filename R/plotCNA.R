@@ -18,6 +18,9 @@
 #'
 
 plotCNA <- function(seg, sample.as.col = FALSE, show.GISTIC.gene = FALSE){
+  if(!"Gene" %in% colnames(seg)){
+      stop("Missing Gene information!please upload gtf.dat in readSegment function.")
+  } 
   if(show.GISTIC.gene){
     if(!"Gistic.type" %in% colnames(seg)){
       stop("seg does not contain GISTIC gene information")

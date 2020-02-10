@@ -40,25 +40,29 @@ getPhyloTree <- function(maf,
       ccf.matrix <- matrix() 
   }
   mut_dat <- t(binary.matrix)
-  mat.nj <- nj(dist.gene(mut_dat))
+  matTree <- nj(dist.gene(mut_dat))
   if(method == "MP"){
       tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
-      tree_pars <- phangorn::optim.parsimony(mat.nj, tree_dat)
-      mat.nj <- phangorn::acctran(tree_pars, tree_dat)
+      tree_pars <- phangorn::optim.parsimony(matTree, tree_dat)
+      matTree <- phangorn::acctran(tree_pars, tree_dat)
   }
   if(method == "ML"){
       tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
-      fitJC <- phangorn::pml(mat.nj, tree_dat)
+      fitJC <- phangorn::pml(matTree, tree_dat)
       fitJC <- phangorn::optim.pml(fitJC)
-      mat.nj <- fitJC$tree
+      matTree <- fitJC$tree
   }
-  branchAlias <- readPhyloTree(mat.nj)
+  numRoot <- which(matTree$tip.label == "NORMAL")
+  bootstrap.value <- ape::boot.phylo(matTree, t(binary.matrix), function(e) root(nj(dist.gene(e)),numRoot),B = 1000)/1000
+  branchAlias <- readPhyloTree(matTree)
   mut.branches <- .treeMutationalBranches(maf.dat, branchAlias, binary.matrix)
-  phylo.tree <- new('phyloTree', patientID = patientID, nj = mat.nj, 
+  phylo.tree <- new('phyloTree', patientID = patientID, tree = matTree, 
                     binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
-                    mut.branches = mut.branches, refBuild = maf@ref.build)
+                    mut.branches = mut.branches, refBuild = maf@ref.build,
+                    bootstrap.value = bootstrap.value)
   return(phylo.tree)
 }
 #Prevent class 'phylo' from not existing
 setClass('phylo')
-setClass('phyloTree', slots = c(nj = 'phylo', patientID = 'character', binary.matrix = 'matrix', mut.branches = 'list', ccf.matrix = 'matrix', refBuild = 'character'))
+setClass('phyloTree', slots = c(tree = 'phylo', patientID = 'character', binary.matrix = 'matrix', mut.branches = 'list', ccf.matrix = 'matrix', refBuild = 'character',
+                                bootstrap.value = 'numeric'))
