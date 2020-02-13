@@ -5,7 +5,7 @@
 #' @param show.heatmap logical. Whether to show heatmap of somatic mutations. Default is TRUE.
 #' @param heatmap.type character. "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap. This parameter is only useful when show.mutSig = TRUE.
 #' @param show.bootstrap logical.Whether to add bootstrap value on internal nodes.Default is TRUE.
-#' @param use.box logical.Whether to add box arround bootstrap value on tree. Default is TRUE.
+#' @param use.box logical.Whether to add box around bootstrap value on tree. Default is TRUE.
 #' @examples
 #' plotPhyloTree(phyloTree)
 #' ## Use ccf 
@@ -28,7 +28,6 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
   refBuild <- phyloTree@refBuild
   signature <- treeMutationalSig(phyloTree)$mutSigsOutput
   patientID <- phyloTree@patientID
-  fileID <- paste(phyloTree@patientID, ".phyloTree", sep = "")
   rootLabel <- 'NORMAL'
   numRoot <- which(tree$tip.label == rootLabel)
   myBoots <- ape::boot.phylo(tree, t(phyloTree@binary.matrix), function(e) root(nj(dist.gene(e)),numRoot),B = 1000)/1000
@@ -37,7 +36,6 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
   phylotreeOutputData <- phylotreeOutputData[(phylotreeOutputData$distance!=0|phylotreeOutputData$sample == rootLabel),]
   if(show.mutSig){
     colorScale <- colorSet(unique(phylotreeOutputData$signature))
-    fileID <- paste(fileID, ".mutsig", sep = "")
   }
   ## plot phylotree
   P <- generatePlotObject(phylotreeOutputData, colorScale, show.mutSig, rootLabel = rootLabel,
@@ -50,7 +48,7 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
     PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(P, x = -0.05,y = 0, width = 0.7) + draw_plot(H, x = 0.48,y = -0.12, width = 0.15)
     title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
     PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
-    # ggsave(filename = paste0(fileID,".pdf"),plot = PH, width = 10, height = 6.5)
+    
     return(PH)
   }
   else{

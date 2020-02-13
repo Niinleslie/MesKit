@@ -32,7 +32,7 @@ fst.hudson <- function(maf.pair, minVAF) {
 
 calFst <- function(maf, min.clonal.CCF = 0.6, minVAF=0.08){
 	maf.dat <- maf@data
-	if(! "CCF" %in% colnames(maf.data)){
+	if(! "CCF" %in% colnames(maf.dat)){
 		stop("Calculation of Fst requires CCF data. No CCF data was found when readMaf")
 	}
 	else {
@@ -62,7 +62,7 @@ calFst <- function(maf, min.clonal.CCF = 0.6, minVAF=0.08){
   		}
   		Fst <- mean(fstHudson)
   		Fst.out <- list(Fst, data.frame(paired.samples=pairIDs, fst.hudson = fstHudson))
-  		names(Fst.out) <- c("Fst", "fst.hudson")
+  		names(Fst.out) <- c("Fst", "Fst.hudson")
   		return(Fst.out)
   	}
 }

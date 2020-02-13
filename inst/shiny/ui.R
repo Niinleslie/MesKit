@@ -122,7 +122,7 @@ bodyIP <- tabItem("input",
                             ),
                             selectInput(inputId = "method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construction approach"),
                                         choices = c(
-                                            "Neighbor Joining" = "NJ",
+                                            "Neighbor joining" = "NJ",
                                             "Maximum parsimony" = "MP",
                                             "Maximum likelihood" = "ML"
                                         ), selected = "NJ",width = 300),
@@ -186,10 +186,6 @@ bodyIP <- tabItem("input",
                             width = NULL,box(
                               width = NULL,
                               div(strong("Maf data preview"),style = "font-size:27px; font-weight:500;"),
-                              p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
-                                style = "font-size:16px; font-weight:500;line-height:30px;"),
-                              h4(strong("Data preview:")),
-                              # uiOutput("warningMessage00"),
                               uiOutput("datapreview")
                               # DT::dataTableOutput('maftable', width = '100%')
                             ),
@@ -337,6 +333,18 @@ bodyITH <- tabItem("ITH",
                                      title = "Whether to show MATH Scores in the plot",
                                      placement = "top",
                                      trigger = "hover"),
+                           checkboxInput('useseg',label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Use seg file'),value = FALSE),
+                           bsTooltip(id = "useseg",
+                                     title = "Upload copy number file to ignore variants in copy number altered regions",
+                                     placement = "top",
+                                     trigger = "hover"),
+                           conditionalPanel(
+                               condition = "input.useseg == true",
+                               fileInput(inputId = 'segFile', 
+                                         label = div(style = "font-size:1.5em; font-weight:600; ", 'Seg file'),
+                                         placeholder = "Default file: HCC6046.seg.txt", 
+                                         width = 400)
+                           ),
                            sliderInput('width1', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'), min = 700,max = 1100, value = 850,width = 500),
                            br(),
                            br(),
@@ -359,74 +367,95 @@ bodyITH <- tabItem("ITH",
                            condition = "input.tith == 'caInput05'",
                            div(strong("Parameter"), style = "font-size:2em; font-weight:600;"),
                            br(),
-                           selectInput(inputId = 'plotChoiceSpp', 
-                                       label = div(style = "font-size:1.5em; font-weight:600; ", 
-                                                   'Select'), 
-                                       choices = c(
-                                         sharedPrivatePlot = "sharedPrivatePlot",
-                                         mutOncoTSG = "mutOncoTSG"
-                                       ), selected = "sharedPrivatePlot", width = 300),
-                           bsTooltip(id = "plotChoiceSpp",
-                                     title = "Plot choice",
+                           # selectInput(inputId = 'plotChoiceSpp', 
+                           #             label = div(style = "font-size:1.5em; font-weight:600; ", 
+                           #                         'Select'), 
+                           #             choices = c(
+                           #               sharedPrivatePlot = "sharedPrivatePlot",
+                           #               mutOncoTSG = "mutOncoTSG"
+                           #             ), selected = "sharedPrivatePlot", width = 300),
+                           # bsTooltip(id = "plotChoiceSpp",
+                           #           title = "Plot choice",
+                           #           placement = "top",
+                           #           trigger = "hover"),
+                           checkboxInput('showNum1',label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show mutation number'),width = 500),
+                           bsTooltip(id = "showNum1",
+                                     title = "Show mutational number",
                                      placement = "top",
                                      trigger = "hover"),
-                           conditionalPanel(
-                             condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
-                             checkboxInput('showNum1',label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show mutation number'),width = 500),
-                             bsTooltip(id = "showNum1",
-                                       title = "Show mutational number",
-                                       placement = "top",
-                                       trigger = "hover"),
-                             br(),
-                             sliderInput('width2', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                             fluidRow(
-                               column(
-                                 width = 9,
-                                 div(
-                                   tags$button(
-                                     id = "submit4", type = "button", class = "action-button bttn",
-                                     class = "bttn-unite", class = paste0("bttn-md"),
-                                     class = paste0("bttn-default"),
-                                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                     style = "margin-bottom:0px;margin-right:0px;"
-                                   )
-                                 )
-                               )
-                             )
-                           ),
-                           
-                           conditionalPanel(
-                             condition = "input.plotChoiceSpp == 'mutOncoTSG'",
-                           fileInput(inputId = 'oncogeneListFile', 
-                                     label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list file'), 
-                                     placeholder = "Defalut file: oncogene.list.txt", 
-                                     width = 400),
-                           fileInput(inputId = 'tsgListFile', 
-                                     label = div(style = "font-size:1.5em; font-weight:600; ", 'TSG list file'), 
-                                     placeholder = "Defalut file: TSG.list.txt", 
-                                     width = 400),
-                           checkboxInput('showPercentage',label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Show Percentage'),value = T),
-                           bsTooltip(id = "showPercentage",
-                                     title = "Show the number of each mutations in the stack plot",
-                                     placement = "top",
-                                     trigger = "hover"),
-                           sliderInput('width3',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
                            br(),
+                           sliderInput('width2', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
                            fluidRow(
-                             column(
-                               width = 9,
-                               div(
-                                 tags$button(
-                                   id = "submit5", type = "button", class = "action-button bttn",
-                                   class = "bttn-unite", class = paste0("bttn-md"),
-                                   class = paste0("bttn-default"),
-                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                   style = "margin-bottom:0px;margin-right:0px;"
-                                 )
+                               column(
+                                   width = 9,
+                                   div(
+                                       tags$button(
+                                           id = "submit4", type = "button", class = "action-button bttn",
+                                           class = "bttn-unite", class = paste0("bttn-md"),
+                                           class = paste0("bttn-default"),
+                                           list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                           style = "margin-bottom:0px;margin-right:0px;"
+                                       )
+                                   )
                                )
-                             )
                            )
-                           )
+                           # conditionalPanel(
+                           #   condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
+                           #   checkboxInput('showNum1',label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show mutation number'),width = 500),
+                           #   bsTooltip(id = "showNum1",
+                           #             title = "Show mutational number",
+                           #             placement = "top",
+                           #             trigger = "hover"),
+                           #   br(),
+                           #   sliderInput('width2', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                           #   fluidRow(
+                           #     column(
+                           #       width = 9,
+                           #       div(
+                           #         tags$button(
+                           #           id = "submit4", type = "button", class = "action-button bttn",
+                           #           class = "bttn-unite", class = paste0("bttn-md"),
+                           #           class = paste0("bttn-default"),
+                           #           list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                           #           style = "margin-bottom:0px;margin-right:0px;"
+                           #         )
+                           #       )
+                           #     )
+                           #   )
+                           # )
+                           # 
+                           # conditionalPanel(
+                           #   condition = "input.plotChoiceSpp == 'mutOncoTSG'",
+                           # fileInput(inputId = 'oncogeneListFile', 
+                           #           label = div(style = "font-size:1.5em; font-weight:600; ", 'Oncogene list file'), 
+                           #           placeholder = "Defalut file: oncogene.list.txt", 
+                           #           width = 400),
+                           # fileInput(inputId = 'tsgListFile', 
+                           #           label = div(style = "font-size:1.5em; font-weight:600; ", 'TSG list file'), 
+                           #           placeholder = "Defalut file: TSG.list.txt", 
+                           #           width = 400),
+                           # checkboxInput('showPercentage',label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Show Percentage'),value = T),
+                           # bsTooltip(id = "showPercentage",
+                           #           title = "Show the number of each mutations in the stack plot",
+                           #           placement = "top",
+                           #           trigger = "hover"),
+                           # sliderInput('width3',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 600,max = 1100, value = 650,width = 500),
+                           # br(),
+                           # fluidRow(
+                           #   column(
+                           #     width = 9,
+                           #     div(
+                           #       tags$button(
+                           #         id = "submit5", type = "button", class = "action-button bttn",
+                           #         class = "bttn-unite", class = paste0("bttn-md"),
+                           #         class = paste0("bttn-default"),
+                           #         list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                           #         style = "margin-bottom:0px;margin-right:0px;"
+                           #       )
+                           #     )
+                           #   )
+                           # )
+                           # )
                          ),
                          conditionalPanel(
                            condition = "input.tith == 'caInput06'",
@@ -638,13 +667,25 @@ bodyfunction <- tabItem('function',
                                 condition = "input.fat == 'F01'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
+                                checkboxInput(inputId="driverGenesMapping1", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
+                                bsTooltip(id = "driverGenesMapping1",
+                                          title = 'The file with driver gene list.',
+                                          placement = "top",
+                                          trigger = "hover"),
+                                conditionalPanel(
+                                    condition = "input.driverGenesMapping1 == true",
+                                    fileInput(inputId = 'driverGenesFile1', 
+                                              label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
+                                              placeholder = "Default file: putative_driver_genes.txt", 
+                                              width = 400)
+                                ),
                                 selectInput(inputId = "GOtype", 
                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "GO type"),
                                             choices = c(ALL = "ALL", 
                                                         BP = "BP",
                                                         MF = "MF", 
                                                         CC = "CC"),
-                                            selected = "ALL"),
+                                            selected = "BP"),
                                 bsTooltip(id = "GOtype",
                                           title = "One of BP, MF, and CC sub-ontologies, or ALL for pooling 3 GO sub-ontologies.",
                                           placement = "top",
@@ -728,6 +769,18 @@ bodyfunction <- tabItem('function',
                                 condition = "input.fat == 'F02'",
                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                 br(),
+                                checkboxInput(inputId="driverGenesMapping2", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
+                                bsTooltip(id = "driverGenesMapping2",
+                                          title = 'The file with driver gene list.',
+                                          placement = "top",
+                                          trigger = "hover"),
+                                conditionalPanel(
+                                    condition = "input.driverGenesMapping2 == true",
+                                    fileInput(inputId = 'driverGenesFile2', 
+                                              label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
+                                              placeholder = "Default file: putative_driver_genes.txt", 
+                                              width = 400)
+                                ),
                                 selectInput(inputId = "pathwaytype", 
                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Pathway type"),
                                             choices = c(KEGG = "KEGG", 
@@ -1099,6 +1152,24 @@ bodySurvival <- tabItem('Survival',
                                         title = 'Whether to show heatmap of somatic mutations. Default is TRUE.',
                                         placement = "top",
                                         trigger = "hover"),
+                              conditionalPanel(
+                                  condition = "input.showheatmap == true",
+                                  radioButtons(
+                                      inputId = "heatmaptype",
+                                      label = div(style = "font-size:1.5em; font-weight:600;  ", "Heatmap type"),
+                                      choiceNames = list(
+                                          tags$span(style = "font-size:1.5em; font-weight:600; ", "Binary"), 
+                                          tags$span(style = "font-size:1.5em; font-weight:600; ", "CCF")
+                                      ),
+                                      choiceValues = c("binary", "CCF"),
+                                      selected = "binary", 
+                                      inline = TRUE
+                                  ),
+                                  bsTooltip(id = "heatmaptype",
+                                            title = ' "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap.',
+                                            placement = "top",
+                                            trigger = "hover")
+                              ), 
                               checkboxInput('showbootstrap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Show bootstrap value'),value = TRUE),
                               bsTooltip(id = "showbootstrap",
                                         title = 'Whether to add bootstrap value on internal nodes.',
@@ -1111,24 +1182,6 @@ bodySurvival <- tabItem('Survival',
                                             title = 'Whether to add box arround bootstrap value on tree. ',
                                             placement = "top",
                                             trigger = "hover")
-                              ),
-                              conditionalPanel(
-                                condition = "input.showheatmap == true",
-                                radioButtons(
-                                  inputId = "heatmaptype",
-                                  label = div(style = "font-size:1.5em; font-weight:600;  ", "Heatmap type"),
-                                  choiceNames = list(
-                                    tags$span(style = "font-size:1.5em; font-weight:600; ", "Binary"), 
-                                    tags$span(style = "font-size:1.5em; font-weight:600; ", "CCF")
-                                  ),
-                                  choiceValues = c("binary", "CCF"),
-                                  selected = "binary", 
-                                  inline = TRUE
-                                ),
-                                bsTooltip(id = "heatmaptype",
-                                          title = ' "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap.',
-                                          placement = "top",
-                                          trigger = "hover")
                               ), 
                               fluidRow(
                                 column(
