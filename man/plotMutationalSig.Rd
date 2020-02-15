@@ -7,7 +7,7 @@
 plotMutationalSig(treeMSOutput)
 }
 \arguments{
-\item{treeMSOutput}{The output of function treeMutationalSig.}
+\item{treeMSOutput}{The output of function treeMutSig.}
 }
 \value{
 A signature plot shows the signature for each branch and presents the distribution in each mutational categories.

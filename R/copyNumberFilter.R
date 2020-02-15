@@ -19,6 +19,9 @@ copyNumberFilter <- function(maf, seg){
                                           sep=":"), ID)
   seg$Chromosome <- as.character(seg$Chromosome)
   seg <- dplyr::rename(seg,Tumor_Sample_Barcode = Sample)
+  if("Start" %in% colnames(seg)){
+      seg <- dplyr::rename(seg,Start_Position = Start, End_Position = End)
+  }
   data.table::setkey(x = seg,Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position)
   sampleNames <- unique(seg[,Tumor_Sample_Barcode])
   sampleDat <- mafDat[Tumor_Sample_Barcode %in% sampleNames,]

@@ -7,7 +7,7 @@
 mutTrunkBranch(treeMSOutput, conf.level = 0.95)
 }
 \arguments{
-\item{treeMSOutput}{the output of treeMutationalSig function.}
+\item{treeMSOutput}{the output of treeMutSig function.}
 
 \item{conf.level}{confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.}
 }

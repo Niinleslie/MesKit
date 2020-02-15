@@ -45,7 +45,7 @@ getMutMatrix <- function(mafData, use.ccf = FALSE){
     M$CCF <- mafData$CCF
     M[is.na(M$CCF),'CCF'] <- 2
 
-    mutCCF <- select(M, -mutation) %>%
+    mutCCF <- dplyr::select(M, -mutation) %>%
       tidyr::spread(key=Tumor_Sample_Barcode, value=CCF)
 
     mut.id <- mutCCF$mutation_id
