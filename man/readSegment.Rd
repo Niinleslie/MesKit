@@ -33,11 +33,5 @@ readSegment(
 readSegment
 }
 \examples{
-segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
-# Load gtf.dat
-load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
-gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-seg <- readSegment(segCN.file = segCN.file, gtf.dat = gtf.dat, gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
 
 }

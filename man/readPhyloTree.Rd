@@ -4,10 +4,10 @@
 \alias{readPhyloTree}
 \title{Get sampleID of private branchs and shared branches/trunk in NJtree}
 \usage{
-readPhyloTree(mat.nj)
+readPhyloTree(matTree)
 }
 \arguments{
-\item{mat.nj}{a nj tree object generated from ape}
+\item{matTree}{a nj tree object generated from ape}
 }
 \value{
 a dataframe with sampleID of each branch and trunk
