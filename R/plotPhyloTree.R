@@ -12,7 +12,7 @@
 #' plotPhyloTree(phyloTree, heatmap.type = 'CCF')
 #
 #' @return Prints plot.
-#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggrepel
+#' @import reshape2 ape ggplot2 deconstructSigs ggrepel
 #' @export plotPhyloTree
 #' 
 
@@ -24,13 +24,13 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
   }else{
     use.ccf = TRUE
   }
-  tree <- phyloTree@nj
+  tree <- phyloTree@tree
   refBuild <- phyloTree@refBuild
-  signature <- treeMutationalSig(phyloTree)$mutSigsOutput
+  signature <- treeMutSig(phyloTree)$mutSigsOutput
   patientID <- phyloTree@patientID
   rootLabel <- 'NORMAL'
-  numRoot <- which(tree$tip.label == rootLabel)
-  myBoots <- ape::boot.phylo(tree, t(phyloTree@binary.matrix), function(e) root(nj(dist.gene(e)),numRoot),B = 1000)/1000
+  # numRoot <- which(tree$tip.label == rootLabel)
+  myBoots <- phyloTree@bootstrap.value
   ## generate phylotree data
   phylotreeOutputData <- phyloTreeInput(tree, signature, show.mutSig ,rootLabel)
   phylotreeOutputData <- phylotreeOutputData[(phylotreeOutputData$distance!=0|phylotreeOutputData$sample == rootLabel),]

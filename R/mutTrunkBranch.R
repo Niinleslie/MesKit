@@ -1,9 +1,8 @@
 #' mutTrunkBranch
 #' @description Summarize and conduct paired Wilcoxon test of mutations of trunk/branches in a phylogenetic tree.
 #' 
-#' @param tree.mutSig the output of treeMutationalSig function.
+#' @param tree.mutSig the output of treeMutSig function.
 #' @param conf.level confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.
-#' 
 #' 
 #' @examples
 #' mutTrunkBranch(tree.mutSig, conf.level = 0.95)

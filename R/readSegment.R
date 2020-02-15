@@ -61,19 +61,22 @@ readSegment <- function(segCN.file = NULL, ref.dat = NULL,
           return("Amplification")
       }
   }))) %>%
-      dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size)
-
+      dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size) %>%
+      dplyr::select(Chromosome, Start , End, Sample, CopyNumber, Type) %>% 
+       as.data.table()
+  
   if(!is.null(ref.dat)){
-      segDat <- dplyr::rename(seg, seqnames = Chromosome, start = Start, end = End) %>% as.data.table()
-      genesDat <- ref.dat
+      segDat <- dplyr::rename(seg, seqnames = Chromosome, start = Start, end = End)
+      genesDat <- ref.dat[seqnames %in% c(1:22),]
+
       data.table::setkey(x = genesDat, seqnames, start, end)
       data.table::setkey(x = segDat, seqnames, start, end)
       overlapsDat <- foverlaps(x = genesDat, y = segDat, by.x = c("seqnames", "start", "end"))
       overlapsDat <- na.omit(overlapsDat)
-      overlapsDat <- overlapsDat[,.(Sample, seqnames, i.start, i.end, CopyNumber,
-                                    gene_name, Type)]
-      colnames(overlapsDat) <- c("Sample", "Chromosome", "Start_Position", "End_Position", "CopyNumber",
-                                 "Gene", "Type")
+      overlapsDat <- overlapsDat[,.(seqnames, i.start, i.end, 
+                                    gene_name,Sample,CopyNumber,  Type)]
+      colnames(overlapsDat) <- c( "Chromosome", "Start_Position", "End_Position", 
+                                 "Gene","Sample","CopyNumber", "Type")
       seg <- overlapsDat
       # read gistic results
       gisticCNVgenes <- data.table::data.table()
@@ -108,9 +111,9 @@ readSegment <- function(segCN.file = NULL, ref.dat = NULL,
           # mapDat$Gistic.type <- ifelse(test = is.na(mapDat$Gistic.type), yes = "NA", no = mapDat$Gistic.type)
           result <- dplyr::select(mapDat, Type, Gistic.type, Sample, i.Gene, CopyNumber, Chromosome, i.Start_Position, i.End_Position) %>%
               dplyr::distinct(.)
-          result <- dplyr::rename(result, Gene = i.Gene, Start_Position = i.Start_Position, End_Position = i.End_Position)
-          
-          seg <- result
+          result <- dplyr::rename(result, Gene = i.Gene, Start_Position = i.Start_Position, End_Position = i.End_Position) %>% 
+              dplyr::select(Chromosome, Start_Position, End_Position, Gene, Sample, CopyNumber, Type, Gistic.type)
+          seg <- result[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
       }
    }  
   return(seg)
