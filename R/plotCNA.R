@@ -12,10 +12,11 @@
 #' @export plotCNA
 #'
 
+
 plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE){
     if(show.GISTIC.gene){
       if(!"Gistic.type" %in% colnames(seg)){
-        stop("seg does not contain GISTIC gene information")
+        stop("GISTIC genes information were not found. Please check readSegment")
       }
     }
     if("Start" %in% colnames(seg)){
@@ -60,6 +61,7 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE){
         seg[Sample == sample,]$hmax <- h + 0.5
         h <- h + 0.5
     }
+
     min <- sort(unique(seg$hmin))
     max <- sort(unique(seg$hmax))
     CNADat <- seg[Type != "Neutral",]
@@ -117,3 +119,4 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE){
 #         ComplexHeatmap::Heatmap(t(mat), col = colType, name = "Type", na_col = "#f0f0f0", row_names_side = "left", column_labels = colnames(t(mat)))
 #     }
 # }
+
