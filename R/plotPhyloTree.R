@@ -12,7 +12,7 @@
 #' plotPhyloTree(phyloTree, heatmap.type = 'CCF')
 #
 #' @return Prints plot.
-#' @import reshape2 ape ggplot2 deconstructSigs RColorBrewer ggrepel
+#' @import reshape2 ape ggplot2 deconstructSigs ggrepel
 #' @export plotPhyloTree
 #' 
 

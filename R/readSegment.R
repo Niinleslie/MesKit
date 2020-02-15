@@ -9,12 +9,12 @@
 #' @param min.seg.size Mininum length of segs.Default is 500.
 #' 
 #' @examples
-#' segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
-#' # Load gtf.dat
-#' load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
-#' gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-#' gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-#' seg <- readSegment(segCN.file = segCN.file, gtf.dat = gtf.dat, gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
+# segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
+# # Load gtf.dat
+# load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
+# gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
+# gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+# seg <- readSegment(segCN.file = segCN.file, gtf.dat = gtf.dat, gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
 #'
 #' @importFrom data.table setkey
 #' @importFrom data.table as.data.table
@@ -62,8 +62,9 @@ readSegment <- function(segCN.file = NULL, gtf.dat = NULL,
       }
   }))) %>%
       dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size) %>%
-      dplyr::select(Chromosome, Start , End, Sample, CopyNumber, Type) %>% as.data.table()
-
+      dplyr::select(Chromosome, Start , End, Sample, CopyNumber, Type) %>% 
+       as.data.table()
+  
   if(!is.null(gtf.dat)){
       segDat <- dplyr::rename(seg, seqnames = Chromosome, start = Start, end = End)
       genesDat <- gtf.dat
