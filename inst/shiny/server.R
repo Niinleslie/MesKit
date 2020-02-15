@@ -1152,9 +1152,9 @@ shinyServer(function(input, output, session){
         validate(
             need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(phyloTree, 
+        treeMSOutput <- treeMutSig(phyloTree, 
                                           driverGenesFile=driverGenesFile, 
-                                          mutThreshold=input$mutThreshold, 
+                                          min.mut.num=input$mutThreshold, 
                                           signaturesRef=input$signaturesRef)
         df.signature <- mutSigSummary(treeMSOutput)
         return(df.signature)
@@ -1175,9 +1175,9 @@ shinyServer(function(input, output, session){
         validate(
             need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(phyloTree, 
+        treeMSOutput <- treeMutSig(phyloTree, 
                                           driverGenesFile=NULL, 
-                                          mutThreshold=input$mutThreshold, 
+                                          min.mut.num=input$mutThreshold, 
                                           signaturesRef=input$signaturesRef)
         df.signature <- mutSigSummary(treeMSOutput)
         return(df.signature)
@@ -1218,9 +1218,9 @@ shinyServer(function(input, output, session){
         validate(
             need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(phyloTree, 
+        treeMSOutput <- treeMutSig(phyloTree, 
                                           driverGenesFile=driverGenesFile, 
-                                          mutThreshold=input$mutThreshold4, 
+                                          min.mut.num=input$mutThreshold4, 
                                           signaturesRef=input$signaturesRef4)
         df.signature <- mutTrunkBranch(treeMSOutput)
         return(df.signature)
@@ -1242,9 +1242,9 @@ shinyServer(function(input, output, session){
         validate(
             need(!(is.null(phyloTree)), "")
         )
-        treeMSOutput <- treeMutationalSig(phyloTree, 
+        treeMSOutput <- treeMutSig(phyloTree, 
                                           driverGenesFile=NULL, 
-                                          mutThreshold=input$mutThreshold4, 
+                                          min.mut.num=input$mutThreshold4, 
                                           signaturesRef=input$signaturesRef4)
         df.signature <- mutTrunkBranch(treeMSOutput)
         return(df.signature)
@@ -1285,9 +1285,9 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(phyloTree)), "")
       )
-      treeMSOutput <- treeMutationalSig(phyloTree, 
+      treeMSOutput <- treeMutSig(phyloTree, 
                                         driverGenesFile=NULL, 
-                                        mutThreshold=input$mutThreshold, 
+                                        min.mut.num=input$mutThreshold, 
                                         signaturesRef=input$signaturesRef)
       df.signature <- mutSigSummary(treeMSOutput)
       df.signature.plot <- plotMutationalSig(treeMSOutput)
@@ -1352,9 +1352,9 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(phyloTree)), "")
       )
-      treeMSOutput <- treeMutationalSig(phyloTree, 
+      treeMSOutput <- treeMutSig(phyloTree, 
                                         driverGenesFile=NULL, 
-                                        mutThreshold=input$mutThreshold, 
+                                        min.mut.num=input$mutThreshold, 
                                         signaturesRef=input$signaturesRef)
       df.branchTrunk.plot <- plotTrunkBranch(treeMSOutput, conf.level = input$conflevel)
       

@@ -1,7 +1,7 @@
 #' mutSigSummary
 #' @description Provide a summary data frame for signatures in different branches.
 #' 
-#' @param treeMSOutput The output of function treeMutationalSig.
+#' @param treeMSOutput The output of function treeMutSig.
 #' 
 #' @return Data frame of each set/branch's mutational signature.
 #' 

@@ -35,8 +35,7 @@ getPhyloTree <- function(maf,
   binary.matrix <- getMutMatrix(maf.dat, use.ccf = FALSE)
   if("CCF" %in% colnames(maf.dat)){
       ccf.matrix <- getMutMatrix(maf.dat, use.ccf = TRUE)
-  }
-  else{
+  }else{
       ccf.matrix <- matrix() 
   }
   mut_dat <- t(binary.matrix)

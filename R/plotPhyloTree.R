@@ -26,7 +26,7 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
   }
   tree <- phyloTree@tree
   refBuild <- phyloTree@refBuild
-  signature <- treeMutationalSig(phyloTree)$mutSigsOutput
+  signature <- treeMutSig(phyloTree)$mutSigsOutput
   patientID <- phyloTree@patientID
   rootLabel <- 'NORMAL'
   # numRoot <- which(tree$tip.label == rootLabel)

@@ -5,6 +5,7 @@
 #' @param show.GISTIC.gene Whether GISTIC gene in seg.Default FALSE.
 #' 
 #' @examples
+#' segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
 #' seg <- readSegment(segCN.file = segCN.file)
 #' plotCNA(seg)
 #'

@@ -67,7 +67,7 @@ readSegment <- function(segCN.file = NULL, gtf.dat = NULL,
   
   if(!is.null(gtf.dat)){
       segDat <- dplyr::rename(seg, seqnames = Chromosome, start = Start, end = End)
-      genesDat <- gtf.dat
+      genesDat <- gtf.dat[seqnames %in% c(1:22),]
       data.table::setkey(x = genesDat, seqnames, start, end)
       data.table::setkey(x = segDat, seqnames, start, end)
       overlapsDat <- foverlaps(x = genesDat, y = segDat, by.x = c("seqnames", "start", "end"))

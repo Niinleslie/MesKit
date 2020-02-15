@@ -1,7 +1,7 @@
 #' @title plotTrunkBranch
 #' @description Prints the distribution of branch/trunk mutations based on mutational categories.
 #' 
-#' @param treeMSOutput the output of function treeMutationalSig.
+#' @param treeMSOutput the output of function treeMutSig.
 #' @param conf.level confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.
 #' 
 #' 
