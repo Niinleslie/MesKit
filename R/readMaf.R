@@ -50,7 +50,7 @@ readMaf <- function(## maf parameters
         )
     
     ## get patientID
-    patientID <- unlist(strsplit(basename(maf.File), split = "[.]"))[1]
+    patientID <- unlist(strsplit(basename(mafFile), split = "[.]"))[1]
     
     ## read ccf files
     if (!is.null(ccfFile)) {

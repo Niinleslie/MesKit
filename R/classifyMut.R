@@ -9,23 +9,22 @@
 #' @export classifyMut
 
 
-
 mutType_SP <- function(unique_sample_count, total_count) {
     dplyr::case_when(
         unique_sample_count == 1 ~ "Private",
         unique_sample_count == total_count ~ "Shared",
         (1 < unique_sample_count) &
-            (unique_sample_count < total_count) ~ "P-shared"
+            (unique_sample_count < total_count) ~ "P_shared"
     )
 }
 
 
 mutType_SPCS <- function(unique_sample_count, Status, total_count) {
     dplyr::case_when(
-        unique_sample_count == 1 ~ paste0("Private-", Status),
-        unique_sample_count == total_count ~ paste0("Shared-", Status),
+        unique_sample_count == 1 ~ paste0("Private_", Status),
+        unique_sample_count == total_count ~ paste0("Shared_", Status),
         (1 < unique_sample_count) &
-            (unique_sample_count < total_count) ~ paste0("P-shared-", Status)
+            (unique_sample_count < total_count) ~ paste0("P_shared_", Status)
     )    
 }
 
@@ -92,19 +91,23 @@ classifyMut <- function(maf, class = "SP", driverGenesFile = NULL) {
         dplyr::select(Hugo_Symbol, Chromosome, 
                       Start_Position, End_Position,
                       Reference_Allele, Tumor_Seq_Allele2, 
-                      Tumor_Sample_Barcode, Mutation_Type)
+                      Tumor_Sample_Barcode, Mutation_Type,
+                      unique_sample_count
+                      )
     
     if (!is.null(driverGenesFile)) {
         geneSelect <-
-            read.table(driverGenesFile, col.names = "gene_Name")$gene_Name
+            read.table(driverGenesFile, col.names = "gene_Name", stringsAsFactors = FALSE)$gene_Name
         maf_data <- maf_data %>%
             dplyr::rowwise() %>%
-            dplyr::mutate(Driver_Mut =
-                              dplyr::case_when(any(
-                                  strsplit(Hugo_Symbol, ",|;")[[1]] %in% geneSelect
-                              ) ~ TRUE,
-                              TRUE ~ FALSE)) %>%
-            dplyr::ungroup()
+            dplyr::mutate(Driver_Mut = dplyr::if_else(
+                any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% geneSelect),
+                TRUE,
+                FALSE)) %>%
+            dplyr::mutate(Hugo_Symbol = dplyr::if_else(
+                Driver_Mut == TRUE,
+                geneSelect[geneSelect %in% strsplit(Hugo_Symbol, ",|;")[[1]]][1],
+                Hugo_Symbol))
     }
 
     return(maf_data)

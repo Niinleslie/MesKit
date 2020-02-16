@@ -37,4 +37,5 @@ gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", packa
 gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 seg <- readSegment(segCN.file = segCN.file, ref.dat = ref.dat, 
  gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
+
 }
