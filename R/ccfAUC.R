@@ -62,11 +62,13 @@ ccfAUC <- function(maf, tsb=NULL, auc.cutoff = 0.145){
         geom_line(size=0.8)+
         theme(
             #legend.position='none', 
-            title=element_text(size=10), 
-            text=element_text(size=10), 
+            title=element_text(size=11, face = "bold"), 
+            text=element_text(size=11, face = "bold"), 
             panel.grid=element_blank(), 
             panel.border=element_blank(), 
-            axis.line=element_line(size=0.25)
+            axis.line=element_line(size=0.3),
+            legend.title=element_text(size=12, face = "bold"),
+            legend.text = element_text(size=10, face = "bold")
         )+
         labs(x="CCF", y="Proportion")+
         ggsci::scale_color_npg()+

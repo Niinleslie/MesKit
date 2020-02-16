@@ -2,16 +2,16 @@
 % Please edit documentation in R/readPhyloTree.R
 \name{readPhyloTree}
 \alias{readPhyloTree}
-\title{Get sampleID of private branchs and shared branches/trunk in NJtree}
+\title{readPhyloTree}
 \usage{
-readPhyloTree(matTree)
+readPhyloTree(tree)
 }
 \arguments{
-\item{matTree}{a nj tree object generated from ape}
+\item{tree}{a phylo tree object}
 }
 \value{
-a dataframe with sampleID of each branch and trunk
+a sample IDs of trunk/branches of the phylogenetic tree
 }
 \description{
-Get sampleID of private branchs and shared branches/trunk in NJtree
+readPhyloTree
 }

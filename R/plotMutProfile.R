@@ -52,7 +52,7 @@ genHeatmapPlotMatrix <-
             dplyr::group_by(mutation_id) %>%
             dplyr::summarise(unique_sample_count = dplyr::n_distinct(Tumor_Sample_Barcode))
         
-        maf_data <-
+        maf_data <- suppressMessages(
             maf_data %>%
             dplyr::left_join(mutation_count) %>%
             dplyr::filter(!is.na(Status)) %>%
@@ -73,6 +73,7 @@ genHeatmapPlotMatrix <-
             ) %>%
             dplyr::arrange(dplyr::desc(max_sample_count)) %>%
             dplyr::ungroup()
+            )
         
 
         if (is.null(driverGenesFile)) {
@@ -81,10 +82,16 @@ genHeatmapPlotMatrix <-
                 dplyr::slice(1:topGenesCount)
        } else {
             geneSelect <-
-                read.table(driverGenesFile, col.names = "gene_Name")$gene_Name
+                read.table(driverGenesFile, col.names = "gene_Name", stringsAsFactors =  FALSE)$gene_Name
+            
             mat_data <- maf_data %>%
-                dplyr::filter(any(strsplit(Hugo_Symbol, ",|;") %in% geneSelect)) %>%
-                dplyr::slice(1:topGenesCount)
+                dplyr::rowwise() %>%
+                dplyr::filter(any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% geneSelect)) %>%
+                dplyr::mutate(gene_Name = geneSelect[geneSelect %in% strsplit(Hugo_Symbol, ",|;")[[1]]][1]) %>%
+                dplyr::ungroup() %>%
+                dplyr::slice(1:topGenesCount) %>%
+                dplyr::select(-Hugo_Symbol) %>%
+                dplyr::rename(Hugo_Symbol = gene_Name)
         }
         #   View(mat_data)
         
@@ -108,15 +115,6 @@ plotMutProfile <-
                                  topGenesCount = topGenesCount,
                                  driverGenesFile = driverGenesFile)
         # View(mat)
-        
-        if (!is.null(driverGenesFile) & length(mat) == 0) {
-            stop(
-                paste0(
-                    "No mutation profile, please check driverGenesFile: ",
-                    driverGenesFile
-                )
-            )
-        }
         
         types <- c(
                 "Private_Clonal",
