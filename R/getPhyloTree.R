@@ -23,6 +23,10 @@ getPhyloTree <- function(maf,
                       minVaf=0.02, 
                       maxVaf=1){
   
+  method.options <- c("NJ","MP","ML")
+  if(!method %in% method.options){
+      stop("method can only be either 'NJ','ML' or 'MP'")
+  }
   maf.dat <- maf@data
 
   if (max(maf.dat$VAF, na.rm=TRUE) > 1){
