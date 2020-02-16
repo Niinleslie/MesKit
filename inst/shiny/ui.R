@@ -1152,24 +1152,24 @@ bodySurvival <- tabItem('Survival',
                                         title = 'Whether to show heatmap of somatic mutations. Default is TRUE.',
                                         placement = "top",
                                         trigger = "hover"),
-                              conditionalPanel(
-                                  condition = "input.showheatmap == true",
-                                  radioButtons(
-                                      inputId = "heatmaptype",
-                                      label = div(style = "font-size:1.5em; font-weight:600;  ", "Heatmap type"),
-                                      choiceNames = list(
-                                          tags$span(style = "font-size:1.5em; font-weight:600; ", "Binary"), 
-                                          tags$span(style = "font-size:1.5em; font-weight:600; ", "CCF")
-                                      ),
-                                      choiceValues = c("binary", "CCF"),
-                                      selected = "binary", 
-                                      inline = TRUE
-                                  ),
-                                  bsTooltip(id = "heatmaptype",
-                                            title = ' "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap.',
-                                            placement = "top",
-                                            trigger = "hover")
-                              ), 
+                              # conditionalPanel(
+                              #     condition = "input.showheatmap == true",
+                              #     radioButtons(
+                              #         inputId = "heatmaptype",
+                              #         label = div(style = "font-size:1.5em; font-weight:600;  ", "Heatmap type"),
+                              #         choiceNames = list(
+                              #             tags$span(style = "font-size:1.5em; font-weight:600; ", "Binary"), 
+                              #             tags$span(style = "font-size:1.5em; font-weight:600; ", "CCF")
+                              #         ),
+                              #         choiceValues = c("binary", "CCF"),
+                              #         selected = "binary", 
+                              #         inline = TRUE
+                              #     ),
+                              #     bsTooltip(id = "heatmaptype",
+                              #               title = ' "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap.',
+                              #               placement = "top",
+                              #               trigger = "hover")
+                              # ), 
                               checkboxInput('showbootstrap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Show bootstrap value'),value = TRUE),
                               bsTooltip(id = "showbootstrap",
                                         title = 'Whether to add bootstrap value on internal nodes.',
