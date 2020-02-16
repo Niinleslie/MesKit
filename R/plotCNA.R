@@ -22,6 +22,10 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE){
     if("Start" %in% colnames(seg)){
       seg <- dplyr::rename(seg,Start_Position = Start, End_Position = End)
     }
+    ref.options <- c("hg19","hg18","hg38")
+    if(!refBuild %in% ref.options){
+        stop("refBuild can only be either 'hg18','hg19' or 'hg38'")
+    }
     if(refBuild == 'hg19'){
         chrLens = c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663,
                      146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540,

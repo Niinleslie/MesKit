@@ -1498,9 +1498,11 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- MesKit::plotPhyloTree(phyloTree, heatmap.type = input$heatmaptype,
-                           show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
-                           use.box = input$usebox,show.bootstrap = input$showbootstrap)
+        p <- MesKit::plotPhyloTree(phyloTree,
+                                   # heatmap.type = input$heatmaptype,
+                                   show.mutSig = input$showmutSig, 
+                                   show.heatmap = input$showheatmap,
+                                   use.box = input$usebox,show.bootstrap = input$showbootstrap)
         return(p)
         # else{
         #   validate(
@@ -1521,7 +1523,8 @@ shinyServer(function(input, output, session){
           id <- input$maf$name
           phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
         }
-        p <- plotPhyloTree(phyloTree, heatmap.type = input$heatmaptype,
+        p <- plotPhyloTree(phyloTree,
+                           # heatmap.type = input$heatmaptype,
                            show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
                            use.box = input$usebox,show.bootstrap = input$showbootstrap)
         return(p)
