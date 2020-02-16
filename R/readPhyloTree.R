@@ -1,5 +1,5 @@
 #' Get sampleID of private branchs and shared branches/trunk in NJtree
-#' @param matTree a nj tree object generated from ape
+#' @param matTree a tree object generated from getPhyloTree
 #' @return a dataframe with sampleID of each branch and trunk
 #'
 #' @examples
@@ -122,10 +122,10 @@ readPhyloTree <- function(matTree){
   edges_label <- unlist(g)[-Root]
 
   nodes.num <- seq_along(matTree$tip.label)-1
-  NJtree_branch <- edges_label[order(unlist(lapply(edges_label, function(x) length(unlist(strsplit(x, split = "∩"))))))]
-  edges.num <- length(strsplit(tail(NJtree_branch,1), split = "∩")[[1]])
-  NJtree_branch_Alias <- c(paste(rep("B", length(NJtree_branch)-1), (length(NJtree_branch)-1):1, sep = ""), "T")
-  NJtree_sampleID <- data.frame(Branch = NJtree_branch, Alias = NJtree_branch_Alias)
+  treeBranch <- edges_label[order(unlist(lapply(edges_label, function(x) length(unlist(strsplit(x, split = "∩"))))))]
+  edges.num <- length(strsplit(tail(treeBranch,1), split = "∩")[[1]])
+  treeAlias <- c(paste(rep("B", length(treeBranch)-1), (length(treeBranch)-1):1, sep = ""), "T")
+  treeSampleID <- data.frame(Branch = treeBranch, Alias = treeAlias)
   
-  return(NJtree_sampleID)
+  return(treeSampleID)
 }
