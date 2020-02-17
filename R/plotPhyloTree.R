@@ -476,11 +476,14 @@ phyloTreeInput <- function(tree, signature = '', show.mutSig, rootLabel){
   # Adjust the Angle of data with only two samples
   if(nrow(treeData) == 3){
     angleList <- c(pi/6, 5*pi/6)
-    for(i in 2:nrow(treeData)){
-      angle <- angleList[i - 1]
-      treeData$angle[i] <- angle
-      treeData$x2[i] <- treeData$distance[i]*cos(angle)
-      treeData$y2[i] <- treeData$distance[i]*sin(angle)
+    rows <- which(treeData$sample != "NORMAL")
+    i = 1
+    for(row in rows){
+      angle <- angleList[i]
+      treeData$angle[row] <- angle
+      treeData$x2[row] <- treeData$distance[row]*cos(angle)
+      treeData$y2[row] <- treeData$distance[row]*sin(angle)
+      i = i+1
     }
   }
   if(show.mutSig){
@@ -554,18 +557,23 @@ colorSet <- function(signatures){
 generatePlotObject <- function(treeData, colorScale = '', show.mutSig, rootLabel, myBoots, show.bootstrap, use.box){
   myBoots <- myBoots*100
   rootNode <- treeData$node[which(treeData$sample == rootLabel)]
-  bootsData <- rbind(treeData[treeData$sample == 'internal node',][,c(3,4,8,9)],c(0,0,rootNode,rootNode))
-  boots <- c()
-  LN <- min(bootsData$node)-1
-  for(i in 1:nrow(bootsData)){      
-      if(i == nrow(bootsData)){
-          boots <- append(boots,  myBoots[rootNode - LN])
-          next
-      }
-      boots <- append(boots, myBoots[bootsData$end_num[i] - LN])
-
+  if(length(myBoots) == 1){
+      bootsData <- data.frame(x2 = 0, y2 = 0, node = rootNode, end_num = rootNode, boots = myBoots)
   }
-  bootsData <- cbind(bootsData, boots = boots)
+  else{
+      bootsData <- rbind(treeData[treeData$sample == 'internal node',][,c(3,4,8,9)],c(0,0,rootNode,rootNode))
+      boots <- c()
+      LN <- min(bootsData$node)-1
+      for(i in 1:nrow(bootsData)){      
+          if(i == nrow(bootsData)){
+              boots <- append(boots,  myBoots[rootNode - LN])
+              next
+          }
+          boots <- append(boots, myBoots[bootsData$end_num[i] - LN])
+          
+      }
+      bootsData <- cbind(bootsData, boots = boots)
+  }
   p <- ggplot(data = treeData)
   textAdjust <- mean(as.numeric(treeData$distance))
   dy <- max(treeData$y2)-min(treeData$y2)

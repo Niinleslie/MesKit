@@ -124,7 +124,9 @@ bodyIP <- tabItem("input",
                                         choices = c(
                                             "Neighbor joining" = "NJ",
                                             "Maximum parsimony" = "MP",
-                                            "Maximum likelihood" = "ML"
+                                            "Maximum likelihood" = "ML",
+                                            "FASTME.bal" = "FASTME.bal",
+                                            "FASTME.ols" = "FASTME.ols"
                                         ), selected = "NJ",width = 300),
                             bsTooltip(id = "method",
                                       title = "Approach to construct phylogenetic trees.",
