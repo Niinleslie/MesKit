@@ -179,7 +179,6 @@ mutType.mat <- classifyMut(maf, class = "SP", driverGenesFile = driverGene.file)
 
 
 ```{r message=FALSE, fig.align='left', fig.width=8.5, fig.height=5}
-
 plotMutProfile(maf, class =  "SP", topGenesCount = 10, driverGenesFile = driverGene.file)
 ```
    
@@ -227,9 +226,7 @@ In the results, tumor sample attached with a ```*``` on the top right indicates 
 ccfAUC(maf, auc.cutoff = 0.145)
 ```  
 
-### 7. Inter-tumor heterogeneity evaluation
-
-#### 7.1 VAF clustering
+#### 6.3 VAF clustering
   
 ```vafCluster``` function clusters variant allele frequencies (VAFs) based on a Gaussian finite mixture model. This function produces a density distribution plot, depicting clusters of mutations with different VAFs in all/selected samples. We consider the number of clusters as a simple indicator of ITH.  
 Parameters ```minVaf``` and ```maxVaf``` can be set to filter mutations. In addition, we offer several options for defining the plotting styles. Parameter `plotOption` could be set as ```"separate"```, ```"combine"``` or ```"compare"```, which means to generate a frequency map in different documents.  
@@ -238,8 +235,10 @@ Parameters ```minVaf``` and ```maxVaf``` can be set to filter mutations. In addi
 vafCluster(maf, plotOption = "combine", showMATH = TRUE)
 ```  
   
-  
-#### 7.2 Private/Shared mutation identification
+
+### 7. Inter-tumor heterogeneity evaluation
+ 
+#### 7.1 Private/Shared mutation identification
   
 For each patient, ```mutPrivateShared``` function identifies mutations shared by all samples as shared mutations (trunk mutations), mutations observed in a subset of samples as partial-shared mutations, and others which are unique to a single sample as private mutations (branch mutations). This function provides an overview of mutations using stack plots. Parameter ```show.num``` determines whether to show the numbers of mutations in the plot.  
   
@@ -255,7 +254,7 @@ tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
 mutOncoTSG(maf, oncogeneListFile, tsgListFile, show.percentage = TRUE)
 ```  
 
-#### 7.3 Fixation index
+#### 7.2 Fixation index
 
 Fixation Index (Fst) estimation is a classical metric of population genetics, which can be used to measures the genetic divergence between regions[ Weir, B. S. & Cockerham, C. C. Estimating F-statistics for the analysis of 
 population-structure][Estimating and interpreting FST: the impact of rare variants. Genome research][ Genetics in geographically structured populations: defining, estimating and interpreting F(ST)]. ```calFst``` function calculates the proportion of the total variance in allele frequency caused by frequency differences between populations.
@@ -335,7 +334,7 @@ pathway.result$pathway.category[["All"]]
   
 #### 10.3 Mutational signature analysis
   
-```treeMutationalSig``` function identifies potential signatures for trunks/branches of phylogenetic trees. It returns a list containing three data frames, which can be passed to other functions for further analyses and visualization. This function is based on R package [deconstructSigs](https://github.com/raerose01/deconstructSigs) and you can set signatures matrix via ```signaturesRef``` (```cosmic``` or ```nature2013```). Parameter ```mutThreshold``` specifies the minimum number of mutations (Default: 50) required to perform mutation signature analysis. Moreover, if you provide a driver genes list via ```driverGenesFile```, then an additional column which records driver genes would be added to the final result. 
+```treeMutSig``` function identifies potential signatures for trunks/branches of phylogenetic trees. It returns a list containing three data frames, which can be passed to other functions for further analyses and visualization. This function is based on R package [deconstructSigs](https://github.com/raerose01/deconstructSigs) and you can set signatures matrix via ```signaturesRef``` (```cosmic``` or ```nature2013```). Parameter ```mutThreshold``` specifies the minimum number of mutations (Default: 50) required to perform mutation signature analysis. Moreover, if you provide a driver genes list via ```driverGenesFile```, then an additional column which records driver genes would be added to the final result. 
   
 ```{r, warning = FALSE, message=FALSE}
 # Requires BSgenome.Hsapiens.UCSC.hg19 if you set refBuild = "hg19"
@@ -343,33 +342,33 @@ library("BSgenome.Hsapiens.UCSC.hg19")
 ```
    
 ```{r, warning = FALSE, message=FALSE}
-treeMutSig <- treeMutationalSig(phylotree, driverGenesFile = driverGene.file, mutThreshold = 50)
+tree.mutSig <- treeMutSig(phylotree, driverGenesFile = driverGene.file, mutThreshold = 50)
 ```
    
    
 ```mutTrunkBranch``` function calculates the fraction of branch/trunk mutations occurring in each of the six types of base substitution types (C>A, C>G, C>T, T>A, T>C, T>G) and conducts paired Wilcoxon test. The confidence level can be tuned by parameter ```conf.level```.   
    
 ```{r, warning = FALSE, message=FALSE}
-mutTrunkBranch(treeMutSig, conf.level = 0.95)
+mutTrunkBranch(tree.mutSig, conf.level = 0.95)
 ```
 
 
 ```plotTrunkBranch``` function prints the distribution of branch/trunk mutations, and especially presents corresponding p-values for significantly different base substitution types. 
    
 ```{r, warning = FALSE, message=FALSE}
-plotTrunkBranch(treeMutSig, conf.level = 0.95)
+plotTrunkBranch(tree.mutSig, conf.level = 0.95)
 ```
 
 ```mutSigSummary``` function takes the ```treeMutationalSig``` output and summarizes mutational signature of trunk/branches.  
    
 ```{r, warning = FALSE, message=FALSE}
-mutSigSummary(treeMutSig)
+mutSigSummary(tree.mutSig)
 ```
    
 Furthermore, the mutational signature can be visualized using function ```plotMutSig```.   
    
 ```{r, warning = FALSE, message=FALSE}
-plotMutSig(treeMutSig)
+plotMutSig(tree.mutSig)
 ```
    
    
