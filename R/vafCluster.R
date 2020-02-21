@@ -26,8 +26,13 @@
 vafCluster <-function(maf, seg = NULL,
                       minVaf=0.02, maxVaf=1, showMATH=TRUE, 
                       plotOption="combine"){
-  ## original data preparation
-  ## read .maf file
+
+
+  plot.options = c('combine', 'compare', 'separate')
+    if(!plotOption %in% plot.options){
+        stop("plotOption can only be either 'combine', 'compare' or 'separate'")
+    }
+  
   mafDat <- maf@data
   if (max(mafDat$VAF, na.rm=TRUE) > 1){
     mafDat$VAF <- mafDat$VAF/100

@@ -21,14 +21,21 @@
 #Pathway analysis
 treePathway <- function(phyloTree, driverGenesFile = NULL, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",
                            qval=0.2,  plotType="dot", showCategory=5){
-  branches <- phyloTree@mut.branches
-  patientID <- phyloTree@patientID
+
+  pathway.options = c('KEGG', 'Reactome')
+    if(!pathway.type %in% pathway.options){
+        stop("pathway.type can only be either 'KEGG' or 'Reactome'")
+    }
   
   if(!is.null(driverGenesFile)){
       ## read driver genes' list
       driverGenes <- as.character(read.table(
           driverGenesFile, header = FALSE, quote="", sep="\n")[,1])
   }
+  
+  branches <- phyloTree@mut.branches
+  patientID <- phyloTree@patientID
+
   Pathway.branch.result <- data.frame()
   all.genes <- c()
   pathPlot.list <- list()
