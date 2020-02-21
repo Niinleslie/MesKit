@@ -7,7 +7,7 @@
 mutSigSummary(treeMSOutput)
 }
 \arguments{
-\item{treeMSOutput}{The output of function treeMutationalSig.}
+\item{treeMSOutput}{The output of function treeMutSig.}
 }
 \value{
 Data frame of each set/branch's mutational signature.
