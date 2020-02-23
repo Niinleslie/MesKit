@@ -5,6 +5,7 @@
 #' @param method Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood),""FASTME.ols" or "FASTME.bal". 
 #' @param minVaf the minimum value of vaf
 #' @param maxVaf the maximum value of vaf
+#' @param minCCF the minimum value of CCF
 #' 
 #' 
 #' @examples
@@ -21,7 +22,8 @@
 getPhyloTree <- function(maf, 
                       method = "NJ",
                       minVaf=0.02, 
-                      maxVaf=1){
+                      maxVaf=1,
+                      minCCF= NULL){
   
   method.options <- c("NJ","MP","ML","FASTME.ols","FASTME.bal")
   if(!method %in% method.options){
@@ -31,6 +33,14 @@ getPhyloTree <- function(maf,
 
   if (max(maf.dat$VAF, na.rm=TRUE) > 1){
     maf.dat$VAF <- maf.dat$VAF/100
+  }
+  if(!is.null(minCCF)){
+      if("CCF" %in% colnames(maf)){
+          maf.dat <- maf.dat[CCF > minCCF, ]
+      }
+      else{
+          stop("CCF information not found")
+      }
   }
   maf.dat <- maf.dat[which(maf.dat$VAF > minVaf & maf.dat$VAF < maxVaf), ]
   ## information input
@@ -43,31 +53,31 @@ getPhyloTree <- function(maf,
       ccf.matrix <- matrix() 
   }
   mut_dat <- t(binary.matrix)
-  # matTree <- nj(dist.gene(mut_dat))
   if(method == "NJ"){
       matTree <- nj(dist.gene(mut_dat))
+      numRoot <- which(matTree$tip.label == "NORMAL")
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(nj(dist.gene(e)),numRoot),B = 100)
   }
   else if(method == "MP"){
-      matTree <- nj(dist.gene(mut_dat))
-      tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
-      tree_pars <- phangorn::optim.parsimony(matTree, tree_dat)
-      matTree <- phangorn::acctran(tree_pars, tree_dat)
+      matTree <- byMP(mut_dat)
+      numRoot <- which(matTree$tip.label == "NORMAL")
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(byMP(e),numRoot),B = 100) 
   }
   else if(method == "ML"){
-      matTree <- nj(dist.gene(mut_dat))
-      tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
-      fitJC <- phangorn::pml(matTree, tree_dat)
-      fitJC <- phangorn::optim.pml(fitJC)
-      matTree <- fitJC$tree
+      matTree <- byML(mut_dat)
+      numRoot <- which(matTree$tip.label == "NORMAL")
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(byML(e),numRoot),B = 100)
   }
   else if(method == "FASTME.bal"){
-      matTree <- ape::fastme.bal(dist.gene(mut_dat) )
+      matTree <- ape::fastme.bal(dist.gene(mut_dat))
+      numRoot <- which(matTree$tip.label == "NORMAL")
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(ape::fastme.bal(dist.gene(e)),numRoot),B = 100)
   }
   else if(method == "FASTME.ols"){
-      matTree <- ape::fastme.ols(dist.gene(mut_dat) )
+      matTree <- ape::fastme.ols(dist.gene(mut_dat))
+      numRoot <- which(matTree$tip.label == "NORMAL")
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(ape::fastme.ols(dist.gene(e)),numRoot),B = 100)
   }
-  numRoot <- which(matTree$tip.label == "NORMAL")
-  bootstrap.value <- ape::boot.phylo(matTree, t(binary.matrix), function(e) root(nj(dist.gene(e)),numRoot),B = 1000)/1000
   branchAlias <- readPhyloTree(matTree)
   mut.branches <- .treeMutationalBranches(maf.dat, branchAlias, binary.matrix)
   phylo.tree <- new('phyloTree', patientID = patientID, tree = matTree, 
@@ -75,6 +85,23 @@ getPhyloTree <- function(maf,
                     mut.branches = mut.branches, refBuild = maf@ref.build,
                     bootstrap.value = bootstrap.value)
   return(phylo.tree)
+}
+
+byMP <- function(mut_dat){
+    matTree <- nj(dist.gene(mut_dat))
+    tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
+    tree_pars <- suppressMessages(phangorn::optim.parsimony(matTree, tree_dat)) 
+    matTree <- phangorn::acctran(tree_pars, tree_dat)
+    return(matTree)
+}
+
+byML <- function(mut_dat){
+    matTree <- nj(dist.gene(mut_dat))
+    tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
+    fitJC <- phangorn::pml(matTree, tree_dat)
+    fitJC <- phangorn::optim.pml(fitJC)
+    matTree <- fitJC$tree
+    return(matTree)
 }
 #Prevent class 'phylo' from not existing
 setClass('phylo')
