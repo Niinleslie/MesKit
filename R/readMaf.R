@@ -31,34 +31,26 @@ readMaf <- function(## maf parameters
     use.indel = FALSE,
     ## ccf parameters
     ccfFile = NULL,
-    ## supplyment
     refBuild = "hg19") {
-    ## read maf file from .maf or .gz file
-    if (.substrRight(mafFile, 3) == ".gz") {
-        mafData <- read.table(
-            mafGz <- gzfile(mafFile, "r"),
-            quote = "",
-            header = TRUE,
-            fill = TRUE,
-            sep = '\t',
-            stringsAsFactors = FALSE
-        )
-        close(mafGz)
-    } else {
-        mafData <- read.table(
-            mafFile,
-            quote = "",
-            header = TRUE,
-            fill = TRUE,
-            sep = '\t',
-            stringsAsFactors = FALSE
-        )
+
+    ref.options = c('hg18', 'hg19', 'hg38')
+    if(!refBuild %in% ref.options){
+        stop("refBuild can only be either 'hg18', 'hg19' or 'hg38'")
     }
+
+
+    mafData <- data.table::fread(
+            file = mafFile,
+            quote = "",
+            header = TRUE,
+            fill = TRUE,
+            sep = '\t',
+            skip = "Hugo_Symbol",
+            stringsAsFactors = FALSE
+        )
     
-    ## if the filename is exactly the patientID
-    fileName <-
-        unlist(strsplit(mafFile, "/"))[length(unlist(strsplit(mafFile, "/")))]
-    patientID <- strsplit(as.character(fileName), ".maf")[[1]][1]
+    ## get patientID
+    patientID <- unlist(strsplit(basename(mafFile), split = "[.]"))[1]
     
     ## read ccf files
     if (!is.null(ccfFile)) {
@@ -73,7 +65,8 @@ readMaf <- function(## maf parameters
         
         mafData <- mafData %>%
             uniteCCF(ccfInput) %>%
-            getMutStatus()
+            getMutStatus() %>%
+            dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
     }
     
     ## filter variant classification
@@ -129,15 +122,11 @@ readMaf <- function(## maf parameters
     return(maf)
 }
 
-.substrRight <- function(x, n) {
-    substr(x, nchar(x) - n + 1, nchar(x))
-}
-
 
 ##--- combine CCF into maf object
-uniteCCF <- function(mafdata, ccf) {
-    mafdata <- tidyr::unite(
-        mafdata,
+uniteCCF <- function(mafData, ccf) {
+    mafData <- tidyr::unite(
+        mafData,
         "mutID",
         c(
             "Tumor_Sample_Barcode",
@@ -163,14 +152,17 @@ uniteCCF <- function(mafdata, ccf) {
         ) %>%
         dplyr::select(mutID, CCF, CCF_std)
     
-    mafdata_merge_ccf <-
-        merge(mafdata, ccf, by = "mutID", all.x = TRUE) %>%
+    mafData_merge_ccf <-
+        merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
         dplyr::select(-mutID)
 }
 
-getMutStatus <- function(mafdata, ccf.conf.level = 0.95) {
-    mafdata <-
-        mafdata %>%
+
+
+
+getMutStatus <- function(mafData, ccf.conf.level = 0.95) {
+    mafData <-
+        mafData %>%
         # 95% confidence interval
         # normal distribution
         dplyr::mutate(CCF_max = CCF +

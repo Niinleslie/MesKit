@@ -4,12 +4,12 @@
 \alias{plotTrunkBranch}
 \title{plotTrunkBranch}
 \usage{
-plotTrunkBranch(treeMSOutput, conf.level = 0.95)
+plotTrunkBranch(tree.mutSig, conf.level = 0.95)
 }
 \arguments{
-\item{treeMSOutput}{the output of function treeMutSig.}
+\item{tree.mutSig}{the output of function treeMutationalSig.}
 
-\item{conf.level}{confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.}
+\item{conf.level}{confidence level of the interval for wilcox.test. Default: 0.95.}
 }
 \value{
 Box plots based on mutational categories
@@ -18,5 +18,5 @@ Box plots based on mutational categories
 Prints the distribution of branch/trunk mutations based on mutational categories.
 }
 \examples{
-plotTrunkBranch(treeMSOutput, conf.level = 0.95)
+plotTrunkBranch(tree.mutSig, conf.level = 0.95)
 }

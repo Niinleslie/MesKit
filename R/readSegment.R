@@ -29,6 +29,7 @@ readSegment <- function(segCN.file = NULL, ref.dat = NULL,
                         gisticDelGenesFile = NULL,
                         gisticScoresFile = NULL,
                         gistic.qval = 0.25,
+
                         verbose = TRUE, min.seg.size = 500){
   seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
   
@@ -87,22 +88,24 @@ readSegment <- function(segCN.file = NULL, ref.dat = NULL,
           if(verbose){
               cat(paste0('--Processing ', basename(gisticAmpGenesFile), '\n'))
           }
-          gisticAmpGenes <- readGistic(gisticAmpGenesFile, "AMP")
+          gisticAmpGenes <- readGisticGene(gisticAmpGenesFile, "AMP")
           gisticCNVgenes <- rbind(gisticCNVgenes, gisticAmpGenes)
       }   
       if(!is.null(gisticDelGenesFile)){
           if(verbose){
               cat(paste0('--Processing ', basename(gisticDelGenesFile), '\n'))
           }
-          gisticDelGenes <- readGistic(gisticDelGenesFile, "Del")
+          gisticDelGenes <- readGisticGene(gisticDelGenesFile, "Del")
           gisticCNVgenes <- rbind(gisticCNVgenes, gisticDelGenes)
       }
+
       if(!is.null(gisticScoresFile)){
           if(verbose){
               cat(paste0('--Processing ', basename(gisticScoresFile), '\n'))
           }
           gisticScores <- readGisticScore(gisticScoresFile)
       }
+
       if(nrow(gisticCNVgenes) != 0){
           ## combine segment file and gistic results
           gisticCNVgenes[,Chromosome := sapply(strsplit(x = gisticCNVgenes[,Wide_Peak_Boundaries], split = ':'), '[', 1)]
@@ -133,7 +136,7 @@ readSegment <- function(segCN.file = NULL, ref.dat = NULL,
 
 
 # extract recurrent CNA genes from gistic file
-readGistic <- function(gisticGenesFile = NULL, Gistic.type = NULL){
+readGisticGene <- function(gisticGenesFile = NULL, Gistic.type = NULL){
     
     if(!is.null(gisticGenesFile)){
         gisticGenes <- data.table::fread(input = gisticGenesFile, stringsAsFactors = FALSE, header = TRUE)
@@ -164,10 +167,10 @@ readGistic <- function(gisticGenesFile = NULL, Gistic.type = NULL){
     }
 }
 
-
 ## read GISTIC scores file
 readGisticScore <- function(gisticGenesFile = NULL, qval = NULL){
     gis.scores = data.table::fread(input = gisticScoresFile)
     colnames(gis.scores) = c('Variant_Classification', 'Chromosome', 'Start_Position', 'End_Position', 'Log10_qvalue', 'G_Score', 'Average_amplitude', 'Frequency')
     return(gis.scores)
 }
+

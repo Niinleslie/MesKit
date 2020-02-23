@@ -7,7 +7,7 @@
 treeMutSig(
   phyloTree,
   driverGenesFile = NULL,
-  min.mut.num = 50,
+  min.mut.num = 15,
   signaturesRef = "cosmic"
 )
 }
@@ -16,7 +16,7 @@ treeMutSig(
 
 \item{driverGenesFile}{The file with driver gene list. Default NULL.}
 
-\item{min.mut.num}{the threshold for the variants in a branch. Default 50.}
+\item{min.mut.num}{the threshold for the variants in a branch. Default 15.}
 
 \item{signaturesRef}{The parameter used for deconstructSig. Default "cosmic". Option: "nature2013".}
 }
@@ -28,5 +28,5 @@ Figure out the intersection of the variants on different branches
 in phyloTree object and output the treeMSOutput for further summary and plot functions.
 }
 \examples{
-treeMSOutput <-  treeMutSig(phyloTree, driverGenesFile=NULL, min.mut.num=50, signaturesRef="cosmic")
+treeMSOutput <- treeMutSig(phyloTree, driverGenesFile=NULL, min.mut.num=15, signaturesRef="cosmic")
 }
