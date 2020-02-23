@@ -124,9 +124,9 @@ readMaf <- function(## maf parameters
 
 
 ##--- combine CCF into maf object
-uniteCCF <- function(mafdata, ccf) {
-    mafdata <- tidyr::unite(
-        mafdata,
+uniteCCF <- function(mafData, ccf) {
+    mafData <- tidyr::unite(
+        mafData,
         "mutID",
         c(
             "Tumor_Sample_Barcode",
@@ -152,17 +152,17 @@ uniteCCF <- function(mafdata, ccf) {
         ) %>%
         dplyr::select(mutID, CCF, CCF_std)
     
-    mafdata_merge_ccf <-
-        merge(mafdata, ccf, by = "mutID", all.x = TRUE) %>%
+    mafData_merge_ccf <-
+        merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
         dplyr::select(-mutID)
 }
 
 
 
 
-getMutStatus <- function(mafdata, ccf.conf.level = 0.95) {
-    mafdata <-
-        mafdata %>%
+getMutStatus <- function(mafData, ccf.conf.level = 0.95) {
+    mafData <-
+        mafData %>%
         # 95% confidence interval
         # normal distribution
         dplyr::mutate(CCF_max = CCF +
