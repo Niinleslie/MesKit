@@ -14,7 +14,8 @@
 #' gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
 #' gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 #' seg <- readSegment(segCN.file = segCN.file, ref.dat = ref.dat, 
-#'  gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
+#'  gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile, 
+#'  gisticScoresFile = gisticScoresFile )
 #'
 #' @importFrom data.table setkey
 #' @importFrom data.table as.data.table
@@ -26,6 +27,8 @@
 readSegment <- function(segCN.file = NULL, ref.dat = NULL,
                         gisticAmpGenesFile = NULL, 
                         gisticDelGenesFile = NULL,
+                        gisticScoresFile = NULL,
+                        gistic.qval = 0.25,
                         verbose = TRUE, min.seg.size = 500){
   seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
   
@@ -93,7 +96,13 @@ readSegment <- function(segCN.file = NULL, ref.dat = NULL,
           }
           gisticDelGenes <- readGistic(gisticDelGenesFile, "Del")
           gisticCNVgenes <- rbind(gisticCNVgenes, gisticDelGenes)
-      } 
+      }
+      if(!is.null(gisticScoresFile)){
+          if(verbose){
+              cat(paste0('--Processing ', basename(gisticScoresFile), '\n'))
+          }
+          gisticScores <- readGisticScore(gisticScoresFile)
+      }
       if(nrow(gisticCNVgenes) != 0){
           ## combine segment file and gistic results
           gisticCNVgenes[,Chromosome := sapply(strsplit(x = gisticCNVgenes[,Wide_Peak_Boundaries], split = ':'), '[', 1)]
@@ -105,6 +114,9 @@ readSegment <- function(segCN.file = NULL, ref.dat = NULL,
           gisticCNVgenes[,Chromosome := gsub(pattern = 'Y', replacement = '24', x = gisticCNVgenes$Chromosome, fixed = TRUE)]
           g <- dplyr::select(gisticCNVgenes, Gene, Chromosome, Start_Position, End_Position, Gistic.type, Cytoband)
           # seg <- as.data.table(seg) %>% plyr::rename(c("Start" = "Start_Position", "End" = "End_Position"))
+          if(!is.null(gisticScores)){
+              data.table::setkey(x = gisticScores, Chromosome, Start_Position, End_Position)
+          }
           data.table::setkey(x = g, Chromosome, Start_Position, End_Position)
           data.table::setkey(x = seg, Chromosome, Start_Position, End_Position)
           mapDat <- data.table::foverlaps(seg, g, by.x = c("Chromosome", "Start_Position", "End_Position"))
@@ -150,4 +162,12 @@ readGistic <- function(gisticGenesFile = NULL, Gistic.type = NULL){
         
         return(gisticGenes)
     }
+}
+
+
+## read GISTIC scores file
+readGisticScore <- function(gisticGenesFile = NULL, qval = NULL){
+    gis.scores = data.table::fread(input = gisticScoresFile)
+    colnames(gis.scores) = c('Variant_Classification', 'Chromosome', 'Start_Position', 'End_Position', 'Log10_qvalue', 'G_Score', 'Average_amplitude', 'Frequency')
+    return(gis.scores)
 }

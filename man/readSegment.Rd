@@ -9,6 +9,8 @@ readSegment(
   ref.dat = NULL,
   gisticAmpGenesFile = NULL,
   gisticDelGenesFile = NULL,
+  gisticScoresFile = NULL,
+  gistic.qval = 0.25,
   verbose = TRUE,
   min.seg.size = 500
 )
@@ -36,6 +38,7 @@ load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
 gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
 gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 seg <- readSegment(segCN.file = segCN.file, ref.dat = ref.dat, 
- gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile)
+ gisticAmpGenesFile = gisticAmpGenesFile, gisticDelGenesFile = gisticDelGenesFile, 
+ gisticScoresFile = gisticScoresFile )
 
 }
