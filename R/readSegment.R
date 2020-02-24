@@ -86,14 +86,14 @@ readSegment <- function(segCN.file = NULL,
       if(verbose){
           cat(paste0('--Processing ', basename(gisticAmpGenesFile), '\n'))
       }
-      gisticAmpGenes <- readGistic(gisticAmpGenesFile, "AMP")
+      gisticAmpGenes <- readGisticGene(gisticAmpGenesFile, "AMP")
       gisticCNVgenes <- rbind(gisticCNVgenes, gisticAmpGenes)
   }   
   if(!is.null(gisticDelGenesFile)){
       if(verbose){
           cat(paste0('--Processing ', basename(gisticDelGenesFile), '\n'))
       }
-      gisticDelGenes <- readGistic(gisticDelGenesFile, "Del")
+      gisticDelGenes <- readGisticGene(gisticDelGenesFile, "Del")
       gisticCNVgenes <- rbind(gisticCNVgenes, gisticDelGenes)
   }
   if(!is.null(gisticAllLesionsFile)){
