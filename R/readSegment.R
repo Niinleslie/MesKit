@@ -26,7 +26,7 @@
 readSegment <- function(segCN.file = NULL, ref.dat = NULL,
                         gisticAmpGenesFile = NULL, 
                         gisticDelGenesFile = NULL,
-                        gistic.qval = 0.25
+                        gistic.qval = 0.25,
                         verbose = TRUE, min.seg.size = 500){
   seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
   

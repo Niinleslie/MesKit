@@ -9,6 +9,7 @@ readSegment(
   ref.dat = NULL,
   gisticAmpGenesFile = NULL,
   gisticDelGenesFile = NULL,
+  gistic.qval = 0.25,
   verbose = TRUE,
   min.seg.size = 500
 )
