@@ -195,6 +195,7 @@ segCN <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
 load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
 
 # Reading gistic output files
+all.lesions <- system.file("extdata", "LICH_all_lesions.conf_99.txt", package = "MesKit")
 amp.genes <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
 del.genes <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 
@@ -205,13 +206,15 @@ seg[,1:5]
 
 
 ```{r, error=TRUE, fig.width=11, fig.align='center'}
-plotCNA(seg, show.GISTIC.gene = TRUE)
+plotCNA(seg)
 ```  
 
    
-### 6. Intra-tumor heterogeneity evaluation  
+### 6. Quantification of intra-tumor heterogeneity  
 
-#### 6.1 Math score calculation
+#### 6.1 Within tumors
+
+##### 6.1.1 Math score calculation
 
 The ```mathScore``` function estimates ITH of single sample using MATH approach. Typically, the higher the MATH score, the more heterogeneous a tumor is.   
   
@@ -219,14 +222,14 @@ The ```mathScore``` function estimates ITH of single sample using MATH approach.
 mathScore(maf, minvaf = 0.02, maxvaf = 1)
 ```  
 
-#### 6.2 AUC of CCF
-The ```ccfAUC``` function estimates the tumor heterogeneity via the area under the curve (AUC) of the cumulative density from all cancer cell fractions per tumor.  Tumors with higher AUC are considered more heterogeneous.(Pan-cancer Immunogenomic Analyses Reveal Genotype-Immunophenotype Relationships and Predictors of Response to Checkpoint Blockade)  
+##### 6.1.2 AUC of CCF
+The ```ccfAUC``` function estimates the tumor heterogeneity via the area under the curve (AUC) of the cumulative density from all cancer cell fractions per tumor. Tumors with higher AUC are considered more heterogeneous.(Pan-cancer Immunogenomic Analyses Reveal Genotype-Immunophenotype Relationships and Predictors of Response to Checkpoint Blockade)  
    
 ```{r message=FALSE, fig.height=5, fig.width=6}
 ccfAUC(maf)
 ```  
 
-#### 6.3 VAF clustering
+##### 6.1.3 VAF clustering
   
 ```vafCluster``` function clusters variant allele frequencies (VAFs) based on a Gaussian finite mixture model. This function produces a density distribution plot, depicting clusters of mutations with different VAFs in all/selected samples. We consider the number of clusters as a simple indicator of ITH.  
 Parameters ```minVaf``` and ```maxVaf``` can be set to filter mutations. In addition, we offer several options for defining the plotting styles. Parameter `plotOption` could be set as ```"separate"```, ```"combine"``` or ```"compare"```, which means to generate a frequency map in different formats.  
@@ -236,9 +239,9 @@ vafCluster(maf, plotOption = "combine", showMATH = TRUE)
 ```  
   
 
-### 7. Intra-tumor heterogeneity evaluation
+#### 6.2 Between tumors
  
-#### 7.1 Private/Shared mutation identification
+##### 6.2.1 Private/Shared mutation identification
   
 For each patient, ```mutPrivateShared``` function identifies mutations shared by all samples as shared mutations (trunk mutations), mutations observed in a subset of samples as partial-shared mutations, and others which are unique to a single sample as private mutations (branch mutations). This function provides an overview of mutations using stack plots. Parameter ```show.num``` determines whether to show the numbers of mutations in the plot.  
   
@@ -254,27 +257,35 @@ tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
 mutOncoTSG(maf, oncogeneListFile, tsgListFile, show.percentage = TRUE)
 ```  
 
-#### 7.2 Fixation index
+##### 6.2.2 Fixation index
 
 Fixation Index (Fst) estimation is a classical metric of population genetics, which can be used to measures the genetic divergence between regions [2](#refer) [3](#refer) [4](#refer). ```calFst``` function calculates the proportion of the total variance in allele frequency caused by frequency differences between populations.
+
 ```{r fig.align='left', fig.width=5.5, fig.height=5.5, fig.asp=1.0}
 calFst(maf)
 ```  
 
 
-### 8 Clonal origins inference 
-The understanding of metastasis process and its routes are a relevant factor to contribute in the advance of actual and future of clinical treatments. Distinct patterns of monoclonal versus polyclonal seeding based on the cancer cell fraction (CCF) of SSNVs between primary/metastasis pairs. 
+### 7 Clonal origins inference 
+Metastasis remains poorly understood despite its critical clinical importance. The understanding of metastasis process and its routes are a relevant factor to contribute in the advance of actual and future of clinical treatments. 
 
-#### 8.1 Pairwise CCF comparison
+#### 7.1 Pairwise CCF comparison
 
-```ccfDensity``` function prints pairwise CCF plots of mutations which are identified across samples from a single patient. Recent studies have used this method to deduce the potential metastatic route between different paired tumor lesions.  
+Distinct patterns of monoclonal versus polyclonal seeding based on the cancer cell fraction (CCF) of SSNVs between sample pairs. ```ccfDensity``` function prints pairwise CCF plots of mutations which are identified across samples from a single patient. Recent studies have used this method to deduce the potential metastatic route between different paired tumor lesions.(Quantitative evidence for early metastatic seeding in colorectal cancer)(Genomic and Transcriptomic Profiling of Combined Hepatocellular and Intrahepatic Cholangiocarcinoma Reveals Distinct Molecular Subtypes)  
   
 ```{r fig.align='left', fig.width=7, fig.height=3.5, message=FALSE, warning=FALSE}
 ccf.pairwise <- ccfDensity(maf, show.density = TRUE)
 cowplot::plot_grid(ccf.pairwise[[1]], ccf.pairwise[[2]])
 ```  
 
-#### 8.2 Jaccard similarity index
+#### 7.3 Nei’s genetic distance
+Nei’s genetic distance is used in population genetics to assess the similarity between populations, taking into account heterogeneity within populations. The function ```calNeiDist``` calculates Nei's distance of CCF among multi-region samples from the sanme patient. for each sample-pair.(Whole-genome sequencing identifies recurrent mutations in hepatocellular carcinoma)
+
+```{r fig.align='left', fig.width=5.5, fig.height=5.5, fig.asp=1.0}
+calNeiDist(maf)
+```  
+
+#### 7.2 Jaccard similarity index
   
 ```calJSI``` function calculates the Jaccard Similarity Index (JSI) for sample pairs from a single patient. JSI is defined for the intersection divided by the union of these two sets. Higher JSI values are more likely indicates polyclonal seeding [1](#refer). 
   
@@ -282,21 +293,39 @@ cowplot::plot_grid(ccf.pairwise[[1]], ccf.pairwise[[2]])
 calJSI(maf, plot = TRUE)
 ```  
 
-### 9. Phylogenetic tree construction  
+
+  
+```calJSI``` function calculates the Jaccard Similarity Index (JSI) for sample pairs from a single patient. JSI is defined for the intersection divided by the union of these two sets. Higher JSI values are more likely indicates polyclonal seeding [1](#refer). 
+  
+```{r fig.align='left', fig.width=5.5, fig.height=5.5, fig.asp=1.0}
+calJSI(maf, plot = TRUE)
+```  
+
+### 8. Phylogenetic tree analysis
+
+### 8.1 Phylogenetic tree construction  
   
 Based on the Maf object, ```getPhyloTree``` function reconstructs phylogenetic tree via different methods, including "NJ"(Neibor-Joining), "MP"(maximum parsimony) and "ML"(maximum likelihood), which can be set by controlling the ```method``` parameter, and stored in a ```phyloTree``` object, which is later utilized for functional analysis, mutational signature analysis and printing phylogenetic trees.  
-  
+
 ```{r}
 phylotree <- getPhyloTree(maf, method = "NJ")
+```
+
+#### 8.2 Compare Phylogenetic tree
+Comparison between phylogenetic trees can reveal concensus patterns of tumor evolution. The ```compareeTree``` function computes distances between phylogenetic trees constructed through different methods. This function returns a vector containing four distance methods by ```treedist``` from ```phangorn``` R package. See treedist for details(http://evolution.genetics.washington.edu/phylip/doc/treedist.html).
+
+```{r}
+tree1 <- getPhyloTree(maf, method = "NJ")
+tree2 <- getPhyloTree(maf, method = "MP")
+compareTree(tree1, tree2)
 ```  
-  
-   
-### 10. Functional exploration  
+
+#### 8.3 Functional exploration  
   
 MesKit conducts enrichment analysis of Gene ontology (GO) and pathway using [ClusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) R package. ```treeGO``` function and ```treePathway``` function returns enrichment results on both tree-level and branch-level. By default, ```treePathway``` function performs enrichment analysis of KEGG pathway and ```Reactome``` pathway is also available. Users can conduct enrichment of functional driver gene mutations specifically by providing a driver gene list.
   
   
-#### 10.1 GO enrichment analysis
+#### 8.4 GO enrichment analysis
 ```{r, message=FALSE, warning=FALSE}
 # Required org.Hs.eg.db
 library("org.Hs.eg.db")
@@ -317,7 +346,7 @@ GO.result$GO.plot[["SRR3670037"]]
 ```
   
   
-#### 10.2 Pathway enrichment analysis
+#### 8.5 Pathway enrichment analysis
 ```{r, message=FALSE, warning=FALSE}
 # Pathway enrichment analysis
 pathway.result <- treePathway(phylotree, driverGenesFile = driverGene.file, pathway.type = "KEGG",
@@ -330,9 +359,9 @@ pathway.result$pathway.category[["All"]]
 ```   
   
   
-#### 10.3 Mutational signature analysis
+#### 8.6 Mutational signature analysis
   
-```treeMutSig``` function identifies potential signatures for trunks/branches of phylogenetic trees. It returns a list containing three data frames, which can be passed to other functions for further analyses and visualization. This function is based on R package [deconstructSigs](https://github.com/raerose01/deconstructSigs) and you can set signatures matrix via ```signaturesRef``` (```cosmic``` or ```nature2013```). Parameter ```mutThreshold``` specifies the minimum number of mutations (Default: 50) required to perform mutation signature analysis. Moreover, if you provide a driver genes list via ```driverGenesFile```, then an additional column which records driver genes would be added to the final result. 
+```treeMutSig``` function identifies potential signatures for trunks/branches of phylogenetic trees. It returns a list containing three data frames, which can be passed to other functions for further analyses and visualization. This function is based on R package [deconstructSigs](https://github.com/raerose01/deconstructSigs) and you can set signatures matrix via ```signaturesRef``` (```cosmic``` or ```nature2013```). Parameter ```mutThreshold``` specifies the minimum number of mutations (Default: 15) required to perform mutation signature analysis. Moreover, if you provide a driver genes list via ```driverGenesFile```, then an additional column which records driver genes would be added to the final result. 
   
 ```{r, warning = FALSE, message=FALSE}
 # Requires BSgenome.Hsapiens.UCSC.hg19 if you set refBuild = "hg19"
@@ -373,12 +402,12 @@ plotMutSig(tree.mutSig)
    
    
    
-### 11. Phylogenetic tree visualization  
+### 9 Phylogenetic tree visualization  
    
 ```plotPhyloTree``` function is aimed at visualizing phylogenetic trees. If ```show.mutSig = TRUE``` (Default), mutational signatures would be shown in different colors for each trunk and branch. Either binary mutation heatmap (indicates the presence or absence of a mutation) or ccf heatmap can be displayed by setting parameter `heatmap.type`.
   
   
-#### 11.1 A phylogenetic tree along with binary heatmap of mutations  
+#### 9.1 A phylogenetic tree along with binary heatmap of mutations  
   
   
 ```{r, fig.align='left', fig.width=8, fig.height=5, message=FALSE, warning=FALSE}
@@ -386,14 +415,14 @@ plotPhyloTree(phylotree, show.mutSig = TRUE, heatmap.type = "binary")
 ```
   
   
-#### 11.2 A phylogenetic tree along with CCF heatmap of mutations  
+#### 9.2 A phylogenetic tree along with CCF heatmap of mutations  
   
 ```{r, fig.align='left', fig.width=8, fig.height=5, message=FALSE, warning=FALSE}
 plotPhyloTree(phylotree, show.mutSig = TRUE, heatmap.type = "CCF") 
 ```
   
    
-### 12. References {#refer}
+### 10. References {#refer}
 1. Hu Z, Li Z, Ma Z & Curtis C. Pan-cancer analysis of clonality and the timing of systemic spread in paired primary tumors and metastases. bioRXiv (2019). doi:10.1101/825240.
 
 2. Weir, B.S. and Cockerham, C.C. Estimating F-Statistics for the Analysis of Population Structure. Evolution, 1984, 38, 1358-1370. [http://dx.doi.org/10.2307/2408641](http://dx.doi.org/10.2307/2408641)
@@ -403,7 +432,7 @@ plotPhyloTree(phylotree, show.mutSig = TRUE, heatmap.type = "CCF")
 4. Holsinger K E , Weir B S . Genetics in geographically structured populations: defining, estimating and interpreting FST[J]. Nature Reviews Genetics, 2009, 10(9):639-650.
 
   
-### 13. Session Info
+### 11. Session Info
 ```{r}
 sessionInfo()
 ```

@@ -34,7 +34,7 @@ plotCorr <- function(corrMat, use.circle = TRUE){
                     grid::grid.circle(
                         x = x,
                         y = y,
-                        r = corrMat[i, j] / 2 * min(grid::unit.c(width, height)),
+                        r = corrMat[i, j] / maxCorr/ 2 * min(grid::unit.c(width, height))*0.75,
                         gp = grid::gpar(
                             fill = col_fun(corrMat[i, j]),
                             col = NA

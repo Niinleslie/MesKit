@@ -13,7 +13,7 @@
 #' @export calJSI
 
 
-calJSI <- function(maf, plot = TRUE, use.circle = FALSE) {
+calJSI <- function(maf, plot = TRUE, use.circle = TRUE) {
         dat <- maf@data
         TSBs <- unique(dat$Tumor_Sample_Barcode)
         
@@ -50,7 +50,7 @@ calJSI <- function(maf, plot = TRUE, use.circle = FALSE) {
         }
         
         if(plot){
-            plotCorr(Jaccard.mat)
+            plotCorr(Jaccard.mat, use.circle)
         }
         return(Jaccard.mat)
 }
