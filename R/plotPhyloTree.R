@@ -48,22 +48,26 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
    sampleTextSize <- 3
    nodePointsSize <- 1.7
    segmentSize <- 1.5
-   strokeNode <- 0.5
-   strokeSample <- 1
-   bootlabel <- 2.2
-   boottext <- 2.2
-   bootpadding <- 0.35
+   # nodeStrokeSize <- 0.5
+   # sampleStrokeSize <- 1
+   nodeStrokeSize <- 0.25
+   sampleStrokeSize <- 1.5
+   bootLabelSize <- 2.2
+   bootTextSize <- 2.2
+   bootPaddingSize <- 0.35
    samplesLength <- nrow(treeData[sample != "internal node",]) 
    if(samplesLength > 7){
       samplePointsSize <- 1.5 
       sampleTextSize <- 2
       segmentSize <- 0.8
       nodePointsSize <- 0.8
-      strokeNode <- 0.25
-      strokeSample <- 0.5
-      bootlabel <- 1.5
-      boottext <- 1.5
-      bootpadding <- 0.1
+      # nodeStrokeSize <- 0.25
+      # sampleStrokeSize <- 0.5
+      nodeStrokeSize <- 0.15
+      sampleStrokeSize <- 0.8
+      bootLabelSize <- 1.5
+      bootTextSize <- 1.5
+      bootPaddingSize <- 0.1
    }
    rootNode <- treeData[sample == rootLabel,]$node
    if(length(myBoots) == 1){
@@ -86,8 +90,9 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
    }
    p <- ggplot(data = treeData)
    textAdjust <- mean(as.numeric(treeData$distance))
-   dy <- max(treeData$y2)-min(treeData$y2)
-   dx <- max(treeData$x2)-min(treeData$x2)
+   # maxy <- max(abs(treeData$y2))
+   # maxx <- max(abs(treeData$x2)))
+   ratecoord <- maxy/maxx
    if(show.mutSig){
       p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature), size=segmentSize)
       p <- p + scale_color_manual(values = colorScale)
@@ -115,11 +120,15 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
                   panel.border = element_blank(),
                   legend.title = element_text(face="bold"),
                   legend.position = 'top',
-                  legend.direction = "horizontal") + guides(color = guide_legend(nrow=1))+coord_fixed(ratio= 1)               
+                  legend.direction = "horizontal") + 
+                  guides(color = guide_legend(nrow=1))+
+                  coord_fixed(ratio= 1) +
+                  scale_x_discrete(expand = expand_scale(add = 10))
+                  
    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                            vjust = 1,
-                            # nudge_y = textAdjust/6,
+                            nudge_y = 2,
                             # segment.alpha = 0,
+                            # direction = "x"
                             segment.color = "grey",
                             segment.size = 0.25,
                             data = treeData[!sample %in% c("internal node",rootLabel), ],
@@ -131,31 +140,32 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
                             fontface = 'bold', size = sampleTextSize,force = 5)
    p <- p + geom_point(aes(x = x2,y = y2),
                        data = treeData[sample == 'internal node',],
-                       size = nodePointsSize, color = "#8c510a", fill = "#8c510a", shape = 21,
-                       stroke = strokeNode)
+                       size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
+                       stroke = nodeStrokeSize)
    p <- p + geom_point(aes(x = x2, y = y2), 
                        data = treeData[sample != 'internal node',],
-                       size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = strokeSample)
+                       size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
    Nd <- treeData[sample == rootLabel,]$distance
    if(length(Nd)!=0){
       if(Nd != 0){
          # p <- p + geom_point(aes(x =0 , y = 0), size = 1.7, color = "grey50",
          #                     fill = 'grey50', shape = 21, stroke = 0.5)
          p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
-                             fill = '#8c510a', shape = 21, stroke = strokeNode)
+                             fill = 'white', shape = 21, stroke = nodeStrokeSize)
       }
    }
    if(show.bootstrap){
       if(use.box){
          p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
                                    data = bootsData,
-                                   fontface = 'bold', size = bootlabel,box.padding=unit(bootpadding, "lines"),point.padding=unit(0.5, "lines"),
-                                   segment.colour = "grey50",segment.size = 0.25,force = 5)
+                                   # nudge_y = textAdjust/6,
+                                   fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+                                   segment.colour = "grey50", segment.size = 0.25, force = 5)
       }else{
          p <- p + geom_text_repel(aes(x = x2, y = y2,label = boots),
                                   data = bootsData,
-                                  fontface = 'bold', size = boottext ,box.padding=unit(bootpadding, "lines"),point.padding=unit(0.5, "lines"),
-                                  segment.colour = "grey50",segment.size = 0.25,force = 5)
+                                  fontface = 'bold', size = bootTextSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+                                  segment.colour = "grey50", segment.size = 0.25, force = 5)
       }
    }
    if(show.heatmap){
@@ -163,9 +173,18 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
       pm <- getPrivateMutation(phyloTree)
       totalMutSum <- pm[[1]]
       privateMutProportion <- pm[[2]]
-      PH <- ggdraw(xlim = c(0.1,0.7)) + draw_plot(p, x = -0.05,y = 0, width = 0.7) + draw_plot(h, x = 0.48,y = -0.12, width = 0.15)
-      title <- ggdraw() + draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
-      PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1))+theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
+      PH <- ggdraw(xlim = c(0.1,0.7)) + 
+            draw_plot(p, x = -0.05,y = 0, width = 0.7) + 
+            draw_plot(h, x = 0.48,y = -0.12, width = 0.15)
+      # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) + 
+      #       draw_plot(p, x = 0,y = 0, width = 0.7) + 
+      #       draw_plot(h, x = 0.6,y = 0, width = 0.15)
+      title <- ggdraw() + 
+              draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),
+                         fontface = "bold")
+      PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1)) + 
+            theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
+      # ggsave(filename = paste0(patientID,".pdf"),plot = PH,width = 10,height = 6.5)
       return(PH)
    }
    else{
@@ -245,7 +264,7 @@ getTreeDat <- function(phyloTree, show.mutSig){
    rootNode <- treeData[1,]$node
    treeData[1,]$end_num <- which(tree$tip.label == "NORMAL")
    treeData[1,]$y2 <- -rootEdge
-   treeData[1,]$distance <- -rootEdge
+   treeData[1,]$distance <- rootEdge
    treeData[,sample := ""]
    for(i in 1:nrow(treeData)){
       if(treeData$end_num[i] > length(tree$tip.label)){
