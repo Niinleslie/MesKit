@@ -1,18 +1,17 @@
 #' mutTrunkBranch
 #' @description Summarize and conduct paired Wilcoxon test of mutations of trunk/branches in a phylogenetic tree.
 #' 
-#' @param treeMSOutput the output of treeMutSig function.
+#' @param tree.mutSig the output of treeMutSig function.
 #' @param conf.level confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.
 #' 
-#' 
 #' @examples
-#' mutTrunkBranch(treeMSOutput, conf.level = 0.95)
+#' mutTrunkBranch(tree.mutSig, conf.level = 0.95)
 #' @return Box plots based on mutational categories
 #' @export mutTrunkBranch
 
-mutTrunkBranch <- function(treeMSOutput, conf.level = 0.95) {
-    ## input data from treeMSOutput
-    ls.BT <- .dataProcessBT(treeMSOutput)
+mutTrunkBranch <- function(tree.mutSig, conf.level = 0.95) {
+    ## input data from tree.mutSig
+    ls.BT <- .dataProcessBT(tree.mutSig)
     df.pValue <- ls.BT$df.pValue
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
@@ -22,7 +21,7 @@ mutTrunkBranch <- function(treeMSOutput, conf.level = 0.95) {
     colnames(output) <- c("Trunk", "Branch")
     output <- cbind(Group=ls.mutationGroup, output)
     output <- merge(output, df.pValue, by=c("Group"))
-    output <- cbind(output, Significance=rep(" ", nrow(output)))
+    output <- cbind(output, Significance=rep("-", nrow(output)))
     for (mutationGroup in ls.mutationGroup) {
         output$Branch[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
             sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Branch"),]$mut.num)
@@ -35,10 +34,10 @@ mutTrunkBranch <- function(treeMSOutput, conf.level = 0.95) {
     return(output)
 }
 
-.dataProcessBT <- function(treeMSOutput) {
-    ## input data from treeMSOutput
-    sigsInput <- treeMSOutput$sigsInput
-    mutSigsOutput <- treeMSOutput$mutSigsOutput
+.dataProcessBT <- function(tree.mutSig) {
+    ## input data from tree.mutSig
+    sigsInput <- tree.mutSig$sigsInput
+    mutSigsOutput <- tree.mutSig$mutSigsOutput
     
     ## label the Trunk
     if (any(mutSigsOutput$alias == "T")){

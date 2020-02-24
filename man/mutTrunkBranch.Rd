@@ -4,10 +4,10 @@
 \alias{mutTrunkBranch}
 \title{mutTrunkBranch}
 \usage{
-mutTrunkBranch(treeMSOutput, conf.level = 0.95)
+mutTrunkBranch(tree.mutSig, conf.level = 0.95)
 }
 \arguments{
-\item{treeMSOutput}{the output of treeMutSig function.}
+\item{tree.mutSig}{the output of treeMutSig function.}
 
 \item{conf.level}{confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.}
 }
@@ -18,5 +18,5 @@ Box plots based on mutational categories
 Summarize and conduct paired Wilcoxon test of mutations of trunk/branches in a phylogenetic tree.
 }
 \examples{
-mutTrunkBranch(treeMSOutput, conf.level = 0.95)
+mutTrunkBranch(tree.mutSig, conf.level = 0.95)
 }

@@ -29,6 +29,7 @@ readSegment <- function(segCN.file = NULL,
                         gisticDelGenesFile = NULL,
                         gisticAllLesionsFile = NULL,
                         gistic.qval = 0.25,
+
                         verbose = TRUE, min.seg.size = 500){
   seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
   
@@ -151,7 +152,7 @@ readSegment <- function(segCN.file = NULL,
 
 
 # extract recurrent CNA genes from gistic file
-readGistic <- function(gisticGenesFile = NULL, Gistic.type = NULL){
+readGisticGene <- function(gisticGenesFile = NULL, Gistic.type = NULL){
     
     if(!is.null(gisticGenesFile)){
         gisticGenes <- data.table::fread(input = gisticGenesFile, stringsAsFactors = FALSE, header = TRUE)
@@ -181,7 +182,6 @@ readGistic <- function(gisticGenesFile = NULL, Gistic.type = NULL){
         return(gisticGenes)
     }
 }
-
 
 ## read GISTIC all_lesions files
 readGisticAllLesions <- function(gisticAllLesionsFile = NULL, verbose = TRUE){

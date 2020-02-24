@@ -18,15 +18,22 @@
 
 treeGO <- function(phyloTree, driverGenesFile = NULL, GO.type="BP", pval=0.05, pAdjustMethod="BH", 
                       qval=0.2, plotType="dot", showCategory=5){
-  branches <- phyloTree@mut.branches
-  patientID <- phyloTree@patientID
+  
+
+  GO.options = c('MF', 'BP', 'CC', "ALL")
+    if(!GO.type %in% GO.options){
+        stop("GO.type can only be either 'MF', 'BP' 'CC' or 'ALL'")
+    }
   
   if(!is.null(driverGenesFile)){
       ## read putative driver genes' list
       driverGenes <- as.character(read.table(
-          driverGenesFile, header = FALSE, quote="", sep="\n")[,1])
+          driverGenesFile, header = FALSE, quote="", sep="\n", stringsAsFactors = FALSE)[,1])
   }
-  
+
+  branches <- phyloTree@mut.branches
+  patientID <- phyloTree@patientID
+    
   GO.branch.result <- data.frame()
   all.genes <- c()
   egoPlot.list <- list()
