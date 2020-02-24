@@ -92,7 +92,7 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
    textAdjust <- mean(as.numeric(treeData$distance))
    # maxy <- max(abs(treeData$y2))
    # maxx <- max(abs(treeData$x2)))
-   ratecoord <- maxy/maxx
+   # ratecoord <- maxy/maxx
    if(show.mutSig){
       p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature), size=segmentSize)
       p <- p + scale_color_manual(values = colorScale)
@@ -169,7 +169,7 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
       }
    }
    if(show.heatmap){
-      h <- mutHeatmap(phyloTree, use.ccf)
+      h <- MesKit::mutHeatmap(phyloTree, use.ccf)
       pm <- getPrivateMutation(phyloTree)
       totalMutSum <- pm[[1]]
       privateMutProportion <- pm[[2]]
