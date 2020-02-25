@@ -149,7 +149,7 @@ uniteCCF <- function(mafData, ccf) {
             "mutID",
             c(
                 "Patient_ID",
-                "Sample_ID",
+                "Tumor_Sample_Barcode",
                 "Chromosome",
                 "Start_Position",
                 "Variant_Type"
