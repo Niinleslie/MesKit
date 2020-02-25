@@ -1,7 +1,8 @@
 plotCorr <- function(corrMat, use.circle = TRUE){
     corrMat[lower.tri(corrMat)] <- 0
     maxCorr <- max(corrMat[corrMat!=1])
-    
+    TSBs <- colnames(corrMat)
+
     col_fun <- circlize::colorRamp2(pretty(c(0,maxCorr),4),
                                     c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
     
@@ -33,7 +34,7 @@ plotCorr <- function(corrMat, use.circle = TRUE){
                     grid::grid.circle(
                         x = x,
                         y = y,
-                        r = corrMat[i, j] / 2 * min(grid::unit.c(width, height)),
+                        r = corrMat[i, j] / maxCorr/ 2 * min(grid::unit.c(width, height))*0.75,
                         gp = grid::gpar(
                             fill = col_fun(corrMat[i, j]),
                             col = NA

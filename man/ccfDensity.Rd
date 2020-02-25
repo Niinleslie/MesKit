@@ -16,7 +16,7 @@ ccfDensity(maf, show.density = TRUE)
 }
 \description{
 Density plot of CCFs in paired samples of the patient
-This function is only available when the Maf object was generated along with CCF data.
+This function requires CCF for clustering
 }
 \examples{
 ccfDensity(maf, show.density = T)

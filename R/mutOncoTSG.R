@@ -65,10 +65,10 @@ mutOncoTSG <- function(maf, oncogeneListFile, tsgListFile, show.percentage=FALSE
               legend.title=element_blank()) + 
         ggtitle(paste("Variants of oncogenes and TSGs in patient ", patientID, sep="")) + 
         labs(y = "Variant number") + 
-        scale_fill_manual("legend", values = c("Private" = ggsci::pal_npg("nrc")(10)[1], 
-                                               "Shared" = ggsci::pal_npg("nrc")(10)[3], 
-                                               "Parital-shared" = ggsci::pal_npg("nrc")(10)[6]))
-    # ggsciFillPalette
+        scale_fill_manual("legend", values = c("Private" = "#E64B35FF", 
+                                               "Shared" = "#00A087FF", 
+                                               "Parital-shared" = "#8491B4FF"))
+    
 }
 
 .stackDataFilter <- function(mafData, geneLs, tsbLs, geneType) {
