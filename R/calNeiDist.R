@@ -34,7 +34,7 @@ nei_dist <- function(df) {
     return(r)
 }
 
-calNeiDist <- function(maf, plot = TRUE, use.circle = FALSE) {
+calNeiDist <- function(maf, plot = TRUE, use.circle = TRUE) {
     maf.dat <- maf@data
     if(! "CCF" %in% colnames(maf.dat)){
         stop(paste0("Calculation of Nei’s distance requires CCF data." ,

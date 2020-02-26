@@ -1,7 +1,7 @@
 #' readMaf
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
-#' @param mafFile tab delimited MAF file (plain text or *.gz compressed). The prefix to the filename of mafFile is considered as "patientID", which will be used for downstream analysis and visualization. Required.
+#' @param mafFile tab delimited MAF file (plain text or *.gz compressed). Required.
 #' @param mutType Select proper variant classification you need. Default "All".Option: "nonSilent".
 #' @param mutNonSilent variant classifications which are considered as non-silent. Default NULL. Option: "Default".
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
@@ -38,6 +38,8 @@ readMaf <- function(## maf parameters
         stop("refBuild can only be either 'hg18', 'hg19' or 'hg38'")
     }
 
+    ## get patientID
+    # patientID <- unlist(strsplit(basename(mafFile), split = "[.]"))[1]
 
     mafData <- data.table::fread(
             file = mafFile,
@@ -49,8 +51,7 @@ readMaf <- function(## maf parameters
             stringsAsFactors = FALSE
         )
     
-    ## get patientID
-    patientID <- unlist(strsplit(basename(mafFile), split = "[.]"))[1]
+
     
     ## read ccf files
     if (!is.null(ccfFile)) {
@@ -92,8 +93,8 @@ readMaf <- function(## maf parameters
         # message("All variant classification submitted")
     } else {
         error(
-            "parameter `mut.type` error.
-              The mut.type should be either 'All' or 'nonSilent'.
+            "parameter `mutType` error.
+              The mutType should be either 'All' or 'nonSilent'.
               You could further settle the filter by parameter 'mutNonSilent'."
         )
     }
@@ -108,11 +109,15 @@ readMaf <- function(## maf parameters
         mafData <- mafData[which(!mafData$Chromosome %in% chrSilent),]
     }
     
+    ## Rescale vaf coloum 0-1
+    if(max(mafData$VAF, na.rm = TRUE) > 1){
+        mafData$VAF <- as.numeric(as.character(mafData$VAFdat))/100
+    }    
     
     ## generate classMaf
     maf <- classMaf(
         data = data.table::setDT(mafData),
-        patientID = patientID,
+        #patientID = patientID,
         ref.build = refBuild
     )
     
@@ -129,6 +134,7 @@ uniteCCF <- function(mafData, ccf) {
         mafData,
         "mutID",
         c(
+            "Patient_ID",
             "Tumor_Sample_Barcode",
             "Chromosome",
             "Start_Position",
@@ -142,7 +148,8 @@ uniteCCF <- function(mafData, ccf) {
         tidyr::unite(
             "mutID",
             c(
-                "Sample_ID",
+                "Patient_ID",
+                "Tumor_Sample_Barcode",
                 "Chromosome",
                 "Start_Position",
                 "Variant_Type"
@@ -178,7 +185,6 @@ classMaf <- setClass(
     Class = "classMaf",
     slots = c(
         data = 'data.table',
-        patientID = 'character',
         ref.build = 'character'
     )
 )

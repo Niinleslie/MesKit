@@ -191,15 +191,13 @@ The ```plotCNA``` function can accept copy number information generated from seg
 ```{r message=FALSE}
 # Read segment file
 segCN <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
-# Load reference file (The reference genome file should contain information about the location of genes)
-load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
 
 # Reading gistic output files
 all.lesions <- system.file("extdata", "LICH_all_lesions.conf_99.txt", package = "MesKit")
 amp.genes <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
 del.genes <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 
-seg <- readSegment(segCN.file = segCN, ref.dat = gtf.dat,
+seg <- readSegment(segCN.file = segCN, 
                    gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes)
 seg[,1:5]
 ```
@@ -290,7 +288,7 @@ calNeiDist(maf)
 ```calJSI``` function calculates the Jaccard Similarity Index (JSI) for sample pairs from a single patient. JSI is defined for the intersection divided by the union of these two sets. Higher JSI values are more likely indicates polyclonal seeding [1](#refer). 
   
 ```{r fig.align='left', fig.width=5.5, fig.height=5.5, fig.asp=1.0}
-calJSI(maf, plot = TRUE)
+calJSI(maf)
 ```  
 
 
@@ -298,7 +296,7 @@ calJSI(maf, plot = TRUE)
 ```calJSI``` function calculates the Jaccard Similarity Index (JSI) for sample pairs from a single patient. JSI is defined for the intersection divided by the union of these two sets. Higher JSI values are more likely indicates polyclonal seeding [1](#refer). 
   
 ```{r fig.align='left', fig.width=5.5, fig.height=5.5, fig.asp=1.0}
-calJSI(maf, plot = TRUE)
+calJSI(maf, use.circle = TRUE)
 ```  
 
 ### 8. Phylogenetic tree analysis
