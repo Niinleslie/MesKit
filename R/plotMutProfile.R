@@ -191,8 +191,10 @@ plotMutProfile <- function(maf,
     heatmap_legend <- function(class, title = NULL) {
         param <- list(
             title = title,
+            title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
             at = names(col_type(class)),
-            labels = sub("_", "-", names(col_type(class)))
+            labels = sub("_", "-", names(col_type(class))),
+            labels_gp = grid::gpar(fontsize = 10)
         )
         return(param)
     }        
@@ -203,12 +205,13 @@ plotMutProfile <- function(maf,
             alter_fun = alter_fun(class),
             col = col_type(class),
             column_title = title,
-            row_title_gp = grid::gpar(fontsize = 14, fontface = "bold"),
+            column_title_gp = grid::gpar(fontsize = 16, fontface = "bold"),
+            row_title_gp = grid::gpar(fontsize = 10, fontface = "plain"),
             heatmap_legend_param = heatmap_legend(class, title),
             remove_empty_columns = TRUE,
             remove_empty_rows = TRUE,
-            row_names_gp = grid::gpar(fontsize = 10, fontface = "bold"),
-            column_names_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+            row_names_gp = grid::gpar(fontsize = 10, fontface = "italic"),
+            column_names_gp = grid::gpar(fontsize = 10, fontface = "plain"),
             pct_digits = 2,
             pct_side = "left",
             row_names_side = "right",
@@ -216,6 +219,7 @@ plotMutProfile <- function(maf,
             column_split = patient.split,
             bottom_annotation = ComplexHeatmap::HeatmapAnnotation(
                 df = data.frame(patient = colnames(mat)),
+                show_annotation_name = FALSE,
                 col = list(patient = sample_barcode),
                 show_legend = FALSE
                 )
@@ -232,6 +236,7 @@ plotMutProfile <- function(maf,
             heatmap_legend_list = list(
                 ComplexHeatmap::Legend(
                     labels = "Multi_hits",
+                    labels_gp = grid::gpar(fontsize = 10),
                     type = "points",
                     pch = 16
                     )
@@ -239,6 +244,7 @@ plotMutProfile <- function(maf,
             annotation_legend_list = list(
             ComplexHeatmap::Legend(
                 title = "patient",
+                title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
                 labels = names(patient_id_cols),
                 legend_gp = grid::gpar(fill = patient_id_cols),
                 labels_gp = grid::gpar(fontsize = 10)
@@ -249,6 +255,7 @@ plotMutProfile <- function(maf,
             annotation_legend_list = list(
                 ComplexHeatmap::Legend(
                     title = "patient",
+                    title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
                     labels = names(patient_id_cols),
                     legend_gp = grid::gpar(fill = patient_id_cols)),
                     labels_gp = grid::gpargpar(fontsize = 10)
