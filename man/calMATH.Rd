@@ -11,14 +11,13 @@ calMATH(VAF)
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
-\item{minvaf}{the minimum VAF for filtering variants. Default: 0.02 Option: on the scale of 0 to 1}
 
-\item{maxvaf}{the maximum VAF for filtering variants. Default: 1. Option: on the scale of 0 to 1}
+\item{min.vaf}{the minimum VAF for filtering variants. Default: 0.02}
 
-\item{plot}{TRUE(default)}
+\item{max.vaf}{the maximum VAF for filtering variants. Default: 1}
 }
 \value{
-A list containing MATH scores and violin plot of all samples.
+a list containing MATH scores and violin plot of all samples
 }
 \description{
 Calculate MATH score and VAF value could be filtered with minvaf and maxvaf.

@@ -2,12 +2,12 @@
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
 #' @param mafFile tab delimited MAF file (plain text or *.gz compressed). Required.
-#' @param mutType Select proper variant classification you need. Default "All".Option: "nonSilent".
-#' @param mutNonSilent variant classifications which are considered as non-silent. Default NULL. Option: "Default".
-#' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
 #' @param use.indel logic. whether to use INDELs besides somatic SNVs. Default FALSE.
 #' @param ccfFile CCF file of SNVs. Default NULL.
-#' @param refBuild human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".
+#' @param mutType select proper variant classification you need. Default "All".Option: "nonSilent".
+#' @param mutNonSilent variant classifications which are considered as non-silent. Default NULL.
+#' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
+#' @param refBuild human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".
 #'
 #'
 #' @examples
@@ -24,18 +24,22 @@
 ## read.maf main function
 readMaf <- function(## maf parameters
     mafFile,
+    ccfFile = NULL,
     ## filter selection
     mutType = "All",
-    mutNonSilent = "Default",
+    mutNonSilent = NULL,
     chrSilent = NULL,
     use.indel = FALSE,
-    ## ccf parameters
-    ccfFile = NULL,
     refBuild = "hg19") {
 
     ref.options = c('hg18', 'hg19', 'hg38')
     if(!refBuild %in% ref.options){
         stop("refBuild can only be either 'hg18', 'hg19' or 'hg38'")
+    }
+
+    mutType.options = c("All", "nonSilent")
+    if(!mutType %in% mutType.options){
+        stop("mutType should be either 'All' or 'nonSilent.")
     }
 
     ## get patientID
@@ -72,7 +76,7 @@ readMaf <- function(## maf parameters
     
     ## filter variant classification
     if (mutType == "nonSilent") {
-        if (mutNonSilent == "Default") {
+        if (is.null(mutNonSilent)) {
             nonSilent <- c(
                 "Frame_Shift_Del",
                 "Frame_Shift_Ins",
@@ -89,14 +93,6 @@ readMaf <- function(## maf parameters
         }
         mafData <-
             mafData[which(mafData$Variant_Classification %in% nonSilent),]
-    } else if (mutType == "All") {
-        # message("All variant classification submitted")
-    } else {
-        error(
-            "parameter `mutType` error.
-              The mutType should be either 'All' or 'nonSilent'.
-              You could further settle the filter by parameter 'mutNonSilent'."
-        )
     }
     
     ## use.indel filter
