@@ -34,6 +34,6 @@ plotPhyloTree
 }
 \examples{
 plotPhyloTree(phyloTree)
-## Use ccf 
+## Use CCF 
 plotPhyloTree(phyloTree, heatmap.type = 'CCF')
 }

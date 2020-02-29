@@ -24,82 +24,20 @@ treeGO <- function(phyloTree, driverGenesFile = NULL, GO.type="BP", pval=0.05, p
     if(!GO.type %in% GO.options){
         stop("GO.type can only be either 'MF', 'BP' 'CC' or 'ALL'")
     }
-  
+  driverGenes <- NULL
   if(!is.null(driverGenesFile)){
       ## read putative driver genes' list
       driverGenes <- as.character(read.table(
           driverGenesFile, header = FALSE, quote="", sep="\n", stringsAsFactors = FALSE)[,1])
   }
-
-  branches <- phyloTree@mut.branches
-  patientID <- phyloTree@patientID
-    
-  GO.branch.result <- data.frame()
-  all.genes <- c()
-  egoPlot.list <- list()
-  egoResult.list <- list() 
-  plot.branchNames <- c()
-  result.branchNames <- c()
-
-  x <- 1
-  y <- 1 
-  for (i in 1:length(branches)){
-    branch <- branches[[i]]
-    branchID <- names(branches)[i]
-    ## split the gene symbol by ","
-    geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
-    if(!is.null(driverGenesFile)&!is.null(driverGenes)){
-        geneSymbol <- geneSymbol[geneSymbol %in% driverGenes]
-    }
-    all.genes <- unique(c(all.genes, geneSymbol))
-    
-    message(paste("Processing branch: ", branchID, sep = ""))
-    ego.branch <- GO_analysis(geneSymbol, GO.type, pval, pAdjustMethod,
-                qval, patientID, branchID)
-    
-    if(!is.null(ego.branch)){
-      egoResult.list[[x]] <- ego.branch@result
-      result.branchNames <- c(result.branchNames, branchID)
-      x <- x+1
-      if(min(ego.branch@result$p.adjust) > pval | min(ego.branch@result$qvalue, na.rm=T) > qval){
-        message(paste("0 enriched term found for branch ", branchID, sep = ""))
-      }
-      else{      
-        plot.branchNames <- c(plot.branchNames, branchID)
-        if (plotType == "dot"){
-          go.plot <- dotplot(ego.branch, showCategory=showCategory) + ggtitle(branchID)
-        }else if (plotType == "bar"){
-          go.plot <- barplot(ego.branch, showCategory=showCategory) + ggtitle(branchID)
-        }
-        egoPlot.list[[y]] <- go.plot
-        y <- y+1
-      }
-    }
-  }
-
-  ego.all <- GO_analysis(unique(all.genes), GO.type, pval, pAdjustMethod,
-   qval, patientID, name="All")
-  ego.all.result <- ego.all@result
-  egoResult.list[[x]] <- ego.all.result
-  result.branchNames <- c(result.branchNames, "All")
-  if(min(ego.all.result$p.adjust) > pval | min(ego.all.result$qvalue, na.rm = T) > qval){
-      message(paste("0 enriched terms found in ", patientID, sep = ""))
-    }else{
-    plot.branchNames <- c(plot.branchNames, "All")
-    if (plotType == "dot"){
-      go.plot <- dotplot(ego.all, showCategory=showCategory) + ggtitle(ego.all.result$Case)
-    }else if (plotType == "bar"){
-      go.plot <- barplot(ego.all, showCategory=showCategory)+ ggtitle(ego.all.result$Case)
-    }
-    egoPlot.list[[y]] <- go.plot  
-  }
-
-  names(egoResult.list) <- result.branchNames
-  names(egoPlot.list) <- plot.branchNames
-  ego <- list(egoResult.list, egoPlot.list)
-  names(ego) <- c("GO.category", "GO.plot")
-
-  return(ego)
+  result.list <- lapply(phyloTree,doTreeGO,
+                        driverGenes = driverGenes,
+                        GO.type = GO.type,                     
+                        pval= pval,
+                        pAdjustMethod= pAdjustMethod, 
+                        qval= qval,
+                        plotType= plotType,
+                        showCategory= showCategory)
 }
 
 
@@ -127,3 +65,81 @@ GO_analysis <- function(genes=NULL, GO.type=GO.type, pval=pval, pAdjustMethod=pA
     return(ego)
 }
 
+doTreeGO <- function(phyloTree = NULL,
+                     driverGenes = NULL,
+                     GO.type="BP",
+                     pval=0.05,
+                     pAdjustMethod="BH", 
+                     qval=0.2,
+                     plotType="dot",
+                     showCategory=5){
+    branches <- phyloTree@mut.branches
+    patientID <- phyloTree@patientID
+    
+    GO.branch.result <- data.frame()
+    all.genes <- c()
+    egoPlot.list <- list()
+    egoResult.list <- list() 
+    plot.branchNames <- c()
+    result.branchNames <- c()
+    
+    x <- 1
+    y <- 1 
+    for (i in 1:length(branches)){
+        branch <- branches[[i]]
+        branchID <- names(branches)[i]
+        ## split the gene symbol by ","
+        geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
+        if(!is.null(driverGenesFile)&!is.null(driverGenes)){
+            geneSymbol <- geneSymbol[geneSymbol %in% driverGenes]
+        }
+        all.genes <- unique(c(all.genes, geneSymbol))
+        
+        message(paste("Processing branch: ", branchID, sep = ""))
+        ego.branch <- GO_analysis(geneSymbol, GO.type, pval, pAdjustMethod,
+                                  qval, patientID, branchID)
+        
+        if(!is.null(ego.branch)){
+            egoResult.list[[x]] <- ego.branch@result
+            result.branchNames <- c(result.branchNames, branchID)
+            x <- x+1
+            if(min(ego.branch@result$p.adjust) > pval | min(ego.branch@result$qvalue, na.rm=T) > qval){
+                message(paste("0 enriched term found for branch ", branchID, sep = ""))
+            }
+            else{      
+                plot.branchNames <- c(plot.branchNames, branchID)
+                if (plotType == "dot"){
+                    go.plot <- dotplot(ego.branch, showCategory=showCategory) + ggtitle(branchID)
+                }else if (plotType == "bar"){
+                    go.plot <- barplot(ego.branch, showCategory=showCategory) + ggtitle(branchID)
+                }
+                egoPlot.list[[y]] <- go.plot
+                y <- y+1
+            }
+        }
+    }
+    
+    ego.all <- GO_analysis(unique(all.genes), GO.type, pval, pAdjustMethod,
+                           qval, patientID, name="All")
+    ego.all.result <- ego.all@result
+    egoResult.list[[x]] <- ego.all.result
+    result.branchNames <- c(result.branchNames, "All")
+    if(min(ego.all.result$p.adjust) > pval | min(ego.all.result$qvalue, na.rm = T) > qval){
+        message(paste("0 enriched terms found in ", patientID, sep = ""))
+    }else{
+        plot.branchNames <- c(plot.branchNames, "All")
+        if (plotType == "dot"){
+            go.plot <- dotplot(ego.all, showCategory=showCategory) + ggtitle(ego.all.result$Case)
+        }else if (plotType == "bar"){
+            go.plot <- barplot(ego.all, showCategory=showCategory)+ ggtitle(ego.all.result$Case)
+        }
+        egoPlot.list[[y]] <- go.plot  
+    }
+    
+    names(egoResult.list) <- result.branchNames
+    names(egoPlot.list) <- plot.branchNames
+    ego <- list(egoResult.list, egoPlot.list)
+    names(ego) <- c("GO.category", "GO.plot")
+    
+    return(ego)
+}

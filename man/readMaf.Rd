@@ -15,7 +15,7 @@ readMaf(
 )
 }
 \arguments{
-\item{mafFile}{tab delimited MAF file (plain text or *.gz compressed). The prefix to the filename of mafFile is considered as "patientID", which will be used for downstream analysis and visualization. Required.}
+\item{mafFile}{tab delimited MAF file (plain text or *.gz compressed). Required.}
 
 \item{mutType}{Select proper variant classification you need. Default "All".Option: "nonSilent".}
 
