@@ -23,198 +23,27 @@
 #' 
 
 ## Main function for VAF plot
-vafCluster <-function(maf, seg = NULL,
-                      minVaf=0.02, maxVaf=1, showMATH=TRUE, 
+vafCluster <-function(maf,
+                      seg = NULL,
+                      minVaf=0.02,
+                      maxVaf=1,
+                      showMATH=TRUE, 
                       plotOption="combine"){
-
-
   plot.options = c('combine', 'compare', 'separate')
     if(!plotOption %in% plot.options){
         stop("plotOption can only be either 'combine', 'compare' or 'separate'")
     }
-  
-  mafDat <- maf@data
-  if (max(mafDat$VAF, na.rm=TRUE) > 1){
-    mafDat$VAF <- mafDat$VAF/100
-  }
-  patientID <- maf@patientID
-  
-  ## fileter by minVaf and maxVaf
-  mafDat <- mafDat[which(
-    !is.na(mafDat$VAF)), ][which(
-      mafDat$VAF > minVaf & mafDat$VAF < maxVaf), ]
-  ## Ignoring variants in copy number altered regions
   if(!is.null(seg)){
-    maf@data <- mafDat
-    maf <- MesKit::copyNumberFilter(maf, seg)
+      maf <- copyNumberFilter(maf, seg)
   }
-  ## extract vaf info
-  n <- length(mafDat$Hugo_Symbol)
-  vafInputMt <- data.frame(mafDat$Hugo_Symbol, 
-                           mafDat$VAF, 
-                           mafDat$Tumor_Sample_Barcode)
-  colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Samples")
-  clusterAll <- data.frame()
-  ## extract all tumor sample barcode
-  tsbLs <- data.frame(unique(vafInputMt$Samples))
-  colnames(tsbLs) <- c("samples")
-  
-  
-  # build color vector for later use
-  colorVector <- c("#3B4992FF", "#EE0000FF", "#008B45FF", "#631879FF", 
-                   "#008280FF", "#BB0021FF", "#5F559BFF", "#A20056FF", 
-                   "#808180FF", "#1B1919FF")
-  
-  
-  ## plot all samples' vaf distribution
-  if ((plotOption == "separate") | (plotOption == "combine")){
-    ## general data process for all samples 
-    lsPicName <- c()
-    lsSep <- list()
-    lsSampleName <- c()
-    for (counterMt in seq_along(tsbLs[,1])){
-      sampleName <- as.character(tsbLs[,1][counterMt])
-      ## calculate ScoreMATH
-      mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, sampleName)
-      sampleMt <- vafInputMt[which(
-        vafInputMt$Samples %in% sampleName),]
-      ## data cleaning
-      sampleMt <- sampleMt[complete.cases(sampleMt), ]
-      sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-      if (length(sampleMt[,1]) < 3) {
-        message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
-        next()
-      }
-      
-      ## infer possible cluster from mafDat
-      clusterMt <- .clusterGenerator(mafDat, sampleName)
-      clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
-      
-      ## separate: print VAF pictures for all samples separatively
-      if (plotOption == "separate"){
-        pic <- .drawVAF(clusterMt, sampleName, mathscore)
-        lsSep[[counterMt]] <- pic
-        lsSampleName <- c(lsSampleName,sampleName)
-      }
-      else {
-        # prepare separated pictures for later combination 
-        pic_cha <- paste("separate", ".", counterMt, 
-                         "<-.drawVAF(clusterMt, ", 
-                         "sampleName, mathscore, ", 
-                         "MIXOption=plotOption)", sep="")
-        eval(parse(text=pic_cha))
-        pic_name <- paste("separate", ".", counterMt, sep="")
-        lsPicName <- c(lsPicName, pic_name)
-      }
-    }
-    if (plotOption == "separate"){
-      names(lsSep) <- lsSampleName
-      message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-      return(lsSep)
-    }
-    ## combine: print VAF pictures for all samples in one document
-    if (plotOption == "combine"){
-      if (showMATH){
-        mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, "compare", sampleName)
-        
-        ## set the columns of the picture and generate all single pictures
-        combineTitle <- cowplot::ggdraw() + 
-          cowplot::draw_label(
-            paste("VAF clustering of ", patientID, sep=""),
-            fontface = 'bold',
-            x = 0,
-            hjust = 0
-          ) +
-          theme(
-            # add margin on the left of the drawing canvas,
-            # so title is aligned with left edge of first plot
-            plot.margin = margin(0, 0, 0, 7)
-          )
-        pic <- eval(parse(text=paste("cowplot::plot_grid(", 
-                                     paste(lsPicName, collapse=","), 
-                                     ", nrow=", 
-                                     ceiling(length(lsPicName)/2), 
-                                     ", ncol=2, align=\"v\")" , 
-                                     sep="")))
-        pic <- cowplot::plot_grid(
-          combineTitle, pic,
-          ncol = 1,
-          # rel_heights values control vertical title margins
-          rel_heights = c(0.1, 1))
-        
-      } else {
-        pic <- eval(parse(text=paste("cowplot::plot_grid(", 
-                                     paste(lsPicName, collapse=","), 
-                                     ", nrow=", 
-                                     ceiling(length(lsPicName)/2), 
-                                     ", ncol=2, align=\"v\")" , 
-                                     sep="")))
-      }
-      message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-      return(suppressWarnings(suppressMessages(pic)))
-    }
-  }
-  
-  ## plot all samples' vaf distribution with ggridges
-  else if (plotOption == "compare"){
-    ## calculate ScoreMATH
-    mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption)
-    mathscore <- mathtbscoreLs$sampleLevel
-    ## collect all samples' cluster results
-    for (counterMt in seq_along(tsbLs[,1])){
-      sampleName <- as.character(tsbLs[,1][counterMt])
-      sampleMt <- vafInputMt[which(
-        vafInputMt$Samples %in% sampleName),]
-      ## data cleaning
-      sampleMt <- sampleMt[complete.cases(sampleMt), ]
-      sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-      if (nrow(sampleMt) < 3) {
-        message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
-        next()
-      }
-      ## generate data from different Tumor_Sample_Barcode
-      clusterMtCha <- paste("clusterMt_", counterMt, 
-                            " <- .clusterGenerator(mafDat, sampleName)", sep ="")
-      eval(parse(text=clusterMtCha))
-      clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
-                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
-      eval(parse(text=clusterMtCha))
-      clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
-                            "clusterMt_", counterMt, ")",sep ="")
-      eval(parse(text=clusterMtCha))
-    }
-    # mathscore <- mathtbscoreLs$patientLevel$MATH_score
-    pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
-                                                    tsbLs, plotOption, 
-                                                    mathscore, patientID, 
-                                                    minVaf, maxVaf))))
-    message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-    return(suppressWarnings(suppressMessages(pic)))
-  }
-  
-  ## plot specific sample's vaf plot
-  else if (plotOption %in% unique(vafInputMt$Samples))
-  {
-    ## data preparation
-    sampleName <- plotOption
-    sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
-    ## data cleaning
-    sampleMt <- sampleMt[complete.cases(sampleMt), ]
-    sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-    if (length(sampleMt[,1]) < 3) {
-      stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
-    }
-    clusterMt <- .clusterGenerator(mafDat, sampleName)
-    ## calculate ScoreMATH
-    mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, sampleName)
-    ## VAF plot for specifc sample
-    pic <- .drawVAF(clusterMt, plotOption, mathscore)
-    message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-    return(suppressWarnings(suppressMessages(pic)))
-  }
-  else {
-    stop("ERROR: plotOption settings failure.")
-  }
+  dat.list <- split(maf@data, maf@data$Patient_ID)
+  result.list <- lapply(dat.list, doVafCluster,
+                        seg = seg,
+                        minVaf= minVaf,
+                        maxVaf= maxVaf,
+                        showMATH= showMATH, 
+                        plotOption= plotOption)
+  return(result.list)
 }
 
 
@@ -223,27 +52,27 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
                             plotOption="combine"){
   ## original data preparation
   ## read .maf file
-  mafDat <- maf@data
-  if (max(mafDat$VAF, na.rm=TRUE) > 1){
-    mafDat$VAF <- mafDat$VAF/100
+  maf.dat <- maf@data
+  if (max(maf.dat$VAF, na.rm=TRUE) > 1){
+    maf.dat$VAF <- maf.dat$VAF/100
   }
   patientID <- maf@patientID
   
   ## fileter by minVaf and maxVaf
-  mafDat <- mafDat[which(
-    !is.na(mafDat$VAF)), ][which(
-      mafDat$VAF > minVaf & mafDat$VAF < maxVaf), ]
+  maf.dat <- maf.dat[which(
+    !is.na(maf.dat$VAF)), ][which(
+      maf.dat$VAF > minVaf & maf.dat$VAF < maxVaf), ]
   
   ## Ignoring variants in copy number altered regions
   if(!is.null(seg)){
-    maf@data <- mafDat
+    maf@data <- maf.dat
     maf <- MesKit::copyNumberFilter(maf, seg)
   }
   ## extract vaf info
-  n <- length(mafDat$Hugo_Symbol)
-  vafInputMt <- data.frame(mafDat$Hugo_Symbol, 
-                           mafDat$VAF, 
-                           mafDat$Tumor_Sample_Barcode)
+  n <- length(maf.dat$Hugo_Symbol)
+  vafInputMt <- data.frame(maf.dat$Hugo_Symbol, 
+                           maf.dat$VAF, 
+                           maf.dat$Tumor_Sample_Barcode)
   colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Samples")
   clusterAll <- data.frame()
   ## extract all tumor sample barcode
@@ -279,8 +108,8 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
         next()
       }
       
-      ## infer possible cluster from mafDat
-      clusterMt <- .clusterGenerator(mafDat, sampleName)
+      ## infer possible cluster from maf.dat
+      clusterMt <- .clusterGenerator(maf.dat, sampleName)
       clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
       
       ## separate: print VAF pictures for all samples separatively
@@ -374,7 +203,7 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
       }
       ## generate data from different Tumor_Sample_Barcode
       clusterMtCha <- paste("clusterMt_", counterMt, 
-                            " <- .clusterGenerator(mafDat, sampleName)", sep ="")
+                            " <- .clusterGenerator(maf.dat, sampleName)", sep ="")
       eval(parse(text=clusterMtCha))
       clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
                             " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
@@ -407,7 +236,7 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
     if (length(sampleMt[,1]) < 3) {
       stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
     }
-    clusterMt <- .clusterGenerator(mafDat, sampleName)
+    clusterMt <- .clusterGenerator(maf.dat, sampleName)
     ## calculate ScoreMATH
     mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption)
     ## VAF plot for specifc sample
@@ -428,18 +257,18 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
                      plotOption, sampleName = ""){
   if (showMATH){
     if ((plotOption == "separate") | (plotOption == "combine")){
-      mathtbscoreLs <- mathScore(maf, c(sampleName), minvaf=minVaf, maxvaf=maxVaf)
+      mathtbscoreLs <- suppressWarnings(mathScore(maf, c(sampleName), min.vaf = minVaf, max.vaf = maxVaf)) 
       mathtbscore <- mathtbscoreLs$sampleLevel
       mathscore <- mathtbscore[which(
         mathtbscore$Tumor_Sample_Barcode == sampleName), 
         ]$MATH_score
     }
     else if (plotOption == "compare"){
-      mathtbscoreLs <- mathScore(maf, NULL, minvaf=minVaf, maxvaf=maxVaf)
+      mathtbscoreLs <- suppressWarnings(mathScore(maf, NULL, min.vaf=minVaf, max.vaf=maxVaf)) 
       mathscore <- mathtbscoreLs
     }
     else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
-      mathtbscoreLs <- mathScore(maf, c(sampleName), minvaf=minVaf, maxvaf=maxVaf)
+      mathtbscoreLs <- suppressWarnings(mathScore(maf, c(sampleName), min.vaf=minVaf, max.vaf=maxVaf)) 
       mathtbscore <- mathtbscoreLs$sampleLevel
       mathscore <- mathtbscore[which(
         mathtbscore$Tumor_Sample_Barcode == plotOption), 
@@ -453,10 +282,10 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
   return(mathscore)
 }
 
-.clusterGenerator <- function(mafDat, sampleName){
+.clusterGenerator <- function(maf.dat, sampleName){
   ## refine part
-  Mt <- mclust::densityMclust(mafDat$VAF, G=1:7, verbose=FALSE)
-  clusterMt <- as.data.frame(mafDat)
+  Mt <- mclust::densityMclust(maf.dat$VAF, G=1:7, verbose=FALSE)
+  clusterMt <- as.data.frame(maf.dat)
   clusterMt$cluster <- as.character(Mt[["classification"]])
   ## 
   message(paste("Processing sample ", sampleName, sep = ""))
@@ -714,3 +543,196 @@ vafClusterRshiny <-function(maf, seg = NULL, minVaf=0.02, maxVaf=1, showMATH=TRU
   .ofaVlineVAF
 }
 
+
+doVafCluster <- function(patient.dat = NULL,
+                         seg = NULL,
+                         minVaf=0.02,
+                         maxVaf=1,
+                         showMATH=TRUE, 
+                         plotOption="combine"){
+    if (max(patient.dat$VAF, na.rm=TRUE) > 1){
+        patient.dat$VAF <- patient.dat$VAF/100
+    }
+    patientID <- unique(patient.dat$Patient_ID) 
+    
+    ## fileter by minVaf and maxVaf
+    patient.dat <- patient.dat[which(
+        !is.na(patient.dat$VAF)), ][which(
+            patient.dat$VAF > minVaf & patient.dat$VAF < maxVaf), ]
+    ## Ignoring variants in copy number altered regions
+    # if(!is.null(seg)){
+    #     maf@data <- patient.dat
+    #     maf <- MesKit::copyNumberFilter(maf, seg)
+    # }
+    ## extract vaf info
+    n <- length(patient.dat$Hugo_Symbol)
+    vafInputMt <- data.frame(patient.dat$Hugo_Symbol, 
+                             patient.dat$VAF, 
+                             patient.dat$Tumor_Sample_Barcode)
+    colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Samples")
+    clusterAll <- data.frame()
+    ## extract all tumor sample barcode
+    tsbLs <- data.frame(unique(vafInputMt$Samples))
+    colnames(tsbLs) <- c("samples")
+    
+    
+    # build color vector for later use
+    colorVector <- c("#3B4992FF", "#EE0000FF", "#008B45FF", "#631879FF", 
+                     "#008280FF", "#BB0021FF", "#5F559BFF", "#A20056FF", 
+                     "#808180FF", "#1B1919FF")
+    
+    
+    ## plot all samples' vaf distribution
+    if ((plotOption == "separate") | (plotOption == "combine")){
+        ## general data process for all samples 
+        lsPicName <- c()
+        lsSep <- list()
+        lsSampleName <- c()
+        for (counterMt in seq_along(tsbLs[,1])){
+            sampleName <- as.character(tsbLs[,1][counterMt])
+            ## calculate ScoreMATH
+            mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, sampleName)
+            sampleMt <- vafInputMt[which(
+                vafInputMt$Samples %in% sampleName),]
+            ## data cleaning
+            sampleMt <- sampleMt[complete.cases(sampleMt), ]
+            sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+            if (length(sampleMt[,1]) < 3) {
+                message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+                next()
+            }
+            
+            ## infer possible cluster from patient.dat
+            clusterMt <- .clusterGenerator(patient.dat, sampleName)
+            clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
+            
+            ## separate: print VAF pictures for all samples separatively
+            if (plotOption == "separate"){
+                pic <- .drawVAF(clusterMt, sampleName, mathscore)
+                lsSep[[counterMt]] <- pic
+                lsSampleName <- c(lsSampleName,sampleName)
+            }
+            else {
+                # prepare separated pictures for later combination 
+                pic_cha <- paste("separate", ".", counterMt, 
+                                 "<-.drawVAF(clusterMt, ", 
+                                 "sampleName, mathscore, ", 
+                                 "MIXOption=plotOption)", sep="")
+                eval(parse(text=pic_cha))
+                pic_name <- paste("separate", ".", counterMt, sep="")
+                lsPicName <- c(lsPicName, pic_name)
+            }
+        }
+        if (plotOption == "separate"){
+            names(lsSep) <- lsSampleName
+            message(paste(patientID," VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            return(suppressWarnings(lsSep))
+            # return(lsSep)
+        }
+        ## combine: print VAF pictures for all samples in one document
+        if (plotOption == "combine"){
+            if (showMATH){
+                mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, "compare", sampleName)
+                
+                ## set the columns of the picture and generate all single pictures
+                combineTitle <- cowplot::ggdraw() + 
+                    cowplot::draw_label(
+                        paste("VAF clustering of ", patientID, sep=""),
+                        fontface = 'bold',
+                        x = 0,
+                        hjust = 0
+                    ) +
+                    theme(
+                        # add margin on the left of the drawing canvas,
+                        # so title is aligned with left edge of first plot
+                        plot.margin = margin(0, 0, 0, 7)
+                    )
+                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
+                                             paste(lsPicName, collapse=","), 
+                                             ", nrow=", 
+                                             ceiling(length(lsPicName)/2), 
+                                             ", ncol=2, align=\"v\")" , 
+                                             sep="")))
+                pic <- cowplot::plot_grid(
+                    combineTitle, pic,
+                    ncol = 1,
+                    # rel_heights values control vertical title margins
+                    rel_heights = c(0.1, 1))
+                
+            } else {
+                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
+                                             paste(lsPicName, collapse=","), 
+                                             ", nrow=", 
+                                             ceiling(length(lsPicName)/2), 
+                                             ", ncol=2, align=\"v\")" , 
+                                             sep="")))
+            }
+            message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            return(suppressWarnings(suppressMessages(pic)))
+            # return(suppressWarnings(suppressMessages(pic)))
+        }
+    }
+    
+    ## plot all samples' vaf distribution with ggridges
+    else if (plotOption == "compare"){
+        ## calculate ScoreMATH
+        mathtbscoreLs <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption)
+        mathscore <- mathtbscoreLs$sampleLevel
+        ## collect all samples' cluster results
+        for (counterMt in seq_along(tsbLs[,1])){
+            sampleName <- as.character(tsbLs[,1][counterMt])
+            sampleMt <- vafInputMt[which(
+                vafInputMt$Samples %in% sampleName),]
+            ## data cleaning
+            sampleMt <- sampleMt[complete.cases(sampleMt), ]
+            sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+            if (nrow(sampleMt) < 3) {
+                message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+                next()
+            }
+            ## generate data from different Tumor_Sample_Barcode
+            clusterMtCha <- paste("clusterMt_", counterMt, 
+                                  " <- .clusterGenerator(patient.dat, sampleName)", sep ="")
+            eval(parse(text=clusterMtCha))
+            clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
+                                  " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
+            eval(parse(text=clusterMtCha))
+            clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
+                                  "clusterMt_", counterMt, ")",sep ="")
+            eval(parse(text=clusterMtCha))
+        }
+        # mathscore <- mathtbscoreLs$patientLevel$MATH_score
+        pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
+                                                        tsbLs, plotOption, 
+                                                        mathscore, patientID, 
+                                                        minVaf, maxVaf))))
+        message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+        return(suppressWarnings(suppressMessages(pic)))
+        # return(suppressWarnings(suppressMessages(pic)))
+    }
+    
+    ## plot specific sample's vaf plot
+    else if (plotOption %in% unique(vafInputMt$Samples))
+    {
+        ## data preparation
+        sampleName <- plotOption
+        sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
+        ## data cleaning
+        sampleMt <- sampleMt[complete.cases(sampleMt), ]
+        sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+        if (length(sampleMt[,1]) < 3) {
+            stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+        }
+        clusterMt <- .clusterGenerator(patient.dat, sampleName)
+        ## calculate ScoreMATH
+        mathscore <- .mathCal(maf, minVaf, maxVaf, showMATH, plotOption, sampleName)
+        ## VAF plot for specifc sample
+        pic <- .drawVAF(clusterMt, plotOption, mathscore)
+        message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+        return(suppressWarnings(suppressMessages(pic)))
+        # return(suppressWarnings(suppressMessages(pic)))
+    }
+    else {
+        stop("ERROR: plotOption settings failure.")
+    }
+}

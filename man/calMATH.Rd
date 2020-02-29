@@ -11,6 +11,7 @@ calMATH(VAF)
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
+
 \item{min.vaf}{the minimum VAF for filtering variants. Default: 0.02}
 
 \item{max.vaf}{the maximum VAF for filtering variants. Default: 1}
