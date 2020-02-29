@@ -13,6 +13,8 @@ genHeatmapPlotMatrix(maf_data, topGenesCount = NULL)
 Classify SSNVs/Indels into Shared/P-shared/Private, Clonal/Subclonl
 or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClonal/Private-SubClonal}
 
+\item{patient.id}{select the specific patients. Default: NULL, all patients are included}
+
 \item{driverGenesFile}{driver gene list. Default NULL}
 }
 \description{

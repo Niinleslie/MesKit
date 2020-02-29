@@ -12,10 +12,9 @@
 #' @return correlation matrix via Jaccard similarity coefficient method
 #' @export calJSI
 
-
-calJSI <- function(maf, plot = TRUE, use.circle = TRUE) {
-        dat <- maf@data
-        TSBs <- unique(dat$Tumor_Sample_Barcode)
+calJSI <- function(maf, patient.id = NULL, plot = TRUE, use.circle = TRUE) {
+    mafData <- maf@data
+    TSBs <- unique(dat$Tumor_Sample_Barcode)
         
         variants.list <- list()
         for (tsb in TSBs) {
