@@ -21,17 +21,17 @@ JSI_dist <- function(df){
     ) %>%
     dplyr::select(-Patient_ID, -mutation_id)
 
-    dist <- diag(0, nrow = ncol(df), ncol = ncol(df))
+    dist <- diag(1, nrow = ncol(df), ncol = ncol(df))
     for (i in 1:(ncol(df) - 1)) {
         for (j in (i + 1):ncol(df)) {
             pair <- data.frame(df[,i], df[,j]) %>%
                 dplyr::filter(rowSums(.)!=0) %>%
                 `colnames<-`(c("s1", "s2"))
 
-            diff <- pair %>%
-                dplyr::filter(.,(s1>0 & s2==0)|(s1==0 & s2>0))
+            comm <- pair %>%
+                dplyr::filter(., s1>0 & s2>0)
 
-            dist[i, j] <- dist[j, i] <- nrow(diff)/nrow(pair)  
+            dist[i, j] <- dist[j, i] <- nrow(comm)/nrow(pair)  
         }
     }
     rownames(dist) <- colnames(df)
@@ -40,16 +40,17 @@ JSI_dist <- function(df){
     return(JSI.dist =  dist)
     }    
 
-calJSI <- function(maf, patient.id = NULL, plot = TRUE, use.circle = TRUE, title = "Jaccard similarity") {
-    mafData <- maf@data
+calJSI <- function(maf, patient.id = NULL, plot = TRUE, 
+    use.circle = TRUE, title = "Jaccard similarity") {
 
+    mafData <- maf@data
 
     if(is.null(patient.id)){
         patient.id = unique(mafData$Patient_ID)
     }else{
         patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
         if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
     }
 
@@ -77,7 +78,11 @@ calJSI <- function(maf, patient.id = NULL, plot = TRUE, use.circle = TRUE, title
     JSI.plot = list()
     if(plot){
         for(i in 1:length(JSI.dist)){
-            JSI.plot[[i]] <- plotCorr(JSI.dist[[i]], use.circle = use.circle, title = title)
+            JSI.plot[[i]] <- plotCorr(
+                JSI.dist[[i]], 
+                use.circle = use.circle,
+                title = paste0(title, " of patient ", patient.id[i])
+                )
         }
         names(JSI.plot) <- patient.id
     }
