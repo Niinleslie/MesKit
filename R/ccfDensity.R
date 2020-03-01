@@ -71,6 +71,7 @@ ccfDensity <- function(maf, patient.id = NULL, min.ccf = 0, show.density = TRUE)
           stop(paste0(patient.setdiff, " can not be found in your data"))
       }
   }
+
   
   density.list <- mafData %>%
       dplyr::filter(Patient_ID %in% patient.id & CCF > min.ccf) %>%

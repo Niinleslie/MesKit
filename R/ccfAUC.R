@@ -74,6 +74,7 @@ ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
         }
     }
 
+
     mafData <- mafData %>%
         dplyr::filter(Patient_ID %in% patient.id & CCF > min.ccf)
 

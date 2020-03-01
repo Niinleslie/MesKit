@@ -61,7 +61,9 @@ calNeiDist <- function(maf, patient.id = NULL, plot = TRUE, use.circle = TRUE, t
         }
     }
 
+
     Nei.dist <- mafData %>%
+        dplyr::filter(Patient_ID %in% patient.id) %>%
         tidyr::unite(
             "mutation_id",
             c(
