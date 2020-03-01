@@ -11,14 +11,18 @@
 #' ## Use CCF 
 #' plotPhyloTree(phyloTree, heatmap.type = 'CCF')
 #
-#' @return Prints plot.
+#' @return return a list of phylotree graph .
 #' @import reshape2 ape ggplot2 deconstructSigs ggrepel
 #' @export plotPhyloTree
 #' 
 
 
-plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = TRUE,
-                          heatmap.type = 'binary',show.bootstrap = TRUE, use.box = TRUE){
+plotPhyloTree <- function(phyloTree = NULL,
+                          show.mutSig = TRUE,
+                          show.heatmap = TRUE,
+                          heatmap.type = 'binary',
+                          show.bootstrap = TRUE,
+                          use.box = TRUE){
    heatmap.options <- c('binary','CCF')
    if(!heatmap.type %in% heatmap.options){
       stop("Type of heatmap can only be 'binary' or 'CCF'")
@@ -33,7 +37,10 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
          use.ccf = FALSE
       }
    }
-   rootLabel <- 'NORMAL'
+   # treeMS.list <- NULL
+   # if(show.mutSig){
+   #     treeMS.list <- treeMutSig(phyloTree)
+   # }
    ## get phylotree data
    tree.list <- lapply(phyloTree, drawPhyloTree,
                        show.mutSig = show.mutSig,
@@ -41,24 +48,13 @@ plotPhyloTree <- function(phyloTree = NULL, show.mutSig = TRUE, show.heatmap = T
                        use.box = use.box,
                        show.heatmap = show.heatmap,
                        use.ccf = use.ccf)
-   # for(phylo.tree in phyloTree){
-   #     p <- drawPhyloTree(phyloTree = phylo.tree, 
-   #                        show.mutSig = show.mutSig,
-   #                        show.bootstrap = show.bootstrap, use.box = use.box,
-   #                        show.heatmap = show.heatmap, use.ccf = use.ccf)
-   #     # message(paste(patientID," PhyloTree Generation Done!", sep=""))
-   #     tree.list[[patientID]] <- p
-   # }
    return(tree.list)
 }
 
-getTreeData <- function(phyloTree, show.mutSig){
+getTreeData <- function(phyloTree = NULL,
+                        show.mutSig = TRUE){
    tree <- phyloTree@tree
-   signature <- c()
    rootLabel <- "NORMAL"
-   if(show.mutSig){
-      signature <- treeMutSig(phyloTree)$mutSigsOutput  
-   }
    tree <- ape::root(tree, tree$tip.label[which(tree$tip.label == rootLabel)])
    treeEdge <- data.table::data.table(node = tree$edge[,1], endNum = tree$edge[,2], length = tree$edge.length)
    numNORMAL <- which(tree$tip.label == rootLabel)
@@ -172,6 +168,7 @@ getTreeData <- function(phyloTree, show.mutSig){
       treeData$x2[maxy] <- treeData$distance[maxy]*cos(angle) + treeData$x1[maxy]
    }
    if(show.mutSig){
+      signature <- doTreeMutSig(phyloTree)$mutSigsOutput  
       treeData$label <- ""
       for(i in 1:nrow(treeData)){
          if(treeData$sample[i] == "NORMAL"){
@@ -195,21 +192,6 @@ getTreeData <- function(phyloTree, show.mutSig){
 setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, collateralPoints, collateralWs, collateralAngles,
                          horizon = pi/2 , W = pi){
    trunkPath <- rev(c(mainTrunk,rootNode))
-   # if(!is.null(ft)){
-   #    for(i in 1:length(trunkPath)){
-   #       point <- trunkPath[i]
-   #       if(point > tree$Ntip){
-   #          trunkPath[i] <- tree$node.label[point - tree$Ntip]
-   #       }
-   #       else{
-   #          name <- tree$tip.label[point]
-   #          trunkPath[i] <- which(ft$tip.label == name)
-   #       }
-   #    }
-   # }
-   # if(is.null(mt)){
-   #    startPos <- 0
-   # }
    if(length(trunkPath) > 0){
       for(i in 2:length(trunkPath)){
          x1 <- treeData[end_num == trunkPath[i-1],]$x2
@@ -235,17 +217,7 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, collater
    if(length(collateralPoints) > 0){
       for(i in 1:length(collateralPoints)){
          point <- collateralPoints[i]
-         # if(!is.null(ft)){
-         #    if(point > tree$Ntip){
-         #       point1 <- tree$node.label[point - tree$Ntip]
-         #    }else{
-         #       name <- tree$tip.label[point]
-         #       point1 <- which(ft$tip.label == name)
-         #    }
-         #    startnode <- ft$edge[which(ft$edge[,2] == point1),1]
-         # }else{
          startnode <- treeEdge[endNum == point, ]$node
-         # }
          x1 <- treeData[end_num == startnode,]$x2
          y1 <- treeData[end_num == startnode,]$y2
          W <- collateralWs[point]
@@ -267,11 +239,6 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, collater
 calMainTrunk <- function(tree, treeEdge, rootNode, rootLabel = "NORMAL"){
    Ntips <- Ntip(tree)
    subtips <- treeEdge[endNum < Ntips,]$endNum
-   # #Generate the adjacency matrix
-   # edge <-  tree$edge
-   # #Add the third column of the matrix to the node distance
-   # distance <- tree$edge.length
-   # edge <- matrix(c(edge, distance), nrow = length(edge[, 1]))
    distanceTable <- data.frame(x = 0)
    for(i in 1:length(subtips)){
     distanceTable <- cbind(distanceTable, -1)
@@ -409,7 +376,7 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
     numList[i] <- 1
     lrnumList[i] <- 0
    }
-   for(i in 1:1:length(pointsList)){
+   for(i in 1:length(pointsList)){
     if(pointsList[i] == rootNode){
      next
     }
@@ -560,6 +527,7 @@ labelBranch <- function(tree){
 
 
 drawPhyloTree <- function(phyloTree = NULL,
+                          treeData = NULL,
                           show.mutSig = TRUE,
                           show.bootstrap = TRUE,
                           use.box = TRUE,
@@ -567,7 +535,10 @@ drawPhyloTree <- function(phyloTree = NULL,
                           use.ccf = FALSE,
                           compare = FALSE,
                           compare.linetype = "solid"){
-    treeData <- getTreeData(phyloTree = phyloTree, show.mutSig = show.mutSig)
+    if(is.null(treeData)){
+        treeData <- getTreeData(phyloTree = phyloTree,
+                                show.mutSig = show.mutSig)
+    }
     set.seed(123)
     myBoots <- phyloTree@bootstrap.value
     patientID <- phyloTree@patientID
@@ -728,10 +699,10 @@ drawPhyloTree <- function(phyloTree = NULL,
         p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2,label = is.match),
                                   data = treeData[is.match != "NO",],
                                   fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                  segment.colour = "grey50", segment.size = 0.25, force = 5)
+                                  segment.colour = "grey50", segment.size = 0.5, force = 5)
     }
     if(show.heatmap){
-        h <- MesKit::mutHeatmap(phyloTree = phyloTree, use.ccf = use.ccf)
+        h <- mutHeatmap(phyloTree = phyloTree, use.ccf = use.ccf)
         pm <- getPrivateMutation(phyloTree = phyloTree)
         totalMutSum <- pm[[1]]
         privateMutProportion <- pm[[2]]

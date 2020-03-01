@@ -2,8 +2,8 @@
 #' @description compares two phylogenetic trees and returns a detailed report of several distance methods
 #' 
 #' 
-#' @param tree1 a phylogenetic tree
-#' @param tree2 a phylogenetic tree
+#' @param tree1 a single class PhyloTree
+#' @param tree2 a single class PhyloTree
 #' @param plot a logical value. If TRUE, the two trees are plotted on the same device and their similarities are shown.
 #' @param min.ratio a numeric value.If not NULL, min.length = max(tree$edge.length)*min.ratio.
 #'                 Length of branches which are less than min.length will be adjusted to min.length.
@@ -14,8 +14,8 @@
 #' Path.difference  difference in the path length, counted as the number of branches 
 #' Weighted.path.difference	 difference in the path length, counted using branches lengths
 #' @examples
-#' tree1 <- getPhyloTree(maf, method = "NJ")
-#' tree2 <- getPhyloTree(maf, method = "MP")
+#' tree1 <- getPhyloTree(maf, method = "NJ")[['patientID']]
+#' tree2 <- getPhyloTree(maf, method = "MP")[['patientID']]
 #' compareTree(tree1, tree2)
 #' compareTree(tree1, tree2, plot = TRUE)
 #' @export compareTree
@@ -24,7 +24,6 @@
 compareTree <- function(tree1, tree2, plot = FALSE, min.ratio = 1/30, compare.linetype = "solid"){
 	phylo.tree1 <- tree1@tree
 	phylo.tree2 <- tree2@tree
-
 	dist <- phangorn::treedist(phylo.tree1, phylo.tree2)
 	names(dist) <- c("Symmetric.difference", "KF-branch distance", "Path difference", "Weighted path difference")
 	if(plot){
@@ -34,8 +33,8 @@ compareTree <- function(tree1, tree2, plot = FALSE, min.ratio = 1/30, compare.li
 	        tree1@tree$edge.length[tree1@tree$edge.length < min1] <- min1
 	        tree2@tree$edge.length[tree2@tree$edge.length < min2] <- min2
 	    }
-	    treedat1 <- getTreeDat(tree1, show.mutSig = T)
-	    treedat2 <- getTreeDat(tree2, show.mutSig = T)
+	    treedat1 <- getTreeData(tree1, show.mutSig = T)
+	    treedat2 <- getTreeData(tree2, show.mutSig = T)
 	    m12 <- match(treedat1[sample == "internal node",]$label, treedat2[sample == "internal node",]$label)
 	    if(length(m12[!is.na(m12)]) > 0){
 	        cat(paste0("Both tree have ",length(m12[!is.na(m12)]), " same branch"))
@@ -59,16 +58,29 @@ compareTree <- function(tree1, tree2, plot = FALSE, min.ratio = 1/30, compare.li
 	        cat("Both tree have not the same branch")
 	        compare <- FALSE
 	    }
-	    p1 <- drawPhyloTree(treeData = treedat1, myBoots = tree1@bootstrap.value,
-	                        patientID = tree1@patientID, show.mutSig = TRUE,
-	                        show.bootstrap = FALSE, use.box = FALSE,
-	                        show.heatmap = FALSE, use.ccf = FALSE, compare = compare, compare.linetype = compare.linetype)
-	    p2 <- drawPhyloTree(treeData = treedat2, myBoots = tree2@bootstrap.value,
-	                        patientID = tree2@patientID, show.mutSig = TRUE,
-	                        show.bootstrap = FALSE, use.box = FALSE,
-	                        show.heatmap = FALSE, use.ccf = FALSE, compare = compare, compare.linetype = compare.linetype)
-	    p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(tree1@method,tree2@method))
-	    return(p)
+	    p1 <- drawPhyloTree(phyloTree = tree1,
+	                        treeData = treedat1,
+	                        show.mutSig = TRUE,
+	                        show.bootstrap = FALSE,
+	                        use.box = FALSE,
+	                        show.heatmap = FALSE,
+	                        use.ccf = FALSE,
+	                        compare = compare,
+	                        compare.linetype = compare.linetype)
+	    p2 <- drawPhyloTree(phyloTree = tree2,
+	                        treeData = treedat2,
+	                        show.mutSig = TRUE,
+	                        show.bootstrap = FALSE,
+	                        use.box = FALSE,
+	                        show.heatmap = FALSE,
+	                        use.ccf = FALSE,
+	                        compare = compare,
+	                        compare.linetype = compare.linetype)
+	    ptree <- cowplot::plot_grid(p1,
+	                                p2,
+	                                labels = c(tree1@method,tree2@method))
+	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(tree1@method,tree2@method))
+	    return(ptree)
 	}
     
 	return(dist)

@@ -14,7 +14,7 @@
 #' ccf.File <- system.file("extdata", "HCC6046.CCF.txt", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' njtree <- getPhyloTree(maf)
-#' @return  an object of class PhyloTree
+#' @return  a list of class PhyloTree
 #' @exportClass phyloTree
 #' @export getPhyloTree
 
@@ -33,25 +33,16 @@ getPhyloTree <- function(maf,
   }
   maf.dat <- maf@data
   refBuild <- maf@ref.build
-  # if(is.null(maf.dat$Patient_ID)){
-  #     maf.dat$Patient_ID <- "ALL"
-  # }
   maf.dat$Patient_ID <- as.character(maf.dat$Patient_ID)
-  patients <- as.character(unique(maf.dat$Patient_ID)) 
   dat.list <- split(maf.dat, maf.dat$Patient_ID)
   phyloTree.list <- list()
-  for(patient in patients){
-      patient.dat <- dat.list[[patient]]
-      phylo.tree <- doGetPhyloTree(patient.dat = patient.dat,
-                                   refBuild = refBuild,
-                                   patientID = patient,
-                                   method = method,
-                                   minVaf = minVaf,
-                                   maxVaf = maxVaf,
-                                   minCCF = minCCF,
-                                   bootstrap.rep.num = bootstrap.rep.num)
-      phyloTree.list[[patient]] <- phylo.tree
-  }
+  phyloTree.list <- lapply(dat.list, doGetPhyloTree,
+                           refBuild = refBuild,
+                           method = method,
+                           minVaf = minVaf,
+                           maxVaf = maxVaf,
+                           minCCF = minCCF,
+                           bootstrap.rep.num = bootstrap.rep.num)
   return(phyloTree.list)
 }
 
@@ -67,14 +58,13 @@ byML <- function(mut_dat){
     matTree <- nj(dist.gene(mut_dat))
     tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
     fitJC <- phangorn::pml(matTree, tree_dat)
-    fitJC <- phangorn::optim.pml(fitJC,control = pml.control(trace = F))
+    fitJC <- suppressWarnings(phangorn::optim.pml(fitJC,control = phangorn::pml.control(trace = F))) 
     matTree <- fitJC$tree
     return(matTree)
 }
 
 doGetPhyloTree <- function(patient.dat = NULL,
                            refBuild = NULL,
-                           patientID = "",
                            method = "NJ",
                            minVaf = 0.02, 
                            maxVaf = 1,
@@ -102,31 +92,27 @@ doGetPhyloTree <- function(patient.dat = NULL,
     mut_dat <- t(binary.matrix)
     if(method == "NJ"){
         matTree <- nj(dist.gene(mut_dat))
-        numRoot <- which(matTree$tip.label == "NORMAL")
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(nj(dist.gene(e)),numRoot),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)
     }
     else if(method == "MP"){
         matTree <- byMP(mut_dat)
-        numRoot <- which(matTree$tip.label == "NORMAL")
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(byMP(e),numRoot),B = bootstrap.rep.num,quiet = T) 
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byMP(e),B = bootstrap.rep.num,quiet = T) 
     }
     else if(method == "ML"){
         matTree <- byML(mut_dat)
-        numRoot <- which(matTree$tip.label == "NORMAL")
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(byML(e),numRoot),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = T)
     }
     else if(method == "FASTME.bal"){
         matTree <- ape::fastme.bal(dist.gene(mut_dat))
-        numRoot <- which(matTree$tip.label == "NORMAL")
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(ape::fastme.bal(dist.gene(e)),numRoot),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = T)
     }
     else if(method == "FASTME.ols"){
         matTree <- ape::fastme.ols(dist.gene(mut_dat))
-        numRoot <- which(matTree$tip.label == "NORMAL")
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) root(ape::fastme.ols(dist.gene(e)),numRoot),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)
     }
     branchAlias <- readPhyloTree(matTree)
     mut.branches <- .treeMutationalBranches(patient.dat, branchAlias, binary.matrix)
+    patientID <- unique(patient.dat$Patient_ID)
     phylo.tree <- new('phyloTree', patientID = patientID, tree = matTree, 
                       binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
                       mut.branches = mut.branches, refBuild = refBuild,

@@ -6,10 +6,16 @@
 #' 
 #' @examples
 #' mutTrunkBranch(tree.mutSig, conf.level = 0.95)
-#' @return Box plots based on mutational categories
+#' @return  a list of box plots based on mutational categories
 #' @export mutTrunkBranch
 
 mutTrunkBranch <- function(tree.mutSig, conf.level = 0.95) {
+    mutTB.list <- suppressWarnings(lapply(tree.mutSig, doMutTrunkBranch,
+                                   conf.level = conf.level)) 
+    return(mutTB.list)
+}
+
+doMutTrunkBranch <- function(tree.mutSig, conf.level = 0.95){
     ## input data from tree.mutSig
     ls.BT <- .dataProcessBT(tree.mutSig)
     df.pValue <- ls.BT$df.pValue
