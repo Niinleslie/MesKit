@@ -7,7 +7,7 @@
 #' 
 #' @examples
 #' plotTrunkBranch(tree.mutSig, conf.level = 0.95)
-#' @return Box plots based on mutational categories
+#' @return a list of box plots based on mutational categories
 #' @import ggplot2 grDevices graphics utils cowplot
 #' @export plotTrunkBranch
 

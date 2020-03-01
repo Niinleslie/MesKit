@@ -14,7 +14,7 @@
 #' ccf.File <- system.file("extdata", "HCC6046.CCF.txt", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' njtree <- getPhyloTree(maf)
-#' @return  an object of class PhyloTree
+#' @return  a list of class PhyloTree
 #' @exportClass phyloTree
 #' @export getPhyloTree
 
@@ -92,7 +92,7 @@ doGetPhyloTree <- function(patient.dat = NULL,
     mut_dat <- t(binary.matrix)
     if(method == "NJ"){
         matTree <- nj(dist.gene(mut_dat))
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),numRoot),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)
     }
     else if(method == "MP"){
         matTree <- byMP(mut_dat)

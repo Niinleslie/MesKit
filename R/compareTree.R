@@ -2,8 +2,8 @@
 #' @description compares two phylogenetic trees and returns a detailed report of several distance methods
 #' 
 #' 
-#' @param tree1 a phylogenetic tree
-#' @param tree2 a phylogenetic tree
+#' @param tree1 a single class PhyloTree
+#' @param tree2 a single class PhyloTree
 #' @param plot a logical value. If TRUE, the two trees are plotted on the same device and their similarities are shown.
 #' @param min.ratio a numeric value.If not NULL, min.length = max(tree$edge.length)*min.ratio.
 #'                 Length of branches which are less than min.length will be adjusted to min.length.
@@ -76,12 +76,11 @@ compareTree <- function(tree1, tree2, plot = FALSE, min.ratio = 1/30, compare.li
 	                        use.ccf = FALSE,
 	                        compare = compare,
 	                        compare.linetype = compare.linetype)
-	    ptree <- cowplot::plot_grid(p1 + theme(legend.position = "none"),
-	                                p2 + theme(legend.position = "none"),
+	    ptree <- cowplot::plot_grid(p1,
+	                                p2,
 	                                labels = c(tree1@method,tree2@method))
-	    plegend <- cowplot::get_legend(p1)
 	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(tree1@method,tree2@method))
-	    return(p)
+	    return(ptree)
 	}
     
 	return(dist)

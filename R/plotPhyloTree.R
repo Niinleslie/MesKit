@@ -11,7 +11,7 @@
 #' ## Use CCF 
 #' plotPhyloTree(phyloTree, heatmap.type = 'CCF')
 #
-#' @return Prints plot.
+#' @return return a list of phylotree graph .
 #' @import reshape2 ape ggplot2 deconstructSigs ggrepel
 #' @export plotPhyloTree
 #' 
@@ -54,7 +54,6 @@ plotPhyloTree <- function(phyloTree = NULL,
 getTreeData <- function(phyloTree = NULL,
                         show.mutSig = TRUE){
    tree <- phyloTree@tree
-   signature <- c()
    rootLabel <- "NORMAL"
    tree <- ape::root(tree, tree$tip.label[which(tree$tip.label == rootLabel)])
    treeEdge <- data.table::data.table(node = tree$edge[,1], endNum = tree$edge[,2], length = tree$edge.length)
@@ -377,7 +376,7 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
     numList[i] <- 1
     lrnumList[i] <- 0
    }
-   for(i in 1:1:length(pointsList)){
+   for(i in 1:length(pointsList)){
     if(pointsList[i] == rootNode){
      next
     }
@@ -700,7 +699,7 @@ drawPhyloTree <- function(phyloTree = NULL,
         p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2,label = is.match),
                                   data = treeData[is.match != "NO",],
                                   fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                  segment.colour = "grey50", segment.size = 0.25, force = 5)
+                                  segment.colour = "grey50", segment.size = 0.5, force = 5)
     }
     if(show.heatmap){
         h <- mutHeatmap(phyloTree = phyloTree, use.ccf = use.ccf)

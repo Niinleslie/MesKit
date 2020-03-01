@@ -21,7 +21,7 @@ treeMutSig(
 \item{signaturesRef}{The parameter used for deconstructSig. Default "cosmic". Option: "nature2013".}
 }
 \value{
-The data frame, treeMSOutput, containing information about each set/branch's mutational signature.
+a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
 }
 \description{
 Figure out the intersection of the variants on different branches 

@@ -6,7 +6,7 @@
 #' 
 #' @examples
 #' mutTrunkBranch(tree.mutSig, conf.level = 0.95)
-#' @return Box plots based on mutational categories
+#' @return  a list of box plots based on mutational categories
 #' @export mutTrunkBranch
 
 mutTrunkBranch <- function(tree.mutSig, conf.level = 0.95) {

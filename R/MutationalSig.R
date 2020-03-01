@@ -8,7 +8,7 @@
 #' @param min.mut.num the threshold for the variants in a branch. Default 15.
 #' @param signaturesRef The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". 
 #' 
-#' @return The data frame, treeMSOutput, containing information about each set/branch's mutational signature.
+#' @return a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
 #' 
 #' @examples
 #' treeMSOutput <- treeMutSig(phyloTree, driverGenesFile=NULL, min.mut.num=15, signaturesRef="cosmic")
