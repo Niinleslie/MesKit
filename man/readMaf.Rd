@@ -6,28 +6,28 @@
 \usage{
 readMaf(
   mafFile,
+  ccfFile = NULL,
   mutType = "All",
-  mutNonSilent = "Default",
+  mutNonSilent = NULL,
   chrSilent = NULL,
   use.indel = FALSE,
-  ccfFile = NULL,
   refBuild = "hg19"
 )
 }
 \arguments{
 \item{mafFile}{tab delimited MAF file (plain text or *.gz compressed). Required.}
 
-\item{mutType}{Select proper variant classification you need. Default "All".Option: "nonSilent".}
+\item{ccfFile}{CCF file of SNVs. Default NULL.}
 
-\item{mutNonSilent}{variant classifications which are considered as non-silent. Default NULL. Option: "Default".}
+\item{mutType}{select proper variant classification you need. Default "All".Option: "nonSilent".}
+
+\item{mutNonSilent}{variant classifications which are considered as non-silent. Default NULL.}
 
 \item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
 \item{use.indel}{logic. whether to use INDELs besides somatic SNVs. Default FALSE.}
 
-\item{ccfFile}{CCF file of SNVs. Default NULL.}
-
-\item{refBuild}{human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".}
+\item{refBuild}{human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".}
 }
 \value{
 an object of class Maf.
