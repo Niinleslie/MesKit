@@ -11,6 +11,11 @@
 #' @export mutSigSummary
 
 mutSigSummary <- function(treeMSOutput){
+    mutSS.list <- lapply(treeMSOutput, doMutSigSummary)
+    return(mutSS.list)
+}
+
+doMutSigSummary <- function(treeMSOutput){
     mutSigsOutput <- treeMSOutput$mutSigsOutput
     df.aetiology <- treeMSOutput$df.aetiology
     

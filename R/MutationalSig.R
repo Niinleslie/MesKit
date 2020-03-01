@@ -18,6 +18,17 @@
 
 ## Mutational Signature function
  treeMutSig <- function(phyloTree, driverGenesFile=NULL, min.mut.num=15, signaturesRef="cosmic"){
+     treeMS.list <- lapply(phyloTree, doTreeMutSig,
+                           driverGenesFile = driverGenesFile,
+                           min.mut.num = min.mut.num,
+                           signaturesRef = signaturesRef)
+     return(treeMS.list)
+}
+
+doTreeMutSig <- function(phyloTree,
+                         driverGenesFile=NULL,
+                         min.mut.num=15,
+                         signaturesRef="cosmic"){
     ## refBuild limitation: only hg19 or hg38
     refBuild <- phyloTree@refBuild
     if (!((refBuild == "hg19") | (refBuild == "hg38"))){
@@ -212,7 +223,7 @@
     message(paste(phyloTree@patientID, " mutational signature information generation done!", sep=""))
     treeMSOutput <- list(sigsInput=sigsInput, mutSigsOutput=mutSigsOutput, df.aetiology=df.aetiology)
     return(treeMSOutput)
-}
+} 
 
 ## Branches' mutation collection
 .treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
