@@ -79,8 +79,8 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
         width = grid::unit(12, "cm"),
         height = grid::unit(12, "cm"),
         heatmap_legend_param = list(
-                col_fun = col_fun,
-                #title = title,
+                title = NULL,
+                col_fun = col_fun,                
                 legend_height = grid::unit(4, "cm")
             )
 
