@@ -27,13 +27,13 @@ plotPhyloTree(
 \item{use.box}{logical.Whether to add box around bootstrap value on tree. Default is TRUE.}
 }
 \value{
-Prints plot.
+return a list of phylotree graph .
 }
 \description{
 plotPhyloTree
 }
 \examples{
 plotPhyloTree(phyloTree)
-## Use ccf 
+## Use CCF 
 plotPhyloTree(phyloTree, heatmap.type = 'CCF')
 }

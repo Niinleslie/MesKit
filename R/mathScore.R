@@ -26,9 +26,14 @@ calMATH <- function(VAF){
 mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1){
     mafData <- maf@data
 
-    if (is.null(patient.id)){
-        patient.id <- unique(mafData$Patient_ID)
-    } 
+    if(is.null(patient.id)){
+        patient.id = unique(mafData$Patient_ID)
+    }else{
+        patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
+        if(length(patient.setdiff) > 0){
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
+        }
+    }
 
     ## get vaf-related infomation
     MATH.df <- mafData %>%

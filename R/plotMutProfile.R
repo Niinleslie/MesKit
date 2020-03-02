@@ -25,6 +25,10 @@ genHeatmapPlotMatrix <- function(maf_data, topGenesCount = NULL) {
         as.vector() %>%
         as.character()
 
+    if(length(unique(patient.split)) == 1){
+        patient.split = NULL
+    }
+
     # long -> wider
     mat <- maf_data %>%
         dplyr::group_by(Hugo_Symbol) %>%
@@ -72,17 +76,17 @@ plotMutProfile <- function(maf,
     patient.split <- maf.plot[[2]]
     # View(mat)
 
-    patient_id_cols <-
-        RColorBrewer::brewer.pal(length(unique(patient.split)), "Set3")
-    names(patient_id_cols) <- unique(patient.split)
-
-    patient_barcode <- maf_data %>%
-        dplyr::select(Patient_ID, Tumor_Sample_Barcode) %>%
-        dplyr::distinct() %>%
-        dplyr::mutate(color = patient_id_cols[patient.split]) 
-
-    sample_barcode <- patient_barcode$color
-    names(sample_barcode) <- patient_barcode$Tumor_Sample_Barcode
+    #patient_id_cols <-
+        #RColorBrewer::brewer.pal(length(unique(patient.split)), "Set3")
+    #names(patient_id_cols) <- unique(patient.split)
+#
+    #patient_barcode <- maf_data %>%
+        #dplyr::select(Patient_ID, Tumor_Sample_Barcode) %>%
+        #dplyr::distinct() %>%
+        #dplyr::mutate(color = patient_id_cols[patient.split]) 
+#
+    #sample_barcode <- patient_barcode$color
+    #names(sample_barcode) <- patient_barcode$Tumor_Sample_Barcode
 
 
     multi_hit_exist = FALSE
@@ -190,70 +194,84 @@ plotMutProfile <- function(maf,
 
     heatmap_legend <- function(class, title = NULL) {
         param <- list(
-            title = title,
+            title = "Type",
+            title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
             at = names(col_type(class)),
-            labels = sub("_", "-", names(col_type(class)))
+            labels = sub("_", "-", names(col_type(class))),
+            labels_gp = grid::gpar(fontsize = 10)
         )
         return(param)
     }        
 
+    set.seed(123)
     ht <- suppressMessages(
         ComplexHeatmap::oncoPrint(
             mat,
             alter_fun = alter_fun(class),
             col = col_type(class),
             column_title = title,
-            row_title_gp = grid::gpar(fontsize = 14, fontface = "bold"),
+            column_title_gp = grid::gpar(fontsize = 16, fontface = "bold"),
+            row_title_gp = grid::gpar(fontsize = 10, fontface = "plain"),
             heatmap_legend_param = heatmap_legend(class, title),
             remove_empty_columns = TRUE,
             remove_empty_rows = TRUE,
-            row_names_gp = grid::gpar(fontsize = 10, fontface = "bold"),
-            column_names_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+            row_names_gp = grid::gpar(fontsize = 10, fontface = "italic"),
+            column_names_gp = grid::gpar(fontsize = 10, fontface = "plain"),
             pct_digits = 2,
-            pct_side = "left",
-            row_names_side = "right",
+            pct_side = "right",
+            row_names_side = "left",
             show_column_names = TRUE,
             column_split = patient.split,
-            bottom_annotation = ComplexHeatmap::HeatmapAnnotation(
-                df = data.frame(patient = colnames(mat)),
-                col = list(patient = sample_barcode),
-                show_legend = FALSE
-                )
+            bottom_annotation = if(
+                is.null(patient.split)) NULL else{
+                ComplexHeatmap::HeatmapAnnotation(
+                #df = data.frame(patient = colnames(mat)),
+                df = data.frame(patient = patient.split),
+                show_annotation_name = FALSE,
+                #col = list(patient = sample_barcode),
+                simple_anno_size = unit(0.5, "cm")
+                #show_legend = FALSE
+                )}                
         )
     )
 
-    patient_id_col_fun = circlize::colorRamp2(
-        names(patient_id_cols),
-        RColorBrewer::brewer.pal(length(patient_id_cols), "Set3")
-    )
+
 
     if (multi_hit_exist) {
         ComplexHeatmap::draw(ht,
             heatmap_legend_list = list(
                 ComplexHeatmap::Legend(
                     labels = "Multi_hits",
+                    labels_gp = grid::gpar(fontsize = 10),
                     type = "points",
                     pch = 16
                     )
-            ),
-            annotation_legend_list = list(
-            ComplexHeatmap::Legend(
-                title = "patient",
-                labels = names(patient_id_cols),
-                legend_gp = grid::gpar(fill = patient_id_cols),
-                labels_gp = grid::gpar(fontsize = 10)
-                )
-            ))
+            )
+            )
+            #annotation_legend_list = if(
+                #is.null(patient.split)) NULL else{
+                #list(ComplexHeatmap::Legend(
+                #title = "patient",
+                #title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+                #at = patient.split,
+                ##labels = names(patient_id_cols),
+                ##legend_gp = grid::gpar(fill = patient_id_cols),
+                #labels_gp = grid::gpar(fontsize = 10)
+                #))}
+            #)
     } else {
-      ComplexHeatmap::draw(ht,
-            annotation_legend_list = list(
-                ComplexHeatmap::Legend(
-                    title = "patient",
-                    labels = names(patient_id_cols),
-                    legend_gp = grid::gpar(fill = patient_id_cols)),
-                    labels_gp = grid::gpargpar(fontsize = 10)
-                    )
-                )
+      ComplexHeatmap::draw(ht
+            #annotation_legend_list = if(
+                #is.null(patient.split)) NULL else{
+                #list(ComplexHeatmap::Legend(
+                #title = "patient",
+                #title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+                #at = patient.split,
+                ##labels = names(patient_id_cols),
+                ##legend_gp = grid::gpar(fill = patient_id_cols),
+                #labels_gp = grid::gpar(fontsize = 10)
+                #))}
+            )
   }
 
     #maf_data %>% dplyr::select(-unique_barcode_count)

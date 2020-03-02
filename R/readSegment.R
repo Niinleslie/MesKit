@@ -29,25 +29,34 @@ readSegment <- function(segCN.file = NULL,
                         gisticDelGenesFile = NULL,
                         gisticAllLesionsFile = NULL,
                         gistic.qval = 0.25,
-
                         verbose = TRUE, min.seg.size = 500){
   seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
-  
+  # if(is.null(seg$Patient_ID)){
+  #     seg$Patient_ID <- "ALL"
+  # }
   # Replace chr with numeric value for better ordering
   seg$Chromosome = gsub(pattern = 'chr', replacement = '', x = seg$Chromosome, fixed = TRUE)
   seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
   seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE) 
-  
+  if("Start" %in% colnames(seg)){
+      seg <- dplyr::rename(seg,Start_Position = Start)
+  }
+  if("End" %in% colnames(seg)){
+      seg <- dplyr::rename(seg, End_Position = End)
+  }
+  if("Sample" %in% colnames(seg)){
+      seg <- dplyr::rename(seg,Tumor_Sample_Barcode = Sample)
+  }
   if(!"CopyNumber" %in% colnames(seg)){
     if("SegmentMean" %in% colnames(seg)){
         suppressWarnings(seg[,CopyNumber := round(2^(SegmentMean)*2) ])
-        seg <- dplyr::select(seg, Sample, Chromosome, Start, End, CopyNumber)
+        seg <- dplyr::select(seg, Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position, CopyNumber)
     }
     else{
         stop("segCN.file does not contain Copynumber or SegmentMean information")  
     }
   }
-  seg[ ,Width := End - Start]
+  seg[ ,Width := End_Position - Start_Position]
   seg <- dplyr::mutate(seg, Type = unlist(lapply(seg$CopyNumber, function(x){
       if(x == 0){
           return("Deletion")
@@ -66,9 +75,12 @@ readSegment <- function(segCN.file = NULL,
       }
   }))) %>%
       dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size) %>%
-      dplyr::select(Chromosome, Start , End, Sample, CopyNumber, Type) %>% 
+      dplyr::select(Patient_ID, Chromosome, Start_Position, End_Position, Tumor_Sample_Barcode, CopyNumber, Type) %>% 
        as.data.table()
-  
+  seg$Chromosome <- as.numeric(seg$Chromosome)
+  seg$Start_Position <- as.numeric(seg$Start_Position)
+  seg$End_Position <- as.numeric(seg$End_Position)
+  data.table::setkey(x = seg, Chromosome, Start_Position, End_Position)
       # load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
       # segDat <- dplyr::rename(seg, seqnames = Chromosome, start = Start, end = End)
       # genesDat <- ref.dat[seqnames %in% c(1:22),]
@@ -77,8 +89,8 @@ readSegment <- function(segCN.file = NULL,
       # data.table::setkey(x = segDat, seqnames, start, end)
       # overlapsDat <- foverlaps(x = genesDat, y = segDat, by.x = c("seqnames", "start", "end"))
       # overlapsDat <- na.omit(overlapsDat)
-      # overlapsDat <- overlapsDat[,.(gene_name,Sample,CopyNumber, Type,seqnames, i.start, i.end)]
-      # colnames(overlapsDat) <- c( "Gene","Sample","CopyNumber", "Type","Chromosome", "Start_Position", "End_Position")
+      # overlapsDat <- overlapsDat[,.(gene_name,Tumor_Sample_Barcode,CopyNumber, Type,seqnames, i.start, i.end)]
+      # colnames(overlapsDat) <- c( "Gene","Tumor_Sample_Barcode","CopyNumber", "Type","Chromosome", "Start_Position", "End_Position")
       # seg <- overlapsDat
       # read gistic results
   gisticCNVgenes <- data.table::data.table()
@@ -96,17 +108,17 @@ readSegment <- function(segCN.file = NULL,
       gisticDelGenes <- readGisticGene(gisticDelGenesFile, "Del")
       gisticCNVgenes <- rbind(gisticCNVgenes, gisticDelGenes)
   }
+  gisticLesions <- data.table::data.table()
   if(!is.null(gisticAllLesionsFile)){
       gisticLesions <- as.data.table(readGisticAllLesions(gisticAllLesionsFile, verbose = verbose)) %>%
                        dplyr::rename(Wide_Peak_Boundaries = WPB)
       if("Amp" %in% gisticLesions$Gistic.type){
           gisticLesions[Gistic.type == "Amp",]$Gistic.type <- "AMP"
       }
-      gisticLesions$ID <- tidyr::unite(gisticLesions,"ID",Cytoband,Wide_Peak_Boundaries,Gistic.type,sep = "_")$ID
   }
-  
   if(nrow(gisticCNVgenes) != 0){
-      if(!is.null(gisticLesions)){
+      if(!is.null(gisticAllLesionsFile)){
+          gisticLesions$ID <- tidyr::unite(gisticLesions,"ID",Cytoband,Wide_Peak_Boundaries,Gistic.type,sep = "_")$ID
           gisticCNVgenes$ID <- tidyr::unite(gisticCNVgenes,"ID",Cytoband,Wide_Peak_Boundaries,Gistic.type,sep = "_")$ID
           gisticCNVgenes <- merge(gisticLesions,gisticCNVgenes,by = "ID") %>% 
                          dplyr::select(Cytoband.x, Wide_Peak_Boundaries.x, Gene, Gistic.type.x, Qvalue) %>%
@@ -128,25 +140,34 @@ readSegment <- function(segCN.file = NULL,
       gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
       gisticCNVgenes$End_Position <- as.numeric(gisticCNVgenes$End_Position)
       data.table::setkey(x = gisticCNVgenes,Chromosome, Start_Position, End_Position)
-      # if(!is.null(gisticLesions)){
-      #     g1 <- data.table::foverlaps(gisticCNVgenes, gisticLesions, 
-      #                                 by.x = c("Cytoband", "Gistic.type","Chromosome", "Start_Position", "End_Position"))
-      # }
-      if("Start" %in% colnames(seg)){
-          seg <- dplyr::rename(seg,Start_Position = Start, End_Position = End)
-      }
-      seg$Chromosome <- as.numeric(seg$Chromosome)
-      seg$Start_Position <- as.numeric(seg$Start_Position)
-      seg$End_Position <- as.numeric(seg$End_Position)
-      data.table::setkey(x = seg, Chromosome, Start_Position, End_Position)
       mapDat <- data.table::foverlaps(gisticCNVgenes,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
                 na.omit() %>% 
-                dplyr::select(Type, Gistic.type, Sample, Gene, CopyNumber, Chromosome, i.Start_Position, i.End_Position) %>%
-                dplyr::distinct(.) %>% 
-                dplyr::rename(Start_Position = i.Start_Position, End_Position = i.End_Position) %>% 
-                dplyr::select(Chromosome, Start_Position, End_Position, Gene, Sample, CopyNumber, Type, Gistic.type)
+                dplyr::select(Patient_ID, Chromosome, Start_Position, End_Position, Tumor_Sample_Barcode, CopyNumber, Type, Gistic.type) %>% 
+                dplyr::distinct(.)
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
   }
+  else if(nrow(gisticLesions) != 0){
+      gisticLesions[,Chromosome := sapply(strsplit(x = gisticLesions[,Wide_Peak_Boundaries], split = ':'), '[', 1)]
+      gisticLesions[,loc := sapply(strsplit(x = gisticLesions[,Wide_Peak_Boundaries], split = ':'), '[', 2)]
+      gisticLesions[,Start_Position := as.integer(sapply(strsplit(x = gisticLesions[,loc], split = '-'), '[', 1))]
+      gisticLesions[,End_Position := as.integer(sapply(strsplit(x = gisticLesions[,loc], split = '-'), '[', 2))]
+      gisticLesions[,Chromosome := gsub(pattern = 'chr', replacement = '', x = gisticLesions$Chromosome, fixed = TRUE)]
+      gisticLesions[,Chromosome := gsub(pattern = 'X', replacement = '23', x = gisticLesions$Chromosome, fixed = TRUE)]
+      gisticLesions[,Chromosome := gsub(pattern = 'Y', replacement = '24', x = gisticLesions$Chromosome, fixed = TRUE)]
+      gisticLesions <- dplyr::select(gisticLesions, Cytoband, Gistic.type, Chromosome, Start_Position, End_Position, Qvalue)
+      gisticLesions$Chromosome <- as.numeric(gisticLesions$Chromosome)
+      gisticLesions$Start_Position <- as.numeric(gisticLesions$Start_Position)
+      gisticLesions$End_Position <- as.numeric(gisticLesions$End_Position)
+      data.table::setkey(x = gisticLesions,Chromosome, Start_Position, End_Position) 
+      mapDat <- data.table::foverlaps(gisticLesions,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
+          na.omit() %>% 
+          dplyr::filter(Qvalue < gistic.qval) %>% 
+          dplyr::select(Patient_ID, Chromosome, Start_Position, End_Position, Tumor_Sample_Barcode, CopyNumber, Type, Gistic.type) %>%
+          dplyr::distinct(.) %>% 
+          data.table::as.data.table()
+      seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
+  }
+  data.table::setkey(x = seg, Patient_ID, Chromosome, Start_Position, End_Position)
   return(seg)
 }
 

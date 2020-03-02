@@ -12,7 +12,7 @@ plotTrunkBranch(tree.mutSig, conf.level = 0.95)
 \item{conf.level}{confidence level of the interval for wilcox.test. Default: 0.95.}
 }
 \value{
-Box plots based on mutational categories
+a list of box plots based on mutational categories
 }
 \description{
 Prints the distribution of branch/trunk mutations based on mutational categories.

@@ -70,7 +70,7 @@ ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
     }else{
         patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
         if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
     }
 

@@ -20,88 +20,28 @@
 
 #Pathway analysis
 treePathway <- function(phyloTree, driverGenesFile = NULL, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",
-                           qval=0.2,  plotType="dot", showCategory=5){
+                           qval=0.2,  plotType="dot", showCategory =  5){
 
   pathway.options = c('KEGG', 'Reactome')
     if(!pathway.type %in% pathway.options){
         stop("pathway.type can only be either 'KEGG' or 'Reactome'")
     }
-  
+  driverGenes <- NULL
   if(!is.null(driverGenesFile)){
       ## read driver genes' list
       driverGenes <- as.character(read.table(
           driverGenesFile, header = FALSE, quote="", sep="\n")[,1])
   }
   
-  branches <- phyloTree@mut.branches
-  patientID <- phyloTree@patientID
-
-  Pathway.branch.result <- data.frame()
-  all.genes <- c()
-  pathPlot.list <- list()
-  pathResult.list <- list()
-  plot.branchNames <- c()
-  result.branchNames <- c()
-
-  x <- 1
-  y <- 1 
-  for (i in 1:length(branches)){
-    branch <- branches[[i]]
-    branchID <- names(branches)[i]
-    #split the gene symbol by ","
-    geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
-    if(!is.null(driverGenesFile)&!is.null(driverGenes)){
-        geneSymbol <- geneSymbol[geneSymbol %in% driverGenes]
-    }
-    all.genes <- unique(c(all.genes, geneSymbol))
-    
-    message(paste("Processing branch: ", branchID, sep = ""))
-    Pathway.branch <- Pathway_analysis(geneSymbol, pathway.type, pval, pAdjustMethod,
-                                qval, patientID, branchID)
-    if(!is.null(Pathway.branch)){
-      pathResult.list[[x]] <- Pathway.branch@result
-      result.branchNames <- c(result.branchNames, branchID)
-      x <- x+1
-      if(min(Pathway.branch@result$p.adjust) > pval | min(Pathway.branch@result$qvalue, na.rm = T) > qval){
-        message(paste("0 enriched pathway found for branch ", branchID, sep = ""))
-      }else{
-        plot.branchNames <- c(plot.branchNames, branchID)
-        if (plotType == "dot"){
-          path.plot <- dotplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
-        }else if (plotType == "bar"){
-          path.plot <- barplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
-        }
-        pathPlot.list[[y]] <- path.plot
-        y <- y+1
-      }      
-    }
-
-  }  
-  Pathway.all <- Pathway_analysis(all.genes, pathway.type, pval, pAdjustMethod,
-                                     qval, patientID, Name = "All")
-  Pathway.all.result <- Pathway.all@result
-  pathResult.list[[x]] <- Pathway.all.result
-  result.branchNames <- c(result.branchNames, "All")
-  if(min(Pathway.all.result$p.adjust) > pval | min(Pathway.all.result$qvalue, na.rm = T) > qval){
-      message(paste("0 enriched pathway found in ", patientID, sep = ""))
-  }else{
-    plot.branchNames <- c(plot.branchNames, "All")
-    if (plotType == "dot"){
-      path.plot <- dotplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
-    }else if (plotType == "bar"){
-      path.plot <- barplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
-    }
-    pathPlot.list[[y]] <- path.plot
-}
-
-  names(pathResult.list) <- result.branchNames
-  names(pathPlot.list) <- plot.branchNames
-
-
-  pathway <- list(pathResult.list, pathPlot.list)
-  names(pathway) <- c("pathway.category", "pathway.plot")
-
-  return(pathway)
+  result.list <- lapply(phyloTree,doTreePathway,
+                        driverGenes = driverGenes,
+                        pathway.type= pathway.type,
+                        pval= pval,
+                        pAdjustMethod= pAdjustMethod,
+                        qval= qval,
+                        plotType= plotType,
+                        showCategory =  showCategory)
+  return(result.list)
 
 }
 
@@ -146,3 +86,83 @@ Pathway_analysis <- function(genes = NULL, pathway.type = pathway.type, pval = p
     } 
     return(pathway)
 }  
+
+doTreePathway <- function(phyloTree = NULL,
+                          driverGenes = NULL,
+                          pathway.type="KEGG",
+                          pval=0.05,
+                          pAdjustMethod="BH",
+                          qval=0.2,
+                          plotType="dot",
+                          showCategory =  5){
+    branches <- phyloTree@mut.branches
+    patientID <- phyloTree@patientID
+    
+    Pathway.branch.result <- data.frame()
+    all.genes <- c()
+    pathPlot.list <- list()
+    pathResult.list <- list()
+    plot.branchNames <- c()
+    result.branchNames <- c()
+    
+    x <- 1
+    y <- 1 
+    for (i in 1:length(branches)){
+        branch <- branches[[i]]
+        branchID <- names(branches)[i]
+        #split the gene symbol by ","
+        geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
+        if(!is.null(driverGenesFile)&!is.null(driverGenes)){
+            geneSymbol <- geneSymbol[geneSymbol %in% driverGenes]
+        }
+        all.genes <- unique(c(all.genes, geneSymbol))
+        
+        message(paste("Processing branch: ", branchID, sep = ""))
+        Pathway.branch <- Pathway_analysis(geneSymbol, pathway.type, pval, pAdjustMethod,
+                                           qval, patientID, branchID)
+        if(!is.null(Pathway.branch)){
+            pathResult.list[[x]] <- Pathway.branch@result
+            result.branchNames <- c(result.branchNames, branchID)
+            x <- x+1
+            if(min(Pathway.branch@result$p.adjust) > pval | min(Pathway.branch@result$qvalue, na.rm = T) > qval){
+                message(paste("0 enriched pathway found for branch ", branchID, sep = ""))
+            }else{
+                plot.branchNames <- c(plot.branchNames, branchID)
+                if (plotType == "dot"){
+                    path.plot <- dotplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
+                }else if (plotType == "bar"){
+                    path.plot <- barplot(Pathway.branch, showCategory = showCategory) + ggtitle(branchID)
+                }
+                pathPlot.list[[y]] <- path.plot
+                y <- y+1
+            }      
+        }
+        
+    }  
+    Pathway.all <- Pathway_analysis(all.genes, pathway.type, pval, pAdjustMethod,
+                                    qval, patientID, Name = "All")
+    Pathway.all.result <- Pathway.all@result
+    pathResult.list[[x]] <- Pathway.all.result
+    result.branchNames <- c(result.branchNames, "All")
+    if(min(Pathway.all.result$p.adjust) > pval | min(Pathway.all.result$qvalue, na.rm = T) > qval){
+        message(paste("0 enriched pathway found in ", patientID, sep = ""))
+    }else{
+        plot.branchNames <- c(plot.branchNames, "All")
+        if (plotType == "dot"){
+            path.plot <- dotplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
+        }else if (plotType == "bar"){
+            path.plot <- barplot(Pathway.all, showCategory = showCategory) + ggtitle(Pathway.all$Case)
+        }
+        pathPlot.list[[y]] <- path.plot
+    }
+    
+    names(pathResult.list) <- result.branchNames
+    names(pathPlot.list) <- plot.branchNames
+    
+    
+    pathway <- list(pathResult.list, pathPlot.list)
+    names(pathway) <- c("pathway.category", "pathway.plot")
+    
+    return(pathway)
+    
+}
