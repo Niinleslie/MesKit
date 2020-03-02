@@ -98,10 +98,12 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
     
     pic <- ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
         geom_boxplot(coef=100) + 
+        ggtitle(paste0("Substitution types of ",tree.mutSig$patientID,"'s phylogenetic tree ")) + 
         theme(panel.grid=element_blank(), 
               panel.border=element_blank(), 
               panel.background = element_blank(), 
               legend.position='none', 
+              plot.title = element_text(size = 13,face = "bold",hjust = 0.5,vjust = 0),
               axis.text.x=element_text(size=10, angle = 90, vjust = 0.5, hjust=1), 
               axis.ticks.x = element_blank(), 
               axis.text.y=element_text(size=10)) + 

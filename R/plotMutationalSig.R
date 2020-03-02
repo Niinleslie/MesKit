@@ -12,7 +12,11 @@
 #' @export plotMutSig
 
 ## plot.MutationalSigs
-plotMutSig <- function(tree.mutSig) {
+plotMutSig <- function(tree.mutSig){
+    pms.list <- lapply(tree.mutSig, doPlotMutSig)
+}
+
+doPlotMutSig <- function(tree.mutSig) {
   sigsInput <- tree.mutSig$sigsInput
   mutSigsOutput <- tree.mutSig$mutSigsOutput
   df.aetiology <- tree.mutSig$df.aetiology
@@ -69,12 +73,13 @@ plotMutSig <- function(tree.mutSig) {
   group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
                     "#3C5488FF", "#F39B7FFF", "#8491B4FF")
   pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
-    geom_bar(stat="identity") + 
+    geom_bar(stat="identity")+ 
     theme(panel.grid=element_blank(), 
           panel.border=element_blank(), 
           panel.background = element_blank(), 
           legend.position='none', 
           # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
+          plot.title = element_text(size = 13,face = "bold",hjust = 0.5,vjust = 0),
           axis.text.x=element_blank(), 
           axis.ticks.x=element_blank(),
           axis.text.y=element_text(size=5)) +
@@ -100,6 +105,7 @@ plotMutSig <- function(tree.mutSig) {
     ## axis setting
     xlab("Mutational type") + 
     ylab("Mutation probability") + 
+    ggtitle(paste0("Mutational signatures of ",tree.mutSig$patientID,"'s phylogenetic tree ") )+
     scale_y_continuous(limits=c(-0.03, 0.2), breaks=seq(0, 0.2, 0.1)) + 
     ## signature notes and text parts
     geom_text(data = df.sigsInputText, 
