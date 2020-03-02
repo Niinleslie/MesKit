@@ -13,9 +13,9 @@ compareTree(
 )
 }
 \arguments{
-\item{tree1}{a phylogenetic tree}
+\item{tree1}{a single class PhyloTree}
 
-\item{tree2}{a phylogenetic tree}
+\item{tree2}{a single class PhyloTree}
 
 \item{plot}{a logical value. If TRUE, the two trees are plotted on the same device and their similarities are shown.}
 
@@ -35,8 +35,8 @@ Weighted.path.difference	 difference in the path length, counted using branches 
 compares two phylogenetic trees and returns a detailed report of several distance methods
 }
 \examples{
-tree1 <- getPhyloTree(maf, method = "NJ")
-tree2 <- getPhyloTree(maf, method = "MP")
+tree1 <- getPhyloTree(maf, method = "NJ")[['patientID']]
+tree2 <- getPhyloTree(maf, method = "MP")[['patientID']]
 compareTree(tree1, tree2)
 compareTree(tree1, tree2, plot = TRUE)
 }
