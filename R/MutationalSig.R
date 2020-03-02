@@ -221,7 +221,7 @@ doTreeMutSig <- function(phyloTree,
     }
     
     message(paste(phyloTree@patientID, " mutational signature information generation done!", sep=""))
-    treeMSOutput <- list(sigsInput=sigsInput, mutSigsOutput=mutSigsOutput, df.aetiology=df.aetiology)
+    treeMSOutput <- list(sigsInput=sigsInput, mutSigsOutput=mutSigsOutput, df.aetiology=df.aetiology, patientID = patientID)
     return(treeMSOutput)
 } 
 

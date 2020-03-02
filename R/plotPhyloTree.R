@@ -37,11 +37,6 @@ plotPhyloTree <- function(phyloTree = NULL,
          use.ccf = FALSE
       }
    }
-   # treeMS.list <- NULL
-   # if(show.mutSig){
-   #     treeMS.list <- treeMutSig(phyloTree)
-   # }
-   ## get phylotree data
    tree.list <- lapply(phyloTree, drawPhyloTree,
                        show.mutSig = show.mutSig,
                        show.bootstrap = show.bootstrap,
