@@ -80,15 +80,17 @@ doGetPhyloTree <- function(patient.dat = NULL,
                            maxVaf = 1,
                            minCCF = NULL,
                            bootstrap.rep.num = 100){
-    if (max(patient.dat$VAF, na.rm=TRUE) > 1){
-        patient.dat$VAF <- patient.dat$VAF/100
-    }
+
+    #if (max(patient.dat$VAF, na.rm=TRUE) > 1){
+        #patient.dat$VAF <- patient.dat$VAF/100
+    #}
+
     if(!is.null(minCCF)){
         if("CCF" %in% colnames(patient.dat)){
             patient.dat <- patient.dat[CCF > minCCF, ]
         }
         else{
-            stop("CCF information not found")
+            warnings("minCCF argument only works when CCF data is provided!")
         }
     }
     patient.dat <- patient.dat[which(patient.dat$VAF > minVaf & patient.dat$VAF < maxVaf), ]
