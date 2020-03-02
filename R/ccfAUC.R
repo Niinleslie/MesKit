@@ -44,12 +44,13 @@ plotDensity <- function(df){
         geom_line(size=0.8) +
         theme(
             #legend.position='none', 
+            legend.title = element_blank(),
             title=element_text(size=11, face = "bold"), 
             text=element_text(size=11, face = "bold"), 
             panel.grid=element_blank(), 
             panel.border=element_blank(), 
             axis.line=element_line(size=0.3),
-            legend.title=element_text(size=12, face = "bold"),
+            #legend.title=element_text(size=12, face = "bold"),
             legend.text = element_text(size=10, face = "bold")
         )+
         labs(x="CCF", y="Proportion")
@@ -70,7 +71,7 @@ ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
     }else{
         patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
         if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
     }
 
@@ -83,7 +84,7 @@ ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
         as.data.frame()
 
     # violin plot of AUC
-    if(density.plot){
+    if(plot.density){
         density.plot <- mafData %>%
         dplyr::group_by(Patient_ID) %>%
         dplyr::group_map(~plotDensity(.x), keep = TRUE) %>%
@@ -93,7 +94,7 @@ ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
     }
 
 
-    return(list(AUC.value = df.AUC, AUC.plot=p, CCF.density.plot = density.plot))
+    return(list(AUC.value = AUC.df, CCF.density.plot = density.plot))
     message("Calculation of AUC of CCF is done!")       
         
 }

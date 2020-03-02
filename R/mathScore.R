@@ -5,10 +5,11 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.vaf the minimum VAF for filtering variants. Default: 0.02 
 #' @param max.vaf the maximum VAF for filtering variants. Default: 1
+#' @param plot TRUR(default)
 #' @return a list containing MATH scores and violin plot of all samples
 #' 
 #' @examples
-#' mathScore(maf, minvaf=0.02, maxvaf=1)
+#' mathScore(maf, min.vaf=0.02, max.vaf=1)
 #' @export mathScore
 
 
@@ -23,12 +24,17 @@ calMATH <- function(VAF){
 
 
 ## MATH Score main function
-mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1){
+mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1, plot = TRUE){
     mafData <- maf@data
 
-    if (is.null(patient.id)){
-        patient.id <- unique(mafData$Patient_ID)
-    } 
+    if(is.null(patient.id)){
+        patient.id = unique(mafData$Patient_ID)
+    }else{
+        patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
+        if(length(patient.setdiff) > 0){
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
+        }
+    }
 
     ## get vaf-related infomation
     MATH.df <- mafData %>%
@@ -40,13 +46,17 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1){
         dplyr::mutate(Patient_ID = as.factor(Patient_ID)) %>%
         as.data.frame()
 
-    y.limits <- c(min(MATH.df$MATH_Score)-15, max(MATH.df$MATH_Score)+15)
+    y.limits <- c(
+        min(MATH.df$MATH_Score)-15, 
+        ifelse(max(MATH.df$MATH_Score)+15 >100, 100, max(MATH.df$MATH_Score)+15)
+    )
     
     # violin plot
-    p <- ggplot(MATH.df, aes(x=as.factor(Patient_ID), y=MATH_Score, fill = Patient_ID)) + 
-      geom_violin() + theme_bw() +     
-      ylim(y.limits) + 
-      theme(legend.title = element_blank(),
+    if(plot){
+        p <- ggplot(MATH.df, aes(x=as.factor(Patient_ID), y=MATH_Score, fill = Patient_ID)) + 
+            geom_violin() + theme_bw() +     
+            ylim(y.limits) + 
+            theme(legend.title = element_blank(),
             legend.text = element_text(size = 12),
             panel.border = element_blank(), 
             panel.grid.major = element_line(linetype = 2, color = "grey"),
@@ -54,7 +64,11 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1){
             axis.line=element_line(color= "black", size= 1),
             axis.title = element_text(size = 16),
             axis.text = element_text(size = 12)) +      
-      labs(y = "MATH score", x = "")
+            labs(y = "MATH score", x = "")        
+    }else{
+        p <- NULL
+    }
+ 
 
     return(list(MATH.df = MATH.df, MATH.plot = p))   
 

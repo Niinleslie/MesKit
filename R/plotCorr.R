@@ -71,6 +71,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
                 )
             }
         },
+        column_title = title,
         cluster_rows = FALSE,
         cluster_columns = FALSE,
         show_column_names = FALSE,
@@ -79,7 +80,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
         height = grid::unit(12, "cm"),
         heatmap_legend_param = list(
                 col_fun = col_fun,
-                title = title,
+                #title = title,
                 legend_height = grid::unit(4, "cm")
             )
 

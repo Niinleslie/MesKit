@@ -63,14 +63,23 @@ ccfDensity <- function(maf, patient.id = NULL, min.ccf = 0, show.density = TRUE)
     "No CCF data was found when generate Maf object."))
   }
 
+  
   if(is.null(patient.id)){
+      
       patient.id = unique(mafData$Patient_ID)
+  
   }else{
+      
       patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
+      
       if(length(patient.setdiff) > 0){
-          stop(paste0(patient.setdiff, " can not be found in your data"))
+          
+          stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
+      
       }
+  
   }
+
   
   density.list <- mafData %>%
       dplyr::filter(Patient_ID %in% patient.id & CCF > min.ccf) %>%

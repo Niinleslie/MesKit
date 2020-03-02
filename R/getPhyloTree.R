@@ -71,11 +71,13 @@ doGetPhyloTree <- function(patient.dat = NULL,
                            min.CCF = NULL,
                            bootstrap.rep.num = 100){
     if(!is.null(min.CCF)){
+
         if("CCF" %in% colnames(patient.dat)){
             patient.dat <- patient.dat[CCF > min.CCF, ]
         }
         else{
-            warning("min.CCF only works when CCF data is provided")
+            warnings("min.CCF argument only works when CCF data is provided!")
+
         }
     }
     patient.dat <- patient.dat[which(patient.dat$VAF > min.vaf & patient.dat$VAF < max.vaf), ]

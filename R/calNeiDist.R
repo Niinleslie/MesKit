@@ -44,7 +44,12 @@ nei_dist <- function(df) {
     return(dist)
 }
 
-calNeiDist <- function(maf, patient.id = NULL, plot = TRUE, use.circle = TRUE, title = "Nei's distance") {
+calNeiDist <- function(maf, 
+    patient.id = NULL, 
+    plot = TRUE, 
+    use.circle = TRUE, 
+    title = "Nei's distance") {
+    
     mafData <- maf@data
 
     if(! "CCF" %in% colnames(mafData)){
@@ -57,11 +62,13 @@ calNeiDist <- function(maf, patient.id = NULL, plot = TRUE, use.circle = TRUE, t
     }else{
         patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
         if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
     }
 
+
     Nei.dist <- mafData %>%
+        dplyr::filter(Patient_ID %in% patient.id) %>%
         tidyr::unite(
             "mutation_id",
             c(
@@ -88,7 +95,11 @@ calNeiDist <- function(maf, patient.id = NULL, plot = TRUE, use.circle = TRUE, t
     Nei.plot = list()
     if(plot){
         for(i in 1:length(Nei.dist)){
-            Nei.plot[[i]] <- plotCorr(Nei.dist[[i]], use.circle = use.circle, title = title)
+            Nei.plot[[i]] <- plotCorr(
+                Nei.dist[[i]], 
+                use.circle = use.circle, 
+                title = paste0(title, " of patient ", patient.id[i])
+                )
         }
         names(Nei.plot) <- patient.id
     }
