@@ -29,69 +29,75 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
         CApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
-            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)    
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)    
     } else {
         CApV <- grid::textGrob(expression(""), 
-                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1) 
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75) 
     }
     
     if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < (1-conf.level)) {
         CGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
-            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     } else {
         CGpV <- grid::textGrob(expression(""), 
-                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
     if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < (1-conf.level)) {
         CTpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
-            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     } else {
         CTpV <- grid::textGrob(expression(""), 
-                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
     if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < (1-conf.level)) {
         TApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
                   digits = 3)), "*", sep=""),
-            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     } else {
         TApV <- grid::textGrob(expression(""), 
-                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
     if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < (1-conf.level)) {
         TCpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
                   digits = 3)), "*", sep=""),
-            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     } else {
         TCpV <- grid::textGrob(expression(""), 
-                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
     if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < (1-conf.level)) {
         TGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
                   digits = 3)), "*", sep=""),
-            gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     } else {
         TGpV <- grid::textGrob(expression(""), 
-                               gp=grid::gpar(fontsize=12),vjust=0,hjust=1)
+                               gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
     ## names of mutational list
-    CA <- grid::textGrob(expression(bold("C > A")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    CG <- grid::textGrob(expression(bold("C > G")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    CT <- grid::textGrob(expression(bold("C > T")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    TA <- grid::textGrob(expression(bold("T > A")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    TC <- grid::textGrob(expression(bold("T > C")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-    TG <- grid::textGrob(expression(bold("T > G")),gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CA <- grid::textGrob(expression(bold("C > A")),
+      gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CG <- grid::textGrob(expression(bold("C > G")),
+      gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    CT <- grid::textGrob(expression(bold("C > T")),
+      gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TA <- grid::textGrob(expression(bold("T > A")),
+      gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TC <- grid::textGrob(expression(bold("T > C")),
+      gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
+    TG <- grid::textGrob(expression(bold("T > G")),
+      gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
     
     group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
                       "#3C5488FF", "#F39B7FFF", "#8491B4FF")
@@ -156,7 +162,7 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
         annotation_custom(grob = TApV,  xmin = 7.5, xmax = 9, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ]$mut.frac)) +
         annotation_custom(grob = TCpV,  xmin = 9.5, xmax = 11, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ]$mut.frac)) +
         annotation_custom(grob = TGpV,  xmin = 11.5, xmax = 13, ymin = 2 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>G"), ]$mut.frac), ymax = 4 + max(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>G"), ]$mut.frac))
-    message("Branch-trunk plot generation done!")
+    #message("Branch-trunk plot generation done!")
     return(pic)
 }
 

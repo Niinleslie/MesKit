@@ -63,16 +63,24 @@ doPlotMutSig <- function(tree.mutSig) {
   df.sigsInputTrans <- df.sigsInputTrans[which(df.sigsInputTrans$Signature != "No Signature"), ]
   df.sigsInputText <- dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE)
   
-  CA <- grid::textGrob(expression(bold("C > A")),gp=grid::gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-  CG <- grid::textGrob(expression(bold("C > G")),gp=grid::gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-  CT <- grid::textGrob(expression(bold("C > T")),gp=grid::gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-  TA <- grid::textGrob(expression(bold("T > A")),gp=grid::gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-  TC <- grid::textGrob(expression(bold("T > C")),gp=grid::gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
-  TG <- grid::textGrob(expression(bold("T > G")),gp=grid::gpar(fontsize=6, fontface="bold"),vjust=0,hjust=1)
+  CA <- grid::textGrob(expression(bold("C > A")),
+    gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+  CG <- grid::textGrob(expression(bold("C > G")),
+    gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+  CT <- grid::textGrob(expression(bold("C > T")),
+    gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+  TA <- grid::textGrob(expression(bold("T > A")),
+    gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+  TC <- grid::textGrob(expression(bold("T > C")),
+    gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+  TG <- grid::textGrob(expression(bold("T > G")),
+    gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
   
   group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
                     "#3C5488FF", "#F39B7FFF", "#8491B4FF")
-  pic <- ggplot(df.sigsInputTrans, aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)) + 
+  pic <- ggplot(df.sigsInputTrans, 
+    aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)
+    ) + 
     geom_bar(stat="identity")+ 
     theme(panel.grid=element_blank(), 
           panel.border=element_blank(), 

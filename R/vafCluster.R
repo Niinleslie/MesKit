@@ -28,12 +28,15 @@ vafCluster <-function(maf,
                       showMATH=TRUE, 
                       plotOption="combine"){
   plot.options = c('combine', 'compare')
-    if(!plotOption %in% plot.options){
+  
+  if(!plotOption %in% plot.options){
         stop("plotOption can only be either 'combine' or 'compare'")
     }
+
   if(!is.null(seg)){
       maf <- copyNumberFilter(maf, seg)
   }
+
   dat.list <- split(maf@data, maf@data$Patient_ID)
   result.list <- lapply(dat.list, doVafCluster,
                         maf = maf,
@@ -49,8 +52,7 @@ vafCluster <-function(maf,
 ## Special version of vafCluster for Rshiny App
 vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=TRUE, 
                             plotOption="combine"){
-  ## original data preparation
-  ## read .maf file
+
   maf.dat <- maf@data
   if (max(maf.dat$VAF, na.rm=TRUE) > 1){
     maf.dat$VAF <- maf.dat$VAF/100
@@ -243,9 +245,6 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
     return(suppressWarnings(suppressMessages(pic)))
   }
-  else {
-    stop("ERROR: plotOption settings failure.")
-  }
   
 }
 
@@ -270,12 +269,8 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       mathscore <- mathtbscore[which(
         mathtbscore$Tumor_Sample_Barcode == plotOption), 
         ]$MATH_Score
-    } else {
-      stop("ERROR: plotOption setting error")
     }
-  } else {
-    mathscore <- NULL
-  }
+  } 
   return(mathscore)
 }
 
@@ -548,9 +543,7 @@ doVafCluster <- function(patient.dat = NULL,
                          max.vaf=1,
                          showMATH=TRUE, 
                          plotOption="combine"){
-    if (max(patient.dat$VAF, na.rm=TRUE) > 1){
-        patient.dat$VAF <- patient.dat$VAF/100
-    }
+
     patientID <- unique(patient.dat$Patient_ID) 
     
     ## fileter by min.vaf and max.vaf
@@ -665,7 +658,7 @@ doVafCluster <- function(patient.dat = NULL,
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
             }
-            message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            message(paste0("VAF density plot of ", patientID, " has been generated!"))
             return(suppressWarnings(suppressMessages(pic)))
             # return(suppressWarnings(suppressMessages(pic)))
         }
@@ -704,7 +697,7 @@ doVafCluster <- function(patient.dat = NULL,
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         min.vaf, max.vaf))))
-        message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+        message(paste0("VAF density plot of ", patientID, " has been generated!"))
         return(suppressWarnings(suppressMessages(pic)))
         # return(suppressWarnings(suppressMessages(pic)))
     }
@@ -726,11 +719,9 @@ doVafCluster <- function(patient.dat = NULL,
         mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, plotOption, mathscore)
-        message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+        message(paste0("VAF density plot of ", patientID, " has been generated!"))
         return(suppressWarnings(suppressMessages(pic)))
         # return(suppressWarnings(suppressMessages(pic)))
     }
-    else {
-        stop("ERROR: plotOption settings failure.")
-    }
+
 }
