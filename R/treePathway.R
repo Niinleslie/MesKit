@@ -112,7 +112,7 @@ doTreePathway <- function(phyloTree = NULL,
         branchID <- names(branches)[i]
         #split the gene symbol by ","
         geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
-        if(!is.null(driverGenesFile)&!is.null(driverGenes)){
+        if(!is.null(driverGenes)){
             geneSymbol <- geneSymbol[geneSymbol %in% driverGenes]
         }
         all.genes <- unique(c(all.genes, geneSymbol))
