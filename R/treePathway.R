@@ -33,14 +33,14 @@ treePathway <- function(phyloTree, driverGenesFile = NULL, pathway.type="KEGG", 
           driverGenesFile, header = FALSE, quote="", sep="\n")[,1])
   }
   
-  result.list <- lapply(phyloTree,doTreePathway,
+  result.list <- suppressWarnings(lapply(phyloTree,doTreePathway,
                         driverGenes = driverGenes,
                         pathway.type= pathway.type,
                         pval= pval,
                         pAdjustMethod= pAdjustMethod,
                         qval= qval,
                         plotType= plotType,
-                        showCategory =  showCategory)
+                        showCategory =  showCategory)) 
   return(result.list)
 
 }
