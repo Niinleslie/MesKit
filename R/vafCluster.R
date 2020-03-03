@@ -36,6 +36,7 @@ vafCluster <-function(maf,
   }
   dat.list <- split(maf@data, maf@data$Patient_ID)
   result.list <- lapply(dat.list, doVafCluster,
+                        maf = maf,
                         seg = seg,
                         min.vaf= min.vaf,
                         max.vaf= max.vaf,
@@ -204,13 +205,13 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
                             " <- .clusterGenerator(maf.dat, sampleName)", sep ="")
       eval(parse(text=clusterMtCha))
       clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
-                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
+                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score, nrow(clusterMt_", counterMt, "))", sep ="")
       eval(parse(text=clusterMtCha))
       clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
                             "clusterMt_", counterMt, ")",sep ="")
       eval(parse(text=clusterMtCha))
     }
-    # mathscore <- mathtbscoreLs$patientLevel$MATH_score
+    # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
     pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
                                                     tsbLs, plotOption, 
                                                     mathscore, patientID, 
@@ -257,20 +258,18 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     if ((plotOption == "separate") | (plotOption == "combine")){
       mathtbscoreLs <- mathScore(maf, min.vaf = min.vaf, max.vaf = max.vaf)
       mathtbscore <- mathtbscoreLs$MATH.df
-      mathscore <- mathtbscore[which(
-        mathtbscore$Tumor_Sample_Barcode == sampleName), 
-        ]$MATH_score
+      mathscore <- mathtbscore[which(mathtbscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score
     }
     else if (plotOption == "compare"){
       mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf, max.vaf=max.vaf)
-      mathscore <- mathtbscoreLs
+      mathscore <- mathtbscoreLs$MATH.df
     }
     else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
       mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf, max.vaf=max.vaf) 
       mathtbscore <- mathtbscoreLs$MATH.df
       mathscore <- mathtbscore[which(
         mathtbscore$Tumor_Sample_Barcode == plotOption), 
-        ]$MATH_score
+        ]$MATH_Score
     } else {
       stop("ERROR: plotOption setting error")
     }
@@ -543,6 +542,7 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
 
 
 doVafCluster <- function(patient.dat = NULL,
+                         maf = maf,
                          seg = NULL,
                          min.vaf=0.02,
                          max.vaf=1,
@@ -675,7 +675,7 @@ doVafCluster <- function(patient.dat = NULL,
     else if (plotOption == "compare"){
         ## calculate ScoreMATH
         mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption)
-        mathscore <- mathtbscoreLs$MATH.df
+        mathscore <- mathtbscoreLs
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
@@ -693,13 +693,13 @@ doVafCluster <- function(patient.dat = NULL,
                                   " <- .clusterGenerator(patient.dat, sampleName)", sep ="")
             eval(parse(text=clusterMtCha))
             clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
-                                  " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
+                                  " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score, nrow(clusterMt_", counterMt, "))", sep ="")
             eval(parse(text=clusterMtCha))
             clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
                                   "clusterMt_", counterMt, ")",sep ="")
             eval(parse(text=clusterMtCha))
         }
-        # mathscore <- mathtbscoreLs$patientLevel$MATH_score
+        # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
         pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
