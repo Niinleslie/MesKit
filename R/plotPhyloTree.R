@@ -30,12 +30,7 @@ plotPhyloTree <- function(phyloTree = NULL,
    if(heatmap.type == 'binary'){
      use.ccf = FALSE
    }else if(heatmap.type == 'CCF'){
-      if(nrow(phyloTree@ccf.matrix) > 1){
-         use.ccf = TRUE
-      }else{
-         warning("CCF information is not found")
-         use.ccf = FALSE
-      }
+       use.ccf = TRUE 
    }
    tree.list <- lapply(phyloTree, drawPhyloTree,
                        show.mutSig = show.mutSig,
@@ -648,7 +643,7 @@ drawPhyloTree <- function(phyloTree = NULL,
         scale_x_discrete(expand = expand_scale(add = mean(treeData$distance)))
     
     p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                             nudge_y = 2,
+                             nudge_y = textAdjust/10,
                              # segment.alpha = 0,
                              # direction = "x"
                              segment.color = "grey",

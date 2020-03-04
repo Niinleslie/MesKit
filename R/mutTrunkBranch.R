@@ -92,19 +92,19 @@ doMutTrunkBranch <- function(tree.mutSig, conf.level = 0.95){
     colnames(sigsInputBoxplot) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
     for (mutationGroup in ls.mutationGroup) {
         dat.group <- sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]
-        df.groupB <- data.frame(rep(paste(mutationGroup, "Branch", sep=" "), nrow(dat.group)), 
-                                rep(mutationGroup, nrow(dat.group)), 
-                                rep("Branch", nrow(dat.group)), 
-                                dat.group$BranchFrac, 
-                                dat.group$Branch)
         df.groupT <- data.frame(rep(paste(mutationGroup, "Trunk", sep=" "), nrow(dat.group)), 
                                 rep(mutationGroup, nrow(dat.group)), 
                                 rep("Trunk", nrow(dat.group)),
                                 dat.group$TrunkFrac, 
                                 dat.group$Trunk)
+        df.groupB <- data.frame(rep(paste(mutationGroup, "Branch", sep=" "), nrow(dat.group)), 
+                                rep(mutationGroup, nrow(dat.group)), 
+                                rep("Branch", nrow(dat.group)), 
+                                dat.group$BranchFrac, 
+                                dat.group$Branch)
         colnames(df.groupB) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
         colnames(df.groupT) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
-        sigsInputBoxplot <- rbind(sigsInputBoxplot, df.groupB, df.groupT)
+        sigsInputBoxplot <- rbind(sigsInputBoxplot, df.groupT, df.groupB)
     }
     
     df.pValue <- data.frame(matrix(ncol = 2, nrow = 0))
