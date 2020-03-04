@@ -42,6 +42,8 @@ plotDensity <- function(df){
         aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode)) + 
         theme_bw() + 
         geom_line(size=0.8) +
+        xlim(0,1) + ylim(0,1) +
+        coord_fixed() +
         theme(
             #legend.position='none', 
             legend.title = element_blank(),

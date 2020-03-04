@@ -30,14 +30,14 @@ treeGO <- function(phyloTree, driverGenesFile = NULL, GO.type="BP", pval=0.05, p
       driverGenes <- as.character(read.table(
           driverGenesFile, header = FALSE, quote="", sep="\n", stringsAsFactors = FALSE)[,1])
   }
-  result.list <- lapply(phyloTree,doTreeGO,
+  result.list <- suppressWarnings(lapply(phyloTree,doTreeGO,
                         driverGenes = driverGenes,
                         GO.type = GO.type,                     
                         pval= pval,
                         pAdjustMethod= pAdjustMethod, 
                         qval= qval,
                         plotType= plotType,
-                        showCategory= showCategory)
+                        showCategory= showCategory)) 
 }
 
 
@@ -90,7 +90,7 @@ doTreeGO <- function(phyloTree = NULL,
         branchID <- names(branches)[i]
         ## split the gene symbol by ","
         geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
-        if(!is.null(driverGenesFile)&!is.null(driverGenes)){
+        if(!is.null(driverGenes)){
             geneSymbol <- geneSymbol[geneSymbol %in% driverGenes]
         }
         all.genes <- unique(c(all.genes, geneSymbol))

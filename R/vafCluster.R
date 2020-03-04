@@ -28,14 +28,18 @@ vafCluster <-function(maf,
                       showMATH=TRUE, 
                       plotOption="combine"){
   plot.options = c('combine', 'compare')
-    if(!plotOption %in% plot.options){
+  
+  if(!plotOption %in% plot.options){
         stop("plotOption can only be either 'combine' or 'compare'")
     }
+
   if(!is.null(seg)){
       maf <- copyNumberFilter(maf, seg)
   }
+
   dat.list <- split(maf@data, maf@data$Patient_ID)
   result.list <- lapply(dat.list, doVafCluster,
+                        maf = maf,
                         seg = seg,
                         min.vaf= min.vaf,
                         max.vaf= max.vaf,
@@ -48,8 +52,7 @@ vafCluster <-function(maf,
 ## Special version of vafCluster for Rshiny App
 vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=TRUE, 
                             plotOption="combine"){
-  ## original data preparation
-  ## read .maf file
+
   maf.dat <- maf@data
   if (max(maf.dat$VAF, na.rm=TRUE) > 1){
     maf.dat$VAF <- maf.dat$VAF/100
@@ -204,13 +207,13 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
                             " <- .clusterGenerator(maf.dat, sampleName)", sep ="")
       eval(parse(text=clusterMtCha))
       clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
-                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
+                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score, nrow(clusterMt_", counterMt, "))", sep ="")
       eval(parse(text=clusterMtCha))
       clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
                             "clusterMt_", counterMt, ")",sep ="")
       eval(parse(text=clusterMtCha))
     }
-    # mathscore <- mathtbscoreLs$patientLevel$MATH_score
+    # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
     pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
                                                     tsbLs, plotOption, 
                                                     mathscore, patientID, 
@@ -242,9 +245,6 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
     return(suppressWarnings(suppressMessages(pic)))
   }
-  else {
-    stop("ERROR: plotOption settings failure.")
-  }
   
 }
 
@@ -257,26 +257,20 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     if ((plotOption == "separate") | (plotOption == "combine")){
       mathtbscoreLs <- mathScore(maf, min.vaf = min.vaf, max.vaf = max.vaf)
       mathtbscore <- mathtbscoreLs$MATH.df
-      mathscore <- mathtbscore[which(
-        mathtbscore$Tumor_Sample_Barcode == sampleName), 
-        ]$MATH_score
+      mathscore <- mathtbscore[which(mathtbscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score
     }
     else if (plotOption == "compare"){
       mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf, max.vaf=max.vaf)
-      mathscore <- mathtbscoreLs
+      mathscore <- mathtbscoreLs$MATH.df
     }
     else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
       mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf, max.vaf=max.vaf) 
       mathtbscore <- mathtbscoreLs$MATH.df
       mathscore <- mathtbscore[which(
         mathtbscore$Tumor_Sample_Barcode == plotOption), 
-        ]$MATH_score
-    } else {
-      stop("ERROR: plotOption setting error")
+        ]$MATH_Score
     }
-  } else {
-    mathscore <- NULL
-  }
+  } 
   return(mathscore)
 }
 
@@ -543,14 +537,13 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
 
 
 doVafCluster <- function(patient.dat = NULL,
+                         maf = maf,
                          seg = NULL,
                          min.vaf=0.02,
                          max.vaf=1,
                          showMATH=TRUE, 
                          plotOption="combine"){
-    if (max(patient.dat$VAF, na.rm=TRUE) > 1){
-        patient.dat$VAF <- patient.dat$VAF/100
-    }
+
     patientID <- unique(patient.dat$Patient_ID) 
     
     ## fileter by min.vaf and max.vaf
@@ -665,7 +658,7 @@ doVafCluster <- function(patient.dat = NULL,
                                              ", ncol=2, align=\"v\")" , 
                                              sep="")))
             }
-            message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+            message(paste0("VAF density plot of ", patientID, " has been generated!"))
             return(suppressWarnings(suppressMessages(pic)))
             # return(suppressWarnings(suppressMessages(pic)))
         }
@@ -675,7 +668,7 @@ doVafCluster <- function(patient.dat = NULL,
     else if (plotOption == "compare"){
         ## calculate ScoreMATH
         mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption)
-        mathscore <- mathtbscoreLs$MATH.df
+        mathscore <- mathtbscoreLs
         ## collect all samples' cluster results
         for (counterMt in seq_along(tsbLs[,1])){
             sampleName <- as.character(tsbLs[,1][counterMt])
@@ -693,18 +686,18 @@ doVafCluster <- function(patient.dat = NULL,
                                   " <- .clusterGenerator(patient.dat, sampleName)", sep ="")
             eval(parse(text=clusterMtCha))
             clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
-                                  " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_score, nrow(clusterMt_", counterMt, "))", sep ="")
+                                  " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score, nrow(clusterMt_", counterMt, "))", sep ="")
             eval(parse(text=clusterMtCha))
             clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
                                   "clusterMt_", counterMt, ")",sep ="")
             eval(parse(text=clusterMtCha))
         }
-        # mathscore <- mathtbscoreLs$patientLevel$MATH_score
+        # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
         pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
                                                         tsbLs, plotOption, 
                                                         mathscore, patientID, 
                                                         min.vaf, max.vaf))))
-        message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+        message(paste0("VAF density plot of ", patientID, " has been generated!"))
         return(suppressWarnings(suppressMessages(pic)))
         # return(suppressWarnings(suppressMessages(pic)))
     }
@@ -726,11 +719,9 @@ doVafCluster <- function(patient.dat = NULL,
         mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
         ## VAF plot for specifc sample
         pic <- .drawVAF(clusterMt, plotOption, mathscore)
-        message(paste(patientID, " VAF Plot(", plotOption, ") Generation Done!", sep=""))
+        message(paste0("VAF density plot of ", patientID, " has been generated!"))
         return(suppressWarnings(suppressMessages(pic)))
         # return(suppressWarnings(suppressMessages(pic)))
     }
-    else {
-        stop("ERROR: plotOption settings failure.")
-    }
+
 }
