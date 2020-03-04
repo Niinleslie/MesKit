@@ -14,6 +14,8 @@ calMATH(VAF)
 \item{min.vaf}{the minimum VAF for filtering variants. Default: 0.02}
 
 \item{max.vaf}{the maximum VAF for filtering variants. Default: 1}
+
+\item{plot}{TRUR(default)}
 }
 \value{
 a list containing MATH scores and violin plot of all samples
@@ -22,5 +24,5 @@ a list containing MATH scores and violin plot of all samples
 Calculate MATH score and VAF value could be filtered with minvaf and maxvaf.
 }
 \examples{
-mathScore(maf, minvaf=0.02, maxvaf=1)
+mathScore(maf, min.vaf=0.02, max.vaf=1)
 }

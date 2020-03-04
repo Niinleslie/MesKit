@@ -49,7 +49,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
                         width = 0.99*width,
                         height = 0.99*height,
                         gp = grid::gpar(
-                            col = "white",
+                            col = "#fdc086",
                             fill = col_fun(corrMat[i, j])
                         )
                     )
@@ -58,7 +58,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
                 grid::grid.text(
                     sprintf("%.2f", corrMat[i, j]),
                     x, y,
-                    gp = grid::gpar(fontsize = 10, col = "white")
+                    gp = grid::gpar(fontsize = 11, fontface = "bold", col = "white")
                 )
             }
             
@@ -67,7 +67,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
                     TSBs[i],
                     x = x,
                     y = y,
-                    gp = grid::gpar(fontsize = 10)
+                    gp = grid::gpar(fontsize = 11, fontface = "bold")
                 )
             }
         },
@@ -79,8 +79,8 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
         width = grid::unit(12, "cm"),
         height = grid::unit(12, "cm"),
         heatmap_legend_param = list(
-                col_fun = col_fun,
-                #title = title,
+                title = NULL,
+                col_fun = col_fun,                
                 legend_height = grid::unit(4, "cm")
             )
 
