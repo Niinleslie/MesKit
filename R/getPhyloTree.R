@@ -58,7 +58,7 @@ byML <- function(mut_dat){
     matTree <- nj(dist.gene(mut_dat))
     tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
     fitJC <- phangorn::pml(matTree, tree_dat)
-    fitJC <- suppressWarnings(phangorn::optim.pml(fitJC,control = phangorn::pml.control(trace = F))) 
+    fitJC <- try(phangorn::optim.pml(fitJC,control = phangorn::pml.control(trace = F))) 
     matTree <- fitJC$tree
     return(matTree)
 }
@@ -91,23 +91,23 @@ doGetPhyloTree <- function(patient.dat = NULL,
     mut_dat <- t(binary.matrix)
     if(method == "NJ"){
         matTree <- nj(dist.gene(mut_dat))
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
     }
     else if(method == "MP"){
         matTree <- byMP(mut_dat)
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byMP(e),B = bootstrap.rep.num,quiet = T) 
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byMP(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100 
     }
     else if(method == "ML"){
         matTree <- byML(mut_dat)
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
     }
     else if(method == "FASTME.bal"){
         matTree <- ape::fastme.bal(dist.gene(mut_dat))
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
     }
     else if(method == "FASTME.ols"){
         matTree <- ape::fastme.ols(dist.gene(mut_dat))
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
     }
     branchAlias <- readPhyloTree(matTree)
     mut.branches <- .treeMutationalBranches(patient.dat, branchAlias, binary.matrix)
@@ -123,34 +123,3 @@ setClass('phylo')
 setClass('phyloTree', slots = c(tree = 'phylo', patientID = 'character', binary.matrix = 'matrix', mut.branches = 'list', ccf.matrix = 'matrix', refBuild = 'character',
                                 bootstrap.value = 'numeric', method = 'character'))
 
-
-# if(!is.null(maf@data$Patient_ID)){
-#     maf.dat$Patient_ID <- as.character(maf.dat$Patient_ID)
-#     patients <- as.character(unique(maf.dat$Patient_ID)) 
-#     dat.list <- split(maf.dat, maf.dat$Patient_ID)
-#     phyloTree.list <- list()
-#     for(patient in patients){
-#         patient.dat <- dat.list[[patient]]
-#         phylo.tree <- doGetPhyloTree(patient.dat = patient.dat,
-#                                      refBuild = refBuild,
-#                                      patientID = patient,
-#                                      method = method,
-#                                      min.vaf = min.vaf,
-#                                      max.vaf = max.vaf,
-#                                      min.CCF = min.CCF,
-#                                      bootstrap.rep.num = bootstrap.rep.num)
-#         phyloTree.list[[patient]] <- phylo.tree
-#     }
-#     return(phyloTree.list)
-# }
-# else{
-#     phylo.tree <- doGetPhyloTree(patient.dat = maf.dat,
-#                                  refBuild = refBuild,
-#                                  patientID = "",
-#                                  method = method,
-#                                  min.vaf = min.vaf,
-#                                  max.vaf = max.vaf,
-#                                  min.CCF = min.CCF,
-#                                  bootstrap.rep.num = bootstrap.rep.num)
-#     return(phylo.tree)
-# }
