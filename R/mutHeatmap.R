@@ -23,8 +23,8 @@ mutHeatmap <- function(phyloTree, use.ccf = FALSE){
     if(use.ccf){
         type <- "CCF"
         mat <- ccf_sort
-        if(is.null(ccf)){
-            stop("phyloTree@ccf_sort is NULL. No ccf data was found when readMaf")
+        if(is.null(ccf_sort)){
+            stop("phyloTree@ccf.matrix is NULL. No ccf data was found when readMaf")
         }
     }
     

@@ -74,12 +74,11 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
         patient.seg[,hmin := 0]
         patient.seg[,hmax := 0]
         samples <- sort(unique(patient.seg$Tumor_Sample_Barcode))  
-        h = 0.2
+        h = 0.5
         for(sample in samples){
-            h <- h + 0.05
             patient.seg[Tumor_Sample_Barcode == sample,]$hmin <- h
             patient.seg[Tumor_Sample_Barcode == sample,]$hmax <- h + 0.5
-            h <- h + 0.5
+            h <- h + 0.55
         }
         
         min <- sort(unique(patient.seg$hmin))
@@ -92,21 +91,23 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
         patient.color <- all.colors[all.levels %in% patient.type]
         CNADat$Type <- factor(CNADat$Type, levels = patient.level)
         segmentTable <- data.table::data.table(y = c(min(min),max(max)), yend = c(min(min),max(max)))
-        segmentTable$x <- -100000000
-        segmentTable$xend <- max(chrTable$end)+100000000
-        segmentTable <- rbind(segmentTable, list(min(min), max(max), -100000000,-100000000))
-        segmentTable <- rbind(segmentTable, list(min(min), max(max), max(chrTable$end)+100000000,max(chrTable$end)+100000000))
+        seg.add <- 20000000
+        text.add <- -200000000
+        segmentTable$x <- -seg.add
+        segmentTable$xend <- max(chrTable$end)+seg.add
+        segmentTable <- rbind(segmentTable, list(min(min), max(max), -seg.add,-seg.add))
+        segmentTable <- rbind(segmentTable, list(min(min), max(max), max(chrTable$end)+seg.add,max(chrTable$end)+seg.add))
         textTable <- data.table::data.table(Pos = min + (max-min)/2, Tumor_Sample_Barcode = samples)
         backgroundTable <- data.table::data.table(xmin = min(chrTable$start), xmax = max(chrTable$end), ymin = min, ymax = max)
-        p <- ggplot()+geom_rect(data = chrTable,mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = 0.3),fill = rep(c("black","white"),11),color = "black")+
-            geom_text(data = chrTable,mapping = aes(x = start + (end - start)/2, y = 0.15, label = chr), color = rep(c("white","black"),11))+
+        p <- ggplot()+geom_rect(data = chrTable,mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = 0.5),fill = rep(c("black","white"),11),color = "black")+
+            geom_text(data = chrTable,mapping = aes(x = start + (end - start)/2, y = 0.25, label = chr), color = rep(c("white","black"),11))+
             geom_rect(data = backgroundTable, mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), fill = "#f0f0f0")+
             theme(panel.grid =element_blank(),axis.text = element_blank(),axis.ticks = element_blank(),
                   panel.border = element_blank(),panel.background = element_blank(),
                   axis.title.x = element_blank(),axis.title.y = element_blank())+
             geom_rect(data = CNADat,mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
             scale_fill_manual(breaks = patient.level, values = patient.color)+
-            geom_text(data = textTable,mapping = aes(x = -300000000, y = Pos, label = Tumor_Sample_Barcode))+
+            geom_text(data = textTable,mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
             geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data = segmentTable, linetype="dashed")+
             ggtitle("Copy number variant profile")+
             theme(plot.title = element_text(size = 18,face = "bold",hjust = 0.5,vjust = -1))
