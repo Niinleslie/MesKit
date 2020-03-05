@@ -226,7 +226,7 @@ plotMutProfile <- function(maf,
                 is.null(patient.split)) NULL else{
                 ComplexHeatmap::HeatmapAnnotation(
                 #df = data.frame(patient = colnames(mat)),
-                df = data.frame(patient = patient.split),
+                df = data.frame(Patient = patient.split),
                 show_annotation_name = FALSE,
                 #col = list(patient = sample_barcode),
                 simple_anno_size = unit(0.5, "cm")

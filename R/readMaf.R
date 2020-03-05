@@ -59,14 +59,14 @@ readMaf <- function(## maf parameters
     
     ## read ccf files
     if (!is.null(ccfFile)) {
-        ccfInput <- read.table(
+        ccfInput <- suppressWarnings(read.table(
             ccfFile,
             quote = "",
             header = TRUE,
             fill = TRUE,
             sep = '\t',
             stringsAsFactors = FALSE
-        )
+        ))
         
         mafData <- mafData %>%
             uniteCCF(ccfInput) %>%

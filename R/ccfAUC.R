@@ -64,7 +64,7 @@ ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
     mafData <- maf@data
 
     if(! "CCF" %in% colnames(mafData)){
-        stop(paste0("Calculation of AUC of CCF requires CCF data." ,
+        stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
             "No CCF data was found when generate Maf object."))
     }
 
