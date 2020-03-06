@@ -39,25 +39,44 @@ plotDensity <- function(df){
         as.data.frame()
 
     p <- ggplot2::ggplot(CCF.sort, 
-        aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode)) + 
-        theme_bw() + 
-        geom_line(size=0.8) +
-        xlim(0,1) + ylim(0,1) +
-        coord_fixed() +
-        theme(
-            #legend.position='none', 
-            legend.title = element_blank(),
-            title=element_text(size=11, face = "bold"), 
-            text=element_text(size=11, face = "bold"), 
-            panel.grid=element_blank(), 
-            panel.border=element_blank(), 
-            axis.line=element_line(size=0.3),
-            #legend.title=element_text(size=12, face = "bold"),
-            legend.text = element_text(size=10, face = "bold")
-        )+
-        labs(x="CCF", y="Proportion")
-
-    return(p)
+                         aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode)) + 
+      theme_bw() + 
+      geom_smooth(se = FALSE,
+                  method="gam",
+                  formula=y~s(x, bs= "cs"),
+                  size = 1.2,
+                  na.rm = TRUE) +
+      xlim(0,1) + ylim(0,1) +
+      coord_fixed() + 
+      theme(
+        #legend.position='none', 
+        legend.title = element_blank(),
+        title=element_text(size=14, face = "bold"), 
+        text=element_text(size=12, face = "bold"), 
+        panel.grid=element_blank(), 
+        panel.border=element_blank(), 
+        #axis.ticks.length = unit(0.3, "cm"),
+        #axis.ticks = element_line(size=1),
+        axis.text = element_text(size=12),
+        axis.title = element_text(size=14),
+        #legend.title=element_text(size=12, face = "bold"),
+        legend.text = element_text(size=12, face = "bold")
+        )  +
+      labs(x="CCF", y="Proportion")
+    
+    vp <- viewport()
+    
+    par(mar = c(4, 4, 2, 2))
+    plot(NA, xlim = c(0,1), ylim = c(0, 1),
+         frame.plot = FALSE, axes = FALSE, xlab = NA, ylab = NA)
+    axis(side = 2, at = seq(0, 1, 0.25), labels = c(seq(0, 1, 0.25)),
+         lwd = 1.2, font.axis = 2, cex = 1.5, font = 1)
+    
+    
+    return(p, vp = vp)
+    
+    
+    
 }
 
 ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
