@@ -166,7 +166,7 @@ doMutPrivateShared <- function(df, show.num){
               panel.grid.major =element_blank(),
               panel.grid.minor = element_blank(),
               panel.background = element_blank(),
-              axis.line = element_line(colour = "black"),
+              axis.line = element_line(colour = "black", size = 0.4),
               axis.title.y = element_text(size=14),
               plot.margin = unit(c(0.08,0.2,0,0.1),"inches"),
               legend.spacing  = unit(c(0.09,0,0,0),"inches"),
