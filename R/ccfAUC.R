@@ -55,26 +55,20 @@ plotDensity <- function(df){
         text=element_text(size=12, face = "bold"), 
         panel.grid=element_blank(), 
         panel.border=element_blank(), 
-        #axis.ticks.length = unit(0.3, "cm"),
-        #axis.ticks = element_line(size=1),
+        axis.ticks.length = unit(0.3, "cm"),
+        axis.ticks = element_line(size=1),
         axis.text = element_text(size=12),
         axis.title = element_text(size=14),
         #legend.title=element_text(size=12, face = "bold"),
         legend.text = element_text(size=12, face = "bold")
-        )  +
+      ) +
+      geom_segment(x = 0, y = -0.05, xend = 1.0, yend = -0.05, size = 1, 
+                   colour = "black", linejoin = "round", lineend = "round") +
+      geom_segment(x = -0.05, y = 0, xend = -0.05, yend = 1.0, size = 1, 
+                   colour = "black", linejoin = "round", lineend = "round") +
       labs(x="CCF", y="Proportion")
     
-    vp <- viewport()
-    
-    par(mar = c(4, 4, 2, 2))
-    plot(NA, xlim = c(0,1), ylim = c(0, 1),
-         frame.plot = FALSE, axes = FALSE, xlab = NA, ylab = NA)
-    axis(side = 2, at = seq(0, 1, 0.25), labels = c(seq(0, 1, 0.25)),
-         lwd = 1.2, font.axis = 2, cex = 1.5, font = 1)
-    
-    
-    return(p, vp = vp)
-    
+    return(p)
     
     
 }
