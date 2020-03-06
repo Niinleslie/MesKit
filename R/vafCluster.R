@@ -146,7 +146,8 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
             paste("VAF clustering of ", patientID, sep=""),
             fontface = 'bold',
             x = 0,
-            hjust = 0
+            hjust = 0,
+            size = 16
           ) +
           theme(
             # add margin on the left of the drawing canvas,
@@ -305,34 +306,38 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
                           theme(legend.position=\'none\',", 
-                          " title=element_text(size=10), ", 
-                          "text=element_text(size=10), ", 
+                          " plot.title=element_text(size=14), ",
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
-                          "axis.line=element_line(size=0.25)) + ", 
+                          "axis.line=element_line(size=0.7)) + ", 
+                          "axis.title=element_text(size=14), ", 
+                          "axis.text=element_text(size=12, colour = \"black\"), ",
                           "geom_line(size=1, colour=\"#00C0EB\", ", 
                           "stat=\"density\") + ", 
                           "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 
                           .vlineVAF(clusterMt, picv, 
                                     tsb_ls, plotOption),
                           "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ",
-                          "scale_colour_manual(values=colorVector)", sep="")
+                          "scale_colour_manual(values=colorVector) + ",
+                          "labs(y = \"Density\")", sep="")
       
     } else {
       ## generate character/string for ggplot and paint the picture
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
-                          theme(title=element_text(size=16), ", 
-                          "text=element_text(size=16), ", 
+                          theme(plot.title=element_text(size=14), ", 
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
-                          "axis.line=element_line(size=0.25)) + ", 
+                          "axis.line=element_line(size=0.7)) + ",
+                          "axis.title=element_text(size=14), ", 
+                          "axis.text=element_text(size=12, colour = \"black\"), ",
                           "geom_line(size=1, colour=\"#00C0EB\", ", 
                           "stat=\"density\") + ", 
                           .vlineVAF(clusterMt, picv, 
                                     tsb_ls, plotOption),
                           "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ",
-                          "scale_colour_manual(values=colorVector)", sep="")
+                          "scale_colour_manual(values=colorVector) + ",
+                          "labs(y = \"Density\")", sep="")
     } 
   }
   else {
@@ -341,13 +346,13 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
                           theme(legend.position=\'none\', ", 
-                          "plot.title=element_text(size=10, hjust=1, ", 
-                          "vjust=0.5, face='bold'), ", 
-                          "title=element_text(size=10), ", 
-                          "text=element_text(size=10), ", 
+                          "plot.title=element_text(size=14, hjust=1, ", 
+                          "vjust=0.5, face='bold'), ",
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
-                          "axis.line=element_line(size=0.25)) + ", 
+                          "axis.title=element_text(size=14), ", 
+                          "axis.text=element_text(size=12, colour = \"black\"), ",
+                          "axis.line=element_line(size=0.7)) + ", 
                           "ggtitle(\"", plotOption, 
                           "\'s MATH Score: ", as.character(mathscore), 
                           "\") + ", 
@@ -356,18 +361,19 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
                           .vlineVAF(clusterMt, picv, 
                                     tsb_ls, plotOption),
                           "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ",
-                          "scale_colour_manual(values=colorVector)", sep="")
+                          "scale_colour_manual(values=colorVector) + ",
+                          "labs(y = \"Density\")", sep="")
     } else {
       ## generate character/string for ggplot and paint the picture
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
-                          theme(plot.title=element_text(size=16, hjust=1, ", 
-                          "vjust=0.5, face='bold'), ", 
-                          "title=element_text(size=16), ",
-                          "text=element_text(size=18), ", 
+                          theme(plot.title=element_text(size=14, hjust=1, ", 
+                          "vjust=0.5, face='bold'), ",  
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
-                          "axis.line=element_line(size=0.25)) + ",  
+                          "axis.title=element_text(size=14), ", 
+                          "axis.text=element_text(size=12, colour = \"black\"), ",
+                          "axis.line=element_line(size=0.7)) + ",  
                           "ggtitle(\"MATH Score: ", 
                           as.character(mathscore), "\") + ", 
                           "geom_line(size=1, colour=\"#00C0EB\", ", 
@@ -375,7 +381,8 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
                           .vlineVAF(clusterMt, picv, 
                                     tsb_ls, plotOption),
                           "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ",
-                          "scale_colour_manual(values=colorVector)", sep="")
+                          "scale_colour_manual(values=colorVector) + ",
+                          "labs(y = \"Density\")", sep="")
     }
   }
   return(eval(parse(text=vafDrawCha)))
@@ -446,13 +453,12 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     vafOFACha <- paste("ggplot(clusterAll, ", 
                        "aes(x=VAF, y=Tumor_Sample_Barcode)) +
                        theme_bw() + 
-                       theme(title=element_text(size=16), ", 
-                       "text=element_text(size=18), ", 
+                       theme(plot.title=element_text(size=14), ",
                        "panel.grid=element_blank(), ", 
                        "panel.border=element_blank(), ",
-                       "axis.title=element_text(size=16), ", 
-                       "axis.text=element_text(size=12), ", 
-                       "axis.line=element_line(size=0.25)) + ",
+                       "axis.title=element_text(size=14), ", 
+                       "axis.text=element_text(size=12, colour = \"black\"), ", 
+                       "axis.line=element_line(size=0.7)) + ",
                        "ggridges::geom_density_ridges(fill=\"whitesmoke\", ",
                        "calc_ecdf=TRUE, alpha=0.5) + ",
                        "geom_point(aes(x=VAF, ", 
@@ -469,15 +475,13 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     vafOFACha <- paste("ggplot(clusterAll, ", 
                        "aes(x=VAF, y=Tumor_Sample_Barcode)) +
                        theme_bw() + 
-                       theme(plot.title=element_text(size=16, hjust=1, ", 
+                       theme(plot.title=element_text(size=14, hjust=1, ", 
                        "vjust=0.5, face='bold'), ", 
-                       "title=element_text(size=16), ", 
-                       "text=element_text(size=18), ", 
                        "panel.grid=element_blank(), ", 
                        "panel.border=element_blank(), ", 
-                       "axis.title=element_text(size=16), ", 
-                       "axis.text=element_text(size=12), ", 
-                       "axis.line=element_line(size=0.25)) + ", 
+                       "axis.title=element_text(size=14), ", 
+                       "axis.text=element_text(size=12, colour = \"black\"), ", 
+                       "axis.line=element_line(size=0.7)) + ", 
                        "ggtitle(\"VAF clustering of ", patientID, "\") + ", 
                        "ggridges::geom_density_ridges(fill=\"whitesmoke\", ", 
                        "calc_ecdf=TRUE, alpha=0.5) + ",
@@ -631,7 +635,8 @@ doVafCluster <- function(patient.dat = NULL,
                         paste("VAF clustering of ", patientID, sep=""),
                         fontface = 'bold',
                         x = 0,
-                        hjust = 0
+                        hjust = 0,
+                        size = 16
                     ) +
                     theme(
                         # add margin on the left of the drawing canvas,
