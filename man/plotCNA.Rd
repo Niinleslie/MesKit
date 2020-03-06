@@ -13,7 +13,7 @@ plotCNA(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id = NULL)
 
 \item{show.GISTIC.gene}{Whether GISTIC gene in seg.Default FALSE.}
 
-\item{patient.id}{If NULL,draw all the patients on one image.}
+\item{patient.id}{select the specific patients. Default: NULL, all patients are included.}
 }
 \description{
 plotCNA

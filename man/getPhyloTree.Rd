@@ -7,20 +7,20 @@
 getPhyloTree(
   maf,
   method = "NJ",
-  minVaf = 0.02,
-  maxVaf = 1,
-  minCCF = NULL,
+  min.vaf = 0.02,
+  max.vaf = 1,
+  min.CCF = NULL,
   bootstrap.rep.num = 100
 )
 }
 \arguments{
 \item{method}{Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood),""FASTME.ols" or "FASTME.bal".}
 
-\item{minVaf}{the minimum value of vaf}
+\item{min.vaf}{the minimum value of vaf}
 
-\item{maxVaf}{the maximum value of vaf}
+\item{max.vaf}{the maximum value of vaf}
 
-\item{minCCF}{the minimum value of CCF}
+\item{min.CCF}{the minimum value of CCF}
 
 \item{bootstrap.rep.num}{bootstrap iterations.}
 
