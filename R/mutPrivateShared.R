@@ -31,7 +31,7 @@ doMutPrivateShared <- function(df, show.num){
     df$Hugo_Symbol <- as.character(df$Hugo_Symbol)
     while(TRUE){
         numPos <-  unlist(lapply(df$Hugo_Symbol, function(x){
-            len <- length(strsplit(x,split = ",")[[1]])
+            len <- length(strsplit(x, split = ",")[[1]])
             return(len)
         }))
         dfNew <- df[numPos >= 2, ]

@@ -55,7 +55,7 @@ plotDensity <- function(df){
         axis.text = element_text(size=12, colour = "black"),
         legend.text = element_text(size=12, face = "bold", colour = "black")
       )+
-      labs(x="CCF", y="Proportion")
+      labs(x = "CCF", y = "Proportion")
     
     return(p)
     

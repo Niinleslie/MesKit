@@ -41,10 +41,10 @@ vafCluster <-function(maf,
   result.list <- lapply(dat.list, doVafCluster,
                         maf = maf,
                         seg = seg,
-                        min.vaf= min.vaf,
-                        max.vaf= max.vaf,
-                        showMATH= showMATH, 
-                        plotOption= plotOption)
+                        min.vaf = min.vaf,
+                        max.vaf = max.vaf,
+                        showMATH = showMATH, 
+                        plotOption = plotOption)
   return(result.list)
 }
 
