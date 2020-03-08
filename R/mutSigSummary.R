@@ -33,7 +33,7 @@ doMutSigSummary <- function(treeMSOutput){
     if (is.null(mutSigsOutput$putative_driver_genes)) {
         mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
                                     alias=mutSigsOutput$alias, 
-                                    mut.num=mutSigsOutput$mut.num, 
+                                    mut.count=mutSigsOutput$mut.count, 
                                     sig=mutSigsOutput$sig, 
                                     sig.prob=mutSigsOutput$sig.prob, 
                                     aeti=ls.aeti)
@@ -41,7 +41,7 @@ doMutSigSummary <- function(treeMSOutput){
     } else {
         mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
                                     alias=mutSigsOutput$alias, 
-                                    mut.num=mutSigsOutput$mut.num, 
+                                    mut.count=mutSigsOutput$mut.count, 
                                     sig=mutSigsOutput$sig, 
                                     sig.prob=mutSigsOutput$sig.prob,
                                     aeti=ls.aeti,
