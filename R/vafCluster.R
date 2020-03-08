@@ -30,13 +30,13 @@ vafCluster <-function(maf,
   plot.options = c('combine', 'compare')
   
   if(!plotOption %in% plot.options){
-        stop("plotOption can only be either 'combine' or 'compare'")
-    }
-
-  if(!is.null(seg)){
-      maf <- copyNumberFilter(maf, seg)
+    stop("plotOption can only be either 'combine' or 'compare'")
   }
-
+  
+  if(!is.null(seg)){
+    maf <- copyNumberFilter(maf, seg)
+  }
+  
   dat.list <- split(maf@data, maf@data$Patient_ID)
   result.list <- lapply(dat.list, doVafCluster,
                         maf = maf,
@@ -52,7 +52,7 @@ vafCluster <-function(maf,
 ## Special version of vafCluster for Rshiny App
 vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=TRUE, 
                             plotOption="combine"){
-
+  
   maf.dat <- maf@data
   if (max(maf.dat$VAF, na.rm=TRUE) > 1){
     maf.dat$VAF <- maf.dat$VAF/100
@@ -158,7 +158,7 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
                                      paste(lsPicName, collapse=","), 
                                      ", nrow=", 
                                      ceiling(length(lsPicName)/2), 
-                                     ", ncol=2, align=\"v\")" , 
+                                     ", ncol=2, align=\"v\", scale=0.85)" , 
                                      sep="")))
         pic <- cowplot::plot_grid(
           combineTitle, pic,
@@ -171,7 +171,7 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
                                      paste(lsPicName, collapse=","), 
                                      ", nrow=", 
                                      ceiling(length(lsPicName)/2), 
-                                     ", ncol=2, align=\"v\")" , 
+                                     ", ncol=2, align=\"v\", scale=0.85)" , 
                                      sep="")))
       }
       ## Rshiny: progress bar
@@ -306,11 +306,11 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
                           theme(legend.position=\'none\',", 
-                          " plot.title=element_text(size=14), ",
+                          " plot.title=element_text(size=13), ",
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
                           "axis.line=element_line(size=0.7)) + ", 
-                          "axis.title=element_text(size=14), ", 
+                          "axis.title=element_text(size=13), ", 
                           "axis.text=element_text(size=12, colour = \"black\"), ",
                           "geom_line(size=1, colour=\"#00C0EB\", ", 
                           "stat=\"density\") + ", 
@@ -325,11 +325,11 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       ## generate character/string for ggplot and paint the picture
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
-                          theme(plot.title=element_text(size=14), ", 
+                          theme(plot.title=element_text(size=13), ", 
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
                           "axis.line=element_line(size=0.7)) + ",
-                          "axis.title=element_text(size=14), ", 
+                          "axis.title=element_text(size=13), ", 
                           "axis.text=element_text(size=12, colour = \"black\"), ",
                           "geom_line(size=1, colour=\"#00C0EB\", ", 
                           "stat=\"density\") + ", 
@@ -346,11 +346,11 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
                           theme(legend.position=\'none\', ", 
-                          "plot.title=element_text(size=14, hjust=1, ", 
+                          "plot.title=element_text(size=13, hjust=1, ", 
                           "vjust=0.5, face='bold'), ",
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
-                          "axis.title=element_text(size=14), ", 
+                          "axis.title=element_text(size=13), ", 
                           "axis.text=element_text(size=12, colour = \"black\"), ",
                           "axis.line=element_line(size=0.7)) + ", 
                           "ggtitle(\"", plotOption, 
@@ -367,11 +367,11 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       ## generate character/string for ggplot and paint the picture
       vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
-                          theme(plot.title=element_text(size=14, hjust=1, ", 
+                          theme(plot.title=element_text(size=13, hjust=1, ", 
                           "vjust=0.5, face='bold'), ",  
                           "panel.grid=element_blank(), ", 
                           "panel.border=element_blank(), ", 
-                          "axis.title=element_text(size=14), ", 
+                          "axis.title=element_text(size=13), ", 
                           "axis.text=element_text(size=12, colour = \"black\"), ",
                           "axis.line=element_line(size=0.7)) + ",  
                           "ggtitle(\"MATH Score: ", 
@@ -399,7 +399,7 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
   clusterLs <- unique(clusterMt$cluster)
   ## density information of the curve for a tsb
   densityInfo <- data.frame(layer_data(pic))
-
+  
   
   ## OFA specific: get scaling ratio
   if (!is.null(ingredients)){
@@ -453,10 +453,10 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     vafOFACha <- paste("ggplot(clusterAll, ", 
                        "aes(x=VAF, y=Tumor_Sample_Barcode)) +
                        theme_bw() + 
-                       theme(plot.title=element_text(size=14), ",
+                       theme(plot.title=element_text(size=13), ",
                        "panel.grid=element_blank(), ", 
                        "panel.border=element_blank(), ",
-                       "axis.title=element_text(size=14), ", 
+                       "axis.title=element_text(size=13), ", 
                        "axis.text=element_text(size=12, colour = \"black\"), ", 
                        "axis.line=element_line(size=0.7)) + ",
                        "ggridges::geom_density_ridges(fill=\"whitesmoke\", ",
@@ -475,11 +475,11 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
     vafOFACha <- paste("ggplot(clusterAll, ", 
                        "aes(x=VAF, y=Tumor_Sample_Barcode)) +
                        theme_bw() + 
-                       theme(plot.title=element_text(size=14, hjust=1, ", 
+                       theme(plot.title=element_text(size=13, hjust=1, ", 
                        "vjust=0.5, face='bold'), ", 
                        "panel.grid=element_blank(), ", 
                        "panel.border=element_blank(), ", 
-                       "axis.title=element_text(size=14), ", 
+                       "axis.title=element_text(size=13), ", 
                        "axis.text=element_text(size=12, colour = \"black\"), ", 
                        "axis.line=element_line(size=0.7)) + ", 
                        "ggtitle(\"VAF clustering of ", patientID, "\") + ", 
@@ -547,186 +547,186 @@ doVafCluster <- function(patient.dat = NULL,
                          max.vaf=1,
                          showMATH=TRUE, 
                          plotOption="combine"){
-
-    patientID <- unique(patient.dat$Patient_ID) 
-    
-    ## fileter by min.vaf and max.vaf
-    patient.dat <- patient.dat[which(
-        !is.na(patient.dat$VAF)), ][which(
-            patient.dat$VAF > min.vaf & patient.dat$VAF < max.vaf), ]
-    ## Ignoring variants in copy number altered regions
-    # if(!is.null(seg)){
-    #     maf@data <- patient.dat
-    #     maf <- MesKit::copyNumberFilter(maf, seg)
-    # }
-    ## extract vaf info
-    n <- length(patient.dat$Hugo_Symbol)
-    vafInputMt <- data.frame(patient.dat$Hugo_Symbol, 
-                             patient.dat$VAF, 
-                             patient.dat$Tumor_Sample_Barcode)
-    colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Samples")
-    clusterAll <- data.frame()
-    ## extract all tumor sample barcode
-    tsbLs <- data.frame(unique(vafInputMt$Samples))
-    colnames(tsbLs) <- c("samples")
-    
-    
-    # build color vector for later use
-    colorVector <- c("#3B4992FF", "#EE0000FF", "#008B45FF", "#631879FF", 
-                     "#008280FF", "#BB0021FF", "#5F559BFF", "#A20056FF", 
-                     "#808180FF", "#1B1919FF")
-    
-    
-    ## plot all samples' vaf distribution
-    if ((plotOption == "separate") | (plotOption == "combine")){
-        ## general data process for all samples 
-        lsPicName <- c()
-        lsSep <- list()
-        lsSampleName <- c()
-        for (counterMt in seq_along(tsbLs[,1])){
-            sampleName <- as.character(tsbLs[,1][counterMt])
-            ## calculate ScoreMATH
-            mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
-            sampleMt <- vafInputMt[which(
-                vafInputMt$Samples %in% sampleName),]
-            ## data cleaning
-            sampleMt <- sampleMt[complete.cases(sampleMt), ]
-            sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-            if (length(sampleMt[,1]) < 3) {
-                message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
-                next()
-            }
-            
-            ## infer possible cluster from patient.dat
-            clusterMt <- .clusterGenerator(patient.dat, sampleName)
-            clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
-            
-            ## separate: print VAF pictures for all samples separatively
-            if (plotOption == "separate"){
-                pic <- .drawVAF(clusterMt, sampleName, mathscore)
-                lsSep[[counterMt]] <- pic
-                lsSampleName <- c(lsSampleName,sampleName)
-            }
-            else {
-                # prepare separated pictures for later combination 
-                pic_cha <- paste("separate", ".", counterMt, 
-                                 "<-.drawVAF(clusterMt, ", 
-                                 "sampleName, mathscore, ", 
-                                 "MIXOption=plotOption)", sep="")
-                eval(parse(text=pic_cha))
-                pic_name <- paste("separate", ".", counterMt, sep="")
-                lsPicName <- c(lsPicName, pic_name)
-            }
-        }
-        if (plotOption == "separate"){
-            names(lsSep) <- lsSampleName
-            message(paste(patientID," VAF Plot(", plotOption, ") Generation Done!", sep=""))
-            return(suppressWarnings(lsSep))
-            # return(lsSep)
-        }
-        ## combine: print VAF pictures for all samples in one document
-        if (plotOption == "combine"){
-            if (showMATH){
-                mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, "compare", sampleName)
-                
-                ## set the columns of the picture and generate all single pictures
-                combineTitle <- cowplot::ggdraw() + 
-                    cowplot::draw_label(
-                        paste("VAF clustering of ", patientID, sep=""),
-                        fontface = 'bold',
-                        x = 0,
-                        hjust = 0,
-                        size = 16
-                    ) +
-                    theme(
-                        # add margin on the left of the drawing canvas,
-                        # so title is aligned with left edge of first plot
-                        plot.margin = margin(0, 0, 0, 7)
-                    )
-                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
-                                             paste(lsPicName, collapse=","), 
-                                             ", nrow=", 
-                                             ceiling(length(lsPicName)/2), 
-                                             ", ncol=2, align=\"v\")" , 
-                                             sep="")))
-                pic <- cowplot::plot_grid(
-                    combineTitle, pic,
-                    ncol = 1,
-                    # rel_heights values control vertical title margins
-                    rel_heights = c(0.1, 1))
-                
-            } else {
-                pic <- eval(parse(text=paste("cowplot::plot_grid(", 
-                                             paste(lsPicName, collapse=","), 
-                                             ", nrow=", 
-                                             ceiling(length(lsPicName)/2), 
-                                             ", ncol=2, align=\"v\")" , 
-                                             sep="")))
-            }
-            message(paste0("VAF density plot of ", patientID, " has been generated!"))
-            return(suppressWarnings(suppressMessages(pic)))
-            # return(suppressWarnings(suppressMessages(pic)))
-        }
+  
+  patientID <- unique(patient.dat$Patient_ID) 
+  
+  ## fileter by min.vaf and max.vaf
+  patient.dat <- patient.dat[which(
+    !is.na(patient.dat$VAF)), ][which(
+      patient.dat$VAF > min.vaf & patient.dat$VAF < max.vaf), ]
+  ## Ignoring variants in copy number altered regions
+  # if(!is.null(seg)){
+  #     maf@data <- patient.dat
+  #     maf <- MesKit::copyNumberFilter(maf, seg)
+  # }
+  ## extract vaf info
+  n <- length(patient.dat$Hugo_Symbol)
+  vafInputMt <- data.frame(patient.dat$Hugo_Symbol, 
+                           patient.dat$VAF, 
+                           patient.dat$Tumor_Sample_Barcode)
+  colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Samples")
+  clusterAll <- data.frame()
+  ## extract all tumor sample barcode
+  tsbLs <- data.frame(unique(vafInputMt$Samples))
+  colnames(tsbLs) <- c("samples")
+  
+  
+  # build color vector for later use
+  colorVector <- c("#3B4992FF", "#EE0000FF", "#008B45FF", "#631879FF", 
+                   "#008280FF", "#BB0021FF", "#5F559BFF", "#A20056FF", 
+                   "#808180FF", "#1B1919FF")
+  
+  
+  ## plot all samples' vaf distribution
+  if ((plotOption == "separate") | (plotOption == "combine")){
+    ## general data process for all samples 
+    lsPicName <- c()
+    lsSep <- list()
+    lsSampleName <- c()
+    for (counterMt in seq_along(tsbLs[,1])){
+      sampleName <- as.character(tsbLs[,1][counterMt])
+      ## calculate ScoreMATH
+      mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
+      sampleMt <- vafInputMt[which(
+        vafInputMt$Samples %in% sampleName),]
+      ## data cleaning
+      sampleMt <- sampleMt[complete.cases(sampleMt), ]
+      sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+      if (length(sampleMt[,1]) < 3) {
+        message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+        next()
+      }
+      
+      ## infer possible cluster from patient.dat
+      clusterMt <- .clusterGenerator(patient.dat, sampleName)
+      clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
+      
+      ## separate: print VAF pictures for all samples separatively
+      if (plotOption == "separate"){
+        pic <- .drawVAF(clusterMt, sampleName, mathscore)
+        lsSep[[counterMt]] <- pic
+        lsSampleName <- c(lsSampleName,sampleName)
+      }
+      else {
+        # prepare separated pictures for later combination 
+        pic_cha <- paste("separate", ".", counterMt, 
+                         "<-.drawVAF(clusterMt, ", 
+                         "sampleName, mathscore, ", 
+                         "MIXOption=plotOption)", sep="")
+        eval(parse(text=pic_cha))
+        pic_name <- paste("separate", ".", counterMt, sep="")
+        lsPicName <- c(lsPicName, pic_name)
+      }
     }
-    
-    ## plot all samples' vaf distribution with ggridges
-    else if (plotOption == "compare"){
-        ## calculate ScoreMATH
-        mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption)
-        mathscore <- mathtbscoreLs
-        ## collect all samples' cluster results
-        for (counterMt in seq_along(tsbLs[,1])){
-            sampleName <- as.character(tsbLs[,1][counterMt])
-            sampleMt <- vafInputMt[which(
-                vafInputMt$Samples %in% sampleName),]
-            ## data cleaning
-            sampleMt <- sampleMt[complete.cases(sampleMt), ]
-            sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-            if (nrow(sampleMt) < 3) {
-                message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
-                next()
-            }
-            ## generate data from different Tumor_Sample_Barcode
-            clusterMtCha <- paste("clusterMt_", counterMt, 
-                                  " <- .clusterGenerator(patient.dat, sampleName)", sep ="")
-            eval(parse(text=clusterMtCha))
-            clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
-                                  " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score, nrow(clusterMt_", counterMt, "))", sep ="")
-            eval(parse(text=clusterMtCha))
-            clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
-                                  "clusterMt_", counterMt, ")",sep ="")
-            eval(parse(text=clusterMtCha))
-        }
-        # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
-        pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
-                                                        tsbLs, plotOption, 
-                                                        mathscore, patientID, 
-                                                        min.vaf, max.vaf))))
-        message(paste0("VAF density plot of ", patientID, " has been generated!"))
-        return(suppressWarnings(suppressMessages(pic)))
-        # return(suppressWarnings(suppressMessages(pic)))
+    if (plotOption == "separate"){
+      names(lsSep) <- lsSampleName
+      message(paste(patientID," VAF Plot(", plotOption, ") Generation Done!", sep=""))
+      return(suppressWarnings(lsSep))
+      # return(lsSep)
     }
-    
-    ## plot specific sample's vaf plot
-    else if (plotOption %in% unique(vafInputMt$Samples))
-    {
-        ## data preparation
-        sampleName <- plotOption
-        sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
-        ## data cleaning
-        sampleMt <- sampleMt[complete.cases(sampleMt), ]
-        sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-        if (length(sampleMt[,1]) < 3) {
-            stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
-        }
-        clusterMt <- .clusterGenerator(patient.dat, sampleName)
-        ## calculate ScoreMATH
-        mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
-        ## VAF plot for specifc sample
-        pic <- .drawVAF(clusterMt, plotOption, mathscore)
-        message(paste0("VAF density plot of ", patientID, " has been generated!"))
-        return(suppressWarnings(suppressMessages(pic)))
-        # return(suppressWarnings(suppressMessages(pic)))
+    ## combine: print VAF pictures for all samples in one document
+    if (plotOption == "combine"){
+      if (showMATH){
+        mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, "compare", sampleName)
+        
+        ## set the columns of the picture and generate all single pictures
+        combineTitle <- cowplot::ggdraw() + 
+          cowplot::draw_label(
+            paste("VAF clustering of ", patientID, sep=""),
+            fontface = 'bold',
+            x = 0,
+            hjust = 0,
+            size = 16
+          ) +
+          theme(
+            # add margin on the left of the drawing canvas,
+            # so title is aligned with left edge of first plot
+            plot.margin = margin(0, 0, 0, 7)
+          )
+        pic <- eval(parse(text=paste("cowplot::plot_grid(", 
+                                     paste(lsPicName, collapse=","), 
+                                     ", nrow=", 
+                                     ceiling(length(lsPicName)/2), 
+                                     ", ncol=2, align=\"v\", scale=0.85)" , 
+                                     sep="")))
+        pic <- cowplot::plot_grid(
+          combineTitle, pic,
+          ncol = 1,
+          # rel_heights values control vertical title margins
+          rel_heights = c(0.1, 1))
+        
+      } else {
+        pic <- eval(parse(text=paste("cowplot::plot_grid(", 
+                                     paste(lsPicName, collapse=","), 
+                                     ", nrow=", 
+                                     ceiling(length(lsPicName)/2), 
+                                     ", ncol=2, align=\"v\", scale=0.85)" , 
+                                     sep="")))
+      }
+      message(paste0("VAF density plot of ", patientID, " has been generated!"))
+      return(suppressWarnings(suppressMessages(pic)))
+      # return(suppressWarnings(suppressMessages(pic)))
     }
-
+  }
+  
+  ## plot all samples' vaf distribution with ggridges
+  else if (plotOption == "compare"){
+    ## calculate ScoreMATH
+    mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption)
+    mathscore <- mathtbscoreLs
+    ## collect all samples' cluster results
+    for (counterMt in seq_along(tsbLs[,1])){
+      sampleName <- as.character(tsbLs[,1][counterMt])
+      sampleMt <- vafInputMt[which(
+        vafInputMt$Samples %in% sampleName),]
+      ## data cleaning
+      sampleMt <- sampleMt[complete.cases(sampleMt), ]
+      sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+      if (nrow(sampleMt) < 3) {
+        message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+        next()
+      }
+      ## generate data from different Tumor_Sample_Barcode
+      clusterMtCha <- paste("clusterMt_", counterMt, 
+                            " <- .clusterGenerator(patient.dat, sampleName)", sep ="")
+      eval(parse(text=clusterMtCha))
+      clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
+                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score, nrow(clusterMt_", counterMt, "))", sep ="")
+      eval(parse(text=clusterMtCha))
+      clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
+                            "clusterMt_", counterMt, ")",sep ="")
+      eval(parse(text=clusterMtCha))
+    }
+    # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
+    pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
+                                                    tsbLs, plotOption, 
+                                                    mathscore, patientID, 
+                                                    min.vaf, max.vaf))))
+    message(paste0("VAF density plot of ", patientID, " has been generated!"))
+    return(suppressWarnings(suppressMessages(pic)))
+    # return(suppressWarnings(suppressMessages(pic)))
+  }
+  
+  ## plot specific sample's vaf plot
+  else if (plotOption %in% unique(vafInputMt$Samples))
+  {
+    ## data preparation
+    sampleName <- plotOption
+    sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
+    ## data cleaning
+    sampleMt <- sampleMt[complete.cases(sampleMt), ]
+    sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+    if (length(sampleMt[,1]) < 3) {
+      stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+    }
+    clusterMt <- .clusterGenerator(patient.dat, sampleName)
+    ## calculate ScoreMATH
+    mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
+    ## VAF plot for specifc sample
+    pic <- .drawVAF(clusterMt, plotOption, mathscore)
+    message(paste0("VAF density plot of ", patientID, " has been generated!"))
+    return(suppressWarnings(suppressMessages(pic)))
+    # return(suppressWarnings(suppressMessages(pic)))
+  }
+  
 }
