@@ -58,7 +58,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
                 grid::grid.text(
                     sprintf("%.2f", corrMat[i, j]),
                     x, y,
-                    gp = grid::gpar(fontsize = 11, fontface = "bold", col = "white")
+                    gp = grid::gpar(fontsize = 11, fontface = "bold", col = "#C77960")
                 )
             }
             
