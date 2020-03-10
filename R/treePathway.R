@@ -6,10 +6,11 @@
 #' @param driverGenesFile The file with driver gene list. Default NULL.
 #' @param pathway.type one of "KEGG" or "Reactome". Default type="KEGG"
 #' @param pval cutoff value of pvalue. Default pval=0.05
+#' @param pAdjustMethod one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". 
+#' Default is "BH"
 #' @param qval cutoff value of qvalue. Default qval=0.2
-#' @param pAdjustMethod one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default pAdjustMethod="BH"
-#' @param plotType one of "dot", "bar"
-#' @param showCategory category numbers
+#' @param plotType one of "dot", "bar", default is "dot"
+#' @param showCategory number of categories will be shown, default is 5
 #' 
 #' @examples
 #' treePathway(phyloTree, pathway.type = "KEGG")
