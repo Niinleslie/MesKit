@@ -8,7 +8,8 @@
 #' @param min.mut.count the threshold for the variants in a branch. Default 15.
 #' @param signaturesRef The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". 
 #' 
-#' @return a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
+#' @return a list of data frames, each one contains treeMSOutput, 
+#' containing information about each set/branch's mutational signature.
 #' 
 #' @examples
 #' treeMSOutput <- treeMutSig(phyloTree, driverGenesFile=NULL, min.mut.count=15, signaturesRef="cosmic")
@@ -17,7 +18,7 @@
 
 
 ## Mutational Signature function
- treeMutSig <- function(phyloTree, driverGenesFile=NULL, min.mut.count=15, signaturesRef="cosmic"){
+treeMutSig <- function(phyloTree, driverGenesFile=NULL, min.mut.count=15, signaturesRef="cosmic"){
      treeMS.list <- lapply(phyloTree, doTreeMutSig,
                            driverGenesFile = driverGenesFile,
                            min.mut.count = min.mut.count,
