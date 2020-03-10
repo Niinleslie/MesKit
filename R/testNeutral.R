@@ -1,6 +1,6 @@
 #' testNeutral
-#' @description Evaluat whether a tumor follows neutral evolution or under strong selection
-#' during the growth based on variant frequency distribution (VAF) of subclonal 
+#' @description Evaluate whether a tumor follows neutral evolution or under strong selection
+#' during the growth.
 #' The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth.  
 #' 
 #' @references Williams MJ, Werner B, Barnes CP, Graham TA, Sottoriva A. Identification of neutral tumor evolution across cancer types. 

@@ -223,7 +223,7 @@ plotCNA(seg)
 
 ##### 6.1.1 Math score calculation
 
-The ```mathScore``` function estimates ITH of each sample of every single patient using MATH approach, and return both the data frame and a violin plot to better visualize the results. Typically, the higher the MATH score, the more heterogeneous a tumor sample is.   
+The ```mathScore``` function estimates ITH of each sample of every single patient using MATH approach(MATH, a novel measure of intratumor genetic heterogeneity, is high in poor-outcome classes of head and neck squamous cell carcinoma), and return both the data frame and a violin plot to better visualize the results. Typically, the higher the MATH score, the more heterogeneous a tumor sample is.   
   
 ```{r warning=FALSE}
 mathscores <- mathScore(maf, min.vaf = 0.02, max.vaf = 1)
@@ -314,6 +314,14 @@ JSIs <- calJSI(maf, use.circle = TRUE)
 JSIs$JSI.dist[['311252']]
 JSIs$JSI.plot[['311252']]
 ```  
+
+### 7. Neutral evolution
+The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth( Identification of neutral tumor evolution across cancer types). Users can evaluate whether a tumor follows neutral evolution or under strong selection via the ```testNeutral``` function. Tumors of R2 >= ```R2.threshold``` (Default: 0.98) were considered to follow neutral evolution. This function also prints the model fitting plot of each sample if the argument ```plot``` is ```TRUE```.
+
+```{r}
+testNeutral(maf, plot = TRUE)
+```  
+
 
 ### 8. Phylogenetic tree analysis
 
