@@ -46,6 +46,7 @@ plotDensity <- function(df){
       theme_bw() + 
       geom_line(size=1.2) +
       xlim(0,1) + ylim(0,1) +
+      
       coord_fixed() +
       theme(
         #legend.position='none', 
@@ -57,7 +58,8 @@ plotDensity <- function(df){
         axis.text = element_text(size=12, colour = "black"),
         legend.text = element_text(size=12, face = "bold", colour = "black")
       )+
-      labs(x = "CCF", y = "Proportion")
+      labs(x = "CCF", y = "Proportion", 
+           title = paste0("AUC plot of CCF : ", CCF.sort$Patient_ID))
     
     return(p)
     

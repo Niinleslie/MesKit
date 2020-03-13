@@ -12,7 +12,7 @@
 #' 
 #' @return returns a vector containing the following tree distance methods by R package phangorn
 #' Symmetric.difference  Robinson-Foulds distance
-#' KF-branch distance  the branch score distance ( (Kuhner & Felsenstein 1994))
+#' KF-branch distance  the branch score distance (Kuhner & Felsenstein 1994)
 #' Path.difference  difference in the path length, counted as the number of branches 
 #' Weighted.path.difference	 difference in the path length, counted using branches lengths
 #' 
