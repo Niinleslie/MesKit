@@ -110,7 +110,7 @@ doGetPhyloTree <- function(patient.dat = NULL,
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
     }
     branchAlias <- readPhyloTree(matTree)
-    mut.branches <- .treeMutationalBranches(patient.dat, branchAlias, binary.matrix)
+    mut.branches <- treeMutationalBranches(patient.dat, branchAlias, binary.matrix)
     patientID <- unique(patient.dat$Patient_ID)
     phylo.tree <- new('phyloTree', patientID = patientID, tree = matTree, 
                       binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
@@ -118,6 +118,81 @@ doGetPhyloTree <- function(patient.dat = NULL,
                       bootstrap.value = bootstrap.value, method = method)
     return(phylo.tree)
 }
+
+treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
+    binary.matrix <- as.data.frame(binary.matrix)
+    binary.matrix$mut.id <- rownames(binary.matrix)
+    ## get mutationalSigs-related  infomation
+    maf_input <- maf.dat
+    branchChar <- as.character(branchAlias$Branch)
+    datChr <- data.frame(chr=as.character(maf_input$Chromosome), stringsAsFactors=FALSE)
+    datChr$chr <- paste("chr", datChr$chr, sep="")
+    datMutgene <-  maf_input$Hugo_Symbol
+    mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
+                                        Hugo_Symbol, Chromosome, 
+                                        Start_Position, 
+                                        Reference_Allele, Tumor_Seq_Allele2, 
+                                        sep=":"), mut.id)
+    mutSigRef <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
+                            datChr, maf_input$Start_Position, 
+                            maf_input$End_Position, maf_input$Reference_Allele, 
+                            maf_input$Tumor_Seq_Allele2, datMutgene, 
+                            mutId, stringsAsFactors=FALSE)
+    colnames(mutSigRef) <- c("Sample", 
+                             "chr", "pos", 
+                             "pos_end", "ref", 
+                             "alt", "Hugo_Symbol", 
+                             "mut_id")
+    
+    ## get branch infomation
+    ls.branch <- branchChar[order(nchar(branchChar), branchChar)]
+    branches <- strsplit(ls.branch, split='∩')
+    
+    ## generate mutational intersections for each branch
+    mutBranchesOutput <- list()
+    for (branch in branches){
+        ## generate intersection's mut.id and get the mutation information in mutSigRef
+        branch <- unlist(branch)
+        ## generate the branch name
+        branchName <- paste(branch, collapse="∩")
+        branch.id <- append(branch, "mut.id")
+        unbranch <- names(binary.matrix)[which(!(names(binary.matrix) %in% branch.id))]
+        ## generate mutation intersection for specific branch
+        branch.intersection <- dplyr::intersect(
+            binary.matrix %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1)), 
+            binary.matrix %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0))) 
+        ## special situation: branch.intersection NULL
+        if (nrow(branch.intersection) == 0){
+            message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
+            branch.mut <- data.frame(Sample=branchName, 
+                                     chr=NA,
+                                     pos=NA,
+                                     pos_end=NA,
+                                     ref=NA,
+                                     alt=NA,
+                                     Hugo_Symbol=NA,
+                                     mut_id="NoSigTag",
+                                     Alias=as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias))
+            mutBranchesOutput[[branchName]] <- branch.mut
+            next()
+        }
+        
+        branch.mut.id <- branch.intersection$mut.id
+        
+        ## data duplication
+        branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
+        branch.mut$Sample <- branchName
+        branch.mut <- branch.mut[!duplicated(branch.mut),]
+        branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
+        
+        ## generate branch mutation list
+        mutBranchesOutput[[branchName]] <- branch.mut
+    }
+    return(mutBranchesOutput)
+}
+
+
+
 #Prevent class 'phylo' from not existing
 setClass('phylo')
 setClass('phyloTree', slots = c(tree = 'phylo', patientID = 'character', binary.matrix = 'matrix', mut.branches = 'list', ccf.matrix = 'matrix', refBuild = 'character',
