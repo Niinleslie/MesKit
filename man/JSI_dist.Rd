@@ -11,12 +11,15 @@ JSI_dist(df)
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
-\item{plot}{logical, default TRUE}
+\item{plot}{logical, whether to show the plot, default TRUE}
 
-\item{use.circle, }{default FALSE}
+\item{use.circle, }{whether to use circle as background of the correlation matrix plot, 
+default TURE}
+
+\item{title}{the title of the plot, default is "Jaccard similarity"}
 }
 \value{
-correlation matrix via Jaccard similarity coefficient method
+correlation matrix and heatmap via Jaccard similarity coefficient method
 }
 \description{
 The Jaccard similarity coefficient is defined as the ratio of shared variants to all

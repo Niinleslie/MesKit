@@ -25,7 +25,7 @@ readMaf(
 
 \item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
-\item{use.indel}{logic. whether to use INDELs besides somatic SNVs. Default FALSE.}
+\item{use.indel}{logical value. whether to use INDELs besides somatic SNVs. Default FALSE.}
 
 \item{refBuild}{human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".}
 }

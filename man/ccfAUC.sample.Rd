@@ -12,9 +12,11 @@ ccfAUC.sample(ccf)
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
 \item{min.ccf}{the minimum value of CCF. Default: 0}
+
+\item{plot.density}{whether to show the density plot. Default: TRUE}
 }
 \value{
-A list containing AUC of CCF and a violin plot
+A list containing AUC of CCF and a graph
 }
 \description{
 The tumor heterogeneity was estimated as the area under the curve (AUC) of the cumulative density 
