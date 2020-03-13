@@ -85,8 +85,8 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
         max <- sort(unique(patient.seg$hmax))
         CNADat <- patient.seg[Type != "Neutral",]
         patient.type <- unique(CNADat$Type)
-        all.levels <- c("Loss","Deletion","Gain","Amplification")
-        all.colors <- c("#6baed6","#084594","#f4a582","#d73027")
+        all.levels <- c("Loss", "Deletion",  "Gain",  "Amplification")
+        all.colors <- c("#6baed6", "#084594", "#f4a582", "#d73027")
         patient.level <- all.levels[all.levels %in% patient.type]
         patient.color <- all.colors[all.levels %in% patient.type]
         CNADat$Type <- factor(CNADat$Type, levels = patient.level)
@@ -98,19 +98,39 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
         segmentTable <- rbind(segmentTable, list(min(min), max(max), -seg.add,-seg.add))
         segmentTable <- rbind(segmentTable, list(min(min), max(max), max(chrTable$end)+seg.add,max(chrTable$end)+seg.add))
         textTable <- data.table::data.table(Pos = min + (max-min)/2, Tumor_Sample_Barcode = samples)
-        backgroundTable <- data.table::data.table(xmin = min(chrTable$start), xmax = max(chrTable$end), ymin = min, ymax = max)
-        p <- ggplot()+geom_rect(data = chrTable,mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = 0.5),fill = rep(c("black","white"),11),color = "black")+
-            geom_text(data = chrTable,mapping = aes(x = start + (end - start)/2, y = 0.25, label = chr), color = rep(c("white","black"),11))+
-            geom_rect(data = backgroundTable, mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), fill = "#f0f0f0")+
-            theme(panel.grid =element_blank(),axis.text = element_blank(),axis.ticks = element_blank(),
-                  panel.border = element_blank(),panel.background = element_blank(),
-                  axis.title.x = element_blank(),axis.title.y = element_blank())+
-            geom_rect(data = CNADat,mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
+        backgroundTable <- data.table::data.table(
+            xmin = min(chrTable$start), 
+            xmax = max(chrTable$end), 
+            ymin = min, 
+            ymax = max)
+        p <- ggplot()+
+            geom_rect(data = chrTable,
+                mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = 0.5),
+                fill = rep(c("black","white"), 11), color = "black")+
+            geom_text(data = chrTable,
+                mapping = aes(x = start + (end - start)/2, y = 0.25, label = chr), 
+                color = rep(c("white","black"), 11))+
+            geom_rect(data = backgroundTable, 
+                mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), 
+                fill = "#f0f0f0")+
+            theme(
+                panel.grid =element_blank(), 
+                axis.text = element_blank(), 
+                axis.ticks = element_blank(),
+                panel.border = element_blank(),
+                panel.background = element_blank(),
+                axis.title.x = element_blank(),
+                axis.title.y = element_blank())+
+            geom_rect(data = CNADat,
+                mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
             scale_fill_manual(breaks = patient.level, values = patient.color)+
-            geom_text(data = textTable,mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
-            geom_segment(aes(x = x, y = y, xend = xend, yend = yend), data = segmentTable, linetype="dashed")+
+            geom_text(
+                data = textTable,
+                mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
+            geom_segment(aes(x = x, y = y, xend = xend, yend = yend), 
+                data = segmentTable, linetype="dashed")+
             ggtitle("Copy number variant profile")+
-            theme(plot.title = element_text(size = 18,face = "bold",hjust = 0.5,vjust = -1))
+            theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, vjust = -1))
         CNAplot.list[[patient]] <- p
     }
     return(CNAplot.list)

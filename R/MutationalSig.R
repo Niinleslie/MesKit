@@ -402,3 +402,4 @@ doPlotMutSig <- function(tree.mutSig) {
     message("Mutational signature plot generation done!")
     return(pic)
 }
+

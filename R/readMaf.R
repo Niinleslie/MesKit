@@ -2,11 +2,11 @@
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
 #' @param mafFile tab delimited MAF file (plain text or *.gz compressed). Required.
-#' @param use.indel logic. whether to use INDELs besides somatic SNVs. Default FALSE.
 #' @param ccfFile CCF file of SNVs. Default NULL.
 #' @param mutType select proper variant classification you need. Default "All".Option: "nonSilent".
 #' @param mutNonSilent variant classifications which are considered as non-silent. Default NULL.
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
+#' @param use.indel logical value. whether to use INDELs besides somatic SNVs. Default FALSE.
 #' @param refBuild human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".
 #'
 #'

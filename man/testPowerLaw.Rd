@@ -18,8 +18,8 @@ testPowerLaw(df, min.VAF_adj, max.VAF_adj, min.depth, R2.threshold, plot)
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 }
 \description{
-Evaluat whether a tumor follows neutral evolution or under strong selection
-during the growth based on variant frequency distribution (VAF) of subclonal 
+Evaluate whether a tumor follows neutral evolution or under strong selection
+during the growth.
 The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth.
 }
 \examples{
