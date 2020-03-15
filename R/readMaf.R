@@ -109,12 +109,21 @@ readMaf <- function(## maf parameters
     if(max(mafData$VAF, na.rm = TRUE) > 1){
         mafData$VAF <- as.numeric(as.character(mafData$VAFdat))/100
     }    
+    # Add sampleinfo
+    patients.dat <- split(mafData, mafData$Patient_ID)
+    sample.info <- lapply(patients.dat,
+                          function(x){
+                              return(sort(unique(x$Tumor_Sample_Barcode)))
+                          })
+
+    
     
     ## generate classMaf
     maf <- classMaf(
         data = data.table::setDT(mafData),
         #patientID = patientID,
-        ref.build = refBuild
+        ref.build = refBuild,
+        sample.info = sample.info
     )
     
     # ## for parameter vafColumn="VAF", select particular VAF column
@@ -181,6 +190,7 @@ classMaf <- setClass(
     Class = "classMaf",
     slots = c(
         data = 'data.table',
-        ref.build = 'character'
+        ref.build = 'character',
+        sample.info = 'list'
     )
 )

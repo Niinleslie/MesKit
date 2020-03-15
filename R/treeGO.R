@@ -12,6 +12,8 @@
 #' @param qval cutoff value of qvalue. Default qval=0.2
 #' @param plotType one of "dot", "bar", default is "dot"
 #' @param showCategory number of categories will be shown, default is 5
+#' @param patient.id select the specific patients. Default: NULL, all patients are included
+
 #' 
 #' 
 #' @examples 
@@ -20,10 +22,23 @@
 #' @import clusterProfiler pdp
 #' @export treeGO
 
-treeGO <- function(phyloTree, driverGenesFile = NULL, GO.type="BP", pval=0.05, pAdjustMethod="BH", 
-                      qval=0.2, plotType="dot", showCategory=5){
+treeGO <- function(phyloTree,
+                   driverGenesFile = NULL,
+                   GO.type="BP",
+                   pval=0.05,
+                   pAdjustMethod="BH", 
+                   qval=0.2,
+                   plotType="dot",
+                   showCategory=5,
+                   patient.id = NULL){
   
-
+  if(!is.null(patient.id)){
+        patient.setdiff <- setdiff(patient.id, names(phyloTree))
+        if(length(patient.setdiff) > 0){
+            stop(paste0(patient.setdiff, " can not be found in your data"))
+        }
+        phyloTree <- phyloTree[names(phyloTree)  %in% patient.id] 
+  }
   GO.options = c('MF', 'BP', 'CC', "ALL")
     if(!GO.type %in% GO.options){
         stop("GO.type can only be either 'MF', 'BP' 'CC' or 'ALL'")

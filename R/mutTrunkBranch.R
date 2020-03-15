@@ -7,6 +7,7 @@
 #' @param signaturesRef The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". 
 #' @param plot output a list of diagrams that visualize mutational signature of trunk/branches in a phylogenetic tree.Default FALSE. 
 #' @param conf.level confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.
+#' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' 
 #' @examples
 #' mutTrunkBranch(phyloTree)
@@ -20,7 +21,15 @@ mutTrunkBranch <- function(phyloTree,
                            min.mut.count=15,
                            signaturesRef="cosmic",
                            conf.level = 0.95,
-                           plot = FALSE){
+                           plot = FALSE,
+                           patient.id = NULL){
+    if(!is.null(patient.id)){
+        patient.setdiff <- setdiff(patient.id, names(phyloTree))
+        if(length(patient.setdiff) > 0){
+            stop(paste0(patient.setdiff, " can not be found in your data"))
+        }
+        phyloTree <- phyloTree[names(phyloTree)  %in% patient.id] 
+    }
     treeMSOutput <- lapply(phyloTree, doTreeMutSig,
                            driverGenesFile = driverGenesFile,
                            min.mut.count = min.mut.count,
