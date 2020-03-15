@@ -8,7 +8,8 @@ treeMutSig(
   phyloTree,
   driverGenesFile = NULL,
   min.mut.count = 15,
-  signaturesRef = "cosmic"
+  signaturesRef = "cosmic",
+  plot = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ treeMutSig(
 \item{min.mut.count}{the threshold for the variants in a branch. Default 15.}
 
 \item{signaturesRef}{The parameter used for deconstructSig. Default "cosmic". Option: "nature2013".}
+
+\item{plot}{output a list of diagrams that visualize mutational signature of trunk/branches in a phylogenetic tree.Default FALSE.}
 }
 \value{
 a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
@@ -28,5 +31,6 @@ Figure out the intersection of the variants on different branches
 in phyloTree object and output the treeMSOutput for further summary and plot functions.
 }
 \examples{
-treeMSOutput <- treeMutSig(phyloTree, driverGenesFile=NULL, min.mut.count=15, signaturesRef="cosmic")
+treeMutSig(phyloTree, driverGenesFile=NULL, min.mut.count=15, signaturesRef="cosmic")
+treeMutSig(phyloTree, plot = T)
 }

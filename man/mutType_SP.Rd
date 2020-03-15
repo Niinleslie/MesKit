@@ -11,9 +11,16 @@ mutType_SP(unique_barcode_count, total_barcode_count)
 Classify SSNVs/Indels into Shared/P-shared/Private, Clonal/Subclonl
 or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClonal/Private-SubClonal}
 
+\item{class}{the class which would be represented, default is "SP" (Shared/P-shared/Private),
+other options: "CS" (Clonal/Subclonl) and "SPCS".}
+
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
 \item{driverGenesFile}{driver gene list. Default NULL}
+
+\item{plot}{TRUE(Default).}
+
+\item{topGenesCount}{the number of genes print, default is 10}
 }
 \description{
 classifyMut

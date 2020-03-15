@@ -24,13 +24,14 @@ treePathway(
 
 \item{pval}{cutoff value of pvalue. Default pval=0.05}
 
-\item{pAdjustMethod}{one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default pAdjustMethod="BH"}
+\item{pAdjustMethod}{one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". 
+Default is "BH"}
 
 \item{qval}{cutoff value of qvalue. Default qval=0.2}
 
-\item{plotType}{one of "dot", "bar"}
+\item{plotType}{one of "dot", "bar", default is "dot"}
 
-\item{showCategory}{category numbers}
+\item{showCategory}{number of categories will be shown, default is 5}
 }
 \value{
 pathway enrichment results

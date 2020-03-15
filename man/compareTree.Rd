@@ -17,9 +17,10 @@ compareTree(
 
 \item{tree2}{a single class PhyloTree}
 
-\item{plot}{a logical value. If TRUE, the two trees are plotted on the same device and their similarities are shown.}
+\item{plot}{a logical value, default FALSE. If TRUE, 
+the two trees will be plotted on the same device and their similarities will be shown.}
 
-\item{min.ratio}{a numeric value.If not NULL, min.length = max(tree$edge.length)*min.ratio.
+\item{min.ratio}{a numeric value, default is 1/30. If not NULL, min.length = max(tree$edge.length)*min.ratio.
 Length of branches which are less than min.length will be adjusted to min.length.}
 
 \item{compare.linetype}{line type of common branch.}
@@ -27,7 +28,7 @@ Length of branches which are less than min.length will be adjusted to min.length
 \value{
 returns a vector containing the following tree distance methods by R package phangorn
 Symmetric.difference  Robinson-Foulds distance
-KF-branch distance  the branch score distance ( (Kuhner & Felsenstein 1994))
+KF-branch distance  the branch score distance (Kuhner & Felsenstein 1994)
 Path.difference  difference in the path length, counted as the number of branches 
 Weighted.path.difference	 difference in the path length, counted using branches lengths
 }

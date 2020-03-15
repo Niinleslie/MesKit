@@ -39,8 +39,8 @@ mutTrunkBranch <- function(phyloTree,
     if(plot){
         TB.plot <- lapply(treeMSOutput, doPlotTrunkBranch,
                           conf.level = conf.level)
-        return(list(mutTrunkBranch.list = mutTrunkBranch.list,
-               TrunkBranch.plot = TB.plot))
+        return(list(mutTrunkBranch.res = mutTrunkBranch.list,
+               mutTrunkBranch.plot = TB.plot))
     }
     return(mutTrunkBranch.list = mutTrunkBranch.list)
 }
@@ -79,8 +79,7 @@ doMutTrunkBranch <- function(tree.mutSig, conf.level = 0.95){
     if (any(mutSigsOutput$alias == "T")){
         trunkName <- mutSigsOutput[which(mutSigsOutput$alias == "T"), ]$branch
     } else {
-        stop("Trunk ERROR: There is no trunk mutation and the branch-trunk plot could not be plotted.
-             Warnings and outputs from function getNJtree should be checked.")
+        stop("Errors: no trunk mutations are detected!")
     } 
     
     ## separate trunk and branch data
@@ -245,12 +244,12 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
     
     pic <- ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
         geom_boxplot(coef=100) + 
-        ggtitle(paste0("Substitution types of ",tree.mutSig$patientID,"'s phylogenetic tree ")) + 
+        ggtitle(paste0(tree.mutSig$patientID)) + 
         theme(panel.grid=element_blank(), 
               panel.border=element_blank(), 
               panel.background = element_blank(), 
               legend.position='none', 
-              plot.title = element_text(size = 13,face = "bold",hjust = 0.5,vjust = 0),
+              plot.title = element_text(size = 13, face = "bold", vjust = 0),
               axis.text.x=element_text(size=10, angle = 90, vjust = 0.5, hjust=1), 
               axis.ticks.x = element_blank(), 
               axis.text.y=element_text(size=10)) + 

@@ -26,7 +26,6 @@
 #' compareTree(tree1, tree2, plot = TRUE)
 #' @export compareTree
 
-
 compareTree <- function(tree1,
                         tree2,
                         plot = FALSE,

@@ -11,14 +11,15 @@ nei_dist(df)
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
-\item{min.VAF}{specify the minimum CCF value of subclonal mutations}
+\item{plot}{logical, whether to show the plot, default TRUE}
 
-\item{plot}{logical, default TRUE}
+\item{use.circle, }{whether to use circle as background of the correlation matrix plot, 
+default TURE}
 
-\item{use.circle, }{default FALSE}
+\item{title}{the title of the plot, default is "Nei's distance"}
 }
 \value{
-Nei's genetic distance matrix of sample-pairs from the same patient
+Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
 }
 \description{
 Nei's distance of CCF for each sample-pair
