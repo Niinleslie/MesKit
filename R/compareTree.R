@@ -6,9 +6,12 @@
 #' @param tree2 a single class PhyloTree
 #' @param plot a logical value, default FALSE. If TRUE, 
 #' the two trees will be plotted on the same device and their similarities will be shown.
-#' @param min.ratio a numeric value, default is 1/30. If not NULL, min.length = max(tree$edge.length)*min.ratio.
-#' Length of branches which are less than min.length will be adjusted to min.length.
-#' @param compare.linetype line type of common branch.
+#' @param min.ratio double (Default:1/30). If min.ratio is not NULL,
+#'  all edge length of a phylogenetic tree should be greater than
+#'  min.ratio*the longest edge length.
+#'  If not, the edge length will be reset as min.ratio*longest edge length.
+#' 
+#' @param common.lty line type of common branch.
 #' 
 #' @return returns a vector containing the following tree distance methods by R package phangorn
 #' Symmetric.difference  Robinson-Foulds distance
@@ -23,16 +26,15 @@
 #' compareTree(tree1, tree2, plot = TRUE)
 #' @export compareTree
 
-
-compareTree <- function(
-	tree1, 
-	tree2,
-	min.ratio = 1/30, 
-	plot = TRUE, 
-	show.heatmap = FALSE, 
- 
-	compare.linetype = "solid"){
-
+compareTree <- function(tree1,
+                        tree2,
+                        plot = FALSE,
+                        min.ratio = 1/30,
+                        show.heatmap = FALSE, 
+                        use.ccf = FALSE,
+                        show.bootstrap = FALSE,
+                        use.box = FALSE,
+                        common.lty = "solid"){
 	phylo.tree1 <- tree1@tree
 	phylo.tree2 <- tree2@tree
 	dist <- phangorn::treedist(phylo.tree1, phylo.tree2)
@@ -77,7 +79,8 @@ compareTree <- function(
 	                        show.heatmap = FALSE,
 	                        use.ccf = FALSE,
 	                        compare = compare,
-	                        compare.linetype = compare.linetype)
+	                        common.lty = common.lty,
+	                        min.ratio = min.ratio)
 	    p2 <- drawPhyloTree(phyloTree = tree2,
 	                        treeData = treedat2,
 	                        show.mutSig = TRUE,
@@ -86,7 +89,8 @@ compareTree <- function(
 	                        show.heatmap = FALSE,
 	                        use.ccf = FALSE,
 	                        compare = compare,
-	                        compare.linetype = compare.linetype)
+	                        common.lty = common.lty,
+	                        min.ratio = min.ratio)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
 	                                labels = c(tree1@method,tree2@method))

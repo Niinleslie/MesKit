@@ -6,6 +6,11 @@
 #' @param heatmap.type character. "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap. This parameter is only useful when show.mutSig = TRUE.
 #' @param show.bootstrap logical.Whether to add bootstrap value on internal nodes.Default is TRUE.
 #' @param use.box logical.Whether to add box around bootstrap value on tree. Default is TRUE.
+#' @param min.ratio double (Default:1/30). If min.ratio is not NULL,
+#'  all edge length of a phylogenetic tree should be greater than
+#'  min.ratio*the longest edge length.
+#'  If not, the edge length will be reset as min.ratio*longest edge length.
+#' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @examples
 #' plotPhyloTree(phyloTree)
 #' ## Use CCF 
@@ -22,7 +27,9 @@ plotPhyloTree <- function(phyloTree = NULL,
                           show.heatmap = TRUE,
                           heatmap.type = 'binary',
                           show.bootstrap = TRUE,
-                          use.box = TRUE){
+                          use.box = TRUE,
+                          min.ratio = 1/30,
+                          patient.id = NULL){
    heatmap.options <- c('binary','CCF')
    if(!heatmap.type %in% heatmap.options){
       stop("Type of heatmap can only be 'binary' or 'CCF'")
@@ -32,12 +39,20 @@ plotPhyloTree <- function(phyloTree = NULL,
    }else if(heatmap.type == 'CCF'){
        use.ccf = TRUE 
    }
+   if(!is.null(patient.id)){
+       patient.setdiff <- setdiff(patient.id, names(phyloTree))
+       if(length(patient.setdiff) > 0){
+           stop(paste0(patient.setdiff, " can not be found in your data"))
+       }
+       phyloTree <- phyloTree[names(phyloTree)  %in% patient.id] 
+   }
    tree.list <- lapply(phyloTree, drawPhyloTree,
                        show.mutSig = show.mutSig,
                        show.bootstrap = show.bootstrap,
                        use.box = use.box,
                        show.heatmap = show.heatmap,
-                       use.ccf = use.ccf)
+                       use.ccf = use.ccf,
+                       min.ratio = min.ratio)
    return(tree.list)
 }
 
@@ -75,7 +90,7 @@ getTreeData <- function(phyloTree = NULL,
    #Distance means distance;Node is the internal node with the start;End_num is the number of each node in edge;
    treeData <- data.table::data.table('x1'= 0, 'y1' = 0,
                                       'x2' = 0, 'y2' = 0,
-                                      'horizon' = pi/2, 'W' = 2/3*pi,
+                                      'horizon' = pi/2, 'W' = pi,
                                       'angle' = 0,'distance' = 0,
                                       'node' = rootNode, 'end_num' = rootNode)
    treeData <- setPhyloTree(tree = tree, treeEdge = treeEdge, treeData = treeData, rootNode = rootNode,
@@ -227,41 +242,40 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, collater
 }
 
 calMainTrunk <- function(tree, treeEdge, rootNode, rootLabel = "NORMAL"){
-   Ntips <- Ntip(tree)
-   subtips <- treeEdge[endNum < Ntips,]$endNum
-   distanceTable <- data.frame(x = 0)
-   for(i in 1:length(subtips)){
-    distanceTable <- cbind(distanceTable, -1)
-   }
-   distanceTable <- distanceTable[,(-1)]
-   names(distanceTable) <- tree$tip.label[subtips]
-   t <- 1
-   path <- list()
-   while(t <= length(distanceTable)){
-    subPath <- c()
-    end <- which(tree$tip.label == names(distanceTable)[t])
-    dis <- 0
-    while (TRUE) {
-     p <- which(treeEdge$endNum == end)
-     dis <- dis + treeEdge$length[p]
-     start <- treeEdge$node[p]
-     subPath <- append(subPath,end)
-     end <- start
-     if(start == rootNode){
-      break
-     }
+    Ntips <- Ntip(tree)
+    subtips <- treeEdge[!endNum > Ntips,]$endNum
+    distanceTable <- data.frame(x = 0)
+    for(i in 1:length(subtips)){
+        distanceTable <- cbind(distanceTable, -1)
     }
-    path[[t]] <- subPath
-    distanceTable[t] <- dis
-    t <- t + 1
-   }
-   if(rootLabel == "NORMAL"){
-    numNORMAL <- which(tree$tip.label == rootLabel)
-    distanceTable <- distanceTable[-numNORMAL]
-   }
-   result <- path[[which.max(distanceTable)]]
+    distanceTable <- distanceTable[,(-1)]
+    names(distanceTable) <- tree$tip.label[subtips]
+    t <- 1
+    path <- list()
+    while(t <= length(distanceTable)){
+        subPath <- c()
+        end <- which(tree$tip.label == names(distanceTable)[t])
+        name <- names(distanceTable)[t]
+        dis <- 0
+        while (TRUE) {
+            p <- which(treeEdge$endNum == end)
+            dis <- dis + treeEdge$length[p]
+            start <- treeEdge$node[p]
+            subPath <- append(subPath,end)
+            end <- start
+            if(start == rootNode){
+                break
+            }
+        }
+        path[[name]] <- subPath
+        distanceTable[name] <- dis
+        t <- t + 1
+    }
+    if(rootLabel == "NORMAL"){
+        distanceTable <- distanceTable[names(distanceTable) != rootLabel]
+    }
+    result <- path[[names(which.max(distanceTable))]]
 }
-
 getTrunkAngles <- function(tree, treeEdge, mainTrunk,
                            numList, pointsList, rootNode,
                            horizon = pi/2, W = pi ,numNORMAL = NULL){
@@ -524,7 +538,12 @@ drawPhyloTree <- function(phyloTree = NULL,
                           show.heatmap = TRUE,
                           use.ccf = FALSE,
                           compare = FALSE,
-                          compare.linetype = "solid"){
+                          common.lty = "solid",
+                          min.ratio = 1/30){
+    if(min.ratio > 0){
+        min.len <- max(phyloTree@tree$edge.length)*min.ratio
+        phyloTree@tree$edge.length[phyloTree@tree$edge.length < min.len] <- min.len
+    }
     if(is.null(treeData)){
         treeData <- getTreeData(phyloTree = phyloTree,
                                 show.mutSig = show.mutSig)
@@ -588,7 +607,7 @@ drawPhyloTree <- function(phyloTree = NULL,
         if(compare){
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature),
                                   data = treeData[is.match != "NO"],
-                                  linetype = compare.linetype,
+                                  linetype = common.lty,
                                   size = segmentSize)
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature),
                                   data = treeData[is.match == "NO"],size = segmentSize)
@@ -608,7 +627,7 @@ drawPhyloTree <- function(phyloTree = NULL,
                                   size = segmentSize, show.legend = F )
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
                                   data = treeData[sample == 'internal node'&is.match != "NO",],
-                                  linetype = compare.linetype,
+                                  linetype = common.lty,
                                   size = segmentSize, show.legend = F )
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
                                   data = treeData[sample == 'internal node'&is.match == "NO",],

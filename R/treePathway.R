@@ -11,7 +11,8 @@
 #' @param qval cutoff value of qvalue. Default qval=0.2
 #' @param plotType one of "dot", "bar", default is "dot"
 #' @param showCategory number of categories will be shown, default is 5
-#' 
+#' @param patient.id select the specific patients. Default: NULL, all patients are included
+
 #' @examples
 #' treePathway(phyloTree, pathway.type = "KEGG")
 #' @return pathway enrichment results
@@ -21,7 +22,15 @@
 
 #Pathway analysis
 treePathway <- function(phyloTree, driverGenesFile = NULL, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",
-                           qval=0.2,  plotType="dot", showCategory =  5){
+                           qval=0.2,  plotType="dot", showCategory =  5,patient = NULL){
+    
+  if(!is.null(patient.id)){
+        patient.setdiff <- setdiff(patient.id, names(phyloTree))
+        if(length(patient.setdiff) > 0){
+            stop(paste0(patient.setdiff, " can not be found in your data"))
+        }
+        phyloTree <- phyloTree[names(phyloTree)  %in% patient.id] 
+  }
 
   pathway.options = c('KEGG', 'Reactome')
     if(!pathway.type %in% pathway.options){
