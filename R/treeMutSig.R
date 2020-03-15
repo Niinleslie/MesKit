@@ -14,35 +14,40 @@
 #' @examples
 #' treeMutSig(phyloTree, driverGenesFile=NULL, min.mut.count=15, signaturesRef="cosmic")
 #' treeMutSig(phyloTree, plot = T)
-#' @import reshape2 dplyr
 #' @export  treeMutSig
 
 
 ## Mutational Signature function
- treeMutSig <- function(phyloTree, driverGenesFile=NULL, min.mut.count=15, signaturesRef="cosmic",plot = FALSE){
+ treeMutSig <- function(
+    phyloTree, 
+    driverGenesFile=NULL, 
+    min.mut.count=15, 
+    signaturesRef="cosmic",
+    plot = FALSE){
      treeMSOutput <- lapply(phyloTree, doTreeMutSig,
                            driverGenesFile = driverGenesFile,
                            min.mut.count = min.mut.count,
                            signaturesRef = signaturesRef)
      mutSigSummary <- lapply(treeMSOutput, doMutSigSummary)
+
+     mutSig.plot <- NA
      if(plot){
-         pms.list <- lapply(treeMSOutput, doPlotMutSig)
-         return(list(mutSigSummary = mutSigSummary,
-                     plot.list = pms.list))
+         mutSig.plot <- lapply(treeMSOutput, doPlotMutSig)
      }
-     return(mutSigSummary = mutSigSummary)
+         
+     return(list(mutSig.summary = mutSigSummary, mutSig.plot = mutSig.plot))
 }
 
 doTreeMutSig <- function(phyloTree,
                          driverGenesFile=NULL,
                          min.mut.count=15,
                          signaturesRef="cosmic"){
-    ## refBuild limitation: only hg19 or hg38
+
     refBuild <- phyloTree@refBuild
-    if (!((refBuild == "hg19") | (refBuild == "hg38"))){
-        stop(error="Error: refBuild's value may be incorrect. 
-             refBuild could be only set as \"hg19\" or \"hg38\".")
-    } else {
+    ref.options = c('hg18', 'hg19', 'hg38')
+    if(!refBuild %in% ref.options){
+        stop("refBuild can only be either 'hg18', 'hg19' or 'hg38'")
+    }else {
         refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
     }
     
@@ -83,9 +88,10 @@ doTreeMutSig <- function(phyloTree,
             mutSigRef$Sample == branchName), 1]) < min.mut.count){
             sigsMaxName <- "No Signature"
             sigsMaxProb <- 0
-            message(paste("Warnings: Branch ", branchName,
-                          ": mutation number is less than the min.mut.count argument!",
-                          sep = ""))
+            message(paste0("Warnings: ",
+                          ": mutation number of Branch " , branchName,
+                          "is less than the min.mut.count argument!")
+            )
             if (any(mutSigRef[which(mutSigRef$Sample == branchName), ]$mut_id == "NoSigTag")) {
                 mut.count <- 0
             }
@@ -229,7 +235,11 @@ doTreeMutSig <- function(phyloTree,
     }
     
     message(paste0("Sample ", phyloTree@patientID, ": mutational signatures identified successfully!"))
-    treeMSOutput <- list(sigsInput=sigsInput, mutSigsOutput=mutSigsOutput, df.aetiology=df.aetiology, patientID = patientID)
+    treeMSOutput <- list(
+        sigsInput=sigsInput, 
+        mutSigsOutput=mutSigsOutput, 
+        df.aetiology=df.aetiology, 
+        patientID = patientID)
     return(treeMSOutput)
 } 
 

@@ -24,7 +24,15 @@
 #' @export compareTree
 
 
-compareTree <- function(tree1, tree2, plot = FALSE, min.ratio = 1/30, compare.linetype = "solid"){
+compareTree <- function(
+	tree1, 
+	tree2,
+	min.ratio = 1/30, 
+	plot = TRUE, 
+	show.heatmap = FALSE, 
+ 
+	compare.linetype = "solid"){
+
 	phylo.tree1 <- tree1@tree
 	phylo.tree2 <- tree2@tree
 	dist <- phangorn::treedist(phylo.tree1, phylo.tree2)

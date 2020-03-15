@@ -173,7 +173,7 @@ SSNVs from MRS are divided into shared (shared by all samples), partial-shared (
 
 ```{r message=FALSE, fig.align='left', fig.width=10, fig.height=7, warning=FALSE}
 driverGene.file <- system.file("extdata/", "LIHC_driver_genes.txt", package = "MesKit")
-classify(maf, class =  "SP", topGenesCount = 10, 
+classifyMut(maf, class =  "SP", topGenesCount = 10, 
                driverGenesFile = driverGene.file)
 ```
    
@@ -253,7 +253,7 @@ mutShared[['HCC5647']]
 
 ##### 6.2.2 Fixation index
 
-Fixation Index (Fst) estimation is a classical metric of population genetics, which can be used to measures the genetic divergence between regions [4](#refer) [5](#refer) [6](#refer). ```calFst``` function calculates the proportion of the total variance in allele frequency caused by frequency differences between populations.
+Fixation Index (Fst) is a classical metric of population genetics, which can be used to measures the genetic divergence between regions [4](#refer) [5](#refer) [6](#refer). ```calFst``` function calculates the proportion of the total variance in allele frequency caused by frequency differences between populations.
 
 ```{r fig.align='left', fig.width=5.5, fig.height=5.5, fig.asp=1.0}
 calFst(maf)[['HCC5647']]
@@ -285,12 +285,19 @@ Neidist$Nei.plot[['HCC5647']]
    
    
 #### 7.3 Jaccard similarity index
-  
-```calJSI``` function calculates the Jaccard Similarity Index (JSI) for sample pairs from a single patient. JSI is defined for the intersection divided by the union of these two sets. Higher JSI values are more likely indicates polyclonal seeding [10](#refer). 
+
+The Jaccard similarity index (JSI) can be used to calculate mutational similarity between lesions, which is defined as the ratio of shared variants to all variants for sample pairs[45-47]. Users can distinguish monoclonal versus polyclonal seeding in metastases (including lymph node metastases and distant metastases) via ```calJSI``` function. Higher JSI values are more likely indicates polyclonal seeding [10](#refer). 
+
   
 ```{r fig.align='left', fig.width=6, fig.height=5, fig.asp=1.0}
-JSIs <- calJSI(maf, use.circle = TRUE)
+JSI.res <- calJSI(maf, use.circle = TRUE)
+names(JSI.res)
+```  
+
+```{r fig.align='left', fig.width=6, fig.height=5, fig.asp=1.0}
+# show the correlation matrix of JSI of Patient HCC5647
 JSIs$JSI.dist[['HCC5647']]
+# show the correlation plot of JSI of Patient HCC5647
 JSIs$JSI.plot[['HCC5647']]
 ```  
 
@@ -332,7 +339,7 @@ tree.MP <- getPhyloTree(maf, method = "MP")
 
 
 ```{r}
-compareTree(tree.NJ[['HCC5647']], tree.MP[['HCC5647']])
+compareTree(tree.NJ[['HCC5647']], tree.MP[['HCC5647']], plot = TRUE)
 ```  
 
 #### 8.3 Functional exploration  
@@ -386,35 +393,58 @@ library("BSgenome.Hsapiens.UCSC.hg19")
 ```
 
 ```{r, warning = FALSE, message=FALSE, fig.height=6, fig.width=8}
-mutTrees <- mutTrunkBranch(tree.mutSig, conf.level = 0.95)
-mutTrees[['HCC5647']]
+mutClass <- mutTrunkBranch(phylotree.list, conf.level = 0.95, plot = TRUE)
+names(mutClass)
+```
+```{r, warning = FALSE, message=FALSE, fig.height=6, fig.width=8}
+mutClass[[1]][["HCC5647"]]
+mutClass[[2]][["HCC5647"]]
 ```
 
 ```treeMutSig``` function identifies potential signatures for trunks/branches of phylogenetic trees, which is implemented based on [deconstructSigs](https://github.com/raerose01/deconstructSigs) R package.  Users can set signatures matrix via ```signaturesRef``` (```cosmic``` or ```nature2013```). Parameter ```mutThreshold``` specifies the minimum number of mutations (Default: 15) required to perform mutation signature analysis. 
    
 ```{r, warning = FALSE, message=FALSE, fig.height=7, fig.width=10}
 tree.mutSig <- treeMutSig(phylotree.list,
-                          driverGenesFile = driverGene.file)
+                          driverGenesFile = driverGene.file,
+                          plot = TRUE)
+names(tree.mutSig)
+```
+
+```{r, warning = FALSE, message=FALSE, fig.height=7, fig.width=10}
+# summary of mutational signature of Patient HCC5647
+tree.mutSig[[1]]
+# plot of mutational signature of Patient HCC5647
+tree.mutSig[[2]]
+```
+
+```{r, warning = FALSE, message=FALSE, fig.height=7, fig.width=10}
+# summary of mutational signature of Patient HCC5647
+tree.mutSig$mutSig.summary[["HCC5647"]]
+
+# plot of mutational signature of Patient HCC5647
+tree.mutSig$mutSig.plot[["HCC5647"]]
 ```
 
       
 ### 9 Phylogenetic tree visualization  
    
-Users can visualize phylogenetic trees with annotations by ```plotPhyloTree``` function. The trunks/branches will be colored according to corresponding mutational signatures when ```show.mutSig = TRUE``` (Default). Either binary mutation heatmap (indicates the presence or absence of a mutation) or CCF heatmap can be displayed by setting parameter `heatmap.type`.
+Users can visualize phylogenetic trees with annotations by ```plotPhyloTree``` function. The trunks/branches will be colored according to corresponding mutational signatures when ```show.mutSig = TRUE``` (Default). Either binary mutation heatmap (indicates the presence or absence of mutations) or CCF heatmap can be displayed by setting parameter `heatmap.type`. Argument  ```show.bootstrap``` is provided to show how much support for internal nodes.
+
+
+Numbers above branches are bootstrap values.
+Note that some nodes receive bootstrap values of 100%, indicating
+strong support for these nodes, whereas other nodes receive much
+weaker support
   
-  
-#### 9.1 A phylogenetic tree along with binary heatmap of mutations  
-  
-  
+ 
 ```{r, fig.align='left', fig.width=8.5, fig.height=5, message=FALSE, warning=FALSE}
+# A phylogenetic tree along with binary heatmap of mutations 
 phyloTree.binary <-  plotPhyloTree(phylotree.list, show.mutSig = TRUE, heatmap.type = "binary") 
 phyloTree.binary[['HCC5647']]
 ```
   
-  
-#### 9.2 A phylogenetic tree along with CCF heatmap of mutations  
-  
 ```{r, fig.align='left', fig.width=8, fig.height=5, message=FALSE, warning=FALSE}
+# 9.2 A phylogenetic tree along with CCF heatmap of mutations 
 phyloTree.CCF <-  plotPhyloTree(phylotree.list, show.mutSig = TRUE, heatmap.type = "CCF") 
 phyloTree.CCF[['HCC5647']]
 ```
