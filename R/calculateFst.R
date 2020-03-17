@@ -15,7 +15,9 @@
 #'
 #' @examples
 #' calFst(maf)
+#' @import dplyr
 #' @export calFst
+
 
 
 

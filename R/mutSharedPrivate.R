@@ -17,6 +17,7 @@
 #'                 refBuild = "hg19")
 #' mutSharedPrivate(maf)
 #' @export mutSharedPrivate
+#' @import cowplot
 
 mutSharedPrivate <- function(maf, show.num = FALSE){
     maf.dat <- maf@data
@@ -207,12 +208,12 @@ doMutSharedPrivate <- function(df, show.num){
     pointLinePlot$widths  <-  barPlot$widths
     # put pictures together
     if(length(levels(finalFrame$Sample)) < 21){
-        gg <- ggdraw()+draw_plot(barPlot,0,0.3,1,0.7)+draw_plot(pointLinePlot,0,0,1,0.35)
+        gg <- cowplot::ggdraw()+cowplot::draw_plot(barPlot,0,0.3,1,0.7)+cowplot::draw_plot(pointLinePlot,0,0,1,0.35)
     }else{
         if (length(levels(finalFrame$Sample)) > 60) {
-            gg <- ggdraw()+draw_plot(barPlot,0,0.3,1,0.7)+draw_plot(pointLinePlot,0,0,1,0.35)
+            gg <- cowplot::ggdraw()+cowplot::draw_plot(barPlot,0,0.3,1,0.7)+cowplot::draw_plot(pointLinePlot,0,0,1,0.35)
         }else{
-            gg <- ggdraw()+draw_plot(barPlot,0,0.3,1,0.7)+draw_plot(pointLinePlot,0,0,1,0.35)
+            gg <- cowplot::ggdraw()+cowplot::draw_plot(barPlot,0,0.3,1,0.7)+cowplot::draw_plot(pointLinePlot,0,0,1,0.35)
         }
     }  
     return(gg)
