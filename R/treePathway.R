@@ -22,7 +22,7 @@
 
 #Pathway analysis
 treePathway <- function(phyloTree, driverGenesFile = NULL, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",
-                           qval=0.2,  plotType="dot", showCategory =  5,patient = NULL){
+                           qval=0.2,  plotType="dot", showCategory =  5, patient.id = NULL){
     
   if(!is.null(patient.id)){
         patient.setdiff <- setdiff(patient.id, names(phyloTree))
