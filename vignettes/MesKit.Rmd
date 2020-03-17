@@ -172,7 +172,7 @@ maf <- readMaf(mafFile = maf.File,
 SSNVs from MRS are divided into shared (shared by all samples), partial-shared (p-shared, observed in a subset of samples), private (unique to a single sample). Additionally, ```classifyMut``` function can distinguish clonal and subclonal SSNVs in each sample if CCF data is available (Criterion: clonal – 95% CI overlaps with 1; subclonal – the upper bound of 95% CI is smaller than 1 [1](#refer)).
 
 ```{r message=FALSE, fig.align='left', fig.width=10, fig.height=7, warning=FALSE}
-driverGene.file <- system.file("extdata/", "LIHC_driver_genes.txt", package = "MesKit")
+driverGene.file <- system.file("extdata/", "IntOGen-DriverGenes_HC.tsv", package = "MesKit")
 classifyMut(maf, class =  "SP", topGenesCount = 10, 
                driverGenesFile = driverGene.file)
 ```

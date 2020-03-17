@@ -7,7 +7,6 @@
 #' @param signaturesRef The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". 
 #' @param plot output a list of diagrams that visualize mutational signature of trunk/branches in a phylogenetic tree.Default FALSE. 
 #' @param conf.level confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.
-#' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' 
 #' @examples
 #' mutTrunkBranch(phyloTree)
@@ -21,15 +20,7 @@ mutTrunkBranch <- function(phyloTree,
                            min.mut.count=15,
                            signaturesRef="cosmic",
                            conf.level = 0.95,
-                           plot = FALSE,
-                           patient.id = NULL){
-    if(!is.null(patient.id)){
-        patient.setdiff <- setdiff(patient.id, names(phyloTree))
-        if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
-        }
-        phyloTree <- phyloTree[names(phyloTree)  %in% patient.id] 
-    }
+                           plot = FALSE){
     treeMSOutput <- lapply(phyloTree, doTreeMutSig,
                            driverGenesFile = driverGenesFile,
                            min.mut.count = min.mut.count,
@@ -249,22 +240,25 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
               panel.border=element_blank(), 
               panel.background = element_blank(), 
               legend.position='none', 
-              plot.title = element_text(size = 13, face = "bold", vjust = 0),
-              axis.text.x=element_text(size=10, angle = 90, vjust = 0.5, hjust=1), 
+              plot.title = element_text(size = 13, face = "bold", vjust = 0, color = "black"),
+              axis.text.x=element_text(size=10, angle = 90, vjust = 0.5, hjust=1, color = "black"), 
               axis.ticks.x = element_blank(), 
-              axis.text.y=element_text(size=10)) + 
+              axis.line.y = element_blank(),
+              axis.ticks.length.y = unit(0.3, "cm"),
+              axis.text.y=element_text(size=10, color = "black")) + 
+        annotate("segment", x = 0.3, xend = 0.3, y = 0, yend = 100, size = 0.6) + 
         ## background colors
-        geom_rect(aes(xmin=0.5, xmax=2.5, ymin=0, ymax=104),
+        geom_rect(aes(xmin=0.5, xmax=2.5, ymin=0, ymax=100),
                   fill="#fce7e4", alpha=0.15) + 
-        geom_rect(aes(xmin=2.5, xmax=4.5, ymin=0, ymax=104),
+        geom_rect(aes(xmin=2.5, xmax=4.5, ymin=0, ymax=100),
                   fill="#ecf8fa", alpha=0.25) + 
-        geom_rect(aes(xmin=4.5, xmax=6.5, ymin=0, ymax=104),
+        geom_rect(aes(xmin=4.5, xmax=6.5, ymin=0, ymax=100),
                   fill="#dbfff9", alpha=0.05) + 
-        geom_rect(aes(xmin=6.5, xmax=8.5, ymin=0, ymax=104),
+        geom_rect(aes(xmin=6.5, xmax=8.5, ymin=0, ymax=100),
                   fill="#e4e8f3", alpha=0.08) + 
-        geom_rect(aes(xmin=8.5, xmax=10.5, ymin=0, ymax=104),
+        geom_rect(aes(xmin=8.5, xmax=10.5, ymin=0, ymax=100),
                   fill="#fdefeb", alpha=0.15) + 
-        geom_rect(aes(xmin=10.5, xmax=12.5, ymin=0, ymax=104),
+        geom_rect(aes(xmin=10.5, xmax=12.5, ymin=0, ymax=100),
                   fill="#e5e8ef", alpha=0.1) + 
         geom_boxplot(coef=100) + 
         ## color setting
@@ -273,7 +267,7 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
         scale_x_discrete(name = "", labels=c( "Trunk","Branch", "Trunk", "Branch",  
                                               "Trunk", "Branch",  "Trunk", "Branch", 
                                               "Trunk", "Branch",  "Trunk","Branch")) + 
-        scale_y_continuous(name = "Mutation fraction(%)", limits=c(-5, 104), breaks=seq(0, 100, 25)) + 
+        scale_y_continuous(name = "Mutation fraction(%)", limits=c(-5, 100), breaks=seq(0, 100, 25)) + 
         coord_cartesian(ylim = c(0,100), expand = TRUE) + 
         ## x axis bar
         geom_rect(aes(xmin=0.5, xmax=2.5, ymin=-5, ymax=-0.5),
@@ -316,5 +310,5 @@ getYmax <- function(BT.dat){
     Trunk.mutfrac <- BT.dat[BT == "Trunk"]$mut.frac
     Trunk.outlier <- boxplot(Trunk.mutfrac,range = 100, plot = FALSE)$out
     Trunk.ymax <- max(Trunk.mutfrac[!Trunk.mutfrac %in% Trunk.outlier])
-    return(max(Trunk.ymax,Branch.ymax)+ 4)
+    return(max(Trunk.ymax,Branch.ymax))
 }
