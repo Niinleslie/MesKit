@@ -9,7 +9,11 @@ compareTree(
   tree2,
   plot = FALSE,
   min.ratio = 1/30,
-  compare.linetype = "solid"
+  show.heatmap = FALSE,
+  use.ccf = FALSE,
+  show.bootstrap = FALSE,
+  use.box = FALSE,
+  common.lty = "solid"
 )
 }
 \arguments{
@@ -20,10 +24,12 @@ compareTree(
 \item{plot}{a logical value, default FALSE. If TRUE, 
 the two trees will be plotted on the same device and their similarities will be shown.}
 
-\item{min.ratio}{a numeric value, default is 1/30. If not NULL, min.length = max(tree$edge.length)*min.ratio.
-Length of branches which are less than min.length will be adjusted to min.length.}
+\item{min.ratio}{double (Default:1/30). If min.ratio is not NULL,
+all edge length of a phylogenetic tree should be greater than
+min.ratio*the longest edge length.
+If not, the edge length will be reset as min.ratio*longest edge length.}
 
-\item{compare.linetype}{line type of common branch.}
+\item{common.lty}{line type of common branch.}
 }
 \value{
 returns a vector containing the following tree distance methods by R package phangorn

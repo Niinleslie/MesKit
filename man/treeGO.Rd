@@ -12,7 +12,8 @@ treeGO(
   pAdjustMethod = "BH",
   qval = 0.2,
   plotType = "dot",
-  showCategory = 5
+  showCategory = 5,
+  patient.id = NULL
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ Default is "BH"}
 \item{plotType}{one of "dot", "bar", default is "dot"}
 
 \item{showCategory}{number of categories will be shown, default is 5}
+
+\item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 }
 \value{
 GO enrichment results

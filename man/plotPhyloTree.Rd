@@ -10,7 +10,9 @@ plotPhyloTree(
   show.heatmap = TRUE,
   heatmap.type = "binary",
   show.bootstrap = TRUE,
-  use.box = TRUE
+  use.box = TRUE,
+  min.ratio = 1/30,
+  patient.id = NULL
 )
 }
 \arguments{
@@ -25,6 +27,13 @@ plotPhyloTree(
 \item{show.bootstrap}{logical.Whether to add bootstrap value on internal nodes.Default is TRUE.}
 
 \item{use.box}{logical.Whether to add box around bootstrap value on tree. Default is TRUE.}
+
+\item{min.ratio}{double (Default:1/30). If min.ratio is not NULL,
+all edge length of a phylogenetic tree should be greater than
+min.ratio*the longest edge length.
+If not, the edge length will be reset as min.ratio*longest edge length.}
+
+\item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 }
 \value{
 return a list of phylotree graph .

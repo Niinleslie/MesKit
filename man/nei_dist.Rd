@@ -11,9 +11,9 @@ nei_dist(df)
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
-\item{plot}{logical, whether to show the plot, default TRUE}
+\item{plot}{logical (Default:TRUE). Whether to show the plot, default TRUE}
 
-\item{use.circle, }{whether to use circle as background of the correlation matrix plot, 
+\item{use.circle}{logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix
 default TURE}
 
 \item{title}{the title of the plot, default is "Nei's distance"}

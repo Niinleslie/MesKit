@@ -27,3 +27,7 @@ ccfAUC(maf)
 ccfAUC(maf, patient.id = "HCC4064")
 
 }
+\references{
+Charoentong P, Finotello F, et al. Pan-cancer Immunogenomic Analyses Reveal Genotype-Immunophenotype Relationships and Predictors of Response to Checkpoint Blockade. 
+Cell reports 2017, 18:248-262.
+}
