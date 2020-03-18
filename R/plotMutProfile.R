@@ -22,6 +22,7 @@ genHeatmapPlotMatrix <- function(
 
     # long -> wider
     mat <- maf_data %>%
+        dplyr::ungroup() %>%
         dplyr::group_by(Hugo_Symbol) %>%
         dplyr::mutate(total_barcode_count = sum(unique_barcode_count)) %>%
         dplyr::select(Hugo_Symbol,
