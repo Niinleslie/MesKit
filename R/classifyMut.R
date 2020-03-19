@@ -11,7 +11,6 @@
 #' @param topGenesCount the number of genes print, default is 10
 #' @param remove_empty_columns  whether remove the samples without alterations. Only works when plot is TRUE
 #' @param remove_empty_rows whether remove the genes without alterations. Only works when plot is TRUE
-If there is no alteration in some samples, whether remove them on the oncoPrint?
 #' @examples
 #' classifyMut(maf, class = "SP")
 #' @export classifyMut
