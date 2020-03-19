@@ -7,6 +7,7 @@
 #' @param mutNonSilent variant classifications which are considered as non-silent. Default NULL.
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
 #' @param use.indel logical value. whether to use INDELs besides somatic SNVs. Default FALSE.
+#' @param ccf.conf.level the confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95
 #' @param refBuild human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".
 #'
 #'
@@ -30,6 +31,7 @@ readMaf <- function(## maf parameters
     mutNonSilent = NULL,
     chrSilent = NULL,
     use.indel = FALSE,
+    ccf.conf.level = 0.95,
     refBuild = "hg19") {
 
     ref.options = c('hg18', 'hg19', 'hg38')
@@ -68,9 +70,8 @@ readMaf <- function(## maf parameters
             stringsAsFactors = FALSE
         ))
         
-        mafData <- mafData %>%
-            uniteCCF(ccfInput) %>%
-            getMutStatus() %>%
+        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level) %>%
+            #getMutStatus() %>%
             dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
     }
     
@@ -134,7 +135,7 @@ readMaf <- function(## maf parameters
 
 
 ##--- combine CCF into maf object
-uniteCCF <- function(mafData, ccf) {
+uniteCCF <- function(mafData, ccf, ccf.conf.level) {
     mafData <- tidyr::unite(
         mafData,
         "mutID",
@@ -142,48 +143,51 @@ uniteCCF <- function(mafData, ccf) {
             "Patient_ID",
             "Tumor_Sample_Barcode",
             "Chromosome",
-            "Start_Position",
-            "Variant_Type"
+            "Start_Position"
         ),
         sep = ":",
         remove = FALSE
     )
     ccf <- ccf %>%
-        dplyr::mutate(Variant_Type = "SNP") %>%
         tidyr::unite(
             "mutID",
             c(
                 "Patient_ID",
                 "Tumor_Sample_Barcode",
                 "Chromosome",
-                "Start_Position",
-                "Variant_Type"
+                "Start_Position"
             ),
             sep = ":",
-            remove = FALSE
-        ) %>%
-        dplyr::select(mutID, CCF, CCF_std)
-    
-    mafData_merge_ccf <-
-        merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
-        dplyr::select(-mutID)
+            remove = TRUE
+        ) 
+
+    if (!"CCF_CI_High" %in% colnames(ccf) & !"CCF_Std" %in% colnames(ccf)){
+        mafData_merge_ccf <-
+            merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
+            dplyr::select(-mutID)
+    }else{
+        if("CCF_CI_High" %in% colnames(ccf)){
+            ccf <- ccf %>%
+                dplyr::select(mutID, CCF, CCF_CI_High)        
+        }
+        else if("CCF_Std" %in% colnames(ccf)){
+            ccf <- ccf %>%
+                dplyr::select(mutID, CCF, CCF_Std) %>%
+                dplyr::mutate(
+                    CCF_CI_High = CCF + qnorm((1 - ccf.conf.level) / 2, lower.tail = FALSE) * CCF_Std
+                    ) 
+        }
+
+        mafData_merge_ccf <- merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
+            dplyr::mutate(Status =
+                    dplyr::case_when(CCF_CI_High >= 1 ~ "Clonal",
+                                    CCF_CI_High < 1 ~ "Subclonal")) %>%        
+            dplyr::select(-mutID, -CCF_CI_High)        
+    }
+
+    return(mafData_merge_ccf)
 }
 
-
-
-
-getMutStatus <- function(mafData, ccf.conf.level = 0.95) {
-    mafData <-
-        mafData %>%
-        # 95% confidence interval
-        # normal distribution
-        dplyr::mutate(CCF_max = CCF +
-                          qnorm((1 - ccf.conf.level) / 2, lower.tail = FALSE) * CCF_std) %>%
-        dplyr::mutate(Status =
-                          dplyr::case_when(CCF_max >= 1 ~ "Clonal",
-                                           CCF_max < 1 ~ "Subclonal")) %>%
-        dplyr::select(-CCF_max)
-}
 
 ##--- classMaf class
 classMaf <- setClass(
