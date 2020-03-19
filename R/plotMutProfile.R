@@ -36,7 +36,7 @@ genHeatmapPlotMatrix <- function(
         ) %>%
         dplyr::ungroup() %>%
         dplyr::arrange(dplyr::desc(total_barcode_count)) %>%       
-        dplyr::select_if(function(x) {!all(is.na(x))}) %>%
+        #dplyr::select_if(function(x) {!all(is.na(x))}) %>%
         dplyr::slice(1:topGenesCount) %>%
         tibble::column_to_rownames(., "Hugo_Symbol") %>% 
         dplyr::select(-total_barcode_count) %>%
@@ -48,7 +48,9 @@ genHeatmapPlotMatrix <- function(
 plotMutProfile <- function(maf_data,
                            class = "SP",
                            topGenesCount = 10,
-                            bgCol = "#f0f0f0") {
+                           bgCol = "#f0f0f0",
+                           remove_empty_columns = TRUE,
+                           remove_empty_rows = TRUE) {
         
 
     maf.plot <- genHeatmapPlotMatrix(maf_data, topGenesCount = topGenesCount)  
@@ -193,8 +195,8 @@ plotMutProfile <- function(maf_data,
             column_title_gp = grid::gpar(fontsize = 16, fontface = "bold"),
             row_title_gp = grid::gpar(fontsize = 10, fontface = "plain"),
             heatmap_legend_param = heatmap_legend(class),
-            remove_empty_columns = TRUE,
-            remove_empty_rows = TRUE,
+            remove_empty_columns = remove_empty_columns,
+            remove_empty_rows = remove_empty_rows,
             row_names_gp = grid::gpar(fontsize = 10, fontface = "italic"),
             column_names_gp = grid::gpar(fontsize = 10, fontface = "plain"),
             pct_digits = 2,

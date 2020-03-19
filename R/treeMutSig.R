@@ -8,7 +8,7 @@
 #' @param min.mut.count the threshold for the variants in a branch. Default 15.
 #' @param signaturesRef The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". 
 #' @param plot output a list of diagrams that visualize mutational signature of trunk/branches in a phylogenetic tree.Default FALSE. 
-#' 
+#' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @return a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
 #' 
 #' @examples
@@ -18,12 +18,21 @@
 
 
 ## Mutational Signature function
- treeMutSig <- function(
-    phyloTree, 
-    driverGenesFile=NULL, 
-    min.mut.count=15, 
-    signaturesRef="cosmic",
-    plot = FALSE){
+ treeMutSig <- function(phyloTree,
+                        driverGenesFile=NULL,
+                        min.mut.count=15,
+                        signaturesRef="cosmic",
+                        plot = FALSE,
+                        patient.id = NULL){
+
+     if(!is.null(patient.id)){
+         patient.setdiff <- setdiff(patient.id, names(phyloTree))
+         if(length(patient.setdiff) > 0){
+             stop(paste0(patient.setdiff, " can not be found in your data"))
+         }
+         phyloTree <- phyloTree[names(phyloTree)  %in% patient.id] 
+     }
+
      treeMSOutput <- lapply(phyloTree, doTreeMutSig,
                            driverGenesFile = driverGenesFile,
                            min.mut.count = min.mut.count,
@@ -89,8 +98,9 @@ doTreeMutSig <- function(phyloTree,
             sigsMaxName <- "No Signature"
             sigsMaxProb <- 0
             message(paste0("Warnings: ",
-                          ": mutation number of Branch " , branchName,
-                          "is less than the min.mut.count argument!")
+                          "mutation number of Branch " , branchName,
+                          " is less than the min.mut.count argument! ",
+                          "This branch will be skipped")
             )
             if (any(mutSigRef[which(mutSigRef$Sample == branchName), ]$mut_id == "NoSigTag")) {
                 mut.count <- 0
@@ -266,7 +276,7 @@ doMutSigSummary <- function(treeMSOutput){
                                     sig=mutSigsOutput$sig, 
                                     sig.prob=mutSigsOutput$sig.prob, 
                                     aeti=ls.aeti)
-        colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology")
+        colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation number", "Signature", "Signature weight", "Aetiology")
     } else {
         mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
                                     alias=mutSigsOutput$alias, 
@@ -275,7 +285,7 @@ doMutSigSummary <- function(treeMSOutput){
                                     sig.prob=mutSigsOutput$sig.prob,
                                     aeti=ls.aeti,
                                     putative_driver_genes=mutSigsOutput$putative_driver_genes)
-        colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation quantity", "Signature", "Signature weight", "Aetiology", "Oncogene list")
+        colnames(mutSigsOutput) <- c("Branch", "Alias", "Mutation number", "Signature", "Signature weight", "Aetiology", "Driver gene")
     }
     
     return(mutSigsOutput)
@@ -331,17 +341,17 @@ doPlotMutSig <- function(tree.mutSig) {
     df.sigsInputText <- dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE)
     
     CA <- grid::textGrob(expression(bold("C > A")),
-                         gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+                         gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
     CG <- grid::textGrob(expression(bold("C > G")),
-                         gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+                         gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
     CT <- grid::textGrob(expression(bold("C > T")),
-                         gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+                         gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
     TA <- grid::textGrob(expression(bold("T > A")),
-                         gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+                         gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
     TC <- grid::textGrob(expression(bold("T > C")),
-                         gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+                         gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
     TG <- grid::textGrob(expression(bold("T > G")),
-                         gp=grid::gpar(fontsize=6, fontface="bold"), vjust=0,hjust=1)
+                         gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
     
     group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
                       "#3C5488FF", "#F39B7FFF", "#8491B4FF")
@@ -354,13 +364,13 @@ doPlotMutSig <- function(tree.mutSig) {
               panel.background = element_blank(), 
               legend.position='none', 
               # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
-              plot.title = element_text(size = 13,face = "bold", hjust = 0.5, vjust = 0, color = "black"),
+              plot.title = element_text(size = 13, face = "bold", hjust = 0.5,vjust = 0),
               axis.text.x=element_blank(), 
               axis.ticks.x=element_blank(),
-              axis.line.y = element_blank(),
-              axis.ticks.length.y = unit(0.2, "cm"),
-              axis.text.y=element_text(size=6, color = "black")) +
-        annotate("segment", x = -1, xend = -1, y = 0, yend = 0.2, size = 0.6) +
+              axis.text.y=element_text(colour='black', size=6),
+              #axis.line.y = element_line(colour='black')
+              ) +
+        annotate(geom = "segment", x=0, xend = 0, y = -0.03, yend = 0.2)+
         ## background colors
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
                   fill="#fce7e4", alpha=0.15) + 
@@ -391,7 +401,7 @@ doPlotMutSig <- function(tree.mutSig) {
                                                  round(as.numeric(levels(SigsWeight)[SigsWeight]), 3), 
                                                  "    ", 
                                                  "Aetiology: ", Aetiology, sep="")), 
-                  hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=2.75) + 
+                  hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=3) + 
         ## Mutational Type Labels
         annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) + 
         annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) + 

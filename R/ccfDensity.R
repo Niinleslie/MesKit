@@ -32,15 +32,23 @@ compareCCF <- function(mafData, show.density = TRUE){
     p[[i]] <- ggplot2::ggplot(data=ccf.pair, aes(x=sample1, y=sample2)) + 
       geom_point(size = 0.5) + xlab(S1) +ylab(S2) +
       xlim(0,1) + ylim(0,1) +
-      theme(legend.text = element_text(size=10, face="bold"))+
-      theme(legend.title = element_text(size=11, face="bold")) +
+      theme(
+        axis.text = element_text(size = 12, color = "black"),
+        axis.title = element_text(size = 13, color = "black"),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        #panel.background = element_blank(),
+        #panel.background = element_rect(colour = "black", size = 0.4),
+        panel.grid.major = element_line(linetype = 2, color = "grey"),
+        panel.grid.minor = element_blank(),        
+        plot.title = element_text(hjust = 0.5)
+        )+
       guides(shape = guide_legend(override.aes = list(size = 0.2))) +
       theme_bw() + coord_fixed() +
-      theme(panel.background = element_blank()) +
-      theme(panel.background = element_rect(colour = "black", size = 0.4)) +
       labs(x = S1, y = S2) +
-      ggtitle(paste("CCF density plot in paired samples:\n ", S1, "——", S2, sep = "")) +
-      theme(plot.title = element_text(hjust = 0.5))
+      ggtitle(paste("CCF density plot in paired samples:\n ", S1, "—", S2, sep = ""))
+
+
     
     if(show.density){
       p[[i]] <- p[[i]] + stat_density_2d(aes(fill = ..level..), geom = 'polygon', n = ) +

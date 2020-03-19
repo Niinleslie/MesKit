@@ -54,12 +54,13 @@ plotDensity <- function(df){
       theme(
         #legend.position='none', 
         legend.title = element_blank(),
-        title=element_text(size=14), 
+        title=element_text(size=13), 
         panel.grid=element_blank(), 
         panel.border=element_blank(), 
         axis.line=element_line(size=0.7, colour = "black"),
-        axis.text = element_text(size=12, colour = "black"),
-        legend.text = element_text(size=12, face = "bold", colour = "black")
+        axis.text = element_text(size=11, colour = "black"),
+        legend.text = element_text(size=11, colour = "black"),
+        panel.grid.major = element_line(linetype = 2, color = "grey")
       )+
       labs(x = "CCF", y = "Proportion", 
            title = paste0("AUC plot of CCF : ", CCF.sort$Patient_ID))
@@ -69,7 +70,11 @@ plotDensity <- function(df){
     
 }
 
-ccfAUC <- function(maf, patient.id = NULL, min.ccf = 0, plot.density = TRUE){
+ccfAUC <- function(
+    maf, 
+    patient.id = NULL, 
+    min.ccf = 0, 
+    plot.density = TRUE){
     mafData <- maf@data
 
     if(! "CCF" %in% colnames(mafData)){

@@ -19,24 +19,21 @@ mutTrunkBranch <- function(phyloTree,
                            driverGenesFile=NULL,
                            min.mut.count=15,
                            signaturesRef="cosmic",
-                           conf.level = 0.95,
-                           plot = FALSE){
+                           plot = TRUE){
     treeMSOutput <- lapply(phyloTree, doTreeMutSig,
                            driverGenesFile = driverGenesFile,
                            min.mut.count = min.mut.count,
                            signaturesRef = signaturesRef)
-    mutTrunkBranch.list <- suppressWarnings(lapply(treeMSOutput, doMutTrunkBranch,
-                                   conf.level = conf.level))
+    mutTrunkBranch.list <- suppressWarnings(lapply(treeMSOutput, doMutTrunkBranch))
     if(plot){
-        TB.plot <- lapply(treeMSOutput, doPlotTrunkBranch,
-                          conf.level = conf.level)
+        TB.plot <- lapply(treeMSOutput, doPlotTrunkBranch)
         return(list(mutTrunkBranch.res = mutTrunkBranch.list,
                mutTrunkBranch.plot = TB.plot))
     }
     return(mutTrunkBranch.list = mutTrunkBranch.list)
 }
 
-doMutTrunkBranch <- function(tree.mutSig, conf.level = 0.95){
+doMutTrunkBranch <- function(tree.mutSig){
     ## input data from tree.mutSig
     ls.BT <- .dataProcessBT(tree.mutSig)
     df.pValue <- ls.BT$df.pValue
@@ -54,10 +51,15 @@ doMutTrunkBranch <- function(tree.mutSig, conf.level = 0.95){
             sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Branch"),]$mut.num)
         output$Trunk[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
             sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Trunk"),]$mut.num)
-        if (!is.null(output[which(output$p.value < (1-conf.level)), ]$Significance)) {
-            output[which(output$p.value < (1-conf.level)), c("Significance")] <- "*"
+
+        # significant level
+        if (!is.null(output[which(output$p.value < 0.05), ]$Significance)) {
+          output[which(output$p.value < 0.05), c("Significance")] <- "*"
         }
-    }
+        else if(!is.null(output[which(output$p.value < 0.01), ]$Significance)) {
+          output[which(output$p.value < 0.01), c("Significance")] <- "**"
+        }
+      }
     return(output)
 }
 
@@ -137,8 +139,7 @@ doMutTrunkBranch <- function(tree.mutSig, conf.level = 0.95){
             sigsInputBoxplot[
                 which(sigsInputBoxplot$Group == mutationGroup & 
                           sigsInputBoxplot$BT == "Trunk"), ]$mut.frac, 
-            paired=TRUE, alternative = "two.sided", conf.level=conf.level, 
-            exact=FALSE
+            paired=TRUE, alternative = "two.sided", exact=FALSE
         )$p.value
         row.pValue <- data.frame(mutationGroup, pValue)
         colnames(row.pValue) <- c("Group", "p.value")
@@ -149,14 +150,19 @@ doMutTrunkBranch <- function(tree.mutSig, conf.level = 0.95){
 }
 
 
-doPlotTrunkBranch <- function(tree.mutSig, conf.level){
+doPlotTrunkBranch <- function(tree.mutSig){
     ## input data from tree.mutSig
     ls.BT <- .dataProcessBT(tree.mutSig)
     df.pValue <- ls.BT$df.pValue
     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
     
     ## p values of mutational list
-    if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value < (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value < 0.01) {
+        CApV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
+                  digits = 3)), "**", sep=""), 
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)    
+    }else if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value < 0.05) {
         CApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -166,7 +172,12 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75) 
     }
     
-    if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < 0.01) {
+        CGpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
+                  digits = 3)), "**", sep=""), 
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
+    } else if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < 0.05) {
         CGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -176,7 +187,12 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
-    if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < 0.01) {
+        CTpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
+                  digits = 3)), "**", sep=""), 
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
+    } else if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < 0.05) {
         CTpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
                   digits = 3)), "*", sep=""), 
@@ -186,27 +202,42 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < 0.01) {
+        TApV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
+                  digits = 3)), "**", sep=""),
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
+    } else if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < 0.05) {
         TApV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
                   digits = 3)), "*", sep=""),
             gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-    } else {
+    }  else {
         TApV <- grid::textGrob(expression(""), 
                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < 0.01) {
+        TCpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
+                  digits = 3)), "**", sep=""),
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
+    } else if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < 0.05) {
         TCpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
                   digits = 3)), "*", sep=""),
             gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-    } else {
+    }  else {
         TCpV <- grid::textGrob(expression(""), 
                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
     }
     
-    if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < (1-conf.level)) {
+    if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < 0.01) {
+        TGpV <- grid::textGrob(paste("p = ", as.character(
+            round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
+                  digits = 3)), "**", sep=""),
+            gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
+    } else if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < 0.05) {
         TGpV <- grid::textGrob(paste("p = ", as.character(
             round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
                   digits = 3)), "*", sep=""),
@@ -267,7 +298,7 @@ doPlotTrunkBranch <- function(tree.mutSig, conf.level){
         scale_x_discrete(name = "", labels=c( "Trunk","Branch", "Trunk", "Branch",  
                                               "Trunk", "Branch",  "Trunk", "Branch", 
                                               "Trunk", "Branch",  "Trunk","Branch")) + 
-        scale_y_continuous(name = "Mutation fraction(%)", limits=c(-5, 100), breaks=seq(0, 100, 25)) + 
+        scale_y_continuous(name = "Mutation fraction (%)", limits=c(-5, 100), breaks=seq(0, 100, 25)) + 
         coord_cartesian(ylim = c(0,100), expand = TRUE) + 
         ## x axis bar
         geom_rect(aes(xmin=0.5, xmax=2.5, ymin=-5, ymax=-0.5),

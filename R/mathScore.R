@@ -63,7 +63,7 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1, plot = TR
             panel.grid.minor = element_blank(),
             axis.line=element_line(color= "black", size= 1),
             axis.title = element_text(size = 16),
-            axis.text = element_text(size = 12)) +      
+            axis.text = element_text(size = 12, color = "black")) +      
             labs(y = "MATH score", x = "")        
     }else{
         p <- NULL

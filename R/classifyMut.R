@@ -9,6 +9,9 @@
 #' @param driverGenesFile driver gene list. Default NULL
 #' @param plot TRUE(Default).
 #' @param topGenesCount the number of genes print, default is 10
+#' @param remove_empty_columns  whether remove the samples without alterations. Only works when plot is TRUE
+#' @param remove_empty_rows whether remove the genes without alterations. Only works when plot is TRUE
+If there is no alteration in some samples, whether remove them on the oncoPrint?
 #' @examples
 #' classifyMut(maf, class = "SP")
 #' @export classifyMut
@@ -47,6 +50,8 @@ classifyMut <- function(maf,
      driverGenesFile = NULL, 
      plot =  TRUE,
      topGenesCount = 10,
+     remove_empty_columns = TRUE,
+     remove_empty_rows = TRUE,
      bgCol = "#f0f0f0") {
     
     class.options = c('SP', 'CS', 'SPCS')
@@ -144,7 +149,9 @@ classifyMut <- function(maf,
     if(plot){
         plotMutProfile(maf_data,
                         class = class,
-                        topGenesCount = topGenesCount)
+                        topGenesCount = topGenesCount,
+                        remove_empty_columns = remove_empty_columns,
+                        remove_empty_rows = remove_empty_rows)
 
     }
 

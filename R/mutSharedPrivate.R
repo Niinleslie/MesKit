@@ -163,22 +163,24 @@ doMutSharedPrivate <- function(df, show.num){
     keyPoint <- keyPoint +
         theme(axis.ticks.x  = element_blank(),
               panel.border =element_blank(),
-              axis.text.x =element_blank(),
+              axis.text.x = element_blank(),
               panel.grid.major =element_blank(),
               panel.grid.minor = element_blank(),
               panel.background = element_blank(),
-              axis.line.y  = element_line(colour = "black", size = 0.7),
+              axis.line.y = element_line(colour = "black", size = 0.7),
               axis.line.x = element_blank(),
               axis.title.y = element_text(size=14),
               axis.text.y = element_text(size=12, colour = "black"),
               plot.margin = unit(c(0.08,0.2,0,0.1),"inches"),
-              legend.spacing  = unit(c(0.09,0,0,0),"inches"),
-              legend.key.width  = unit(0.2, "inches"),
-              legend.text = element_text(size=12, colour = "black"))+
-        scale_fill_manual(values =c( "#E64B35B2","#4DBBD5B2","#00A087B2","#3C5488B2","#F39B7FB2",
+              legend.title = element_blank(),
+              legend.spacing = unit(c(0.09,0,0,0),"inches"),
+              legend.key.width = unit(0.2, "inches"),
+              legend.text = element_text(size=11, colour = "black"))+
+        scale_fill_manual(values = c( "#E64B35B2","#4DBBD5B2","#00A087B2","#3C5488B2","#F39B7FB2",
                                      "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
                                      "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666"))+
-        scale_y_continuous(expand = c(0,0))
+        scale_y_continuous(expand = TRUE)
+    
     # draw point-line plot
     pointLinePlot <- ggplot(pointLineFrame)+
         aes(x=combinations,y=sample)
