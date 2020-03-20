@@ -41,7 +41,8 @@ genHeatmapPlotMatrix <- function(
         tibble::column_to_rownames(., "Hugo_Symbol") %>% 
         dplyr::select(-total_barcode_count) %>%
         as.matrix()
-
+    
+    
     return(list(mat, patient.split))
 }
 
@@ -49,17 +50,29 @@ plotMutProfile <- function(maf_data,
                            class = "SP",
                            topGenesCount = 10,
                            bgCol = "#f0f0f0",
+                           patientsCol = NULL,
                            remove_empty_columns = TRUE,
-                           remove_empty_rows = TRUE) {
+                           remove_empty_rows = TRUE, 
+                           showColnames = TRUE) {
         
 
     maf.plot <- genHeatmapPlotMatrix(maf_data, topGenesCount = topGenesCount)  
     mat <- maf.plot[[1]]
     patient.split <- maf.plot[[2]]
+    
+    # get the order or rows
+    stat <- rep(0, topGenesCount)
+    for(i in 1:nrow(mat)){
+      stat[i] <- sum(!is.na(mat[i, ])) / ncol(mat)
+    }
+    
+    rowOrderFrame <- data.frame(Genes = rownames(mat), freq = stat)
+    rowOrder <- as.numeric(rownames(rowOrderFrame[order(rowOrderFrame$freq, decreasing = TRUE), ]))
+    
     # View(mat)
 
     #patient_id_cols <-
-        #RColorBrewer::brewer.pal(length(unique(patient.split)), "Set3")
+        #RColorBrewer::brewer.pal(length(unique(patient.split)), "Set")
     #names(patient_id_cols) <- unique(patient.split)
 #
     #patient_barcode <- maf_data %>%
@@ -173,19 +186,52 @@ plotMutProfile <- function(maf_data,
         }
         return(l)            
     }
-
-    heatmap_legend <- function(class) {
-        param <- list(
-            title = "Type",
-            title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
-            at = names(col_type(class)),
-            labels = sub("_", "-", names(col_type(class))),
-            labels_gp = grid::gpar(fontsize = 10)
-        )
-        return(param)
-    }        
-
-    set.seed(123)
+     
+    # prepare legends
+    
+    ## type legend
+    
+    heatmapLegend <- Legend(title = "Type", 
+                            title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
+                            at = names(col_type(class)),
+                            labels = sub("_", "-", names(col_type(class))),
+                            labels_gp = grid::gpar(fontsize = 10.5),
+                            grid_width = unit(3.5, "mm"),
+                            grid_height = unit(3.5, "mm"), legend_gp = gpar(fill = col_type(class)))
+    
+    ## patient legend
+    patient.id <- unique(patient.split)
+    
+    set.seed(1234)
+    patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
+    names(patientsCol) <- patient.id
+    
+    patientLegend <-  Legend(labels = patient.id, legend_gp = gpar(fill = patientsCol), title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+                                 labels_gp = grid::gpar(fontsize = 10.5),
+                                 grid_width = unit(3.5, "mm"),
+                                 grid_height = unit(3.5, "mm"), title = "Patient")
+    
+    ## multi-hits legend
+    multiLegend <- Legend(labels = "Multi_hits",
+                          labels_gp = grid::gpar(fontsize = 10.5),
+                          type = "points",
+                          pch = 16,
+                          grid_width = unit(3.5, "mm"),
+                          grid_height = unit(3.5, "mm")
+                   )
+    
+    
+    ## type-multi legend
+    hm <- packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.5, "mm"))
+    
+    ## type-multi-patient legend
+    hmp <- packLegend(hm, patientLegend, direction = "vertical", gap = unit(1.2, "cm"))
+    
+    ## type-patient legend
+    hp <- packLegend(heatmapLegend, patientLegend, direction = "vertical", gap = unit(1.4, "cm"))
+    
+    
+    
     ht <- suppressMessages(
         ComplexHeatmap::oncoPrint(
             mat,
@@ -194,25 +240,35 @@ plotMutProfile <- function(maf_data,
             column_title = "Mutational profile",
             column_title_gp = grid::gpar(fontsize = 16, fontface = "bold"),
             row_title_gp = grid::gpar(fontsize = 10, fontface = "plain"),
-            heatmap_legend_param = heatmap_legend(class),
+            #heatmap_legend_param = heatmap_legend(class),
+            show_heatmap_legend = FALSE,
             remove_empty_columns = remove_empty_columns,
             remove_empty_rows = remove_empty_rows,
+            row_order = rowOrder,
             row_names_gp = grid::gpar(fontsize = 10, fontface = "italic"),
             column_names_gp = grid::gpar(fontsize = 10, fontface = "plain"),
             pct_digits = 2,
             pct_side = "right",
-            row_names_side = "left",
-            show_column_names = TRUE,
+            row_names_side = "left", 
             column_split = patient.split,
+            column_order = colnames(mat),
+            show_column_names = showColnames,
             bottom_annotation = if(
                 is.null(patient.split)) NULL else{
                 ComplexHeatmap::HeatmapAnnotation(
                 #df = data.frame(patient = colnames(mat)),
                 df = data.frame(Patient = patient.split),
                 show_annotation_name = FALSE,
-                #col = list(patient = sample_barcode),
-                simple_anno_size = unit(0.5, "cm")
-                #show_legend = FALSE
+                col = list(Patient = patientsCol),
+                simple_anno_size = unit(0.5, "cm"),
+                show_legend = FALSE,
+                annotation_legend_param = list(title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
+                                               labels_gp = grid::gpar(fontsize = 10.5),
+                                               grid_width = unit(3.5, "mm"),
+                                               grid_height = unit(3.5, "mm")
+                                               #plot = FALSE
+                                               )
+                
                 )}                
         )
     )
@@ -220,16 +276,7 @@ plotMutProfile <- function(maf_data,
 
 
     if (multi_hit_exist) {
-        ComplexHeatmap::draw(ht,
-            heatmap_legend_list = list(
-                ComplexHeatmap::Legend(
-                    labels = "Multi_hits",
-                    labels_gp = grid::gpar(fontsize = 10),
-                    type = "points",
-                    pch = 16
-                    )
-            )
-            )
+      ComplexHeatmap::draw(ht, heatmap_legend_list = hmp)
             #annotation_legend_list = if(
                 #is.null(patient.split)) NULL else{
                 #list(ComplexHeatmap::Legend(
@@ -242,7 +289,7 @@ plotMutProfile <- function(maf_data,
                 #))}
             #)
     } else {
-      ComplexHeatmap::draw(ht
+      ComplexHeatmap::draw(ht, heatmap_legend_list = hp)
             #annotation_legend_list = if(
                 #is.null(patient.split)) NULL else{
                 #list(ComplexHeatmap::Legend(
@@ -253,7 +300,6 @@ plotMutProfile <- function(maf_data,
                 ##legend_gp = grid::gpar(fill = patient_id_cols),
                 #labels_gp = grid::gpar(fontsize = 10)
                 #))}
-            )
   }
 
 
