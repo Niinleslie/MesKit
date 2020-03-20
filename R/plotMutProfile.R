@@ -222,13 +222,13 @@ plotMutProfile <- function(maf_data,
     
     
     ## type-multi legend
-    hm <- packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.5, "mm"))
+    hm <- packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.3, "mm"))
     
     ## type-multi-patient legend
-    hmp <- packLegend(hm, patientLegend, direction = "vertical", gap = unit(1.2, "cm"))
+    hmp <- packLegend(hm, patientLegend, direction = "vertical", gap = unit(0.3, "cm"))
     
     ## type-patient legend
-    hp <- packLegend(heatmapLegend, patientLegend, direction = "vertical", gap = unit(1.4, "cm"))
+    hp <- packLegend(heatmapLegend, patientLegend, direction = "vertical", gap = unit(1.2, "cm"))
     
     
     
