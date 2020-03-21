@@ -47,24 +47,39 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1, plot = TR
         as.data.frame()
 
     y.limits <- c(
-        min(MATH.df$MATH_Score)-15, 
-        ifelse(max(MATH.df$MATH_Score)+15 >100, 100, max(MATH.df$MATH_Score)+15)
+        floor(min(MATH.df$MATH_Score)-15),
+        ceiling(max(MATH.df$MATH_Score)+15)
+        #ifelse(max(MATH.df$MATH_Score)+15 >100, 100, max(MATH.df$MATH_Score)+15)
     )
     
     # violin plot
     if(plot){
         p <- ggplot(MATH.df, aes(x=as.factor(Patient_ID), y=MATH_Score, fill = Patient_ID)) + 
             geom_violin() + theme_bw() +     
-            ylim(y.limits) + 
+            #ylim(y.limits) + 
             theme(legend.title = element_blank(),
-            legend.text = element_text(size = 12),
+            legend.text = element_text(size = 11),
+            legend.key.size = unit(0.4, "cm"),
             panel.border = element_blank(), 
             panel.grid.major = element_line(linetype = 2, color = "grey"),
             panel.grid.minor = element_blank(),
             axis.line=element_line(color= "black", size= 1),
-            axis.title = element_text(size = 16),
-            axis.text = element_text(size = 12, color = "black")) +      
-            labs(y = "MATH score", x = "")        
+            axis.line.y = element_blank(),
+            #axis.line.y = element_line(size=0.5, colour = "black"),
+            #axis.ticks.y = element_line(size=0.5, colour = "black"),
+            axis.line.x = element_blank(),
+            axis.title = element_text(size = 12),
+            axis.ticks.x = element_blank(),
+            axis.text.x = element_text(size = 11, color = "black", angle = 90),
+            axis.text.y = element_text(size = 11, color = "black")) + 
+            scale_y_continuous(limits = y.limits, expand = c(0,0),
+                breaks = round(seq(y.limits[1], y.limits[2], length = 5)))+
+            #scale_y_continuous(breaks = c(y.limits[1], 40, 50, 60, 70, 80, 90, y.limits[2]), 
+                               #limits = y.limits, labels = c(y.limits[1], 40,50,60,70,80,90,y.limits[2]),
+                               #expand = c(0,0)) +
+            scale_x_discrete(limits = levels(MATH.df$Patient_ID)) +
+            labs(y = "MATH score", x = "") +
+            annotate("segment", x = 0, xend = 0, y = y.limits[1], yend = y.limits[2], size = 0.6)      
     }else{
         p <- NULL
     }
