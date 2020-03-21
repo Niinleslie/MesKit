@@ -43,6 +43,7 @@ fst.hudson.pair <- function(maf.pair) {
 
 fst.hudson.patient <- function(df, plot = TRUE, use.circle = TRUE, title = NULL) {
 	## pairwise heterogeneity
+  patientID <- as.character(unique(df$Patient_ID))
 	samples <- as.character(unique(df$Tumor_Sample_Barcode))
 	pairs <- combn(length(samples), 2, simplify = FALSE)
 	#fstHudson <-c()
@@ -59,15 +60,15 @@ fst.hudson.patient <- function(df, plot = TRUE, use.circle = TRUE, title = NULL)
         values_from = c(VAF, totalDepth),
         values_fill = c(VAF = 0, totalDepth = 0)
         ) %>%
+      dplyr::ungroup() %>%
       dplyr::select(-Patient_ID)
     colnames(maf.pair) <- c("mutation_id", "vaf1", "vaf2", "depth1", "depth2")
 
-    pair.names <- samples[[pair[1]]]
     #pairIDs <- c(pairIDs, 
     #  paste0("\"", samples[pair[1]], "\"", "-", "\"", samples[pair[2]], "\"")
     #  )
     #fstHudson <- c(fstHudson, fst.hudson.pair(maf.pair))
-    fst.dist[pair[1],pair[2]] <- fst.hudson.pair(maf.pair)
+    fst.dist[pair[1],pair[2]] <- fst.dist[pair[2],pair[1]] <- fst.hudson.pair(maf.pair)
   }
 
   Fst <- mean(fst.dist)
@@ -76,8 +77,12 @@ fst.hudson.patient <- function(df, plot = TRUE, use.circle = TRUE, title = NULL)
       Fst.mean = Fst, 
       #Fst.pair = data.frame(sample.pair=pairIDs, fst.hudson=fstHudson))
       Fst.pair = fst.dist,
-      Fst.plot = if(plot) plotCorr(fst.dist, use.circle, title)  else{NA}
-    ))
+      Fst.plot = if(plot) plotCorr(
+        fst.dist, 
+        use.circle, 
+        title = if(!is.null(title)) title else{paste0("Fst of patient ", patientID)}) else{NA} 
+    )
+  )
  }
 
 calFst <- function(
@@ -87,7 +92,7 @@ calFst <- function(
   min.vaf = 0.08,
   plot = TRUE,
   use.circle = TRUE,
-  title = title){
+  title = NULL){
 
 	mafData <- maf@data
 
@@ -137,9 +142,15 @@ calFst <- function(
           ~fst.hudson.patient(.,
             plot = plot,
             use.circle = use.circle,
-            title = title, 
+            title = title), 
             keep = TRUE) %>%
             rlang::set_names(patient.id)
 
-  	#return(Fst.out)
+  Fst.out=list(
+    Fst.mean = data.frame(Patient_ID = names(Fst.out), Fst.mean = unlist(lapply(Fst.out, function(x) x$Fst.mean))),
+    Fst.pair = lapply(Fst.out, function(x) x$Fst.pair),
+    Fst.plot = lapply(Fst.out, function(x) x$Fst.plot)
+    )
+  
+  return(Fst.out)
 }
