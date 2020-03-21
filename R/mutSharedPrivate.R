@@ -7,14 +7,6 @@
 #' @importFrom tidyr unite
 #' @importFrom dplyr select
 #' @examples
-#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
-#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
-#' ccf.cluster.File <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
-#' ccf.loci.File <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
-#' maf <- readMaf(mafFile = maf.File, sampleInfo = sampleInfo.File, 
-#'                 ccfClusterTsvFile = ccf.cluster.File, 
-#'                 ccfLociTsvFile = ccf.loci.File,
-#'                 refBuild = "hg19")
 #' mutSharedPrivate(maf)
 #' @export mutSharedPrivate
 #' @import cowplot dplyr
@@ -179,8 +171,8 @@ doMutSharedPrivate <- function(df, show.num){
         scale_fill_manual(values = c( "#E64B35B2","#4DBBD5B2","#00A087B2","#3C5488B2","#F39B7FB2",
                                      "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
                                      "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666"))+
-        scale_y_continuous(expand = TRUE)
-    
+        scale_y_continuous(expand = c(0,0))
+
     # draw point-line plot
     pointLinePlot <- ggplot(pointLineFrame)+
         aes(x=combinations,y=sample)
