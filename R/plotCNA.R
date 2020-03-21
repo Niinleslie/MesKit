@@ -16,6 +16,7 @@
 
 plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id = NULL){
     if(is.null(patient.id)){
+        seg$patient <- seg$Patient_ID
         seg <- dplyr::select(seg, -Patient_ID)
         seg$Patient_ID <- "ALL"
     }else{
@@ -67,6 +68,7 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
     CNAplot.list <- list()
     for(patient in patients){
         patient.seg <- dat.list[[patient]]
+        # patient.seg <- dat.list[[1]]
         updateStart <- apply(patient.seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
         updateEnd <- apply(patient.seg,1,updatePosition,"End_Position","Chromosome",chrLens)
         suppressWarnings(patient.seg[,Update_Start:= updateStart]) 
@@ -74,22 +76,47 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
         patient.seg[,hmin := 0]
         patient.seg[,hmax := 0]
         samples <- sort(unique(patient.seg$Tumor_Sample_Barcode))  
-        h = 0.5
-        for(sample in samples){
-            patient.seg[Tumor_Sample_Barcode == sample,]$hmin <- h
-            patient.seg[Tumor_Sample_Barcode == sample,]$hmax <- h + 0.5
-            h <- h + 0.55
+        h <- 0.5
+        if("patient" %in% colnames(patient.seg)&
+           length(unique(patient.seg$patient)) > 1){
+            patient.rect.hmin <- c(h)
+            patient.rect.hmax <- c()
+            patient1 <- unique(patient.seg[Tumor_Sample_Barcode == samples[1],]$patient)
+            for(sample in samples){
+                patient2 <- unique(patient.seg[Tumor_Sample_Barcode == sample,]$patient)
+                if(patient1 != patient2){
+                    patient.rect.hmin <- append(patient.rect.hmin,h+0.2)
+                    patient.rect.hmax <- append(patient.rect.hmax,h)
+                    h <- h + 0.2
+                }
+                patient1 <- patient2
+                patient.seg[Tumor_Sample_Barcode == sample,]$hmin <- h
+                patient.seg[Tumor_Sample_Barcode == sample,]$hmax <- h + 0.5
+                h <- h + 0.55
+            }
+            patient.rect.hmax <- append(patient.rect.hmax,max(patient.seg$hmax))
+            patient.rect.table <- data.frame(hmin = patient.rect.hmin,
+                                             hmax = patient.rect.hmax,
+                                             patient = as.character(unique(patient.seg$patient)))
+            patient.seg$patient <- factor(patient.seg$patient,levels = as.character(unique(patient.seg$patient)))
+            
         }
-        
+        else{
+            for(sample in samples){
+                patient.seg[Tumor_Sample_Barcode == sample,]$hmin <- h
+                patient.seg[Tumor_Sample_Barcode == sample,]$hmax <- h + 0.5
+                h <- h + 0.55
+            }
+        }
         min <- sort(unique(patient.seg$hmin))
         max <- sort(unique(patient.seg$hmax))
         CNADat <- patient.seg[Type != "Neutral",]
         patient.type <- unique(CNADat$Type)
-        all.levels <- c("Loss", "Deletion",  "Gain",  "Amplification")
-        all.colors <- c("#6baed6", "#084594", "#f4a582", "#d73027")
-        patient.level <- all.levels[all.levels %in% patient.type]
-        patient.color <- all.colors[all.levels %in% patient.type]
-        CNADat$Type <- factor(CNADat$Type, levels = patient.level)
+        type.all.levels <- c("Loss", "Deletion",  "Gain",  "Amplification")
+        type.all.colors <- c("#6baed6", "#084594", "#f4a582", "#d73027")
+        type.level <- type.all.levels[type.all.levels %in% patient.type]
+        type.color <- type.all.colors[type.all.levels %in% patient.type]
+        CNADat$Type <- factor(CNADat$Type, levels = type.level)
         segmentTable <- data.table::data.table(y = c(min(min),max(max)), yend = c(min(min),max(max)))
         seg.add <- 20000000
         text.add <- -200000000
@@ -103,6 +130,17 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
             xmax = max(chrTable$end), 
             ymin = min, 
             ymax = max)
+        allScales <- type.color
+        names(allScales) <- type.level
+        if("patient" %in% colnames(patient.seg)&
+           length(unique(patient.seg$patient)) > 1){
+            patient.all.color <- c( "#E64B35B2","#4DBBD5B2","#00A087B2","#3C5488B2","#F39B7FB2",
+                                    "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
+                                    "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666")
+            patient.color <- patient.all.color[1:length(patient.rect.table$patient)]
+            names(patient.color) <- patient.rect.table$patient
+            allScales <- append(allScales,patient.color)
+        }
         p <- ggplot()+
             geom_rect(data = chrTable,
                 mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = 0.5),
@@ -115,22 +153,75 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
                 fill = "#f0f0f0")+
             theme(
                 panel.grid =element_blank(), 
-                axis.text = element_blank(), 
+                # axis.text = element_blank(), 
+                axis.text.x = element_blank(),
+                axis.text.y = element_text(size = 10,margin = margin(r = -20),colour = "black"),
                 axis.ticks = element_blank(),
                 panel.border = element_blank(),
                 panel.background = element_blank(),
                 axis.title.x = element_blank(),
-                axis.title.y = element_blank())+
+                axis.title.y = element_blank(),
+                legend.key.width  = unit(1.1,'lines'),
+                # legend.title = element_blank(),
+                legend.box.margin = margin(l = -20),
+                # legend.key.height = unit(.8,'lines'),
+                # legend.key = element_rect(size = 1, color = NA, fill = NA),
+                # legend.spacing = unit(1.0, 'lines'),
+                # legend.spacing.y = unit(1, 'char'),
+                legend.text = element_text(size = 10,margin = margin(b = 3)))+
+            # guides(fill=guide_legend(
+            #     keywidth=0.1,
+            #     keyheight=0.1)
+            # )+
             geom_rect(data = CNADat,
                 mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
-            scale_fill_manual(breaks = patient.level, values = patient.color)+
-            geom_text(
-                data = textTable,
-                mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
-            geom_segment(aes(x = x, y = y, xend = xend, yend = yend), 
-                data = segmentTable, linetype="dashed")+
+            # scale_fill_manual(name = "Type",breaks = type.level, values = type.color)+
+            scale_fill_manual(values = allScales)+
+            # geom_text(
+            #     data = textTable,
+            #     mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
+            scale_y_continuous(breaks = textTable$Pos,
+                               labels = textTable$Tumor_Sample_Barcode)+
+            # geom_segment(aes(x = x, y = y, xend = xend, yend = yend), 
+            #     data = segmentTable, linetype="dashed")+
             ggtitle("Copy number variant profile")+
             theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, vjust = -1))
+        ## patient bar
+        if("patient" %in% colnames(patient.seg)&
+           length(unique(patient.seg$patient)) > 1){
+            mainplot <- p + geom_rect(data = patient.rect.table,
+                               mapping = aes(xmax = -20000000, xmin = -40000000,
+                                             ymin = hmin, ymax = hmax,fill = patient))
+            patient.rect.legend <- (ggplot()+
+                                    geom_rect(data = patient.rect.table,
+                                            mapping = aes(xmax = -20000000, 
+                                                        xmin = -40000000,
+                                                        ymin = hmin, 
+                                                        ymax = hmax,
+                                                        fill = patient)) +
+                                    scale_fill_manual(values = allScales,name = "Patient")) %>% 
+                                     ggplotGrob %>%
+                 {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            type.legend <- (ggplot() + 
+                            geom_rect(data = CNADat,
+                                      mapping = aes(xmin = Update_Start,
+                                                    xmax = Update_End,
+                                                    ymin = hmin, ymax = hmax, fill = Type))+
+                            scale_fill_manual(values = allScales,name = "Type"))%>% 
+                           ggplotGrob %>% {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            legendColumn <-
+                plot_grid(
+                    type.legend + theme(legend.position = "none"),
+                    type.legend,
+                    patient.rect.legend,
+                    type.legend + theme(legend.position = "none"),
+                    ncol = 1,
+                    align = "v") + theme(plot.margin = margin(l = -30)) 
+            p <- plot_grid(mainplot + theme(legend.position = "none"),
+                      legendColumn,
+                      rel_widths = c(1,.15))
+        }
+        
         CNAplot.list[[patient]] <- p
     }
     return(CNAplot.list)

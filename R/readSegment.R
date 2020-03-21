@@ -32,7 +32,13 @@ readSegment <- function(segCN.file = NULL,
                         gisticAllLesionsFile = NULL,
                         gistic.qval = 0.25,
                         verbose = TRUE, min.seg.size = 500){
-  seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
+    seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
+    standardCol <- c("Patient_ID","Tumor_Sample_Barcode",
+                     "Chromosome","Start_Position",
+                     "End_Position")
+  if(!all(standardCol %in% colnames(seg))){
+     stop("segCN.file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and End_Position") 
+  }
   # if(is.null(seg$Patient_ID)){
   #     seg$Patient_ID <- "ALL"
   # }

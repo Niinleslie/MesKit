@@ -50,7 +50,8 @@
 doTreeMutSig <- function(phyloTree,
                          driverGenesFile=NULL,
                          min.mut.count=15,
-                         signaturesRef="cosmic"){
+                         signaturesRef="cosmic",
+                         MTB = FALSE){
 
     refBuild <- phyloTree@refBuild
     ref.options = c('hg18', 'hg19', 'hg38')
@@ -62,6 +63,7 @@ doTreeMutSig <- function(phyloTree,
     
     ## get branches information from phyloTree object
     mutBranches <- phyloTree@mut.branches
+
     patientID <- phyloTree@patientID
     branchesName <- names(mutBranches)
     branchesNameList <- strsplit(branchesName, split='∩')
@@ -75,6 +77,19 @@ doTreeMutSig <- function(phyloTree,
     colnames(mutSigRef) <- c("Sample",  "chr", "pos", "pos_end", 
                              "ref", "alt", "Hugo_Symbol", "mut_id", 
                              "alias")
+    
+    ## Select mutations in driver genes
+    if(!is.null(driverGenesFile)){
+        driver.genes <- read.table(driverGenesFile, col.names = "gene_Name", stringsAsFactors = FALSE)$gene_Name
+        mutSigRef <- mutSigRef  %>%
+            dplyr::rowwise() %>%
+            dplyr::filter(any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% driver.genes)) %>%
+            as.data.frame()
+        branchesNameList <- strsplit(unique(mutSigRef$Sample), split='∩')
+        branchesName <- unique(mutSigRef$Sample)
+        
+    }
+    
     ## get the mutational signature of the branch 
     mutSigsOutput <- data.frame()
     lsPicName <- c()
@@ -87,6 +102,14 @@ doTreeMutSig <- function(phyloTree,
                                            ref="ref", 
                                            alt="alt",
                                            bsg=get(refBuild)))
+    if(MTB){
+        trunkName <- unique(mutSigRef[which(mutSigRef$alias == "T"), ]$Sample) 
+        treeMSOutput <- list(
+            sigsInput = sigsInput, 
+            trunkName = trunkName,
+            patientID = patientID)
+        return(treeMSOutput)
+    }
     for (branchCounter in length(branchesNameList):1){
         ## generate a single branch
         branch <- Filter(Negate(is.na), 
@@ -338,6 +361,10 @@ doPlotMutSig <- function(tree.mutSig) {
     orderlist <- c(ls.mutationType)
     df.sigsInputTrans <- transform(df.sigsInputTrans, Mutational_Type = factor(Mutational_Type, levels = orderlist))
     df.sigsInputTrans <- df.sigsInputTrans[which(df.sigsInputTrans$Signature != "No Signature"), ]
+    if(nrow(df.sigsInputTrans) == 0){
+        warning(paste0("Patient ", tree.mutSig$patientID, ": There is no enough eligible mutations can be used."))
+        return(NA)
+    }
     df.sigsInputText <- dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE)
     
     CA <- grid::textGrob(expression(bold("C > A")),

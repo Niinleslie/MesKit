@@ -57,7 +57,14 @@ readMaf <- function(## maf parameters
             stringsAsFactors = FALSE
         )
     
-
+    maf.standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
+                     "Variant_Classification", "Variant_Type", "Reference_Allele",
+                     "Tumor_Seq_Allele2","Ref_allele_depth","Alt_allele_depth",
+                     "VAF", "Tumor_Sample_Barcode","Patient_ID")
+    
+    if(!all(maf.standardCol %in% colnames(mafData))){
+        stop("MAF file should contain Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,Variant_Type,Reference_Allele,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,Tumor_Sample_Barcode and Patient_ID")
+    }
     
     ## read ccf files
     if (!is.null(ccfFile)) {
@@ -69,6 +76,12 @@ readMaf <- function(## maf parameters
             sep = '\t',
             stringsAsFactors = FALSE
         ))
+        
+
+        ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
+        if(!all(ccf.standardCol %in% ccfInput)){
+            stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
+        }
         
         mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level) %>%
             #getMutStatus() %>%
@@ -114,7 +127,11 @@ readMaf <- function(## maf parameters
     patients.dat <- split(mafData, mafData$Patient_ID)
     sample.info <- lapply(patients.dat,
                           function(x){
-                              return(sort(unique(x$Tumor_Sample_Barcode)))
+                              patient.tsbs <- sort(unique(x$Tumor_Sample_Barcode))
+                              if(length(patient.tsbs) < 2){
+                                  stop("Errors: each patient should have least two tumor samples.")
+                              }
+                              return(patient.tsbs)
                           })
 
     
