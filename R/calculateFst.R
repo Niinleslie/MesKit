@@ -41,35 +41,54 @@ fst.hudson.pair <- function(maf.pair) {
   	return(Fst.h)
 }
 
-fst.hudson.patient <- function(df) {
+fst.hudson.patient <- function(df, plot = TRUE, use.circle = TRUE, title = NULL) {
 	## pairwise heterogeneity
 	samples <- as.character(unique(df$Tumor_Sample_Barcode))
 	pairs <- combn(length(samples), 2, simplify = FALSE)
-	fstHudson <-c()
-	pairIDs <- c()
+	#fstHudson <-c()
+	#pairIDs <- c()
 
-  	for (pair in pairs){
-  		maf.pair <- subset(df, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>%
-  			tidyr::pivot_wider(
-  				names_from = Tumor_Sample_Barcode, 
-  				values_from = c(VAF, totalDepth),
-  				values_fill = c(VAF = 0, totalDepth = 0)
-  				) %>%
-  			dplyr::select(-Patient_ID)
+  fst.dist <- diag(1, nrow = length(samples), ncol = length(samples))
+  rownames(fst.dist) <- samples
+  colnames(fst.dist) <- samples
 
-  		colnames(maf.pair) <- c("mutation_id", "vaf1", "vaf2", "depth1", "depth2")
-  		pairIDs <- c(pairIDs, 
-  			paste0("\"", samples[pair[1]], "\"", "-", "\"", samples[pair[2]], "\"")
-  			)
-  		fstHudson <- c(fstHudson, fst.hudson.pair(maf.pair))
-  	}
-  	Fst <- mean(fstHudson)
-  	return(list(Fst.mean = Fst, Fst.pair = data.frame(sample.pair=pairIDs, fst.hudson=fstHudson)))
+  for (pair in pairs){
+    maf.pair <- subset(df, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>%
+      tidyr::pivot_wider(
+        names_from = Tumor_Sample_Barcode, 
+        values_from = c(VAF, totalDepth),
+        values_fill = c(VAF = 0, totalDepth = 0)
+        ) %>%
+      dplyr::select(-Patient_ID)
+    colnames(maf.pair) <- c("mutation_id", "vaf1", "vaf2", "depth1", "depth2")
 
+    pair.names <- samples[[pair[1]]]
+    #pairIDs <- c(pairIDs, 
+    #  paste0("\"", samples[pair[1]], "\"", "-", "\"", samples[pair[2]], "\"")
+    #  )
+    #fstHudson <- c(fstHudson, fst.hudson.pair(maf.pair))
+    fst.dist[pair[1],pair[2]] <- fst.hudson.pair(maf.pair)
   }
 
+  Fst <- mean(fst.dist)
+    
+  return(list(
+      Fst.mean = Fst, 
+      #Fst.pair = data.frame(sample.pair=pairIDs, fst.hudson=fstHudson))
+      Fst.pair = fst.dist,
+      Fst.plot = if(plot) plotCorr(fst.dist, use.circle, title)  else{NA}
+    ))
+ }
 
-calFst <- function(maf, patient.id = NULL, use.adjVAF = FALSE, min.vaf=0.08){
+calFst <- function(
+  maf, 
+  patient.id = NULL, 
+  use.adjVAF = FALSE, 
+  min.vaf = 0.08,
+  plot = TRUE,
+  use.circle = TRUE,
+  title = title){
+
 	mafData <- maf@data
 
     if(is.null(patient.id)){
@@ -114,11 +133,13 @@ calFst <- function(maf, patient.id = NULL, use.adjVAF = FALSE, min.vaf=0.08){
     	dplyr::rename("VAF" = !!vaf.col) %>%
     	dplyr::filter(VAF > min.vaf) %>%
     	dplyr::group_by(Patient_ID) %>%
-        dplyr::group_map(~fst.hudson.patient(.), keep = TRUE) %>%
-        rlang::set_names(patient.id)
+        dplyr::group_map(
+          ~fst.hudson.patient(.,
+            plot = plot,
+            use.circle = use.circle,
+            title = title, 
+            keep = TRUE) %>%
+            rlang::set_names(patient.id)
 
-  	return(Fst.out)
+  	#return(Fst.out)
 }
-
-
-
