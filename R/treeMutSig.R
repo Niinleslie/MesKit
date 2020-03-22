@@ -394,10 +394,11 @@ doPlotMutSig <- function(tree.mutSig) {
               plot.title = element_text(size = 13, face = "bold", hjust = 0.5,vjust = 0),
               axis.text.x=element_blank(), 
               axis.ticks.x=element_blank(),
-              axis.text.y=element_text(colour='black', size=6),
-              #axis.line.y = element_line(colour='black')
+              axis.line.y = element_blank(),
+              axis.ticks.length.y = unit(0.2, "cm"),
+              axis.text.y=element_text(size=6, color = "black")
               ) +
-        annotate(geom = "segment", x=0, xend = 0, y = -0.03, yend = 0.2)+
+        annotate(geom = "segment", x=-1, xend = -1, y = 0, yend = 0.2, size = 0.6)+
         ## background colors
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
                   fill="#fce7e4", alpha=0.15) + 

@@ -1,3 +1,5 @@
+#' @import ComplexHeatmap
+
 genHeatmapPlotMatrix <- function(
         maf_data, 
         topGenesCount = NULL) {
@@ -191,7 +193,7 @@ plotMutProfile <- function(maf_data,
     
     ## type legend
     
-    heatmapLegend <- Legend(title = "Type", 
+    heatmapLegend <- ComplexHeatmap::Legend(title = "Type", 
                             title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
                             at = names(col_type(class)),
                             labels = sub("_", "-", names(col_type(class))),
@@ -206,13 +208,13 @@ plotMutProfile <- function(maf_data,
     patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
     names(patientsCol) <- patient.id
     
-    patientLegend <-  Legend(labels = patient.id, legend_gp = gpar(fill = patientsCol), title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+    patientLegend <-  ComplexHeatmap::Legend(labels = patient.id, legend_gp = gpar(fill = patientsCol), title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
                                  labels_gp = grid::gpar(fontsize = 10.5),
                                  grid_width = unit(3.5, "mm"),
                                  grid_height = unit(3.5, "mm"), title = "Patient")
     
     ## multi-hits legend
-    multiLegend <- Legend(labels = "Multi_hits",
+    multiLegend <- ComplexHeatmap::Legend(labels = "Multi_hits",
                           labels_gp = grid::gpar(fontsize = 10.5),
                           type = "points",
                           pch = 16,

@@ -9,13 +9,13 @@
 #' @examples
 #' mutSharedPrivate(maf)
 #' @export mutSharedPrivate
-#' @import cowplot dplyr
+#' @import cowplot dplyr ComplexHeatmap
 
 mutSharedPrivate <- function(maf, show.num = FALSE){
     maf.dat <- maf@data
     patient.ids <- unique(maf.dat$Patient_ID)
     msp.list <- maf.dat %>% dplyr::group_by(Patient_ID) %>% 
-                group_map(~doMutSharedPrivate(.x,show.num = show.num), keep = TRUE) %>%
+                group_map(~doMutSharedPrivate(.x, show.num = show.num), keep = TRUE) %>%
                 rlang::set_names(patient.ids)
     return(msp.list)
 }
