@@ -189,7 +189,6 @@ doMutSharedPattern <- function(df, show.num, gene_list = NULL){
                                      "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
                                      "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666"))+
         scale_y_continuous(expand = c(0,0))
-    
     # draw point-line plot
     pointLinePlot <- ggplot(pointLineFrame)+
         aes(x=combinations,y=sample)

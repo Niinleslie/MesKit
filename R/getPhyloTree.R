@@ -196,6 +196,14 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
 
 #Prevent class 'phylo' from not existing
 setClass('phylo')
-setClass('phyloTree', slots = c(tree = 'phylo', patientID = 'character', binary.matrix = 'matrix', mut.branches = 'list', ccf.matrix = 'matrix', refBuild = 'character',
-                                bootstrap.value = 'numeric', method = 'character'))
+setClass('phyloTree', slots = c(
+  tree = 'phylo', 
+  patientID = 'character', 
+  binary.matrix = 'matrix', 
+  mut.branches = 'list', 
+  ccf.matrix = 'matrix', 
+  refBuild = 'character',
+  bootstrap.value = 'numeric', 
+  method = 'character')
+)
 

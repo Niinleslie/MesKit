@@ -9,6 +9,7 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.ccf the minimum value of CCF. Default: 0
 #' @param plot.density whether to show the density plot. Default: TRUE
+#' @param plot whether to generate the violin plot of all patients. Default: TRUE
 #' 
 #' @return A list containing AUC of CCF and a graph
 #' 
@@ -74,7 +75,8 @@ ccfAUC <- function(
     maf, 
     patient.id = NULL, 
     min.ccf = 0, 
-    plot.density = TRUE){
+    plot.density = TRUE,
+    plot = TRUE){
     mafData <- maf@data
 
     if(! "CCF" %in% colnames(mafData)){
@@ -106,11 +108,37 @@ ccfAUC <- function(
         dplyr::group_map(~plotDensity(.x), keep = TRUE) %>%
         rlang::set_names(patient.id)      
     }else{
-        density.plot = NULL
+        density.plot <- NULL
     }
+    
+    if(plot) {
+      CCF.plot <- ggplot(AUC.df, aes(x=as.factor(Patient_ID), y=AUC, fill = Patient_ID)) + 
+        geom_violin() + theme_bw() +     
+        #ylim(0,1) + 
+        theme(legend.title = element_blank(),
+              legend.text = element_text(size = 12),
+              panel.border = element_blank(), 
+              panel.grid.major = element_line(linetype = 2, color = "grey"),
+              panel.grid.minor = element_blank(),
+              axis.line=element_line(color= "black", size= 1),
+              axis.line.y = element_blank(),
+              axis.line.x = element_blank(),
+              axis.title = element_text(size = 12),
+              axis.ticks.x = element_blank(),
+              axis.text.x = element_text(size = 11, color = "black", angle = 90),
+              axis.text.y = element_text(size = 11, color = "black")) +     
+        scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0), 
+                           limits = c(0,1), 
+                           expand = c(0,0)) +
+        scale_x_discrete(limits = levels(AUC.df$Patient_ID)) +
+        labs(y = "AUC of ccf", x = "") + annotate("segment", x = 0, xend = 0, y = 0, yend = 1, size = 0.5)        
+      
+    }else{
+      CCF.plot <- NULL
+    }
+    
 
-
-    return(list(AUC.value = AUC.df, CCF.density.plot = density.plot))
+    return(list(AUC.value = AUC.df, CCF.AUC.plot = CCF.plot), CCF.density.plot = density.plot)
     message("Calculation of AUC of CCF is done!")       
         
 }
