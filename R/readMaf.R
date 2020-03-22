@@ -79,7 +79,7 @@ readMaf <- function(## maf parameters
         
 
         ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
-        if(!all(ccf.standardCol %in% ccfInput)){
+        if(!all(ccf.standardCol %in% colnames(ccfInput))){
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
