@@ -33,34 +33,34 @@ readMaf <- function(## maf parameters
     use.indel = FALSE,
     ccf.conf.level = 0.95,
     refBuild = "hg19") {
-
+    
     ref.options = c('hg18', 'hg19', 'hg38')
     if(!refBuild %in% ref.options){
         stop("refBuild can only be either 'hg18', 'hg19' or 'hg38'")
     }
-
+    
     mutType.options = c("All", "nonSilent")
     if(!mutType %in% mutType.options){
         stop("mutType should be either 'All' or 'nonSilent.")
     }
-
+    
     ## get patientID
     # patientID <- unlist(strsplit(basename(mafFile), split = "[.]"))[1]
-
+    
     mafData <- data.table::fread(
-            file = mafFile,
-            quote = "",
-            header = TRUE,
-            fill = TRUE,
-            sep = '\t',
-            skip = "Hugo_Symbol",
-            stringsAsFactors = FALSE
-        )
+        file = mafFile,
+        quote = "",
+        header = TRUE,
+        fill = TRUE,
+        sep = '\t',
+        skip = "Hugo_Symbol",
+        stringsAsFactors = FALSE
+    )
     
     maf.standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
-                     "Variant_Classification", "Variant_Type", "Reference_Allele",
-                     "Tumor_Seq_Allele2","Ref_allele_depth","Alt_allele_depth",
-                     "VAF", "Tumor_Sample_Barcode","Patient_ID")
+                         "Variant_Classification", "Variant_Type", "Reference_Allele",
+                         "Tumor_Seq_Allele2","Ref_allele_depth","Alt_allele_depth",
+                         "VAF", "Tumor_Sample_Barcode","Patient_ID")
     
     if(!all(maf.standardCol %in% colnames(mafData))){
         stop("MAF file should contain Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,Variant_Type,Reference_Allele,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,Tumor_Sample_Barcode and Patient_ID")
@@ -77,8 +77,9 @@ readMaf <- function(## maf parameters
             stringsAsFactors = FALSE
         ))
         
+        
         ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
-        if(!all(ccf.standardCol %in% ccfInput)){
+        if(!all(ccf.standardCol %in% colnames(ccfInput))){
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
@@ -132,7 +133,7 @@ readMaf <- function(## maf parameters
                               }
                               return(patient.tsbs)
                           })
-
+    
     
     
     ## generate classMaf
@@ -176,8 +177,8 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level) {
             sep = ":",
             remove = TRUE
         ) 
-
-    if (!"CCF_CI_High" %in% colnames(ccf) & !"CCF_Std" %in% colnames(ccf)){
+    
+    if (!"CCF_CI_High" %in% colnames(ccf) & !"CCF_std" %in% colnames(ccf)){
         mafData_merge_ccf <-
             merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
             dplyr::select(-mutID)
@@ -186,21 +187,21 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level) {
             ccf <- ccf %>%
                 dplyr::select(mutID, CCF, CCF_CI_High)        
         }
-        else if("CCF_Std" %in% colnames(ccf)){
+        else if("CCF_std" %in% colnames(ccf)){
             ccf <- ccf %>%
-                dplyr::select(mutID, CCF, CCF_Std) %>%
+                dplyr::select(mutID, CCF, CCF_std) %>%
                 dplyr::mutate(
-                    CCF_CI_High = CCF + qnorm((1 - ccf.conf.level) / 2, lower.tail = FALSE) * CCF_Std
-                    ) 
+                    CCF_CI_High = CCF + qnorm((1 - ccf.conf.level) / 2, lower.tail = FALSE) * CCF_std
+                ) 
         }
-
+        
         mafData_merge_ccf <- merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
             dplyr::mutate(Status =
-                    dplyr::case_when(CCF_CI_High >= 1 ~ "Clonal",
-                                    CCF_CI_High < 1 ~ "Subclonal")) %>%        
+                              dplyr::case_when(CCF_CI_High >= 1 ~ "Clonal",
+                                               CCF_CI_High < 1 ~ "Subclonal")) %>%        
             dplyr::select(-mutID, -CCF_CI_High)        
     }
-
+    
     return(mafData_merge_ccf)
 }
 
