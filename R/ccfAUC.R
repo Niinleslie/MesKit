@@ -138,7 +138,7 @@ ccfAUC <- function(
     }
     
 
-    return(list(AUC.value = AUC.df, CCF.AUC.plot = CCF.plot), CCF.density.plot = density.plot)
+    return(list(AUC.value = AUC.df, CCF.AUC.plot = CCF.plot, CCF.density.plot = density.plot))
     message("Calculation of AUC of CCF is done!")       
         
 }
