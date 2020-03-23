@@ -10,8 +10,8 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.depth the minimun depth of coverage. Defalut: 10
 #' @param R2.threshold the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
-#' @param min.VAF_adj the minimum value of adjusted VAF value. Default: 0.1
-#' @param max.VAF_adj the maximum value of adjusted VAF value. Default: 0.3
+#' @param min.vaf the minimum value of adjusted VAF value. Default: 0.1
+#' @param max.vaf the maximum value of adjusted VAF value. Default: 0.3
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
 #' @examples
@@ -20,16 +20,16 @@
 
 testPowerLaw <- function(
     df, 
-    min.VAF_adj, 
-    max.VAF_adj, 
+    min.vaf, 
+    max.vaf, 
     min.depth,
     R2.threshold,
     plot){
 
 	subPowerLaw <- function(
     sample.df,
-    min.VAF_adj,
-    max.VAF_adj,
+    min.vaf,
+    max.vaf,
     min.depth,
     R2.threshold,
     plot){
@@ -39,8 +39,8 @@ testPowerLaw <- function(
     		dplyr::filter(
     			Status == "Subclonal" & 
     			Ref_allele_depth + Alt_allele_depth > min.depth &
-          VAF_adj > min.VAF_adj &
-          VAF_adj < max.VAF_adj &
+          VAF_adj > min.vaf &
+          VAF_adj < max.vaf &
     			!is.na(VAF_adj)
     		)  
 
@@ -120,8 +120,8 @@ testPowerLaw <- function(
 	patient.R2 <- df %>%
 		dplyr::group_by(Tumor_Sample_Barcode) %>%
 		dplyr::group_map(~subPowerLaw(.,
-          min.VAF_adj,
-          max.VAF_adj,
+          min.vaf,
+          max.vaf,
           min.depth,
           R2.threshold,
           plot), 
@@ -143,7 +143,7 @@ testPowerLaw <- function(
 
 testNeutral <- function(maf, patient.id = NULL, 
     min.depth = 10, R2.threshold = 0.98,
-    min.VAF_adj = 0.1, max.VAF_adj = 0.3, 
+    min.vaf = 0.1, max.vaf = 0.3, 
     plot = TRUE){
 	
 	mafData <- maf@data
@@ -162,16 +162,24 @@ testNeutral <- function(maf, patient.id = NULL,
         }
     }
 
-    R2.list <- mafData %>%
+    neutrality.list <- mafData %>%
     	dplyr::group_by(Patient_ID) %>%
     	dplyr::group_map(~testPowerLaw(.,
-        min.VAF_adj, 
-        max.VAF_adj, 
+        min.vaf, 
+        max.vaf, 
         min.depth, 
         R2.threshold, 
         plot), 
         keep = TRUE) %>%
     	rlang::set_names(patient.id)    	
 
-    return(R2.list)
+    testNeutral.out = list(
+      neutrality.metrics = lapply(neutrality.list, 
+            function(x) do.call(rbind, lapply(x, function(y) y$model.fitting.out))
+      ),
+      model.fitting.plot = lapply(neutrality.list, 
+        function(x) lapply(x, function(y) y$model.fitting.plot))
+    )
+
+    return(testNeutral.out)
 }

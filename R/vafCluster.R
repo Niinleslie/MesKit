@@ -23,10 +23,10 @@
 ## Main function for VAF plot
 vafCluster <-function(maf,
                       seg = NULL,
-                      min.vaf=0.02,
-                      max.vaf=1,
-                      showMATH=TRUE, 
-                      plotOption="combine"){
+                      min.vaf = 0.08,
+                      max.vaf = 1,
+                      showMATH = TRUE, 
+                      plotOption = "combine"){
   plot.options = c('combine', 'compare')
   
   if(!plotOption %in% plot.options){

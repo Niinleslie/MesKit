@@ -52,7 +52,7 @@ compareCCF <- function(mafData, show.density = TRUE){
     
     if(show.density){
       p[[i]] <- p[[i]] + stat_density_2d(aes(fill = ..level..), geom = 'polygon', n = ) +
-      scale_fill_gradient(low = "#8491B499", high = "#E64B35FF")
+        scale_fill_gradient(low = "#8491B499", high = "#E64B35FF")
     }
     p.name <- c(p.name, paste(S1,"-",S2, sep = ""))
     i =  i+1
