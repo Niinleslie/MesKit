@@ -21,8 +21,8 @@
 
 testPowerLaw <- function(
     df, 
-    min.VAF_adj, 
-    max.VAF_adj, 
+    min.vaf, 
+    max.vaf, 
     min.depth,
     R2.threshold,
     plot,
@@ -30,8 +30,8 @@ testPowerLaw <- function(
 
 	subPowerLaw <- function(
     sample.df,
-    min.VAF_adj,
-    max.VAF_adj,
+    min.vaf,
+    max.vaf,
     min.depth,
     R2.threshold,
     plot,
@@ -50,6 +50,7 @@ testPowerLaw <- function(
 		if(nrow(sample.df) < min.sample.num){
 			R2.out = data.frame()
             vaf.plot  = NA
+
 			warning(paste0("Sample ", sample.id, ": There is no enough eligible mutations can be used."))
 		}else{
 		    vaf <- sample.df$VAF_adj
@@ -183,19 +184,18 @@ testPowerLaw <- function(
 	
 		return(list(model.fitting.out = R2.out, model.fitting.plot = vaf.plot))		
 	}
-
 	
 	
 	patient.R2 <- df %>%
 	    dplyr::group_by(Tumor_Sample_Barcode) %>%
 	    dplyr::group_map(~subPowerLaw(.,
-	                                  min.vaf,
-	                                  max.vaf,
-	                                  min.depth,
-	                                  R2.threshold,
-	                                  plot,
-	                                  min.sample.num = min.sample.num), 
-	                     keep = TRUE) %>%
+	          min.vaf,
+	          max.vaf,
+	          min.depth,
+	          R2.,
+	          plot,
+	          min.sample.num = min.sample.num), 
+	          keep = TRUE) %>%
 	    rlang::set_names(unique(df$Tumor_Sample_Barcode))
 
   return(patient.R2)       
@@ -224,6 +224,7 @@ testNeutral <- function(maf, patient.id = NULL,
             stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
     }
+
 
 	neutrality.list <- mafData %>%
 	    dplyr::group_by(Patient_ID) %>%
@@ -268,6 +269,7 @@ testNeutral <- function(maf, patient.id = NULL,
 	    testNeutral.out$R2.fit.plot <- p.violin
 	    
 	}
+
     return(testNeutral.out)
 }
 
