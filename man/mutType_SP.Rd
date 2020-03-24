@@ -16,11 +16,21 @@ other options: "CS" (Clonal/Subclonl) and "SPCS".}
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
-\item{driverGenesFile}{driver gene list. Default NULL}
+\item{geneList}{list of genes to restrict the analysis. Default NULL.}
 
 \item{plot}{TRUE(Default).}
 
 \item{topGenesCount}{the number of genes print, default is 10}
+
+\item{remove_empty_columns}{whether remove the samples without alterations. Only works when plot is TRUE}
+
+\item{remove_empty_rows}{whether remove the genes without alterations. Only works when plot is TRUE}
+
+\item{showColnames}{TRUE(Default). Show sample names of columns.}
+
+\item{patientsCol}{a list containing customized colors for distinct patients. Default: NULL.}
+
+\item{bgCol}{background grid color. Default: "#f0f0f0"}
 }
 \description{
 classifyMut

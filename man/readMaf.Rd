@@ -7,10 +7,15 @@
 readMaf(
   mafFile,
   ccfFile = NULL,
+  min.vaf = 0.06,
+  max.vaf = 1,
+  min.ref.depth = 8,
+  min.alt.depth = 8,
   mutType = "All",
   mutNonSilent = NULL,
   chrSilent = NULL,
   use.indel = FALSE,
+  ccf.conf.level = 0.95,
   refBuild = "hg19"
 )
 }
@@ -18,6 +23,12 @@ readMaf(
 \item{mafFile}{tab delimited MAF file (plain text or *.gz compressed). Required.}
 
 \item{ccfFile}{CCF file of SNVs. Default NULL.}
+
+\item{min.vaf}{the minimum VAF for filtering variants. Default: 0.02.}
+
+\item{max.vaf}{the maximum VAF for filtering variants. Default: 1.}
+
+\item{min.ref.depth}{the minimum reference allele depth for filtering variants. Default: 8.}
 
 \item{mutType}{select proper variant classification you need. Default "All".Option: "nonSilent".}
 
@@ -27,7 +38,11 @@ readMaf(
 
 \item{use.indel}{logical value. whether to use INDELs besides somatic SNVs. Default FALSE.}
 
+\item{ccf.conf.level}{the confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
+
 \item{refBuild}{human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".}
+
+\item{max.ref.depth}{the maximum reference allele depth for filtering variants. Default: 8.}
 }
 \value{
 an object of class Maf.

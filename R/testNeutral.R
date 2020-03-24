@@ -13,6 +13,7 @@
 #' @param min.VAF_adj the minimum value of adjusted VAF value (1/2CCF). Default: 0.1
 #' @param max.VAF_adj the maximum value of adjusted VAF value (1/2CCF). Default: 0.3
 #' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 20
+
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
 #' @examples
@@ -114,10 +115,12 @@ testPowerLaw <- function(
             )
       vaf.plot <- NA 
       if(plot){
+
         Arealabel <- as.character(paste0("italic(Area) == ", round(area,4)))
         KDlabel <- as.character(paste0("italic(Kolmogorov_Distance) ==", round(kolmogorovdist,4) ))
         Mdlabel <- as.character(paste0("italic(Mean_Distance) == ", round(meandist,4) ))
         R2label <- as.character(paste0("italic(R)^2 == ", round(R2,4) ))
+
         x.min <- min(vafCumsum$f)
         x.max <- max(vafCumsum$f)
         x.breaks <- seq(x.min,x.max,(x.max-x.min)/2)

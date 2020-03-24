@@ -11,6 +11,10 @@ JSI_dist(df)
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
+\item{min.vaf}{specify the minimum VAF, default is 0.08}
+
+\item{max.vaf}{specify the minimum VAF, default is 1}
+
 \item{plot}{logical (Default:TRUE). Whether to show the plot, default TRUE}
 
 \item{use.circle}{logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix}
