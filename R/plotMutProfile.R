@@ -4,9 +4,9 @@ genHeatmapPlotMatrix <- function(
         maf_data, 
         topGenesCount = NULL) {
 
-    if ("Driver_Mut" %in% colnames(maf_data)) {
+    if ("Selected_Mut" %in% colnames(maf_data)) {
         maf_data <- maf_data %>%
-            dplyr::filter(Driver_Mut)
+            dplyr::filter(Selected_Mut)
     }
  
     # split by patient

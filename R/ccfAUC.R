@@ -113,7 +113,9 @@ ccfAUC <- function(
     
     if(plot) {
       CCF.plot <- ggplot(AUC.df, aes(x=as.factor(Patient_ID), y=AUC, fill = Patient_ID)) + 
-        geom_violin() + theme_bw() +     
+        geom_violin() + 
+        geom_boxplot(width=0.05, position=position_dodge(0.9)) +
+        theme_bw() +     
         #ylim(0,1) + 
         theme(legend.title = element_blank(),
               legend.text = element_text(size = 12),

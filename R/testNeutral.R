@@ -10,9 +10,9 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.depth the minimun depth of coverage. Defalut: 10
 #' @param R2.threshold the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
-#' @param min.VAF_adj the minimum value of adjusted VAF value. Default: 0.1
-#' @param max.VAF_adj the maximum value of adjusted VAF value. Default: 0.3
-#' @param min.sample.num the minimum number of mutation per sample.Default: 30.
+#' @param min.VAF_adj the minimum value of adjusted VAF value (1/2CCF). Default: 0.1
+#' @param max.VAF_adj the maximum value of adjusted VAF value (1/2CCF). Default: 0.3
+#' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 30
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
 #' @examples
@@ -25,8 +25,8 @@ testPowerLaw <- function(
     max.vaf, 
     min.depth,
     R2.threshold,
-    plot,
-    min.sample.num){
+    min.mut.count,
+    plot){
 
 	subPowerLaw <- function(
     sample.df,
@@ -34,8 +34,8 @@ testPowerLaw <- function(
     max.vaf,
     min.depth,
     R2.threshold,
-    plot,
-    min.sample.num){
+    min.mut.count,
+    plot){
 
 	    sample.id <- unique(sample.df$Tumor_Sample_Barcode)
 	    sample.df <- sample.df %>%
@@ -47,7 +47,7 @@ testPowerLaw <- function(
 	                !is.na(VAF_adj)
 	        )  
 
-		if(nrow(sample.df) < min.sample.num){
+		if(nrow(sample.df) < min.mut.count){
 			R2.out = data.frame()
             vaf.plot  = NA
 
@@ -110,9 +110,9 @@ testPowerLaw <- function(
             )
       vaf.plot <- NA 
       if(plot){
-        Arealabel <- as.character(paste0('Area == ', area))
-        KDlabel <- as.character(paste0('KD == ', kolmogorovdist))
-        Mdlabel <- as.character(paste0('MD == ', meandist))
+        Arealabel <- as.character(paste0('italic(Area == )', area))
+        KDlabel <- as.character(paste0('italic(KD == )', kolmogorovdist))
+        Mdlabel <- as.character(paste0('italic(MD == )', meandist))
         R2label <- as.character(paste0(
                                        #  'Area == ', area,'\n',
                                        # ' Kolmogorov_Distance == ', kolmogorovdist, '\n',
@@ -192,9 +192,9 @@ testPowerLaw <- function(
 	          min.vaf,
 	          max.vaf,
 	          min.depth,
-	          R2.,
+	          R2.threshold,
 	          plot,
-	          min.sample.num = min.sample.num), 
+	          min.mut.count = min.mut.count), 
 	          keep = TRUE) %>%
 	    rlang::set_names(unique(df$Tumor_Sample_Barcode))
 
@@ -206,7 +206,7 @@ testPowerLaw <- function(
 testNeutral <- function(maf, patient.id = NULL, 
     min.depth = 10, R2.threshold = 0.98,
     min.VAF_adj = 0.1, max.VAF_adj = 0.3,
-    min.sample.num = 30,
+    min.mut.count = 30,
     plot = TRUE){
 	
 	mafData <- maf@data
@@ -229,13 +229,13 @@ testNeutral <- function(maf, patient.id = NULL,
 	neutrality.list <- mafData %>%
 	    dplyr::group_by(Patient_ID) %>%
 	    dplyr::group_map(~testPowerLaw(.,
-	                                   min.vaf, 
-	                                   max.vaf, 
-	                                   min.depth, 
-	                                   R2.threshold, 
-	                                   plot,
-	                                   min.sample.num = min.sample.num), 
-	                     keep = TRUE) %>%
+	        min.vaf, 
+	        max.vaf, 
+	        min.depth, 
+	        R2.threshold, 
+	        min.mut.count,
+	        plot), 
+	        keep = TRUE) %>%
 	    rlang::set_names(unique(mafData$Patient_ID))    	
 	
 	testNeutral.out = list(
