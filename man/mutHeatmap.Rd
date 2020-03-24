@@ -4,10 +4,12 @@
 \alias{mutHeatmap}
 \title{mutHeatmap}
 \usage{
-mutHeatmap(phyloTree, use.ccf = FALSE)
+mutHeatmap(phyloTree, use.ccf = FALSE, show.class.label = TRUE)
 }
 \arguments{
 \item{use.ccf}{logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.}
+
+\item{show.class.label}{logical. If TRUE, show labels for mutations classes on the heatmap.Default is TRUE.}
 }
 \value{
 heatmap of somatic mutations

@@ -13,7 +13,9 @@ fst.hudson.pair(maf.pair)
 
 \item{use.adjVAF}{whether to use adjusted VAF values rather than original VAF values, default FALSE}
 
-\item{min.vaf}{specify the minimum CCF value of subclonal mutations, default is 0.08}
+\item{min.vaf}{specify the minimum VAF, default is 0.08}
+
+\item{max.vaf}{specify the minimum VAF, default is 1}
 }
 \value{
 a list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.

@@ -14,6 +14,8 @@ ccfAUC.sample(ccf)
 \item{min.ccf}{the minimum value of CCF. Default: 0}
 
 \item{plot.density}{whether to show the density plot. Default: TRUE}
+
+\item{plot}{whether to generate the violin plot of all patients. Default: TRUE}
 }
 \value{
 A list containing AUC of CCF and a graph

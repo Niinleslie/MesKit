@@ -65,37 +65,25 @@ readMaf <- function(## maf parameters
             stringsAsFactors = FALSE
         )
     
+    ## check required columns
     maf.standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
                      "Variant_Classification", "Variant_Type", "Reference_Allele",
                      "Tumor_Seq_Allele2","Ref_allele_depth","Alt_allele_depth",
                      "VAF", "Tumor_Sample_Barcode","Patient_ID")
     
     if(!all(maf.standardCol %in% colnames(mafData))){
-        stop("MAF file should contain Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,Variant_Type,Reference_Allele,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,Tumor_Sample_Barcode and Patient_ID")
+        stop(paste("MAF file should contain Hugo_Symbol, Chromosome, Start_Position, End_Position, ",
+                    "Variant_Classification, Variant_Type, Reference_Allele, ", 
+                    "Tumor_Seq_Allele2, Ref_allele_depth, Alt_allele_depth, VAF, Tumor_Sample_Barcode, Patient_ID")
+        )
     }
-    
-    ## read ccf files
-    if (!is.null(ccfFile)) {
-        ccfInput <- suppressWarnings(read.table(
-            ccfFile,
-            quote = "",
-            header = TRUE,
-            fill = TRUE,
-            sep = '\t',
-            stringsAsFactors = FALSE
-        ))
-        
 
-        ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
-        if(!all(ccf.standardCol %in% colnames(ccfInput))){
-            stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
-        }
-        
-        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level) %>%
-            #getMutStatus() %>%
-            dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
-    }
-    
+    ## Rescale vaf coloum 0-1
+    if(max(mafData$VAF, na.rm = TRUE) > 1){
+        mafData$VAF <- as.numeric(as.character(mafData$VAFdat))/100
+    } 
+
+
     ## VAF and allele depth filter
     mafData <- mafData %>%
         dplyr::filter(VAF > min.vaf,
@@ -134,10 +122,7 @@ readMaf <- function(## maf parameters
         mafData <- mafData[which(!mafData$Chromosome %in% chrSilent),]
     }
     
-    ## Rescale vaf coloum 0-1
-    if(max(mafData$VAF, na.rm = TRUE) > 1){
-        mafData$VAF <- as.numeric(as.character(mafData$VAFdat))/100
-    }    
+   
     # Add sampleinfo
     patients.dat <- split(mafData, mafData$Patient_ID)
     sample.info <- lapply(patients.dat,
@@ -149,6 +134,28 @@ readMaf <- function(## maf parameters
                               return(patient.tsbs)
                           })
 
+    
+    ## read ccf files
+    if (!is.null(ccfFile)) {
+        ccfInput <- suppressWarnings(read.table(
+            ccfFile,
+            quote = "",
+            header = TRUE,
+            fill = TRUE,
+            sep = '\t',
+            stringsAsFactors = FALSE
+        ))
+        
+
+        ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
+        if(!all(ccf.standardCol %in% colnames(ccfInput))){
+            stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
+        }
+        
+        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level) %>%
+            #getMutStatus() %>%
+            dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
+    }
     
     
     ## generate classMaf
@@ -226,7 +233,8 @@ classMaf <- setClass(
     Class = "classMaf",
     slots = c(
         data = 'data.table',
-        ref.build = 'character',
-        sample.info = 'list'
+        sample.info = 'list',        
+        ref.build = 'character'
+
     )
 )

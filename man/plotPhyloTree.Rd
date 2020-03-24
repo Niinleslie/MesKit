@@ -9,6 +9,7 @@ plotPhyloTree(
   show.mutSig = TRUE,
   show.heatmap = TRUE,
   heatmap.type = "binary",
+  show.class.label = FALSE,
   show.bootstrap = TRUE,
   use.box = TRUE,
   min.ratio = 1/30,
@@ -23,6 +24,8 @@ plotPhyloTree(
 \item{show.heatmap}{logical. Whether to show heatmap of somatic mutations. Default is TRUE.}
 
 \item{heatmap.type}{character. "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap. This parameter is only useful when show.mutSig = TRUE.}
+
+\item{show.class.label}{logical. If TRUE, show labels for mutations classes on the heatmap.Default is FALSE.}
 
 \item{show.bootstrap}{logical.Whether to add bootstrap value on internal nodes.Default is TRUE.}
 
