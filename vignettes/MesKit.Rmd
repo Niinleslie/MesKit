@@ -308,7 +308,7 @@ Neidist$Nei.plot[['HCC5647']]
    
 #### 7.3 Jaccard similarity index
 
-The Jaccard similarity index (JSI) can be used to calculate mutational similarity between lesions, which is defined as the ratio of shared variants to all variants for sample pairs[45-47]. Users can distinguish monoclonal versus polyclonal seeding in metastases (including lymph node metastases and distant metastases) via ```calJSI``` function. Higher JSI values are more likely indicates polyclonal seeding [10](#refer). 
+The Jaccard similarity index (JSI) can be used to calculate mutational similarity between lesions, which is defined as the ratio of shared variants to all variants for sample pairs (Limited heterogeneity of known driver gene mutations among the metastases of individual patients with pancreatic cancer). Users can distinguish monoclonal versus polyclonal seeding in metastases (including lymph node metastases and distant metastases) via ```calJSI``` function. Higher JSI values are more likely indicates polyclonal seeding [10](#refer). 
 
   
 ```{r fig.align='left', fig.width=6, fig.height=5, fig.asp=1.0}
