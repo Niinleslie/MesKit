@@ -32,11 +32,11 @@ copyNumberFilter <- function(maf, seg){
   # colnames(overlapsDat)[c(3:4, 7:8)] <-  c('Start_Position', 'End_Position', 'Segment_Start', 'Segment_End')
   if(nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]) > 0){
     message(paste('Removed ', nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]), ' variants with no copy number data.', sep = ''))
-    print(overlapsDat[is.na(overlapsDat$CopyNumber)])
+    # print(overlapsDat[is.na(overlapsDat$CopyNumber)])
     overlapsDat = overlapsDat[!is.na(overlapsDat$CopyNumber)]
   }
   message(paste('Removed ', nrow(overlapsDat[overlapsDat$Type != "Neutral",]), ' variants in copy number altered regions.', sep = ''))
-  print(overlapsDat[overlapsDat$Type != "Neutral",])
+  # print(overlapsDat[overlapsDat$Type != "Neutral",])
   overlapsDat <-  overlapsDat[overlapsDat$Type == "Neutral",]
   mafDat <- mafDat[ID %in% c(overlapsDat$ID, resID)] %>% subset(select = -c(ID))
   maf@data <- mafDat

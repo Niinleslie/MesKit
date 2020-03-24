@@ -70,6 +70,8 @@ doGetPhyloTree <- function(patient.dat = NULL,
                            max.vaf = 1,
                            min.CCF = NULL,
                            bootstrap.rep.num = 100){
+    patientID <- unique(patient.dat$Patient_ID)
+    # print(patientID)
     if(!is.null(min.CCF)){
 
         if("CCF" %in% colnames(patient.dat)){
@@ -111,7 +113,6 @@ doGetPhyloTree <- function(patient.dat = NULL,
     }
     branchAlias <- readPhyloTree(matTree)
     mut.branches <- treeMutationalBranches(patient.dat, branchAlias, binary.matrix)
-    patientID <- unique(patient.dat$Patient_ID)
     phylo.tree <- new('phyloTree', patientID = patientID, tree = matTree, 
                       binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
                       mut.branches = mut.branches, refBuild = refBuild,

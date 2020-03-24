@@ -26,7 +26,10 @@ getMutMatrix <- function(mafData, use.ccf = FALSE){
 
     mutBinary[!is.na(mutBinary)] <- 1
     mutBinary[is.na(mutBinary)] <- 0
-    mutBinary$NORMAL <- 0
+    if(!"NORMAL" %in% colnames(mutBinary)){
+        mutBinary$NORMAL <- 0
+    }
+    # mutBinary$NORMAL <- 0
 
     mutBinary <- apply(mutBinary, 2, as.numeric)
     mutBinary.trans <- t(mutBinary)

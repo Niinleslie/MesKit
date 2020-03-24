@@ -4,6 +4,7 @@
 #' @param show.mutSig logical. Whether to show mutational signature on tree. Default is TRUE.
 #' @param show.heatmap logical. Whether to show heatmap of somatic mutations. Default is TRUE.
 #' @param heatmap.type character. "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap. This parameter is only useful when show.mutSig = TRUE.
+#' @param show.class.label logical. If TRUE, show labels for mutations classes on the heatmap.Default is FALSE.
 #' @param show.bootstrap logical.Whether to add bootstrap value on internal nodes.Default is TRUE.
 #' @param use.box logical.Whether to add box around bootstrap value on tree. Default is TRUE.
 #' @param min.ratio double (Default:1/30). If min.ratio is not NULL,
@@ -26,6 +27,7 @@ plotPhyloTree <- function(phyloTree = NULL,
                           show.mutSig = TRUE,
                           show.heatmap = TRUE,
                           heatmap.type = 'binary',
+                          show.class.label = FALSE,
                           show.bootstrap = TRUE,
                           use.box = TRUE,
                           min.ratio = 1/30,
@@ -52,7 +54,8 @@ plotPhyloTree <- function(phyloTree = NULL,
                        use.box = use.box,
                        show.heatmap = show.heatmap,
                        use.ccf = use.ccf,
-                       min.ratio = min.ratio)
+                       min.ratio = min.ratio,
+                       show.class.label = show.class.label)
    return(tree.list)
 }
 
@@ -539,7 +542,8 @@ drawPhyloTree <- function(phyloTree = NULL,
                           use.ccf = FALSE,
                           compare = FALSE,
                           common.lty = "solid",
-                          min.ratio = 1/30){
+                          min.ratio = 1/30,
+                          show.class.label = FALSE){
     if(min.ratio > 0){
         min.len <- max(phyloTree@tree$edge.length)*min.ratio
         phyloTree@tree$edge.length[phyloTree@tree$edge.length < min.len] <- min.len
@@ -581,8 +585,7 @@ drawPhyloTree <- function(phyloTree = NULL,
     rootNode <- treeData[sample == rootLabel,]$node
     if(length(myBoots) == 1){
         bootsData <- data.frame(x2 = 0, y2 = 0, node = rootNode, end_num = rootNode, boots = myBoots)
-    }
-    else{
+    }else{
         sub <- data.table::data.table(x2 = 0, y2 = 0,node = rootNode, end_num = rootNode)
         bootsData <- rbind(treeData[sample == 'internal node',][,.(x2,y2,node,end_num)],sub)
         boots <- c()
@@ -659,16 +662,32 @@ drawPhyloTree <- function(phyloTree = NULL,
                    legend.direction = "horizontal") + 
         guides(color = guide_legend(nrow=1))+
         coord_fixed(ratio= 1) +
-        scale_x_discrete(expand = expand_scale(add = mean(treeData$distance)))
+        scale_x_discrete(expand = expansion(add = mean(treeData$distance)))
     
     p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
                              nudge_y = textAdjust/10,
-                             # segment.alpha = 0,
-                             # direction = "x"
+                             nudge_x = textAdjust/10,
                              segment.color = "grey",
                              segment.size = 0.25,
-                             data = treeData[!sample %in% c("internal node",rootLabel), ],
+                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
+                                                 x2 >= 0, ],
                              fontface = 'bold', size = sampleTextSize ,force = 10)
+    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                             nudge_y = textAdjust/10,
+                             nudge_x = -textAdjust/10,
+                             segment.color = "grey",
+                             segment.size = 0.25,
+                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
+                                                 x2 < 0, ],
+                             fontface = 'bold', size = sampleTextSize ,force = 10)
+    # p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+    #                          nudge_y = textAdjust/10,
+    #                          # segment.alpha = 0,
+    #                          # direction = "x"
+    #                          segment.color = "grey",
+    #                          segment.size = 0.25,
+    #                          data = treeData[!sample %in% c("internal node",rootLabel), ],
+    #                          fontface = 'bold', size = sampleTextSize ,force = 10)
     p <- p + geom_text_repel(aes(x = x2,y = y2), label = rootLabel, vjust = 0, 
                              nudge_y = -textAdjust/5,
                              segment.alpha = 0,
@@ -711,21 +730,31 @@ drawPhyloTree <- function(phyloTree = NULL,
                                   segment.colour = "grey50", segment.size = 0.5, force = 5)
     }
     if(show.heatmap){
-        h <- mutHeatmap(phyloTree = phyloTree, use.ccf = use.ccf)
+        ## combind heatmap and tree
+        h <- mutHeatmap(phyloTree = phyloTree,
+                        use.ccf = use.ccf,
+                        show.class.label = show.class.label)
+        # PH <- cowplot::plot_grid(p,
+        #                          h + theme(plot.margin=unit(c(1.5,0,1,-2),"cm")),
+        #                          rel_widths = c(1,0.4))
+        PH <- ggdraw(xlim = c(0.1,0.7)) +
+            draw_plot(p, x = -0.05,y = 0, width = 0.7) +
+            draw_plot(h, x = 0.48,y = 0.02, width = 0.2,height = 1)
+        # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) +
+        #       draw_plot(p, x = 0,y = 0, width = 0.7) +
+        #       draw_plot(h, x = 0.6,y = 0, width = 0.3)
+        
+        ## get title 
         pm <- getPrivateMutation(phyloTree = phyloTree)
         totalMutSum <- pm[[1]]
         privateMutProportion <- pm[[2]]
-        PH <- ggdraw(xlim = c(0.1,0.7)) + 
-            draw_plot(p, x = -0.05,y = 0, width = 0.7) + 
-            draw_plot(h, x = 0.48,y = -0.12, width = 0.15)
-        # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) + 
-        #       draw_plot(p, x = 0,y = 0, width = 0.7) + 
-        #       draw_plot(h, x = 0.6,y = 0, width = 0.15)
         title <- ggdraw() + 
-            draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),
-                       fontface = "bold")
+            draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
+        
+        ## combind heatmap,tree and title
         PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1)) + 
             theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
+        
         # ggsave(filename = paste0(patientID,".pdf"),plot = PH,width = 10,height = 6.5)
         return(PH)
     }

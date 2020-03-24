@@ -1,4 +1,4 @@
-#' mutSharedPrivate
+#' mutSharedPattern
 #' 
 #' @description  Use R code to find the intersect mutations and their types in several samples of one patient
 #' @param maf Maf object return from read.Maf()
@@ -7,20 +7,37 @@
 #' @importFrom tidyr unite
 #' @importFrom dplyr select
 #' @examples
-#' mutSharedPrivate(maf)
-#' @export mutSharedPrivate
-#' @import cowplot dplyr ComplexHeatmap
+#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "Meskit")
+#' sampleInfo.File <- system.file("extdata", "HCC6046.sampleInfo.txt", package = "Meskit")
+#' ccf.cluster.File <- system.file("extdata/ccf", "HCC6046.cluster.tsv", package = "Meskit")
+#' ccf.loci.File <- system.file("extdata/ccf", "HCC6046.loci.tsv", package = "Meskit")
+#' maf <- readMaf(mafFile = maf.File, sampleInfo = sampleInfo.File, 
+#'                 ccfClusterTsvFile = ccf.cluster.File, 
+#'                 ccfLociTsvFile = ccf.loci.File,
+#'                 refBuild = "hg19")
+#' mutSharedPattern(maf)
+#' @export mutSharedPattern
+#' @import cowplot dplyr
 
-mutSharedPrivate <- function(maf, show.num = FALSE){
+mutSharedPattern <- function(maf, show.num = FALSE, gene_list = NULL){
     maf.dat <- maf@data
     patient.ids <- unique(maf.dat$Patient_ID)
     msp.list <- maf.dat %>% dplyr::group_by(Patient_ID) %>% 
-                group_map(~doMutSharedPrivate(.x, show.num = show.num), keep = TRUE) %>%
+                group_map(~doMutSharedPattern(.x,
+                                              show.num = show.num,
+                                              gene_list = gene_list),
+                          keep = TRUE) %>%
                 rlang::set_names(patient.ids)
     return(msp.list)
 }
 
-doMutSharedPrivate <- function(df, show.num){
+doMutSharedPattern <- function(df, show.num, gene_list = NULL){
+    if(!is.null(gene_list) & length(gene_list) > 1){
+        df <- df  %>%
+            dplyr::rowwise() %>%
+            dplyr::filter(any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% gene_list)) %>%
+            as.data.frame()
+    }
     df$Hugo_Symbol <- as.character(df$Hugo_Symbol)
     while(TRUE){
         numPos <-  unlist(lapply(df$Hugo_Symbol, function(x){
@@ -172,7 +189,6 @@ doMutSharedPrivate <- function(df, show.num){
                                      "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
                                      "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666"))+
         scale_y_continuous(expand = c(0,0))
-
     # draw point-line plot
     pointLinePlot <- ggplot(pointLineFrame)+
         aes(x=combinations,y=sample)
