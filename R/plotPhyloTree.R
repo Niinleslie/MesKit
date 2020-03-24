@@ -731,7 +731,8 @@ drawPhyloTree <- function(phyloTree = NULL,
     }
     if(show.heatmap){
         ## combind heatmap and tree
-        h <- mutHeatmap(phyloTree = phyloTree,
+        h <- plotHeatmap(binary.mat =  phyloTree@binary.matrix,
+                        ccf.mat = phyloTree@ccf.matrix,
                         use.ccf = use.ccf,
                         show.class.label = show.class.label)
         # PH <- cowplot::plot_grid(p,

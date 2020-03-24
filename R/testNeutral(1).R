@@ -12,7 +12,7 @@
 #' @param R2.threshold the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
 #' @param min.VAF_adj the minimum value of adjusted VAF value (1/2CCF). Default: 0.1
 #' @param max.VAF_adj the maximum value of adjusted VAF value (1/2CCF). Default: 0.3
-#' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 20
+#' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 30
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
 #' @examples
@@ -71,13 +71,9 @@ testPowerLaw <- function(
 			vafCumsum$t_count <- vafCumsum$inv_f/(1/min.VAF_adj - 1/max.VAF_adj)
 			
 			## area of theoretical curve
-			theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$t_count),
-			                     min(vafCumsum$inv_f),
-			                     max(vafCumsum$inv_f))$value
+			theoryA <- pracma::trapz(vafCumsum$inv_f, vafCumsum$t_count)
 			# area of emprical curve
-			theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
-			                     min(vafCumsum$inv_f),
-			                     max(vafCumsum$inv_f))$value
+			dataA <- pracma::trapz(vafCumsum$inv_f, vafCumsum$n_count)
 			# Take absolute difference between the two
 			area <- abs(theoryA - dataA)
 			# Normalize so that metric is invariant to chosen limits
@@ -100,24 +96,28 @@ testPowerLaw <- function(
       		R2 = lmLine$adj.r.squared
       		
           R2.out <- data.frame(
-             Patient = as.character(unique(sample.df$Patient_ID)),
             Tumor_Sample_Barcode = sample.id,
             Eligible_Mut_Count = nrow(sample.df ),
             Area = area,
             Kolmogorov_Distance = kolmogorovdist,
-            Mean_Distance = meandist,
+            Mean_distance = meandist,
             R2 = R2, 
             Type = dplyr::if_else(
               R2 >= R2.threshold,
               "neutral",
-              "non-neutral") 
+              "non-neutral"),
+            patient = as.character(unique(sample.df$Patient_ID)) 
             )
       vaf.plot <- NA 
       if(plot){
-        Arealabel <- as.character(paste0("italic(Area) == ", round(area,4)))
-        KDlabel <- as.character(paste0("italic(Kolmogorov_Distance) ==", round(kolmogorovdist,4) ))
-        Mdlabel <- as.character(paste0("italic(Mean_Distance) == ", round(meandist,4) ))
-        R2label <- as.character(paste0("italic(R)^2 == ", round(R2,4) ))
+        Arealabel <- as.character(paste0('italic(Area == )', area))
+        KDlabel <- as.character(paste0('italic(KD == )', kolmogorovdist))
+        Mdlabel <- as.character(paste0('italic(MD == )', meandist))
+        R2label <- as.character(paste0(
+                                       #  'Area == ', area,'\n',
+                                       # ' Kolmogorov_Distance == ', kolmogorovdist, '\n',
+                                       # 'Mean_distance == ', meandist, '\n',
+                                       'italic(R)^2 == ', R2))
         x.min <- min(vafCumsum$f)
         x.max <- max(vafCumsum$f)
         x.breaks <- seq(x.min,x.max,(x.max-x.min)/2)
@@ -147,41 +147,36 @@ testPowerLaw <- function(
       		                        #            round(y.min+(y.max-y.min)/4),
       		                        #            round(y.min+(y.max-y.min)*2/4),
       		                        #            round(y.max)))+
-      	        labs(title= unique(sample.df$Tumor_Sample_Barcode),
-      	             x="Inverse allelic frequency 1/vaf",
-      	             y="Cumulative number of SSNVs")+
+      		    xlab("Inverse allelic frequency 1/vaf")+
+      		    ylab("Cumulative number of SSNVs")+
       	        annotate("text",
-      	             x = x.min,
+      	             x = quantile(vafCumsum$inv_f)[2],
       	             y = y.max,
       	             label = Arealabel,
       	             size = 4,
       	             fontface = "bold",
-      	             parse = TRUE,
-      	             hjust = 0)+
+      	             parse = TRUE)+
       	       annotate("text",
-      	             x = x.min,
+      	             x = quantile(vafCumsum$inv_f)[2],
       	             y = y.max*0.95,
       	             label = KDlabel,
       	             size = 4,
       	             fontface = "bold",
-      	             parse = TRUE,
-      	             hjust = 0)+
+      	             parse = TRUE)+
       	    annotate("text",
-      	             x = x.min,
+      	             x = quantile(vafCumsum$inv_f)[2],
       	             y = y.max*0.9,
       	             label = Mdlabel,
       	             size = 4,
       	             fontface = "bold",
-      	             parse = TRUE,
-      	             hjust = 0)+
+      	             parse = TRUE)+
       		    annotate("text",
-      		              x = x.min,
+      		              x = quantile(vafCumsum$inv_f)[2],
       		              y = y.max*0.85,
       		              label = R2label,
       		              size = 4,
                         fontface = "bold",
-                        parse = TRUE,
-      		             hjust = 0)
+                        parse = TRUE)
 
       		}
 	      
@@ -211,7 +206,7 @@ testPowerLaw <- function(
 testNeutral <- function(maf, patient.id = NULL, 
     min.depth = 10, R2.threshold = 0.98,
     min.VAF_adj = 0.1, max.VAF_adj = 0.3,
-    min.mut.count = 20,
+    min.mut.count = 30,
     plot = TRUE){
 	
 	mafData <- maf@data
@@ -245,52 +240,32 @@ testNeutral <- function(maf, patient.id = NULL,
 	
 	testNeutral.out = list(
 	    neutrality.metrics = lapply(neutrality.list, 
-	                                function(x){
-	                                    d <- do.call(rbind, lapply(x, function(y)y$model.fitting.out))
-	                                    if(nrow(d) >= 1){
-	                                        rownames(d) <- 1:nrow(d) 
-	                                    }
-	                                    return(d)
-	                                    }
+	                                function(x) do.call(rbind, lapply(x, function(y) y$model.fitting.out))
 	    ),
 	    model.fitting.plot = lapply(neutrality.list, 
 	                                function(x) lapply(x, function(y) y$model.fitting.plot))
 	)
-	if(plot){
-	    ## combind data of all patients
-	    violin.data <- do.call(plyr::rbind.fill, testNeutral.out$neutrality.metrics)
-	    
-	    ## set y axis
-	    y.min <- floor(min(violin.data$R2)*10)/10 
-	    breaks.y <-  seq(y.min, 1, (1-y.min)/3)
-	    p.violin <- ggplot(data = violin.data,aes(x = Patient, y = R2, fill = Patient))+
-	        geom_violin(trim=T,color="black")+
+	if(plot & length(patient.id)!=1){
+	    violin.data <- do.call(rbind.fill,testNeutral.out$neutrality.metrics)
+	    p.violin <- ggplot(data = violin.data,aes(x = patient, y = R2, fill = patient))+
+	        geom_violin(trim=FALSE,color="white")+
 	        geom_boxplot(width=0.05,position=position_dodge(0.9))+
-	        geom_hline(yintercept = R2.threshold,linetype = 2,color = "red")+
+	        geom_hline(yintercept = R2.threshold,linetype = 2)+
 	        theme_bw() + 
-	        ylab(expression(italic(R)^2))+
-	        scale_y_continuous(breaks = breaks.y, labels = round(breaks.y,3),
-	                           limits = c(breaks.y[1],1))+
-	        ## line of axis y
-	        geom_segment(aes(y = y.min ,
-	                         yend = 1,
-	                         x=-Inf,
-	                         xend=-Inf),
-	                     size = 1.5)+
-	        theme(axis.text.x=element_text(vjust = .3 ,size=10,color = "black",angle = 90), 
-	              axis.text.y=element_text(size=10,color = "black"), 
-	              axis.line.x = element_blank(),
-	              axis.ticks.x = element_blank(),
-	              axis.ticks.length = unit(.25, "cm"),
-	              axis.line.y = element_blank(),
-	              axis.ticks.y = element_line(size = 1),
+	        ylim(0,1)+
+	        theme(axis.text.x=element_text(hjust = 0.5,size=10), 
+	              axis.text.y=element_text(size=10), 
 	              axis.title.y=element_text(size = 15), 
 	              axis.title.x=element_blank(), 
 	              panel.border = element_blank(),axis.line = element_line(colour = "black",size=1),
 	              legend.text=element_text( colour="black", size=10),
 	              legend.title= element_blank(),
-	              panel.grid.major = element_line(linetype = 2),
-	              panel.grid.minor = element_blank()) 
+	              panel.grid.major = element_blank(),  
+	              panel.grid.minor = element_blank())+  
+	        ## color scales
+	        scale_fill_manual(values = c( "#E64B35B2","#4DBBD5B2","#00A087B2","#3C5488B2","#F39B7FB2",
+	                                      "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
+	                                      "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666"))
 	    testNeutral.out$R2.fit.plot <- p.violin
 	    
 	}
