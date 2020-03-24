@@ -12,6 +12,7 @@
 #' @param R2.threshold the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
 #' @param min.VAF_adj the minimum value of adjusted VAF value. Default: 0.1
 #' @param max.VAF_adj the maximum value of adjusted VAF value. Default: 0.3
+#' @param min.sample.num the minimum number of mutation per sample.Default: 30.
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
 #' @examples
@@ -24,7 +25,8 @@ testPowerLaw <- function(
     max.VAF_adj, 
     min.depth,
     R2.threshold,
-    plot){
+    plot,
+    min.sample.num){
 
 	subPowerLaw <- function(
     sample.df,
@@ -32,54 +34,100 @@ testPowerLaw <- function(
     max.VAF_adj,
     min.depth,
     R2.threshold,
-    plot){
+    plot,
+    min.sample.num){
 
-		sample.id <- unique(sample.df$Tumor_Sample_Barcode)
-    	sample.df <- sample.df %>%
-    		dplyr::filter(
-    			Status == "Subclonal" & 
-    			Ref_allele_depth + Alt_allele_depth > min.depth &
-          VAF_adj > min.VAF_adj &
-          VAF_adj < max.VAF_adj &
-    			!is.na(VAF_adj)
-    		)  
+	    sample.id <- unique(sample.df$Tumor_Sample_Barcode)
+	    sample.df <- sample.df %>%
+	        dplyr::filter(
+	            Status == "Subclonal" & 
+	                Ref_allele_depth + Alt_allele_depth > min.depth &
+	                VAF_adj > min.VAF_adj &
+	                VAF_adj < max.VAF_adj &
+	                !is.na(VAF_adj)
+	        )  
 
-		if(nrow(sample.df) < 30){
-			R2.out = NA
-      vaf.plot  = NA
+		if(nrow(sample.df) < min.sample.num){
+			R2.out = data.frame()
+            vaf.plot  = NA
 			warning(paste0("Sample ", sample.id, ": There is no enough eligible mutations can be used."))
 		}else{
-			max.vaf <- max(sample.df$VAF_adj)
-			min.vaf <- min(sample.df$VAF_adj)
-			breaks = ceiling((max.vaf - min.vaf)/0.005)
-			vafCount =  hist(1/sample.df$VAF_adj, breaks = breaks, plot = F)
-			vafCumsum <- data.frame(vafCount$breaks, c(0,cumsum(vafCount$counts)))
-			lmModel <- lm(vafCumsum[, 2] ~ vafCumsum[, 1])
+		    vaf <- sample.df$VAF_adj
+			# max.vaf <- max(sample.df$VAF_adj)
+			# min.vaf <- min(sample.df$VAF_adj)
+			# 
+			## get cumulative distribution 
+			
+			# breaks = ceiling((max.vaf - min.vaf)/0.005)
+			# vafCount =  hist(1/sample.df$VAF_adj, breaks = breaks, plot = F)
+			# vafCumsum <- data.frame(inv_f = vafCount$breaks, count = c(0,cumsum(vafCount$counts)))
+			
+			breaks <- seq(max.VAF_adj, min.VAF_adj, -0.005)
+			mut.count <- sapply(breaks,function(x,vaf){sum(vaf > x)},vaf = vaf)
+			vafCumsum <- data.frame(count = mut.count, f = breaks)
+			vafCumsum$inv_f <- 1/vafCumsum$f - 1/max.VAF_adj
+			vafCumsum$n_count <- vafCumsum$count/max(vafCumsum)
+			vafCumsum$t_count <- vafCumsum$inv_f/(1/min.VAF_adj - 1/max.VAF_adj)
+			
+			## area of theoretical curve
+			theoryA <- pracma::trapz(vafCumsum$inv_f, vafCumsum$t_count)
+			# area of emprical curve
+			dataA <- pracma::trapz(vafCumsum$inv_f, vafCumsum$n_count)
+			# Take absolute difference between the two
+			area <- abs(theoryA - dataA)
+			# Normalize so that metric is invariant to chosen limits
+			area<- area / (1 / min.VAF_adj - 1 / max.VAF_adj)
+			
+			
+			## calculate mean distance
+			meandist <- mean(abs(vafCumsum$n_count - vafCumsum$t_count))
+			
+			## calculate kolmogorovdist 
+			n = length(vaf)
+			cdfs <- 1 - ((1/sort(vaf) - 1/max.VAF_adj) /(1/min.VAF_adj - 1/max.VAF_adj))
+			dp <- max((1:n) / n - cdfs)
+			dn <- - min((0:(n-1)) / n - cdfs)
+			kolmogorovdist  <- max(c(dn, dp))
+
+			## R squared
+			lmModel <- lm(vafCumsum$count ~ vafCumsum$inv_f + 0)
       		lmLine = summary(lmModel)
-      		x.min <- min(vafCumsum[, 1])
-      		x.max <- max(vafCumsum[, 1])
-      		y.min <- min(vafCumsum[, 2])
-      		y.max <- max(vafCumsum[, 2],
-      		             (x.max*lmModel$coefficients[2]+lmModel$coefficients[1]))
-      R2 = lmLine$adj.r.squared
-      R2.out <- data.frame(
-        Tumor_Sample_Barcode = sample.id,
-        Eligible_Mut_Count = nrow(sample.df ),
-        R2 = R2, 
-        Type = dplyr::if_else(
-          R2 >= R2.threshold,
-          "neutral",
-          "non-neutral")
-        )
- 
+      		R2 = lmLine$adj.r.squared
+      		
+          R2.out <- data.frame(
+            Tumor_Sample_Barcode = sample.id,
+            Eligible_Mut_Count = nrow(sample.df ),
+            Area = area,
+            Kolmogorov_Distance = kolmogorovdist,
+            Mean_distance = meandist,
+            R2 = R2, 
+            Type = dplyr::if_else(
+              R2 >= R2.threshold,
+              "neutral",
+              "non-neutral"),
+            patient = as.character(unique(sample.df$Patient_ID)) 
+            )
       vaf.plot <- NA 
       if(plot){
-
-        R2label <- as.character(paste0(sample.id,':  italic(R)^2 == ', R2))
-
-      	vaf.plot <- ggplot(data = vafCumsum, mapping = aes(x = vafCount.breaks, y = c.0..cumsum.vafCount.counts..)) +
+        Arealabel <- as.character(paste0('Area == ', area))
+        KDlabel <- as.character(paste0('KD == ', kolmogorovdist))
+        Mdlabel <- as.character(paste0('MD == ', meandist))
+        R2label <- as.character(paste0(
+                                       #  'Area == ', area,'\n',
+                                       # ' Kolmogorov_Distance == ', kolmogorovdist, '\n',
+                                       # 'Mean_distance == ', meandist, '\n',
+                                       'italic(R)^2 == ', R2))
+        x.min <- min(vafCumsum$f)
+        x.max <- max(vafCumsum$f)
+        x.breaks <- seq(x.min,x.max,(x.max-x.min)/2)
+        x.breaks.pos <- 1/x.breaks - 1/max.VAF_adj
+        x.breaks.label <- paste("1/", round(x.breaks,2),sep="")
+        y.min <- min(vafCumsum$count)
+        y.max <- max(vafCumsum$count,
+                     (max(vafCumsum$inv_f)*lmModel$coefficients[1]))
+      	vaf.plot <- ggplot(data = vafCumsum, mapping = aes(x = inv_f, y = count)) +
       		      geom_point()+
-      		      geom_smooth(method=lm, color="red")+
+      		      geom_smooth(method=lm,formula = y ~ x + 0, color="red",se = FALSE)+
       		      theme(panel.grid =element_blank(),
       		            panel.border = element_blank(),
       		            panel.background = element_blank(),
@@ -88,12 +136,10 @@ testPowerLaw <- function(
       		            axis.title = element_text(size = 13,face = "bold",colour = "black"),
       		            axis.text = element_text(size = 10,face = "bold",colour = "black"),
       		            axis.ticks.length = unit(.25, "cm"))+
-      		    geom_segment(aes(x = x.min,xend= x.max, y=-Inf,yend=-Inf), size = 1)+
+      		    geom_segment(aes(x = min(inv_f),xend= max(inv_f), y=-Inf,yend=-Inf), size = 1)+
       		    geom_segment(aes(y = y.min ,yend = y.max,x=-Inf,xend=-Inf), size = 1.5)+
-      		    scale_x_continuous(breaks = seq(x.min,x.max,(x.max-x.min)/2),
-      		                        labels = c(paste0('1/', round(1/x.min,2)),
-      		                                  paste0('1/', round(1/(x.min+(x.max-x.min)/2),2)),
-      		                                  paste0('1/', round(1/x.max,2))))+
+      		    scale_x_continuous(breaks = x.breaks.pos,
+      		                        labels = x.breaks.label)+
       		    scale_y_continuous(breaks = seq(y.min,y.max,(y.max-y.min)/4),
       		                        labels = round(seq(y.min,y.max,(y.max-y.min)/4)))+
       		                        # labels = c(round(y.min),
@@ -102,9 +148,30 @@ testPowerLaw <- function(
       		                        #            round(y.max)))+
       		    xlab("Inverse allelic frequency 1/vaf")+
       		    ylab("Cumulative number of SSNVs")+
+      	        annotate("text",
+      	             x = quantile(vafCumsum$inv_f)[2],
+      	             y = y.max,
+      	             label = Arealabel,
+      	             size = 4,
+      	             fontface = "bold",
+      	             parse = TRUE)+
+      	       annotate("text",
+      	             x = quantile(vafCumsum$inv_f)[2],
+      	             y = y.max*0.95,
+      	             label = KDlabel,
+      	             size = 4,
+      	             fontface = "bold",
+      	             parse = TRUE)+
+      	    annotate("text",
+      	             x = quantile(vafCumsum$inv_f)[2],
+      	             y = y.max*0.9,
+      	             label = Mdlabel,
+      	             size = 4,
+      	             fontface = "bold",
+      	             parse = TRUE)+
       		    annotate("text",
-      		              x = quantile(vafCumsum[, 1])[2],
-      		              y = max(vafCumsum[, 2]),
+      		              x = quantile(vafCumsum$inv_f)[2],
+      		              y = y.max*0.85,
       		              label = R2label,
       		              size = 4,
                         fontface = "bold",
@@ -117,24 +184,19 @@ testPowerLaw <- function(
 		return(list(model.fitting.out = R2.out, model.fitting.plot = vaf.plot))		
 	}
 
-	patient.R2 <- df %>%
-		dplyr::group_by(Tumor_Sample_Barcode) %>%
-		dplyr::group_map(~subPowerLaw(.,
-          min.VAF_adj,
-          max.VAF_adj,
-          min.depth,
-          R2.threshold,
-          plot), 
-          keep = TRUE) %>%
-    rlang::set_names(unique(df$Tumor_Sample_Barcode))
 	
-  #neutralTest.out <- data.frame(
-	    #Tumor_Sample_Barcods = unique(df$Tumor_Sample_Barcode), 
-	    #R2 = patient.R2) %>%
-	    #dplyr::mutate(Type = dplyr::if_else(
-	        #R2 >= R2.threshold,
-	        #"neutral",
-	        #"non-neutral"))
+	
+	patient.R2 <- df %>%
+	    dplyr::group_by(Tumor_Sample_Barcode) %>%
+	    dplyr::group_map(~subPowerLaw(.,
+	                                  min.vaf,
+	                                  max.vaf,
+	                                  min.depth,
+	                                  R2.threshold,
+	                                  plot,
+	                                  min.sample.num = min.sample.num), 
+	                     keep = TRUE) %>%
+	    rlang::set_names(unique(df$Tumor_Sample_Barcode))
 
   return(patient.R2)       
    #return(list(data.frame = neutralTest.out, plot.list = patient.plot))    	
@@ -143,7 +205,8 @@ testPowerLaw <- function(
 
 testNeutral <- function(maf, patient.id = NULL, 
     min.depth = 10, R2.threshold = 0.98,
-    min.VAF_adj = 0.1, max.VAF_adj = 0.3, 
+    min.VAF_adj = 0.1, max.VAF_adj = 0.3,
+    min.sample.num = 30,
     plot = TRUE){
 	
 	mafData <- maf@data
@@ -162,16 +225,51 @@ testNeutral <- function(maf, patient.id = NULL,
         }
     }
 
-    R2.list <- mafData %>%
-    	dplyr::group_by(Patient_ID) %>%
-    	dplyr::group_map(~testPowerLaw(.,
-        min.VAF_adj, 
-        max.VAF_adj, 
-        min.depth, 
-        R2.threshold, 
-        plot), 
-        keep = TRUE) %>%
-    	rlang::set_names(patient.id)    	
-
-    return(R2.list)
+	neutrality.list <- mafData %>%
+	    dplyr::group_by(Patient_ID) %>%
+	    dplyr::group_map(~testPowerLaw(.,
+	                                   min.vaf, 
+	                                   max.vaf, 
+	                                   min.depth, 
+	                                   R2.threshold, 
+	                                   plot,
+	                                   min.sample.num = min.sample.num), 
+	                     keep = TRUE) %>%
+	    rlang::set_names(unique(mafData$Patient_ID))    	
+	
+	testNeutral.out = list(
+	    neutrality.metrics = lapply(neutrality.list, 
+	                                function(x) do.call(rbind, lapply(x, function(y) y$model.fitting.out))
+	    ),
+	    model.fitting.plot = lapply(neutrality.list, 
+	                                function(x) lapply(x, function(y) y$model.fitting.plot))
+	)
+	if(plot & length(patient.id)!=1){
+	    violin.data <- do.call(rbind.fill,testNeutral.out$neutrality.metrics)
+	    p.violin <- ggplot(data = violin.data,aes(x = patient, y = R2, fill = patient))+
+	        geom_violin(trim=FALSE,color="white")+
+	        geom_boxplot(width=0.05,position=position_dodge(0.9))+
+	        geom_hline(yintercept = R2.threshold,linetype = 2)+
+	        theme_bw() + 
+	        ylim(0,1)+
+	        theme(axis.text.x=element_text(hjust = 0.5,size=10), 
+	              axis.text.y=element_text(size=10), 
+	              axis.title.y=element_text(size = 15), 
+	              axis.title.x=element_blank(), 
+	              panel.border = element_blank(),axis.line = element_line(colour = "black",size=1),
+	              legend.text=element_text( colour="black", size=10),
+	              legend.title= element_blank(),
+	              panel.grid.major = element_blank(),  
+	              panel.grid.minor = element_blank())+  
+	        ## color scales
+	        scale_fill_manual(values = c( "#E64B35B2","#4DBBD5B2","#00A087B2","#3C5488B2","#F39B7FB2",
+	                                      "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
+	                                      "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666"))
+	    testNeutral.out$R2.fit.plot <- p.violin
+	    
+	}
+    return(testNeutral.out)
 }
+
+
+

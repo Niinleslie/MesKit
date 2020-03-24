@@ -155,7 +155,7 @@ classifyMut <- function(maf,
                         class = class,
                         topGenesCount = topGenesCount,
                         bgCol = bgCol,
-                        patientsCol = patientsCol                        
+                        patientsCol = patientsCol,                        
                         remove_empty_columns = remove_empty_columns,
                         remove_empty_rows = remove_empty_rows, 
                         showColnames = showColnames

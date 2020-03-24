@@ -3,6 +3,10 @@
 #'
 #' @param mafFile tab delimited MAF file (plain text or *.gz compressed). Required.
 #' @param ccfFile CCF file of SNVs. Default NULL.
+#' @param min.vaf the minimum VAF for filtering variants. Default: 0.02.
+#' @param max.vaf the maximum VAF for filtering variants. Default: 1.
+#' @param min.ref.depth the minimum reference allele depth for filtering variants. Default: 8.
+#' @param max.ref.depth the maximum reference allele depth for filtering variants. Default: 8.
 #' @param mutType select proper variant classification you need. Default "All".Option: "nonSilent".
 #' @param mutNonSilent variant classifications which are considered as non-silent. Default NULL.
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
@@ -27,6 +31,10 @@ readMaf <- function(## maf parameters
     mafFile,
     ccfFile = NULL,
     ## filter selection
+    min.vaf = 0.06,
+    max.vaf = 1,
+    min.ref.depth = 8,
+    min.alt.depth = 8,
     mutType = "All",
     mutNonSilent = NULL,
     chrSilent = NULL,
@@ -79,7 +87,7 @@ readMaf <- function(## maf parameters
         
 
         ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
-        if(!all(ccf.standardCol %in% ccfInput)){
+        if(!all(ccf.standardCol %in% colnames(ccfInput))){
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
@@ -87,6 +95,13 @@ readMaf <- function(## maf parameters
             #getMutStatus() %>%
             dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
     }
+    
+    ## VAF and allele depth filter
+    mafData <- mafData %>%
+        dplyr::filter(VAF > min.vaf,
+                      VAF < max.vaf,
+                      Ref_allele_depth > min.ref.depth,
+                      Alt_allele_depth > min.alt.depth)
     
     ## filter variant classification
     if (mutType == "nonSilent") {

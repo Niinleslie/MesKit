@@ -46,7 +46,7 @@ compareCCF <- function(mafData, show.density = TRUE){
       guides(shape = guide_legend(override.aes = list(size = 0.2))) +
       theme_bw() + coord_fixed() +
       labs(x = S1, y = S2) +
-      ggtitle(paste("CCF density plot in paired samples:\n ", S1, "—", S2, sep = ""))
+      ggtitle(paste("CCF density plot in paired samples:\n ", S1, " vs ", S2, sep = ""))
 
 
     

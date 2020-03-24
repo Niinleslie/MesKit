@@ -666,12 +666,28 @@ drawPhyloTree <- function(phyloTree = NULL,
     
     p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
                              nudge_y = textAdjust/10,
-                             # segment.alpha = 0,
-                             # direction = "x"
+                             nudge_x = textAdjust/10,
                              segment.color = "grey",
                              segment.size = 0.25,
-                             data = treeData[!sample %in% c("internal node",rootLabel), ],
+                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
+                                                 x2 >= 0, ],
                              fontface = 'bold', size = sampleTextSize ,force = 10)
+    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                             nudge_y = textAdjust/10,
+                             nudge_x = -textAdjust/10,
+                             segment.color = "grey",
+                             segment.size = 0.25,
+                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
+                                                 x2 < 0, ],
+                             fontface = 'bold', size = sampleTextSize ,force = 10)
+    # p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+    #                          nudge_y = textAdjust/10,
+    #                          # segment.alpha = 0,
+    #                          # direction = "x"
+    #                          segment.color = "grey",
+    #                          segment.size = 0.25,
+    #                          data = treeData[!sample %in% c("internal node",rootLabel), ],
+    #                          fontface = 'bold', size = sampleTextSize ,force = 10)
     p <- p + geom_text_repel(aes(x = x2,y = y2), label = rootLabel, vjust = 0, 
                              nudge_y = -textAdjust/5,
                              segment.alpha = 0,

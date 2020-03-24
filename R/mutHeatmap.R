@@ -97,8 +97,8 @@ mutHeatmap <- function(phyloTree, use.ccf = FALSE, show.class.label = TRUE){
     if(show.class.label){
         p_basic <- p_basic + 
             geom_text(data = annotation.bar,
-                      mapping = aes(x = annotation.bar$xmin + (annotation.bar$xmax-annotation.bar$xmin)/2,
-                                    y = annotation.bar$ymin + (annotation.bar$ymax-annotation.bar$ymin)/2),
+                      mapping = aes(x = xmin + (xmax-xmin)/2,
+                                    y = ymin + (ymax-ymin)/2),
                       label = classes.label,
                       angle = 90)
     }
