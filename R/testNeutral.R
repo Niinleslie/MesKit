@@ -13,7 +13,6 @@
 #' @param min.VAF_adj the minimum value of adjusted VAF value (1/2CCF). Default: 0.1
 #' @param max.VAF_adj the maximum value of adjusted VAF value (1/2CCF). Default: 0.3
 #' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 20
-
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
 #' @examples
@@ -161,7 +160,7 @@ testPowerLaw <- function(
       	             fontface = "bold",
       	             parse = TRUE,
       	             hjust = 0)+
-      	       annotate("text",
+      	        annotate("text",
       	             x = x.min,
       	             y = y.max*0.95,
       	             label = KDlabel,
@@ -169,7 +168,7 @@ testPowerLaw <- function(
       	             fontface = "bold",
       	             parse = TRUE,
       	             hjust = 0)+
-      	    annotate("text",
+      	        annotate("text",
       	             x = x.min,
       	             y = y.max*0.9,
       	             label = Mdlabel,
@@ -177,7 +176,7 @@ testPowerLaw <- function(
       	             fontface = "bold",
       	             parse = TRUE,
       	             hjust = 0)+
-      		    annotate("text",
+      		      annotate("text",
       		              x = x.min,
       		              y = y.max*0.85,
       		              label = R2label,
@@ -294,7 +293,7 @@ testNeutral <- function(maf, patient.id = NULL,
 	              legend.title= element_blank(),
 	              panel.grid.major = element_line(linetype = 2),
 	              panel.grid.minor = element_blank()) 
-	    testNeutral.out$R2.fit.plot <- p.violin
+	    testNeutral.out$R2.values.plot <- p.violin
 	    
 	}
 
