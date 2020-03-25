@@ -140,12 +140,12 @@ classifyMut <- function(maf,
     
     maf_data <- maf_data %>%
       dplyr::rowwise() %>%
-      dplyr::mutate(Driver_Mut = dplyr::if_else(
+      dplyr::mutate(Selected_Mut = dplyr::if_else(
         any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% geneSelect),
         TRUE,
         FALSE)) %>%
       dplyr::mutate(Hugo_Symbol = dplyr::if_else(
-        Driver_Mut == TRUE,
+        Selected_Mut == TRUE,
         geneSelect[geneSelect %in% strsplit(Hugo_Symbol, ",|;")[[1]]][1],
         Hugo_Symbol))
   }
