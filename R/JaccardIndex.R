@@ -22,12 +22,16 @@ JSI_dist <- function(df){
             values_from = VAF_adj,
             values_fill = list(VAF_adj = 0)
     ) %>%
-    dplyr::select(-mutation_id) 
+    dplyr::ungroup() %>%
+    dplyr::select(-mutation_id, -Patient_ID) 
 
     Status <- df$Status
     df <- subset(df, select=-Status)
 
     dist <- diag(1, nrow = ncol(df), ncol = ncol(df))
+    PC_1.list <- c()
+    PC_2.list <- c()
+    SS_12.list <- c()
     for (i in 1:(ncol(df) - 1)) {
         for (j in (i + 1):ncol(df)) {
 
@@ -37,8 +41,11 @@ JSI_dist <- function(df){
                 data.table::setDT()
 
             PC_1 <- nrow(pair[Status=="Clonal" & S1>0 & S2==0])
+            PC_1.list <- c(PC_1.list, PC_1)
             PC_2 <- nrow(pair[Status=="Clonal" & S2>0 & S1==0])
+            PC_2.list <- c(PC_2.list, PC_2)
             SS_12 = nrow(pair[Status=="Subclonal" & S1>0 & S2>0])
+            SS_12.list <- c(SS_12.list, SS_12)
 
             dist[i, j] <- dist[j, i] <- SS_12/(PC_1+PC_2+SS_12) 
         }
@@ -46,8 +53,10 @@ JSI_dist <- function(df){
     rownames(dist) <- colnames(df)
     colnames(dist) <- colnames(df)
 
-    return(JSI.dist =  dist)
-    }    
+    JSI.multi <- mean(SS_12.list)/(mean(PC_1.list) + mean(PC_2.list))
+    #return(JSI.dist)
+    return(list(JSI.multi = JSI.multi, JSI.pair =  dist))
+}    
 
 calJSI <- function(
     maf, 
@@ -94,14 +103,14 @@ calJSI <- function(
             VAF_adj) %>%
         dplyr::filter(VAF_adj > min.vaf & VAF_adj < max.vaf) %>% 
         dplyr::group_by(Patient_ID) %>%
-        dplyr::group_map(~JSI_dist(.), keep = FALSE) %>%
+        dplyr::group_map(~JSI_dist(.), keep = TRUE)%>%
         rlang::set_names(patient.id)
 
     JSI.plot = list()
     if(plot){
         for(i in 1:length(JSI.dist)){
             JSI.plot[[i]] <- plotCorr(
-                JSI.dist[[i]], 
+                JSI.dist[[i]]$JSI.pair, 
                 use.circle = use.circle,
                 title = if(!is.null(title)) title else{paste0("Jaccard similarity of patient ", patient.id[i])}
                 )
@@ -109,7 +118,13 @@ calJSI <- function(
         names(JSI.plot) <- patient.id
     }
 
-   return(list(JSI.dist = JSI.dist, JSI.plot =  JSI.plot))  
+   JSI.out <- list(
+    JSI.multi = lapply(JSI.dist, function(x) x$JSI.multi), 
+    JSI.pair = lapply(JSI.dist, function(x) x$JSI.pair),
+    JSI.plot = JSI.plot)
+
+   return(JSI.out)  
+   #return(list(JSI.dist = JSI.dist, JSI.plot =  JSI.plot))  
 
 }
 
