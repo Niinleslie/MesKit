@@ -84,6 +84,7 @@ doGetPhyloTree <- function(patient.dat = NULL,
     }
     patient.dat <- patient.dat[which(patient.dat$VAF > min.vaf & patient.dat$VAF < max.vaf), ]
     ## information input
+    print(patientID)
     binary.matrix <- getMutMatrix(patient.dat, use.ccf = FALSE)
     if("CCF" %in% colnames(patient.dat)){
         ccf.matrix <- getMutMatrix(patient.dat, use.ccf = TRUE)
@@ -94,20 +95,16 @@ doGetPhyloTree <- function(patient.dat = NULL,
     if(method == "NJ"){
         matTree <- nj(dist.gene(mut_dat))
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
-    }
-    else if(method == "MP"){
+    }else if(method == "MP"){
         matTree <- byMP(mut_dat)
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byMP(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100 
-    }
-    else if(method == "ML"){
+    }else if(method == "ML"){
         matTree <- byML(mut_dat)
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
-    }
-    else if(method == "FASTME.bal"){
+    }else if(method == "FASTME.bal"){
         matTree <- ape::fastme.bal(dist.gene(mut_dat))
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
-    }
-    else if(method == "FASTME.ols"){
+    }else if(method == "FASTME.ols"){
         matTree <- ape::fastme.ols(dist.gene(mut_dat))
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
     }
@@ -164,7 +161,7 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
             binary.matrix %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0))) 
         ## special situation: branch.intersection NULL
         if (nrow(branch.intersection) == 0){
-            message(paste(branchName, ": Mutation Intersection Missing \n", sep=""))
+            message(paste(branchName, "There are no private mutations for branch ", sep=""))
             branch.mut <- data.frame(Sample=branchName, 
                                      chr=NA,
                                      pos=NA,

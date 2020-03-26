@@ -162,17 +162,8 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
                 axis.title.x = element_blank(),
                 axis.title.y = element_blank(),
                 legend.key.width  = unit(1.1,'lines'),
-                # legend.title = element_blank(),
                 legend.box.margin = margin(l = -20),
-                # legend.key.height = unit(.8,'lines'),
-                # legend.key = element_rect(size = 1, color = NA, fill = NA),
-                # legend.spacing = unit(1.0, 'lines'),
-                # legend.spacing.y = unit(1, 'char'),
                 legend.text = element_text(size = 10,margin = margin(b = 3)))+
-            # guides(fill=guide_legend(
-            #     keywidth=0.1,
-            #     keyheight=0.1)
-            # )+
             geom_rect(data = CNADat,
                 mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
             # scale_fill_manual(name = "Type",breaks = type.level, values = type.color)+
@@ -182,8 +173,6 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
             #     mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
             scale_y_continuous(breaks = textTable$Pos,
                                labels = textTable$Tumor_Sample_Barcode)+
-            # geom_segment(aes(x = x, y = y, xend = xend, yend = yend), 
-            #     data = segmentTable, linetype="dashed")+
             ggtitle("Copy number variant profile")+
             theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, vjust = -1))
         ## patient bar
@@ -226,76 +215,3 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
     }
     return(CNAplot.list)
 }
-
-# plotCNA <- function(seg, sample.as.col = FALSE, show.GISTIC.gene = FALSE){
-#     if(show.GISTIC.gene){
-#         if(!"Gistic.type" %in% colnames(seg)){
-#             stop("seg does not contain GISTIC gene information")
-#         }
-#     }
-#     s <- seg[,round(mean(CopyNumber)),by = .(Tumor_Sample_Barcode,Gene)]
-#     matDat <- dplyr::mutate(s, Type = unlist(lapply(s$V1, function(x){
-#         if(x == 0){
-#             return("Deletion")
-#         }
-#         else if(x == 1){
-#             return("Loss")
-#         }
-#         else if(x == 2){
-#             return(NA)
-#         }
-#         else if(x == 3){
-#             return("Gain")
-#         }
-#         else if(x >=4){
-#             return("Amplification")
-#         }
-#     })))%>% as.data.table() %>% dcast(Gene~ Tumor_Sample_Barcode, value.var = "Type")
-#     geneOrder <- factor(matDat$Gene, levels = unique(s[,Gene]))
-#     matDat <- matDat[order(geneOrder), ]
-#     mat <- as.matrix(matDat[,-1])
-#     # rownames(mat) <- matDat[,Gene]
-#     colType <- c("Loss" = "#6baed6", "Deletion" = "#084594",
-#                  "Gain" = "#f4a582","Amplification" = "#d73027")
-#     if(sample.as.col){
-#         ComplexHeatmap::Heatmap(mat, col = colType, name = "Type", na_col = "#f0f0f0", row_labels = rownames(mat))
-#     }
-#     else{
-#         ComplexHeatmap::Heatmap(t(mat), col = colType, name = "Type", na_col = "#f0f0f0", row_names_side = "left", column_labels = colnames(t(mat)))
-#     }
-# }
-# updateStart <- apply(seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
-# updateEnd <- apply(seg,1,updatePosition,"End_Position","Chromosome",chrLens)
-# suppressWarnings(seg[,Update_Start:= updateStart]) 
-# suppressWarnings(seg[,Update_End:= updateEnd])
-# chrLabels = c(1:22)
-# chrTable = data.table::data.table(chr = chrLabels, start = chrLens[1:(length(chrLens)-3)], end = chrLens[2:(length(chrLens)-2)])
-# chrTable$color = rep(c('black','white'), length = nrow(chrTable))
-# seg[,hmin := 0]
-# seg[,hmax := 0]
-# samples <- sort(unique(seg$Tumor_Sample_Barcode))  
-# h = 0.2
-# for(sample in samples){
-#     h <- h + 0.1
-#     seg[Tumor_Sample_Barcode == sample,]$hmin <- h
-#     seg[Tumor_Sample_Barcode == sample,]$hmax <- h + 0.5
-#     h <- h + 0.5
-# }
-# 
-# min <- sort(unique(seg$hmin))
-# max <- sort(unique(seg$hmax))
-# CNADat <- seg[Type != "Neutral",]
-# CNADat$Type <- factor(CNADat$Type, levels = c("Loss","Deletion","Gain","Amplification"))
-# textTable <- data.table::data.table(Pos = min + (max-min)/2, Tumor_Sample_Barcode = samples)
-# backgroundTable <- data.table::data.table(xmin = min(chrTable$start), xmax = max(chrTable$end), ymin = min, ymax = max)
-# p <- ggplot()+geom_rect(data = chrTable,mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = 0.3),fill = rep(c("black","white"),11),color = "black")+
-#     geom_text(data = chrTable,mapping = aes(x = start + (end - start)/2, y = 0.15, label = chr), color = rep(c("white","black"),11))+
-#     geom_rect(data = backgroundTable, mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), fill = "#f0f0f0")+
-#     theme(panel.grid =element_blank(),axis.text = element_blank(),axis.ticks = element_blank(),
-#           panel.border = element_blank(),panel.background = element_blank(),
-#           axis.title.x = element_blank(),axis.title.y = element_blank())+
-#     geom_rect(data = CNADat,mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
-#     scale_fill_manual(breaks = c("Loss","Deletion","Gain","Amplification"), values = c("#6baed6","#084594","#f4a582","#d73027"))+
-#     geom_text(data = textTable,mapping = aes(x = -300000000, y = Pos, label = Tumor_Sample_Barcode))+
-#     geom_segment(aes(x = -100000000, y = c(min,max(max)), xend = max(chrTable$end)+100000000, yend = c(min,max(max))), linetype="dashed")+
-#     geom_segment(aes(x = c(-100000000,max(chrTable$end)+100000000), y = min(min), xend = c(-100000000,max(chrTable$end)+100000000), yend = max(max)), linetype="dashed")

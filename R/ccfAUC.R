@@ -23,11 +23,9 @@
 ccfAUC.sample <- function(ccf){
     ccf.sort <- data.frame(CCF = as.vector(sort(ccf)), prop = c(1:length(ccf))/length(ccf))
     
-    area <- 0
-    for(i in 1:(nrow(ccf.sort)-1)){
-        mutArea <- (ccf.sort[i, "prop"] + ccf.sort[i+1, "prop"])*(ccf.sort[i+1, "CCF"] - ccf.sort[i, "CCF"])/2
-        area <- mutArea + area
-    }
+    area <- integrate(approxfun(ccf.sort$CCF,ccf.sort$prop),
+                      min(ccf.sort$CCF),
+                      max(ccf.sort$CCF))$value
     return(area)
 }
 

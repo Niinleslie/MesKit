@@ -33,7 +33,7 @@ vafCluster <-function(maf,
     stop("plotOption can only be either 'combine' or 'compare'")
   }
   
-  if(!is.null(seg)){
+  if(!is.null(segCN.file)){
     seg <- readSegment(segCN.file = segCN.file)
     maf <- copyNumberFilter(maf, seg)
   }
