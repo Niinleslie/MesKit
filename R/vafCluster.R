@@ -33,7 +33,7 @@ vafCluster <-function(maf,
     stop("plotOption can only be either 'combine' or 'compare'")
   }
   
-  if(!is.null(seg)){
+  if(!is.null(segCN.file)){
     seg <- readSegment(segCN.file = segCN.file)
     maf <- copyNumberFilter(maf, seg)
   }
@@ -86,7 +86,7 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
                    "#808180FF", "#1B1919FF")
   
   ## plot all samples' vaf distribution
-  if ((plotOption == "separate") | (plotOption == "combine")){
+  if (plotOption == "combine"){
     ## general data process for all samples 
     lsPicName <- c()
     lsSep <- list()
@@ -113,13 +113,6 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
       clusterMt <- .clusterGenerator(maf.dat, sampleName)
       clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
       
-      ## separate: print VAF pictures for all samples separatively
-      if (plotOption == "separate"){
-        pic <- .drawVAF(clusterMt, sampleName, mathscore)
-        lsSep[[counterMt]] <- pic
-        lsSampleName <- c(lsSampleName,sampleName)
-      }
-      else {
         # prepare separated pictures for later combination 
         pic_cha <- paste("separate", ".", counterMt, 
                          "<-.drawVAF(clusterMt, ", 
@@ -128,13 +121,8 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
         eval(parse(text=pic_cha))
         pic_name <- paste("separate", ".", counterMt, sep="")
         lsPicName <- c(lsPicName, pic_name)
-      }
     }
-    if (plotOption == "separate"){
-      names(lsSep) <- lsSampleName
-      message(paste("VAF Plot(", plotOption, ") Generation Done!", sep=""))
-      return(lsSep)
-    }
+    
     ## combine: print VAF pictures for all samples in one document
     if (plotOption == "combine"){
       if (showMATH){

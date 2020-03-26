@@ -27,10 +27,15 @@ plotPhyloTree <- function(phyloTree = NULL,
                           show.mutSig = TRUE,
                           show.heatmap = TRUE,
                           heatmap.type = 'binary',
-                          show.class.label = FALSE,
                           show.bootstrap = TRUE,
                           use.box = TRUE,
                           min.ratio = 1/30,
+                          show.class.label = FALSE,
+                          geneList = NULL,
+                          plot.geneList = FALSE,
+                          show.gene = FALSE,
+                          show.geneList = TRUE,
+                          mut.threshold = 150,
                           patient.id = NULL){
    heatmap.options <- c('binary','CCF')
    if(!heatmap.type %in% heatmap.options){
@@ -55,7 +60,12 @@ plotPhyloTree <- function(phyloTree = NULL,
                        show.heatmap = show.heatmap,
                        use.ccf = use.ccf,
                        min.ratio = min.ratio,
-                       show.class.label = show.class.label)
+                       show.class.label = show.class.label,
+                       geneList = geneList,
+                       plot.geneList = plot.geneList,
+                       show.gene = show.gene,
+                       show.geneList = show.geneList,
+                       mut.threshold = mut.threshold)
    return(tree.list)
 }
 
@@ -543,7 +553,12 @@ drawPhyloTree <- function(phyloTree = NULL,
                           compare = FALSE,
                           common.lty = "solid",
                           min.ratio = 1/30,
-                          show.class.label = FALSE){
+                          show.class.label = FALSE,
+                          geneList = NULL,
+                          plot.geneList = FALSE,
+                          show.gene = FALSE,
+                          show.geneList = TRUE,
+                          mut.threshold = 150){
     if(min.ratio > 0){
         min.len <- max(phyloTree@tree$edge.length)*min.ratio
         phyloTree@tree$edge.length[phyloTree@tree$edge.length < min.len] <- min.len
@@ -734,13 +749,18 @@ drawPhyloTree <- function(phyloTree = NULL,
         h <- plotHeatmap(binary.mat =  phyloTree@binary.matrix,
                         ccf.mat = phyloTree@ccf.matrix,
                         use.ccf = use.ccf,
-                        show.class.label = show.class.label)
+                        show.class.label = show.class.label,
+                        geneList = geneList,
+                        plot.geneList = plot.geneList,
+                        show.gene = show.gene,
+                        show.geneList = show.geneList,
+                        mut.threshold = mut.threshold)
         # PH <- cowplot::plot_grid(p,
         #                          h + theme(plot.margin=unit(c(1.5,0,1,-2),"cm")),
         #                          rel_widths = c(1,0.4))
         PH <- ggdraw(xlim = c(0.1,0.7)) +
             draw_plot(p, x = -0.05,y = 0, width = 0.7) +
-            draw_plot(h, x = 0.48,y = 0.02, width = 0.2,height = 1)
+            draw_plot(h, x = 0.48,y = -0.01, width = 0.2,height = 1)
         # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) +
         #       draw_plot(p, x = 0,y = 0, width = 0.7) +
         #       draw_plot(h, x = 0.6,y = 0, width = 0.3)
@@ -763,34 +783,3 @@ drawPhyloTree <- function(phyloTree = NULL,
         return(p)
     }
 }
-
-
-
-# treeData <- getTreeData(phyloTree, show.mutSig)
-# myBoots <- phyloTree@bootstrap.value
-# patientID <- phyloTree@patientID
-# drawPhyloTree(treeData = treeData, myBoots = myBoots,
-#               patientID = patientID, show.mutSig = show.mutSig,
-#               show.bootstrap = show.bootstrap, use.box = use.box,
-#               show.heatmap = show.heatmap, use.ccf = use.ccf)
-# if(length(phyloTree) > 1){
-#     tree.list <- list()
-#     for(phylo.tree in phyloTree){
-#         treeData <- getTreeData(phyloTree = phylo.tree, show.mutSig = show.mutSig)
-#         p <- drawPhyloTree(treeData = treeData, phyloTree = phylo.tree, 
-#                            show.mutSig = show.mutSig,
-#                            show.bootstrap = show.bootstrap, use.box = use.box,
-#                            show.heatmap = show.heatmap, use.ccf = use.ccf)
-#         # message(paste(patientID," PhyloTree Generation Done!", sep=""))
-#         tree.list[[patientID]] <- p
-#     }
-#     return(tree.list)
-# }
-# else{
-#     treeData <- getTreeData(phyloTree = phyloTree, show.mutSig = show.mutSig)
-#     p <- drawPhyloTree(treeData = treeData, phyloTree = phyloTree, 
-#                        show.mutSig = show.mutSig,
-#                        show.bootstrap = show.bootstrap, use.box = use.box,
-#                        show.heatmap = show.heatmap, use.ccf = use.ccf)
-#     return(p)
-# }
