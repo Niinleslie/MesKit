@@ -6,7 +6,7 @@
 #' @param class  the class which would be represented, default is "SP" (Shared/P-shared/Private),
 #' other options: "CS" (Clonal/Subclonl) and "SPCS".
 #' @param patient.id  select the specific patients. Default: NULL, all patients are included
-#' @param driverGenesFile  driver gene list. Default NULL
+#' @param geneList list of genes to restrict the analysis. Default NULL.
 #' @param plot  TRUE(Default).
 #' @param topGenesCount the number of genes print, default is 10
 #' @param remove_empty_columns  whether remove the samples without alterations. Only works when plot is TRUE
@@ -49,7 +49,7 @@ multiHits <- function(x) {
 classifyMut <- function(maf,
      class = "SP",
      patient.id = NULL, 
-     driverGenesFile = NULL, 
+     geneList = NULL, 
      plot =  TRUE,
      topGenesCount = 10,
      remove_empty_columns = TRUE,
@@ -135,17 +135,17 @@ classifyMut <- function(maf,
                   unique_barcode_count, Patient_ID
     )
   
-  if (!is.null(driverGenesFile)) {
-    geneSelect <-
-      read.table(driverGenesFile, col.names = "gene_Name", stringsAsFactors = FALSE)$gene_Name
+  if (!is.null(geneList)) {
+    geneSelect <- geneList
+    
     maf_data <- maf_data %>%
       dplyr::rowwise() %>%
-      dplyr::mutate(Driver_Mut = dplyr::if_else(
+      dplyr::mutate(Selected_Mut = dplyr::if_else(
         any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% geneSelect),
         TRUE,
         FALSE)) %>%
       dplyr::mutate(Hugo_Symbol = dplyr::if_else(
-        Driver_Mut == TRUE,
+        Selected_Mut == TRUE,
         geneSelect[geneSelect %in% strsplit(Hugo_Symbol, ",|;")[[1]]][1],
         Hugo_Symbol))
   }

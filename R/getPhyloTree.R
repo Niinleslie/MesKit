@@ -84,7 +84,6 @@ doGetPhyloTree <- function(patient.dat = NULL,
     }
     patient.dat <- patient.dat[which(patient.dat$VAF > min.vaf & patient.dat$VAF < max.vaf), ]
     ## information input
-    print(patientID)
     binary.matrix <- getMutMatrix(patient.dat, use.ccf = FALSE)
     if("CCF" %in% colnames(patient.dat)){
         ccf.matrix <- getMutMatrix(patient.dat, use.ccf = TRUE)
@@ -161,7 +160,7 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
             binary.matrix %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0))) 
         ## special situation: branch.intersection NULL
         if (nrow(branch.intersection) == 0){
-            message(paste(branchName, "There are no private mutations for branch ", sep=""))
+            message(paste(branchName, ": There are no private mutations for branch ", sep=""))
             branch.mut <- data.frame(Sample=branchName, 
                                      chr=NA,
                                      pos=NA,

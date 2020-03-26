@@ -75,23 +75,26 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
         suppressWarnings(patient.seg[,Update_End:= updateEnd])
         patient.seg[,hmin := 0]
         patient.seg[,hmax := 0]
-        samples <- sort(unique(patient.seg$Tumor_Sample_Barcode))  
         h <- 0.5
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){
+            patient.seg[,Sample_ID := paste(patient,Tumor_Sample_Barcode,sep = "&")]
+            sampleids <- sort(unique(patient.seg$Sample_ID))
             patient.rect.hmin <- c(h)
             patient.rect.hmax <- c()
-            patient1 <- unique(patient.seg[Tumor_Sample_Barcode == samples[1],]$patient)
-            for(sample in samples){
-                patient2 <- unique(patient.seg[Tumor_Sample_Barcode == sample,]$patient)
+            patient1 <- unique(patient.seg[Sample_ID == sampleids[1],]$patient)
+            for(sampleid in sampleids){
+                print(sampleid)
+                print(patient1)
+                patient2 <- unique(patient.seg[Sample_ID == sampleid,]$patient)
                 if(patient1 != patient2){
                     patient.rect.hmin <- append(patient.rect.hmin,h+0.2)
                     patient.rect.hmax <- append(patient.rect.hmax,h)
                     h <- h + 0.2
                 }
                 patient1 <- patient2
-                patient.seg[Tumor_Sample_Barcode == sample,]$hmin <- h
-                patient.seg[Tumor_Sample_Barcode == sample,]$hmax <- h + 0.5
+                patient.seg[Sample_ID == sampleid,]$hmin <- h
+                patient.seg[Sample_ID == sampleid,]$hmax <- h + 0.5
                 h <- h + 0.55
             }
             patient.rect.hmax <- append(patient.rect.hmax,max(patient.seg$hmax))
@@ -100,11 +103,12 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
                                              patient = as.character(unique(patient.seg$patient)))
             patient.seg$patient <- factor(patient.seg$patient,levels = as.character(unique(patient.seg$patient)))
             
-        }
-        else{
-            for(sample in samples){
-                patient.seg[Tumor_Sample_Barcode == sample,]$hmin <- h
-                patient.seg[Tumor_Sample_Barcode == sample,]$hmax <- h + 0.5
+        }else{
+            patient.seg[,Sample_ID := paste(Patient_ID,Tumor_Sample_Barcode,sep = "&")]
+            sampleids <- sort(unique(patient.seg$Sample_ID))
+            for(sampleid in sampleids){
+                patient.seg[Sample_ID == sampleid,]$hmin <- h
+                patient.seg[Sample_ID == sampleid,]$hmax <- h + 0.5
                 h <- h + 0.55
             }
         }
@@ -124,22 +128,30 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
         segmentTable$xend <- max(chrTable$end)+seg.add
         segmentTable <- rbind(segmentTable, list(min(min), max(max), -seg.add,-seg.add))
         segmentTable <- rbind(segmentTable, list(min(min), max(max), max(chrTable$end)+seg.add,max(chrTable$end)+seg.add))
-        textTable <- data.table::data.table(Pos = min + (max-min)/2, Tumor_Sample_Barcode = samples)
+        
+       ## get tumor sample barcode of patient
+        patient.tsbs <- unlist(lapply(unique(patient.seg$Sample_ID),
+                                      function(x){return(strsplit(x,"&")[[1]][2])}))
+        
+        ## label on axis Y
+        Y.text.table <- data.table::data.table(Pos = min + (max-min)/2, Tumor_Sample_Barcode = patient.tsbs)
+        
+        ## set background for the graph
         backgroundTable <- data.table::data.table(
             xmin = min(chrTable$start), 
             xmax = max(chrTable$end), 
             ymin = min, 
             ymax = max)
+        
+        ## set color for patient bar
         allScales <- type.color
         names(allScales) <- type.level
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){
-            patient.all.color <- c( "#E64B35B2","#4DBBD5B2","#00A087B2","#3C5488B2","#F39B7FB2",
-                                    "#8491B4B2","#91D1C2B2","#DC0000B2","#7E6148B2","#91D1C2B2",
-                                    "#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#666666")
-            patient.color <- patient.all.color[1:length(patient.rect.table$patient)]
-            names(patient.color) <- patient.rect.table$patient
-            allScales <- append(allScales,patient.color)
+            set.seed(1234)
+            patient.colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
+            names(patient.colors) <- patient.rect.table$patient
+            allScales <- append(allScales,patient.colors)
         }
         p <- ggplot()+
             geom_rect(data = chrTable,
@@ -169,10 +181,10 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
             # scale_fill_manual(name = "Type",breaks = type.level, values = type.color)+
             scale_fill_manual(values = allScales)+
             # geom_text(
-            #     data = textTable,
+            #     data = Y.text.table,
             #     mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
-            scale_y_continuous(breaks = textTable$Pos,
-                               labels = textTable$Tumor_Sample_Barcode)+
+            scale_y_continuous(breaks = Y.text.table$Pos,
+                               labels = Y.text.table$Tumor_Sample_Barcode)+
             ggtitle("Copy number variant profile")+
             theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, vjust = -1))
         ## patient bar
@@ -202,10 +214,13 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
                 plot_grid(
                     type.legend + theme(legend.position = "none"),
                     type.legend,
+                    type.legend + theme(legend.position = "none"),
                     patient.rect.legend,
                     type.legend + theme(legend.position = "none"),
                     ncol = 1,
-                    align = "v") + theme(plot.margin = margin(l = -30)) 
+                    align = "v",
+                    rel_heights = c(1,1,.05,1,1)) + 
+                theme(plot.margin = margin(l = -30)) 
             p <- plot_grid(mainplot + theme(legend.position = "none"),
                       legendColumn,
                       rel_widths = c(1,.15))

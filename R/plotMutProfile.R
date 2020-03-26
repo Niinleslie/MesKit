@@ -4,9 +4,9 @@ genHeatmapPlotMatrix <- function(
         maf_data, 
         topGenesCount = NULL) {
 
-    if ("Driver_Mut" %in% colnames(maf_data)) {
+    if ("Selected_Mut" %in% colnames(maf_data)) {
         maf_data <- maf_data %>%
-            dplyr::filter(Driver_Mut)
+            dplyr::filter(Selected_Mut)
     }
  
     # split by patient
@@ -28,11 +28,13 @@ genHeatmapPlotMatrix <- function(
         dplyr::group_by(Hugo_Symbol) %>%
         dplyr::mutate(total_barcode_count = sum(unique_barcode_count)) %>%
         dplyr::select(Hugo_Symbol,
+                      Patient_ID,
                       Tumor_Sample_Barcode,
                       Mutation_Type,
                       total_barcode_count) %>%
         tidyr::pivot_wider(
-            names_from = Tumor_Sample_Barcode,
+            #names_from = Tumor_Sample_Barcode,
+            names_from = c(Patient_ID, Tumor_Sample_Barcode),
             values_from = Mutation_Type,
             values_fn = list(Mutation_Type = multiHits)
         ) %>%
@@ -224,13 +226,13 @@ plotMutProfile <- function(maf_data,
     
     
     ## type-multi legend
-    hm <- packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.3, "mm"))
+    hm <- ComplexHeatmap::packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.3, "mm"))
     
     ## type-multi-patient legend
-    hmp <- packLegend(hm, patientLegend, direction = "vertical", gap = unit(0.3, "cm"))
+    hmp <- ComplexHeatmap::packLegend(hm, patientLegend, direction = "vertical", gap = unit(0.3, "cm"))
     
     ## type-patient legend
-    hp <- packLegend(heatmapLegend, patientLegend, direction = "vertical", gap = unit(1.2, "cm"))
+    hp <- ComplexHeatmap::packLegend(heatmapLegend, patientLegend, direction = "vertical", gap = unit(1.2, "cm"))
     
     
     

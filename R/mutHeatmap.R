@@ -5,6 +5,7 @@
 #' @param use.ccf logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.
 #' @param show.class.label logical. If TRUE, show labels for mutations classes on the heatmap.Default is TRUE.
 #' @param patient.id select the specific patients. Default: NULL, all patients are included.
+#' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.
 #' 
 #' @return heatmap of somatic mutations
 #'
@@ -141,14 +142,17 @@ plotHeatmap <- function(binary.mat,
     ## the num of each mutation class
     classes.num <- c()
     classes.sum <- length(mut_dat$class)/length(unique(mut_dat$sample))
-    ## annotation bar table
+    
+    ## set table for annotation bar
     annotation.bar <- data.frame()
-    annotation.bar.width <- max(mut_dat$xmax)- max(mut_dat$xmin)
+    annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.3
     if(!show.class.label){
         annotation.bar.width <- annotation.bar.width/3
     }
-    xmin <- max(mut_dat$xmax)
-    xmax <- max(mut_dat$xmax) + annotation.bar.width
+    
+    ## position of annotation bar
+    xmax <- min(mut_dat$xmin)
+    xmin <- xmax - annotation.bar.width
     ymin <- min(mut_dat$ymin)
     classes.level <- unique(mut_dat$class)
     for(class in classes.level){
@@ -177,20 +181,24 @@ plotHeatmap <- function(binary.mat,
         theme(panel.border = element_blank()) +
         theme(axis.text.y = element_blank())+
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-        theme(axis.text.x = element_text(angle = 90,
-                                         vjust = 15,
+        
+        ## set label for axis X
+        theme(axis.text.x.top = element_text(angle = 90,
                                          hjust = 0,
                                          size = 9,
-                                         # margin = margin(b = -15),
-                                         color = "black"))+
-        theme(axis.ticks = element_blank()) +
-        theme(legend.title = element_text(size = 12, face = "bold", color = "black")) +
-        theme(legend.text = element_text(size = 10, face = "bold", color = "black")) +
-        theme(legend.position = "right" )+
+                                         color = "black",
+                                         margin = margin(b = -15)))+
         scale_x_continuous(
             breaks = unique(mut_dat$xmin) + (unique(mut_dat$xmax) - unique(mut_dat$xmin))/2,
             labels = unique(mut_dat$sample),
             position = "top")+
+        
+        
+        theme(axis.ticks = element_blank()) +
+        theme(legend.title = element_text(size = 12, face = "bold", color = "black")) +
+        theme(legend.text = element_text(size = 10, face = "bold", color = "black")) +
+        theme(legend.position = "right" )+
+        
         ## annotation bar
         geom_rect(data = annotation.bar,
                   mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax),
@@ -221,24 +229,26 @@ plotHeatmap <- function(binary.mat,
     if(is.null(geneList) & show.gene){
         breaks.gene <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
         p <- p + scale_y_continuous(breaks = breaks.gene,
-                                    labels = mut_dat[mut_dat$sample==unique(mut_dat$sample)[1],]$Gene)+
-            theme(axis.text.y = element_text(size = 9,
+                                    labels = mut_dat[mut_dat$sample==unique(mut_dat$sample)[1],]$Gene,
+                                    position = "right")+
+            theme(axis.text.y.right = element_text(size = 9,
                                              colour = "black",
                                              face = "italic",
-                                             margin = margin(r = -15),
-                                             hjust = 1))
+                                             margin = margin(l = -15),
+                                             hjust = 0))
     }else if(!is.null(geneList)){
         if(plot.geneList & show.geneList){
             y.breaks <- mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2
             y.labels <- mut_dat$Gene
             p <- p + 
                 scale_y_continuous(breaks = y.breaks,
-                                   labels = y.labels) +
-                theme(axis.text.y = element_text(size = 9,
+                                   labels = y.labels,
+                                   position = "right") +
+                theme(axis.text.y.right = element_text(size = 9,
                                                  colour = "black",
                                                  face = "italic",
-                                                 margin = margin(r = -15),
-                                                 hjust = 1))
+                                                 margin = margin(l = -15),
+                                                 hjust = 0))
         }
         else if(!plot.geneList & show.geneList){
             gene.pos <- unique(which(mut_dat$Gene != "nogene")) 
@@ -247,12 +257,12 @@ plotHeatmap <- function(binary.mat,
             p <- p + 
                 scale_y_continuous(breaks = y.breaks,
                                    labels = y.labels,
-                                   expand = c(0,0)) +
-                theme(axis.text.y = element_text(size = 9,
+                                   position = "right") +
+                theme(axis.text.y.right = element_text(size = 9,
                                                  colour = "black",
                                                  face = "italic",
-                                                 margin = margin(r = -15),
-                                                 hjust = 1))
+                                                 margin = margin(l = -15),
+                                                 hjust = 0))
         }
     }
     

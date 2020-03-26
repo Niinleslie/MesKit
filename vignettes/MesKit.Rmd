@@ -202,7 +202,7 @@ plotCNA(seg)$ALL
 ```  
 
    
-### 6. Quantitative and qualitative evaluations of intra-tumor heterogeneity  
+### 6. Measurement of intra-tumor heterogeneity  
 
 #### 6.1 Within tumors
 

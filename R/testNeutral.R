@@ -114,10 +114,12 @@ testPowerLaw <- function(
             )
       vaf.plot <- NA 
       if(plot){
+
         Arealabel <- as.character(paste0("italic(Area) == ", round(area,4)))
         KDlabel <- as.character(paste0("italic(Kolmogorov_Distance) ==", round(kolmogorovdist,4) ))
         Mdlabel <- as.character(paste0("italic(Mean_Distance) == ", round(meandist,4) ))
         R2label <- as.character(paste0("italic(R)^2 == ", round(R2,4) ))
+
         x.min <- min(vafCumsum$f)
         x.max <- max(vafCumsum$f)
         x.breaks <- seq(x.min,x.max,(x.max-x.min)/2)
@@ -158,7 +160,7 @@ testPowerLaw <- function(
       	             fontface = "bold",
       	             parse = TRUE,
       	             hjust = 0)+
-      	       annotate("text",
+      	        annotate("text",
       	             x = x.min,
       	             y = y.max*0.95,
       	             label = KDlabel,
@@ -166,7 +168,7 @@ testPowerLaw <- function(
       	             fontface = "bold",
       	             parse = TRUE,
       	             hjust = 0)+
-      	    annotate("text",
+      	        annotate("text",
       	             x = x.min,
       	             y = y.max*0.9,
       	             label = Mdlabel,
@@ -174,7 +176,7 @@ testPowerLaw <- function(
       	             fontface = "bold",
       	             parse = TRUE,
       	             hjust = 0)+
-      		    annotate("text",
+      		      annotate("text",
       		              x = x.min,
       		              y = y.max*0.85,
       		              label = R2label,
@@ -291,7 +293,7 @@ testNeutral <- function(maf, patient.id = NULL,
 	              legend.title= element_blank(),
 	              panel.grid.major = element_line(linetype = 2),
 	              panel.grid.minor = element_blank()) 
-	    testNeutral.out$R2.fit.plot <- p.violin
+	    testNeutral.out$R2.values.plot <- p.violin
 	    
 	}
 
