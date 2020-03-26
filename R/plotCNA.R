@@ -84,8 +84,6 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
             patient.rect.hmax <- c()
             patient1 <- unique(patient.seg[Sample_ID == sampleids[1],]$patient)
             for(sampleid in sampleids){
-                print(sampleid)
-                print(patient1)
                 patient2 <- unique(patient.seg[Sample_ID == sampleid,]$patient)
                 if(patient1 != patient2){
                     patient.rect.hmin <- append(patient.rect.hmin,h+0.2)
