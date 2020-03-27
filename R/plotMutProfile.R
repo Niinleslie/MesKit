@@ -2,7 +2,7 @@
 
 genHeatmapPlotMatrix <- function(
         maf_data, 
-        topGenesCount = NULL) {
+        topGenesCount = 15) {
 
     if ("Selected_Mut" %in% colnames(maf_data)) {
         maf_data <- maf_data %>%
@@ -23,15 +23,19 @@ genHeatmapPlotMatrix <- function(
     }
 
     # long -> wider
+    #col_labels <- unique(maf$Tumor_Sample_Barcode)
     mat <- maf_data %>%
         dplyr::ungroup() %>%
         dplyr::group_by(Hugo_Symbol) %>%
-        dplyr::mutate(total_barcode_count = sum(unique_barcode_count)) %>%
+        dplyr::mutate(
+            total_barcode_count = sum(unique_barcode_count)
+            ) %>%
         dplyr::select(Hugo_Symbol,
                       Patient_ID,
                       Tumor_Sample_Barcode,
                       Mutation_Type,
-                      total_barcode_count) %>%
+                      total_barcode_count
+                      ) %>%
         tidyr::pivot_wider(
             #names_from = Tumor_Sample_Barcode,
             names_from = c(Patient_ID, Tumor_Sample_Barcode),
@@ -52,7 +56,7 @@ genHeatmapPlotMatrix <- function(
 
 plotMutProfile <- function(maf_data,
                            class = "SP",
-                           topGenesCount = 10,
+                           topGenesCount = 15,
                            bgCol = "#f0f0f0",
                            patientsCol = NULL,
                            remove_empty_columns = TRUE,
@@ -62,6 +66,12 @@ plotMutProfile <- function(maf_data,
 
     maf.plot <- genHeatmapPlotMatrix(maf_data, topGenesCount = topGenesCount)  
     mat <- maf.plot[[1]]
+
+    col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
+                    distinct(.)
+    col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
+    
+
     patient.split <- maf.plot[[2]]
     
     # get the order or rows
@@ -256,6 +266,7 @@ plotMutProfile <- function(maf_data,
             row_names_side = "left", 
             column_split = patient.split,
             column_order = colnames(mat),
+            column_labels = col_labels,
             show_column_names = showColnames,
             bottom_annotation = if(
                 is.null(patient.split)) NULL else{
