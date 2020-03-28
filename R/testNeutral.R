@@ -10,8 +10,8 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.depth the minimun depth of coverage. Defalut: 10
 #' @param R2.threshold the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
-#' @param min.VAF_adj the minimum value of adjusted VAF value (1/2CCF). Default: 0.1
-#' @param max.VAF_adj the maximum value of adjusted VAF value (1/2CCF). Default: 0.3
+#' @param min.vaf the minimum value of adjusted VAF value (1/2CCF). Default: 0.1
+#' @param max.vaf the maximum value of adjusted VAF value (1/2CCF). Default: 0.3
 #' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 20
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
@@ -42,8 +42,8 @@ testPowerLaw <- function(
 	        dplyr::filter(
 	            Status == "Subclonal" & 
 	                Ref_allele_depth + Alt_allele_depth > min.depth &
-	                VAF_adj > min.VAF_adj &
-	                VAF_adj < max.VAF_adj &
+	                VAF_adj > min.vaf &
+	                VAF_adj < max.vaf &
 	                !is.na(VAF_adj)
 	        )  
 
@@ -63,25 +63,25 @@ testPowerLaw <- function(
 			# vafCount =  hist(1/sample.df$VAF_adj, breaks = breaks, plot = F)
 			# vafCumsum <- data.frame(inv_f = vafCount$breaks, count = c(0,cumsum(vafCount$counts)))
 			
-			breaks <- seq(max.VAF_adj, min.VAF_adj, -0.005)
+			breaks <- seq(max.vaf, min.vaf, -0.005)
 			mut.count <- sapply(breaks,function(x,vaf){sum(vaf > x)},vaf = vaf)
 			vafCumsum <- data.frame(count = mut.count, f = breaks)
-			vafCumsum$inv_f <- 1/vafCumsum$f - 1/max.VAF_adj
+			vafCumsum$inv_f <- 1/vafCumsum$f - 1/max.vaf
 			vafCumsum$n_count <- vafCumsum$count/max(vafCumsum)
-			vafCumsum$t_count <- vafCumsum$inv_f/(1/min.VAF_adj - 1/max.VAF_adj)
+			vafCumsum$t_count <- vafCumsum$inv_f/(1/min.vaf - 1/max.vaf)
 			
 			## area of theoretical curve
 			theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$t_count),
 			                     min(vafCumsum$inv_f),
 			                     max(vafCumsum$inv_f))$value
 			# area of emprical curve
-			theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
+			dataA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
 			                     min(vafCumsum$inv_f),
 			                     max(vafCumsum$inv_f))$value
 			# Take absolute difference between the two
 			area <- abs(theoryA - dataA)
 			# Normalize so that metric is invariant to chosen limits
-			area<- area / (1 / min.VAF_adj - 1 / max.VAF_adj)
+			area<- area / (1 / min.vaf - 1 / max.vaf)
 			
 			
 			## calculate mean distance
@@ -89,7 +89,7 @@ testPowerLaw <- function(
 			
 			## calculate kolmogorovdist 
 			n = length(vaf)
-			cdfs <- 1 - ((1/sort(vaf) - 1/max.VAF_adj) /(1/min.VAF_adj - 1/max.VAF_adj))
+			cdfs <- 1 - ((1/sort(vaf) - 1/max.vaf) /(1/min.vaf - 1/max.vaf))
 			dp <- max((1:n) / n - cdfs)
 			dn <- - min((0:(n-1)) / n - cdfs)
 			kolmogorovdist  <- max(c(dn, dp))
@@ -123,7 +123,7 @@ testPowerLaw <- function(
         x.min <- min(vafCumsum$f)
         x.max <- max(vafCumsum$f)
         x.breaks <- seq(x.min,x.max,(x.max-x.min)/2)
-        x.breaks.pos <- 1/x.breaks - 1/max.VAF_adj
+        x.breaks.pos <- 1/x.breaks - 1/max.vaf
         x.breaks.label <- paste("1/", round(x.breaks,2),sep="")
         y.min <- min(vafCumsum$count)
         y.max <- max(vafCumsum$count,
@@ -212,7 +212,7 @@ testPowerLaw <- function(
 
 testNeutral <- function(maf, patient.id = NULL, 
     min.depth = 10, R2.threshold = 0.98,
-    min.VAF_adj = 0.1, max.VAF_adj = 0.3,
+    min.vaf = 0.1, max.vaf = 0.3,
     min.mut.count = 20,
     plot = TRUE){
 	

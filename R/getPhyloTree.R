@@ -49,7 +49,7 @@ getPhyloTree <- function(maf,
 byMP <- function(mut_dat){
     matTree <- nj(dist.gene(mut_dat))
     tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
-    tree_pars <- suppressMessages(phangorn::optim.parsimony(matTree, tree_dat,trace = F)) 
+    tree_pars <- suppressMessages(phangorn::optim.parsimony(matTree, tree_dat,method = "sankoff",trace = F)) 
     matTree <- phangorn::acctran(tree_pars, tree_dat)
     return(matTree)
 }
@@ -71,7 +71,6 @@ doGetPhyloTree <- function(patient.dat = NULL,
                            min.CCF = NULL,
                            bootstrap.rep.num = 100){
     patientID <- unique(patient.dat$Patient_ID)
-    # print(patientID)
     if(!is.null(min.CCF)){
 
         if("CCF" %in% colnames(patient.dat)){
@@ -96,7 +95,7 @@ doGetPhyloTree <- function(patient.dat = NULL,
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
     }else if(method == "MP"){
         matTree <- byMP(mut_dat)
-        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byMP(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100 
+        bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100 
     }else if(method == "ML"){
         matTree <- byML(mut_dat)
         bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100

@@ -347,6 +347,10 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
      collateralWs[rightList[i]] <- wr
      if(i == 1){
       angler <- wr/2 + startr
+      ## angle extension
+      if(length(rightList) == 1 & horizon!= pi/2){
+          angler <- startr 
+      }
       collateralAngles[rightList[i]] <- angler
       startr <- angler
      }else{
@@ -371,6 +375,10 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
      collateralWs[leftList[i]] <- wl
      if(i == 1){
       anglel <- startl - wl/2
+      ## angle extension
+      if(length(leftList) == 1 & horizon!= pi/2){
+          anglel <- startl 
+      }
       collateralAngles[leftList[i]] <- anglel
       startl <- anglel
      }
@@ -677,37 +685,57 @@ drawPhyloTree <- function(phyloTree = NULL,
                    legend.direction = "horizontal") + 
         guides(color = guide_legend(nrow=1))+
         coord_fixed(ratio= 1) +
-        scale_x_discrete(expand = expansion(add = mean(treeData$distance)))
+        scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
+        scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5))
+
+    ## label Sample ID
+    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
+                           y = y2 + sin(angle)*textAdjust/10,
+                           label = sample,
+                           angle = angle*180/pi),
+                       hjust = 0,
+                       fontface = "bold",
+                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 > 0, ],
+                       size = sampleTextSize)
+    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
+                           y = y2 + sin(angle)*textAdjust/10,
+                           label = sample,
+                           angle = angle*180/pi + 180),
+                       hjust = 1,
+                       fontface = "bold",
+                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 < 0, ],
+                       size = sampleTextSize)
+    ## label NORMAL
+    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+                       label = rootLabel,
+                       data = treeData[sample == rootLabel,], 
+                        fontface = 'bold', size = sampleTextSize)
+    ## lable sample on the top
+    if(nrow(treeData[(!sample %in% c("internal node",rootLabel)) & x2 == 0, ]) > 0){
+        p <- p + geom_text(aes(x = x2,
+                               y = y2 + textAdjust/5,
+                               label = sample),
+                           fontface = "bold",
+                           data = treeData[(!sample %in% c("internal node",rootLabel)) & x2 == 0, ],
+                           size = sampleTextSize)
+    }
     
-    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                             nudge_y = textAdjust/10,
-                             nudge_x = textAdjust/10,
-                             segment.color = "grey",
-                             segment.size = 0.25,
-                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
-                                                 x2 >= 0, ],
-                             fontface = 'bold', size = sampleTextSize ,force = 10)
-    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                             nudge_y = textAdjust/10,
-                             nudge_x = -textAdjust/10,
-                             segment.color = "grey",
-                             segment.size = 0.25,
-                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
-                                                 x2 < 0, ],
-                             fontface = 'bold', size = sampleTextSize ,force = 10)
     # p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
     #                          nudge_y = textAdjust/10,
-    #                          # segment.alpha = 0,
-    #                          # direction = "x"
+    #                          nudge_x = textAdjust/10,
     #                          segment.color = "grey",
     #                          segment.size = 0.25,
-    #                          data = treeData[!sample %in% c("internal node",rootLabel), ],
+    #                          data = treeData[(!sample %in% c("internal node",rootLabel)) &
+    #                                              x2 >= 0, ],
     #                          fontface = 'bold', size = sampleTextSize ,force = 10)
-    p <- p + geom_text_repel(aes(x = x2,y = y2), label = rootLabel, vjust = 0, 
-                             nudge_y = -textAdjust/5,
-                             segment.alpha = 0,
-                             data = treeData[sample == rootLabel,], 
-                             fontface = 'bold', size = sampleTextSize,force = 5)
+    # p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+    #                          nudge_y = textAdjust/10,
+    #                          nudge_x = -textAdjust/10,
+    #                          segment.color = "grey",
+    #                          segment.size = 0.25,
+    #                          data = treeData[(!sample %in% c("internal node",rootLabel)) &
+    #                                              x2 < 0, ],
+    #                          fontface = 'bold', size = sampleTextSize ,force = 10)
     p <- p + geom_point(aes(x = x2,y = y2),
                         data = treeData[sample == 'internal node',],
                         size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
