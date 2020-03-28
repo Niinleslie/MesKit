@@ -1,4 +1,4 @@
-Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	CDS_Change	Protein_Change	Tumor_Sample_Barcode	Patient_ID	Lesion_ID
+Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele1	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	CDS_Change	Protein_Change	Tumor_Sample_Barcode	Patient_ID	Sample_Type
 WASH7P	1	14754	14754	RNA	SNP	G	G	C	345	6	0.017	NA	NA	311252-S	311252	Primary
 LOC729737	1	135207	135207	RNA	SNP	C	C	G	40	4	0.0909	NA	NA	311252-S	311252	Primary
 UBE2J2	1	1209183	1209183	5'UTR	INS	-		CGC	29	14	0.3255	NA	NA	311252-S	311252	Primary

@@ -1,4 +1,4 @@
-Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Lesion_ID
+Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Sample_Type
 PANK4	1	2452742	2452742	Nonsense_Mutation	SNP	C	A	81	85	0.059	P_1	V402	P
 CHD5	1	6203883	6203883	Missense_Mutation	SNP	G	C	31	25	0.2	P_1	V402	P
 MASP2	1	11106655	11106655	Missense_Mutation	SNP	C	T	26	22	0.045	P_1	V402	P
