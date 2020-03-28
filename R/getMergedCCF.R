@@ -33,6 +33,6 @@ getMergedCCF <- function(mafData){
 		return(data.frame(mutation_id=mutID, mergedCCF=mergedCCF,stringsAsFactors = FALSE))		
 	}
 	else{
-		stop("No ccf data was found when readMaf")
+		stop("No ccf data was found in Maf object")
 	}
 }

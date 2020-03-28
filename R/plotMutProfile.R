@@ -9,6 +9,10 @@ genHeatmapPlotMatrix <- function(
             dplyr::filter(Selected_Mut)
     }
  
+    col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
+                    distinct(.)
+    col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
+
     # split by patient
     patient.split <- maf_data %>%
         dplyr::select(Patient_ID, Tumor_Sample_Barcode) %>%
@@ -51,7 +55,7 @@ genHeatmapPlotMatrix <- function(
         as.matrix()
     
     
-    return(list(mat, patient.split))
+    return(list(mat, patient.split, col_labels))
 }
 
 plotMutProfile <- function(maf_data,
@@ -67,13 +71,12 @@ plotMutProfile <- function(maf_data,
     maf.plot <- genHeatmapPlotMatrix(maf_data, topGenesCount = topGenesCount)  
     mat <- maf.plot[[1]]
 
-    col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
-                    distinct(.)
-    col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
-    
-
+    #col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
+                    #distinct(.)
+    #col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
     patient.split <- maf.plot[[2]]
-    
+    col_labels <- maf.plot[[3]]
+
     # get the order or rows
     stat <- rep(0, topGenesCount)
     for(i in 1:nrow(mat)){
