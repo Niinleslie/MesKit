@@ -12,9 +12,15 @@
 #' @export ccfDensity
 
 
-compareCCF <- function(mafData, show.density = TRUE){
+compareCCF <- function(mafData, geneList = geneList, show.density = TRUE){
   samples <- unique(mafData$Tumor_Sample_Barcode)
-
+  
+  if(length(samples) < 2){
+      message(paste0(unique(mafData$Patient_ID), " have less than 2 samples, return NA"))
+      return(NA)
+      
+  }
+  
   pairs <- combn(length(samples), 2, simplify = FALSE)  
   p <- list()
   p.name <- c()
@@ -25,34 +31,91 @@ compareCCF <- function(mafData, show.density = TRUE){
     ccf.pair <- mafData %>% dplyr::filter(Tumor_Sample_Barcode %in% c(S1, S2)) %>%
       tidyr::unite("mutation_id", c("Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
         sep = ":", remove = FALSE) %>% 
-      dplyr::select(Tumor_Sample_Barcode, mutation_id, CCF) %>% 
-      tidyr::spread(key = Tumor_Sample_Barcode, value = CCF)
-
-    colnames(ccf.pair) <- c("mutation_id", "sample1", "sample2")    
-    p[[i]] <- ggplot2::ggplot(data=ccf.pair, aes(x=sample1, y=sample2)) + 
-      geom_point(size = 0.5) + xlab(S1) +ylab(S2) +
-      xlim(0,1) + ylim(0,1) +
+      dplyr::select(Tumor_Sample_Barcode, Hugo_Symbol, mutation_id, CCF) %>% 
+      tidyr::spread(key = Tumor_Sample_Barcode, value = CCF) %>% 
+        dplyr::rename("sample1" = S1, "sample2" = S2) %>% 
+        dplyr::filter(!is.na(sample1),!is.na(sample2))
+    
+    
+    p[[i]] <- ggplot2::ggplot(data= ccf.pair, aes(x=sample1, y=sample2)) +
+        xlab(S1) +
+        ylab(S2) +
       theme(
-        axis.text = element_text(size = 12, color = "black"),
+        # axis.text = element_text(size = 12, color = "black"),
+        axis.text = element_text(size = 10, color = "black"),
         axis.title = element_text(size = 13, color = "black"),
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 10),
         legend.title = element_text(size = 12),
         #panel.background = element_blank(),
         #panel.background = element_rect(colour = "black", size = 0.4),
-        panel.grid.major = element_line(linetype = 2, color = "grey"),
-        panel.grid.minor = element_blank(),        
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_blank(),
         plot.title = element_text(hjust = 0.5)
         )+
       guides(shape = guide_legend(override.aes = list(size = 0.2))) +
-      theme_bw() + coord_fixed() +
-      labs(x = S1, y = S2) +
+      # theme_bw() +
+      coord_fixed() +
+      scale_x_continuous(expand = c(0,0), limits = c(0,1))+
+        scale_y_continuous(expand = c(0,0), limits = c(0,1))+
+      # labs(x = S1, y = S2) +
       ggtitle(paste("CCF density plot in paired samples:\n ", S1, " vs ", S2, sep = ""))
 
-
-    
     if(show.density){
-      p[[i]] <- p[[i]] + stat_density_2d(aes(fill = ..level..), geom = 'polygon', n = ) +
-        scale_fill_gradient(low = "#8491B499", high = "#E64B35FF")
+      p[[i]] <- p[[i]] + stat_density_2d(aes(fill = ..density..), geom = 'tile',contour = FALSE) +
+        # scale_fill_gradient(low = "#8491B499",high = "#E64B35FF")
+          scale_fill_gradientn(colours = c("white",
+                                           "#bcbddc",
+                                           "#9e9ac8",
+                                           "#807dba",
+                                           "#fc9272",
+                                           "#ef3b2c"))
+    }
+    p[[i]] <- p[[i]] + geom_point(size = 0.5)
+    ## use smoothscatter
+    # ccf.pair.matrix <- matrix(c(ccf.pair$sample1, ccf.pair$sample2),ncol = 2)
+    # den.col <- colorRampPalette(c("white","#8491B499", "#E64B35FF"))
+    # smoothScatter(ccf.pair.matrix,
+    #               colramp = den.col,
+    #               xlab = S1,
+    #               ylab = S2,
+    #               main = paste("CCF density plot in paired samples:\n ", S1, " vs ", S2, sep = ""),
+    #               legend.plot = T)
+    
+    ## label muation on geneList
+    if(!is.null(geneList)){
+        ## set table for gene
+        genes.table <- ccf.pair %>% 
+            dplyr::rowwise() %>% 
+            dplyr::filter(any(strsplit(Hugo_Symbol,",|;")[[1]] %in% geneList)) %>%
+            as.data.table()
+        
+        if(nrow(genes.table) > 0){
+            genes.name <- unlist(lapply(genes.table$Hugo_Symbol, function(x){
+                ns <- strsplit(x,",|;")[[1]]
+                idx <- which(ns %in% geneList)[1]
+                return(ns[idx])
+            }))
+            genes.table$Hugo_Symbol <- genes.name
+            p[[i]] <- p[[i]] +
+                ## add point
+                geom_point(data = genes.table,
+                           aes(x = sample1, y = sample2),
+                           shape = 24,
+                           size = 2,
+                           fill = "red")+
+                ## label gene
+                geom_text_repel(data = genes.table,
+                          aes(x = sample1, y = sample2, label = Hugo_Symbol),
+                          size = 3.5,
+                          force = 10)
+            
+            ## smoothscatter, add gene names
+            # points(genes.table[,.(sample1,sample2)],cex=0.6,col=2,pch=2)
+            # text(genes.table[,.(sample1,sample2)],cex=0.7,pos=1,genes.table$Hugo_Symbol)
+        }
+        else{
+            message(paste0("Warning: None of genes map to pair samples ",S1, " vs ", S2,) )
+        }
     }
     p.name <- c(p.name, paste(S1,"-",S2, sep = ""))
     i =  i+1
@@ -63,7 +126,11 @@ compareCCF <- function(mafData, show.density = TRUE){
 }
 
 
-ccfDensity <- function(maf, patient.id = NULL, min.ccf = 0, show.density = TRUE){
+ccfDensity <- function(maf,
+                       patient.id = NULL,
+                       geneList = NULL,
+                       min.ccf = 0,
+                       show.density = TRUE){
   mafData <- maf@data
 
   ## check if ccf data is provided
@@ -93,7 +160,7 @@ ccfDensity <- function(maf, patient.id = NULL, min.ccf = 0, show.density = TRUE)
   density.list <- mafData %>%
       dplyr::filter(Patient_ID %in% patient.id & CCF > min.ccf) %>%
       dplyr::group_by(Patient_ID) %>%
-      dplyr::group_map(., ~compareCCF(.x, show.density = show.density), keep=TRUE) %>%
+      dplyr::group_map(., ~compareCCF(.x, geneList = geneList, show.density = show.density), keep=TRUE) %>%
       rlang::set_names(patient.id)
 
   return(density.list)      

@@ -77,67 +77,112 @@ doMutSharedPattern <- function(df, show.num, gene_list = NULL){
     sample.combination <- lapply(1:length(levels(df$Tumor_Sample_Barcode)),function(x){
         combn(levels(df$Tumor_Sample_Barcode),x)
     })
-    neededData <- select(tidyr::unite(df, "neededData", Hugo_Symbol, Chromosome, Start_Position, End_Position ,Reference_Allele,Tumor_Seq_Allele2, sep = "_"), neededData)
+    neededData <- dplyr::select(tidyr::unite(df, "neededData", Hugo_Symbol, Chromosome, Start_Position, End_Position ,Reference_Allele,Tumor_Seq_Allele2, sep = "_"), neededData)
     df <- cbind(df,neededData)
-    finalFrame <- data.frame(Sample = "x",Type = "y",Number = 0)
+    s <- list()
+    do <- lapply(1:length(unique(df$Tumor_Sample_Barcode)),function(x){
+        g <- combn(unique(df$Tumor_Sample_Barcode),x, FUN = as.factor, simplify = F)
+        s <<- append(s,g)
+    })
+
+    df <- as.data.table(df)
+    ff <- lapply(s,function(x,df){
+        nds <- lapply(x, function(j,df){
+            return(df[Tumor_Sample_Barcode == j]$neededData)
+        },df = df)
+        nds <- Reduce(intersect, nds)
+        if(length(x) == 1){
+            sup.set <- df[neededData %in% nds]$neededData
+            nds <- nds[!nds %in% sup.set]
+        }
+        if(length(nds) == 0){
+            return(data.frame())
+        }
+
+        ## boxplot frame
+        r <- df %>%
+            dplyr::filter(Tumor_Sample_Barcode %in% x,
+                          neededData %in% nds) %>%
+            dplyr::group_by(Variant_Classification) %>%
+            dplyr::summarise(length(neededData)) %>% as.data.frame()
+        colnames(r) <- c("Type","Number")
+        combine.name <- paste(x,collapse = "∩")
+        r$Sample <- combine.name
+        r$Number <- r$Number/length(x)
+        return(r)
+    }, df = df)
+    finalFrame <- do.call(plyr::rbind.fill, ff)
+
+    ## pointline frame
+    plf <- lapply(s, function(x){
+        combine.name <- paste(x,collapse = "∩")
+        if(!combine.name %in% finalFrame$Sample){
+            return(data.frame())
+        }
+        subdat <- data.frame(Combinations = rep(combine.name,length(x)), Sample = x)
+    })
+    pointLineFrame <- do.call(plyr::rbind.fill, plf)
+    colnames(pointLineFrame) <- c("Combinations", "Sample")
+
+    # finalFrame <- data.frame(Sample = "x",Type = "y",Number = 0)
     finalFrame$Sample <- as.vector(finalFrame$Sample)
     finalFrame$Type <- as.vector(finalFrame$Type)
     finalFrame$Number <- as.vector(finalFrame$Number)
-    pointLineFrame <- data.frame(combinations = "x",sample = "y")
-    pointLineFrame$combinations <- as.vector(pointLineFrame$combinations)
-    pointLineFrame$sample <- as.vector(pointLineFrame$sample)
-    i = 1
-    while(i <= length(sample.combination)){
-        isData <- apply(sample.combination[[i]],2,function(x){
-            if(length(x) == 1){
-                neededData <- df[which(df$Tumor_Sample_Barcode == x),]$neededData
-                neededData <- unlist(lapply(neededData, function(j){
-                    sampleGet <- unique(df[which(df$neededData == j),]$Tumor_Sample_Barcode)
-                    if(length(sampleGet) > 1){
-                        return(NULL)
-                    }
-                    else{
-                        return(j)
-                    }
-                }))
-                isNeededData <- neededData
-            }
-            else{
-                neededData <- lapply(x,function(s){
-                    return(df[which(df$Tumor_Sample_Barcode == s),]$neededData)
-                })          
-                isNeededData <- Reduce(intersect, neededData)
-            }
-            isDf <- df[which(df$Tumor_Sample_Barcode %in% x & df$neededData %in% isNeededData),]
-            if(length(isNeededData) != 0){
-                isType <- as.character(unique(isDf$Variant_Classification) ) 
-                numList <-  unlist(lapply(isType, function(g){
-                    num <- length(which(isDf$Variant_Classification == g)) 
-                    return(num)
-                }))
-                sample <- paste(x,collapse = "∩")
-                for(i in 1:length(isType)){
-                    if(numList[i] == 0){
-                        next
-                    }
-                    else{
-                        type <- isType[i]
-                        num <- numList[i]/length(x)
-                        row <- c(sample, type, num, x)
-                        finalFrame <<- rbind(finalFrame, row)
-                    }
-                }
-                for(i in 1:length(x)){
-                    row <- c(sample , x[i])
-                    pointLineFrame <<- rbind(pointLineFrame, row) 
-                }
-            }
-            
-        })
-        i <- i +1
-    }
-    finalFrame <- finalFrame[-1,]
-    pointLineFrame <- pointLineFrame[-1,]
+    # pointLineFrame <- data.frame(Combinations = 0, Sample = 0)
+    pointLineFrame$Combinations <- as.vector(pointLineFrame$Combinations)
+    pointLineFrame$Sample <- as.vector(pointLineFrame$Sample)
+    # i = 1
+    # while(i <= length(sample.combination)){
+    #     isData <- apply(sample.combination[[i]],2,function(x){
+    #         if(length(x) == 1){
+    #             neededData <- df[which(df$Tumor_Sample_Barcode == x),]$neededData
+    #             neededData <- unlist(lapply(neededData, function(j){
+    #                 sampleGet <- unique(df[which(df$neededData == j),]$Tumor_Sample_Barcode)
+    #                 if(length(sampleGet) > 1){
+    #                     return(NULL)
+    #                 }
+    #                 else{
+    #                     return(j)
+    #                 }
+    #             }))
+    #             isNeededData <- neededData
+    #         }
+    #         else{
+    #             neededData <- lapply(x,function(s){
+    #                 return(df[which(df$Tumor_Sample_Barcode == s),]$neededData)
+    #             })
+    #             isNeededData <- Reduce(intersect, neededData)
+    #         }
+    #         isDf <- df[which(df$Tumor_Sample_Barcode %in% x & df$neededData %in% isNeededData),]
+    #         if(length(isNeededData) != 0){
+    #             isType <- as.character(unique(isDf$Variant_Classification) )
+    #             numList <-  unlist(lapply(isType, function(g){
+    #                 num <- length(which(isDf$Variant_Classification == g))
+    #                 return(num)
+    #             }))
+    #             sample <- paste(x,collapse = "∩")
+    #             for(i in 1:length(isType)){
+    #                 if(numList[i] == 0){
+    #                     next
+    #                 }
+    #                 else{
+    #                     type <- isType[i]
+    #                     num <- numList[i]/length(x)
+    #                     row <- c(sample, type, num, x)
+    #                     finalFrame <<- rbind(finalFrame, row)
+    #                 }
+    #             }
+    #             for(i in 1:length(x)){
+    #                 row <- c(sample , x[i])
+    #                 pointLineFrame <<- rbind(pointLineFrame, row)
+    #             }
+    #         }
+    # 
+    #     })
+    #     i <- i +1
+    # }
+    # finalFrame <- finalFrame[-1,]
+    # pointLineFrame <- pointLineFrame[-1,]
     finalFrame$Sample  <-  factor(finalFrame$Sample, levels = rev(unique(finalFrame$Sample)))
     finalFrame$Type  <-  factor(finalFrame$Type, levels = sort(unique(finalFrame$Type)))
     finalFrame$Number <- as.integer(finalFrame$Number)
@@ -157,7 +202,7 @@ doMutSharedPattern <- function(df, show.num, gene_list = NULL){
         sampleOrder <- append(sampleOrder, posList) 
     }
     finalFrame$Sample  <-  factor(finalFrame$Sample, levels = levels(finalFrame$Sample)[sampleOrder])
-    pointLineFrame$combinations <- factor(pointLineFrame$combinations, levels = levels(finalFrame$Sample))
+    pointLineFrame$Combinations <- factor(pointLineFrame$Combinations, levels = levels(finalFrame$Sample))
     #draw stack plots
     keyPoint <- ggplot(finalFrame)+
         aes(x = Sample,y = Number,fill = Type)+
@@ -191,14 +236,14 @@ doMutSharedPattern <- function(df, show.num, gene_list = NULL){
         scale_y_continuous(expand = c(0,0))
     # draw point-line plot
     pointLinePlot <- ggplot(pointLineFrame)+
-        aes(x=combinations,y=sample)
+        aes(x = Combinations, y=Sample)
     if(length(levels(finalFrame$Sample))<21){
         pointLinePlot <- pointLinePlot + geom_point(size=3.5)
     }else{
         pointLinePlot <- pointLinePlot + geom_point(size=2.5)
     }
     pointLinePlot <- pointLinePlot+
-        geom_path(mapping = aes(group=combinations),inherit.aes = TRUE)+
+        geom_path(mapping = aes(group = Combinations),inherit.aes = TRUE)+
         labs(x="",width=1.0)+
         labs(y="")+
         theme(panel.grid = element_blank(),

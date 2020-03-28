@@ -68,7 +68,6 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
     CNAplot.list <- list()
     for(patient in patients){
         patient.seg <- dat.list[[patient]]
-        # patient.seg <- dat.list[[1]]
         updateStart <- apply(patient.seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
         updateEnd <- apply(patient.seg,1,updatePosition,"End_Position","Chromosome",chrLens)
         suppressWarnings(patient.seg[,Update_Start:= updateStart]) 

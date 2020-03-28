@@ -371,8 +371,14 @@ doPlotTrunkBranch <- function(tree.mutSig){
         annotation_custom(grob = TG,  xmin = 11, xmax = 13, ymin = -8.5, ymax = -0) + 
         ## Mutational Type p value of wilcox.test
         
-        annotation_custom(grob = CApV,  xmin = 0.7, xmax = 3, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ])) +
-        annotation_custom(grob = CGpV,  xmin = 2.7, xmax = 5, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ])) +
+        annotation_custom(grob = CApV,
+                          xmin = 0.7, xmax = 3,
+                          ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ]),
+                          ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ])) +
+        annotation_custom(grob = CGpV,
+                          xmin = 2.7, xmax = 5,
+                          ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ]),
+                          ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ])) +
         annotation_custom(grob = CTpV,  xmin = 4.7, xmax = 7, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>T"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>T"), ])) +
         annotation_custom(grob = TApV,  xmin = 6.7, xmax = 9, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ])) +
         annotation_custom(grob = TCpV,  xmin = 8.7, xmax = 11, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ])) +
@@ -387,11 +393,22 @@ getYmax <- function(BT.dat){
         return(0)
     }
     BT.dat <- as.data.table(BT.dat)
+    
+    ## maximum mut.frac in Branch
+    Branch.ymax <- 0
     Branch.mutfrac <- BT.dat[BT == "Branch"]$mut.frac
-    Branch.outlier <- boxplot(Branch.mutfrac,range = 100,plot = FALSE)$out
-    Branch.ymax <- max(Branch.mutfrac[!Branch.mutfrac %in% Branch.outlier]) 
+    if(length(Branch.mutfrac)> 0){
+        Branch.outlier <- boxplot(Branch.mutfrac,range = 100,plot = FALSE)$out
+        Branch.ymax <- max(Branch.mutfrac[!Branch.mutfrac %in% Branch.outlier])  
+    }
+    
+    ## maximum mut.frac in Trunk
+    Trunk.ymax <- 0
     Trunk.mutfrac <- BT.dat[BT == "Trunk"]$mut.frac
-    Trunk.outlier <- boxplot(Trunk.mutfrac,range = 100, plot = FALSE)$out
-    Trunk.ymax <- max(Trunk.mutfrac[!Trunk.mutfrac %in% Trunk.outlier])
+    if(length(Trunk.mutfrac) > 0){
+        Trunk.outlier <- boxplot(Trunk.mutfrac,range = 100, plot = FALSE)$out
+        Trunk.ymax <- max(Trunk.mutfrac[!Trunk.mutfrac %in% Trunk.outlier])  
+    }
+    
     return(max(Trunk.ymax,Branch.ymax) + 5)
 }

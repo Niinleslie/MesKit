@@ -175,7 +175,7 @@ readSegment <- function(segCN.file = NULL,
           data.table::as.data.table()
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
   }
-  data.table::setkey(x = seg, Patient_ID, Chromosome, Start_Position, End_Position)
+  data.table::setkey(x = seg, Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position)
   return(seg)
 }
 

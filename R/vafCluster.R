@@ -243,7 +243,7 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
 .mathCal <- function(maf, min.vaf, max.vaf, showMATH=TRUE, 
                      plotOption, sampleName = ""){
   if (showMATH){
-    if ((plotOption == "separate") | (plotOption == "combine")){
+    if (plotOption == "combine"){
       mathtbscoreLs <- mathScore(maf, min.vaf = min.vaf, max.vaf = max.vaf)
       mathtbscore <- mathtbscoreLs$MATH.df
       mathscore <- mathtbscore[which(mathtbscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score
@@ -534,8 +534,11 @@ doVafCluster <- function(patient.dat = NULL,
                          max.vaf=1,
                          showMATH=TRUE, 
                          plotOption="combine"){
-  
+    
   patientID <- unique(patient.dat$Patient_ID) 
+  
+  ## filter maf data of patient 
+  maf@data <- maf@data[Patient_ID == patientID]
   
   ## fileter by min.vaf and max.vaf
   patient.dat <- patient.dat[which(
@@ -561,7 +564,7 @@ doVafCluster <- function(patient.dat = NULL,
   
   
   ## plot all samples' vaf distribution
-  if ((plotOption == "separate") | (plotOption == "combine")){
+  if (plotOption == "combine"){
     ## general data process for all samples 
     lsPicName <- c()
     lsSep <- list()
@@ -584,13 +587,6 @@ doVafCluster <- function(patient.dat = NULL,
       clusterMt <- .clusterGenerator(patient.dat, sampleName)
       clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
       
-      ## separate: print VAF pictures for all samples separatively
-      if (plotOption == "separate"){
-        pic <- .drawVAF(clusterMt, sampleName, mathscore)
-        lsSep[[counterMt]] <- pic
-        lsSampleName <- c(lsSampleName,sampleName)
-      }
-      else {
         # prepare separated pictures for later combination 
         pic_cha <- paste("separate", ".", counterMt, 
                          "<-.drawVAF(clusterMt, ", 
@@ -599,14 +595,8 @@ doVafCluster <- function(patient.dat = NULL,
         eval(parse(text=pic_cha))
         pic_name <- paste("separate", ".", counterMt, sep="")
         lsPicName <- c(lsPicName, pic_name)
-      }
     }
-    if (plotOption == "separate"){
-      names(lsSep) <- lsSampleName
-      message(paste(patientID," VAF Plot(", plotOption, ") Generation Done!", sep=""))
-      return(suppressWarnings(lsSep))
-      # return(lsSep)
-    }
+
     ## combine: print VAF pictures for all samples in one document
     if (plotOption == "combine"){
       if (showMATH){
@@ -656,7 +646,7 @@ doVafCluster <- function(patient.dat = NULL,
   else if (plotOption == "compare"){
     ## calculate ScoreMATH
     mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption)
-    mathscore <- mathtbscoreLs
+    mathscore <- mathtbscoreLs[mathtbscoreLs$Patient_ID == patientID,]
     ## collect all samples' cluster results
     for (counterMt in seq_along(tsbLs[,1])){
       sampleName <- as.character(tsbLs[,1][counterMt])
@@ -669,6 +659,7 @@ doVafCluster <- function(patient.dat = NULL,
         message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
         next()
       }
+      
       ## generate data from different Tumor_Sample_Barcode
       clusterMtCha <- paste("clusterMt_", counterMt, 
                             " <- .clusterGenerator(patient.dat, sampleName)", sep ="")
@@ -679,6 +670,7 @@ doVafCluster <- function(patient.dat = NULL,
       clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
                             "clusterMt_", counterMt, ")",sep ="")
       eval(parse(text=clusterMtCha))
+      
     }
     # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
     pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
