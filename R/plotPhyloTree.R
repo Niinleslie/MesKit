@@ -348,7 +348,7 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
      if(i == 1){
       angler <- wr/2 + startr
       ## angle extension
-      if(length(rightList) == 1 & horizon!= pi/2){
+      if(length(rightList) == 1 & horizon!= pi/2 &startr != pi/2){
           angler <- startr 
       }
       collateralAngles[rightList[i]] <- angler
@@ -376,7 +376,7 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
      if(i == 1){
       anglel <- startl - wl/2
       ## angle extension
-      if(length(leftList) == 1 & horizon!= pi/2){
+      if(length(leftList) == 1 & horizon!= pi/2 & startl != pi/2){
           anglel <- startl 
       }
       collateralAngles[leftList[i]] <- anglel

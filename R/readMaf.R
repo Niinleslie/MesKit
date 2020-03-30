@@ -69,12 +69,12 @@ readMaf <- function(## maf parameters
     maf.standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
                      "Variant_Classification", "Variant_Type", "Reference_Allele",
                      "Tumor_Seq_Allele2","Ref_allele_depth","Alt_allele_depth",
-                     "VAF", "Tumor_Sample_Barcode","Patient_ID")
+                     "VAF", "Tumor_Sample_Barcode","Patient_ID","Tumor_Type")
     
     if(!all(maf.standardCol %in% colnames(mafData))){
         stop(paste("MAF file should contain Hugo_Symbol, Chromosome, Start_Position, End_Position, ",
                     "Variant_Classification, Variant_Type, Reference_Allele, ", 
-                    "Tumor_Seq_Allele2, Ref_allele_depth, Alt_allele_depth, VAF, Tumor_Sample_Barcode, Patient_ID")
+                    "Tumor_Seq_Allele2, Ref_allele_depth, Alt_allele_depth, VAF, Tumor_Sample_Barcode, Patient_ID, Tumor_Type")
         )
     }
 
@@ -127,11 +127,13 @@ readMaf <- function(## maf parameters
     patients.dat <- split(mafData, mafData$Patient_ID)
     sample.info <- lapply(patients.dat,
                           function(x){
-                              patient.tsbs <- sort(unique(x$Tumor_Sample_Barcode))
-                              if(length(patient.tsbs) < 2){
+                              tsb.info <- x %>% 
+                                  dplyr::select(Tumor_Sample_Barcode,Tumor_Type) %>%
+                                  dplyr::distinct(Tumor_Sample_Barcode, .keep_all = TRUE)
+                              if(nrow(tsb.info) < 2){
                                   stop("Errors: each patient should have least two tumor samples.")
                               }
-                              return(patient.tsbs)
+                              return(tsb.info)
                           })
 
     
@@ -146,13 +148,12 @@ readMaf <- function(## maf parameters
             stringsAsFactors = FALSE
         ))
         
-
         ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
         if(!all(ccf.standardCol %in% colnames(ccfInput))){
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
-        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level) %>%
+        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level, sample.info) %>%
             #getMutStatus() %>%
             dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
     }
@@ -174,7 +175,7 @@ readMaf <- function(## maf parameters
 
 
 ##--- combine CCF into maf object
-uniteCCF <- function(mafData, ccf, ccf.conf.level) {
+uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info) {
     mafData <- tidyr::unite(
         mafData,
         "mutID",
@@ -199,31 +200,94 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level) {
             sep = ":",
             remove = TRUE
         ) 
-
+    
+    mafData_merge_ccf <-  
+        merge(mafData, ccf, by = "mutID", all.x = TRUE) %>% 
+        dplyr::mutate(
+            CCF = dplyr::if_else(
+                VAF == 0,
+                0,
+                CCF
+            )
+        )
     if (!"CCF_CI_High" %in% colnames(ccf) & !"CCF_Std" %in% colnames(ccf)){
         mafData_merge_ccf <-
-            merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
+            mafData_merge_ccf %>%
             dplyr::select(-mutID)
     }else{
         if("CCF_CI_High" %in% colnames(ccf)){
-            ccf <- ccf %>%
-                dplyr::select(mutID, CCF, CCF_CI_High)        
-        }
+            mafData_merge_ccf <- mafData_merge_ccf
+        }       
         else if("CCF_Std" %in% colnames(ccf)){
-            ccf <- ccf %>%
-                dplyr::select(mutID, CCF, CCF_Std) %>%
+            mafData_merge_ccf <- mafData_merge_ccf %>%
                 dplyr::mutate(
                     CCF_CI_High = CCF + qnorm((1 - ccf.conf.level) / 2, lower.tail = FALSE) * CCF_Std
                     ) 
         }
 
-        mafData_merge_ccf <- merge(mafData, ccf, by = "mutID", all.x = TRUE) %>%
-            dplyr::mutate(Status =
+        mafData_merge_ccf <-  mafData_merge_ccf %>%
+            dplyr::mutate(Clonal_Status =
                     dplyr::case_when(CCF_CI_High >= 1 ~ "Clonal",
-                                    CCF_CI_High < 1 ~ "Subclonal")) %>%        
-            dplyr::select(-mutID, -CCF_CI_High)        
+                                    CCF_CI_High < 1 ~ "Subclonal"))
+        
+        ## classify clonal status by tumor type
+        mafData_merge_ccf <- tidyr::unite(
+            mafData_merge_ccf,
+            "mutID_1",
+            c(
+                "Patient_ID",
+                "Tumor_Type",
+                "Chromosome",
+                "Start_Position"
+            ),
+            sep = ":",
+            remove = FALSE
+        )%>%
+            tidyr::unite(
+                "mutID_2",
+                c(
+                    "Patient_ID",
+                    "Tumor_Sample_Barcode",
+                    "Tumor_Type",
+                    "Chromosome",
+                    "Start_Position"
+                ),
+                sep = ":",
+                remove = FALSE
+            )
+        ## if any region CCFm < 0.5
+        t1 <- mafData_merge_ccf %>%
+            dplyr::filter(!is.na(CCF)) %>%
+            dplyr::select(mutID_1,Tumor_Sample_Barcode, CCF) %>% 
+            dplyr::group_by(mutID_1) %>%
+            dplyr::summarise(condition2 = dplyr::if_else(
+                any(CCF< 0.5)  |length(CCF) == 1,
+                "yes",
+                "no"
+            )) %>% 
+            as.data.frame()
+        
+        
+        t2 <- mafData_merge_ccf %>%
+            # dplyr::filter(!is.na(CCF)) %>%
+            dplyr::select(mutID_1, mutID_2, Clonal_Status) %>%
+            merge(t1, by = "mutID_1", all = T) %>% 
+            dplyr::mutate(Clonal_Status_2 = dplyr::if_else(
+                Clonal_Status ==  "Subclonal" & condition2 == "yes",
+                "Subclonal",
+                "Clonal"
+            )) %>% 
+            dplyr::select(mutID_2, Clonal_Status_2) %>%
+            dplyr::rename(Clonal_Status = Clonal_Status_2)
+        
+        ## merge clonal status
+        mafData_merge_ccf <- mafData_merge_ccf %>%
+            dplyr::select(-Clonal_Status) %>% 
+            merge(t2, by = "mutID_2", all = T)%>%
+            dplyr::select(-mutID, -CCF_CI_High, -mutID_1, -mutID_2) 
     }
-
+    
+    
     return(mafData_merge_ccf)
 }
 
