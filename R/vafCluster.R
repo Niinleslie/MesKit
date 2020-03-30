@@ -647,9 +647,15 @@ doVafCluster <- function(patient.dat = NULL,
     ## calculate ScoreMATH
     mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption)
     mathscore <- mathtbscoreLs[mathtbscoreLs$Patient_ID == patientID,]
+    
+    ## record sample with few mutations
+    fs <- c()
     ## collect all samples' cluster results
-    for (counterMt in seq_along(tsbLs[,1])){
+    counterMt <- 1
+    count <- 1
+    for (i in seq_along(tsbLs[,1])){
       sampleName <- as.character(tsbLs[,1][counterMt])
+      sampleDat <- patient.dat[patient.dat$Tumor_Sample_Barcode == sampleName,]
       sampleMt <- vafInputMt[which(
         vafInputMt$Samples %in% sampleName),]
       ## data cleaning
@@ -657,21 +663,29 @@ doVafCluster <- function(patient.dat = NULL,
       sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
       if (nrow(sampleMt) < 3) {
         message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+        clusterAll <- clusterAll[clusterAll$Tumor_Sample_Barcode != sampleName,]
+        mathscore <- mathscore[mathscore$Tumor_Sample_Barcode != sampleName,]
+        # patient.dat <- patient.dat[patient.dat$Tumor_Sample_Barcode != sampleName, ]
+        fs <- append(fs,sampleName)
+        counterMt <- counterMt + 1
         next()
       }
       
       ## generate data from different Tumor_Sample_Barcode
-      clusterMtCha <- paste("clusterMt_", counterMt, 
-                            " <- .clusterGenerator(patient.dat, sampleName)", sep ="")
-      eval(parse(text=clusterMtCha))
-      clusterMtCha <- paste("clusterMt_", counterMt, "$MATH", 
-                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score, nrow(clusterMt_", counterMt, "))", sep ="")
-      eval(parse(text=clusterMtCha))
-      clusterMtCha <- paste("clusterAll <- rbind(clusterAll, ", 
-                            "clusterMt_", counterMt, ")",sep ="")
-      eval(parse(text=clusterMtCha))
-      
+      clusterMtCha1 <- paste("clusterMt_", count, 
+                            " <- .clusterGenerator(sampleDat, sampleName)", sep ="")
+      eval(parse(text=clusterMtCha1))
+      clusterMtCha2 <- paste("clusterMt_", count, "$MATH", 
+                            " <- rep(mathscore[which(mathscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score,
+                            nrow(clusterMt_", count, "))", sep ="")
+      eval(parse(text=clusterMtCha2))
+      clusterMtCha3 <- paste("clusterAll <- rbind(clusterAll, ", 
+                            "clusterMt_", count, ")",sep ="")
+      eval(parse(text=clusterMtCha3))
+      counterMt <- counterMt + 1
+      count <- count + 1
     }
+    tsbLs <- data.frame(samples = tsbLs[!tsbLs$samples %in% fs,])
     # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
     pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
                                                     tsbLs, plotOption, 

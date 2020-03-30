@@ -15,6 +15,10 @@
 
 
 plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id = NULL){
+    
+    ## sort sample name 
+    seg$Tumor_Sample_Barcode <- factor(seg$Tumor_Sample_Barcode,levels = sort(unique(seg$Tumor_Sample_Barcode)))
+    
     if(is.null(patient.id)){
         seg$patient <- seg$Patient_ID
         seg <- dplyr::select(seg, -Patient_ID)
