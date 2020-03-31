@@ -33,8 +33,9 @@ readMaf <- function(## maf parameters
     ## filter selection
     min.vaf = 0.06,
     max.vaf = 1,
-    min.ref.depth = 8,
-    min.alt.depth = 8,
+    min.ref.depth = 4,
+    min.alt.depth = 4,
+    min.total.depth = 8,
     mutType = "All",
     mutNonSilent = NULL,
     chrSilent = NULL,
@@ -84,12 +85,18 @@ readMaf <- function(## maf parameters
     } 
 
 
+
     ## VAF and allele depth filter
+    mafData$Ref_allele_depth[is.na(mafData$Ref_allele_depth)] <- 0
+    mafData$Alt_allele_depth[is.na(mafData$Alt_allele_depth)] <- 0
+
     mafData <- mafData %>%
         dplyr::filter(VAF > min.vaf,
                       VAF < max.vaf,
                       Ref_allele_depth > min.ref.depth,
-                      Alt_allele_depth > min.alt.depth)
+                      Alt_allele_depth > min.alt.depth,
+                      Alt_allele_depth + Ref_allele_depth > min.total.depth)
+
     
     ## filter variant classification
     if (mutType == "nonSilent") {
