@@ -348,7 +348,9 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
      if(i == 1){
       angler <- wr/2 + startr
       ## angle extension
-      if(length(rightList) == 1 & horizon!= pi/2 &startr != pi/2){
+      if(all(length(rightList) == 1,
+             horizon!= pi/2,
+             startr != pi/2)){
           angler <- startr 
       }
       collateralAngles[rightList[i]] <- angler
@@ -376,7 +378,9 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
      if(i == 1){
       anglel <- startl - wl/2
       ## angle extension
-      if(length(leftList) == 1 & horizon!= pi/2 & startl != pi/2){
+      if(all(length(leftList) == 1,
+             horizon!= pi/2,
+             startl != pi/2)){
           anglel <- startl 
       }
       collateralAngles[leftList[i]] <- anglel
@@ -575,7 +579,7 @@ drawPhyloTree <- function(phyloTree = NULL,
         treeData <- getTreeData(phyloTree = phyloTree,
                                 show.mutSig = show.mutSig)
     }
-    set.seed(123)
+    set.seed(1234)
     myBoots <- phyloTree@bootstrap.value
     patientID <- phyloTree@patientID
     rootLabel <- "NORMAL"
