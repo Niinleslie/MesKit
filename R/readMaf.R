@@ -208,7 +208,14 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info) {
                 VAF == 0,
                 0,
                 CCF
-            )
+            ) 
+        )%>%
+        dplyr::mutate(
+            CCF = dplyr::if_else(
+                CCF > 1,
+                1,
+                CCF
+            ) 
         )
     if (!"CCF_CI_High" %in% colnames(ccf) & !"CCF_Std" %in% colnames(ccf)){
         mafData_merge_ccf <-
