@@ -61,6 +61,7 @@ genHeatmapPlotMatrix <- function(
 plotMutProfile <- function(maf_data,
                            class = "SP",
                            topGenesCount = 15,
+                           classByType = FALSE,
                            bgCol = "#f0f0f0",
                            patientsCol = NULL,
                            remove_empty_columns = TRUE,
@@ -111,99 +112,140 @@ plotMutProfile <- function(maf_data,
         }
     }
         
-    col_type <- function(class) {
-        if (class == "SP") {
-            cols <- c("#3C5488FF", "#00A087FF", "#F39B7fFF")
-            names(cols) <- c("Shared","P_shared", "Private")
-        } else if (class == "CS") {
-            cols <- c("#00A087FF", "#3C5488FF")
-            names(cols) <- c("Clonal", "Subclonal")
-        } else if (class == "SPCS") {
-            cols <-
-                c(
-                    "#00A087FF",
-                    "#3C5488FF",
-                    "#8491B4FF",
-                    "#F39B7FFF", 
-                    "#E64B35FF",                    
-                    "#4DBBD5FF"                    
-                )
-            names(cols) <-
-                c(
-                    "Shared_Clonal",
-                    "Shared_Subclonal",
-                    "P_shared_Clonal",
-                    "P_shared_Subclonal",
-                    "Private_Clonal",
-                    "Private_Subclonal"                    
-                )
-        }
+    if (!(classByType)) {
+      col_type <- function(class) {
+          if (class == "SP") {
+              cols <- c("#3C5488FF", "#00A087FF", "#F39B7fFF")
+              names(cols) <- c("Public","Shared", "Private")
+          } else if (class == "CS") {
+              cols <- c("#00A087FF", "#3C5488FF")
+              names(cols) <- c("Clonal", "Subclonal")
+          } else if (class == "SPCS") {
+              cols <-
+                  c(
+                      "#00A087FF",
+                      "#3C5488FF",
+                      "#8491B4FF",
+                      "#F39B7FFF", 
+                      "#E64B35FF",                    
+                      "#4DBBD5FF"                    
+                  )
+              names(cols) <-
+                  c(
+                      "Public_Clonal",
+                      "Public_Subclonal",
+                      "Shared_Clonal",
+                      "Shared_Subclonal",
+                      "Private_Clonal",
+                      "Private_Subclonal"                    
+                  )
+          }
         
-        return(cols)
-    }
+          return(cols)
+      }
 
-    alter_fun <- function(class){
-        if(class == "SP"){
-            l <- list(
-            background = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = bgCol, col = NA)),
-            Private = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SP")["Private"], col = NA)),
-            Shared = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SP")["Shared"], col = NA)),
-            P_shared = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SP")["P_shared"], col = NA)),
-            Multi_hits = function(x, y, w, h)
-                grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char")
-            ))
-        }else if(class == "CS"){
-            l <- list(
-            background = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = bgCol, col = NA)),
-            Clonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("CS")["Clonal"], col = NA)),
-            Subclonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("CS")["Subclonal"], col = NA)),
-            Multi_hits = function(x, y, w, h)
-                grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char") 
-                ))
-        }else if(class == "SPCS" ){
-            l <- list(
-            background = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = bgCol, col = NA)),
-            Private_Clonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SPCS")["Private_Clonal"], col = NA)),
-            Private_Subclonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SPCS")["Private_Subclonal"], col = NA)),
-            Shared_Clonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SPCS")["Shared_Clonal"], col = NA)),
-            Shared_Subclonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SPCS")["Shared_Subclonal"], col = NA)),
-            P_shared_Clonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SPCS")["P_shared_Clonal"], col = NA)),
-            P_shared_Subclonal = function(x, y, w, h)
-                grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                gp = grid::gpar(fill = col_type("SPCS")["P_shared_Subclonal"], col = NA)),
-            Multi_hits = function(x, y, w, h)
-                grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char") 
-            ))
-        }
-        return(l)            
-    }
+      alter_fun <- function(class){
+          if(class == "SP"){
+              l <- list(
+              background = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = bgCol, col = NA)),
+              Private = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SP")["Private"], col = NA)),
+              Public = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SP")["Public"], col = NA)),
+              Shared = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SP")["Shared"], col = NA)),
+              Multi_hits = function(x, y, w, h)
+                  grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char")
+              ))
+          }else if(class == "CS"){
+              l <- list(
+              background = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = bgCol, col = NA)),
+              Clonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("CS")["Clonal"], col = NA)),
+              Subclonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("CS")["Subclonal"], col = NA)),
+              Multi_hits = function(x, y, w, h)
+                  grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char") 
+                  ))
+          }else if(class == "SPCS" ){
+              l <- list(
+              background = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = bgCol, col = NA)),
+              Private_Clonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SPCS")["Private_Clonal"], col = NA)),
+              Private_Subclonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SPCS")["Private_Subclonal"], col = NA)),
+              Shared_Clonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SPCS")["Public_Clonal"], col = NA)),
+              Shared_Subclonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SPCS")["Public_Subclonal"], col = NA)),
+              P_shared_Clonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SPCS")["Shared_Clonal"], col = NA)),
+              P_shared_Subclonal = function(x, y, w, h)
+                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  gp = grid::gpar(fill = col_type("SPCS")["Shared_Subclonal"], col = NA)),
+              Multi_hits = function(x, y, w, h)
+                  grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char") 
+              ))
+          }
+          return(l)            
+      }
      
+    } else{
+      
+      # set certain colors
+      ColorScale <- c("#E41A1C","#377EB8","#7F0000",
+                      "#35978f","#FC8D62","#2166ac",
+                      "#E78AC3","#A6D854","#FFD92F",
+                      "#E5C494","#8DD3C7", "#6E016B" ,
+                      "#BEBADA", "#e08214", "#80B1D3",
+                      "#d6604d","#ffff99","#FCCDE5",
+                      "#FF6A5A","#BC80BD","#CCEBC5" ,
+                      "#fb9a99","#B6646A", "#9F994E", 
+                      "#7570B3" ,"#c51b7d" ,"#66A61E" ,
+                      "#E6AB02" ,"#003c30", "#666666")
+      
+      mutationTypes <- na.omit(unique(maf_data$Mutation_Type))
+      
+      col_type <- function(class) {
+        set.seed(123)
+        cols <- sample(ColorScale, size = length(mutationTypes), replace = FALSE)
+        names(cols) <- mutationTypes
+        return(cols)
+        
+      }
+      
+      # prepare functions for assignment
+      alter_fun_functions <- list()
+      for (type_num in 1:length(mutationTypes)){
+        alter_fun_function <- paste0("function(x, y, w, h) grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                              gp = grid::gpar(fill = col_type(\'",class,"\')[\'",mutationTypes[type_num], "\'],col = NA))")
+        alter_fun_functions <- c(alter_fun_functions, eval(parse(text = alter_fun_function)))
+      }
+      names(alter_fun_functions) <- mutationTypes
+      
+      alter_fun <- function(class){
+        l <- c(alter_fun_functions, Multi_hits = function(x, y, w, h)
+          grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char") 
+          ))
+        return(l)            
+      }
+    }
     # prepare legends
     
     ## type legend
