@@ -161,6 +161,7 @@ readMaf <- function(## maf parameters
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
+
         mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level, sample.info, min.average.vaf) 
             #getMutStatus() %>%
             #dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
