@@ -1,4 +1,4 @@
-Patient_ID	Tumor_Sample_Barcode	Chromosome	Start_Position	CCF	CCF_std
+Patient_ID	Tumor_Sample_Barcode	Chromosome	Start_Position	CCF	CCF_Std
 V402	P_1	1	899515	0.031	0.126
 V402	P_1	1	982996	0.031	0.117
 V402	P_1	1	2452742	0.125	0.239

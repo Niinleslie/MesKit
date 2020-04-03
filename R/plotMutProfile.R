@@ -222,6 +222,28 @@ plotMutProfile <- function(maf_data,
       
       mutationTypes <- na.omit(unique(maf_data$Mutation_Type))
       
+      # filter mutation types
+      filteredTypes <- c()
+      for (i in length(mutationTypes)){
+          if (length(grep(mutationTypes[i], mat)) != 0) {
+              filteredTypes <- c(filteredTypes, mutationTypes[i])
+          }
+      }
+      mutationTypes <- filteredTypes
+      
+      
+      # sort types in legend
+      if (class == "SP" | class == "SPCS") {
+        sortType <- function(types) {
+            publicType <- types[grep("Public", types)]
+            sharedType <- types[grep("Shared", types)]
+            privateType <- types[grep("Private", types)]
+            return(c(publicType, sharedType, privateType))
+        }
+      
+        mutationTypes <- sortType(mutationTypes)
+      }
+      
       col_type <- function(class) {
         set.seed(123)
         cols <- sample(ColorScale, size = length(mutationTypes), replace = FALSE)
