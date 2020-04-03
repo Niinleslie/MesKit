@@ -254,7 +254,7 @@ plotMutProfile <- function(maf_data,
                             title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
                             at = names(col_type(class)),
                             labels = sub("_", "-", names(col_type(class))),
-                            labels_gp = grid::gpar(fontsize = 10.5),
+                            labels_gp = grid::gpar(fontsize = 10),
                             grid_width = unit(3.5, "mm"),
                             grid_height = unit(3.5, "mm"), legend_gp = gpar(fill = col_type(class)))
     
@@ -265,14 +265,18 @@ plotMutProfile <- function(maf_data,
     patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
     names(patientsCol) <- patient.id
     
-    patientLegend <-  ComplexHeatmap::Legend(labels = patient.id, legend_gp = gpar(fill = patientsCol), title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
-                                 labels_gp = grid::gpar(fontsize = 10.5),
+    patientLegend <-  ComplexHeatmap::Legend(
+                                 labels = patient.id, 
+                                 legend_gp = gpar(fill = patientsCol), 
+                                 title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
+                                 labels_gp = grid::gpar(fontsize = 10),
                                  grid_width = unit(3.5, "mm"),
                                  grid_height = unit(3.5, "mm"), title = "Patient")
     
     ## multi-hits legend
-    multiLegend <- ComplexHeatmap::Legend(labels = "Multi_hits",
-                          labels_gp = grid::gpar(fontsize = 10.5),
+    multiLegend <- ComplexHeatmap::Legend(
+                          labels = "Multi_hits",
+                          labels_gp = grid::gpar(fontsize = 10),
                           type = "points",
                           pch = 16,
                           grid_width = unit(3.5, "mm"),
@@ -322,8 +326,8 @@ plotMutProfile <- function(maf_data,
                 col = list(Patient = patientsCol),
                 simple_anno_size = unit(0.2, "cm"),
                 show_legend = FALSE,
-                annotation_legend_param = list(title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
-                                               labels_gp = grid::gpar(fontsize = 10.5),
+                annotation_legend_param = list(title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+                                               labels_gp = grid::gpar(fontsize = 10),
                                                grid_width = unit(3.5, "mm"),
                                                grid_height = unit(3.5, "mm")
                                                #plot = FALSE
