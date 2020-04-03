@@ -2,9 +2,9 @@
 % Please edit documentation in R/ccfDensity.R
 \name{compareCCF}
 \alias{compareCCF}
-\title{ccfDensity}
+\title{ccfPair}
 \usage{
-compareCCF(mafData, show.density = TRUE)
+compareCCF(mafData, pairByType = FALSE, geneList = NULL, show.density = TRUE)
 }
 \arguments{
 \item{show.density}{logical. If TRUE, the default, perform density estimation.}
@@ -23,5 +23,5 @@ Density plot of CCFs in paired samples of the patient
 This function requires CCF for clustering
 }
 \examples{
-ccfDensity(maf, show.density = TRUE)
+ccfPair(maf, show.density = TRUE)
 }

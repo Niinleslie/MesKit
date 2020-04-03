@@ -31,9 +31,9 @@ readMaf <- function(## maf parameters
     mafFile,
     ccfFile = NULL,
     ## filter selection
-    min.vaf = 0.06,
+    min.vaf = 0.02,
     max.vaf = 1,
-    min.average.vaf = 0.06,
+    min.average.vaf = 0.04,
     min.ref.depth = 4,
     min.alt.depth = 4,
     min.total.depth = 8,
@@ -161,9 +161,10 @@ readMaf <- function(## maf parameters
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
-        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level, sample.info, min.average.vaf) %>%
+
+        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level, sample.info, min.average.vaf) 
             #getMutStatus() %>%
-            dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
+            #dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
     }
     
     ## generate classMaf

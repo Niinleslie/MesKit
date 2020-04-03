@@ -9,10 +9,15 @@ plotPhyloTree(
   show.mutSig = TRUE,
   show.heatmap = TRUE,
   heatmap.type = "binary",
-  show.class.label = FALSE,
   show.bootstrap = TRUE,
   use.box = TRUE,
   min.ratio = 1/30,
+  show.class.label = FALSE,
+  geneList = NULL,
+  plot.geneList = FALSE,
+  show.gene = FALSE,
+  show.geneList = TRUE,
+  mut.threshold = 150,
   patient.id = NULL
 )
 }
@@ -25,8 +30,6 @@ plotPhyloTree(
 
 \item{heatmap.type}{character. "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap. This parameter is only useful when show.mutSig = TRUE.}
 
-\item{show.class.label}{logical. If TRUE, show labels for mutations classes on the heatmap.Default is FALSE.}
-
 \item{show.bootstrap}{logical.Whether to add bootstrap value on internal nodes.Default is TRUE.}
 
 \item{use.box}{logical.Whether to add box around bootstrap value on tree. Default is TRUE.}
@@ -35,6 +38,8 @@ plotPhyloTree(
 all edge length of a phylogenetic tree should be greater than
 min.ratio*the longest edge length.
 If not, the edge length will be reset as min.ratio*longest edge length.}
+
+\item{show.class.label}{logical. If TRUE, show labels for mutations classes on the heatmap.Default is FALSE.}
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 }

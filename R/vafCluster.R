@@ -264,7 +264,7 @@ vafClusterRshiny <-function(maf, seg = NULL, min.vaf=0.02, max.vaf=1, showMATH=T
 }
 
 .clusterGenerator <- function(maf.dat, sampleName){
-  ## refine part
+  ## #Use Gaussian finite mixture model
   Mt <- mclust::densityMclust(maf.dat$VAF, G=1:7, verbose=FALSE)
   clusterMt <- as.data.frame(maf.dat)
   clusterMt$cluster <- as.character(Mt[["classification"]])
