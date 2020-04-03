@@ -19,15 +19,28 @@
 #' @export mutSharedPattern
 #' @import cowplot dplyr
 
-mutSharedPattern <- function(maf, show.num = FALSE, gene_list = NULL){
-    maf.dat <- maf@data
-    patient.ids <- unique(maf.dat$Patient_ID)
-    msp.list <- maf.dat %>% dplyr::group_by(Patient_ID) %>% 
+mutSharedPattern <- function(maf, show.num = FALSE, gene_list = NULL, patient.id = NULL){
+    mafData <- maf@data
+    
+    if(is.null(patient.id)){
+        patient.id = unique(mafData$Patient_ID)
+    }else{
+        patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
+        if(length(patient.setdiff) > 0){
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
+        }
+    }
+    
+    mafData <- mafData %>%
+        dplyr::filter(Patient_ID %in% patient.id & CCF > min.ccf,
+                      !is.na(CCF))
+
+    msp.list <- mafData %>% dplyr::group_by(Patient_ID) %>% 
                 group_map(~doMutSharedPattern(.x,
                                               show.num = show.num,
                                               gene_list = gene_list),
                           keep = TRUE) %>%
-                rlang::set_names(patient.ids)
+                rlang::set_names(patient.id)
     return(msp.list)
 }
 

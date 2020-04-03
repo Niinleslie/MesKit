@@ -18,84 +18,64 @@
 #' calNeiDist(maf)
 #' @export calNeiDist
 
-nei_dist <- function(df, pairByType = FALSE) {
+nei_dist <- function(df, withinType = FALSE) {
     
     patient <- unique(df$Patient_ID)
 
-    if(pairByType){
-        ## split data by tumor type
-        df <- split(df,df$Tumor_Type)
-        dist.list <- list()
-        for(i in 1:length(df)){
-            sub.df <- df[[i]]
-            type <- names(df)[i]
-            if(length(unique(sub.df$Tumor_Sample_Barcode)) < 2){
-                message(paste0("Warnings: Only one sample was found of ", type,
-                               " in ", patient, ". It you want to compare CCF between regions, pairByType should be set as FALSE\n"))
-                dist.list[[type]] <- NA
-                next
-            }
-           sub.df <- tidyr::pivot_wider(sub.df,
-                                     names_from = Tumor_Sample_Barcode,
-                                     values_from = CCF,
-                                     values_fill = list(CCF = 0)) %>%
-                dplyr::select(-Patient_ID, -mutation_id, -Tumor_Type)
-            
-            
-            dist <- diag(0, nrow = ncol(sub.df), ncol = ncol(sub.df))
-            
-            for (i in 1:(ncol(sub.df) - 1)) {
-                for (j in (i + 1):ncol(sub.df)) {
-                    x <- as.vector(sub.df[, i])
-                    y <- as.vector(sub.df[, j])
-                    
-                    x_ <- sum(x ^ 2 + (1 - x) ^ 2)
-                    y_ <- sum(y ^ 2 + (1 - y) ^ 2)
-                    
-                    xy <- sum(x * y + (1 - x) * (1 - y))
-                    
-                   dist[i, j] <- dist[j, i] <- -log(xy / sqrt(x_ * y_))
-                }
-            }
-            rownames(dist) <- colnames(sub.df)
-            colnames(dist) <- colnames(sub.df)
-            
-            dist.list[[type]] <- dist
-        }
-      return(dist.list)  
-    }
-    else{
+    if(withinType){
+        type <- unique(df$Tumor_Type)
         if(length(unique(df$Tumor_Sample_Barcode)) < 2){
-            message(paste0("Warnings: Only one sample was found of ",patient,"."))
+            message(paste0("Warnings: Only one sample was found of ", type,
+                           " in ", patient, ". It you want to compare CCF between regions, withinType should be set as FALSE\n"))
             return(NA)
         }
-        df <- tidyr::pivot_wider(df,
-                                 names_from = Tumor_Sample_Barcode,
-                                 values_from = CCF,
-                                 values_fill = list(CCF = 0)
-        ) %>%
-            dplyr::select(-Patient_ID, -mutation_id, -Tumor_Type)
         
-        dist <- diag(0, nrow = ncol(df), ncol = ncol(df))
-        
-        for (i in 1:(ncol(df) - 1)) {
-            for (j in (i + 1):ncol(df)) {
-                x <- as.vector(df[, i])
-                y <- as.vector(df[, j])
-                
-                x_ <- sum(x ^ 2 + (1 - x) ^ 2)
-                y_ <- sum(y ^ 2 + (1 - y) ^ 2)
-                
-                xy <- sum(x * y + (1 - x) * (1 - y))
-                
-                dist[i, j] <- dist[j, i] <- -log(xy / sqrt(x_ * y_))
-            }
-        }
-        rownames(dist) <- colnames(df)
-        colnames(dist) <- colnames(df)
-        return(dist)
     }
+    
+    if(length(unique(df$Tumor_Sample_Barcode)) < 2){
+        message(paste0("Warnings: Only one sample was found of ",patient,"."))
+        return(NA)
+    }
+    
+    df <- tidyr::pivot_wider(df,
+                             names_from = Tumor_Sample_Barcode,
+                             values_from = CCF,
+                             values_fill = list(CCF = 0)
+    ) %>%
+        dplyr::select(-Patient_ID, -mutation_id, -Tumor_Type)
+    
+    dist <- diag(0, nrow = ncol(df), ncol = ncol(df))
+    
+    for (i in 1:(ncol(df) - 1)) {
+        for (j in (i + 1):ncol(df)) {
+            x <- as.vector(df[, i])
+            y <- as.vector(df[, j])
+            
+            x_ <- sum(x ^ 2 + (1 - x) ^ 2)
+            y_ <- sum(y ^ 2 + (1 - y) ^ 2)
+            
+            xy <- sum(x * y + (1 - x) * (1 - y))
+            
+            dist[i, j] <- dist[j, i] <- -log(xy / sqrt(x_ * y_))
+        }
+    }
+    rownames(dist) <- colnames(df)
+    colnames(dist) <- colnames(df)
+    return(dist)
 
+}
+
+groupByTypeND <- function(df){
+    
+    types <- unique(df$Tumor_Type)
+    
+    Nei.dist  <- df %>% 
+        dplyr::group_by(Tumor_Type) %>% 
+        dplyr::group_map(~nei_dist(., withinType = TRUE), keep = TRUE) %>% 
+        rlang::set_names(types)
+    
+    Nei.dist <- Nei.dist[!is.na(Nei.dist)]
+    
 }
 
 calNeiDist <- function(maf, 
@@ -105,7 +85,7 @@ calNeiDist <- function(maf,
     plot = TRUE, 
     use.circle = TRUE, 
     title = NULL,
-    pairByType = FALSE) {
+    withinType = FALSE) {
     
     mafData <- maf@data
 
@@ -124,9 +104,9 @@ calNeiDist <- function(maf,
     }
 
     
-    if(pairByType){
+    if(withinType){
         if(!"Clonal_Status" %in% colnames(mafData)){
-            stop("Clonal_Status of mutations should be contained in MAF when pairByType is TRUE") 
+            stop("Clonal_Status of mutations should be contained in MAF when withinType is TRUE") 
         }
         mafData <- mafData %>% 
             dplyr::filter(Clonal_Status == "Subclonal")
@@ -157,85 +137,73 @@ calNeiDist <- function(maf,
             data.table::as.data.table()
     ## fresh patient id
     patient.id <- unique(Nei.dist$Patient_ID)
-    
-    Nei.dist <- Nei.dist %>% 
-        dplyr::group_by(Patient_ID) %>%
-        dplyr::group_map(~nei_dist(., pairByType = pairByType), keep = TRUE) %>%
-        rlang::set_names(patient.id)    
-    
-    idx <- which(!is.na(Nei.dist))
-    Nei.dist <- Nei.dist[idx] 
-    patient.id <- patient.id[idx] 
     Nei.plot <- list()
     Nei.avg <- list()
-    if(plot){
-        if(pairByType){
-            for(i in 1:length(Nei.dist)){
-                Nei.dist.t <- Nei.dist[[i]]
-                patient <- patient.id[i]
-
-                
-                ## filter NA
-                idx <- which(!is.na(Nei.dist.t))
-                if(length(idx) == 0){
-                    next
-                }
-
-                typeids <- names(Nei.dist.t)[idx]
-                Nei.dist.t  <- Nei.dist.t[idx]
-                Nei.dist[[i]] <- Nei.dist.t
-                
-                avg.list <- c()
-                plot.list <- list()
-                for(j in 1:length(Nei.dist.t)){
-                    ## type
-                    type <- typeids[j]
-                    
-                    ## cal average Nei dist
-                    avg <- mean(Nei.dist.t[[j]])
-                    avg.list <- append(avg.list,avg)
-                    
-                    ## plot by tumor type
-                    plot.list[[j]] <- plotCorr(
-                        Nei.dist.t[[j]], 
-                        use.circle = use.circle, 
-                        title = if(!is.null(title)) title else{paste0("Nei’s distance of ",type, " in ", patient,
-                                                                      ". Average Nei’s distance is ",round(avg,4))}
-                        #paste0(Nei’s distance, " of patient ", patient.id[i])
-                    )
-                }
-                
-                Nei.avg[[i]] <- data.frame(Patient_ID = rep(patient,length(typeids)),
-                                           Tumor_Type = typeids,
-                                           Nei.dist.avg = avg.list)
-                names(plot.list) <- typeids
-                Nei.plot[[i]] <- plot.list
-                    
-            }
-            Nei.avg <- plyr::rbind.fill(Nei.avg)
+    avg.list <- c()
+    if(withinType){
+        Nei.dist <- Nei.dist %>% 
+            dplyr::group_by(Patient_ID) %>%
+            dplyr::group_map(~groupByTypeND(.), keep = TRUE) %>%
+            rlang::set_names(patient.id)
+        
+        dist.list <- list()
+        type.list <- c()
+        patient.list <- c()
+        for(patient in names(Nei.dist)){
             
-        }
-        else{
-            avg.list <- c()
-            for(i in 1:length(Nei.dist)){
-                avg <- mean(Nei.dist[[i]])
-                avg.list <- append(avg.list,avg)
-                Nei.plot[[i]] <- plotCorr(
-                    Nei.dist[[i]], 
+            ## get result for each patient
+            Nei.dist.p <- Nei.dist[[patient]]
+            
+            for(type in names(Nei.dist.p)){
+                ## get result for each patient in each type
+                Nei.dist.p.t <- Nei.dist.p[[type]]
+                
+                name <- paste0(patient,"_",type) 
+                dist.list[[name]] <- Nei.dist.p.t
+                type.list <- c(type.list, type)
+                patient.list <- c(patient.list,patient)
+                ## get average dist
+                avg <- mean(Nei.dist.p.t)
+                avg.list <- c(avg.list,avg)
+                
+                Nei.plot[[name]] <- plotCorr(
+                    Nei.dist.p.t, 
                     use.circle = use.circle, 
-                    title = if(!is.null(title)) title else{paste0("Nei’s distance of patient ", patient.id[i],
+                    title = if(!is.null(title)) title else{paste0("Nei’s distance of ", type," in patient ", patient,
                                                                   ". Average Nei’s distance is ",round(avg,4))}
                     #paste0(Nei’s distance, " of patient ", patient.id[i])
                 )
+                
             }
-            Nei.avg <- data.frame(Patient_ID = patient.id,
-                                  Nei.dist.avg = avg.list)
-            
-            
         }
-        names(Nei.plot) <- patient.id
+        Nei.dist <- dist.list
+        Nei.avg <- data.frame(Patient_ID = patient.list,
+                              Tumor_Type = type.list,
+                              Nei.dist.avg = avg.list)
+        
     }
-
+    else{
+        Nei.dist <- Nei.dist %>% 
+            dplyr::group_by(Patient_ID) %>%
+            dplyr::group_map(~nei_dist(., withinType = withinType), keep = TRUE) %>%
+            rlang::set_names(patient.id) 
+        
+        avg.list <- c()
+        for(i in 1:length(Nei.dist)){
+            avg <- mean(Nei.dist[[i]])
+            avg.list <- append(avg.list,avg)
+            Nei.plot[[patient.id[i]]] <- plotCorr(
+                Nei.dist[[i]], 
+                use.circle = use.circle, 
+                title = if(!is.null(title)) title else{paste0("Nei’s distance of patient ", patient.id[i],
+                                                              ". Average Nei’s distance is ",round(avg,4))}
+                #paste0(Nei’s distance, " of patient ", patient.id[i])
+            )
+        }
+        Nei.avg <- data.frame(Patient_ID = patient.id,
+                              Nei.dist.avg = avg.list)
+    }
+    
    return(list(Nei.dist = Nei.dist, Nei.plot =  Nei.plot, Nei.dist.avg = Nei.avg))           
 
 }

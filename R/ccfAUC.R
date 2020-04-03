@@ -22,29 +22,53 @@
 
 ccfAUC.sample <- function(ccf){
     ccf.sort <- data.frame(CCF = as.vector(sort(ccf)), prop = c(1:length(ccf))/length(ccf))
-    
-    area <- integrate(approxfun(ccf.sort$CCF,ccf.sort$prop),
+    area <- suppressWarnings(stats::integrate(approxfun(ccf.sort$CCF,ccf.sort$prop),
                       min(ccf.sort$CCF),
-                      max(ccf.sort$CCF))$value
+                      max(ccf.sort$CCF),
+                      subdivisions = length(ccf),
+                      stop.on.error = F)$value) 
     return(area)
 }
 
-sortCCF <- function(df){
-    CCF.sort <- df %>%
-        dplyr::arrange(CCF) %>%
-        dplyr::mutate(prop = c(1:nrow(.)/nrow(.)))
+sortCCF <- function(df, withinType){
+    
+    if(withinType){
+        CCF.sort <- df %>%
+            dplyr::arrange(Type_Average_CCF) %>%
+            dplyr::mutate(prop = c(1:nrow(.)/nrow(.)))
+    }else{
+        CCF.sort <- df %>%
+            dplyr::arrange(CCF) %>%
+            dplyr::mutate(prop = c(1:nrow(.)/nrow(.)))  
+    }
 }
 
-plotDensity <- function(df){
-    CCF.sort <- df %>%
-        dplyr::select(Patient_ID, Tumor_Sample_Barcode, CCF) %>%
-        dplyr::group_by(Tumor_Sample_Barcode) %>%
-        dplyr::group_map(~sortCCF(.x), keep = TRUE) %>%
-        do.call("rbind",.)%>%
-        as.data.frame()
-
-    p <- ggplot2::ggplot(CCF.sort, 
-                         aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode)) + 
+plotDensity <- function(df,withinType){
+    if(withinType){
+        CCF.sort <- df %>%
+            dplyr::select(Patient_ID, Tumor_Type, Type_Average_CCF) %>%
+            dplyr::group_by(Tumor_Type) %>%
+            dplyr::group_map(~sortCCF(.x, withinType), keep = TRUE) %>%
+            do.call("rbind",.)%>%
+            as.data.frame()   
+    }else{
+        CCF.sort <- df %>%
+            dplyr::select(Patient_ID, Tumor_Sample_Barcode, CCF) %>%
+            dplyr::group_by(Tumor_Sample_Barcode) %>%
+            dplyr::group_map(~sortCCF(.x, withinType), keep = TRUE) %>%
+            do.call("rbind",.)%>%
+            as.data.frame()  
+    }
+    
+    
+    if(withinType){
+        p <- ggplot2::ggplot(CCF.sort, 
+                             aes(x=Type_Average_CCF, y=prop, group=Tumor_Type, color=Tumor_Type))
+    }else{
+        p <- ggplot2::ggplot(CCF.sort, 
+                             aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))
+    }
+    p <- p + 
       #geom_smooth(na.rm = TRUE, se = FALSE, size = 1.2, formula = y ~ s(x, bs = "cs"), method = "gam") +
       theme_bw() + 
       geom_line(size=1.2) +
@@ -74,7 +98,9 @@ ccfAUC <- function(
     patient.id = NULL, 
     min.ccf = 0, 
     plot.density = TRUE,
-    plot = TRUE){
+    plot = TRUE,
+    withinType = FALSE){
+    
     mafData <- maf@data
 
     if(! "CCF" %in% colnames(mafData)){
@@ -92,18 +118,28 @@ ccfAUC <- function(
     }
 
     mafData <- mafData %>%
-        dplyr::filter(Patient_ID %in% patient.id & CCF > min.ccf)
-
-    AUC.df <- mafData %>%
-        dplyr::group_by(Patient_ID, Tumor_Sample_Barcode) %>%
-        dplyr::summarise(AUC = ccfAUC.sample(CCF)) %>%
-        as.data.frame()
+        dplyr::filter(Patient_ID %in% patient.id,
+                      CCF > min.ccf,
+                      !is.na(CCF))
+    
+    if(withinType){
+        mafData <- dplyr::filter(mafData, !is.na(Type_Average_CCF))
+        AUC.df <- mafData %>%
+            dplyr::group_by(Patient_ID, Tumor_Type) %>%
+            dplyr::summarise(AUC = ccfAUC.sample(Type_Average_CCF)) %>%
+            as.data.frame() 
+    }else{
+        AUC.df <- mafData %>%
+            dplyr::group_by(Patient_ID, Tumor_Sample_Barcode) %>%
+            dplyr::summarise(AUC = ccfAUC.sample(CCF)) %>%
+            as.data.frame() 
+    }
 
     # violin plot of AUC
     if(plot.density){
         density.plot <- mafData %>%
         dplyr::group_by(Patient_ID) %>%
-        dplyr::group_map(~plotDensity(.x), keep = TRUE) %>%
+        dplyr::group_map(~plotDensity(.x, withinType = withinType), keep = TRUE) %>%
         rlang::set_names(patient.id)      
     }else{
         density.plot <- NULL
