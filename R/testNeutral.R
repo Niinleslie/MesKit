@@ -40,20 +40,18 @@ testPowerLaw <- function(
 	    sample.id <- unique(sample.df$Tumor_Sample_Barcode)
 	    sample.df <- sample.df %>%
 	        dplyr::filter(
-	            Status == "Subclonal" & 
+	            Clonal_Status == "Subclonal" & 
 	                Ref_allele_depth + Alt_allele_depth > min.depth &
-	                VAF_adj > min.vaf &
-	                VAF_adj < max.vaf &
-	                !is.na(VAF_adj)
+	                VAF > min.vaf &
+	                VAF < max.vaf &
+	                !is.na(VAF)
 	        )  
-
 		if(nrow(sample.df) < min.mut.count){
 			R2.out = data.frame()
             vaf.plot  = NA
-
 			warning(paste0("Sample ", sample.id, ": There is no enough eligible mutations can be used."))
 		}else{
-		    vaf <- sample.df$VAF_adj
+		    vaf <- sample.df$VAF
 			# max.vaf <- max(sample.df$VAF_adj)
 			# min.vaf <- min(sample.df$VAF_adj)
 			# 
@@ -73,11 +71,11 @@ testPowerLaw <- function(
 			## area of theoretical curve
 			theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$t_count),
 			                     min(vafCumsum$inv_f),
-			                     max(vafCumsum$inv_f))$value
+			                     max(vafCumsum$inv_f),stop.on.error = F)$value
 			# area of emprical curve
 			dataA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
 			                     min(vafCumsum$inv_f),
-			                     max(vafCumsum$inv_f))$value
+			                     max(vafCumsum$inv_f),stop.on.error = F)$value
 			# Take absolute difference between the two
 			area <- abs(theoryA - dataA)
 			# Normalize so that metric is invariant to chosen limits
@@ -204,7 +202,9 @@ testPowerLaw <- function(
 	          min.mut.count = min.mut.count), 
 	          keep = TRUE) %>%
 	    rlang::set_names(unique(df$Tumor_Sample_Barcode))
+    
 
+	
   return(patient.R2)       
    #return(list(data.frame = neutralTest.out, plot.list = patient.plot))    	
 }
@@ -261,39 +261,42 @@ testNeutral <- function(maf, patient.id = NULL,
 	if(plot){
 	    ## combind data of all patients
 	    violin.data <- do.call(plyr::rbind.fill, testNeutral.out$neutrality.metrics)
-	    
-	    ## set y axis
-	    y.min <- floor(min(violin.data$R2)*10)/10 
-	    breaks.y <-  seq(y.min, 1, (1-y.min)/3)
-	    p.violin <- ggplot(data = violin.data,aes(x = Patient, y = R2, fill = Patient))+
-	        geom_violin(trim=T,color="black")+
-	        geom_boxplot(width=0.05,position=position_dodge(0.9))+
-	        geom_hline(yintercept = R2.threshold,linetype = 2,color = "red")+
-	        theme_bw() + 
-	        ylab(expression(italic(R)^2))+
-	        scale_y_continuous(breaks = breaks.y, labels = round(breaks.y,3),
-	                           limits = c(breaks.y[1],1))+
-	        ## line of axis y
-	        geom_segment(aes(y = y.min ,
-	                         yend = 1,
-	                         x=-Inf,
-	                         xend=-Inf),
-	                     size = 1.5)+
-	        theme(axis.text.x=element_text(vjust = .3 ,size=10,color = "black",angle = 90), 
-	              axis.text.y=element_text(size=10,color = "black"), 
-	              axis.line.x = element_blank(),
-	              axis.ticks.x = element_blank(),
-	              axis.ticks.length = unit(.25, "cm"),
-	              axis.line.y = element_blank(),
-	              axis.ticks.y = element_line(size = 1),
-	              axis.title.y=element_text(size = 15), 
-	              axis.title.x=element_blank(), 
-	              panel.border = element_blank(),axis.line = element_line(colour = "black",size=1),
-	              legend.text=element_text( colour="black", size=10),
-	              legend.title= element_blank(),
-	              panel.grid.major = element_line(linetype = 2),
-	              panel.grid.minor = element_blank()) 
-	    testNeutral.out$R2.values.plot <- p.violin
+	    if(nrow(violin.data) != 0){
+	        y.min <- floor(min(violin.data$R2)*10)/10 
+	        breaks.y <-  seq(y.min, 1, (1-y.min)/3)
+	        p.violin <- ggplot(data = violin.data,aes(x = Patient, y = R2, fill = Patient))+
+	            geom_violin(trim=T,color="black")+
+	            geom_boxplot(width=0.05,position=position_dodge(0.9))+
+	            geom_hline(yintercept = R2.threshold,linetype = 2,color = "red")+
+	            theme_bw() + 
+	            ylab(expression(italic(R)^2))+
+	            scale_y_continuous(breaks = breaks.y, labels = round(breaks.y,3),
+	                               limits = c(breaks.y[1],1))+
+	            ## line of axis y
+	            geom_segment(aes(y = y.min ,
+	                             yend = 1,
+	                             x=-Inf,
+	                             xend=-Inf),
+	                         size = 1.5)+
+	            theme(axis.text.x=element_text(vjust = .3 ,size=10,color = "black",angle = 90), 
+	                  axis.text.y=element_text(size=10,color = "black"), 
+	                  axis.line.x = element_blank(),
+	                  axis.ticks.x = element_blank(),
+	                  axis.ticks.length = unit(.25, "cm"),
+	                  axis.line.y = element_blank(),
+	                  axis.ticks.y = element_line(size = 1),
+	                  axis.title.y=element_text(size = 15), 
+	                  axis.title.x=element_blank(), 
+	                  panel.border = element_blank(),axis.line = element_line(colour = "black",size=1),
+	                  legend.text=element_text( colour="black", size=10),
+	                  legend.title= element_blank(),
+	                  panel.grid.major = element_line(linetype = 2),
+	                  panel.grid.minor = element_blank()) 
+	        testNeutral.out$R2.values.plot <- p.violin
+	    }
+	    else{
+	        p.violin <- NA
+	    }
 	    
 	}
 
