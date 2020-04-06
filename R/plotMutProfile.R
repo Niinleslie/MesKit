@@ -224,7 +224,7 @@ plotMutProfile <- function(maf_data,
       
       # filter mutation types
       filteredTypes <- c()
-      for (i in length(mutationTypes)){
+      for (i in 1:length(mutationTypes)){
           if (length(grep(mutationTypes[i], mat)) != 0) {
               filteredTypes <- c(filteredTypes, mutationTypes[i])
           }
@@ -278,7 +278,7 @@ plotMutProfile <- function(maf_data,
                             labels = sub("_", "-", names(col_type(class))),
                             labels_gp = grid::gpar(fontsize = 10),
                             grid_width = unit(3.5, "mm"),
-                            grid_height = unit(3.5, "mm"), legend_gp = gpar(fill = col_type(class)))
+                            grid_height = unit(3.5, "mm"), legend_gp = grid::gpar(fill = col_type(class)))
     
     ## patient legend
     patient.id <- unique(patient.split)
@@ -289,7 +289,7 @@ plotMutProfile <- function(maf_data,
     
     patientLegend <-  ComplexHeatmap::Legend(
                                  labels = patient.id, 
-                                 legend_gp = gpar(fill = patientsCol), 
+                                 legend_gp = grid::gpar(fill = patientsCol), 
                                  title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
                                  labels_gp = grid::gpar(fontsize = 10),
                                  grid_width = unit(3.5, "mm"),
