@@ -1,12 +1,13 @@
 plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
     corrMat[lower.tri(corrMat)] <- 0
     maxCorr <- max(corrMat[corrMat!=1])
+    #maxCorr <- max(corrMat)
     TSBs <- colnames(corrMat)
 
     #col_fun <- circlize::colorRamp2(pretty(c(0, maxCorr),6),
     #                                c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
     
-    col_fun <- circlize::colorRamp2(breaks = seq(0, maxCorr, length = 6),
+    col_fun <- circlize::colorRamp2(breaks = round(seq(0, maxCorr, length = 6)*100)/100,
                                     c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
 
     p <- ComplexHeatmap::Heatmap(

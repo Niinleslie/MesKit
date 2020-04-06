@@ -4,7 +4,7 @@
 \alias{mutSharedPattern}
 \title{mutSharedPattern}
 \usage{
-mutSharedPattern(maf, show.num = FALSE, gene_list = NULL)
+mutSharedPattern(maf, show.num = FALSE, gene_list = NULL, patient.id = NULL)
 }
 \arguments{
 \item{maf}{Maf object return from read.Maf()}

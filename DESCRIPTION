@@ -15,7 +15,7 @@ Imports: ape, plotrix, dplyr, Hmisc, ggrepel, tidyr (>= 1.0.0),
         packcircles, clusterProfiler, ReactomePA, htmlwidgets, 
         pdp, mclust, phangorn, ComplexHeatmap (>= 1.9.3)
 Remotes: raerose01/deconstructSigs 
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Suggests: Shiny, plolty, knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: DNASeq, SomaticMutation, GenomicVariantsWorkflow, VariantAnnotation, DataRepresentation, Visualization

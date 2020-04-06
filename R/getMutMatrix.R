@@ -6,7 +6,7 @@
 #' 
 #' @return sorted binary or ccf mutation matrix
 #' @example 
-#' getMutMatrix(maf)
+#' getMutMatrix(maf@data)
 #' 
 
 

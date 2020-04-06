@@ -5,10 +5,10 @@
 \title{classifyMut}
 \usage{
 mutType_SP(
-  Tumor_Type,
   unique_barcode_count,
   total_barcode_count,
   type_barcode_count,
+  type_barcode_ID,
   TypeCount,
   classByType
 )

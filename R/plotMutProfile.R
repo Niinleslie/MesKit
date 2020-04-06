@@ -222,6 +222,28 @@ plotMutProfile <- function(maf_data,
       
       mutationTypes <- na.omit(unique(maf_data$Mutation_Type))
       
+      # filter mutation types
+      filteredTypes <- c()
+      for (i in 1:length(mutationTypes)){
+          if (length(grep(mutationTypes[i], mat)) != 0) {
+              filteredTypes <- c(filteredTypes, mutationTypes[i])
+          }
+      }
+      mutationTypes <- filteredTypes
+      
+      
+      # sort types in legend
+      if (class == "SP" | class == "SPCS") {
+        sortType <- function(types) {
+            publicType <- types[grep("Public", types)]
+            sharedType <- types[grep("Shared", types)]
+            privateType <- types[grep("Private", types)]
+            return(c(publicType, sharedType, privateType))
+        }
+      
+        mutationTypes <- sortType(mutationTypes)
+      }
+      
       col_type <- function(class) {
         set.seed(123)
         cols <- sample(ColorScale, size = length(mutationTypes), replace = FALSE)
@@ -256,7 +278,7 @@ plotMutProfile <- function(maf_data,
                             labels = sub("_", "-", names(col_type(class))),
                             labels_gp = grid::gpar(fontsize = 10),
                             grid_width = unit(3.5, "mm"),
-                            grid_height = unit(3.5, "mm"), legend_gp = gpar(fill = col_type(class)))
+                            grid_height = unit(3.5, "mm"), legend_gp = grid::gpar(fill = col_type(class)))
     
     ## patient legend
     patient.id <- unique(patient.split)
@@ -267,7 +289,7 @@ plotMutProfile <- function(maf_data,
     
     patientLegend <-  ComplexHeatmap::Legend(
                                  labels = patient.id, 
-                                 legend_gp = gpar(fill = patientsCol), 
+                                 legend_gp = grid::gpar(fill = patientsCol), 
                                  title_gp = grid::gpar(fontsize = 10.5, fontface = "bold"),
                                  labels_gp = grid::gpar(fontsize = 10),
                                  grid_width = unit(3.5, "mm"),
