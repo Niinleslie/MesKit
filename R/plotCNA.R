@@ -201,6 +201,8 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
                                                         ymin = hmin, 
                                                         ymax = hmax,
                                                         fill = patient)) +
+                                      theme(legend.title = element_text(face = "bold", size = 11),
+                                            legend.text = element_text(size = 10)) +
                                     scale_fill_manual(values = allScales,name = "Patient")) %>% 
                                      ggplotGrob %>%
                  {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
@@ -208,7 +210,9 @@ plotCNA <- function(seg, refBuild = "hg19", show.GISTIC.gene = FALSE, patient.id
                             geom_rect(data = CNADat,
                                       mapping = aes(xmin = Update_Start,
                                                     xmax = Update_End,
-                                                    ymin = hmin, ymax = hmax, fill = Type))+
+                                                    ymin = hmin, ymax = hmax, fill = Type)) +
+                              theme(legend.title = element_text(face = "bold", size = 11),
+                                    legend.text = element_text(size = 10)) +
                             scale_fill_manual(values = allScales,name = "Type"))%>% 
                            ggplotGrob %>% {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
             legendColumn <-

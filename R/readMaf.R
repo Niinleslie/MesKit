@@ -61,6 +61,7 @@ readMaf <- function(## maf parameters
             file = mafFile,
             quote = "",
             header = TRUE,
+            data.table = TRUE,
             fill = TRUE,
             sep = '\t',
             skip = "Hugo_Symbol",
