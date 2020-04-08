@@ -304,8 +304,6 @@ testNeutral <- function(maf, patient.id = NULL,
 }
 
 
-
-=======
 #' testNeutral
 #' @description Evaluat whether a tumor follows neutral evolution or under strong selection
 #' during the growth based on variant frequency distribution (VAF) of subclonal 
@@ -613,4 +611,4 @@ testNeutral <- function(maf, patient.id = NULL,
 
 
 
->>>>>>> 5602b67d2666c232262847877cc78fe68710eda3
+#>>>>>>> 5602b67d2666c232262847877cc78fe68710eda3
