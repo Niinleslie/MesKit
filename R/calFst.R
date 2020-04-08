@@ -24,7 +24,7 @@
 fst.hudson.pair <- function(maf.pair) {
 	
 	vafCol <- which(grepl("vaf", colnames(maf.pair)))
-
+    
 	maf.pair <- mutate(
 		maf.pair, 
 		covariance = (vaf1-vaf2)^2-(vaf1*(1-vaf1))/(depth1-1)-(vaf2*(1-vaf2))/(depth2-1), 
