@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' testNeutral
 #' @description Evaluat whether a tumor follows neutral evolution or under strong selection
 #' during the growth based on variant frequency distribution (VAF) of subclonal 
