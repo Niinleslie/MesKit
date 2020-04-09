@@ -7,6 +7,7 @@
 #' @param max.vaf the maximum value of vaf
 #' @param min.CCF the minimum value of CCF
 #' @param bootstrap.rep.num bootstrap iterations.
+#' @param patient.id select the specific patients. Default: NULL, all patients are included.
 #' 
 #' 
 #' @examples
@@ -23,15 +24,23 @@
 getPhyloTree <- function(maf, 
                       method = "NJ",
                       min.vaf = 0.02, 
-                      max.vaf = 1,
                       min.CCF = NULL,
-                      bootstrap.rep.num = 100){
+                      bootstrap.rep.num = 100,
+                      patient.id = NULL){
   
   method.options <- c("NJ","MP","ML","FASTME.ols","FASTME.bal")
   if(!method %in% method.options){
       stop("method can only be either 'NJ','ML' or 'MP','FASTME.ols','FASTME.bal'")
   }
   maf.dat <- maf@data
+  if(!is.null(patient.id)){
+      patient.setdiff <- setdiff(patient.id, unique(maf.dat$Patient_ID))
+      if(length(patient.setdiff) > 0){
+          stop(paste0(patient.setdiff, " can not be found in your data"))
+      }
+      maf.dat <- maf.dat[maf.dat$Patient_ID %in% patient.id] 
+  }
+  
   refBuild <- maf@ref.build
   maf.dat$Patient_ID <- as.character(maf.dat$Patient_ID)
   dat.list <- split(maf.dat, maf.dat$Patient_ID)
@@ -40,7 +49,6 @@ getPhyloTree <- function(maf,
                            refBuild = refBuild,
                            method = method,
                            min.vaf = min.vaf,
-                           max.vaf = max.vaf,
                            min.CCF = min.CCF,
                            bootstrap.rep.num = bootstrap.rep.num)
   return(phyloTree.list)
@@ -67,7 +75,6 @@ doGetPhyloTree <- function(patient.dat = NULL,
                            refBuild = NULL,
                            method = "NJ",
                            min.vaf = 0.02, 
-                           max.vaf = 1,
                            min.CCF = NULL,
                            bootstrap.rep.num = 100){
     patientID <- unique(patient.dat$Patient_ID)
@@ -81,7 +88,7 @@ doGetPhyloTree <- function(patient.dat = NULL,
 
         }
     }
-    patient.dat <- patient.dat[which(patient.dat$VAF > min.vaf & patient.dat$VAF < max.vaf), ]
+    patient.dat <- patient.dat[which(patient.dat$VAF > min.vaf), ]
     ## information input
     binary.matrix <- getMutMatrix(patient.dat, use.ccf = FALSE)
     if("CCF" %in% colnames(patient.dat)){
@@ -130,11 +137,17 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
                                         Reference_Allele, Tumor_Seq_Allele2, 
                                         sep=":"), mut.id)
     mutSigRef <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
-                            datChr, maf_input$Start_Position, 
-                            maf_input$End_Position, maf_input$Reference_Allele, 
-                            maf_input$Tumor_Seq_Allele2, datMutgene, 
-                            mutId, stringsAsFactors=FALSE)
-    colnames(mutSigRef) <- c("Sample", 
+                            as.character(maf_input$Tumor_Type),
+                            datChr,
+                            maf_input$Start_Position, 
+                            maf_input$End_Position,
+                            maf_input$Reference_Allele, 
+                            maf_input$Tumor_Seq_Allele2,
+                            datMutgene, 
+                            mutId,
+                            stringsAsFactors=FALSE)
+    colnames(mutSigRef) <- c("Branch_ID", 
+                             "Branch_Tumor_Type",
                              "chr", "pos", 
                              "pos_end", "ref", 
                              "alt", "Hugo_Symbol", 
@@ -153,6 +166,24 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
         branchName <- paste(branch, collapse="∩")
         branch.id <- append(branch, "mut.id")
         unbranch <- names(binary.matrix)[which(!(names(binary.matrix) %in% branch.id))]
+        
+        ## get branch tumor type
+        types <- unique(maf.dat[Tumor_Sample_Barcode %in% branch, ]$Tumor_Type)
+        tsbs <- unique(maf.dat[Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
+        tsbs.all <- unique(maf.dat$Tumor_Sample_Barcode)
+        
+        if(length(tsbs.all) == length(tsbs)){
+            Branch_Tumor_Type <- "Public"
+        } 
+        else if(length(types) > 1){
+            Branch_Tumor_Type <- paste0("Shared_",paste(types,collapse = "_"))
+        }
+        else if(length(types) == 1 & length(branch) > 1){
+            Branch_Tumor_Type <- paste0("Shared_",paste(types,collapse = "_"))
+        }else if(length(types) == 1 & length(branch) == 1){
+            Branch_Tumor_Type <- paste0("Private_",paste(types,collapse = "_"))
+        }
+        
         ## generate mutation intersection for specific branch
         branch.intersection <- dplyr::intersect(
             binary.matrix %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1)), 
@@ -160,7 +191,8 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
         ## special situation: branch.intersection NULL
         if (nrow(branch.intersection) == 0){
             message(paste(branchName, ": There are no private mutations for branch ", sep=""))
-            branch.mut <- data.frame(Sample=branchName, 
+            branch.mut <- data.frame(Branch_ID=branchName, 
+                                     Branch_Tumor_Type = Branch_Tumor_Type,
                                      chr=NA,
                                      pos=NA,
                                      pos_end=NA,
@@ -177,7 +209,12 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
         
         ## data duplication
         branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
-        branch.mut$Sample <- branchName
+        branch.mut$Branch_ID <- branchName
+        
+        ## Tumor_Type 
+        branch.mut$Branch_Tumor_Type <- Branch_Tumor_Type
+        
+        # branch.mut$Branch_Tumor_Type <- paste(types,collapse = "_")
         branch.mut <- branch.mut[!duplicated(branch.mut),]
         branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
         
