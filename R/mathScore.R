@@ -24,7 +24,7 @@ calMATH <- function(VAF){
 
 
 ## MATH Score main function
-mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1, plot = TRUE, withinType = FALSE){
+mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, plot = TRUE, withinType = FALSE){
     mafData <- maf@data
 
     if(is.null(patient.id)){
@@ -42,8 +42,18 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1, plot = TR
         MATH.df <- mafData %>%
             dplyr::filter(Patient_ID %in% patient.id,
                           Clonal_Status == "Subclonal") %>%
-            dplyr::filter(Type_Average_VAF > min.vaf & Type_Average_VAF < max.vaf) %>%
-            dplyr::group_by(Patient_ID, Tumor_Type,Tumor_Sample_Barcode) %>%
+            tidyr::unite("mutID",
+                         c("Patient_ID",
+                           "Tumor_Type",
+                           "Chromosome",
+                           "Start_Position"
+                ),
+                sep = ":",
+                remove = FALSE
+            ) %>% 
+            dplyr::filter(Type_Average_VAF > min.vaf) %>%
+            dplyr::group_by(Patient_ID, Tumor_Type) %>%
+            dplyr::distinct(mutID,.keep_all = TRUE) %>% 
             dplyr::summarise(MATH_Score = calMATH(Type_Average_VAF)) %>%
             dplyr::ungroup() %>%
             dplyr::mutate(Patient_ID = as.factor(Patient_ID)) %>%
@@ -52,7 +62,7 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, max.vaf=1, plot = TR
     else{
         MATH.df <- mafData %>%
             dplyr::filter(Patient_ID %in% patient.id) %>%
-            dplyr::filter(VAF > min.vaf & VAF < max.vaf) %>%
+            dplyr::filter(VAF > min.vaf) %>%
             dplyr::group_by(Patient_ID,Tumor_Sample_Barcode) %>%
             dplyr::summarise(MATH_Score = calMATH(VAF)) %>%
             dplyr::ungroup() %>%

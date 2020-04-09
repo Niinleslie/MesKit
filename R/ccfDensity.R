@@ -5,6 +5,9 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.ccf the minimum value of CCF. Default: 0
 #' @param show.density logical. If TRUE, the default, perform density estimation.
+#' @param pairByType pair by tumor types in each patients,default is FALSE.
+#' @param geneList list of genes to restrict the analysis. Default NULL.
+#' 
 #' 
 #' @return
 #' @examples

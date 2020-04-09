@@ -5,6 +5,10 @@
 #' @param use.ccf logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.
 #' @param show.class.label logical. If TRUE, show labels for mutations classes on the heatmap.Default is TRUE.
 #' @param patient.id select the specific patients. Default: NULL, all patients are included.
+#' @param geneList list of genes to restrict the analysis. Default NULL.
+#' @param plot.geneList if TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.
+#' @param show.gene show the name of genes next to the heatmap.Default FALSE.
+#' @param show.geneList show the names of gene on the geneList.Default FALSE.
 #' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.
 #' 
 #' @return heatmap of somatic mutations
