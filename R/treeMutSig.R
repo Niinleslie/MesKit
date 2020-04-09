@@ -28,7 +28,12 @@
                         withinType = FALSE,
                         plot = TRUE,
                         patient.id = NULL){
-
+     
+     signaturesRef.options <- c("cosmic_v2","nature2013","genome_cosmic_v3","exome_cosmic_v3")
+     if(!signaturesRef %in% signaturesRef.options){
+         stop("signaturesRef can only be either 'cosmic_v2','nature2013','genome_cosmic_v3' or 'exome_cosmic_v3'")
+     } 
+     
      if(!is.null(patient.id)){
          patient.setdiff <- setdiff(patient.id, names(phyloTree))
          if(length(patient.setdiff) > 0){
@@ -48,9 +53,10 @@
      mutSig.plot <- NA
      if(plot){
          mutSig.plot <- lapply(treeMSOutput, doPlotMutSig, withinType)
+         return(list(mutSig.summary = mutSigSummary, mutSig.plot = mutSig.plot))
      }
          
-     return(list(mutSig.summary = mutSigSummary, mutSig.plot = mutSig.plot))
+     return(list(mutSig.summary = mutSigSummary))
 }
 
 doTreeMutSig <- function(phyloTree,
@@ -139,7 +145,8 @@ doTreeMutSig <- function(phyloTree,
         return(treeMSOutput)
     }
     
-    # load(system.file("extdata", "signatures.aetiology.rda", package = "MesKit"))
+    # signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
+    signatures.aetiology <- readRDS(file = "signatures.aetiology.rds") 
     for (branchCounter in length(branchesName):1){
         ## generate a single branch
         # branch <- Filter(Negate(is.na), 
@@ -364,10 +371,28 @@ doMutSigSummary <- function(treeMSOutput, withinType){
     #                             aeti=ls.aeti)
     
     if(withinType){
-        colnames(mutSigsOutput) <- c("Branch_Tumor_Type", "Signature","Mutation number", "Signature weight", "Aetiology")
+        
+        ## order branch tumor type 
+        all.types <- unique(mutSigsOutput$Branch_Tumor_Type) 
+        public <- all.types[grep("Public", all.types)] 
+        shared <- all.types[grep("Shared", all.types)] 
+        private <- all.types[grep("Private", all.types)]
+        type.level <- c(public, shared, private)
+        mutSigsOutput$Branch_Tumor_Type <- factor(mutSigsOutput$Branch_Tumor_Type, levels = type.level)
+        
+        colnames(mutSigsOutput) <- c("Branch_Tumor_Type", "Signature","Mutation_number", "Signature_weight", "Aetiology")
+        
+        mutSigsOutput <- mutSigsOutput %>% 
+            dplyr::arrange(Branch_Tumor_Type,Signature_weight)
     }
     else{
-        colnames(mutSigsOutput) <- c("Branch", "Alias",  "Signature","Mutation number","Signature weight","Branch_Tumor_Type", "Aetiology")
+
+        ## rename column
+        colnames(mutSigsOutput) <- c("Branch", "Alias",  "Signature","Mutation_number","Signature_weight","Branch_Tumor_Type", "Aetiology")
+        
+        mutSigsOutput <- mutSigsOutput %>% 
+            dplyr::select(-Branch_Tumor_Type) %>% 
+            dplyr::arrange(plyr::desc(Branch), plyr::desc(Signature_weight))
     }
     mutSigsOutput <- mutSigsOutput %>% 
         dplyr::filter(Signature != "noMapSig")
@@ -418,58 +443,73 @@ doPlotMutSig <- function(tree.mutSig, withinType) {
     
     group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
                       "#3C5488FF", "#F39B7FFF", "#8491B4FF")
+    
     pic <- ggplot(sig.product, 
-                  aes(x=Type, y=Mutation_Probability, group=Group, fill=Group)
+           aes(x=Type, y=Mutation_Probability, group=Group, fill=Group)
     ) + 
-        geom_bar(stat="identity")+ 
+        geom_bar(stat="identity") +
         theme(panel.grid=element_blank(), 
               panel.border=element_blank(), 
               panel.background = element_blank(), 
               legend.position='none', 
               # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
               plot.title = element_text(size = 13, face = "bold", hjust = 0.5,vjust = 0),
-              axis.text.x=element_blank(), 
+              axis.text.x= element_blank(), 
               axis.ticks.x=element_blank(),
               axis.line.y = element_blank(),
               axis.ticks.length.y = unit(0.2, "cm"),
-              axis.text.y=element_text(size=6, color = "black")
-              ) +
+              axis.text.y=element_text(size=6, color = "black"),
+              strip.background = element_blank(),
+              strip.text = element_blank(),
+        ) +
         annotate(geom = "segment", x=-1, xend = -1, y = 0, yend = 0.2, size = 0.6)+
+        
+        ## side bar
+        geom_rect(aes(xmin = 96.7, xmax = 99, ymin = 0, ymax = Inf), fill = "#C0C0C0",alpha = 0.06) +
+        geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE),
+                  aes(x=98, y=0.115, label = Alias), 
+                  angle =270, color = "black", size = 3, fontface = "plain") + 
+      
         ## background colors
         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
                   fill="#fce7e4", alpha=0.15) + 
         geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
                   fill="#ecf8fa", alpha=0.25) + 
-        geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax= Inf),
                   fill="#dbfff9", alpha=0.05) + 
-        geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax= Inf),
                   fill="#e4e8f3", alpha=0.08) + 
-        geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax= Inf),
                   fill="#fdefeb", alpha=0.15) + 
-        geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax=Inf),
+        geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax= Inf),
                   fill="#e5e8ef", alpha=0.1) + 
         ## barplot
         geom_bar(stat="identity") + 
         ## combine different results
         facet_grid(Alias ~ .) + 
         ## color setting
-        scale_fill_manual(values=group.colors) + 
+        scale_fill_manual(values=group.colors) +
+    
         ## axis setting
         xlab("Mutational type") + 
         ylab("Mutation probability") + 
         ggtitle(paste0("Mutational signatures of ",tree.mutSig$patientID,"'s phylogenetic tree ") )+
-        scale_y_continuous(limits=c(-0.03, 0.2), breaks=seq(0, 0.2, 0.1)) + 
+        # scale_x_discrete(breaks = c(10,27,43,59,75,91),
+        #                  labels = c("C>A","C>G","C>T","T>A","T>C","T>G"))+
+        scale_y_continuous(limits=c(-0.03, 0.2), breaks=seq(0, 0.2, 0.1)) +
+    
         ## signature notes and text parts
-        geom_text(data = sig.product, 
-                  aes(x=0, y=Inf, label= Signature), 
-                  hjust = 0, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=3) + 
-        ## Mutational Type Labels
-        annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = CT,  xmin = 43, xmax = 43, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = TA,  xmin = 59, xmax = 59, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = TC,  xmin = 75, xmax = 75, ymin = -0.065, ymax = -0) + 
-        annotation_custom(grob = TG,  xmin = 91, xmax = 91, ymin = -0.065, ymax = -0) + 
+        geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE) , 
+                  aes(x=0, y=Inf, label= unique(Signature)), 
+                  hjust = 0, vjust = 1.5, colour="#2B2B2B", size=3.5) + 
+        
+        # Mutational Type Labels
+        annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) +
+        annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) +
+        annotation_custom(grob = CT,  xmin = 43, xmax = 43, ymin = -0.065, ymax = -0) +
+        annotation_custom(grob = TA,  xmin = 59, xmax = 59, ymin = -0.065, ymax = -0) +
+        annotation_custom(grob = TC,  xmin = 75, xmax = 75, ymin = -0.065, ymax = -0) +
+        annotation_custom(grob = TG,  xmin = 91, xmax = 91, ymin = -0.065, ymax = -0) +
         ## x axis bar
         geom_rect(aes(xmin=0, xmax=16.405, ymin=-0.01, ymax=-0.005),
                   fill=group.colors[1], alpha=1) + 
