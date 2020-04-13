@@ -102,11 +102,30 @@ doTreeGO <- function(phyloTree = NULL,
     
     x <- 1
     y <- 1 
+    
+    mut.ref <- rbind.fill(phyloTree@mut.branches)
+    
+    if(withinType){
+        branches <- unique(mut.ref$Branch_Tumor_Type)
+    }
+    else{
+        branches <- unique(mut.ref$Branch_ID)
+    }
+    
+    
     for (i in 1:length(branches)){
-        branch <- branches[[i]]
-        branchID <- names(branches)[i]
-        ## split the gene symbol by ","
-        geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
+        branchID <- branches[[i]]
+        
+        if(withinType){
+            branch.ref <- mut.ref[mut.ref$Branch_Tumor_Type %in% branchID,]
+        }
+        else{
+            branch.ref <- mut.ref[mut.ref$Branch_ID %in% branchID,]
+        }
+        
+        #split the gene symbol by ","
+        geneSymbol <- unique(unlist(strsplit(as.character(branch.ref$Hugo_Symbol), split = ",")))
+        
         if(!is.null(selectedGenes)){
             geneSymbol <- geneSymbol[geneSymbol %in% selectedGenes]
         }

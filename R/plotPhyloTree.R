@@ -471,25 +471,25 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
 
 addSignature <- function(tree, treeData, signature){
     #add signature to treeData
-    treeData$signature <- ''
+    treeData$Signature <- ''
     treeData$Branch_Tumor_Type <- ''
     sigs <- strsplit(as.character(signature$branch),"∩")
     sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
     t <- 1
     while(t<=length(sigs)){
         pos <- which(treeData$label == sigs[[t]])
-        treeData$signature[pos] <- as.character(signature$sig[t]) 
+        treeData$Signature[pos] <- as.character(signature$sig[t]) 
         treeData$Branch_Tumor_Type[pos] <- as.character(signature$Branch_Tumor_Type[t])
         t <- t + 1
     }
-    if(treeData$signature[which(treeData$sample == 'NORMAL')] == ''){
-        treeData$signature[which(treeData$sample == 'NORMAL')] = as.character(signature$sig[1])
+    if(treeData$Signature[which(treeData$sample == 'NORMAL')] == ''){
+        treeData$Signature[which(treeData$sample == 'NORMAL')] = as.character(signature$sig[1])
         treeData$Branch_Tumor_Type[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_Type[1])
         
     }
-    treeData <- treeData[order(treeData$signature), ]
-    treeData$signature <- gsub('No Signature', 'No signature', treeData$signature)
-    treeData$signature <- gsub('Signature ', '', treeData$signature)
+    treeData <- treeData[order(treeData$Signature), ]
+    treeData$Signature <- gsub('No Signature', 'No signature', treeData$Signature)
+    treeData$Signature <- gsub('Signature ', '', treeData$Signature)
     return(treeData)
 }
 
@@ -612,9 +612,11 @@ drawPhyloTree <- function(phyloTree = NULL,
                           show.geneList = TRUE,
                           min.mut.count = 15,
                           mut.threshold = 150){
-    if(min.ratio > 0){
-        min.len <- max(phyloTree@tree$edge.length)*min.ratio
-        phyloTree@tree$edge.length[phyloTree@tree$edge.length < min.len] <- min.len
+    if(!is.null(min.ratio)){
+        if(min.ratio > 0){
+            min.len <- max(phyloTree@tree$edge.length)*min.ratio
+            phyloTree@tree$edge.length[phyloTree@tree$edge.length < min.len] <- min.len
+        }
     }
     if(is.null(treeData)){
         treeData <- getTreeData(phyloTree = phyloTree,
@@ -676,17 +678,17 @@ drawPhyloTree <- function(phyloTree = NULL,
     # ratecoord <- maxy/maxx
     if(!is.null(branchCol)){
         if(branchCol == "mutSig"){
-            colorScale <- getColors(unique(treeData$signature))
+            colorScale <- getColors(unique(treeData$Signature))
             if(compare){
-                p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature),
+                p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature),
                                       data = treeData[is.match != "NO"],
                                       linetype = common.lty,
                                       size = segmentSize)
-                p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature),
+                p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature),
                                       data = treeData[is.match == "NO"],size = segmentSize)
             }
             else{
-                p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = signature), size=segmentSize)
+                p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
             }
             p <- p + scale_color_manual(values = colorScale)
         }
@@ -751,63 +753,70 @@ drawPhyloTree <- function(phyloTree = NULL,
                    panel.grid.major = element_blank(),
                    panel.grid.minor = element_blank(), panel.background = element_blank(),
                    panel.border = element_blank(),
-                   legend.title = element_text(face="bold"),
+                   legend.title = element_text(),
                    legend.position = 'top',
                    legend.direction = "horizontal") + 
-        guides(color = guide_legend(nrow=1),
-               override.aes = list(shape = 15))+
+        guides(color = guide_legend(nrow=1))+
         coord_fixed(ratio= 1) +
         scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
         scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5))
 
     ## label Sample ID
-    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
-                           y = y2 + sin(angle)*textAdjust/10,
-                           label = sample,
-                           angle = angle*180/pi),
-                       hjust = 0,
-                       fontface = "bold",
-                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 > 0 & y2 !=max(treeData$y2), ],
-                       size = sampleTextSize)
-    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
-                           y = y2 + sin(angle)*textAdjust/10,
-                           label = sample,
-                           angle = angle*180/pi + 180),
-                       hjust = 1,
-                       fontface = "bold",
-                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 < 0& y2 !=max(treeData$y2), ],
-                       size = sampleTextSize)
-    ## label NORMAL
-    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
-                       label = rootLabel,
-                       data = treeData[sample == rootLabel,], 
-                        fontface = 'bold', size = sampleTextSize)
-    ## lable sample on the top
-    if(nrow(treeData[which.max(treeData$y2), ]) > 0){
-        p <- p + geom_text(aes(x = x2,
-                               y = y2 + textAdjust/5,
-                               label = sample),
+    if(samplesLength > 7){
+        p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
+                               y = y2 + sin(angle)*textAdjust/10,
+                               label = sample,
+                               angle = angle*180/pi),
+                           hjust = 0,
                            fontface = "bold",
-                           data = treeData[which.max(treeData$y2), ],
+                           data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 > 0 & y2 !=max(treeData$y2), ],
+                           size = sampleTextSize)
+        p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
+                               y = y2 + sin(angle)*textAdjust/10,
+                               label = sample,
+                               angle = angle*180/pi + 180),
+                           hjust = 1,
+                           fontface = "bold",
+                           data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 < 0& y2 !=max(treeData$y2), ],
+                           size = sampleTextSize)
+        ## label NORMAL
+        p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+                           label = rootLabel,
+                           data = treeData[sample == rootLabel,], 
+                           size = sampleTextSize)
+        ## lable sample on the top
+        if(nrow(treeData[which.max(treeData$y2), ]) > 0){
+            p <- p + geom_text(aes(x = x2,
+                                   y = y2 + textAdjust/5,
+                                   label = sample),
+                               data = treeData[which.max(treeData$y2), ],
+                               size = sampleTextSize)
+        } 
+    }
+    else{
+        p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                                 nudge_y = textAdjust/10,
+                                 nudge_x = textAdjust/10,
+                                 segment.color = "grey",
+                                 segment.size = 0.25,
+                                 data = treeData[(!sample %in% c("internal node",rootLabel)) &
+                                                     x2 >= 0, ],
+                                 size = sampleTextSize ,force = 10)
+        p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                                 nudge_y = textAdjust/10,
+                                 nudge_x = -textAdjust/10,
+                                 segment.color = "grey",
+                                 segment.size = 0.25,
+                                 data = treeData[(!sample %in% c("internal node",rootLabel)) &
+                                                     x2 < 0, ],
+                                 size = sampleTextSize ,force = 10)
+        ## label NORMAL
+        p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+                           label = rootLabel,
+                           data = treeData[sample == rootLabel,], 
                            size = sampleTextSize)
     }
     
-    # p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-    #                          nudge_y = textAdjust/10,
-    #                          nudge_x = textAdjust/10,
-    #                          segment.color = "grey",
-    #                          segment.size = 0.25,
-    #                          data = treeData[(!sample %in% c("internal node",rootLabel)) &
-    #                                              x2 >= 0, ],
-    #                          fontface = 'bold', size = sampleTextSize ,force = 10)
-    # p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-    #                          nudge_y = textAdjust/10,
-    #                          nudge_x = -textAdjust/10,
-    #                          segment.color = "grey",
-    #                          segment.size = 0.25,
-    #                          data = treeData[(!sample %in% c("internal node",rootLabel)) &
-    #                                              x2 < 0, ],
-    #                          fontface = 'bold', size = sampleTextSize ,force = 10)
     p <- p + geom_point(aes(x = x2,y = y2),
                         data = treeData[sample == 'internal node',],
                         size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
@@ -855,12 +864,12 @@ drawPhyloTree <- function(phyloTree = NULL,
                         show.gene = show.gene,
                         show.geneList = show.geneList,
                         mut.threshold = mut.threshold)
-        # PH <- cowplot::plot_grid(p,
-        #                          h + theme(plot.margin=unit(c(1.5,0,1,-2),"cm")),
-        #                          rel_widths = c(1,0.4))
-        PH <- ggdraw(xlim = c(0.1,0.7)) +
-            draw_plot(p, x = -0.05,y = 0, width = 0.7) +
-            draw_plot(h, x = 0.48,y = -0.01, width = 0.2,height = 1)
+        PH <- cowplot::plot_grid(p,
+                                 h,
+                                 rel_widths = c(1,0.5))
+        # PH <- ggdraw(xlim = c(0.1,0.7)) +
+        #     draw_plot(p, x = -0.05,y = 0, width = 0.7) +
+        #     draw_plot(h, x = 0.48,y = -0.01, width = 0.2,height = 1)
         # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) +
         #       draw_plot(p, x = 0,y = 0, width = 0.7) +
         #       draw_plot(h, x = 0.6,y = 0, width = 0.3)

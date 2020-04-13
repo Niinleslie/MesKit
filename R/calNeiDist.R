@@ -46,8 +46,12 @@ nei_dist <- function(df, withinType = FALSE) {
     
     dist <- diag(0, nrow = ncol(df), ncol = ncol(df))
     
+    dist.df <- data.frame() 
+    
     for (i in 1:(ncol(df) - 1)) {
+        s1 <- colnames(df)[i]
         for (j in (i + 1):ncol(df)) {
+            s2 <- colnames(df)[j]
             x <- as.vector(df[, i])
             y <- as.vector(df[, j])
             
@@ -56,12 +60,18 @@ nei_dist <- function(df, withinType = FALSE) {
             
             xy <- sum(x * y + (1 - x) * (1 - y))
             
+            
+            name <- paste(s1,s2,sep = "_")
+            
+            sub <- data.frame(patient, name, -log(xy / sqrt(x_ * y_)))
+            dist.df <-  rbind(dist.df, sub)
+            
             dist[i, j] <- dist[j, i] <- -log(xy / sqrt(x_ * y_))
         }
     }
     rownames(dist) <- colnames(df)
     colnames(dist) <- colnames(df)
-    return(dist)
+    return(list(dist.mat = dist, dist.df = dist.df))
 
 }
 
@@ -140,6 +150,7 @@ calNeiDist <- function(maf,
     Nei.plot <- list()
     Nei.avg <- list()
     avg.list <- c()
+    df.list <- list()
     if(withinType){
         Nei.dist <- Nei.dist %>% 
             dplyr::group_by(Patient_ID) %>%
@@ -155,28 +166,37 @@ calNeiDist <- function(maf,
             Nei.dist.p <- Nei.dist[[patient]]
             
             for(type in names(Nei.dist.p)){
-                ## get result for each patient in each type
-                Nei.dist.p.t <- Nei.dist.p[[type]]
                 
                 name <- paste0(patient,"_",type) 
-                dist.list[[name]] <- Nei.dist.p.t
+                ## get result for each patient in each type
+                Nei.dist.p.t <- Nei.dist.p[[type]]$dist.mat
+                
+                df <- Nei.dist.p[[type]]$dist.df
+                df$type <- name
+                df.list[[type]] <- df
+                
                 type.list <- c(type.list, type)
                 patient.list <- c(patient.list,patient)
                 ## get average dist
                 avg <- mean(Nei.dist.p.t)
                 avg.list <- c(avg.list,avg)
                 
-                Nei.plot[[name]] <- plotCorr(
-                    Nei.dist.p.t, 
-                    use.circle = use.circle, 
-                    title = if(!is.null(title)) title else{paste0("Nei's distance of ",type, " in ", patient,
-                                                                  ": ",round(avg,2))}
-                    #paste0(Nei's distance, " of patient ", patient.id[i])
-                )
+                if(plot){
+                    Nei.plot[[name]] <- plotCorr(
+                        Nei.dist.p.t, 
+                        use.circle = use.circle, 
+                        title = if(!is.null(title)) title else{paste0("Nei's distance of ",type, " in ", patient,
+                                                                      ": ",round(avg,2))}
+                    )
+                }
                 
             }
         }
-        Nei.dist <- dist.list
+        Nei.dist <- plyr::rbind.fill(df.list)
+        colnames(Nei.dist) <- c("Patient_ID","Pair","Nei.dist","Tumor_Type")
+        Nei.dist <- Nei.dist %>%  
+            dplyr::select(Patient_ID, Tumor_Type, Pair, Nei.dist)
+        
         Nei.avg <- data.frame(Patient_ID = patient.list,
                               Tumor_Type = type.list,
                               Nei.dist.avg = avg.list)
@@ -192,21 +212,33 @@ calNeiDist <- function(maf,
         patient.id <- names(Nei.dist)
         
         avg.list <- c()
+        df.list
         for(i in 1:length(Nei.dist)){
-            avg <- mean(Nei.dist[[i]])
+            avg <- mean(Nei.dist[[i]]$dist.mat)
             avg.list <- append(avg.list,avg)
-            Nei.plot[[patient.id[i]]] <- plotCorr(
-                Nei.dist[[i]], 
-                use.circle = use.circle, 
-                title = if(!is.null(title)) title else{paste0("Nei's distance of patient ", patient.id[i],
-                                                              ": ",round(avg,2))}
-                #paste0(Nei’s distance, " of patient ", patient.id[i])
-            )
+            df.list[[i]] <- Nei.dist[[i]]$dist.df
+            if(plot){
+                Nei.plot[[patient.id[i]]] <- plotCorr(
+                    Nei.dist[[i]]$dist.mat, 
+                    use.circle = use.circle, 
+                    title = if(!is.null(title)) title else{paste0("Nei's distance of patient ", patient.id[i],
+                                                                  ": ",round(avg,2))}
+                    #paste0(Nei’s distance, " of patient ", patient.id[i])
+                )
+            }
         }
+        Nei.dist <- plyr::rbind.fill(df.list)
+        colnames(Nei.dist) <- c("Patient_ID","Pair","Nei.dist")
+       
         Nei.avg <- data.frame(Patient_ID = patient.id,
                               Nei.dist.avg = avg.list)
     }
     
-   return(list(Nei.dist = Nei.dist, Nei.plot =  Nei.plot, Nei.dist.avg = Nei.avg))           
+    if(plot){
+        return(list(Nei.dist.avg = Nei.avg, Nei.dist = Nei.dist, Nei.plot =  Nei.plot))           
+    }
+    else{
+        return(list(Nei.dist.avg = Nei.avg, Nei.dist = Nei.dist))           
+    }
 
 }

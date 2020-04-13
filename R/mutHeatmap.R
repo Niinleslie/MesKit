@@ -149,7 +149,7 @@ plotHeatmap <- function(binary.mat,
     
     ## set table for annotation bar
     annotation.bar <- data.frame()
-    annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.3
+    annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.5
     if(!show.class.label){
         annotation.bar.width <- annotation.bar.width/3
     }
@@ -172,8 +172,8 @@ plotHeatmap <- function(binary.mat,
     colnames(annotation.bar) <- c("xmin","xmax","ymin","ymax")
     
     ## color of annotation bar
-    class.all.colors <- c( "Shared" = "#00A087FF",
-                           "P-shared" = "#8491B4FF",
+    class.all.colors <- c( "Shared" = "#7fc97f",
+                           "P-shared" = "#fdc086",
                            "Private" = "#E64B35FF" )
     class.colors <- class.all.colors[classes.level]
     
@@ -199,8 +199,8 @@ plotHeatmap <- function(binary.mat,
         
         
         theme(axis.ticks = element_blank()) +
-        theme(legend.title = element_text(size = 12, face = "bold", color = "black")) +
-        theme(legend.text = element_text(size = 10, face = "bold", color = "black")) +
+        theme(legend.title = element_text(color = "black")) +
+        theme(legend.text = element_text( color = "black")) +
         theme(legend.position = "right" )+
         
         ## annotation bar
