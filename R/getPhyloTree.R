@@ -190,7 +190,7 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
             binary.matrix %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0))) 
         ## special situation: branch.intersection NULL
         if (nrow(branch.intersection) == 0){
-            message(paste(branchName, ": There are no private mutations for branch ", sep=""))
+            # message(paste(branchName, ": There are no private mutations for branch ", sep=""))
             branch.mut <- data.frame(Branch_ID=branchName, 
                                      Branch_Tumor_Type = Branch_Tumor_Type,
                                      chr=NA,
