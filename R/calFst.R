@@ -85,9 +85,7 @@ fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, titl
   Fst.dist <- diag(1, nrow = length(samples), ncol = length(samples))
   rownames(Fst.dist) <- samples
   colnames(Fst.dist) <- samples
-  
-  Fst.df <- list()
-  
+
   for (pair in pairs){
     maf.pair <- subset(df, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>%
       tidyr::pivot_wider(
@@ -98,16 +96,13 @@ fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, titl
       dplyr::ungroup() %>%
       dplyr::select(-Patient_ID)
     colnames(maf.pair) <- c("mutation_id", "vaf1", "vaf2", "depth1", "depth2")
-    
-    name <- paste(samples[pair[1]],samples[pair[2]],sep = "_")
 
+    #pairIDs <- c(pairIDs, 
+    #  paste0("\"", samples[pair[1]], "\"", "-", "\"", samples[pair[2]], "\"")
+    #  )
+    #fstHudson <- c(fstHudson, fst.hudson.pair(maf.pair))
     Fst.dist[pair[1],pair[2]] <- Fst.dist[pair[2],pair[1]] <- fst.hudson.pair(maf.pair)
-    
-    sub <- data.frame(patientID, name, fst.hudson.pair(maf.pair))
-    Fst.df <- rbind(Fst.df,sub)
-    
   }
-  colnames(Fst.df) <- c("Patient_ID","Pair", "Fst")
   Fst.avg <- mean(Fst.dist)
   if(is.null(title)){
       if(withinType){
@@ -119,7 +114,6 @@ fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, titl
   }
   
   return(list(
-      Fst.df = Fst.df,
       Fst.avg = Fst.avg, 
       Fst.pair = Fst.dist,
       Fst.plot = if(plot) plotCorr(
@@ -172,9 +166,7 @@ calFst <- function(
         if(length(patient.setdiff) > 0){
             stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
-        mafData <- mafData[Patient_ID %in% patient.id,]
     }
-	
 
 	#if(use.adjVAF){
 		#if(! "CCF" %in% colnames(mafData)){
@@ -255,7 +247,7 @@ calFst <- function(
 	    Fst.out <- Fst.out[!is.na(Fst.out)]
 	}
         
-  df.fst <- list()
+  
   if(withinType){
       patient.list <- c()
       type.list <- c()
@@ -263,7 +255,6 @@ calFst <- function(
       name.list <- c()
       Fst.pair <- list()
       Fst.plot <- list()
-      Fst.df <- list()
       for(patient in names(Fst.out)){
           
           ## get result for each patient
@@ -280,51 +271,25 @@ calFst <- function(
               
               Fst.pair[[name]] <- Fst.out.p.t$Fst.pair
               Fst.plot[[name]] <- Fst.out.p.t$Fst.plot
-              df <- Fst.out.p.t$Fst.df
-              df$type <- name
-              Fst.df[[name]] <- df
           }
       }
-      Fst.df <- plyr::rbind.fill(Fst.df)
-      colnames(Fst.df) <- c("Patient_ID","Pair", "Fst", "Tumor_Type")
-      
-      Fst.df<- dplyr::select(Fst.df,Patient_ID,Tumor_Type,Pair,Fst)
-      
       Fst.avg = data.frame(Patient_ID = patient.list,
                            Tumor_Type = type.list,
                            Fst.avg = avg.list)
       
-      if(plot){
-          Fst.out=list(
-              Fst.avg = Fst.avg,
-              Fst.pair = Fst.df,
-              Fst.plot = Fst.plot
-          )
-      }
-      else{
-          Fst.out=list(
-              Fst.avg = Fst.avg,
-              Fst.pair = Fst.df
-          )  
-      }
-      
+      Fst.out=list(
+          Fst.avg = Fst.avg,
+          Fst.pair = Fst.pair,
+          Fst.plot = Fst.plot
+      )
       
   }
   else{
-      Fst.df <- plyr::rbind.fill(lapply(Fst.out, function(x) x$Fst.df))
-      if(plot){
-          Fst.out=list(
-              Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
-              Fst.pair = Fst.df,
-              Fst.plot = lapply(Fst.out, function(x) x$Fst.plot)
-          ) 
-      }
-      else{
-          Fst.out=list(
-              Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
-              Fst.pair = Fst.df
-          )
-      }
+      Fst.out=list(
+          Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
+          Fst.pair = lapply(Fst.out, function(x) x$Fst.pair),
+          Fst.plot = lapply(Fst.out, function(x) x$Fst.plot)
+      )  
   }
 
   

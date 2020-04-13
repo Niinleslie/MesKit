@@ -13,8 +13,6 @@ calMATH(VAF)
 
 \item{min.vaf}{the minimum VAF for filtering variants. Default: 0.02}
 
-\item{max.vaf}{the maximum VAF for filtering variants. Default: 1}
-
 \item{plot}{TRUR(default)}
 }
 \value{

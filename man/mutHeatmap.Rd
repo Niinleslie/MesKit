@@ -23,6 +23,14 @@ mutHeatmap(
 
 \item{show.class.label}{logical. If TRUE, show labels for mutations classes on the heatmap.Default is TRUE.}
 
+\item{geneList}{list of genes to restrict the analysis. Default NULL.}
+
+\item{plot.geneList}{if TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.}
+
+\item{show.gene}{show the name of genes next to the heatmap.Default FALSE.}
+
+\item{show.geneList}{show the names of gene on the geneList.Default FALSE.}
+
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included.}
 
 \item{mut.threshold}{show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.}
