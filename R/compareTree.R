@@ -29,8 +29,9 @@
 compareTree <- function(tree1,
                         tree2,
                         plot = FALSE,
+                        branchCol = "mutSig",
+                        show.heatmap = FALSE,
                         min.ratio = 1/30,
-                        show.heatmap = FALSE, 
                         use.ccf = FALSE,
                         show.bootstrap = FALSE,
                         use.box = FALSE,
@@ -46,8 +47,8 @@ compareTree <- function(tree1,
 	        tree1@tree$edge.length[tree1@tree$edge.length < min1] <- min1
 	        tree2@tree$edge.length[tree2@tree$edge.length < min2] <- min2
 	    }
-	    treedat1 <- getTreeData(tree1, show.mutSig = T)
-	    treedat2 <- getTreeData(tree2, show.mutSig = T)
+	    treedat1 <- getTreeData(tree1, branchCol = branchCol)
+	    treedat2 <- getTreeData(tree2, branchCol = branchCol)
 	    m12 <- match(treedat1[sample == "internal node",]$label, treedat2[sample == "internal node",]$label)
 	    if(length(m12[!is.na(m12)]) > 0){
 	        cat(paste0("Both tree have ",length(m12[!is.na(m12)]), " same branch"))
@@ -73,21 +74,21 @@ compareTree <- function(tree1,
 	    }
 	    p1 <- drawPhyloTree(phyloTree = tree1,
 	                        treeData = treedat1,
-	                        show.mutSig = TRUE,
-	                        show.bootstrap = FALSE,
-	                        use.box = FALSE,
-	                        show.heatmap = FALSE,
-	                        use.ccf = FALSE,
+	                        branchCol = branchCol,
+	                        show.heatmap = show.heatmap,
+	                        show.bootstrap = show.bootstrap,
+	                        use.box = use.box,
+	                        use.ccf = use.ccf,
 	                        compare = compare,
 	                        common.lty = common.lty,
 	                        min.ratio = min.ratio)
 	    p2 <- drawPhyloTree(phyloTree = tree2,
 	                        treeData = treedat2,
-	                        show.mutSig = TRUE,
-	                        show.bootstrap = FALSE,
-	                        use.box = FALSE,
-	                        show.heatmap = FALSE,
-	                        use.ccf = FALSE,
+	                        branchCol = branchCol,
+	                        show.bootstrap = show.bootstrap,
+	                        use.box = use.box,
+	                        show.heatmap = show.heatmap,
+	                        use.ccf = use.ccf,
 	                        compare = compare,
 	                        common.lty = common.lty,
 	                        min.ratio = min.ratio)

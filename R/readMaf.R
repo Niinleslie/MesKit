@@ -221,6 +221,13 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, min.average.vaf)
         )%>%
         dplyr::mutate(
             CCF = dplyr::if_else(
+                is.na(CCF),
+                2*VAF,
+                CCF
+            )
+        ) %>% 
+        dplyr::mutate(
+            CCF = dplyr::if_else(
                 CCF > 1,
                 1,
                 CCF

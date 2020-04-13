@@ -5,6 +5,10 @@
 #' @param use.ccf logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.
 #' @param show.class.label logical. If TRUE, show labels for mutations classes on the heatmap.Default is TRUE.
 #' @param patient.id select the specific patients. Default: NULL, all patients are included.
+#' @param geneList list of genes to restrict the analysis. Default NULL.
+#' @param plot.geneList if TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.
+#' @param show.gene show the name of genes next to the heatmap.Default FALSE.
+#' @param show.geneList show the names of gene on the geneList.Default FALSE.
 #' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.
 #' 
 #' @return heatmap of somatic mutations
@@ -145,7 +149,7 @@ plotHeatmap <- function(binary.mat,
     
     ## set table for annotation bar
     annotation.bar <- data.frame()
-    annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.3
+    annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.5
     if(!show.class.label){
         annotation.bar.width <- annotation.bar.width/3
     }
@@ -168,8 +172,8 @@ plotHeatmap <- function(binary.mat,
     colnames(annotation.bar) <- c("xmin","xmax","ymin","ymax")
     
     ## color of annotation bar
-    class.all.colors <- c( "Shared" = "#00A087FF",
-                           "P-shared" = "#8491B4FF",
+    class.all.colors <- c( "Shared" = "#7fc97f",
+                           "P-shared" = "#fdc086",
                            "Private" = "#E64B35FF" )
     class.colors <- class.all.colors[classes.level]
     
@@ -195,8 +199,8 @@ plotHeatmap <- function(binary.mat,
         
         
         theme(axis.ticks = element_blank()) +
-        theme(legend.title = element_text(size = 12, face = "bold", color = "black")) +
-        theme(legend.text = element_text(size = 10, face = "bold", color = "black")) +
+        theme(legend.title = element_text(color = "black")) +
+        theme(legend.text = element_text( color = "black")) +
         theme(legend.position = "right" )+
         
         ## annotation bar

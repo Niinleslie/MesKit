@@ -22,7 +22,7 @@
 
 #Pathway analysis
 treePathway <- function(phyloTree, geneList = NULL, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",
-                           qval=0.2,  plotType="dot", showCategory =  5, patient.id = NULL){
+                           qval=0.2,  plotType="dot", showCategory =  5, patient.id = NULL, withinType = FALSE){
     
   if(!is.null(patient.id)){
         patient.setdiff <- setdiff(patient.id, names(phyloTree))
@@ -48,7 +48,8 @@ treePathway <- function(phyloTree, geneList = NULL, pathway.type="KEGG", pval=0.
                         pAdjustMethod= pAdjustMethod,
                         qval= qval,
                         plotType= plotType,
-                        showCategory =  showCategory)) 
+                        showCategory =  showCategory,
+                        withinType = withinType)) 
   return(result.list)
 
 }
@@ -102,7 +103,8 @@ doTreePathway <- function(phyloTree = NULL,
                           pAdjustMethod="BH",
                           qval=0.2,
                           plotType="dot",
-                          showCategory =  5){
+                          showCategory =  5,
+                          withinType = FALSE){
     branches <- phyloTree@mut.branches
     patientID <- phyloTree@patientID
     
@@ -113,13 +115,29 @@ doTreePathway <- function(phyloTree = NULL,
     plot.branchNames <- c()
     result.branchNames <- c()
     
+    mut.ref <- rbind.fill(phyloTree@mut.branches)
+    
+    if(withinType){
+        branches <- unique(mut.ref$Branch_Tumor_Type)
+    }
+    else{
+        branches <- unique(mut.ref$Branch_ID)
+    }
+    
     x <- 1
     y <- 1 
     for (i in 1:length(branches)){
-        branch <- branches[[i]]
-        branchID <- names(branches)[i]
+        branchID <- branches[[i]]
+        
+        if(withinType){
+            branch.ref <- mut.ref[mut.ref$Branch_Tumor_Type %in% branchID,]
+        }
+        else{
+            branch.ref <- mut.ref[mut.ref$Branch_ID %in% branchID,]
+        }
+        
         #split the gene symbol by ","
-        geneSymbol <- unique(unlist(strsplit(as.character(branch$Hugo_Symbol), split = ",")))
+        geneSymbol <- unique(unlist(strsplit(as.character(branch.ref$Hugo_Symbol), split = ",")))
         if(!is.null(selectedGenes)){
             geneSymbol <- geneSymbol[geneSymbol %in% selectedGenes]
         }
