@@ -68,7 +68,6 @@ plotMutProfile <- function(maf_data,
                            remove_empty_rows = TRUE, 
                            showColnames = TRUE) {
         
-
     maf.plot <- genHeatmapPlotMatrix(maf_data, topGenesCount = topGenesCount)  
     mat <- maf.plot[[1]]
 
@@ -264,7 +263,9 @@ plotMutProfile <- function(maf_data,
       alter_fun <- function(class){
         l <- c(alter_fun_functions, Multi_hits = function(x, y, w, h)
           grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char") 
-          ))
+          ), background = function(x, y, w, h)
+            grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                            gp = grid::gpar(fill = bgCol, col = NA)))
         return(l)            
       }
     }
