@@ -237,9 +237,12 @@ classifyMut <- function(maf,
         Selected_Mut == TRUE,
         geneSelect[geneSelect %in% strsplit(Hugo_Symbol, ",|;")[[1]]][1],
         Hugo_Symbol)) %>%
-      dplyr::ungroup()
+      dplyr::ungroup() %>%
+      dplyr::select(-Selected_Mut)
   }
-      
+  
+  return(maf_data %>% dplyr::select(-unique_barcode_count))
+
     if(plot){
         plotMutProfile(maf_data,
                         class = class,
@@ -254,5 +257,5 @@ classifyMut <- function(maf,
 
     }
 
-    return(maf_data %>% dplyr::select(-unique_barcode_count))
+  
 }

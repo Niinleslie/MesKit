@@ -13,7 +13,8 @@ treePathway(
   qval = 0.2,
   plotType = "dot",
   showCategory = 5,
-  patient.id = NULL
+  patient.id = NULL,
+  withinType = FALSE
 )
 }
 \arguments{

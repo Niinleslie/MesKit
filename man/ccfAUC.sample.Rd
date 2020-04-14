@@ -15,7 +15,7 @@ ccfAUC.sample(ccf)
 
 \item{plot.density}{whether to show the density plot. Default: TRUE}
 
-\item{plot}{whether to generate the violin plot of all patients. Default: TRUE}
+\item{withinType}{calculate AUC within types in each patients,default is FALSE.}
 }
 \value{
 A list containing AUC of CCF and a graph
