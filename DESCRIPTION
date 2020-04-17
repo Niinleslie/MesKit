@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
 Imports: ape, plotrix, dplyr, Hmisc, ggrepel, tidyr (>= 1.0.0),
-        ggridges, ggsci, cowplot, deconstructSigs,
+        ggridges, ggsci, cowplot, deconstructSigs (>= 1.9.0),
         packcircles, clusterProfiler, ReactomePA, htmlwidgets, 
         pdp, mclust, phangorn, ComplexHeatmap (>= 1.9.3)
 Remotes: raerose01/deconstructSigs 

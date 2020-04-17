@@ -223,6 +223,7 @@ plotCNA <- function(seg, refBuild = "hg19",
                                                         fill = patient)) +
                                         theme(legend.text = element_text(size = legend.text.fontsize),
                                               legend.title = element_text(size = legend.title.fontsize))+
+
                                     scale_fill_manual(values = allScales,name = "Patient")) %>% 
                                      ggplotGrob %>%
                  {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
@@ -233,6 +234,7 @@ plotCNA <- function(seg, refBuild = "hg19",
                                                     ymin = hmin, ymax = hmax, fill = Type))+
                                 theme(legend.text = element_text(size = legend.text.fontsize),
                                       legend.title = element_text(size = legend.title.fontsize))+
+
                             scale_fill_manual(values = allScales,name = "Type"))%>% 
                            ggplotGrob %>% {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
             legendColumn <-
