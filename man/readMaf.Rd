@@ -7,9 +7,11 @@
 readMaf(
   mafFile,
   ccfFile = NULL,
+  adjusted.VAF = FALSE,
   min.vaf = 0.02,
   max.vaf = 1,
   min.average.vaf = 0.04,
+  min.average.adj.vaf = 0.04,
   min.ref.depth = 4,
   min.alt.depth = 4,
   min.total.depth = 8,

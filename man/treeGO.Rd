@@ -13,6 +13,7 @@ treeGO(
   qval = 0.2,
   plotType = "dot",
   showCategory = 5,
+  withinType = FALSE,
   patient.id = NULL
 )
 }
