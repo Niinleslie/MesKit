@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' testNeutral
 #' @description Evaluat whether a tumor follows neutral evolution or under strong selection
 #' during the growth based on variant frequency distribution (VAF) of subclonal 
@@ -613,7 +612,6 @@ testNeutral <- function(maf, patient.id = NULL,
 
 
 #>>>>>>> 5602b67d2666c232262847877cc78fe68710eda3
-=======
 #' testNeutral
 #' @description Evaluat whether a tumor follows neutral evolution or under strong selection
 #' during the growth based on variant frequency distribution (VAF) of subclonal 
@@ -665,9 +663,6 @@ testNeutral <- function(maf, patient.id = NULL,withinType = FALSE,
 	}
 	if(min.depth <= 0){
 	    stop("Error: min.depth must greater than 0")
-	}
-	if(max.depth < min.depth){
-	    stop("Error: max.depth must greater than min.depth")
 	}
 
 
@@ -743,5 +738,3 @@ testNeutral <- function(maf, patient.id = NULL,withinType = FALSE,
 }
 
 
-
->>>>>>> 76c155305e8a78ba390291810c7b38dad221073d
