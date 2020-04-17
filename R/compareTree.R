@@ -36,6 +36,11 @@ compareTree <- function(tree1,
                         show.bootstrap = FALSE,
                         use.box = FALSE,
                         common.lty = "solid"){
+    
+    if(min.ratio <= 0){
+        stop("Error: min.ratio must greater than 0")
+    }
+    
 	phylo.tree1 <- tree1@tree
 	phylo.tree2 <- tree2@tree
 	dist <- phangorn::treedist(phylo.tree1, phylo.tree2)
