@@ -82,9 +82,14 @@ JSI_dist <- function(df, pairByType){
       SS_12 = nrow(vaf.pair[status2=="Subclonal" & status1 == "Subclonal" & vaf1>0 & vaf2>0 ])
       SS_12.list <- c(SS_12.list, SS_12)
       
-      
-      dist[pair[1],pair[2]] <- dist[pair[2],pair[1]] <- SS_12/(PC_1+PC_2+SS_12)
-      
+      if(is.nan(SS_12/(PC_1+PC_2+SS_12))){
+          dist[pair[1],pair[2]] <- dist[pair[2],pair[1]] <- 0
+      }
+      else{
+          dist[pair[1],pair[2]] <- dist[pair[2],pair[1]] <- SS_12/(PC_1+PC_2+SS_12)
+          
+      }
+
       sub <- data.frame(patientid,name, SS_12/(PC_1+PC_2+SS_12))
       JSI.df <- rbind(JSI.df, sub)
    }

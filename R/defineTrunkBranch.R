@@ -140,8 +140,18 @@ doMutTrunkBranch <- function(tree.mutSig){
 
 doPlotTrunkBranch <- function(mutTrunkBranch.list, pvalue = 0.05){
    mutTrunkBranch.list <- lapply(mutTrunkBranch.list,function(x){
-      x$trunk.frac <- x$Trunk/sum(x$Trunk)
-      x$branch.frac <- x$Branch/sum(x$Branch)
+      if(sum(x$Trunk) == 0){
+          x$trunk.frac <- 0
+      }
+       else{
+           x$trunk.frac <- x$Trunk/sum(x$Trunk)  
+       }
+       if(sum(x$Branch) == 0){
+           x$branch.frac <-  0
+       }
+       else{
+           x$branch.frac <- x$Branch/sum(x$Branch)
+       }
       x <- x %>% 
          tidyr::pivot_longer(cols = c("trunk.frac","branch.frac"),names_to = "BT",values_to = "fraction") %>%
          # reshape2::melt(id.vars = c("Group","P_Value","Patient_ID","Branch","Trunk"),variable.name = "BT",value.name = "fraction") %>% 

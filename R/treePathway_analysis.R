@@ -58,7 +58,7 @@ doTreePathway <- function(phyloTree = NULL,
    plot.branchNames <- c()
    result.branchNames <- c()
    
-   mut.ref <- rbind.fill(phyloTree@mut.branches)
+   mut.ref <- plyr::rbind.fill(phyloTree@mut.branches)
    
    if(withinType){
       branches <- unique(mut.ref$Branch_Tumor_Type)

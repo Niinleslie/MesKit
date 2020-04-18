@@ -52,6 +52,10 @@ treeMutSig <- function(phyloTree,
     mutSig.plot <- NA
     if(plot){
         mutSig.plot <- lapply(treeMSOutput, doPlotMutSig, withinType)
+        mutSig.plot <- mutSig.plot[!is.na(mutSig.plot)]
+        if(length(mutSig.plot) == 0){
+            mutSig.plot <- NA
+        }
         return(list(mutSig.summary = mutSigSummary, mutSig.plot = mutSig.plot))
     }
     
