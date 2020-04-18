@@ -43,8 +43,8 @@ ccfAUC <- function(
         }
     }
     
-    if(min.ccf <= 0){
-        stop("Error: min.ccf must greater than 0")
+    if(min.ccf < 0){
+        stop("Error: min.ccf must be greater than 0")
     }
 
     mafData <- mafData %>%cf

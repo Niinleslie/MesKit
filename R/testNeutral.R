@@ -10,8 +10,8 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.depth the minimun depth of coverage. Defalut: 10
 #' @param R2.threshold the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
-#' @param min.vaf the minimum value of adjusted VAF value (1/2CCF). Default: 0.1
-#' @param max.vaf the maximum value of adjusted VAF value (1/2CCF). Default: 0.3
+#' @param min.vaf the minimum value of adjusted VAF value. Default: 0.1
+#' @param max.vaf the maximum value of adjusted VAF value. Default: 0.3
 #' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 20
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
@@ -19,7 +19,7 @@
 #' testNeutral(maf)
 #' @export testNeutral
 
-testNeutral <- function(maf, patient.id = NULL,withinType = FALSE, 
+testNeutral <- function(maf, patient.id = NULL, withinType = FALSE, 
     min.depth = 10, R2.threshold = 0.98,
     min.vaf = 0.1, max.vaf = 0.3,
     plot = TRUE,
@@ -39,19 +39,17 @@ testNeutral <- function(maf, patient.id = NULL,withinType = FALSE,
         if(length(patient.setdiff) > 0){
             stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
+        mafData <- mafData[Patient_ID %in% patient.id]
     }
 	
 	if(min.vaf <= 0){
-	    stop("Error: min.vaf must greater than 0")
+	    stop("Error: min.vaf must be greater than 0")
 	}
 	if(max.vaf < min.vaf){
-	    stop("Error: max.vaf must greater than min.vaf")
+	    stop("Error: max.vaf must be greater than min.vaf")
 	}
-	if(min.depth <= 0){
-	    stop("Error: min.depth must greater than 0")
-	}
-	if(max.depth < min.depth){
-	    stop("Error: max.depth must greater than min.depth")
+	if(min.depth < 0){
+	    stop("Error: min.depth must be greater than 0")
 	}
 
 
@@ -66,20 +64,41 @@ testNeutral <- function(maf, patient.id = NULL,withinType = FALSE,
 	        plot,
 	        withinType = withinType), 
 	        keep = TRUE) %>%
-	    rlang::set_names(unique(mafData$Patient_ID))    	
+	    rlang::set_names(unique(mafData$Patient_ID))
+	
+	neutrality.metrics = plyr::rbind.fill(
+	    lapply(neutrality.list, 
+                        function(x){
+                     d <- do.call(rbind, lapply(x, function(y)y$model.fitting.out))
+                     if(nrow(d) >= 1){
+                         rownames(d) <- 1:nrow(d) 
+                     }
+                     return(d)
+     }
+	))
+	
+	if(nrow(neutrality.metrics) == 0){
+	    neutrality.metrics <- NA
+	}
+	
+	model.fitting.plot <- lapply(neutrality.list, 
+	                             function(x){
+	                                 p <- lapply(x, function(y) y$model.fitting.plot)
+	                                 p <- p[!is.na(p)]
+	                                 if(length(p) == 0){
+	                                     p <- NA
+	                                 }
+	                                 return(p)
+	                             })
+	model.fitting.plot <- model.fitting.plot[!is.na(model.fitting.plot)]
+	
+	if(length(model.fitting.plot) == 0){
+	    model.fitting.plot <- NA
+	}
 	
 	testNeutral.out = list(
-	    neutrality.metrics = lapply(neutrality.list, 
-	                                function(x){
-	                                    d <- do.call(rbind, lapply(x, function(y)y$model.fitting.out))
-	                                    if(nrow(d) >= 1){
-	                                        rownames(d) <- 1:nrow(d) 
-	                                    }
-	                                    return(d)
-	                                    }
-	    ),
-	    model.fitting.plot = lapply(neutrality.list, 
-	                                function(x) lapply(x, function(y) y$model.fitting.plot))
+	    neutrality.metrics = neutrality.metrics ,
+	    model.fitting.plot = model.fitting.plot
 	)
 	# if(plot){
 	#     ## combind data of all patients

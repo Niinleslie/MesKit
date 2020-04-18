@@ -1,13 +1,16 @@
 plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
     corrMat[lower.tri(corrMat)] <- 0
     maxCorr <- max(corrMat[corrMat!=1])
+    minCorr <- min(corrMat[corrMat!=1 & corrMat!=0])
     #maxCorr <- max(corrMat)
     TSBs <- colnames(corrMat)
 
     #col_fun <- circlize::colorRamp2(pretty(c(0, maxCorr),6),
     #                                c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
-    
-    col_fun <- circlize::colorRamp2(breaks = round(seq(0, maxCorr, length = 6)*100)/100,
+    len.max <- nchar(as.character(minCorr))
+    signi.digit <- gsub(pattern =  "0\\.0*[1,9]*","",as.character(minCorr))
+    digits <- nchar(as.character(minCorr)) - nchar(signi.digit) 
+    col_fun <- circlize::colorRamp2(breaks = round( seq(0, maxCorr, length = 6),digits = digits),
                                     c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
 
     p <- ComplexHeatmap::Heatmap(
@@ -57,7 +60,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
                 }
                 
                 grid::grid.text(
-                    sprintf("%.2f", corrMat[i, j]),
+                    round(corrMat[i, j],digits = digits) ,
                     x, y,
                     gp = grid::gpar(fontsize = 11, fontface = "bold", col = "#C77960")
                 )

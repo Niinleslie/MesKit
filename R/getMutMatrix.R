@@ -5,8 +5,6 @@
 #' @param use.ccf whether to use the ccf data inthe mafData, default FALSE
 #' 
 #' @return sorted binary or ccf mutation matrix
-#' @example 
-#' getMutMatrix(maf@data)
 #' 
 
 

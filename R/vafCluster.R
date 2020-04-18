@@ -38,8 +38,8 @@ vafCluster <-function(maf,
     maf <- copyNumberFilter(maf, seg)
   }
   
-  if(min.vaf <= 0){
-      stop("Error: min.vaf must greater than 0")
+  if(min.vaf < 0){
+      stop("Error: min.vaf must be greater than 0")
   }
   if(max.vaf < min.vaf){
       stop("Error: max.vaf must greater than min.vaf")

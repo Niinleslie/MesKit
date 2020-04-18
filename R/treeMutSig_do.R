@@ -47,6 +47,7 @@ doTreeMutSig <- function(phyloTree,
    mutSigsOutput <- data.frame()
    sig.product <- c()
    lsPicName <- c()
+   sig.product <- data.frame()
    ## deconstructSigs
    if(withinType){
       sigsInput <- suppressWarnings(
@@ -256,16 +257,18 @@ doTreeMutSig <- function(phyloTree,
                                  sig = rownames(signatures.aetiology$cosmic_v3))
    }
    
-   if(withinType){
-      all.types <- unique(sig.product$alias) 
-      public <- all.types[grep("Public", all.types)] 
-      shared <- all.types[grep("Shared", all.types)] 
-      private <- all.types[grep("Private", all.types)]
-      type.level <- c(public, shared, private)
-      sig.product$alias <- factor(sig.product$alias, levels = type.level)
-      colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability", "Alias", "Signature")
-   }else{
-      colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability", "Alias", "Signature")
+   if(nrow(sig.product) > 0){
+       if(withinType){
+           all.types <- unique(sig.product$alias) 
+           public <- all.types[grep("Public", all.types)] 
+           shared <- all.types[grep("Shared", all.types)] 
+           private <- all.types[grep("Private", all.types)]
+           type.level <- c(public, shared, private)
+           sig.product$alias <- factor(sig.product$alias, levels = type.level)
+           colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability", "Alias", "Signature")
+       }else{
+           colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability", "Alias", "Signature")
+       }
    }
    
    message(paste0("Sample ", phyloTree@patientID, ": mutational signatures identified successfully!"))
@@ -336,6 +339,11 @@ doMutSigSummary <- function(treeMSOutput, withinType){
    mutSigsOutput <- mutSigsOutput %>% 
       dplyr::filter(Signature != "noMapSig")
    
+   if(nrow(mutSigsOutput) == 0){
+       mutSigsOutput <- NA
+       message(paste0("Warning: There is no signature on ",treeMSOutput$patientID) )
+   }
+   
    return(mutSigsOutput)
 }
 
@@ -346,6 +354,10 @@ doPlotMutSig <- function(tree.mutSig, withinType) {
    mutSigsOutput <- tree.mutSig$mutSigsOutput
    df.aetiology <- tree.mutSig$df.aetiology
    sig.product <- tree.mutSig$sig.product
+   
+   if(nrow(sig.product) == 0){
+       return(NA)
+   }
    
    sig.product$Signature <- as.character(sig.product$Signature)
    ls.mutationType <-as.character(sig.product$Group)

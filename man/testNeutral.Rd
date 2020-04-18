@@ -25,9 +25,9 @@ testNeutral(
 
 \item{R2.threshold}{the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98}
 
-\item{min.vaf}{the minimum value of adjusted VAF value (1/2CCF). Default: 0.1}
+\item{min.vaf}{the minimum value of adjusted VAF value. Default: 0.1}
 
-\item{max.vaf}{the maximum value of adjusted VAF value (1/2CCF). Default: 0.3}
+\item{max.vaf}{the maximum value of adjusted VAF value. Default: 0.3}
 
 \item{plot}{logical, whether to print model fitting plot of each sample. Default: TRUE}
 

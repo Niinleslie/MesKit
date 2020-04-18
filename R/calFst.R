@@ -48,7 +48,7 @@ calFst <- function(
 	}
 	
 	if(min.vaf <= 0){
-	    stop("Error: min.vaf must greater than 0")
+	    stop("Error: min.vaf must be greater than 0")
 	}
 
 	
