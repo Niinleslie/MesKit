@@ -54,12 +54,12 @@
          vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
                           theme(legend.position=\'none\',", 
-                             " plot.title=element_text(size=13), ",
+                             "plot.title=element_text(size=13), ",
                              "panel.grid=element_blank(), ", 
                              "panel.border=element_blank(), ", 
-                             "axis.line=element_line(size=0.7)) + ", 
+                             "axis.line=element_line(size=0.7),", 
                              "axis.title=element_text(size=13), ", 
-                             "axis.text=element_text(size=12, colour = \"black\"), ",
+                             "axis.text=element_text(size=12, colour = \"black\"))+",
                              "geom_line(size=1, colour=\"#00C0EB\", ", 
                              "stat=\"density\") + ", 
                              "geom_rug(aes(y=0, colour=cluster), sides=\"b\") + ", 

@@ -30,8 +30,8 @@ compareJSI <- function(
             "No CCF data was found when generate Maf object."))
     }
     
-    if(min.vaf <= 0){
-        stop("Error: min.vaf must greater than 0")
+    if(min.vaf < 0){
+        stop("Error: min.vaf must be greater than 0")
     }
 
     if(is.null(patient.id)){
@@ -80,8 +80,17 @@ compareJSI <- function(
     JSI.multi <-  plyr::rbind.fill(lapply(JSI.dist, function(x) x$JSI.multi)) 
     
     JSI.plot = list()
+    patient.id <- names(JSI.dist)
     if(plot){
         for(i in 1:length(JSI.dist)){
+            # 
+            dist.mat <- JSI.dist[[i]]$JSI.pair
+            mat.value <- sort(unique(as.numeric(dist.mat))) 
+            if(length(mat.value[mat.value!=0 &mat.value !=1]) == 0){
+                message(paste0("Warnings: Can not calculate JSI in ", patient.id[i], "."))
+                JSI.plot[[i]] <- NA
+                next
+            }
             JSI.plot[[i]] <- plotCorr(
                 JSI.dist[[i]]$JSI.pair, 
                 use.circle = use.circle,
@@ -89,6 +98,11 @@ compareJSI <- function(
                 )
         }
         names(JSI.plot) <- patient.id
+        JSI.plot <- JSI.plot[!is.na(JSI.plot)]
+        if(length(JSI.plot) == 0){
+            JSI.plot <- NA
+        }
+        
         JSI.out <- list(
             JSI.multi = JSI.multi, 
             JSI.pair = JSI.df,

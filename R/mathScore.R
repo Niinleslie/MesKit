@@ -26,8 +26,8 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02,
     
     mafData <- maf@data
     
-    if(min.vaf <= 0){
-        stop("Error: min.vaf must greater than 0")
+    if(min.vaf < 0){
+        stop("Error: min.vaf must be greater than 0")
     }
 
     if(is.null(patient.id)){

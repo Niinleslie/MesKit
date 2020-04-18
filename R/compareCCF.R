@@ -29,8 +29,8 @@ compareCCF <- function(maf,
     "No CCF data was found when generate Maf object."))
   }
 
-  if(min.ccf <= 0){
-      stop("Error: min.ccf must greater than 0")
+  if(min.ccf < 0){
+      stop("Error: min.ccf must be greater than 0")
   }
   
   if(is.null(patient.id)){

@@ -33,8 +33,8 @@ getPhyloTree <- function(maf,
       stop("method can only be either 'NJ','ML' or 'MP','FASTME.ols','FASTME.bal'")
   }
   
-  if(min.vaf <= 0){
-      stop("Error: min.vaf must greater than 0")
+  if(min.vaf < 0){
+      stop("Error: min.vaf must be greater than 0")
   }
   
   maf.dat <- maf@data
