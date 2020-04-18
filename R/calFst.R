@@ -38,9 +38,7 @@ calFst <- function(
         if(length(patient.setdiff) > 0){
             stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
         }
-        mafData <- mafData[Patient_ID %in% patient.id,]
     }
-	
 
 	if(! "VAF_adj" %in% colnames(mafData)){
 		stop("Adjust VAF was not found in maf object.
@@ -123,7 +121,7 @@ calFst <- function(
 	    Fst.out <- Fst.out[!is.na(Fst.out)]
 	}
         
-  df.fst <- list()
+  
   if(withinType){
       patient.list <- c()
       type.list <- c()
@@ -131,7 +129,6 @@ calFst <- function(
       name.list <- c()
       Fst.pair <- list()
       Fst.plot <- list()
-      Fst.df <- list()
       for(patient in names(Fst.out)){
           
           ## get result for each patient
@@ -148,51 +145,25 @@ calFst <- function(
               
               Fst.pair[[name]] <- Fst.out.p.t$Fst.pair
               Fst.plot[[name]] <- Fst.out.p.t$Fst.plot
-              df <- Fst.out.p.t$Fst.df
-              df$type <- name
-              Fst.df[[name]] <- df
           }
       }
-      Fst.df <- plyr::rbind.fill(Fst.df)
-      colnames(Fst.df) <- c("Patient_ID","Pair", "Fst", "Tumor_Type")
-      
-      Fst.df<- dplyr::select(Fst.df,Patient_ID,Tumor_Type,Pair,Fst)
-      
       Fst.avg = data.frame(Patient_ID = patient.list,
                            Tumor_Type = type.list,
                            Fst.avg = avg.list)
       
-      if(plot){
-          Fst.out=list(
-              Fst.avg = Fst.avg,
-              Fst.pair = Fst.df,
-              Fst.plot = Fst.plot
-          )
-      }
-      else{
-          Fst.out=list(
-              Fst.avg = Fst.avg,
-              Fst.pair = Fst.df
-          )  
-      }
-      
+      Fst.out=list(
+          Fst.avg = Fst.avg,
+          Fst.pair = Fst.pair,
+          Fst.plot = Fst.plot
+      )
       
   }
   else{
-      Fst.df <- plyr::rbind.fill(lapply(Fst.out, function(x) x$Fst.df))
-      if(plot){
-          Fst.out=list(
-              Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
-              Fst.pair = Fst.df,
-              Fst.plot = lapply(Fst.out, function(x) x$Fst.plot)
-          ) 
-      }
-      else{
-          Fst.out=list(
-              Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
-              Fst.pair = Fst.df
-          )
-      }
+      Fst.out=list(
+          Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
+          Fst.pair = lapply(Fst.out, function(x) x$Fst.pair),
+          Fst.plot = lapply(Fst.out, function(x) x$Fst.plot)
+      )  
   }
 
   

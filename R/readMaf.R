@@ -63,6 +63,7 @@ readMaf <- function(## maf parameters
             file = mafFile,
             quote = "",
             header = TRUE,
+            data.table = TRUE,
             fill = TRUE,
             sep = '\t',
             skip = "Hugo_Symbol",
@@ -251,13 +252,6 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
                 CCF
             ) 
         )%>%
-        dplyr::mutate(
-            CCF = dplyr::if_else(
-                is.na(CCF),
-                2*VAF,
-                CCF
-            )
-        ) %>% 
         dplyr::mutate(
             CCF = dplyr::if_else(
                 CCF > 1,
