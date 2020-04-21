@@ -48,28 +48,13 @@ doTreeMutSig <- function(phyloTree,
    sig.product <- c()
    lsPicName <- c()
    sig.product <- data.frame()
-   ## deconstructSigs
-   if(withinType){
-      sigsInput <- suppressWarnings(
-         deconstructSigs::mut.to.sigs.input(mut.ref=mutSigRef, 
-                                            sample.id="Branch_Tumor_Type", 
-                                            chr="chr", 
-                                            pos="pos", 
-                                            ref="ref", 
-                                            alt="alt",
-                                            bsg=get(refBuild)))
-      branchesName <- unique(mutSigRef$Branch_Tumor_Type)
-      
-   }else{
-      sigsInput <- suppressWarnings(
-         deconstructSigs::mut.to.sigs.input(mut.ref=mutSigRef, 
-                                            sample.id="Branch_ID", 
-                                            chr="chr", 
-                                            pos="pos", 
-                                            ref="ref", 
-                                            alt="alt",
-                                            bsg=get(refBuild)))
-   }
+   
+   ## count 96 substitution typs in each branches
+   sigsInput <- countTriplet(mutSigRef = mutSigRef,
+                             withinType = withinType,
+                             refBuild = refBuild)
+   
+   branchesName <- rownames(sigsInput)
    
    if(MTB){
       if(withinType){
@@ -84,19 +69,37 @@ doTreeMutSig <- function(phyloTree,
          patientID = patientID)
       return(treeMSOutput)
    }
+
+   signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
+   if (signaturesRef == "cosmic_v2") {
+       sigsRef <- deconstructSigs::signatures.cosmic
+       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
+                                  sig = rownames(signatures.aetiology$cosmic_v2))
+   } else if (signaturesRef == "nature2013") {
+      sigsRef <- deconstructSigs::signatures.nature2013
+      df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
+                                 sig = rownames(signatures.aetiology$nature2013))
+   }else if(signaturesRef == "genome_cosmic_v3"){
+       sigsRef <- deconstructSigs::signatures.genome.cosmic.v3.may2019
+       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
+                                  sig = rownames(signatures.aetiology$cosmic_v3))
+   }else if(signaturesRef == "exome_cosmic_v3"){
+       sigsRef <- deconstructSigs::signatures.exome.cosmic.v3.may2019
+       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
+                                  sig = rownames(signatures.aetiology$cosmic_v3))
+   }
    
-   #signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
+   ## cal cos sim signature and branch 
+   cos_sim.mat <- calSim(sigsInput = sigsInput, sigsRef = sigsRef)
+   
    signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
    for (branchCounter in length(branchesName):1){
       ## generate a single branch
-      # branch <- Filter(Negate(is.na), 
-      #                  branchesNameList[[branchCounter]])
       branchName <- branchesName[branchCounter]
       
       if(withinType){
          branch.mut.num <- length(mutSigRef[which(mutSigRef$Branch_Tumor_Type == branchName), 1])
-      }
-      else{
+      }else{
          branch.mut.num <-  length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
       }
       ## get the mutational signature of the branch
@@ -120,36 +123,15 @@ doTreeMutSig <- function(phyloTree,
             }
          }
       }else{
-         if (signaturesRef == "cosmic_v2") {
-            sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
-                                                          signatures.ref=deconstructSigs::signatures.cosmic, 
-                                                          sample.id=branchName,
-                                                          contexts.needed=TRUE,
-                                                          tri.counts.method = tri.counts.method)
-         } else if (signaturesRef == "nature2013") {
-            sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
-                                                          signatures.ref=deconstructSigs::signatures.nature2013, 
-                                                          sample.id=branchName,
-                                                          contexts.needed=TRUE,
-                                                          tri.counts.method = tri.counts.method)
-         }
-         else if(signaturesRef == "genome_cosmic_v3"){
-            sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
-                                                          signatures.ref= deconstructSigs::signatures.genome.cosmic.v3.may2019, 
-                                                          sample.id=branchName,
-                                                          contexts.needed=TRUE,
-                                                          tri.counts.method = tri.counts.method)
-         }
-         else if(signaturesRef == "exome_cosmic_v3"){
-            sigsWhich <- deconstructSigs::whichSignatures(tumor.ref=sigsInput, 
-                                                          signatures.ref= deconstructSigs::signatures.exome.cosmic.v3.may2019, 
-                                                          sample.id=branchName,
-                                                          contexts.needed=TRUE,
-                                                          tri.counts.method = tri.counts.method)
-         }
+          ## get mutation signature
+         fit <- fitSignature(sigsInput = sigsInput[branchName,], sigsRef = sigsRef)
+         fit$reconstruct <- fit$reconstruct/sum(fit$reconstruct)
+         fit$contribution <- fit$contribution/sum(fit$contribution)
+         sigsWhich <- fit$contribution
          
-         sigs.branch <- sigsWhich[["weights"]][which(sigsWhich[["weights"]] != 0)]
-         sigs.branch.name <- colnames(sigs.branch)
+         # sigs.branch <- sigsWhich[["weights"]][which(sigsWhich[["weights"]] != 0)]
+         sigs.branch <- sigsWhich[,which(sigsWhich > 0.1)]
+         sigs.branch.name <- colnames(sigsWhich)[which(sigsWhich > 0.1)]
          sigs.branch.name <- gsub('[.]', ' ', sigs.branch.name)
          sigs.prob <- as.numeric(sigs.branch)
          
@@ -161,24 +143,16 @@ doTreeMutSig <- function(phyloTree,
          }
          
          ## get product of sigs output 
-         # print(sigsWhich$product)
-         sigsWhich$product <- as.data.frame(sigsWhich$product)
-         sigsWhich$product$Branch <- as.character(row.names(sigsWhich$product)) 
-         sig.branch.product <- tidyr::pivot_longer(sigsWhich$product,
+         sig.rec <- as.data.frame(fit$reconstruct)
+         sig.rec$Branch <- as.character(row.names(fit$reconstruct)) 
+         sig.branch.product <- tidyr::pivot_longer(sig.rec ,
                                                    -Branch,
                                                    names_to = "group",
                                                    values_to = "sigs.prob") %>% 
             as.data.frame()
-         # print(sigs.branch.product)
-         # sig.branch.product <- reshape2::melt(sigsWhich$product)
-         # print(sigsWhich$product)
-         # print(sig.branch.product)
          
-         if(withinType){
-            sig.branch.product$alias <- branchName
-         }
-         else{
-            sig.branch.product$alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$alias))
+         if(!withinType){
+             sig.branch.product$alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$alias))
          }
          
          ##  title
@@ -190,22 +164,8 @@ doTreeMutSig <- function(phyloTree,
          }
          sig.branch.product$Signature <- t
          sig.product <- rbind(sig.product, sig.branch.product)
-         ## get mutational signature with max weight
-         # sigsMax <- sigsWhich[["weights"]][which.max(sigsWhich[["weights"]])]
-         # sigsMaxName <- colnames(sigsMax)
-         # sigsMaxName <- gsub('[.]', ' ', sigsMaxName)
-         # sigsMaxProb <- sigsMax[,1]
-         
       }
       
-      # mutSigsBranch <- data.frame(
-      #     branch=c(branchName), 
-      #     alias=as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$alias)), 
-      #     sig=sigsMaxName, 
-      #     mut.count=mut.count, 
-      #     sig.prob=format(round(sigsMaxProb, digits = 3), nsmall = 3),
-      #     Branch_Tumor_Type = as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Branch_Tumor_Type)))
-      # 
       mutSigsBranch <- data.frame(
          sig = sigs.branch.name, 
          sig.prob=format(round(sigs.prob, digits = 4)))
@@ -236,27 +196,13 @@ doTreeMutSig <- function(phyloTree,
       mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
    }
    
+   if(withinType){
+       sig.product$alias <- sig.product$Branch
+   }
+
    mutSigsOutput$sig.prob <- as.numeric(as.vector(mutSigsOutput$sig.prob))
+
    ## calculation process(maybe could be replaced by lapply)
-   if (signaturesRef =="cosmic_v2") {
-      ## Aetiology from https://cancer.sanger.ac.uk/cosmic/signatures_v2 emm actually the additional feature may matter
-      df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
-                                 sig = rownames(signatures.aetiology$cosmic_v2))
-   } else if (signaturesRef =="nature2013") {
-      ## Aetiology from https://www.nature.com/articles/nature12477#s1
-      df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
-                                 sig = rownames(signatures.aetiology$nature2013))
-      
-   }
-   else if(signaturesRef == "genome_cosmic_v3"){
-      df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
-                                 sig = rownames(signatures.aetiology$cosmic_v3))
-   }
-   else if(signaturesRef == "exome_cosmic_v3"){
-      df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
-                                 sig = rownames(signatures.aetiology$cosmic_v3))
-   }
-   
    if(nrow(sig.product) > 0){
        if(withinType){
            all.types <- unique(sig.product$alias) 
@@ -265,21 +211,192 @@ doTreeMutSig <- function(phyloTree,
            private <- all.types[grep("Private", all.types)]
            type.level <- c(public, shared, private)
            sig.product$alias <- factor(sig.product$alias, levels = type.level)
-           colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability", "Alias", "Signature")
+           sig.product$Patient_ID <- patientID
+           colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability","Signature","Alias","Patient_ID")
        }else{
-           colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability", "Alias", "Signature")
+           sig.product$Patient_ID <- patientID
+           colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability", "Alias", "Signature","Patient_ID")
        }
    }
    
-   message(paste0("Sample ", phyloTree@patientID, ": mutational signatures identified successfully!"))
+   rownames(sig.product) <- 1:nrow(sig.product)
+   
+   cos_sim.mat <- as.matrix(cos_sim.mat)
+   if(withinType){
+       alias <- unique(mutSigsOutput$Branch_Tumor_Type)
+       names(alias) <- unique(mutSigsOutput$Branch_Tumor_Type)
+   }else{
+       alias <- unique(mutSigsOutput$alias)
+       names(alias) <- unique(mutSigsOutput$branch)
+   }
+   rownames(cos_sim.mat) <- alias[rownames(cos_sim.mat)] 
+   
+   message(paste0("Patient ", phyloTree@patientID, ": mutational signatures identified successfully!"))
+   
    treeMSOutput <- list(
       sigsInput=sigsInput, 
       sig.product=sig.product,
+      cos_sim.mat = cos_sim.mat,
       mutSigsOutput=mutSigsOutput, 
       df.aetiology=df.aetiology, 
       patientID = patientID)
    return(treeMSOutput)
-} 
+}
+
+countTriplet <- function(mutSigRef, withinType, refBuild){
+    
+    mutSigRef <- mutSigRef[mutSigRef$mut_id!="NoSigTag",]
+    
+    bases <- c("A","C","G","T")
+    types <- c("C>A","C>G","C>T","T>A","T>C","T>G")
+    
+    ## 96 substitution types
+    triplet96 <- c()
+    seq96 <- c()
+    for(type in types){
+        for(base.up in bases){
+            for(base.down in bases){
+                tri <- paste(base.up,"[",type,"]",base.down,sep = "")
+                triplet96 <- append(triplet96,tri)
+                if(type %in% types[1:3]){
+                    seqname <- paste(base.up,"C",base.down,sep = "")
+                    seq96 <- append(seq96,seqname)
+                }
+                else{
+                    seqname <- paste(base.up,"T",base.down,sep = "")
+                    seq96 <- append(seq96,seqname)
+                }
+            }
+        }
+    }
+    names(triplet96) <- seq96
+    
+    ref64.type <- c()
+    ref64.seq <- c()
+    for(base.mid in bases){
+        base.mid1 <- base.mid
+        for(base.up in bases){
+            for(base.down in bases){
+                tri <- paste(base.up,base.mid,base.down,sep = "")
+                ref64.seq <- append(ref64.seq,tri)
+                if(base.mid == "G"){
+                    base.mid1 <- "C"
+                }
+                else if(base.mid == "A"){
+                    base.mid1 <- "T"
+                }
+                n <- paste(base.up,base.mid1,base.down,sep = "")
+                ref64.type <- append(ref64.type,n)
+            }
+        }
+    }
+    names(ref64.type) <- ref64.seq
+    ref64 <- ref64.type
+    
+    if(withinType){
+        ref.list <- split(mutSigRef, mutSigRef$Branch_Tumor_Type)
+    }else{
+        ref.list <- split(mutSigRef, mutSigRef$Branch_ID)
+    }
+    
+    sigsInput <- lapply(ref.list, countTripletBranch,
+                        triplet96 = triplet96,
+                        ref64 = ref64,
+                        refBuild = refBuild)
+    sigsInput <- plyr::rbind.fill(sigsInput)
+    rownames(sigsInput) <- names(ref.list)
+    
+    return(sigsInput)
+}
+
+countTripletBranch <- function(ref, triplet96, ref64, refBuild){
+    
+    types <- c("C>A","C>G","C>T","T>A","T>C","T>G")
+    
+    
+    context <- Biostrings::getSeq(get(refBuild),Rle(ref$chr),ref$pos-1, ref$pos+1) 
+    context <- as.character(context)
+    
+    context <- ref64[context]
+    
+    mut.types <- paste(ref$ref, ref$alt, sep = ">")
+    mut.types = gsub('G>T', 'C>A', mut.types)
+    mut.types = gsub('G>C', 'C>G', mut.types)
+    mut.types = gsub('G>A', 'C>T', mut.types)
+    mut.types = gsub('A>T', 'T>A', mut.types)
+    mut.types = gsub('A>G', 'T>C', mut.types)
+    mut.types = gsub('A>C', 'T>G', mut.types)
+    
+    count.mat <- matrix(0, ncol = length(triplet96), nrow = 1)
+    colnames(count.mat) <- as.character(triplet96) 
+    
+    for(i in 1:length(context)){
+        
+        tris <- triplet96[which(names(triplet96) == context[i])]
+        type <- mut.types[i]
+        pos <- which(grepl(type,tris))
+        tri <- tris[pos]
+        
+        count.mat[,tri] <- count.mat[,tri] + 1
+    }
+    
+    count.df <- as.data.frame(count.mat)
+}
+
+calSim <- function(sigsInput, sigsRef){
+    
+    m1 <- t(sigsInput)
+    m2 <- t(sigsRef)
+    n1 <- ncol(m1)
+    n2 <- ncol(m2)
+    cos_sim.mat <- matrix(nrow = n1,ncol = n2)
+    rownames(cos_sim.mat) <- colnames(m1)
+    colnames(cos_sim.mat) <- colnames(m2)
+    
+    for(i in 1:n1){
+        x <- m1[,i]
+        x <- x/sum(x)
+        for( j in 1:n2){
+            y <- m2[,j]
+            s <- as.numeric(x %*% y / (sqrt(x %*% x) * sqrt(y %*% y)))
+            cos_sim.mat[i,j] <- s
+        }
+    }
+    
+    return(as.data.frame(cos_sim.mat) )
+    
+}
+
+
+fitSignature <- function(sigsInput, sigsRef){
+    
+    type.n <- ncol(sigsInput)
+    sample.n <- nrow(sigsInput)
+    sig.n <- nrow(sigsRef)
+    
+    ref <- t(as.matrix(sigsRef))
+    
+    contribution.mat <- matrix(1, ncol = sample.n, nrow = sig.n)
+    reconstruct.mat <- matrix(1, ncol = sample.n, nrow = type.n)
+    
+    ## solve nonnegative least-squares constraints.
+    
+    for(i in 1:sample.n){
+        type.count <- as.numeric(sigsInput[i,]) 
+        lsq <- pracma::lsqnonneg(ref, type.count)
+        contribution.mat[,i] <- lsq$x
+        reconstruct.mat[,i] <- ref %*% as.matrix(lsq$x)
+    }
+    
+    colnames(contribution.mat) <- rownames(sigsInput)
+    rownames(contribution.mat) <- rownames(sigsRef)
+    
+    colnames(reconstruct.mat) <- rownames(sigsInput)
+    rownames(reconstruct.mat) <- colnames(sigsInput)
+    
+    return(list(contribution = t(contribution.mat), reconstruct = t(reconstruct.mat)))
+    
+}
 
 ## Provide a summary data frame for signatures in different branches.
 doMutSigSummary <- function(treeMSOutput, withinType){
@@ -297,21 +414,6 @@ doMutSigSummary <- function(treeMSOutput, withinType){
    }
    
    mutSigsOutput$aeti <- ls.aeti
-   # for (branch in ls.branchesName) {
-   #     signature <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig)
-   #     aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
-   #     ls.aeti <- c(ls.aeti, aetiology)
-   # }
-   
-   ## rearrange the order of columns
-   # mutSigsOutput <- data.frame(branch=mutSigsOutput$branch,
-   #                             alias=mutSigsOutput$alias, 
-   #                             mut.count=mutSigsOutput$mut.count, 
-   #                             sig=mutSigsOutput$sig, 
-   #                             sig.prob=mutSigsOutput$sig.prob, 
-   #                             Branch_Tumor_Type = mutSigsOutput$Branch_Tumor_Type,
-   #                             aeti=ls.aeti)
-   
    if(withinType){
       
       ## order branch tumor type 
@@ -348,279 +450,145 @@ doMutSigSummary <- function(treeMSOutput, withinType){
 }
 
 
-## Visualize the mutational signatures of trunk/branches in a phylogenetic tree.
-doPlotMutSig <- function(tree.mutSig, withinType) {
-   sigsInput <- tree.mutSig$sigsInput
-   mutSigsOutput <- tree.mutSig$mutSigsOutput
-   df.aetiology <- tree.mutSig$df.aetiology
-   sig.product <- tree.mutSig$sig.product
-   
-   if(nrow(sig.product) == 0){
-       return(NA)
-   }
-   
-   sig.product$Signature <- as.character(sig.product$Signature)
-   ls.mutationType <-as.character(sig.product$Group)
-   ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
-   
-   ## generate Mutation Type for every column
-   sig.product$Group <- as.character(sig.product$Group)
-   for (mutationGroup in ls.mutationGroup) {
-      sig.product$Group[which(grepl(mutationGroup, sig.product$Group))] <- mutationGroup
-   }
-   
-   ## specific the label order of x axis
-   orderlist <- c(ls.mutationType)
-   sig.product$Type <- factor(ls.mutationType, levels = unique(orderlist) )
-   
-   if(nrow(sig.product) == 0){
-      warning(paste0("Patient ", tree.mutSig$patientID, ": There is no enough eligible mutations can be used."))
-      return(NA)
-   }
-   # sig.product <- dplyr::distinct(sig.product, Branch, .keep_all = TRUE)
-   
-   CA <- grid::textGrob(expression(bold("C > A")),
-                        gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-   CG <- grid::textGrob(expression(bold("C > G")),
-                        gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-   CT <- grid::textGrob(expression(bold("C > T")),
-                        gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-   TA <- grid::textGrob(expression(bold("T > A")),
-                        gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-   TC <- grid::textGrob(expression(bold("T > C")),
-                        gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-   TG <- grid::textGrob(expression(bold("T > G")),
-                        gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-   
-   group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
-                     "#3C5488FF", "#F39B7FFF", "#8491B4FF")
-   
-   # set the limit of y axis
-   yMax <- max(max(sig.product$Mutation_Probability), round(max(sig.product$Mutation_Probability) + 0.1, 1))
-   
-   pic <- ggplot(sig.product, 
-                 aes(x=Type, y=Mutation_Probability, group=Group, fill=Group)
-   ) + 
-      geom_bar(stat="identity") +
-      theme(panel.grid=element_blank(), 
-            panel.border=element_blank(), 
-            panel.background = element_blank(), 
-            legend.position='none', 
-            # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
-            plot.title = element_text(size = 13, face = "bold", hjust = 0.5,vjust = 0),
-            axis.text.x= element_blank(), 
-            axis.ticks.x=element_blank(),
-            axis.line.y = element_blank(),
-            axis.ticks.length.y = unit(0.2, "cm"),
-            axis.text.y=element_text(size=6, color = "black"),
-            strip.background = element_blank(),
-            strip.text = element_blank(),
-      ) +
-      annotate(geom = "segment", x=-1, xend = -1, y = 0, 
-               yend = yMax, size = 0.6)+
-      
-      ## side bar
-      geom_rect(aes(xmin = 96.7, xmax = 99, ymin = 0, ymax = yMax), fill = "#C0C0C0",alpha = 0.06) +
-      geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE),
-                aes(x=98, y= yMax/2, label = Alias), 
-                angle = 270, color = "black", size = 3, fontface = "plain") + 
-      
-      
-      ## background colors
-      geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=yMax),
-                fill="#fce7e4", alpha=0.15) + 
-      geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=yMax),
-                fill="#ecf8fa", alpha=0.25) + 
-      geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax= yMax),
-                fill="#dbfff9", alpha=0.05) + 
-      geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax= yMax),
-                fill="#e4e8f3", alpha=0.08) + 
-      geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax= yMax),
-                fill="#fdefeb", alpha=0.15) + 
-      geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax= yMax),
-                fill="#e5e8ef", alpha=0.1) + 
-      ## barplot
-      geom_bar(stat="identity") + 
-      ## combine different results
-      facet_grid(Alias ~ .) + 
-      ## color setting
-      scale_fill_manual(values=group.colors) +
-      
-      ## axis setting
-      xlab("Mutational type") + 
-      ylab("Mutation probability") + 
-      ggtitle(paste0("Mutational signatures of ",tree.mutSig$patientID,"'s phylogenetic tree ") )+
-      # scale_x_discrete(breaks = c(10,27,43,59,75,91),
-      #                  labels = c("C>A","C>G","C>T","T>A","T>C","T>G"))+
-      scale_y_continuous(limits=c(-0.03, yMax), 
-                         breaks=seq(0, yMax, 0.1)) +
-      
-      ## signature notes and text parts
-      geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE) , 
-                aes(x=0, y=yMax, label= Signature), 
-                hjust = 0, vjust = 1.5, colour="#2B2B2B", size=3.5) + 
-      
-      # Mutational Type Labels
-      annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) +
-      annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) +
-      annotation_custom(grob = CT,  xmin = 43, xmax = 43, ymin = -0.065, ymax = -0) +
-      annotation_custom(grob = TA,  xmin = 59, xmax = 59, ymin = -0.065, ymax = -0) +
-      annotation_custom(grob = TC,  xmin = 75, xmax = 75, ymin = -0.065, ymax = -0) +
-      annotation_custom(grob = TG,  xmin = 91, xmax = 91, ymin = -0.065, ymax = -0) +
-      ## x axis bar
-      geom_rect(aes(xmin=0, xmax=16.405, ymin=-0.01, ymax=-0.005),
-                fill=group.colors[1], alpha=1) + 
-      geom_rect(aes(xmin=16.595, xmax=32.405, ymin=-0.01, ymax=-0.005),
-                fill=group.colors[2], alpha=0.25) + 
-      geom_rect(aes(xmin=32.595, xmax=48.405, ymin=-0.01, ymax=-0.005),
-                fill=group.colors[3], alpha=0.05) + 
-      geom_rect(aes(xmin=48.595, xmax=64.405, ymin=-0.01, ymax=-0.005),
-                fill=group.colors[4], alpha=0.08) + 
-      geom_rect(aes(xmin=64.595, xmax=80.405, ymin=-0.01, ymax=-0.005),
-                fill=group.colors[5], alpha=0.15) + 
-      geom_rect(aes(xmin=80.595, xmax=96.5, ymin=-0.01, ymax=-0.005),
-                fill=group.colors[6], alpha=0.1)
-   message("Mutational signature plot generation done!")
-   return(pic)
-}
-
 # ## Visualize the mutational signatures of trunk/branches in a phylogenetic tree.
 # doPlotMutSig <- function(tree.mutSig) {
-#     sigsInput <- tree.mutSig$sigsInput
-#     mutSigsOutput <- tree.mutSig$mutSigsOutput
-#     df.aetiology <- tree.mutSig$df.aetiology
+#     
 #     sig.product <- tree.mutSig$sig.product
 #     
-#     ## calculate the Mutation Probability
-#     sigsInputSum <- as.data.frame(apply(sigsInput, 1, function(x) sum(x)))
-#     sigsInputTrans <- as.data.frame(t(sigsInput))
-#     ls.branchesName <- as.character(rownames(sigsInput))
-#     ls.mutationType <-as.character(rownames(sigsInputTrans))
-#     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
-#     sigsInputBranches <- data.frame()
-#     
-#     ## calculation process(maybe could be replaced by lapply)
-#     for (branch in ls.branchesName) {
-#         sigsInputTrans[branch] <- sigsInputTrans[branch]/sigsInputSum[branch, ]
-#         signature <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig)
-#         alias <- as.character(mutSigsOutput[which(mutSigsOutput$branch == branch), ]$alias)
-#         sigsWeight <- mutSigsOutput[which(mutSigsOutput$branch == branch), ]$sig.prob
-#         aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
-#         sigsInputBranch <- data.frame(sigsInputTrans[branch], 
-#                                       rep(branch, length(sigsInputTrans[branch])), 
-#                                       rep(alias, length(sigsInputTrans[branch])), 
-#                                       rep(signature, length(sigsInputTrans[branch])), 
-#                                       rep(sigsWeight, length(sigsInputTrans[branch])), 
-#                                       rep(aetiology , length(sigsInputTrans[branch])), 
-#                                       stringsAsFactors = FALSE)
-#         colnames(sigsInputBranch) <- c("Mutation_Probability", "Branch", "Alias", "Signature", "SigsWeight", "Aetiology")
-#         sigsInputBranches <- rbind(sigsInputBranches, sigsInputBranch)
+#     if(nrow(sig.product) == 0){
+#         return(NA)
 #     }
 #     
-#     df.sigsInputTrans <- data.frame(Mutational_Type=ls.mutationType, 
-#                                     Group=ls.mutationType, 
-#                                     sigsInputBranches, 
-#                                     stringsAsFactors = FALSE)
+#     sig.product$Signature <- as.character(sig.product$Signature)
+#     ls.mutationType <-as.character(sig.product$Group)
+#     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
 #     
 #     ## generate Mutation Type for every column
+#     sig.product$Group <- as.character(sig.product$Group)
 #     for (mutationGroup in ls.mutationGroup) {
-#         df.sigsInputTrans$Group[which(grepl(mutationGroup, df.sigsInputTrans$Group))] <- mutationGroup
+#         sig.product$Group[which(grepl(mutationGroup, sig.product$Group))] <- mutationGroup
 #     }
 #     
 #     ## specific the label order of x axis
 #     orderlist <- c(ls.mutationType)
-#     df.sigsInputTrans <- transform(df.sigsInputTrans, Mutational_Type = factor(Mutational_Type, levels = orderlist))
-#     df.sigsInputTrans <- df.sigsInputTrans[which(df.sigsInputTrans$Signature != "noMapSig"), ]
-#     if(nrow(df.sigsInputTrans) == 0){
+#     sig.product$Type <- factor(ls.mutationType, levels = unique(orderlist) )
+#     sig.product$Group <- factor(sig.product$Group, levels = ls.mutationGroup)
+#     
+#     if(nrow(sig.product) == 0){
 #         warning(paste0("Patient ", tree.mutSig$patientID, ": There is no enough eligible mutations can be used."))
 #         return(NA)
 #     }
-#     df.sigsInputText <- dplyr::distinct(df.sigsInputTrans, Branch, .keep_all = TRUE)
+#     if("Branch" %in% colnames(sig.product)){
+#         sig.product$Alias <- factor(sig.product$Alias, levels = unique(sig.product$Alias))
+#     }
 #     
-#     CA <- grid::textGrob(expression(bold("C > A")),
-#                          gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-#     CG <- grid::textGrob(expression(bold("C > G")),
-#                          gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-#     CT <- grid::textGrob(expression(bold("C > T")),
-#                          gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-#     TA <- grid::textGrob(expression(bold("T > A")),
-#                          gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-#     TC <- grid::textGrob(expression(bold("T > C")),
-#                          gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
-#     TG <- grid::textGrob(expression(bold("T > G")),
-#                          gp=grid::gpar(fontsize=7, fontface="bold"), vjust=0,hjust=1)
+#     # sig.product <- dplyr::distinct(sig.product, Branch, .keep_all = TRUE)
 #     
 #     group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
 #                       "#3C5488FF", "#F39B7FFF", "#8491B4FF")
-#     pic <- ggplot(df.sigsInputTrans, 
-#                   aes(x=Mutational_Type, y=Mutation_Probability, group=Group, fill=Group)
+#     
+#     # set the limit of y axis
+#     yMax <- max(max(sig.product$Mutation_Probability), round(max(sig.product$Mutation_Probability) + 0.1, 1))
+# 
+#     pic <- ggplot(sig.product, 
+#                   aes(x=Type, y=Mutation_Probability, group=Group, fill=Group)
 #     ) + 
-#         geom_bar(stat="identity")+ 
+#         geom_bar(stat="identity") +
 #         theme(panel.grid=element_blank(), 
 #               panel.border=element_blank(), 
 #               panel.background = element_blank(), 
 #               legend.position='none', 
 #               # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
 #               plot.title = element_text(size = 13, face = "bold", hjust = 0.5,vjust = 0),
-#               axis.text.x=element_blank(), 
+#               axis.text.x= element_blank(), 
 #               axis.ticks.x=element_blank(),
 #               axis.line.y = element_blank(),
 #               axis.ticks.length.y = unit(0.2, "cm"),
-#               axis.text.y=element_text(size=6, color = "black")
+#               axis.text.y=element_text(size=6, color = "black"),
+#               strip.background = element_blank(),
+#               strip.text = element_blank(),
 #         ) +
-#         annotate(geom = "segment", x=-1, xend = -1, y = 0, yend = 0.2, size = 0.6)+
+#         annotate(geom = "segment", x=-1, xend = -1, y = 0, 
+#                  yend = yMax, size = 0.6)+
+#         
+#         ## side bar
+#         geom_rect(aes(xmin = 96.5, xmax = 99, ymin = 0, ymax = yMax), fill = "#C0C0C0",alpha = 0.06) +
+#         geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE),
+#                   aes(x=98, y= yMax/2, label = Alias), 
+#                   angle = 270, color = "black", size = 3, fontface = "plain") + 
+#         
+#         
 #         ## background colors
-#         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=Inf),
+#         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=yMax),
 #                   fill="#fce7e4", alpha=0.15) + 
-#         geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=Inf),
+#         geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=yMax),
 #                   fill="#ecf8fa", alpha=0.25) + 
-#         geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax=Inf),
+#         geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax= yMax),
 #                   fill="#dbfff9", alpha=0.05) + 
-#         geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax=Inf),
+#         geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax= yMax),
 #                   fill="#e4e8f3", alpha=0.08) + 
-#         geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax=Inf),
+#         geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax= yMax),
 #                   fill="#fdefeb", alpha=0.15) + 
-#         geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax=Inf),
+#         geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax= yMax),
 #                   fill="#e5e8ef", alpha=0.1) + 
 #         ## barplot
 #         geom_bar(stat="identity") + 
 #         ## combine different results
 #         facet_grid(Alias ~ .) + 
 #         ## color setting
-#         scale_fill_manual(values=group.colors) + 
+#         scale_fill_manual(values=group.colors) +
+#         
 #         ## axis setting
 #         xlab("Mutational type") + 
 #         ylab("Mutation probability") + 
-#         ggtitle(paste0("Mutational signatures of ",tree.mutSig$patientID,"'s phylogenetic tree ") )+
-#         scale_y_continuous(limits=c(-0.03, 0.2), breaks=seq(0, 0.2, 0.1)) + 
+#         # ggtitle(paste0("Mutational signatures of ",tree.mutSig$patientID,"'s phylogenetic tree ") ) +
+#         # scale_x_discrete(breaks = c(10,27,43,59,75,91),
+#         #                  labels = c("C>A","C>G","C>T","T>A","T>C","T>G"))+
+#         scale_y_continuous(limits=c(0, yMax+ 0.03), 
+#                            breaks=seq(0, yMax, 0.1)) +
+#         
 #         ## signature notes and text parts
-#         geom_text(data = df.sigsInputText, 
-#                   aes(x=-Inf, y=Inf, label=paste(Signature, ": ", 
-#                                                  round(as.numeric(levels(SigsWeight)[SigsWeight]), 3), 
-#                                                  "    ", 
-#                                                  "Aetiology: ", Aetiology, sep="")), 
-#                   hjust = -0.02, vjust = 1.5, colour="#2B2B2B", fontface = "bold", size=3) + 
-#         ## Mutational Type Labels
-#         annotation_custom(grob = CA,  xmin = 10, xmax = 10, ymin = -0.065, ymax = -0) + 
-#         annotation_custom(grob = CG,  xmin = 27, xmax = 27, ymin = -0.065, ymax = -0) + 
-#         annotation_custom(grob = CT,  xmin = 43, xmax = 43, ymin = -0.065, ymax = -0) + 
-#         annotation_custom(grob = TA,  xmin = 59, xmax = 59, ymin = -0.065, ymax = -0) + 
-#         annotation_custom(grob = TC,  xmin = 75, xmax = 75, ymin = -0.065, ymax = -0) + 
-#         annotation_custom(grob = TG,  xmin = 91, xmax = 91, ymin = -0.065, ymax = -0) + 
+#         geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE) , 
+#                   aes(x=0, y=yMax, label= Signature), 
+#                   hjust = 0, vjust = 1.5, colour="#2B2B2B", size=3.5) + 
+#         
 #         ## x axis bar
-#         geom_rect(aes(xmin=0, xmax=16.405, ymin=-0.01, ymax=-0.005),
+#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
+#                   aes(xmin=0, xmax=16.5, ymin=yMax, ymax=yMax + 0.03),
 #                   fill=group.colors[1], alpha=1) + 
-#         geom_rect(aes(xmin=16.595, xmax=32.405, ymin=-0.01, ymax=-0.005),
+#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
+#                   aes(xmin=16.5, xmax=32.5, ymin=yMax, ymax=yMax + 0.03),
 #                   fill=group.colors[2], alpha=0.25) + 
-#         geom_rect(aes(xmin=32.595, xmax=48.405, ymin=-0.01, ymax=-0.005),
+#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
+#                   aes(xmin=32.5, xmax=48.5, ymin=yMax, ymax=yMax + 0.03),
 #                   fill=group.colors[3], alpha=0.05) + 
-#         geom_rect(aes(xmin=48.595, xmax=64.405, ymin=-0.01, ymax=-0.005),
+#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
+#                   aes(xmin=48.5, xmax=64.5, ymin=yMax, ymax=yMax + 0.03),
 #                   fill=group.colors[4], alpha=0.08) + 
-#         geom_rect(aes(xmin=64.595, xmax=80.405, ymin=-0.01, ymax=-0.005),
+#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
+#                   aes(xmin=64.5, xmax=80.5, ymin=yMax, ymax=yMax + 0.03),
 #                   fill=group.colors[5], alpha=0.15) + 
-#         geom_rect(aes(xmin=80.595, xmax=96.5, ymin=-0.01, ymax=-0.005),
-#                   fill=group.colors[6], alpha=0.1)
+#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
+#                   aes(xmin=80.5, xmax=96.5, ymin=yMax, ymax=yMax + 0.03),
+#                   fill=group.colors[6], alpha=0.1) +
+#         
+#         # Mutational Type Labels
+#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1] & Group == "C>A")[1,],
+#                   aes(x = 10, y= yMax + 0.02, label = "C>A"),size = 3,hjust = 1) +
+#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1] & Group == "C>G")[1,],
+#                   aes(x = 26, y= yMax + 0.02, label = "C>G"),size = 3,hjust = 1) +
+#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "C>T")[1,],
+#                   aes(x = 42, y= yMax + 0.02, label = "C>T"),size = 3,hjust = 1) +
+#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "T>A")[1,],
+#                   aes(x = 58, y= yMax + 0.02, label = "T>A"),size = 3,hjust = 1) +
+#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "T>C")[1,],
+#                   aes(x = 74, y= yMax + 0.02, label = "T>C"),size = 3,hjust = 1) +
+#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "T>G")[1,],
+#                   aes(x = 90, y= yMax + 0.02, label = "T>G"),size = 3,hjust = 1)
+#     #pic <- pic + annotate(geom = "segment", x=10, xend = 10, y = 0, 
+#     #yend = yMax, size = 2)
+#     #yend = yMax, size = 2)
+#     
 #     message("Mutational signature plot generation done!")
 #     return(pic)
 # }
-# 
