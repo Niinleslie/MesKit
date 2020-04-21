@@ -87,7 +87,7 @@ compareJSI <- function(
             dist.mat <- JSI.dist[[i]]$JSI.pair
             mat.value <- sort(unique(as.numeric(dist.mat))) 
             if(length(mat.value[mat.value!=0 &mat.value !=1]) == 0){
-                message(paste0("Warnings: Can not calculate JSI in ", patient.id[i], "."))
+                message(paste0("Warnings: there is no JSI greater than 0 within sample pairs,can not calculate JSI for ", patient.id[i], "."))
                 JSI.plot[[i]] <- NA
                 next
             }

@@ -74,9 +74,17 @@ doTreePathway <- function(phyloTree = NULL,
       
       if(withinType){
          branch.ref <- mut.ref[mut.ref$Branch_Tumor_Type %in% branchID,]
+         
       }
       else{
          branch.ref <- mut.ref[mut.ref$Branch_ID %in% branchID,]
+      }
+      
+      ids <- unique(branch.ref$mut_id)
+      if(length(ids) == 1){
+          if(ids == "NoSigTag"){
+              next
+          }
       }
       
       #split the gene symbol by ","

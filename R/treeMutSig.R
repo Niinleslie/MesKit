@@ -48,16 +48,8 @@ treeMutSig <- function(phyloTree,
                            tri.counts.method = tri.counts.method,
                            withinType = withinType)
     mutSigSummary <- lapply(treeMSOutput, doMutSigSummary, withinType)
+    cos_sim.mat <- lapply(treeMSOutput,function(x)x$cos_sim.mat)
+    sig.product <- lapply(treeMSOutput,function(x)x$sig.product)
     
-    mutSig.plot <- NA
-    if(plot){
-        mutSig.plot <- lapply(treeMSOutput, doPlotMutSig, withinType)
-        mutSig.plot <- mutSig.plot[!is.na(mutSig.plot)]
-        if(length(mutSig.plot) == 0){
-            mutSig.plot <- NA
-        }
-        return(list(mutSig.summary = mutSigSummary, mutSig.plot = mutSig.plot))
-    }
-    
-    return(list(mutSig.summary = mutSigSummary))
+    return(list(mutSig.summary = mutSigSummary, cos_sim.mat = cos_sim.mat, mutSig.product = sig.product))
 }

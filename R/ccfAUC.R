@@ -47,7 +47,7 @@ ccfAUC <- function(
         stop("Error: min.ccf must be greater than 0")
     }
 
-    mafData <- mafData %>%cf
+    mafData <- mafData %>%
         dplyr::filter(Patient_ID %in% patient.id,
                       CCF > min.ccf,
                       !is.na(CCF))
