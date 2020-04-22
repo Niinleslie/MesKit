@@ -19,8 +19,7 @@ doTreeMutSig <- function(phyloTree,
    
    patientID <- phyloTree@patientID
    branchesName <- names(mutBranches)
-   branchesNameList <- strsplit(branchesName, split='∩')
-   
+
    ## regain the data frame of all branches with Branch_ID
    mutSigRef <- data.frame()
    for (branchName in branchesName){
@@ -38,9 +37,6 @@ doTreeMutSig <- function(phyloTree,
          dplyr::rowwise() %>%
          dplyr::filter(any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% selectedGenes)) %>%
          as.data.frame()
-      branchesNameList <- strsplit(unique(mutSigRef$Branch_ID), split='∩')
-      branchesName <- unique(mutSigRef$Branch_ID)
-      
    }
    
    ## get the mutational signature of the branch 
@@ -52,9 +48,8 @@ doTreeMutSig <- function(phyloTree,
    ## count 96 substitution typs in each branches
    sigsInput <- countTriplet(mutSigRef = mutSigRef,
                              withinType = withinType,
-                             refBuild = refBuild)
-   
-   branchesName <- rownames(sigsInput)
+                             refBuild = refBuild,
+                             patientID = patientID)
    
    if(MTB){
       if(withinType){
@@ -72,25 +67,32 @@ doTreeMutSig <- function(phyloTree,
 
    signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
    if (signaturesRef == "cosmic_v2") {
-       sigsRef <- deconstructSigs::signatures.cosmic
+       sigsRef <- readRDS(file = system.file("extdata", "signatures.cosmic.rds", package = "MesKit"))
        df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
                                   sig = rownames(signatures.aetiology$cosmic_v2))
    } else if (signaturesRef == "nature2013") {
-      sigsRef <- deconstructSigs::signatures.nature2013
+      sigsRef <- sigsRef <- readRDS(file = system.file("extdata", "signatures.nature2013.rds", package = "MesKit"))
       df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
                                  sig = rownames(signatures.aetiology$nature2013))
    }else if(signaturesRef == "genome_cosmic_v3"){
-       sigsRef <- deconstructSigs::signatures.genome.cosmic.v3.may2019
+       sigsRef <- readRDS(file = system.file("extdata", "signatures.genome.cosmic.v3.may2019", package = "MesKit"))
        df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
                                   sig = rownames(signatures.aetiology$cosmic_v3))
    }else if(signaturesRef == "exome_cosmic_v3"){
-       sigsRef <- deconstructSigs::signatures.exome.cosmic.v3.may2019
+       sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019", package = "MesKit"))
        df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
                                   sig = rownames(signatures.aetiology$cosmic_v3))
    }
    
    ## cal cos sim signature and branch 
-   cos_sim.mat <- calSim(sigsInput = sigsInput, sigsRef = sigsRef)
+   cos_sim.mat <- calSim(sigsInput = sigsInput[which(rowSums(sigsInput)!=0),], sigsRef = sigsRef)
+   
+   if(withinType){
+      branchesName <- unique(mutSigRef$Branch_Tumor_Type) 
+   }
+   else{
+       branchesName <- unique(mutSigRef$Branch_ID) 
+   }
    
    signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
    for (branchCounter in length(branchesName):1){
@@ -195,15 +197,15 @@ doTreeMutSig <- function(phyloTree,
       ## collect branches' mutataional signature information
       mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
    }
-   
-   if(withinType){
-       sig.product$alias <- sig.product$Branch
-   }
-
    mutSigsOutput$sig.prob <- as.numeric(as.vector(mutSigsOutput$sig.prob))
-
+   
    ## calculation process(maybe could be replaced by lapply)
    if(nrow(sig.product) > 0){
+       
+       if(withinType){
+           sig.product$alias <- sig.product$Branch
+       }
+       
        if(withinType){
            all.types <- unique(sig.product$alias) 
            public <- all.types[grep("Public", all.types)] 
@@ -213,13 +215,12 @@ doTreeMutSig <- function(phyloTree,
            sig.product$alias <- factor(sig.product$alias, levels = type.level)
            sig.product$Patient_ID <- patientID
            colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability","Signature","Alias","Patient_ID")
+           rownames(sig.product) <- 1:nrow(sig.product)
        }else{
            sig.product$Patient_ID <- patientID
            colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability", "Alias", "Signature","Patient_ID")
        }
    }
-   
-   rownames(sig.product) <- 1:nrow(sig.product)
    
    cos_sim.mat <- as.matrix(cos_sim.mat)
    if(withinType){
@@ -243,9 +244,13 @@ doTreeMutSig <- function(phyloTree,
    return(treeMSOutput)
 }
 
-countTriplet <- function(mutSigRef, withinType, refBuild){
+countTriplet <- function(mutSigRef, withinType, refBuild, patientID){
     
     mutSigRef <- mutSigRef[mutSigRef$mut_id!="NoSigTag",]
+    
+    if(nrow(mutSigRef) == 0){
+        stop("Error: There are not enough mutations in ",patientID)
+    }
     
     bases <- c("A","C","G","T")
     types <- c("C>A","C>G","C>T","T>A","T>C","T>G")

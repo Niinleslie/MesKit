@@ -25,7 +25,7 @@
 #' plotPhyloTree(phyloTree, heatmap.type = 'CCF')
 #
 #' @return return a list of phylotree graph .
-#' @import reshape2 ape ggplot2 deconstructSigs ggrepel
+#' @import reshape2 ape ggplot2 ggrepel
 #' @export plotPhyloTree
 #' 
 
