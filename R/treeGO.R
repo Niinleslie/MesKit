@@ -19,8 +19,6 @@
 #' @examples 
 #' treeGO(phyloTree, GO.type = "BP")
 #' @return GO enrichment results
-#' @import clusterProfiler pdp
-#' @export treeGO
 
 treeGO <- function(phyloTree,
                    geneList = NULL,

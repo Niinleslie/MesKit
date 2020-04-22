@@ -16,9 +16,6 @@
 #' @examples
 #' treePathway(phyloTree, pathway.type = "KEGG")
 #' @return pathway enrichment results
-#' @importFrom ReactomePA enrichPathway
-#' @importFrom clusterProfiler enrichKEGG
-#' @export treePathway
 
 #Pathway analysis
 treePathway <- function(phyloTree, geneList = NULL, pathway.type="KEGG", pval=0.05, pAdjustMethod="BH",

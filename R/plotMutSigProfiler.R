@@ -14,6 +14,7 @@ plotMutSigProfiler <- function(tree.mutSig, patient.id = NULL){
    
    products <- tree.mutSig$mutSig.product
    
+   
    if(!is.null(patient.id)){
       patient.setdiff <- setdiff(patient.id, names(products))
       if(length(patient.setdiff) > 0){
@@ -25,6 +26,10 @@ plotMutSigProfiler <- function(tree.mutSig, patient.id = NULL){
    
    plot.list <- lapply(products,function(x){
       sig.product <- x
+      
+      if(nrow(x) == 0){
+          return(NA)
+      }
       patientID <- unique(sig.product$Patient_ID)
       
       if(nrow(sig.product) == 0){
@@ -164,6 +169,14 @@ plotMutSigProfiler <- function(tree.mutSig, patient.id = NULL){
       return(pic)
    })
    
-   
+   for(i in 1:length(plot.list)){
+       if(!class(plot.list[[i]])[1] == "gg"){
+           message("Warning: No signature found in ", names(plot.list)[i])
+       }
+   }
+   plot.list <- plot.list[!is.na(plot.list)]
+   if(length(plot.list) == 0){
+       return(NA)
+   }
    return(plot.list)
 }

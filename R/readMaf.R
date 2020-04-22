@@ -180,7 +180,7 @@ readMaf <- function(## maf parameters
     
     ## read ccf files
     if (!is.null(ccfFile)) {
-        ccfInput <- suppressWarnings(read.table(
+        ccf <- suppressWarnings(read.table(
             ccfFile,
             quote = "",
             header = TRUE,
@@ -190,17 +190,16 @@ readMaf <- function(## maf parameters
         ))
         
         ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
-        if(!all(ccf.standardCol %in% colnames(ccfInput))){
+        if(!all(ccf.standardCol %in% colnames(ccf))){
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
 
-        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level, sample.info, adjusted.VAF, min.average.adj.vaf)
+        mafData <- uniteCCF(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF, min.average.adj.vaf)
         
             #getMutStatus() %>%
             #dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
     }
-    
     ## generate classMaf
     maf <- classMaf(
         data = data.table::setDT(mafData),
@@ -286,7 +285,9 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
                 "Patient_ID",
                 "Tumor_Type",
                 "Chromosome",
-                "Start_Position"
+                "Start_Position",
+                "Reference_Allele",
+                "Tumor_Seq_Allele2"
             ),
             sep = ":",
             remove = FALSE
@@ -298,7 +299,9 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
                     "Tumor_Sample_Barcode",
                     "Tumor_Type",
                     "Chromosome",
-                    "Start_Position"
+                    "Start_Position",
+                    "Reference_Allele",
+                    "Tumor_Seq_Allele2"
                 ),
                 sep = ":",
                 remove = FALSE
@@ -348,10 +351,12 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
         mafData_merge_ccf <- mafData_merge_ccf %>%
             dplyr::select(-Clonal_Status) %>% 
             merge(t2, by = "mutID_2")%>%
-            dplyr::select(-mutID, -CCF_CI_High, -mutID_1, -mutID_2) 
+            dplyr::select(-mutID, -CCF_CI_High, -mutID_1, -mutID_2) %>% 
+            ## remove duplication cause by merge
+            dplyr::distinct()
 
     }
-    
+
     
     return(mafData_merge_ccf)
 }
