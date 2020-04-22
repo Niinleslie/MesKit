@@ -28,18 +28,22 @@ mutHeatmap <- function(maf,
                         show.gene = FALSE,
                         show.geneList = TRUE,
                         patient.id = NULL,
-                       mut.threshold = 150){
+                       mut.threshold = 50){
     mafData <- maf@data
     mafData$Patient_ID <- as.character(mafData$Patient_ID)
     
+
+    
     ## select the specificed patient
     if(!is.null(patient.id)){
-        patient.setdiff <- setdiff(patient.id, names(phyloTree))
+        patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
         if(length(patient.setdiff) > 0){
             stop(paste0(patient.setdiff, " can not be found in your data"))
         }
         mafData <- mafData[Patient_ID %in% patient.id,]
     }
+    
+    
     
     ## split data by patients
     dat.list <- split(mafData, mafData$Patient_ID)

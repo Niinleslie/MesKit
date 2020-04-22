@@ -136,24 +136,26 @@ readMaf <- function(## maf parameters
     ## calculate type average vaf
     mafData <- mafData %>% 
         tidyr::unite(
-            "mutID_1",
+            "Mut_ID",
             c(
                 "Patient_ID",
                 "Tumor_Type",
                 "Chromosome",
-                "Start_Position"
+                "Start_Position",
+                "Reference_Allele",
+                "Tumor_Seq_Allele2"
             ),
             sep = ":",
             remove = FALSE
         ) %>% 
-        dplyr::group_by(Patient_ID,mutID_1) %>% 
+        dplyr::group_by(Patient_ID,Mut_ID) %>% 
         dplyr::mutate(Type_Average_VAF = round(sum(VAF * Ref_allele_depth)/sum(Ref_allele_depth),3)) %>% 
         dplyr::filter(Type_Average_VAF > min.average.vaf)
     
     if(adjusted.VAF){
         mafData <- mafData %>% 
             dplyr::mutate(VAF_adj = VAF) %>% 
-            dplyr::group_by(Patient_ID,mutID_1) %>% 
+            dplyr::group_by(Patient_ID,Mut_ID) %>% 
             dplyr::mutate(Type_Average_VAF_adj = round(sum(VAF_adj * Ref_allele_depth)/sum(Ref_allele_depth),3)) %>% 
             dplyr::filter(Type_Average_VAF_adj > min.average.adj.vaf)
     } 
@@ -219,7 +221,7 @@ readMaf <- function(## maf parameters
 uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  min.average.adj.vaf) {
     mafData <- tidyr::unite(
         mafData,
-        "mutID",
+        "mutID_1",
         c(
             "Patient_ID",
             "Tumor_Sample_Barcode",
@@ -231,7 +233,7 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
     )
     ccf <- ccf %>%
         tidyr::unite(
-            "mutID",
+            "mutID_1",
             c(
                 "Patient_ID",
                 "Tumor_Sample_Barcode",
@@ -243,7 +245,7 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
         ) 
     
     mafData_merge_ccf <-  
-        merge(mafData, ccf, by = "mutID", all.x = TRUE) %>% 
+        merge(mafData, ccf, by = "mutID_1", all.x = TRUE) %>% 
         dplyr::mutate(
             CCF = dplyr::if_else(
                 VAF == 0,
@@ -261,7 +263,7 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
     if (!"CCF_CI_High" %in% colnames(ccf) & !"CCF_Std" %in% colnames(ccf)){
         mafData_merge_ccf <-
             mafData_merge_ccf %>%
-            dplyr::select(-mutID)
+            dplyr::select(-mutID_1)
     }else{
         if("CCF_CI_High" %in% colnames(ccf)){
             mafData_merge_ccf <- mafData_merge_ccf
@@ -280,7 +282,7 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
         ## classify clonal status by tumor type
         mafData_merge_ccf <- tidyr::unite(
             mafData_merge_ccf,
-            "mutID_1",
+            "mutID_2",
             c(
                 "Patient_ID",
                 "Tumor_Type",
@@ -293,7 +295,7 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
             remove = FALSE
         )%>%
             tidyr::unite(
-                "mutID_2",
+                "mutID_3",
                 c(
                     "Patient_ID",
                     "Tumor_Sample_Barcode",
@@ -309,8 +311,8 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
         ## if any region CCFm < 0.5
         t1 <- mafData_merge_ccf %>%
             dplyr::filter(!is.na(CCF)) %>%
-            dplyr::select(mutID_1,Tumor_Sample_Barcode, CCF) %>% 
-            dplyr::group_by(mutID_1) %>%
+            dplyr::select(mutID_2,Tumor_Sample_Barcode, CCF) %>% 
+            dplyr::group_by(mutID_2) %>%
             dplyr::summarise(condition2 = dplyr::if_else(
                 any(CCF< 0.5)  |length(CCF) == 1,
                 "yes",
@@ -321,19 +323,19 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
         
         t2 <- mafData_merge_ccf %>%
             # dplyr::filter(!is.na(CCF)) %>%
-            dplyr::select(mutID_1, mutID_2, Clonal_Status) %>%
-            merge(t1, by = "mutID_1", all = T) %>% 
+            dplyr::select(mutID_2, mutID_3, Clonal_Status) %>%
+            merge(t1, by = "mutID_2", all = T) %>% 
             dplyr::mutate(Clonal_Status_2 = dplyr::if_else(
                 Clonal_Status ==  "Subclonal" & condition2 == "yes",
                 "Subclonal",
                 "Clonal"
             )) %>% 
-            dplyr::select(mutID_2, Clonal_Status_2) %>%
+            dplyr::select(mutID_3, Clonal_Status_2) %>%
             dplyr::rename(Clonal_Status = Clonal_Status_2)
         
         ## calculation Type_Average_CCF and Type_Average_VAF
         mafData_merge_ccf <- mafData_merge_ccf %>% 
-            dplyr::group_by(Patient_ID,mutID_1) %>% 
+            dplyr::group_by(Patient_ID,mutID_2) %>% 
             dplyr::mutate(Type_Average_CCF = round(sum(CCF * Ref_allele_depth)/sum(Ref_allele_depth),3))
         
         if(!adjusted.VAF){
@@ -350,10 +352,12 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
         ## merge clonal status
         mafData_merge_ccf <- mafData_merge_ccf %>%
             dplyr::select(-Clonal_Status) %>% 
-            merge(t2, by = "mutID_2")%>%
-            dplyr::select(-mutID, -CCF_CI_High, -mutID_1, -mutID_2) %>% 
+            merge(t2, by = "mutID_3")%>%
+            dplyr::select(-mutID_1, -CCF_CI_High, -mutID_2, -mutID_3) %>% 
             ## remove duplication cause by merge
             dplyr::distinct()
+            
+            
 
     }
 
