@@ -75,11 +75,11 @@ doTreeMutSig <- function(phyloTree,
       df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
                                  sig = rownames(signatures.aetiology$nature2013))
    }else if(signaturesRef == "genome_cosmic_v3"){
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.genome.cosmic.v3.may2019", package = "MesKit"))
+       sigsRef <- readRDS(file = system.file("extdata", "signatures.genome.cosmic.v3.may2019.rds", package = "MesKit"))
        df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
                                   sig = rownames(signatures.aetiology$cosmic_v3))
    }else if(signaturesRef == "exome_cosmic_v3"){
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019", package = "MesKit"))
+       sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019.rds", package = "MesKit"))
        df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
                                   sig = rownames(signatures.aetiology$cosmic_v3))
    }

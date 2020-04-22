@@ -190,17 +190,16 @@ readMaf <- function(## maf parameters
         ))
         
         ccf.standardCol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
-        if(!all(ccf.standardCol %in% colnames(ccfInput))){
+        if(!all(ccf.standardCol %in% colnames(ccf))){
             stop("CCF file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and CCF")
         }
         
 
-        mafData <- uniteCCF(mafData, ccfInput, ccf.conf.level, sample.info, adjusted.VAF, min.average.adj.vaf)
+        mafData <- uniteCCF(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF, min.average.adj.vaf)
         
             #getMutStatus() %>%
             #dplyr::mutate(VAF_adj = CCF/2) ## calculate adjusted VAF based on CCF
     }
-    print(as.data.table(mafData)[Hugo_Symbol == "ECM1"&Patient_ID == "V953",])
     ## generate classMaf
     maf <- classMaf(
         data = data.table::setDT(mafData),
