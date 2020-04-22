@@ -12,6 +12,7 @@
 #' @return a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
 #' 
 #' @importFrom pracma lsqnonneg
+#' @importFrom Biostrings getSeq
 #' @examples
 #' treeMutSig(phyloTree, geneList=NULL, min.mut.count=15, signaturesRef="cosmic")
 #' treeMutSig(phyloTree, plot = T)
