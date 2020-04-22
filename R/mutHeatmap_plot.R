@@ -17,14 +17,19 @@ plotHeatmap <- function(binary.mat,
                         plot.geneList = FALSE,
                         show.gene = FALSE,
                         show.geneList = TRUE,
-                        mut.threshold = 150){
+                        mut.threshold = 50){
    mut_sort <- binary.mat
    ccf_sort <- ccf.mat
+   
+   if(all(is.na(ccf_sort)) & use.ccf){
+       stop(paste0("Error :Heatmap requires CCF data when use.ccf is True"))
+   }
+   
    ## delete "NORMAL" 
    if(!1 %in% mut_sort[,"NORMAL"]){
       mut_sort <- mut_sort[,which(colnames(mut_sort)!= "NORMAL")]
-      if(all(is.na(ccf_sort))){
-         ccf_sort <- ccf_sort[,which(colnames(mut_sort)!= "NORMAL")]
+      if(use.ccf){
+         ccf_sort <- ccf_sort[,which(colnames(ccf_sort)!= "NORMAL")]
       }
    }
    
@@ -33,9 +38,6 @@ plotHeatmap <- function(binary.mat,
    if(use.ccf){
       type <- "CCF"
       mat <- ccf_sort
-      if(all(is.na(ccf_sort))){
-         stop("No ccf data was found when readMaf")
-      }
    }
    shared.num <- ncol(mut_sort)
    mutation.classes <- apply(mut_sort,1,function(x,shared.num){
@@ -57,7 +59,11 @@ plotHeatmap <- function(binary.mat,
    
    ## Do not the row name if the number of mutations is greater than mut.threshold
    mut.num <- nrow(mut_dat)/length(unique(mut_dat$sample))
+   
+   if(show.gene == TRUE|(!is.null(geneList) & show.geneList == TRUE))
    if(mut.num >= mut.threshold){
+       message("Warning: the number of mutations is ", mut.num,
+               " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
       show.gene = FALSE
       show.geneList = FALSE 
    }
@@ -161,8 +167,8 @@ plotHeatmap <- function(binary.mat,
                                                 hjust = 0))
    }else if(!is.null(geneList)){
       if(plot.geneList & show.geneList){
-         y.breaks <- mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2
-         y.labels <- mut_dat$Gene
+         y.breaks <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
+         y.labels <- unique(mut_dat$Gene)
          p <- p + 
             scale_y_continuous(breaks = y.breaks,
                                labels = y.labels,
@@ -175,8 +181,8 @@ plotHeatmap <- function(binary.mat,
       }
       else if(!plot.geneList & show.geneList){
          gene.pos <- unique(which(mut_dat$Gene != "nogene")) 
-         y.breaks <- (mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)[gene.pos]
-         y.labels <- mut_dat$Gene[gene.pos]
+         y.breaks <- unique((mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)[gene.pos])
+         y.labels <- unique(mut_dat$Gene[gene.pos]) 
          p <- p + 
             scale_y_continuous(breaks = y.breaks,
                                labels = y.labels,

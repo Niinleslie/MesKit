@@ -10,10 +10,11 @@ Description: A tool kit for dissecting cancer evolution from multi-region derive
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
+Depends: R (>= 3.5.0)
 Imports: ape, plotrix, dplyr, Hmisc, ggrepel, tidyr (>= 1.0.0),
-        ggridges, ggsci, cowplot, deconstructSigs (>= 1.9.0),
-        packcircles, clusterProfiler, ReactomePA, htmlwidgets, 
-        pdp, mclust, phangorn, ComplexHeatmap (>= 1.9.3)
+        ggridges, ggsci, cowplot,
+        packcircles, htmlwidgets, 
+        mclust, phangorn, ComplexHeatmap (>= 1.9.3)
 Remotes: raerose01/deconstructSigs 
 RoxygenNote: 7.1.0
 Suggests: Shiny, plolty, knitr, rmarkdown

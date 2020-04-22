@@ -7,11 +7,12 @@
 #' @param geneList list of genes to restrict the analysis. Default NULL.
 #' @param min.mut.count the threshold for the variants in a branch. Default 15.
 #' @param signaturesRef The parameter used for deconstructSig. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".
-#' @param tri.counts.method The parameter used for deconstructSig.
 #' @param plot output a list of diagrams that visualize mutational signature of trunk/branches in a phylogenetic tree.Default FALSE. 
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @return a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
 #' 
+#' @importFrom pracma lsqnonneg
+#' @importFrom Biostrings getSeq
 #' @examples
 #' treeMutSig(phyloTree, geneList=NULL, min.mut.count=15, signaturesRef="cosmic")
 #' treeMutSig(phyloTree, plot = T)
@@ -23,7 +24,6 @@ treeMutSig <- function(phyloTree,
                        geneList=NULL,
                        min.mut.count=15,
                        signaturesRef="cosmic_v2",
-                       tri.counts.method = "default",
                        withinType = FALSE,
                        plot = TRUE,
                        patient.id = NULL){
@@ -48,16 +48,8 @@ treeMutSig <- function(phyloTree,
                            tri.counts.method = tri.counts.method,
                            withinType = withinType)
     mutSigSummary <- lapply(treeMSOutput, doMutSigSummary, withinType)
+    cos_sim.mat <- lapply(treeMSOutput,function(x)x$cos_sim.mat)
+    sig.product <- lapply(treeMSOutput,function(x)x$sig.product)
     
-    mutSig.plot <- NA
-    if(plot){
-        mutSig.plot <- lapply(treeMSOutput, doPlotMutSig, withinType)
-        mutSig.plot <- mutSig.plot[!is.na(mutSig.plot)]
-        if(length(mutSig.plot) == 0){
-            mutSig.plot <- NA
-        }
-        return(list(mutSig.summary = mutSigSummary, mutSig.plot = mutSig.plot))
-    }
-    
-    return(list(mutSig.summary = mutSigSummary))
+    return(list(mutSig.summary = mutSigSummary, cos_sim.mat = cos_sim.mat, mutSig.product = sig.product))
 }

@@ -9,7 +9,6 @@ treeMutSig(
   geneList = NULL,
   min.mut.count = 15,
   signaturesRef = "cosmic_v2",
-  tri.counts.method = "default",
   withinType = FALSE,
   plot = TRUE,
   patient.id = NULL
@@ -23,8 +22,6 @@ treeMutSig(
 \item{min.mut.count}{the threshold for the variants in a branch. Default 15.}
 
 \item{signaturesRef}{The parameter used for deconstructSig. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".}
-
-\item{tri.counts.method}{The parameter used for deconstructSig.}
 
 \item{plot}{output a list of diagrams that visualize mutational signature of trunk/branches in a phylogenetic tree.Default FALSE.}
 

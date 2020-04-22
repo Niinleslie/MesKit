@@ -13,7 +13,7 @@ mutHeatmap(
   show.gene = FALSE,
   show.geneList = TRUE,
   patient.id = NULL,
-  mut.threshold = 150
+  mut.threshold = 50
 )
 }
 \arguments{

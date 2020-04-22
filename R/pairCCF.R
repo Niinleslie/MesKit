@@ -11,24 +11,31 @@ ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density =
       }
       
       ## get average CCF
-      mafData <- tidyr::unite(
-         mafData,
-         "mutID",
-         c(
-            "Patient_ID",
-            "Tumor_Type",
-            "Chromosome",
-            "Start_Position"
-         ),
-         sep = ":",
-         remove = FALSE
-      ) %>%
-         dplyr::mutate(totalDepth = Alt_allele_depth + Ref_allele_depth) %>% 
-         dplyr::filter(!is.na(CCF),!is.na(totalDepth)) %>%
-         dplyr::group_by(mutID) %>% 
-         dplyr::mutate(CCF = round(sum(CCF * Alt_allele_depth)/sum(Alt_allele_depth),3)) %>%
-         dplyr::ungroup() %>% 
-         data.table::as.data.table()
+      mafData <- mafData %>% 
+         dplyr::mutate(CCF = Type_Average_CCF) %>% 
+          dplyr::filter(!is.na(CCF))
+      
+      
+      # mafData <- tidyr::unite(
+      #    mafData,
+      #    "mutID",
+      #    c(
+      #       "Patient_ID",
+      #       "Tumor_Type",
+      #       "Chromosome",
+      #       "Start_Position",
+      #       "Reference_Allele",
+      #       "Tumor_Seq_Allele2"
+      #    ),
+      #    sep = ":",
+      #    remove = FALSE
+      # ) %>%
+      #    dplyr::mutate(totalDepth = Alt_allele_depth + Ref_allele_depth) %>% 
+      #    dplyr::filter(!is.na(CCF),!is.na(totalDepth)) %>%
+      #    dplyr::group_by(mutID) %>% 
+      #    dplyr::mutate(CCF = round(sum(CCF * Alt_allele_depth)/sum(Alt_allele_depth),3)) %>%
+      #    dplyr::ungroup() %>% 
+      #    data.table::as.data.table()
       
       pairs <- combn(length(types), 2, simplify = FALSE)  
    }
