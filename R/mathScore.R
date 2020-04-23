@@ -13,7 +13,7 @@
 ## MATH Score main function
 mathScore <- function(maf, patient.id = NULL, min.vaf=0.02,
                       # plot = TRUE,
-                      withinType = FALSE, use.adjVAF = TRUE){
+                      withinType = FALSE, use.adjVAF = FALSE){
 
     ## MATH Caculation
     calMATH <- function(VAF){
@@ -53,21 +53,29 @@ mathScore <- function(maf, patient.id = NULL, min.vaf=0.02,
     
     ## get vaf-related infomation
     if(withinType){
+        
+        if(! "CCF" %in% colnames(mafData)){
+            stop(paste0("Calculation of mathscore requires CCF data when withinType is TRUE." ,
+                        "No CCF data was found when generate Maf object with readMaf function"))
+        }
+        
         MATH.df <- mafData %>%
             dplyr::filter(Patient_ID %in% patient.id,
                           Clonal_Status == "Subclonal") %>%
-            tidyr::unite("mutID",
+            tidyr::unite("Mut_ID",
                          c("Patient_ID",
                            "Tumor_Type",
                            "Chromosome",
-                           "Start_Position"
+                           "Start_Position",
+                           "Reference_Allele",
+                           "Tumor_Seq_Allele2"
                 ),
                 sep = ":",
                 remove = FALSE
             ) %>% 
             dplyr::filter(Type_Average_VAF > min.vaf) %>%
             dplyr::group_by(Patient_ID, Tumor_Type) %>%
-            dplyr::distinct(mutID,.keep_all = TRUE) %>% 
+            # dplyr::distinct(Mut_ID,.keep_all = TRUE) %>% 
             dplyr::summarise(MATH_Score = calMATH(Type_Average_VAF)) %>%
             dplyr::ungroup() %>%
             dplyr::mutate(Patient_ID = as.factor(Patient_ID)) %>%

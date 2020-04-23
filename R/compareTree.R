@@ -101,7 +101,7 @@ compareTree <- function(tree1,
 	                                p2,
 	                                labels = c(tree1@method,tree2@method))
 	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(tree1@method,tree2@method))
-	    return(ptree)
+	    return(list(compare.dist = dist, compare.plot = ptree))
 	}
     
 	return(dist)

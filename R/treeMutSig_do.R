@@ -4,7 +4,8 @@ doTreeMutSig <- function(phyloTree,
                          signaturesRef="cosmic_v2",
                          tri.counts.method = "default",
                          withinType = FALSE,
-                         MTB = FALSE){
+                         MTB = FALSE,
+                         use.shiny = FALSE){
    
    refBuild <- phyloTree@refBuild
    ref.options = c('hg18', 'hg19', 'hg38')
@@ -14,11 +15,17 @@ doTreeMutSig <- function(phyloTree,
       refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
    }
    
+   
    ## get branches information from phyloTree object
    mutBranches <- phyloTree@mut.branches
    
    patientID <- phyloTree@patientID
    branchesName <- names(mutBranches)
+
+   if(use.shiny){
+       incProgress(amount=1)
+       setProgress(message = paste('Generating ', "mutation signatures - ", patientID, sep=""))
+   }
 
    ## regain the data frame of all branches with Branch_ID
    mutSigRef <- data.frame()

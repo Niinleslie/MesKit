@@ -24,14 +24,18 @@ plotCNA <- function(seg, refBuild = "hg19",
                     show.GISTIC.gene = FALSE,
                     patient.id = NULL){
     
-    ## sort sample name 
-    seg$Tumor_Sample_Barcode <- factor(seg$Tumor_Sample_Barcode,levels = sort(unique(seg$Tumor_Sample_Barcode)))
-    
-    if(is.null(patient.id)){
+    if(is.null(patient.id)|length(patient.id) > 1){
+        if(length(patient.id) > 1){
+            patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
+            if(length(patient.setdiff) > 0){
+                stop(paste0(patient.setdiff, " can not be found in your data"))
+            }
+            seg <- seg[Patient_ID %in% patient.id]
+        }
         seg$patient <- seg$Patient_ID
         seg <- dplyr::select(seg, -Patient_ID)
         seg$Patient_ID <- "ALL"
-    }else{
+    }else if(length(patient.id) == 1){
         patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
         if(length(patient.setdiff) > 0){
             stop(paste0(patient.setdiff, " can not be found in your data"))
@@ -78,6 +82,7 @@ plotCNA <- function(seg, refBuild = "hg19",
     patients <- as.character(unique(seg$Patient_ID))
     dat.list <- split(seg, seg$Patient_ID)
     CNAplot.list <- list()
+    
     for(patient in patients){
         patient.seg <- dat.list[[patient]]
         updateStart <- apply(patient.seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
@@ -87,10 +92,19 @@ plotCNA <- function(seg, refBuild = "hg19",
         patient.seg[,hmin := 0]
         patient.seg[,hmax := 0]
         h <- chrom.bar.height
-        if("patient" %in% colnames(patient.seg)&
-           length(unique(patient.seg$patient)) > 1){
+        
+        if("patient" %in% colnames(patient.seg)& length(unique(patient.seg$patient)) > 1){
+            
+            ## sort sampleid 
+            patient.seg <- patient.seg %>% 
+                dplyr::arrange(patient,
+                               plyr::desc(Tumor_Sample_Barcode),
+                               Chromosome,
+                               Start_Position) %>%
+                as.data.table()
+            
             patient.seg[,Sample_ID := paste(patient,Tumor_Sample_Barcode,sep = "&")]
-            sampleids <- sort(unique(patient.seg$Sample_ID))
+            sampleids <- unique(patient.seg$Sample_ID)
             patient.rect.hmin <- c(h)
             patient.rect.hmax <- c()
             patient1 <- unique(patient.seg[Sample_ID == sampleids[1],]$patient)
@@ -113,6 +127,13 @@ plotCNA <- function(seg, refBuild = "hg19",
             patient.seg$patient <- factor(patient.seg$patient,levels = as.character(unique(patient.seg$patient)))
             
         }else{
+            ## sort sampleid 
+            patient.seg <- patient.seg %>% 
+                dplyr::arrange(Patient_ID,
+                               Tumor_Sample_Barcode,
+                               Chromosome,
+                               Start_Position) %>%
+                as.data.table()
             patient.seg[,Sample_ID := paste(Patient_ID,Tumor_Sample_Barcode,sep = "&")]
             sampleids <- sort(unique(patient.seg$Sample_ID))
             for(sampleid in sampleids){
@@ -162,6 +183,7 @@ plotCNA <- function(seg, refBuild = "hg19",
             names(patient.colors) <- patient.rect.table$patient
             allScales <- append(allScales,patient.colors)
         }
+            
         p <- ggplot()+
             geom_rect(data = chrTable,
                 mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),

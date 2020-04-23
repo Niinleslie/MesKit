@@ -7,7 +7,6 @@
 #' @param geneList list of genes to restrict the analysis. Default NULL.
 #' @param min.mut.count the threshold for the variants in a branch. Default 15.
 #' @param signaturesRef The parameter used for deconstructSig. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".
-#' @param plot output a list of diagrams that visualize mutational signature of trunk/branches in a phylogenetic tree.Default FALSE. 
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @return a list of data frames, each one contains treeMSOutput, containing information about each set/branch's mutational signature.
 #' 
@@ -25,8 +24,8 @@ treeMutSig <- function(phyloTree,
                        min.mut.count=15,
                        signaturesRef="cosmic_v2",
                        withinType = FALSE,
-                       plot = TRUE,
-                       patient.id = NULL){
+                       patient.id = NULL,
+                       use.shiny = FALSE){
     
     signaturesRef.options <- c("cosmic_v2","nature2013","genome_cosmic_v3","exome_cosmic_v3")
     if(!signaturesRef %in% signaturesRef.options){
@@ -40,13 +39,13 @@ treeMutSig <- function(phyloTree,
         }
         phyloTree <- phyloTree[names(phyloTree)  %in% patient.id] 
     }
-    
     treeMSOutput <- lapply(phyloTree, doTreeMutSig,
                            geneList = geneList,
                            min.mut.count = min.mut.count,
                            signaturesRef = signaturesRef,
                            tri.counts.method = tri.counts.method,
-                           withinType = withinType)
+                           withinType = withinType,
+                           use.shiny = use.shiny)
     mutSigSummary <- lapply(treeMSOutput, doMutSigSummary, withinType)
     cos_sim.mat <- lapply(treeMSOutput,function(x)x$cos_sim.mat)
     sig.product <- lapply(treeMSOutput,function(x)x$sig.product)

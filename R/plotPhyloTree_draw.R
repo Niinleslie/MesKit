@@ -674,38 +674,38 @@ drawPhyloTree <- function(phyloTree = NULL,
       scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5))
    
    ## label Sample ID
-   if(samplesLength > 7){
-      p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
-                             y = y2 + sin(angle)*textAdjust/10,
-                             label = sample,
-                             angle = angle*180/pi),
-                         hjust = 0,
-                         fontface = "bold",
-                         data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 > 0 & y2 !=max(treeData$y2), ],
-                         size = sampleTextSize)
-      p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
-                             y = y2 + sin(angle)*textAdjust/10,
-                             label = sample,
-                             angle = angle*180/pi + 180),
-                         hjust = 1,
-                         fontface = "bold",
-                         data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 < 0& y2 !=max(treeData$y2), ],
-                         size = sampleTextSize)
-      ## label NORMAL
-      p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
-                         label = rootLabel,
-                         data = treeData[sample == rootLabel,], 
-                         size = sampleTextSize)
-      ## lable sample on the top
-      if(nrow(treeData[which.max(treeData$y2), ]) > 0){
-         p <- p + geom_text(aes(x = x2,
-                                y = y2 + textAdjust/5,
-                                label = sample),
-                            data = treeData[which.max(treeData$y2), ],
-                            size = sampleTextSize)
-      } 
-   }
-   else{
+   # if(samplesLength > 10000){
+   #    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
+   #                           y = y2 + sin(angle)*textAdjust/10,
+   #                           label = sample,
+   #                           angle = angle*180/pi),
+   #                       hjust = 0,
+   #                       fontface = "bold",
+   #                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 > 0 & y2 !=max(treeData$y2), ],
+   #                       size = sampleTextSize)
+   #    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
+   #                           y = y2 + sin(angle)*textAdjust/10,
+   #                           label = sample,
+   #                           angle = angle*180/pi + 180),
+   #                       hjust = 1,
+   #                       fontface = "bold",
+   #                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 < 0& y2 !=max(treeData$y2), ],
+   #                       size = sampleTextSize)
+   #    ## label NORMAL
+   #    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+   #                       label = rootLabel,
+   #                       data = treeData[sample == rootLabel,], 
+   #                       size = sampleTextSize)
+   #    ## lable sample on the top
+   #    if(nrow(treeData[which.max(treeData$y2), ]) > 0){
+   #       p <- p + geom_text(aes(x = x2,
+   #                              y = y2 + textAdjust/5,
+   #                              label = sample),
+   #                          data = treeData[which.max(treeData$y2), ],
+   #                          size = sampleTextSize)
+   #    } 
+   # }
+   # else{
       p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
                                nudge_y = textAdjust/10,
                                nudge_x = textAdjust/10,
@@ -727,7 +727,7 @@ drawPhyloTree <- function(phyloTree = NULL,
                          label = rootLabel,
                          data = treeData[sample == rootLabel,], 
                          size = sampleTextSize)
-   }
+   # }
    
    p <- p + geom_point(aes(x = x2,y = y2),
                        data = treeData[sample == 'internal node',],
