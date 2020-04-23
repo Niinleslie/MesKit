@@ -21,7 +21,11 @@ mutTrunkBranch <- function(phyloTree,
     treeMSOutput <- lapply(phyloTree, doTreeMutSig,
                            geneList = geneList,
                            MTB = TRUE)
-    mutTrunkBranch.list <- suppressWarnings(lapply(treeMSOutput, doMutTrunkBranch))
+    mutTrunkBranch.list <- lapply(treeMSOutput, doMutTrunkBranch)
+    mutTrunkBranch.list <- mutTrunkBranch.list[!is.na(mutTrunkBranch.list)]
+    if(length(mutTrunkBranch.list) == 0){
+        return(NA)
+    }
     if(plot){
         # TB.plot <- lapply(treeMSOutput, doPlotTrunkBranch)
         TB.plot <- doPlotTrunkBranch(mutTrunkBranch.list,pvalue = pvalue)

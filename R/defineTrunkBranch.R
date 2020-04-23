@@ -3,7 +3,7 @@ doMutTrunkBranch <- function(tree.mutSig){
    ## input data from tree.mutSig
    ls.BT <- .dataProcessBT(tree.mutSig)
    # print(tree.mutSig$patientID)
-   if(is.na(ls.BT)){
+   if(class(ls.BT) != "list"){
       return(NA)
    }
    df.pValue <- ls.BT$df.pValue
@@ -11,11 +11,12 @@ doMutTrunkBranch <- function(tree.mutSig){
    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
    
    ## generate output data.frame with quantity of mutations in different categories
-   output <- data.frame(matrix(nrow=6, ncol=2))
+   output <- data.frame(matrix(0,nrow=6, ncol=2))
    colnames(output) <- c("Trunk", "Branch")
    output <- cbind(Group=ls.mutationGroup, output)
    output <- merge(output, df.pValue, by=c("Group"))
    output <- cbind(output, Significance=rep("-", nrow(output)))
+   output$Significance <- as.character(output$Significance)
    for (mutationGroup in ls.mutationGroup) {
       output$Branch[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
          sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Branch"),]$mut.num)

@@ -2,7 +2,6 @@ options(spinner.type=4)
 
 #required packages
 suppressMessages(library(shiny))
-suppressMessages(library(deconstructSigs))
 suppressMessages(library(DT))
 suppressMessages(library(shinydashboard))
 suppressMessages(library(shinyWidgets))
@@ -10,7 +9,6 @@ suppressMessages(library(shinyWidgets))
 # suppressMessages(library(shinyjs))
 suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
-
 suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
 #suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 
@@ -83,7 +81,7 @@ bodyIP <- tabItem("input",
                           div(shiny::icon("gear"), strong("Input Section"), inline =TRUE,style = "font-size:27px; font-weight:500;"),
                           br(),
                           width = NULL,
-                            fileInput(inputId = 'maf', 
+                            fileInput(inputId = 'mafFile', 
                                       label = div(style = "font-size:1.5em; font-weight:600;",'MAF file',
                                                   tags$button(
                                                     Id = "iecontrol01",
@@ -527,10 +525,7 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                              title = div(icon("image"), "Vaf clustering"),
                              value = "caInput03",
-                             conditionalPanel(
-                               condition = "input.plotOption == 'separate'",
-                               uiOutput("chooselistvaf")
-                             ),
+                             uiOutput("vafcluster.patientlist"),
                              uiOutput('warningMessage03'),
                              div(plotOutput("vaf",height = "100%"),align = "center"),
                              uiOutput("vcdb")
@@ -935,9 +930,11 @@ bodySignature <- tabItem('signature',
                                  ), 
                                  numericInput('mutThreshold', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 50),
                                  selectInput("signaturesRef", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                                             choices = c(cosmic = "cosmic",
-                                                         nature2013 = "nature2013"),
-                                             selected = "cosmic"),
+                                             choices = c("cosmic_v2",
+                                                         "nature2013",
+                                                         "geome_cosmic_v3",
+                                                          "exome_cosmic_v3"),
+                                             selected = "cosmic_v2"),
                                  bsTooltip(id = "signaturesRef",
                                            title = 'The parameter used for deconstructSig.Default "cosmic". Option: "nature2013". ',
                                            placement = "top",
@@ -1118,6 +1115,7 @@ bodySignature <- tabItem('signature',
                                      title = div(icon("newspaper"), "Summary-Signature"), 
                                      value = 'S01',
                                      uiOutput('warningMessage13'),
+                                     uiOutput("sigsummary.patientlist"),
                                      DT::dataTableOutput('sigOFAt',width = "100%"),
                                      br(),
                                      uiOutput("sigpdb")
