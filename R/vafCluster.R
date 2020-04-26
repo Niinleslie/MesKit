@@ -24,7 +24,8 @@ vafCluster <-function(maf,
                       min.vaf=0.02,
                       max.vaf=1,
                       showMATH=TRUE, 
-                      plotOption="combine"){
+                      plotOption="combine",
+                      use.shiny = FALSE){
   plot.options = c('combine', 'compare')
   
   if(!plotOption %in% plot.options){
@@ -49,6 +50,7 @@ vafCluster <-function(maf,
                         min.vaf = min.vaf,
                         max.vaf = max.vaf,
                         showMATH = showMATH, 
-                        plotOption = plotOption)
+                        plotOption = plotOption,
+                        use.shiny = use.shiny)
   return(result.list)
 }

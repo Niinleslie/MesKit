@@ -4,7 +4,7 @@ doTreeMutSig <- function(phyloTree,
                          signaturesRef="cosmic_v2",
                          tri.counts.method = "default",
                          withinType = FALSE,
-                         MTB = FALSE){
+                         use.shiny = FALSE){
    
    refBuild <- phyloTree@refBuild
    ref.options = c('hg18', 'hg19', 'hg38')
@@ -14,21 +14,15 @@ doTreeMutSig <- function(phyloTree,
       refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
    }
    
-   ## get branches information from phyloTree object
-   mutBranches <- phyloTree@mut.branches
    
+   ## get branches information from phyloTree object
+   mutSigRef <- phyloTree@mut.branches
    patientID <- phyloTree@patientID
-   branchesName <- names(mutBranches)
-
-   ## regain the data frame of all branches with Branch_ID
-   mutSigRef <- data.frame()
-   for (branchName in branchesName){
-      mutBranch <- mutBranches[[branchName]]
-      mutSigRef <- rbind(mutBranch, mutSigRef)
+   
+   if(use.shiny){
+       incProgress(amount=1)
+       setProgress(message = paste('Generating ', "mutation signatures - ", patientID, sep=""))
    }
-   colnames(mutSigRef) <- c("Branch_ID","Branch_Tumor_Type","chr", "pos", "pos_end", 
-                            "ref", "alt", "Hugo_Symbol", "mut_id", 
-                            "alias")
    
    ## Select mutations in selected genes
    if(!is.null(geneList)){
@@ -41,29 +35,15 @@ doTreeMutSig <- function(phyloTree,
    
    ## get the mutational signature of the branch 
    mutSigsOutput <- data.frame()
-   sig.product <- c()
-   lsPicName <- c()
    sig.product <- data.frame()
    
    ## count 96 substitution typs in each branches
    sigsInput <- countTriplet(mutSigRef = mutSigRef,
                              withinType = withinType,
                              refBuild = refBuild,
-                             patientID = patientID)
+                             patientID = patientID,
+                             CT = FALSE)
    
-   if(MTB){
-      if(withinType){
-         trunkName <- unique(mutSigRef[which(mutSigRef$alias == "Public"), ]$Branch_ID) 
-      }
-      else{
-         trunkName <- unique(mutSigRef[which(mutSigRef$alias == "T"), ]$Branch_ID) 
-      }
-      treeMSOutput <- list(
-         sigsInput = sigsInput, 
-         trunkName = trunkName,
-         patientID = patientID)
-      return(treeMSOutput)
-   }
 
    signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
    if (signaturesRef == "cosmic_v2") {
@@ -89,8 +69,7 @@ doTreeMutSig <- function(phyloTree,
    
    if(withinType){
       branchesName <- unique(mutSigRef$Branch_Tumor_Type) 
-   }
-   else{
+   }else{
        branchesName <- unique(mutSigRef$Branch_ID) 
    }
    
@@ -113,21 +92,19 @@ doTreeMutSig <- function(phyloTree,
                         " is less than the min.mut.count argument! ",
                         "This branch will be skipped")
          )
-         if (any(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$mut_id == "NoSigTag")) {
-            mut.count <- 0
-         }
-         else{
-            if(withinType){
-               mut.count <- length(mutSigRef[which(mutSigRef$Branch_Tumor_Type == branchName), 1])
-            }
-            else{
-               mut.count <- length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
-            }
-         }
+         # if (any(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$mut_id == "NoSigTag")) {
+         #    mut.count <- 0
+         # }
+        if(withinType){
+           mut.count <- length(mutSigRef[which(mutSigRef$Branch_Tumor_Type == branchName), 1])
+        }
+        else{
+           mut.count <- length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
+        }
       }else{
           ## get mutation signature
          fit <- fitSignature(sigsInput = sigsInput[branchName,], sigsRef = sigsRef)
-         fit$reconstruct <- fit$reconstruct/sum(fit$reconstruct)
+         fit$Reconstructed <- fit$Reconstructed/sum(fit$Reconstructed)
          fit$contribution <- fit$contribution/sum(fit$contribution)
          sigsWhich <- fit$contribution
          
@@ -145,24 +122,42 @@ doTreeMutSig <- function(phyloTree,
          }
          
          ## get product of sigs output 
-         sig.rec <- as.data.frame(fit$reconstruct)
-         sig.rec$Branch <- as.character(row.names(fit$reconstruct)) 
+         sig.rec <- as.data.frame(fit$Reconstructed)
+         sig.rec$Branch <- as.character(row.names(fit$Reconstructed)) 
          sig.branch.product <- tidyr::pivot_longer(sig.rec ,
                                                    -Branch,
                                                    names_to = "group",
                                                    values_to = "sigs.prob") %>% 
-            as.data.frame()
+                              as.data.frame()
+         sig.branch.product$value.type <- "Reconstructed"
          
+         ## get Original fractions of 96 types
+         sig.Original <- as.data.frame(sigsInput[branchName,]/sum(sigsInput[branchName,]))
+         sig.Original$Branch <- as.character(row.names(fit$Reconstructed)) 
+         sig.Original <- tidyr::pivot_longer(sig.Original ,
+                                           -Branch,
+                                           names_to = "group",
+                                           values_to = "sigs.prob") %>% 
+                       as.data.frame()
+         sig.Original$value.type <- "Original"
+         
+         sig.branch.product <- rbind(sig.branch.product,sig.Original)
          if(!withinType){
-             sig.branch.product$alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$alias))
+             sig.branch.product$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
          }
          
+         ## sort signature by proportion
+         sig.order <- order(sigs.branch,decreasing = T)
+         sigs.branch <- sigs.branch[sig.order]
+         sigs.branch.name <- sigs.branch.name[sig.order]
          ##  title
-         t <- paste(sigs.branch.name[1],": ", round(sigs.branch[1],3), sep = "")
-         if(length(sigs.branch) > 1){
-            for(i in  2:length(sigs.branch)){
-               t <- paste(t, " & ", sigs.branch.name[i], ": ", round(sigs.branch[i],3), sep = "")
-            }
+         t <- ''
+         for(i in  1:length(sigs.branch)){
+             if(i == 1){
+                 t <- paste(sigs.branch.name[i], ": ", round(sigs.branch[i],3), sep = "")
+                 next
+             }
+            t <- paste(t, " & ", sigs.branch.name[i], ": ", round(sigs.branch[i],3), sep = "")
          }
          sig.branch.product$Signature <- t
          sig.product <- rbind(sig.product, sig.branch.product)
@@ -183,12 +178,12 @@ doTreeMutSig <- function(phyloTree,
          
       }else{
          mutSigsBranch$branch <- c(branchName)
-         mutSigsBranch$alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$alias))
+         mutSigsBranch$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
          mutSigsBranch$mut.count <- mut.count
          mutSigsBranch$Branch_Tumor_Type <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Branch_Tumor_Type))
          
          mutSigsBranch <- dplyr::select(mutSigsBranch,
-                                        branch, alias, sig, mut.count,
+                                        branch, Alias, sig, mut.count,
                                         sig.prob, Branch_Tumor_Type)
          
       }
@@ -201,36 +196,34 @@ doTreeMutSig <- function(phyloTree,
    
    ## calculation process(maybe could be replaced by lapply)
    if(nrow(sig.product) > 0){
-       
        if(withinType){
-           sig.product$alias <- sig.product$Branch
+           sig.product$Alias <- sig.product$Branch
        }
-       
        if(withinType){
-           all.types <- unique(sig.product$alias) 
+           all.types <- unique(sig.product$Alias) 
            public <- all.types[grep("Public", all.types)] 
            shared <- all.types[grep("Shared", all.types)] 
            private <- all.types[grep("Private", all.types)]
            type.level <- c(public, shared, private)
-           sig.product$alias <- factor(sig.product$alias, levels = type.level)
+           sig.product$Alias <- factor(sig.product$Alias, levels = type.level)
            sig.product$Patient_ID <- patientID
-           colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability","Signature","Alias","Patient_ID")
+           colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability","value.type","Signature","Alias","Patient_ID")
            rownames(sig.product) <- 1:nrow(sig.product)
        }else{
            sig.product$Patient_ID <- patientID
-           colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability", "Alias", "Signature","Patient_ID")
+           colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability","value.type","Alias", "Signature","Patient_ID")
        }
    }
    
    cos_sim.mat <- as.matrix(cos_sim.mat)
    if(withinType){
-       alias <- unique(mutSigsOutput$Branch_Tumor_Type)
-       names(alias) <- unique(mutSigsOutput$Branch_Tumor_Type)
+       Alias <- unique(mutSigsOutput$Branch_Tumor_Type)
+       names(Alias) <- unique(mutSigsOutput$Branch_Tumor_Type)
    }else{
-       alias <- unique(mutSigsOutput$alias)
-       names(alias) <- unique(mutSigsOutput$branch)
+       Alias <- unique(mutSigsOutput$Alias)
+       names(Alias) <- unique(mutSigsOutput$branch)
    }
-   rownames(cos_sim.mat) <- alias[rownames(cos_sim.mat)] 
+   rownames(cos_sim.mat) <- Alias[rownames(cos_sim.mat)] 
    
    message(paste0("Patient ", phyloTree@patientID, ": mutational signatures identified successfully!"))
    
@@ -244,17 +237,18 @@ doTreeMutSig <- function(phyloTree,
    return(treeMSOutput)
 }
 
-countTriplet <- function(mutSigRef, withinType, refBuild, patientID){
-    
-    mutSigRef <- mutSigRef[mutSigRef$mut_id!="NoSigTag",]
+countTriplet <- function(mutSigRef, withinType, refBuild, patientID, CT){
     
     if(nrow(mutSigRef) == 0){
         stop("Error: There are not enough mutations in ",patientID)
     }
     
     bases <- c("A","C","G","T")
-    types <- c("C>A","C>G","C>T","T>A","T>C","T>G")
-    
+    if(CT){
+        types <- c("C>A","C>G","C>T at CpG","C>T other","T>A","T>C","T>G")
+    }else{
+        types <- c("C>A","C>G","C>T","T>A","T>C","T>G")
+    }
     ## 96 substitution types
     triplet96 <- c()
     seq96 <- c()
@@ -263,7 +257,7 @@ countTriplet <- function(mutSigRef, withinType, refBuild, patientID){
             for(base.down in bases){
                 tri <- paste(base.up,"[",type,"]",base.down,sep = "")
                 triplet96 <- append(triplet96,tri)
-                if(type %in% types[1:3]){
+                if(type %in% types[1:(round(length(types)/2))]){
                     seqname <- paste(base.up,"C",base.down,sep = "")
                     seq96 <- append(seq96,seqname)
                 }
@@ -307,21 +301,21 @@ countTriplet <- function(mutSigRef, withinType, refBuild, patientID){
     sigsInput <- lapply(ref.list, countTripletBranch,
                         triplet96 = triplet96,
                         ref64 = ref64,
-                        refBuild = refBuild)
+                        refBuild = refBuild,
+                        CT = CT)
     sigsInput <- plyr::rbind.fill(sigsInput)
     rownames(sigsInput) <- names(ref.list)
     
     return(sigsInput)
 }
 
-countTripletBranch <- function(ref, triplet96, ref64, refBuild){
+countTripletBranch <- function(ref, triplet96, ref64, refBuild, CT){
     
-    types <- c("C>A","C>G","C>T","T>A","T>C","T>G")
-    
-    
+    CpG = c("ACG", "CCG", "TCG", "GCG")
+
     context <- Biostrings::getSeq(get(refBuild),Rle(ref$chr),ref$pos-1, ref$pos+1) 
     context <- as.character(context)
-    
+    context1 <- context
     context <- ref64[context]
     
     mut.types <- paste(ref$ref, ref$alt, sep = ">")
@@ -333,12 +327,21 @@ countTripletBranch <- function(ref, triplet96, ref64, refBuild){
     mut.types = gsub('A>C', 'T>G', mut.types)
     
     count.mat <- matrix(0, ncol = length(triplet96), nrow = 1)
-    colnames(count.mat) <- as.character(triplet96) 
+    colnames(count.mat) <- as.character(triplet96)
     
     for(i in 1:length(context)){
         
         tris <- triplet96[which(names(triplet96) == context[i])]
         type <- mut.types[i]
+        
+        if(CT & type == "C>T"){
+            if(context1[i] %in% CpG){
+                type <- "C>T at CpG"
+            }else{
+                type <- "C>T other"
+            }
+        }
+        
         pos <- which(grepl(type,tris))
         tri <- tris[pos]
         
@@ -382,7 +385,7 @@ fitSignature <- function(sigsInput, sigsRef){
     ref <- t(as.matrix(sigsRef))
     
     contribution.mat <- matrix(1, ncol = sample.n, nrow = sig.n)
-    reconstruct.mat <- matrix(1, ncol = sample.n, nrow = type.n)
+    Reconstructed.mat <- matrix(1, ncol = sample.n, nrow = type.n)
     
     ## solve nonnegative least-squares constraints.
     
@@ -390,16 +393,16 @@ fitSignature <- function(sigsInput, sigsRef){
         type.count <- as.numeric(sigsInput[i,]) 
         lsq <- pracma::lsqnonneg(ref, type.count)
         contribution.mat[,i] <- lsq$x
-        reconstruct.mat[,i] <- ref %*% as.matrix(lsq$x)
+        Reconstructed.mat[,i] <- ref %*% as.matrix(lsq$x)
     }
     
     colnames(contribution.mat) <- rownames(sigsInput)
     rownames(contribution.mat) <- rownames(sigsRef)
     
-    colnames(reconstruct.mat) <- rownames(sigsInput)
-    rownames(reconstruct.mat) <- colnames(sigsInput)
+    colnames(Reconstructed.mat) <- rownames(sigsInput)
+    rownames(Reconstructed.mat) <- colnames(sigsInput)
     
-    return(list(contribution = t(contribution.mat), reconstruct = t(reconstruct.mat)))
+    return(list(contribution = t(contribution.mat), Reconstructed = t(Reconstructed.mat)))
     
 }
 

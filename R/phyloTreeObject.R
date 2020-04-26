@@ -135,17 +135,17 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
       ## special situation: branch.intersection NULL
       if (nrow(branch.intersection) == 0){
          # message(paste(branchName, ": There are no private mutations for branch ", sep=""))
-         branch.mut <- data.frame(Branch_ID=branchName, 
-                                  Branch_Tumor_Type = Branch_Tumor_Type,
-                                  chr=NA,
-                                  pos=NA,
-                                  pos_end=NA,
-                                  ref=NA,
-                                  alt=NA,
-                                  Hugo_Symbol=NA,
-                                  mut_id="NoSigTag",
-                                  Alias=as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias))
-         mutBranchesOutput[[branchName]] <- branch.mut
+         # branch.mut <- data.frame(Branch_ID=branchName, 
+         #                          Branch_Tumor_Type = Branch_Tumor_Type,
+         #                          chr=NA,
+         #                          pos=NA,
+         #                          pos_end=NA,
+         #                          ref=NA,
+         #                          alt=NA,
+         #                          Hugo_Symbol=NA,
+         #                          mut_id="NoSigTag",
+         #                          Alias=as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias))
+         # mutBranchesOutput[[branchName]] <- branch.mut
          next()
       }
       
@@ -165,6 +165,8 @@ treeMutationalBranches <- function(maf.dat, branchAlias, binary.matrix){
       ## generate branch mutation list
       mutBranchesOutput[[branchName]] <- branch.mut
    }
+   mutBranchesOutput <- plyr::rbind.fill(mutBranchesOutput) %>% 
+       dplyr::select(-mut_id)
    return(mutBranchesOutput)
 }
 
@@ -179,7 +181,7 @@ setClass('phyloTree', slots = c(
     method = 'character', 
     binary.matrix = 'matrix', 
     ccf.matrix = 'matrix', 
-    mut.branches = 'list', 
+    mut.branches = 'data.frame', 
     refBuild = 'character'
 ))
 

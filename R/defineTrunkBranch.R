@@ -1,21 +1,28 @@
-doMutTrunkBranch <- function(tree.mutSig){
+doMutTrunkBranch <- function(mtb_input,CT){
+    
    ls.BT <- NA
-   ## input data from tree.mutSig
-   ls.BT <- .dataProcessBT(tree.mutSig)
-   # print(tree.mutSig$patientID)
-   if(is.na(ls.BT)){
+   ## input data
+   ls.BT <- .dataProcessBT(mtb_input,CT)
+   # print(mtb_input$patientID)
+   if(class(ls.BT) != "list"){
       return(NA)
    }
    df.pValue <- ls.BT$df.pValue
    sigsInputBoxplot <- ls.BT$sigsInputBoxplot
-   ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
    
+   if(CT){
+       ls.mutationGroup <- c("C>A","C>G","C>T at CpG","C>T other","T>A","T>C","T>G")
+   }else{
+       ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
+   }
+
    ## generate output data.frame with quantity of mutations in different categories
-   output <- data.frame(matrix(nrow=6, ncol=2))
+   output <- data.frame(matrix(0,nrow=length(ls.mutationGroup), ncol=2))
    colnames(output) <- c("Trunk", "Branch")
    output <- cbind(Group=ls.mutationGroup, output)
    output <- merge(output, df.pValue, by=c("Group"))
    output <- cbind(output, Significance=rep("-", nrow(output)))
+   output$Significance <- as.character(output$Significance)
    for (mutationGroup in ls.mutationGroup) {
       output$Branch[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
          sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Branch"),]$mut.num)
@@ -32,20 +39,20 @@ doMutTrunkBranch <- function(tree.mutSig){
    }
    
    output <- output %>% 
-      dplyr::mutate(Patient_ID = tree.mutSig$patientID) %>% 
+      dplyr::mutate(Patient_ID = mtb_input$patientID) %>% 
       dplyr::rename(P_Value = p.value) %>% 
       dplyr::select(Patient_ID, Group, Trunk, Branch, P_Value)
    return(output)
 }
 
-.dataProcessBT <- function(tree.mutSig) {
-   ## input data from tree.mutSig
-   sigsInput <- tree.mutSig$sigsInput
+.dataProcessBT <- function(mtb_input,CT) {
+   ## input data from mtb_input
+   sigsInput <- mtb_input$sigsInput
    ## label the Trunk
-   if (length(tree.mutSig$trunkName) != 0){
-      trunkName <- tree.mutSig$trunkName
+   if (length(mtb_input$trunkName) != 0){
+      trunkName <- mtb_input$trunkName
    } else {
-      warning(paste0("Patient ",tree.mutSig$patientID,": no trunk mutations are detected!"))
+      warning(paste0("Patient ",mtb_input$patientID,": no trunk mutations are detected!"))
       return(NA)
    } 
    ## separate trunk and branch data
@@ -54,8 +61,13 @@ doMutTrunkBranch <- function(tree.mutSig){
    sigsInput.branch <- colSums(sigsInput.branch)
    sigsInputBT <- rbind(Trunk=sigsInput.trunk, Branch=sigsInput.branch)
    sigsInputBTTrans <- data.frame(Mutational_Type=colnames(sigsInputBT), t(sigsInputBT))
-   ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
    
+   if(CT){
+       ls.mutationGroup <- c("C>A","C>G","C>T at CpG","C>T other","T>A","T>C","T>G")
+   }else{
+       ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
+   }
+
    ## generate Mutation Type for every column
    for (mutationGroup in ls.mutationGroup) {
       sigsInputBTTrans$Group[which(grepl(mutationGroup, sigsInputBTTrans$Mutational_Type))] <- mutationGroup
@@ -126,7 +138,7 @@ doMutTrunkBranch <- function(tree.mutSig){
          pValue <- fisher.test(m,alternative = "two.sided")$p.value
       }
       else{
-         # warning(paste0("Patient ", tree.mutSig$patientID, ": There is no enough eligible mutations can be used."))
+         # warning(paste0("Patient ", mtb_input$patientID, ": There is no enough eligible mutations can be used."))
          pValue <- NA
       }
       row.pValue <- data.frame(mutationGroup, pValue)
@@ -138,38 +150,27 @@ doMutTrunkBranch <- function(tree.mutSig){
 }
 
 
-doPlotTrunkBranch <- function(mutTrunkBranch.list, pvalue = 0.05){
-   mutTrunkBranch.list <- lapply(mutTrunkBranch.list,function(x){
-      if(sum(x$Trunk) == 0){
-          x$trunk.frac <- 0
-      }
-       else{
-           x$trunk.frac <- x$Trunk/sum(x$Trunk)  
-       }
-       if(sum(x$Branch) == 0){
-           x$branch.frac <-  0
-       }
-       else{
-           x$branch.frac <- x$Branch/sum(x$Branch)
-       }
-      x <- x %>% 
-         tidyr::pivot_longer(cols = c("trunk.frac","branch.frac"),names_to = "BT",values_to = "fraction") %>%
-         # reshape2::melt(id.vars = c("Group","P_Value","Patient_ID","Branch","Trunk"),variable.name = "BT",value.name = "fraction") %>% 
-         dplyr::rowwise() %>% 
-         dplyr::mutate(group.name = paste0(Patient_ID,BT)) %>% 
-         as.data.frame() 
-      return(x)
-   })
-   # mutTrunkBranch.list$trunk.frac <- mutTrunkBranch.list$Trunk/sum(mutTrunkBranch.list$Trunk)
-   # mutTrunkBranch.list$branch.frac <- mutTrunkBranch.list$Branch/sum(mutTrunkBranch.list$Branch)
-   # mutTrunkBranch.list <- mutTrunkBranch.list %>%
-   #     melt(id.vars = c("Group","p.value","Significance","Patient_ID","Branch","Trunk"),variable.name = "BT",value.name = "fraction") %>% 
-   #     dplyr::rowwise() %>% 
-   #     dplyr::mutate(group.name = paste0(Patient_ID,BT)) %>% 
-   #     as.data.frame() 
-   dat <- plyr::rbind.fill(mutTrunkBranch.list)
+doPlotTrunkBranch <- function(mtb_output, pvalue = 0.05, CT){
+   if(sum(mtb_output$Trunk) == 0){
+       mtb_output$trunk.frac <- 0
+   }
+   else{
+       mtb_output$trunk.frac <- mtb_output$Trunk/sum(mtb_output$Trunk)  
+   }
+   if(sum(mtb_output$Branch) == 0){
+       mtb_output$branch.frac <-  0
+   }
+   else{
+       mtb_output$branch.frac <- mtb_output$Branch/sum(mtb_output$Branch)
+   }
+   dat <- mtb_output %>% 
+       tidyr::pivot_longer(cols = c("trunk.frac","branch.frac"),names_to = "BT",values_to = "fraction") %>%
+       # reshape2::melt(id.vars = c("Group","P_Value","Patient_ID","Branch","Trunk"),variable.name = "BT",value.name = "fraction") %>% 
+       dplyr::rowwise() %>% 
+       dplyr::mutate(group.name = paste0(Patient_ID,BT)) %>% 
+       as.data.frame() 
    dat$group.name <- factor(dat$group.name, levels = unique(dat$group.name))
-   
+   dat <- dplyr::arrange(dat, group.name, plyr::desc(Group))
    ## set data table for bar plot
    dat <- as.data.table(dat)
    dat$rect.xmin <- 0
@@ -267,12 +268,23 @@ doPlotTrunkBranch <- function(mutTrunkBranch.list, pvalue = 0.05){
    }
    
    ## set color 
-   all.colors <- c("C>A" = "#E64B35FF",
-                   "C>G" = "#4DBBD5FF",
-                   "C>T" = "#00A087FF",
-                   "T>A" = "#3C5488FF",
-                   "T>C" = "#F39B7FFF",
-                   "T>G" = "#8491B4FF")
+   if(CT){
+       all.colors <- c("C>A" = "#E64B35FF",
+                       "C>G" = "#4DBBD5FF",
+                       "T>A" = "#3C5488FF",
+                       "T>C" = "#F39B7FFF",
+                       "T>G" = "#8491B4FF",
+                       "C>T at CpG" = "#00A087FF",
+                       "C>T other" = "#91D1C2FF") 
+   }else{
+       all.colors <- c("C>A" = "#E64B35FF",
+                       "C>G" = "#4DBBD5FF",
+                       "C>T" = "#00A087FF",
+                       "T>A" = "#3C5488FF",
+                       "T>C" = "#F39B7FFF",
+                       "T>G" = "#8491B4FF") 
+   }
+
    group.colors <- all.colors[unique(dat$Group)]
    
    ## plot
@@ -313,7 +325,7 @@ doPlotTrunkBranch <- function(mutTrunkBranch.list, pvalue = 0.05){
       colnames(pvalue.table) <- c("group.name","pv.x","pv.y","pv.label")
       pic <- pic + 
          geom_text(data = pvalue.table,
-                   aes(x = pv.x+0.05, y = pv.y, label = pv.label),
+                   aes(x = pv.x+0.01, y = pv.y, label = pv.label),
                    size = 7)
    }
    
@@ -353,9 +365,9 @@ doPlotTrunkBranch <- function(mutTrunkBranch.list, pvalue = 0.05){
 # }
 # 
 # 
-# doPlotTrunkBranch <- function(tree.mutSig){
-#     ## input data from tree.mutSig
-#     ls.BT <- .dataProcessBT(tree.mutSig)
+# doPlotTrunkBranch <- function(mtb_input){
+#     ## input data from mtb_input
+#     ls.BT <- .dataProcessBT(mtb_input)
 #     if(any(is.na(ls.BT)) ){
 #         return(NA)
 #     }
@@ -506,7 +518,7 @@ doPlotTrunkBranch <- function(mutTrunkBranch.list, pvalue = 0.05){
 #     
 #     pic <- ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
 #         geom_boxplot(coef=100) + 
-#         ggtitle(paste0(tree.mutSig$patientID)) + 
+#         ggtitle(paste0(mtb_input$patientID)) + 
 #         theme(panel.grid=element_blank(), 
 #               panel.border=element_blank(), 
 #               panel.background = element_blank(), 

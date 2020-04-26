@@ -171,16 +171,16 @@ classifyMut <- function(maf,
   
   
   mut.class <- maf_data %>% 
-    dplyr::mutate(Mutation_ID = paste(
+    dplyr::mutate(Mut_ID = paste(
       Hugo_Symbol, Chromosome,
-      Start_Position, End_Position,
+      Start_Position,
       Reference_Allele, Tumor_Seq_Allele2,
       sep = ":"
       )
     ) %>%
     dplyr::select(
       Patient_ID, Tumor_Sample_Barcode,
-      Mutation_ID, Mutation_Type
+      Mut_ID, Mutation_Type
       )
 
     if(plot){

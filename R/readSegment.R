@@ -31,7 +31,8 @@ readSegment <- function(segCN.file = NULL,
                         gisticDelGenesFile = NULL,
                         gisticAllLesionsFile = NULL,
                         gistic.qval = 0.25,
-                        verbose = TRUE, min.seg.size = 500){
+                        verbose = TRUE,
+                        min.seg.size = 500){
     seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
     standardCol <- c("Patient_ID","Tumor_Sample_Barcode",
                      "Chromosome","Start_Position",

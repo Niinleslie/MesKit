@@ -9,7 +9,6 @@ compareTree(
   tree2,
   plot = FALSE,
   branchCol = "mutSig",
-  show.heatmap = FALSE,
   min.ratio = 1/30,
   use.ccf = FALSE,
   show.bootstrap = FALSE,
@@ -18,22 +17,19 @@ compareTree(
 )
 }
 \arguments{
-\item{tree1}{a single class PhyloTree}
+\item{tree1}{a phyloTree object}
 
-\item{tree2}{a single class PhyloTree}
+\item{tree2}{a phyloTree object}
 
-\item{plot}{a logical value, default FALSE. If TRUE, 
-the two trees will be plotted on the same device and their similarities will be shown.}
+\item{plot}{FALSE(Default). If TRUE, two trees will be plotted on the same device and their similarities will be shown.}
 
-\item{min.ratio}{double (Default:1/30). If min.ratio is not NULL,
-all edge length of a phylogenetic tree should be greater than
-min.ratio*the longest edge length.
-If not, the edge length will be reset as min.ratio*longest edge length.}
+\item{min.ratio}{double (Default: 1/30). If min.ratio is not NULL,
+all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length.}
 
 \item{common.lty}{line type of common branch.}
 }
 \value{
-returns a vector containing the following tree distance methods by R package phangorn
+a vector containing the following tree distance methods by R package phangorn
 Symmetric.difference  Robinson-Foulds distance
 KF-branch distance  the branch score distance (Kuhner & Felsenstein 1994)
 Path.difference  difference in the path length, counted as the number of branches 

@@ -139,7 +139,6 @@ readMaf <- function(## maf parameters
             "Mut_ID",
             c(
                 "Patient_ID",
-                "Tumor_Type",
                 "Chromosome",
                 "Start_Position",
                 "Reference_Allele",
