@@ -63,13 +63,6 @@ shinyServer(function(input, output, session){
     return(input$widthccfden)
   })
   
-  ## patient select
-  getpatient.vafcluster <- eventReactive(input$vc.pl, {
-      return(input$vc.pl)
-  })
-  getpatient.sigsummary <- eventReactive(input$ss.pl, {
-      return(input$ss.pl)
-  })
   
   
   mafName <- reactive({
@@ -474,9 +467,19 @@ shinyServer(function(input, output, session){
                             choices = names, width = 600)
             }
         })
+        
+        print(names(plot.list))
+        
+        if(length(names(plot.list)) == 1){
+            n <- names(plot.list)[1]
+        }else{
+            n <- getpatient.vafcluster()
+        }
+        
+        print(n)
+        
         output$vaf <- renderPlot({
-                p <- plot.list[[which(names(plot.list) == getpatient.vafcluster())]]
-                print(p)
+                plot.list[[n]]
         },width = width1,
         height = 560,
         res = 100)
@@ -1082,7 +1085,7 @@ shinyServer(function(input, output, session){
   res = 100
   )
   
-  tree.mutSig <- reactiveValues()
+  tms <- reactiveValues()
   
   stopButtonValueSig <- reactiveValues(a = 0)
   observeEvent(input$stopSig,{
@@ -1091,8 +1094,25 @@ shinyServer(function(input, output, session){
   observeEvent(input$submitSig,{
     stopButtonValueSig$a <- 0
   })
+  
+  observeEvent(input$submitSig,{
+      if(is.null(tree.mutSig[["value"]])){
+          phyloTree <- isolate(varsLs$phyloTree)
+          withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
+              setProgress(message = 'treeMutSig: Calculation in progress',
+                          detail = 'This may take a while...')
+              
+              tms[["value"]] <- treeMutSig(phyloTree, 
+                                                   geneList = NULL, 
+                                                   min.mut.count = input$mutThreshold,
+                                                   signaturesRef=input$signaturesRef,
+                                                   use.shiny = TRUE)
+             Sys.sleep(1)
+          })
+      }
+  })
   sigOFA <- eventReactive(input$submitSig, {
-    if (input$oncogeneMapping) {
+    if (input$oncogeneMapping){
       if(is.null(input$driverGenesFile$datapath)){
         driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
       } else{
@@ -1104,108 +1124,117 @@ shinyServer(function(input, output, session){
         driverGene <- NULL 
     }
       
-   phyloTree <- isolate(varsLs$phyloTree)   
+   phyloTree <- isolate(varsLs$phyloTree) 
+   
    validate(
        need(!(is.null(phyloTree)), "")
    )
    
   if(input$submitSig & stopButtonValueSig$a != 1){
-      
-     withProgress(min = 0, max = length(names(phyloTree)) + 1, value = 0,{
-         setProgress(message = 'treeMutSig: Calculation in progress',
-                     detail = 'This may take a while...')
          
-         mutSigSummary <- NULL
-         if(is.null(tree.mutSig[["value"]])){
-             tree.mutSig[["value"]] <- treeMutSig(phyloTree, 
-                                                  geneList = driverGene, 
-                                                  min.mut.count = input$mutThreshold,
-                                                  signaturesRef=input$signaturesRef,
-                                                  use.shiny = TRUE)
-         }
+         mutSig.summary <- NULL
          
-         # print(tree.mutSig)
-         
-         mutSigSummary <- tree.mutSig[["value"]]$mutSigSummary
-         print(mutSigSummary[[1]])
+
+         mutSig.summary <- isolate(tms$value)$mutSig.summary
          
          output$sigsummary.patientlist <- renderUI({
-             if(!is.null(mutSigSummary)){
-                 names <- names(mutSigSummary)
-                 selectInput("ss.pl", "Patient",
-                             choices = names, width = 600)
+             if(!is.null(mutSig.summary)){
+                 names <- names(mutSig.summary)
+                 tagList(
+                     selectInput("ss.pl", "Patient",
+                                 choices = names,
+                                 selected = names[1],
+                                 width = 600) 
+                 )
              }
          })
          
-         return(mutSigSummary[[which(names(mutSigSummary) == getpatient.sigsummary())]])
-     })
+         if(length(names(mutSig.summary))  == 1){
+             n <- names(mutSig.summary)[1]
+         }
+         else{
+             n <- getpatient.sigsummary()
+         }
+         
+         s <- mutSig.summary[[n]]
+         print(s)
+         output$sigOFAt <- DT::renderDataTable({
+             return(datatable(s, 
+                              options = list(searching = TRUE, 
+                                             pageLength = 10, 
+                                             lengthMenu = c(5, 10, 15, 18), 
+                                             scrollX = TRUE), 
+                              rownames = FALSE))
+         })
+         # print(input$ss.pl)
+         # idxp <- which(names(mutSig.summary) == "HCC6046")
+         return(s)
   }
  })
-  output$sigOFAt <- DT::renderDataTable({
-    return(datatable(sigOFA(), 
-                     options = list(searching = TRUE, 
-                                    pageLength = 10, 
-                                    lengthMenu = c(5, 10, 15, 18), 
-                                    scrollX = TRUE), 
-                     rownames = FALSE))
+  
+  getpatient.sigsummary <- eventReactive(input$ss.pl,{
+      return(input$ss.pl)
   })
   
+  # observeEvent(input$submitSig4,{
+  #     if(is.null(mtb[["value"]])){
+  #         
+  #         if (input$oncogeneMapping4){
+  #             if(is.null(input$driverGenesFile$datapath)){
+  #                 driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
+  #             } else{
+  #                 driverGenesFile <- input$driverGenesFile4$datapath
+  #             }
+  #             driverGene <- as.character(read.table(driverGenesFile)$V1)
+  #         }
+  #         else{
+  #             driverGene <- NULL 
+  #         }
+  #         
+  #         phyloTree <- isolate(varsLs$phyloTree)
+  #         withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
+  #             setProgress(message = 'treeMutSig: Calculation in progress',
+  #                         detail = 'This may take a while...')
+  #             
+  #             x <- mutTrunkBranch(phyloTree, 
+  #                                 geneList = driverGene, 
+  #                                 use.shiny = TRUE)
+  #             
+  #             mtb$summary <- plyr::rbind.fill(x$mutTrunkBranch.res)
+  #             mtb$plot <- x$mutTrunkBranch.plot
+  #             
+  #             Sys.sleep(1)
+  #         })
+  #     }
+  # })
+  
   sigBT <- eventReactive(input$submitSig4, {
-    if (input$oncogeneMapping) {
-      if(is.null(input$driverGenesFile4$datapath)){
-        driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
-      } else{
-        driverGenesFile <- input$driverGenesFile4$datapath
+      if (input$oncogeneMapping4){
+          if(is.null(input$driverGenesFile$datapath)){
+              driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
+          } else{
+              driverGenesFile <- input$driverGenesFile4$datapath
+          }
+          driverGene <- as.character(read.table(driverGenesFile)$V1)
+      }
+      else{
+          driverGene <- NULL 
       }
       
-      if(input$submitSig4){
-        progress <- Progress$new(session, min=1, max=15)
-        on.exit(progress$close())
-        progress$set(message = 'Signature data summary: Calculation in progress',
-                     detail = 'This may take a while...')
-        
-        for (i in 1:15) {
-          progress$set(value = i)
-          Sys.sleep(0.01)
-        }
-        
-        phyloTree <- isolate(varsLs$phyloTree)
-        maf <- isolate(varsLs$maf)
-        validate(
-            need(!(is.null(phyloTree)), "")
-        )
-        treeMSOutput <- treeMutSig(phyloTree, 
-                                          driverGenesFile=driverGenesFile, 
-                                          min.mut.num=input$mutThreshold4, 
-                                          signaturesRef=input$signaturesRef4)
-        df.signature <- mutTrunkBranch(treeMSOutput)
-        return(df.signature)
-      }
-    } else {
-      if(input$submitSig4){
-        progress <- Progress$new(session, min=1, max=15)
-        on.exit(progress$close())
-        progress$set(message = 'Signature summary: Calculation in progress',
-                     detail = 'This may take a while...')
-        
-        for (i in 1:15) {
-          progress$set(value = i)
-          Sys.sleep(0.01)
-        }
-        
-        phyloTree <- isolate(varsLs$phyloTree)
-        maf <- isolate(varsLs$maf)
-        validate(
-            need(!(is.null(phyloTree)), "")
-        )
-        treeMSOutput <- treeMutSig(phyloTree, 
-                                          driverGenesFile=NULL, 
-                                          min.mut.num=input$mutThreshold4, 
-                                          signaturesRef=input$signaturesRef4)
-        df.signature <- mutTrunkBranch(treeMSOutput)
-        return(df.signature)
-      }
-    }
+      phyloTree <- isolate(varsLs$phyloTree)
+      withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
+          setProgress(message = 'treeMutSig: Calculation in progress',
+                      detail = 'This may take a while...')
+          
+          
+          mtb <- mutTrunkBranch(phyloTree, 
+                              geneList = driverGene, 
+                              use.shiny = TRUE)
+          
+          Sys.sleep(1)
+      })
+      
+        return(plyr::rbind.fill(mtb$mutTrunkBranch.res))
   })
  
   output$sigBTt <- DT::renderDataTable({
@@ -1226,32 +1255,45 @@ shinyServer(function(input, output, session){
     stopButtonValueSig1$a <- 0
   })
   sigOFA1 <- eventReactive(input$submitSig1, {
-    if(input$submitSig1 & stopButtonValueSig1$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'Signature Plot: Calculation in progress',
-                   detail = 'This may take a while...')
       
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
       phyloTree <- isolate(varsLs$phyloTree)
-      maf <- isolate(varsLs$maf)
-      validate(
-          need(!(is.null(phyloTree)), "")
-      )
-      treeMSOutput <- treeMutSig(phyloTree, 
-                                        driverGenesFile=NULL, 
-                                        min.mut.num=input$mutThreshold, 
-                                        signaturesRef=input$signaturesRef)
-      df.signature <- mutSigSummary(treeMSOutput)
-      df.signature.plot <- plotMutationalSig(treeMSOutput)
+      withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
+          setProgress(message = 'treeMutSig: Calculation in progress',
+                      detail = 'This may take a while...')
+          
+          
+          tms <- treeMutSig(phyloTree, 
+                            min.mut.count = input$mutThreshold, 
+                            signaturesRef=input$signaturesRef1,
+                            use.shiny = TRUE)
+          
+          Sys.sleep(1)
+      })
       
-      return(list(df.signature.plot, df.signature))
-      # return(datatable(df.signature, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
-    }
+      df.signature <- tms$mutSig.summary
+      plot.list <- plotMutSigProfiler(tms)
+      
+      output$treemutsig.patientlist <- renderUI({
+          if(!is.null(plot.list)){
+              names <- names(plot.list)
+              selectInput("tms.pl", "Patient",
+                          choices = names, width = 600)
+          }
+      })
+      
+      if(length(names(plot.list)) == 1){
+          n <- names(plot.list)[1]
+      }else{
+          n <- getpatient.vafcluster()
+      }
+      
+      return(list(plot.list[[n]], df.signature[[n]]))
   })
+  
+  getpatient.tms <- eventReactive(input$tms.pl,{
+      return(input$tms.pl)
+  })
+  
   output$sigOFATableUI1 <- renderUI({
     if(!is.null(sigOFA1())){
       tagList(
@@ -1293,29 +1335,32 @@ shinyServer(function(input, output, session){
     stopButtonValueSig2$a <- 0
   })
   sigOFA2 <- eventReactive(input$submitSig2, {
-    if(input$submitSig2 & stopButtonValueSig2$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'TrunkOrBranch summary: Calculation in progress',
-                   detail = 'This may take a while...')
       
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
+      # if (input$oncogeneMapping2){
+      #     if(is.null(input$driverGenesFile2$datapath)){
+      #         driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
+      #     } else{
+      #         driverGenesFile <- input$driverGenesFile2$datapath
+      #     }
+      #     driverGene <- as.character(read.table(driverGenesFile)$V1)
+      # }
+      # else{
+      #     driverGene <- NULL 
+      # }
+      
       phyloTree <- isolate(varsLs$phyloTree)
-      maf <- isolate(varsLs$maf)
-      validate(
-          need(!(is.null(phyloTree)), "")
-      )
-      treeMSOutput <- treeMutSig(phyloTree, 
-                                        driverGenesFile=NULL, 
-                                        min.mut.num=input$mutThreshold, 
-                                        signaturesRef=input$signaturesRef)
-      df.branchTrunk.plot <- plotTrunkBranch(treeMSOutput, conf.level = input$conflevel)
-      
-      return(df.branchTrunk.plot)
-    }
+      withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
+          setProgress(message = 'treeMutSig: Calculation in progress',
+                      detail = 'This may take a while...')
+          
+          
+          mtb <- mutTrunkBranch(phyloTree, 
+                                geneList = NULL, 
+                                use.shiny = TRUE)
+          
+          Sys.sleep(1)
+      })
+      return(mtb$mutTrunkBranch.plot)
   })
   # output$sigOFATableUI2 <- renderUI({
   #   if(!is.null(sigOFA2()[[2]]))
@@ -1429,64 +1474,39 @@ shinyServer(function(input, output, session){
     stopButtonValue10$a <- 0
   })
   pht <- eventReactive(input$submit10, {
-    if(input$submit10 &stopButtonValue10$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'PhyloTree: Calculation in progress',
-                   detail = 'This may take a while...')
       
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
+      phyloTree <- isolate(varsLs$phyloTree)
+      withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
+          setProgress(message = 'Phylogenetic tree: Calculation in progress',
+                      detail = 'This may take a while...')
+          
+          
+          plot.list <- plotPhyloTree(phyloTree,
+                                     use.shiny = TRUE)
+          
+          Sys.sleep(1)
+      })
+      
+      
+      output$tree.patientlist <- renderUI({
+          if(!is.null(plot.list)){
+              names <- names(plot.list)
+              selectInput("t.pl", "Patient",
+                          choices = names, width = 600)
+          }
+      })
+      
+      if(length(names(plot.list)) == 1){
+          n <- names(plot.list)[1]
+      }else{
+          n <- getpatient.tree()
       }
-      if(!is.null(input$mafFile)){
-        phyloTree <- isolate(varsLs$phyloTree)
-        maf <- isolate(varsLs$maf)
-        validate(
-            need(!(is.null(phyloTree)), "")
-        )
-        if(input$useccf == T){
-          validate(
-            need(input$heatmap.type == "CCF","switch heatmap type to CCF")
-          )
-        }
-        if(phyloTree@patientID == "0"){
-          id <- input$mafFile$name
-          phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
-        }
-        p <- MesKit::plotPhyloTree(phyloTree,
-                                   # heatmap.type = input$heatmaptype,
-                                   show.mutSig = input$showmutSig, 
-                                   show.heatmap = input$showheatmap,
-                                   use.box = input$usebox,show.bootstrap = input$showbootstrap)
-        return(p)
-        # else{
-        #   validate(
-        #     need(!is.null(input$phylotree.dir),"Upload your phylotree file")
-        #   )
-        #   p <- MesKit::plotPhyloTree(phylotree.dat = input$phylotree.dir$datapath, 
-        #                              phylotree.type = input$phyloTreeType)
-        #   return(p)
-        # }
-      }
-      else{
-        phyloTree <- isolate(varsLs$phyloTree)
-        maf <- isolate(varsLs$maf)
-        validate(
-            need(!(is.null(phyloTree)), "")
-        )
-        if(phyloTree@patientID == "0"){
-          id <- input$mafFile$name
-          phyloTree@patientID <- strsplit(id,"\\.")[[1]][1]
-        }
-        p <- plotPhyloTree(phyloTree,
-                           # heatmap.type = input$heatmaptype,
-                           show.mutSig = input$showmutSig, show.heatmap = input$showheatmap,
-                           use.box = input$usebox,show.bootstrap = input$showbootstrap)
-        return(p)
-        # inputData()$phylotreeplot
-      }
-    }
+      
+      return(plot.list[[n]])
+  })
+  
+  getpatient.tree <- eventReactive(input$t.pl,{
+      return(input$t.pl)
   })
   
   output$phylotree <- renderPlot({
