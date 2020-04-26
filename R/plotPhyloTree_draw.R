@@ -399,8 +399,8 @@ addSignature <- function(tree, treeData, signature){
       treeData$Branch_Tumor_Type[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_Type[1])
       
    }
+   treeData[treeData$Signature == '',]$Signature <- "noMapSig"
    treeData <- treeData[order(treeData$Signature), ]
-   treeData$Signature <- gsub('No Signature', 'No signature', treeData$Signature)
    treeData$Signature <- gsub('Signature ', '', treeData$Signature)
    return(treeData)
 }
@@ -523,7 +523,17 @@ drawPhyloTree <- function(phyloTree = NULL,
                           show.gene = FALSE,
                           show.geneList = TRUE,
                           min.mut.count = 15,
-                          mut.threshold = 150){
+                          mut.threshold = 150,
+                          use.shiny = FALSE){
+    
+    patientID <- phyloTree@patientID
+    
+    ## shiny progression
+    if(use.shiny){
+        incProgress(amount=1)
+        setProgress(message = paste('Drawing ', "phylogenetic tree - ", patientID, sep=""))
+    }
+    
    if(!is.null(min.ratio)){
       if(min.ratio > 0){
          min.len <- max(phyloTree@tree$edge.length)*min.ratio
@@ -537,7 +547,6 @@ drawPhyloTree <- function(phyloTree = NULL,
    }
    set.seed(1234)
    myBoots <- phyloTree@bootstrap.value
-   patientID <- phyloTree@patientID
    rootLabel <- "NORMAL"
    ## plot phylotree
    samplePointsSize <- 3

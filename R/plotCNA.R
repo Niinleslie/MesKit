@@ -24,6 +24,7 @@ plotCNA <- function(seg, refBuild = "hg19",
                     show.GISTIC.gene = FALSE,
                     patient.id = NULL){
     
+    ## select patients in patient.id 
     if(is.null(patient.id)|length(patient.id) > 1){
         if(length(patient.id) > 1){
             patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
@@ -42,6 +43,8 @@ plotCNA <- function(seg, refBuild = "hg19",
         }
         seg <- seg[Patient_ID %in% patient.id]
     }
+    
+    
     if(show.GISTIC.gene){
       if(!"Gistic.type" %in% colnames(seg)){
         stop("GISTIC genes information were not found. Please check readSegment")
@@ -142,6 +145,7 @@ plotCNA <- function(seg, refBuild = "hg19",
                 h <- h + sample.bar.height + sample.bar.height/10
             }
         }
+        
         min <- sort(unique(patient.seg$hmin))
         max <- sort(unique(patient.seg$hmax))
         CNADat <- patient.seg[Type != "Neutral",]
@@ -284,3 +288,9 @@ plotCNA <- function(seg, refBuild = "hg19",
     
     return(CNAplot.list)
 }
+
+
+
+
+
+
