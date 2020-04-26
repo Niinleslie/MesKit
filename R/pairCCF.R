@@ -1,4 +1,4 @@
-ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density = TRUE){
+ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL){
    
    patientid <- unique(mafData$Patient_ID)
    
@@ -14,32 +14,8 @@ ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density =
       mafData <- mafData %>% 
          dplyr::mutate(CCF = Type_Average_CCF) %>% 
           dplyr::filter(!is.na(CCF))
-      
-      
-      # mafData <- tidyr::unite(
-      #    mafData,
-      #    "mutID",
-      #    c(
-      #       "Patient_ID",
-      #       "Tumor_Type",
-      #       "Chromosome",
-      #       "Start_Position",
-      #       "Reference_Allele",
-      #       "Tumor_Seq_Allele2"
-      #    ),
-      #    sep = ":",
-      #    remove = FALSE
-      # ) %>%
-      #    dplyr::mutate(totalDepth = Alt_allele_depth + Ref_allele_depth) %>% 
-      #    dplyr::filter(!is.na(CCF),!is.na(totalDepth)) %>%
-      #    dplyr::group_by(mutID) %>% 
-      #    dplyr::mutate(CCF = round(sum(CCF * Alt_allele_depth)/sum(Alt_allele_depth),3)) %>%
-      #    dplyr::ungroup() %>% 
-      #    data.table::as.data.table()
-      
       pairs <- combn(length(types), 2, simplify = FALSE)  
-   }
-   else{
+   }else{
       samples <- unique(mafData$Tumor_Sample_Barcode)
       if(length(samples) < 2){
          message(paste0(unique(mafData$Patient_ID), " have less than 2 samples, return NA"))
@@ -56,8 +32,7 @@ ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density =
       if(pairByType){
          S1 <- types[pair[1]]
          S2 <- types[pair[2]]  
-      }
-      else{
+      }else{
          S1 <- samples[pair[1]]
          S2 <- samples[pair[2]]
       }
@@ -73,8 +48,7 @@ ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density =
             dplyr::rename("sample1" = S1, "sample2" = S2) %>% 
             dplyr::filter(!is.na(sample1),!is.na(sample2))
          
-      }
-      else{
+      }else{
          ccf.pair <- mafData %>% dplyr::filter(Tumor_Sample_Barcode %in% c(S1, S2)) %>%
             tidyr::unite("mutation_id", c("Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
                          sep = ":", remove = FALSE) %>% 
@@ -83,7 +57,6 @@ ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density =
             dplyr::rename("sample1" = S1, "sample2" = S2) %>% 
             dplyr::filter(!is.na(sample1),!is.na(sample2)) 
       }
-      
       if(nrow(ccf.pair) == 0){
          message(paste0("Warning: No shared mutaions were detected between ",S1, " and ", S2) )
          p[[i]] <- NA
@@ -102,6 +75,8 @@ ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density =
       #     geom_point(aes(sample1, sample2, col = d), size = 1) +
       #     scale_color_identity() +
       #     theme_bw()
+      # m <- matrix(c(ccf.pair$sample1, ccf.pair$sample2),ncol = 2)
+      # smoothScatter(m, xlim = c(0,1), ylim = c(0,1))
       p[[i]] <- ggplot2::ggplot(data= ccf.pair, aes(x=sample1, y=sample2)) +
          xlab(S1) +
          ylab(S2) +
@@ -136,17 +111,17 @@ ccfPair <- function(mafData, pairByType = FALSE, geneList = NULL, show.density =
          p[[i]] <- p[[i]] + ggtitle(paste("CCF density plot in paired samples:\n ", S1, " vs ", S2, sep = ""))
       }
       
-      if(show.density){
-         p[[i]] <- p[[i]] + stat_density_2d(aes(fill = ..density..), geom = 'tile',contour = FALSE) +
-            # scale_fill_gradient(low = "#8491B499",high = "#E64B35FF")
-            scale_fill_gradientn(colours = c("white",
-                                             "#bcbddc",
-                                             "#9e9ac8",
-                                             "#807dba",
-                                             "#fc9272",
-                                             "#ef3b2c"),
-                                 name = "Density")
-      }
+      # if(show.density){
+     p[[i]] <- p[[i]] + stat_density_2d(aes(fill = ..density..), geom = 'tile',contour = FALSE) +
+        # scale_fill_gradient(low = "#8491B499",high = "#E64B35FF")
+        scale_fill_gradientn(colours = c("white",
+                                         "#bcbddc",
+                                         "#9e9ac8",
+                                         "#807dba",
+                                         "#fc9272",
+                                         "#ef3b2c"),
+                             name = "Density")
+      # }
       p[[i]] <- p[[i]] + geom_point(size = 0.5)
       # use smoothscatter
       # ccf.pair.matrix <- matrix(c(ccf.pair$sample1, ccf.pair$sample2),ncol = 2)

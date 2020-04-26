@@ -48,7 +48,7 @@ treeMutSig <- function(phyloTree,
                            use.shiny = use.shiny)
     mutSigSummary <- lapply(treeMSOutput, doMutSigSummary, withinType)
     cos_sim.mat <- lapply(treeMSOutput,function(x)x$cos_sim.mat)
-    sig.product <- lapply(treeMSOutput,function(x)x$sig.product)
+    sig.spectrum <- lapply(treeMSOutput,function(x)x$sig.spectrum)
     
-    return(list(mutSig.summary = mutSigSummary, cos_sim.mat = cos_sim.mat, mutSig.product = sig.product))
+    return(list(mutSig.summary = mutSigSummary, cos_sim.mat = cos_sim.mat, mutSig.spectrum = sig.spectrum))
 }

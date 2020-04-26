@@ -35,7 +35,7 @@ doTreeMutSig <- function(phyloTree,
    
    ## get the mutational signature of the branch 
    mutSigsOutput <- data.frame()
-   sig.product <- data.frame()
+   sig.spectrum <- data.frame()
    
    ## count 96 substitution typs in each branches
    sigsInput <- countTriplet(mutSigRef = mutSigRef,
@@ -121,15 +121,15 @@ doTreeMutSig <- function(phyloTree,
             mut.count <- length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
          }
          
-         ## get product of sigs output 
+         ## get spectrum of sigs output 
          sig.rec <- as.data.frame(fit$Reconstructed)
          sig.rec$Branch <- as.character(row.names(fit$Reconstructed)) 
-         sig.branch.product <- tidyr::pivot_longer(sig.rec ,
+         sig.branch.spectrum <- tidyr::pivot_longer(sig.rec ,
                                                    -Branch,
                                                    names_to = "group",
                                                    values_to = "sigs.prob") %>% 
                               as.data.frame()
-         sig.branch.product$value.type <- "Reconstructed"
+         sig.branch.spectrum$value.type <- "Reconstructed"
          
          ## get Original fractions of 96 types
          sig.Original <- as.data.frame(sigsInput[branchName,]/sum(sigsInput[branchName,]))
@@ -141,9 +141,9 @@ doTreeMutSig <- function(phyloTree,
                        as.data.frame()
          sig.Original$value.type <- "Original"
          
-         sig.branch.product <- rbind(sig.branch.product,sig.Original)
+         sig.branch.spectrum <- rbind(sig.branch.spectrum,sig.Original)
          if(!withinType){
-             sig.branch.product$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
+             sig.branch.spectrum$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
          }
          
          ## sort signature by proportion
@@ -159,8 +159,8 @@ doTreeMutSig <- function(phyloTree,
              }
             t <- paste(t, " & ", sigs.branch.name[i], ": ", round(sigs.branch[i],3), sep = "")
          }
-         sig.branch.product$Signature <- t
-         sig.product <- rbind(sig.product, sig.branch.product)
+         sig.branch.spectrum$Signature <- t
+         sig.spectrum <- rbind(sig.spectrum, sig.branch.spectrum)
       }
       
       mutSigsBranch <- data.frame(
@@ -195,23 +195,23 @@ doTreeMutSig <- function(phyloTree,
    mutSigsOutput$sig.prob <- as.numeric(as.vector(mutSigsOutput$sig.prob))
    
    ## calculation process(maybe could be replaced by lapply)
-   if(nrow(sig.product) > 0){
+   if(nrow(sig.spectrum) > 0){
        if(withinType){
-           sig.product$Alias <- sig.product$Branch
+           sig.spectrum$Alias <- sig.spectrum$Branch
        }
        if(withinType){
-           all.types <- unique(sig.product$Alias) 
+           all.types <- unique(sig.spectrum$Alias) 
            public <- all.types[grep("Public", all.types)] 
            shared <- all.types[grep("Shared", all.types)] 
            private <- all.types[grep("Private", all.types)]
            type.level <- c(public, shared, private)
-           sig.product$Alias <- factor(sig.product$Alias, levels = type.level)
-           sig.product$Patient_ID <- patientID
-           colnames(sig.product) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability","value.type","Signature","Alias","Patient_ID")
-           rownames(sig.product) <- 1:nrow(sig.product)
+           sig.spectrum$Alias <- factor(sig.spectrum$Alias, levels = type.level)
+           sig.spectrum$Patient_ID <- patientID
+           colnames(sig.spectrum) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability","value.type","Signature","Alias","Patient_ID")
+           rownames(sig.spectrum) <- 1:nrow(sig.spectrum)
        }else{
-           sig.product$Patient_ID <- patientID
-           colnames(sig.product) <- c("Branch", "Group", "Mutation_Probability","value.type","Alias", "Signature","Patient_ID")
+           sig.spectrum$Patient_ID <- patientID
+           colnames(sig.spectrum) <- c("Branch", "Group", "Mutation_Probability","value.type","Alias", "Signature","Patient_ID")
        }
    }
    
@@ -229,7 +229,7 @@ doTreeMutSig <- function(phyloTree,
    
    treeMSOutput <- list(
       sigsInput=sigsInput, 
-      sig.product=sig.product,
+      sig.spectrum=sig.spectrum,
       cos_sim.mat = cos_sim.mat,
       mutSigsOutput=mutSigsOutput, 
       df.aetiology=df.aetiology, 
@@ -456,147 +456,3 @@ doMutSigSummary <- function(treeMSOutput, withinType){
    
    return(mutSigsOutput)
 }
-
-
-# ## Visualize the mutational signatures of trunk/branches in a phylogenetic tree.
-# doPlotMutSig <- function(tree.mutSig) {
-#     
-#     sig.product <- tree.mutSig$sig.product
-#     
-#     if(nrow(sig.product) == 0){
-#         return(NA)
-#     }
-#     
-#     sig.product$Signature <- as.character(sig.product$Signature)
-#     ls.mutationType <-as.character(sig.product$Group)
-#     ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
-#     
-#     ## generate Mutation Type for every column
-#     sig.product$Group <- as.character(sig.product$Group)
-#     for (mutationGroup in ls.mutationGroup) {
-#         sig.product$Group[which(grepl(mutationGroup, sig.product$Group))] <- mutationGroup
-#     }
-#     
-#     ## specific the label order of x axis
-#     orderlist <- c(ls.mutationType)
-#     sig.product$Type <- factor(ls.mutationType, levels = unique(orderlist) )
-#     sig.product$Group <- factor(sig.product$Group, levels = ls.mutationGroup)
-#     
-#     if(nrow(sig.product) == 0){
-#         warning(paste0("Patient ", tree.mutSig$patientID, ": There is no enough eligible mutations can be used."))
-#         return(NA)
-#     }
-#     if("Branch" %in% colnames(sig.product)){
-#         sig.product$Alias <- factor(sig.product$Alias, levels = unique(sig.product$Alias))
-#     }
-#     
-#     # sig.product <- dplyr::distinct(sig.product, Branch, .keep_all = TRUE)
-#     
-#     group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
-#                       "#3C5488FF", "#F39B7FFF", "#8491B4FF")
-#     
-#     # set the limit of y axis
-#     yMax <- max(max(sig.product$Mutation_Probability), round(max(sig.product$Mutation_Probability) + 0.1, 1))
-# 
-#     pic <- ggplot(sig.product, 
-#                   aes(x=Type, y=Mutation_Probability, group=Group, fill=Group)
-#     ) + 
-#         geom_bar(stat="identity") +
-#         theme(panel.grid=element_blank(), 
-#               panel.border=element_blank(), 
-#               panel.background = element_blank(), 
-#               legend.position='none', 
-#               # axis.text.x=element_text(size=3, angle = 45, hjust = 1, vjust = 1), 
-#               plot.title = element_text(size = 13, face = "bold", hjust = 0.5,vjust = 0),
-#               axis.text.x= element_blank(), 
-#               axis.ticks.x=element_blank(),
-#               axis.line.y = element_blank(),
-#               axis.ticks.length.y = unit(0.2, "cm"),
-#               axis.text.y=element_text(size=6, color = "black"),
-#               strip.background = element_blank(),
-#               strip.text = element_blank(),
-#         ) +
-#         annotate(geom = "segment", x=-1, xend = -1, y = 0, 
-#                  yend = yMax, size = 0.6)+
-#         
-#         ## side bar
-#         geom_rect(aes(xmin = 96.5, xmax = 99, ymin = 0, ymax = yMax), fill = "#C0C0C0",alpha = 0.06) +
-#         geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE),
-#                   aes(x=98, y= yMax/2, label = Alias), 
-#                   angle = 270, color = "black", size = 3, fontface = "plain") + 
-#         
-#         
-#         ## background colors
-#         geom_rect(aes(xmin=0, xmax=16.5, ymin=0, ymax=yMax),
-#                   fill="#fce7e4", alpha=0.15) + 
-#         geom_rect(aes(xmin=16.5, xmax=32.5, ymin=0, ymax=yMax),
-#                   fill="#ecf8fa", alpha=0.25) + 
-#         geom_rect(aes(xmin=32.5, xmax=48.5, ymin=0, ymax= yMax),
-#                   fill="#dbfff9", alpha=0.05) + 
-#         geom_rect(aes(xmin=48.5, xmax=64.5, ymin=0, ymax= yMax),
-#                   fill="#e4e8f3", alpha=0.08) + 
-#         geom_rect(aes(xmin=64.5, xmax=80.5, ymin=0, ymax= yMax),
-#                   fill="#fdefeb", alpha=0.15) + 
-#         geom_rect(aes(xmin=80.5, xmax=96.5, ymin=0, ymax= yMax),
-#                   fill="#e5e8ef", alpha=0.1) + 
-#         ## barplot
-#         geom_bar(stat="identity") + 
-#         ## combine different results
-#         facet_grid(Alias ~ .) + 
-#         ## color setting
-#         scale_fill_manual(values=group.colors) +
-#         
-#         ## axis setting
-#         xlab("Mutational type") + 
-#         ylab("Mutation probability") + 
-#         # ggtitle(paste0("Mutational signatures of ",tree.mutSig$patientID,"'s phylogenetic tree ") ) +
-#         # scale_x_discrete(breaks = c(10,27,43,59,75,91),
-#         #                  labels = c("C>A","C>G","C>T","T>A","T>C","T>G"))+
-#         scale_y_continuous(limits=c(0, yMax+ 0.03), 
-#                            breaks=seq(0, yMax, 0.1)) +
-#         
-#         ## signature notes and text parts
-#         geom_text(data = dplyr::distinct(sig.product,Alias,.keep_all = TRUE) , 
-#                   aes(x=0, y=yMax, label= Signature), 
-#                   hjust = 0, vjust = 1.5, colour="#2B2B2B", size=3.5) + 
-#         
-#         ## x axis bar
-#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
-#                   aes(xmin=0, xmax=16.5, ymin=yMax, ymax=yMax + 0.03),
-#                   fill=group.colors[1], alpha=1) + 
-#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
-#                   aes(xmin=16.5, xmax=32.5, ymin=yMax, ymax=yMax + 0.03),
-#                   fill=group.colors[2], alpha=0.25) + 
-#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
-#                   aes(xmin=32.5, xmax=48.5, ymin=yMax, ymax=yMax + 0.03),
-#                   fill=group.colors[3], alpha=0.05) + 
-#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
-#                   aes(xmin=48.5, xmax=64.5, ymin=yMax, ymax=yMax + 0.03),
-#                   fill=group.colors[4], alpha=0.08) + 
-#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
-#                   aes(xmin=64.5, xmax=80.5, ymin=yMax, ymax=yMax + 0.03),
-#                   fill=group.colors[5], alpha=0.15) + 
-#         geom_rect(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]),
-#                   aes(xmin=80.5, xmax=96.5, ymin=yMax, ymax=yMax + 0.03),
-#                   fill=group.colors[6], alpha=0.1) +
-#         
-#         # Mutational Type Labels
-#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1] & Group == "C>A")[1,],
-#                   aes(x = 10, y= yMax + 0.02, label = "C>A"),size = 3,hjust = 1) +
-#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1] & Group == "C>G")[1,],
-#                   aes(x = 26, y= yMax + 0.02, label = "C>G"),size = 3,hjust = 1) +
-#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "C>T")[1,],
-#                   aes(x = 42, y= yMax + 0.02, label = "C>T"),size = 3,hjust = 1) +
-#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "T>A")[1,],
-#                   aes(x = 58, y= yMax + 0.02, label = "T>A"),size = 3,hjust = 1) +
-#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "T>C")[1,],
-#                   aes(x = 74, y= yMax + 0.02, label = "T>C"),size = 3,hjust = 1) +
-#         geom_text(data = subset(sig.product, Alias == levels(sig.product$Alias)[1]& Group == "T>G")[1,],
-#                   aes(x = 90, y= yMax + 0.02, label = "T>G"),size = 3,hjust = 1)
-#     #pic <- pic + annotate(geom = "segment", x=10, xend = 10, y = 0, 
-#     #yend = yMax, size = 2)
-#     #yend = yMax, size = 2)
-#     
-#     message("Mutational signature plot generation done!")
-#     return(pic)
-# }

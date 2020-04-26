@@ -434,20 +434,13 @@ getColors <- function(signatures){
 }
 
 getPrivateMutation <- function(phyloTree){
-   totalMut <- phyloTree@mut.branches
-   privateOrder <- unlist(lapply(names(totalMut),
-                                 function(x){return(length(strsplit(x,"∩")[[1]]) == 1)})) 
-   privateMut <- totalMut[privateOrder]
-   countMutation <- function(mut){
-      sum <- 0
-      for(i in 1:length(mut)){
-         count <- nrow(mut[[i]])
-         sum <- sum + count
-      }
-      return(sum)
-   }
-   totalMutSum <- countMutation(totalMut)
-   privateMutSum <- countMutation(privateMut)
+   mut.branches <- phyloTree@mut.branches
+   private.idx <- unlist(lapply(unique(mut.branches$Branch_ID),
+                                 function(x){return(length(strsplit(x,"∩")[[1]]) == 1)}))
+   samples <- unique(mut.branches$Branch_ID)[private.idx]
+   private.muts <- mut.branches[mut.branches$Branch_ID %in% samples,]
+   totalMutSum <- nrow(mut.branches)
+   privateMutSum <- nrow(private.muts)
    privateMutProportion <- paste(round((privateMutSum/totalMutSum)*100,1),"%",sep = "")
    return(list(totalMutSum, privateMutProportion))
 }
