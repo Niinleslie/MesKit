@@ -17,7 +17,8 @@ plotPhyloTree(
   show.geneList = TRUE,
   min.mut.count = 15,
   mut.threshold = 50,
-  patient.id = NULL
+  patient.id = NULL,
+  use.shiny = FALSE
 )
 }
 \arguments{

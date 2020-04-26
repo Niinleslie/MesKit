@@ -2,18 +2,14 @@
 #' @description compares two phylogenetic trees and returns a detailed report of several distance methods
 #' 
 #' 
-#' @param tree1 a single class PhyloTree
-#' @param tree2 a single class PhyloTree
-#' @param plot a logical value, default FALSE. If TRUE, 
-#' the two trees will be plotted on the same device and their similarities will be shown.
-#' @param min.ratio double (Default:1/30). If min.ratio is not NULL,
-#'  all edge length of a phylogenetic tree should be greater than
-#'  min.ratio*the longest edge length.
-#'  If not, the edge length will be reset as min.ratio*longest edge length.
-#' 
+#' @param tree1 a phyloTree object
+#' @param tree2 a phyloTree object
+#' @param plot FALSE(Default). If TRUE, two trees will be plotted on the same device and their similarities will be shown.
+#' @param min.ratio double (Default: 1/30). If min.ratio is not NULL,
+#' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
 #' @param common.lty line type of common branch.
 #' 
-#' @return returns a vector containing the following tree distance methods by R package phangorn
+#' @return a vector containing the following tree distance methods by R package phangorn
 #' Symmetric.difference  Robinson-Foulds distance
 #' KF-branch distance  the branch score distance (Kuhner & Felsenstein 1994)
 #' Path.difference  difference in the path length, counted as the number of branches 
@@ -30,7 +26,6 @@ compareTree <- function(tree1,
                         tree2,
                         plot = FALSE,
                         branchCol = "mutSig",
-                        show.heatmap = FALSE,
                         min.ratio = 1/30,
                         use.ccf = FALSE,
                         show.bootstrap = FALSE,
@@ -80,7 +75,7 @@ compareTree <- function(tree1,
 	    p1 <- drawPhyloTree(phyloTree = tree1,
 	                        treeData = treedat1,
 	                        branchCol = branchCol,
-	                        show.heatmap = show.heatmap,
+	                        show.heatmap = FALSE,
 	                        show.bootstrap = show.bootstrap,
 	                        use.box = use.box,
 	                        use.ccf = use.ccf,
@@ -92,7 +87,7 @@ compareTree <- function(tree1,
 	                        branchCol = branchCol,
 	                        show.bootstrap = show.bootstrap,
 	                        use.box = use.box,
-	                        show.heatmap = show.heatmap,
+	                        show.heatmap = FALSE,
 	                        use.ccf = use.ccf,
 	                        compare = compare,
 	                        common.lty = common.lty,
