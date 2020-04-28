@@ -5,16 +5,16 @@
    if (showMATH){
       if (plotOption == "combine"){
          mathtbscoreLs <- mathScore(maf, min.vaf = min.vaf)
-         mathtbscore <- mathtbscoreLs$MATH.df
+         mathtbscore <- mathtbscoreLs
          mathscore <- mathtbscore[which(mathtbscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score
       }
       else if (plotOption == "compare"){
          mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf)
-         mathscore <- mathtbscoreLs$MATH.df
+         mathscore <- mathtbscoreLs
       }
       else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
          mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf) 
-         mathtbscore <- mathtbscoreLs$MATH.df
+         mathtbscore <- mathtbscoreLs
          mathscore <- mathtbscore[which(
             mathtbscore$Tumor_Sample_Barcode == plotOption), 
             ]$MATH_Score

@@ -1,6 +1,6 @@
 #' @import ComplexHeatmap
 
-genHeatmapPlotMatrix <- function(
+genHeatmapPlotMat <- function(
         maf_data, 
         topGenesCount = 15) {
 
@@ -68,7 +68,7 @@ plotMutProfile <- function(maf_data,
                            remove_empty_rows = TRUE, 
                            showColnames = TRUE) {
         
-    maf.plot <- genHeatmapPlotMatrix(maf_data, topGenesCount = topGenesCount)  
+    maf.plot <- genHeatmapPlotMat(maf_data, topGenesCount = topGenesCount)  
     mat <- maf.plot[[1]]
 
     #col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
@@ -274,49 +274,63 @@ plotMutProfile <- function(maf_data,
     ## type legend
     
     heatmapLegend <- ComplexHeatmap::Legend(title = "Type", 
-                            title_gp = grid::gpar(fontsize = 13, fontface = "bold"),
+                            title_gp = grid::gpar(fontsize = 11, fontface = "bold"),
                             at = names(col_type(class)),
                             labels = sub("_", "-", names(col_type(class))),
-                            labels_gp = grid::gpar(fontsize = 12),
+                            labels_gp = grid::gpar(fontsize = 11),
                             grid_width = unit(4, "mm"),
                             grid_height = unit(4, "mm"), legend_gp = grid::gpar(fill = col_type(class)))
     
     ## patient legend
     patient.id <- unique(patient.split)
     
-    set.seed(1234)
-    patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
-    names(patientsCol) <- patient.id
-    
-    patientLegend <-  ComplexHeatmap::Legend(
-                                 labels = patient.id, 
-                                 legend_gp = grid::gpar(fill = patientsCol), 
-                                 title_gp = grid::gpar(fontsize = 13, fontface = "bold"),
-                                 labels_gp = grid::gpar(fontsize = 12),
-                                 grid_width = unit(4, "mm"),
-                                 grid_height = unit(4, "mm"), title = "Patient")
-    
     ## multi-hits legend
     multiLegend <- ComplexHeatmap::Legend(
-                          labels = "Multi_hits",
-                          labels_gp = grid::gpar(fontsize = 12),
-                          type = "points",
-                          pch = 16,
-                          grid_width = unit(4, "mm"),
-                          grid_height = unit(4, "mm")
-                   )
+        labels = "Multi_hits",
+        labels_gp = grid::gpar(fontsize = 11),
+        type = "points",
+        pch = 16,
+        grid_width = unit(4, "mm"),
+        grid_height = unit(4, "mm")
+    )
+    
+    if (is.null(patient.id)) {
+        
+        ## type-multi legend
+        hm <- ComplexHeatmap::packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.3, "mm"))
+        
+        ## type-multi-patient legend
+        hmp <- ComplexHeatmap::packLegend(hm, direction = "vertical", gap = unit(0.3, "cm"))
+        
+        ## type-patient legend
+        hp <- ComplexHeatmap::packLegend(heatmapLegend, direction = "vertical", gap = unit(1.2, "cm"))
+        
+    }else {
+    
+        set.seed(1234)
+        patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
+        names(patientsCol) <- patient.id
+    
+        patientLegend <-  ComplexHeatmap::Legend(
+                                    labels = patient.id, 
+                                    legend_gp = grid::gpar(fill = patientsCol), 
+                                    title_gp = grid::gpar(fontsize = 11, fontface = "bold"),
+                                    labels_gp = grid::gpar(fontsize = 11),
+                                    grid_width = unit(4, "mm"),
+                                    grid_height = unit(4, "mm"), title = "Patient")
     
     
-    ## type-multi legend
-    hm <- ComplexHeatmap::packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.3, "mm"))
     
-    ## type-multi-patient legend
-    hmp <- ComplexHeatmap::packLegend(hm, patientLegend, direction = "vertical", gap = unit(0.3, "cm"))
+        ## type-multi legend
+        hm <- ComplexHeatmap::packLegend(heatmapLegend, multiLegend, direction = "vertical", gap = unit(0.3, "mm"))
     
-    ## type-patient legend
-    hp <- ComplexHeatmap::packLegend(heatmapLegend, patientLegend, direction = "vertical", gap = unit(1.2, "cm"))
+        ## type-multi-patient legend
+        hmp <- ComplexHeatmap::packLegend(hm, patientLegend, direction = "vertical", gap = unit(0.3, "cm"))
     
+        ## type-patient legend
+        hp <- ComplexHeatmap::packLegend(heatmapLegend, patientLegend, direction = "vertical", gap = unit(1.2, "cm"))
     
+    }
     
     ht <- suppressMessages(
         ComplexHeatmap::oncoPrint(
@@ -324,7 +338,7 @@ plotMutProfile <- function(maf_data,
             alter_fun = alter_fun(class),
             col = col_type(class),
             column_title = "Mutational profile",
-            column_title_gp = grid::gpar(fontsize = 16, fontface = "bold", col = "black"),
+            column_title_gp = grid::gpar(fontsize = 15, fontface = "bold", col = "black"),
             row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
             #heatmap_legend_param = heatmap_legend(class),
             show_heatmap_legend = FALSE,

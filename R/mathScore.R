@@ -11,9 +11,7 @@
 #' @export mathScore
 
 ## MATH Score main function
-mathScore <- function(maf, patient.id = NULL, min.vaf=0.02,
-                      # plot = TRUE,
-                      withinType = FALSE, use.adjVAF = FALSE){
+mathScore <- function(maf, patient.id = NULL, min.vaf=0.02, withinType = FALSE, use.adjVAF = FALSE){
 
     ## MATH Caculation
     calMATH <- function(VAF){
