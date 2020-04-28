@@ -3,9 +3,11 @@ doTreeMutSig <- function(phyloTree,
                          min.mut.count=15,
                          signaturesRef="cosmic_v2",
                          tri.counts.method = "default",
-                         withinType = FALSE,
-                         use.shiny = FALSE){
+                         withinType = FALSE){
    
+   ## get branches information from phyloTree object
+   mutSigRef <- phyloTree@mut.branches
+   patientID <- phyloTree@patientID
    refBuild <- phyloTree@refBuild
    ref.options = c('hg18', 'hg19', 'hg38')
    if(!refBuild %in% ref.options){
@@ -15,14 +17,11 @@ doTreeMutSig <- function(phyloTree,
    }
    
    
-   ## get branches information from phyloTree object
-   mutSigRef <- phyloTree@mut.branches
-   patientID <- phyloTree@patientID
    
-   if(use.shiny){
-       incProgress(amount=1)
-       setProgress(message = paste('Generating ', "mutation signatures - ", patientID, sep=""))
-   }
+   # if(use.shiny){
+   #     incProgress(amount=1)
+   #     setProgress(message = paste('Generating ', "mutation signatures - ", patientID, sep=""))
+   # }
    
    ## Select mutations in selected genes
    if(!is.null(geneList)){

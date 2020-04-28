@@ -5,7 +5,6 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.ccf the minimum value of CCF. Default: 0
 #' @param pairByType pair by tumor types in each patients,default is FALSE.
-#' @param geneList list of genes to restrict the analysis. Default NULL.
 #' 
 #' 
 #' @return
@@ -17,7 +16,7 @@
 compareCCF <- function(maf,
                     patient.id = NULL,
                     pairByType = FALSE,
-                    geneList = NULL,
+                    # geneList = NULL,
                     min.ccf = 0){
   mafData <- maf@data
 
@@ -45,11 +44,15 @@ compareCCF <- function(maf,
   }
 
   
-  density.list <- mafData %>%
+  ccf.pair.list <- mafData %>%
       dplyr::filter(Patient_ID %in% patient.id & CCF > min.ccf) %>%
       dplyr::group_by(Patient_ID) %>%
-      dplyr::group_map(., ~ccfPair(.x, pairByType = pairByType, geneList = geneList), keep=TRUE) %>%
+      dplyr::group_map(~ccfPair(.x, pairByType = pairByType), keep=TRUE) %>%
       rlang::set_names(patient.id)
+  
+  if(all(is.na(ccf.pair.list))){
+      return(NA)
+  }
 
-  return(density.list)      
+  return(ccf.pair.list)      
 }

@@ -9,7 +9,7 @@ mathScore(
   patient.id = NULL,
   min.vaf = 0.02,
   withinType = FALSE,
-  use.adjVAF = TRUE
+  use.adjVAF = FALSE
 )
 }
 \arguments{

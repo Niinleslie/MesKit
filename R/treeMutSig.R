@@ -24,8 +24,7 @@ treeMutSig <- function(phyloTree,
                        min.mut.count=15,
                        signaturesRef="cosmic_v2",
                        withinType = FALSE,
-                       patient.id = NULL,
-                       use.shiny = FALSE){
+                       patient.id = NULL){
     
     signaturesRef.options <- c("cosmic_v2","nature2013","genome_cosmic_v3","exome_cosmic_v3")
     if(!signaturesRef %in% signaturesRef.options){
@@ -44,8 +43,7 @@ treeMutSig <- function(phyloTree,
                            min.mut.count = min.mut.count,
                            signaturesRef = signaturesRef,
                            tri.counts.method = tri.counts.method,
-                           withinType = withinType,
-                           use.shiny = use.shiny)
+                           withinType = withinType)
     mutSigSummary <- lapply(treeMSOutput, doMutSigSummary, withinType)
     cos_sim.mat <- lapply(treeMSOutput,function(x)x$cos_sim.mat)
     sig.spectrum <- lapply(treeMSOutput,function(x)x$sig.spectrum)

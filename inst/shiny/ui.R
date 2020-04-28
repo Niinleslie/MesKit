@@ -488,6 +488,80 @@ bodyITH <- tabItem("ITH",
                                )
                              )
                            )
+                         ),
+                         conditionalPanel(
+                             condition = "input.tith == 'caInput_ccfauc'",
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf:")),
+                                         tags$td(width = "70%", textInput(inputId = "minccf_ccfauc", value = 0, label = NULL)))
+                             ), 
+                             bsTooltip(id = "minccf_ccfauc",
+                                       title = "The minimum value of ccf",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             checkboxInput('withintype_ccfauc',
+                                           value = FALSE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Within type'),
+                                           width = 500),
+                             bsTooltip(id = "withintype_ccfauc",
+                                       title = "calculate ccf within type",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             fluidRow(
+                                 column(
+                                     width = 9,
+                                     div(
+                                         tags$button(
+                                             id = "submit_ccfauc", type = "button", class = "action-button bttn",
+                                             class = "bttn-unite", class = paste0("bttn-md"),
+                                             class = paste0("bttn-default"),
+                                             list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                             style = "margin-bottom:0px;margin-right:0px;"
+                                         )
+                                     )
+                                 )
+                             )
+                         ),
+                         conditionalPanel(
+                             condition = "input.tith == 'caInput_calfst'",
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf:")),
+                                         tags$td(width = "70%", textInput(inputId = "minvaf_calfst", value = 0.08, label = NULL)))
+                             ), 
+                             bsTooltip(id = "minvaf_calfst",
+                                       title = "The minimum value of ccf",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             checkboxInput('withintype_calfst',
+                                           value = FALSE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Within type'),
+                                           width = 500),
+                             bsTooltip(id = "withintype_calfst",
+                                       title = "calculate ccf within type",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             fluidRow(
+                                 column(
+                                     width = 9,
+                                     div(
+                                         tags$button(
+                                             id = "submit_calfst", type = "button", class = "action-button bttn",
+                                             class = "bttn-unite", class = paste0("bttn-md"),
+                                             class = paste0("bttn-default"),
+                                             list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                             style = "margin-bottom:0px;margin-right:0px;"
+                                         )
+                                     )
+                                 )
+                             )
                          )
                        )
                      ),
@@ -554,6 +628,24 @@ bodyITH <- tabItem("ITH",
                              uiOutput('warningMessage06'),
                              div(plotOutput("JaccardIndex",height = "100%"),align = "center") ,
                              uiOutput("jidb")
+                           ),
+                           tabPanel(
+                               title = div(icon("box"), "ccfAUC"),
+                               value = "caInput_ccfauc",
+                               uiOutput('warningMessage07'),
+                               uiOutput('ccfauc.patientlist'),
+                               div(plotOutput("ccfauc_plot",height = "100%"),align = "center") ,
+                               uiOutput("ccfauc_db_ui"),
+                               uiOutput("ccfauc_table_ui")
+                           ),
+                           tabPanel(
+                               title = div(icon("box"), "calFst"),
+                               value = "caInput_calfst",
+                               uiOutput('calfst.patientlist'),
+                               div(plotOutput("calfst_plot",height = "100%"),align = "center") ,
+                               uiOutput("calfst_db_ui"),
+                               uiOutput("calfst_avg_table_ui"),
+                               uiOutput("calfst_pair_table_ui")
                            )
                          )
                        )
@@ -1114,6 +1206,7 @@ bodySignature <- tabItem('signature',
                                      title = div(icon("image"), "Mutational trunkOrBranch plot"),
                                      value = 'S03',
                                      uiOutput('warningMessage12'),
+                                     uiOutput('mtb.patientlist'),
                                      div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
                                      uiOutput("sigpdb2")
                                  ), 

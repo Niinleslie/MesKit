@@ -10,6 +10,7 @@ Description: A tool kit for dissecting cancer evolution from multi-region derive
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
+Depends: R (>= 3.5.0)
 Imports: ape, plotrix, dplyr, Hmisc, ggrepel, tidyr (>= 1.0.0),
         ggridges, ggsci, cowplot,
         packcircles, htmlwidgets, 

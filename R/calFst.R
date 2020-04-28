@@ -40,7 +40,7 @@ calFst <- function(
         }
     }
 
-	if(! "VAF_adj" %in% colnames(mafData)){
+	if(!"VAF_adj" %in% colnames(mafData)){
 		stop("Adjust VAF was not found in maf object.
 		     Check if CCF data was provided or let adjusted.VAF be TRUE in function readMaf when VAF have been adjusted")
 	}
@@ -53,16 +53,6 @@ calFst <- function(
 	mafData <-  mafData %>%
 	    dplyr::filter(VAF_adj > min.vaf,
 	                  Patient_ID %in% patient.id) %>% 
-	    tidyr::unite(
-	        "mutation_id", 
-	        c(
-	            "Chromosome", 
-	            "Start_Position", 
-	            "Reference_Allele", 
-	            "Tumor_Seq_Allele2"), 
-	        sep = ":", 
-	        remove = FALSE
-	    ) %>% 
 	    #dplyr::filter(Variant_Type == "SNP") %>%
 	    dplyr::mutate(
 	        totalDepth = Ref_allele_depth + Alt_allele_depth)
@@ -71,7 +61,7 @@ calFst <- function(
         filter.out <- mafData %>%
             dplyr::filter(Clonal_Status == "Subclonal") %>%
             dplyr::select(        	
-                mutation_id,
+                Mut_ID,
                 Tumor_Type,
                 Tumor_Sample_Barcode,
                 Patient_ID,
@@ -93,16 +83,14 @@ calFst <- function(
                              withinType = withinType), 
                 keep = TRUE) %>%
             rlang::set_names(patient.id)
-    }
-	else{
+    }else{
 	    filter.out <- mafData %>%
 	        dplyr::filter(Clonal_Status == "Subclonal") %>%
 	        dplyr::select(        	
-	            mutation_id,
+	            Mut_ID,
 	            Tumor_Sample_Barcode,
 	            Patient_ID,
 	            VAF_adj,
-	            #!!vaf.col,
 	            totalDepth)
 	    ## fresh patient.id
 	    patient.id <- unique(filter.out$Patient_ID)

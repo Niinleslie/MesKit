@@ -45,19 +45,8 @@ compareJSI <- function(
     }
 
     JSI.dist <- mafData %>%
-        tidyr::unite(
-            "mutation_id",
-            c(
-                "Chromosome",
-                "Start_Position",
-                "Reference_Allele",
-                "Tumor_Seq_Allele2"
-            ),
-            sep = ":",
-            remove = FALSE
-        ) %>%
         dplyr::select(
-            mutation_id,
+            Mut_ID,
             Tumor_Type,
             Tumor_Sample_Barcode,
             Patient_ID,

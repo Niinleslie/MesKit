@@ -1,10 +1,11 @@
-plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
+plotCorr <- function(corrMat, use.circle = TRUE, title = NULL, number.cex = 8, number.col = "#C77960"){
     corrMat[lower.tri(corrMat)] <- 0
     maxCorr <- max(corrMat[corrMat!=1])
     minCorr <- min(corrMat[corrMat!=1 & corrMat!=0])
     #maxCorr <- max(corrMat)
     TSBs <- colnames(corrMat)
-
+    
+    
     #col_fun <- circlize::colorRamp2(pretty(c(0, maxCorr),6),
     #                                c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
     len.max <- nchar(as.character(minCorr))
@@ -60,9 +61,9 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL){
                 }
                 
                 grid::grid.text(
-                    round(corrMat[i, j],digits = digits) ,
+                    round(corrMat[i, j],digits = 3) ,
                     x, y,
-                    gp = grid::gpar(fontsize = 11, fontface = "bold", col = "#C77960")
+                    gp = grid::gpar(fontsize = number.cex, fontface = "bold", col = number.col)
                 )
             }
             

@@ -127,9 +127,9 @@ shinyServer(function(input, output, session){
       if(is.null(input$mafFile)){
         mafFile <- system.file("extdata", "HCC6046.maf", package = "MesKit")
         ccfFile <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
-        maf <- MesKit::readMaf(mafFile = mafFile)
+        maf <- readMaf(mafFile = mafFile,ccfFile = ccfFile)
       } else {
-        if(is.null(input$mafFile) & !is.null(input$ccfFile)){
+        if(!is.null(input$mafFile) & !is.null(input$ccfFile)){
           maf <- readMaf(mafFile = input$mafFile$datapath,
                          ccfFile =  input$ccfFile$datapath)          
           # if(maf@patientID == "0"){
@@ -166,7 +166,7 @@ shinyServer(function(input, output, session){
                        "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
       is <- intersect(colNames,standardCol)
       if(length(is)== 10){
-          varsLs[['phyloTree']] <-  phyloTree <- MesKit::getPhyloTree(isolate(varsLs$maf),method = input$method)
+          varsLs[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsLs$maf),method = input$method)
       }
       incProgress(amount=1)
       
@@ -457,33 +457,8 @@ shinyServer(function(input, output, session){
         plot.list <- vafCluster(maf,
                                 plotOption = input$plotOption, 
                                 showMATH = input$showMATH,
-                                segCN.file = input$segFile$datapath,
-                                use.shiny = TRUE)
-        
-        output$vafcluster.patientlist <- renderUI({
-            if(!is.null(plot.list)){
-                names <- names(plot.list)
-                selectInput("vc.pl", "Patient",
-                            choices = names, width = 600)
-            }
-        })
-        
-        print(names(plot.list))
-        
-        if(length(names(plot.list)) == 1){
-            n <- names(plot.list)[1]
-        }else{
-            n <- getpatient.vafcluster()
-        }
-        
-        print(n)
-        
-        output$vaf <- renderPlot({
-                plot.list[[n]]
-        },width = width1,
-        height = 560,
-        res = 100)
-        return(p)
+                                segCN.file = input$segFile$datapath)
+        return(plot.list)
      })
     }
   })
@@ -494,7 +469,23 @@ shinyServer(function(input, output, session){
       return(input$vc.pl)
   })
   
+  output$vafcluster.patientlist <- renderUI({
+      if(!is.null(vc())){
+          plot.list <- vc()
+          names <- names(plot.list)
+          selectInput("vc.pl", "Patient",
+                      choices = names, width = 600)
+      }
+  })
   
+  output$vaf <- renderPlot({
+      if(!is.null(vc())){
+          plot.list <- vc()
+          plot.list[[getpatient.vafcluster()]]
+      }
+  },width = width1,
+  height = 560,
+  res = 100)
   
   output$vcdb <- renderUI({
     if(!is.null(vc())){
@@ -520,6 +511,381 @@ shinyServer(function(input, output, session){
       )
     }
   })
+  
+  ccfauc <- eventReactive(input$submit_ccfauc,{
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'ccfAUC: Calculation in progress',
+                      detail = 'This may take a while...')
+          maf <- varsLs$maf
+          validate(
+              need(!(is.null(maf)), "")
+          )
+          cc <- ccfAUC(maf, min.ccf = input$minccf_ccfauc, withinType = input$withintype_ccfauc)
+          incProgress(amount = 1)
+          setProgress(message = 'ccfAUC: Calculation done!')
+      })
+      return(cc)
+  })
+  
+  output$ccfauc.patientlist <- renderUI({
+      if(!is.null(ccfauc())){
+          plot.list <- ccfauc()$CCF.density.plot
+          names <- names(plot.list)
+          tagList(
+              selectInput("auc.pl", "Patient",
+                          choices = names, width = 600) 
+          )
+      }
+  })
+  
+  getpatient.ccfauc <- eventReactive(input$auc.pl,{
+      return(input$auc.pl)
+  })
+  
+  output$ccfauc_plot <- renderPlot({
+      if(!is.null(ccfauc())){
+          return(ccfauc()$CCF.density.plot[[getpatient.ccfauc()]])
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$ccfauc_db_ui <- renderUI({
+      if(!is.null(vc())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_ccfauc_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_ccfauc_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$ccfauc_table <- DT::renderDataTable({
+      if(!is.null(ccfauc())){
+          t <- ccfauc()$AUC.value
+          rows <- which(t$Patient_ID == getpatient.ccfauc())
+          dt <- datatable(t[rows,][,1:3],
+                           options = list(searching = TRUE,
+                                          pageLength = 10, 
+                                          scrollX = TRUE,
+                                          dom = "t",
+                                          fixedHeader = TRUE),
+                           rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$ccfauc_table_ui <- renderUI({
+      if(!is.null(ccfauc())){
+          tagList(
+              h4(strong('AUC value')),
+              br(),
+              DT::dataTableOutput('ccfauc_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_ccfauc_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  calneidist <- eventReactive(input$submit_calfst,{
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'ccfAUC: Calculation in progress',
+                      detail = 'This may take a while...')
+          maf <- varsLs$maf
+          validate(
+              need(!(is.null(maf)), "")
+          )
+          cc <- calNeiDist(maf, min.vaf = input$minvaf_calfst, withinType = input$withintype_calfst)
+          incProgress(amount = 1)
+          setProgress(message = 'ccfAUC: Calculation done!')
+      })
+      return(cc)
+  })
+  
+  output$calfst.patientlist <- renderUI({
+      if(!is.null(calfst())){
+          plot.list <- calfst()$Fst.plot
+          names <- names(plot.list)
+          tagList(
+              selectInput("calfst.pl", "Patient",
+                          choices = names, width = 600) 
+          )
+      }
+  })
+  
+  getpatient.calfst <- eventReactive(input$calfst.pl,{
+      return(input$calfst.pl)
+  })
+  
+  output$calfst_plot <- renderPlot({
+      if(!is.null(calfst())){
+          return(calfst()$Fst.plot[[getpatient.calfst()]])
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$calfst_db_ui <- renderUI({
+      if(!is.null(calfst())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_calfst_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_calfst_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$calfst_avg_table <- DT::renderDataTable({
+      if(!is.null(calfst())){
+          t <- calfst()$Fst.avg
+          rows <- which(t$Patient_ID == getpatient.calfst())
+          dt <- datatable(t[rows,],
+                          options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$calfst_avg_table_ui <- renderUI({
+      if(!is.null(calfst())){
+          tagList(
+              h4(strong('Fst average value')),
+              br(),
+              DT::dataTableOutput('calfst_avg_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_calfst_avg_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  output$calfst_pair_table <- DT::renderDataTable({
+      if(!is.null(calfst())){
+          m <- calfst()$Fst.pair
+          rownames(m) <- colnames(m)
+          m <- as.data.frame(m)
+          dt <- datatable(m,options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = T) 
+          return(dt)
+      }
+  })
+  
+  
+  output$calfst_pair_table_ui <- renderUI({
+      if(!is.null(calfst())){
+          tagList(
+              h4(strong('Fst pair')),
+              br(),
+              DT::dataTableOutput('calfst_pair_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_calfst_pair_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  
+  ## neidist sever
+  calfst <- eventReactive(input$submit_calfst,{
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'ccfAUC: Calculation in progress',
+                      detail = 'This may take a while...')
+          maf <- varsLs$maf
+          validate(
+              need(!(is.null(maf)), "")
+          )
+          cc <- calFst(maf, min.vaf = input$minvaf_calfst, withinType = input$withintype_calfst)
+          incProgress(amount = 1)
+          setProgress(message = 'ccfAUC: Calculation done!')
+      })
+      return(cc)
+  })
+  
+  output$calfst.patientlist <- renderUI({
+      if(!is.null(calfst())){
+          plot.list <- calfst()$Fst.plot
+          names <- names(plot.list)
+          tagList(
+              selectInput("calfst.pl", "Patient",
+                          choices = names, width = 600) 
+          )
+      }
+  })
+  
+  getpatient.calfst <- eventReactive(input$calfst.pl,{
+      return(input$calfst.pl)
+  })
+  
+  output$calfst_plot <- renderPlot({
+      if(!is.null(calfst())){
+          return(calfst()$Fst.plot[[getpatient.calfst()]])
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$calfst_db_ui <- renderUI({
+      if(!is.null(calfst())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_calfst_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_calfst_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$calfst_avg_table <- DT::renderDataTable({
+      if(!is.null(calfst())){
+          t <- calfst()$Fst.avg
+          rows <- which(t$Patient_ID == getpatient.calfst())
+          dt <- datatable(t[rows,],
+                          options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$calfst_avg_table_ui <- renderUI({
+      if(!is.null(calfst())){
+          tagList(
+              h4(strong('Fst average value')),
+              br(),
+              DT::dataTableOutput('calfst_avg_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_calfst_avg_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  output$calfst_pair_table <- DT::renderDataTable({
+      if(!is.null(calfst())){
+          m <- calfst()$Fst.pair
+          rownames(m) <- colnames(m)
+          m <- as.data.frame(m)
+          dt <- datatable(m,options = list(searching = TRUE,
+                                           pageLength = 10, 
+                                           scrollX = TRUE,
+                                           dom = "t",
+                                           fixedHeader = TRUE),
+                          rownames = T) 
+          return(dt)
+      }
+  })
+  
+  
+  output$calfst_pair_table_ui <- renderUI({
+      if(!is.null(calfst())){
+          tagList(
+              h4(strong('Fst pair')),
+              br(),
+              DT::dataTableOutput('calfst_pair_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_calfst_pair_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+      
   stopButtonValue4 <- reactiveValues(a = 0)
   observeEvent(input$stop4,{
     stopButtonValue4$a <- 1
@@ -1105,8 +1471,7 @@ shinyServer(function(input, output, session){
               tms[["value"]] <- treeMutSig(phyloTree, 
                                                    geneList = NULL, 
                                                    min.mut.count = input$mutThreshold,
-                                                   signaturesRef=input$signaturesRef,
-                                                   use.shiny = TRUE)
+                                                   signaturesRef=input$signaturesRef)
              Sys.sleep(1)
           })
       }
@@ -1154,6 +1519,7 @@ shinyServer(function(input, output, session){
          }
          else{
              n <- getpatient.sigsummary()
+             
          }
          
          s <- mutSig.summary[[n]]
@@ -1223,13 +1589,12 @@ shinyServer(function(input, output, session){
       
       phyloTree <- isolate(varsLs$phyloTree)
       withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
-          setProgress(message = 'treeMutSig: Calculation in progress',
+          setProgress(message = 'mutTrunkBranch: Calculation in progress',
                       detail = 'This may take a while...')
           
           
           mtb <- mutTrunkBranch(phyloTree, 
-                              geneList = driverGene, 
-                              use.shiny = TRUE)
+                               geneList = driverGene)
           
           Sys.sleep(1)
       })
@@ -1261,37 +1626,29 @@ shinyServer(function(input, output, session){
           setProgress(message = 'treeMutSig: Calculation in progress',
                       detail = 'This may take a while...')
           
-          
           tms <- treeMutSig(phyloTree, 
                             min.mut.count = input$mutThreshold, 
-                            signaturesRef=input$signaturesRef1,
-                            use.shiny = TRUE)
+                            signaturesRef=input$signaturesRef1)
           
           Sys.sleep(1)
       })
       
       df.signature <- tms$mutSig.summary
-      plot.list <- plotMutSigProfiler(tms)
-      
-      output$treemutsig.patientlist <- renderUI({
-          if(!is.null(plot.list)){
-              names <- names(plot.list)
-              selectInput("tms.pl", "Patient",
-                          choices = names, width = 600)
-          }
-      })
-      
-      if(length(names(plot.list)) == 1){
-          n <- names(plot.list)[1]
-      }else{
-          n <- getpatient.vafcluster()
-      }
-      
-      return(list(plot.list[[n]], df.signature[[n]]))
+      plot.list <- plotMutSigProfiler(tms$mutSig.spectrum)
+      return(list(plot.list, df.signature))
   })
   
   getpatient.tms <- eventReactive(input$tms.pl,{
       return(input$tms.pl)
+  })
+  
+  output$treemutsig.patientlist <- renderUI({
+      if(!is.null(sigOFA1())){
+          plot.list <- sigOFA1()[[1]]
+          names <- names(plot.list)
+          selectInput("tms.pl", "Patient_branches",
+                      choices = names, width = 600)
+      }
   })
   
   output$sigOFATableUI1 <- renderUI({
@@ -1314,14 +1671,14 @@ shinyServer(function(input, output, session){
     }
   })
   output$sigOFAPlot1 <- renderPlot({
-    return(sigOFA1()[[1]])
+    return(sigOFA1()[[1]][[getpatient.tms()]])
   },
   width = widthsig1,
   height = heightsig1,
   res = 100
   )
   output$sigOFATable1 <- DT::renderDataTable({
-    data <- sigOFA1()[[2]][,c(1:2)]
+    data <- sigOFA1()[[2]][[getpatient.tms()]][,c(1:2)]
     datatable(data, options = list(searching = TRUE, pageLength = 10, 
                                    lengthMenu = c(5, 10, 15, 18), 
                                    scrollX = TRUE, dom = "t",
@@ -1335,19 +1692,6 @@ shinyServer(function(input, output, session){
     stopButtonValueSig2$a <- 0
   })
   sigOFA2 <- eventReactive(input$submitSig2, {
-      
-      # if (input$oncogeneMapping2){
-      #     if(is.null(input$driverGenesFile2$datapath)){
-      #         driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
-      #     } else{
-      #         driverGenesFile <- input$driverGenesFile2$datapath
-      #     }
-      #     driverGene <- as.character(read.table(driverGenesFile)$V1)
-      # }
-      # else{
-      #     driverGene <- NULL 
-      # }
-      
       phyloTree <- isolate(varsLs$phyloTree)
       withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
           setProgress(message = 'treeMutSig: Calculation in progress',
@@ -1355,12 +1699,23 @@ shinyServer(function(input, output, session){
           
           
           mtb <- mutTrunkBranch(phyloTree, 
-                                geneList = NULL, 
-                                use.shiny = TRUE)
+                                geneList = NULL)
           
           Sys.sleep(1)
       })
       return(mtb$mutTrunkBranch.plot)
+  })
+  getpatient.mtb <- eventReactive(input$mtb.pl,{
+      return(input$mtb.pl)
+  })
+  
+  output$mtb.patientlist <- renderUI({
+      if(!is.null(sigOFA2())){
+          plot.list <- sigOFA2()
+          names <- names(plot.list)
+          selectInput("mtb.pl", "Patient_branches",
+                      choices = names, width = 600)
+      }
   })
   # output$sigOFATableUI2 <- renderUI({
   #   if(!is.null(sigOFA2()[[2]]))
@@ -1386,7 +1741,9 @@ shinyServer(function(input, output, session){
   # })
   
   output$sigOFAPlot2 <- renderPlot({
-    return(sigOFA2()) 
+      if(!is.null(sigOFA2())){
+          return(sigOFA2()[[getpatient.mtb()]]) 
+      }
   },
   width = widthsig2,
   height = heightsig2,
@@ -1481,8 +1838,7 @@ shinyServer(function(input, output, session){
                       detail = 'This may take a while...')
           
           
-          plot.list <- plotPhyloTree(phyloTree,
-                                     use.shiny = TRUE)
+          plot.list <- plotPhyloTree(phyloTree)
           
           Sys.sleep(1)
       })

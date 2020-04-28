@@ -293,8 +293,7 @@ doVafCluster <- function(patient.dat = NULL,
                          min.vaf=0.02,
                          max.vaf=1,
                          showMATH=TRUE, 
-                         plotOption="combine",
-                         use.shiny){
+                         plotOption="combine"){
    
    patientID <- unique(patient.dat$Patient_ID) 
    
@@ -317,10 +316,10 @@ doVafCluster <- function(patient.dat = NULL,
    tsbLs <- data.frame(unique(vafInputMt$Samples))
    colnames(tsbLs) <- c("samples")
    
-   if(use.shiny){
-       incProgress(amount=1)
-       setProgress(message = paste('Generating ', "VAF density plot - ", patientID, sep=""))
-   }
+   # if(use.shiny){
+   #     incProgress(amount=1)
+   #     setProgress(message = paste('Generating ', "VAF density plot - ", patientID, sep=""))
+   # }
    
    
    # build color vector for later use

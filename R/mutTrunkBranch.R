@@ -19,8 +19,7 @@ mutTrunkBranch <- function(phyloTree_list,
                            geneList=NULL,
                            pvalue = 0.05,
                            plot = TRUE,
-                           patient.id = NULL,
-                           use.shiny = FALSE){
+                           patient.id = NULL){
     
     if(!is.null(patient.id)){
         patient.setdiff <- setdiff(patient.id, names(phyloTree_list))
@@ -36,6 +35,10 @@ mutTrunkBranch <- function(phyloTree_list,
         ## get refBuild
         patientID <- x@patientID
         refBuild <- paste("BSgenome.Hsapiens.UCSC.", x@refBuild, sep = "")
+        # if(use.shiny){
+        #     incProgress(amount=1)
+        #     setProgress(message = paste('Process- ',patientID, sep=""))
+        # }
         sigsInput <- countTriplet(mutSigRef = mutSigRef,
                                   withinType = FALSE,
                                   refBuild = refBuild,
