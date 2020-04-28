@@ -10,8 +10,7 @@ treeMutSig(
   min.mut.count = 15,
   signaturesRef = "cosmic_v2",
   withinType = FALSE,
-  patient.id = NULL,
-  use.shiny = FALSE
+  patient.id = NULL
 )
 }
 \arguments{
