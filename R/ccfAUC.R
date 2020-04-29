@@ -23,9 +23,9 @@ ccfAUC <- function(
     maf, 
     patient.id = NULL, 
     min.ccf = 0, 
+    withinType = FALSE
     plot.density = TRUE,
-    # plot = TRUE,
-    withinType = FALSE){
+    ){
     
     mafData <- maf@data
 

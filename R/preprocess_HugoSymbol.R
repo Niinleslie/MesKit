@@ -1,4 +1,4 @@
-sortHugo_Symbol <- function(mafData){
+preprocess_HugoSymbol <- function(mafData){
    
    remove.all_none.dat <- mafData %>% 
       dplyr::rowwise() %>% 
