@@ -1,6 +1,7 @@
 getTreeData <- function(phyloTree = NULL,
                         branchCol = "mutSig",
-                        min.mut.count = 15){
+                        min.mut.count = 15,
+                        compare = FALSE){
    tree <- phyloTree@tree
    rootLabel <- "NORMAL"
    tree <- ape::root(tree, tree$tip.label[which(tree$tip.label == rootLabel)])
@@ -115,25 +116,27 @@ getTreeData <- function(phyloTree = NULL,
       treeData$y2[maxy] <- treeData$distance[maxy]*sin(angle) + treeData$y1[maxy]
       treeData$x2[maxy] <- treeData$distance[maxy]*cos(angle) + treeData$x1[maxy]
    }
-   if(!is.null(branchCol)){
+   
+   ## label represents the common evolution path of samples
+   treeData$label <- ""
+   for(i in 1:nrow(treeData)){
+       if(treeData$sample[i] == "NORMAL"){
+           treeData$label[i] <- branchLabel[[rootNode]]
+       }else{
+           if(treeData$end_num[i] > length(tree$tip.label)){
+               treeData$label[i] <- branchLabel[[treeData$end_num[i]]]
+           }
+           else{
+               treeData$label[i] <- as.character(treeData$sample[i]) 
+           }
+       }
+   }
+   if(!is.null(branchCol) & !compare){
       signature <- doTreeMutSig(phyloTree, min.mut.count = min.mut.count)$mutSigsOutput %>%
          dplyr::group_by(branch) %>% 
          dplyr::filter(sig.prob == max(sig.prob)) %>% 
          dplyr::ungroup() %>% 
          as.data.frame()
-      treeData$label <- ""
-      for(i in 1:nrow(treeData)){
-         if(treeData$sample[i] == "NORMAL"){
-            treeData$label[i] <- branchLabel[[rootNode]]
-         }else{
-            if(treeData$end_num[i] > length(tree$tip.label)){
-               treeData$label[i] <- branchLabel[[treeData$end_num[i]]]
-            }
-            else{
-               treeData$label[i] <- as.character(treeData$sample[i]) 
-            }
-         }
-      }
       treeData <- addSignature(tree, treeData, signature)
    }
    treeData <- treeData[distance!= 0|sample == rootLabel,]
@@ -434,20 +437,13 @@ getColors <- function(signatures){
 }
 
 getPrivateMutation <- function(phyloTree){
-   totalMut <- phyloTree@mut.branches
-   privateOrder <- unlist(lapply(names(totalMut),
-                                 function(x){return(length(strsplit(x,"∩")[[1]]) == 1)})) 
-   privateMut <- totalMut[privateOrder]
-   countMutation <- function(mut){
-      sum <- 0
-      for(i in 1:length(mut)){
-         count <- nrow(mut[[i]])
-         sum <- sum + count
-      }
-      return(sum)
-   }
-   totalMutSum <- countMutation(totalMut)
-   privateMutSum <- countMutation(privateMut)
+   mut.branches <- phyloTree@mut.branches
+   private.idx <- unlist(lapply(unique(mut.branches$Branch_ID),
+                                 function(x){return(length(strsplit(x,"∩")[[1]]) == 1)}))
+   samples <- unique(mut.branches$Branch_ID)[private.idx]
+   private.muts <- mut.branches[mut.branches$Branch_ID %in% samples,]
+   totalMutSum <- nrow(mut.branches)
+   privateMutSum <- nrow(private.muts)
    privateMutProportion <- paste(round((privateMutSum/totalMutSum)*100,1),"%",sep = "")
    return(list(totalMutSum, privateMutProportion))
 }
@@ -509,7 +505,7 @@ labelBranch <- function(tree){
 
 drawPhyloTree <- function(phyloTree = NULL,
                           treeData = NULL,
-                          branchCol = TRUE,
+                          branchCol = "mutSig",
                           show.bootstrap = TRUE,
                           use.box = TRUE,
                           show.heatmap = TRUE,
@@ -523,16 +519,15 @@ drawPhyloTree <- function(phyloTree = NULL,
                           show.gene = FALSE,
                           show.geneList = TRUE,
                           min.mut.count = 15,
-                          mut.threshold = 150,
-                          use.shiny = FALSE){
+                          mut.threshold = 150){
     
     patientID <- phyloTree@patientID
     
     ## shiny progression
-    if(use.shiny){
-        incProgress(amount=1)
-        setProgress(message = paste('Drawing ', "phylogenetic tree - ", patientID, sep=""))
-    }
+    # if(use.shiny){
+    #     incProgress(amount=1)
+    #     setProgress(message = paste('Drawing ', "phylogenetic tree - ", patientID, sep=""))
+    # }
     
    if(!is.null(min.ratio)){
       if(min.ratio > 0){
@@ -543,7 +538,8 @@ drawPhyloTree <- function(phyloTree = NULL,
    if(is.null(treeData)){
       treeData <- getTreeData(phyloTree = phyloTree,
                               branchCol = branchCol,
-                              min.mut.count = min.mut.count)
+                              min.mut.count = min.mut.count,
+                              compare = FALSE)
    }
    set.seed(1234)
    myBoots <- phyloTree@bootstrap.value
@@ -599,19 +595,21 @@ drawPhyloTree <- function(phyloTree = NULL,
    # ratecoord <- maxy/maxx
    if(!is.null(branchCol)){
       if(branchCol == "mutSig"){
-         colorScale <- getColors(unique(treeData$Signature))
          if(compare){
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature),
+            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
+                                  color = "black",
                                   data = treeData[is.match != "NO"],
                                   linetype = common.lty,
                                   size = segmentSize)
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature),
+            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
+                                  color = "black",
                                   data = treeData[is.match == "NO"],size = segmentSize)
          }
          else{
+            colorScale <- getColors(unique(treeData$Signature))
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
+            p <- p + scale_color_manual(values = colorScale)
          }
-         p <- p + scale_color_manual(values = colorScale)
       }
       else{
          

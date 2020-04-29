@@ -10,8 +10,7 @@ vafCluster(
   min.vaf = 0.02,
   max.vaf = 1,
   showMATH = TRUE,
-  plotOption = "combine",
-  use.shiny = FALSE
+  plotOption = "combine"
 )
 }
 \arguments{

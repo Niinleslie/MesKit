@@ -10,8 +10,7 @@ mutTrunkBranch(
   geneList = NULL,
   pvalue = 0.05,
   plot = TRUE,
-  patient.id = NULL,
-  use.shiny = FALSE
+  patient.id = NULL
 )
 }
 \arguments{

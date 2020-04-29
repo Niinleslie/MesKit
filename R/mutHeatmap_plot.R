@@ -17,7 +17,8 @@ plotHeatmap <- function(binary.mat,
                         plot.geneList = FALSE,
                         show.gene = FALSE,
                         show.geneList = TRUE,
-                        mut.threshold = 50){
+                        mut.threshold = 50,
+                        plot.tree = TRUE){
    mut_sort <- binary.mat
    ccf_sort <- ccf.mat
    
@@ -74,10 +75,15 @@ plotHeatmap <- function(binary.mat,
    
    ## set table for annotation bar
    annotation.bar <- data.frame()
+   # if(plot.tree){
+   #     annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.5
+   # }else{
+   #     
+   # }
    annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.5
-   if(!show.class.label){
-      annotation.bar.width <- annotation.bar.width/3
-   }
+   # if(!show.class.label){
+   #    annotation.bar.width <- annotation.bar.width/3
+   # }
    
    ## position of annotation bar
    xmax <- min(mut_dat$xmin)
