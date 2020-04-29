@@ -20,6 +20,7 @@ sidebar <- dashboardSidebar(
               menuItem(strong("Home"), tabName = "home", icon = icon("home")),
               menuItem(strong("Input Data"), tabName = "input", icon = icon("gear")),
               menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
+              menuItem(strong("Alterational landscape"), tabName = "AL", icon = icon("bar-chart")),
               menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("bar-chart")),
               menuItem(strong("Functional exploration"), tabName = "function", icon = icon("bar-chart")),
               menuItem(strong("Mutational signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
@@ -198,8 +199,6 @@ bodyIP <- tabItem("input",
                       )
                     )
                   )
-
-
 
 bodyITH <- tabItem("ITH",
                    fluidRow(
@@ -562,6 +561,43 @@ bodyITH <- tabItem("ITH",
                                      )
                                  )
                              )
+                         ),
+                         conditionalPanel(
+                             condition = "input.tith == 'caInput_calneidist'",
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf:")),
+                                         tags$td(width = "70%", textInput(inputId = "minvaf_calneidist", value = 0.08, label = NULL)))
+                             ), 
+                             bsTooltip(id = "minvaf_calneidist",
+                                       title = "The minimum value of ccf",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             checkboxInput('withintype_calneidist',
+                                           value = FALSE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Within type'),
+                                           width = 500),
+                             bsTooltip(id = "withintype_calneidist",
+                                       title = "calculate ccf within type",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             fluidRow(
+                                 column(
+                                     width = 9,
+                                     div(
+                                         tags$button(
+                                             id = "submit_calneidist", type = "button", class = "action-button bttn",
+                                             class = "bttn-unite", class = paste0("bttn-md"),
+                                             class = paste0("bttn-default"),
+                                             list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                             style = "margin-bottom:0px;margin-right:0px;"
+                                         )
+                                     )
+                                 )
+                             )
                          )
                        )
                      ),
@@ -641,16 +677,56 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                                title = div(icon("box"), "calFst"),
                                value = "caInput_calfst",
+                               uiOutput('warningMessage_calfst'),
                                uiOutput('calfst.patientlist'),
                                div(plotOutput("calfst_plot",height = "100%"),align = "center") ,
                                uiOutput("calfst_db_ui"),
                                uiOutput("calfst_avg_table_ui"),
                                uiOutput("calfst_pair_table_ui")
+                           ),
+                           tabPanel(
+                               title = div(icon("box"), "calNeiDist"),
+                               value = "caInput_calneidist",
+                               uiOutput('calneidist.patientlist'),
+                               uiOutput('warningMessage_calneidist'),
+                               div(plotOutput("calneidist_plot",height = "100%"),align = "center") ,
+                               uiOutput("calneidist_db_ui"),
+                               uiOutput("calneidist_avg_table_ui"),
+                               uiOutput("calneidist_pair_table_ui")
                            )
                          )
                        )
                      )
                    )
+)
+
+bodyAL <- tabItem("AL",
+                  fluidRow(
+                      column(
+                          width = 3
+                      ),
+                      column(
+                          width = 9,
+                          div(strong("Alterational Landscape"),style = "font-size:27px; font-weight:500;"),
+                          p("",
+                            style = "font-size:20px; font-weight:500;line-height:40px;"),
+                          tabBox(
+                              id = 'AL_tabbox',
+                              selected = 'al_classifymut',
+                              side = 'left',
+                              height = "100%",
+                              width = "100%",
+                              tabPanel(
+                                  value = 'al_classifymut',
+                                  title = div(icon("newspaper"), "Mutational landscape"), 
+                                  uiOutput('warningMessage08'),
+                                  div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
+                                  br(),
+                                  uiOutput("ccfdendb")
+                              )
+                          )
+                      )
+                )
 )
 
 bodyclone <- tabItem('clone',
@@ -707,6 +783,43 @@ bodyclone <- tabItem('clone',
                                  )
                                )
                              )
+                           ),
+                           conditionalPanel(
+                               condition = "input.clt == 'clone_comparejsi'",
+                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                               tags$table(
+                                   tags$tr(id = "inline", 
+                                           width = "100%",
+                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf:")),
+                                           tags$td(width = "70%", textInput(inputId = "minvaf_comparejsi", value = 0.08, label = NULL)))
+                               ), 
+                               bsTooltip(id = "minvaf_comparejsi",
+                                         title = "The minimum value of vaf",
+                                         placement = "top",
+                                         trigger = "hover"),
+                               checkboxInput('pairbytype_comparejsi',
+                                             value = FALSE,
+                                             label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Pair by type'),
+                                             width = 500),
+                               bsTooltip(id = "pairbytype_comparejsi",
+                                         title = "calculate JSI within type",
+                                         placement = "top",
+                                         trigger = "hover"),
+                               br(),
+                               fluidRow(
+                                   column(
+                                       width = 9,
+                                       div(
+                                           tags$button(
+                                               id = "submit_comparejsi", type = "button", class = "action-button bttn",
+                                               class = "bttn-unite", class = paste0("bttn-md"),
+                                               class = paste0("bttn-default"),
+                                               list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                               style = "margin-bottom:0px;margin-right:0px;"
+                                           )
+                                       )
+                                   )
+                               )
                            )
                          )
                        ),
@@ -738,6 +851,16 @@ bodyclone <- tabItem('clone',
                                div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
                                br(),
                                uiOutput("ccfdendb")
+                             ),
+                             tabPanel(
+                                 title = div(icon("box"), "compareJSI"),
+                                 value = "clone_comparejsi",
+                                 uiOutput('comparejsi.patientlist'),
+                                 uiOutput('warningMessage_comparejsi'),
+                                 div(plotOutput("comparejsi_plot",height = "100%"),align = "center") ,
+                                 uiOutput("comparejsi_db_ui"),
+                                 uiOutput("comparejsi_avg_table_ui"),
+                                 uiOutput("comparejsi_pair_table_ui")
                              )
                            )
                          )
@@ -1481,6 +1604,7 @@ table.dataTable tbody th, table.dataTable tbody td {
       tabItems(
         bodyHome,
         bodyIP,
+        bodyAL,
         bodyITH,
         bodyclone,
         bodyfunction,

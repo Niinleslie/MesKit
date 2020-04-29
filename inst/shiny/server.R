@@ -612,144 +612,7 @@ shinyServer(function(input, output, session){
       }
   })
   
-  calneidist <- eventReactive(input$submit_calfst,{
-      withProgress(min = 0, max = 2, value = 0, {
-          setProgress(message = 'ccfAUC: Calculation in progress',
-                      detail = 'This may take a while...')
-          maf <- varsLs$maf
-          validate(
-              need(!(is.null(maf)), "")
-          )
-          cc <- calNeiDist(maf, min.vaf = input$minvaf_calfst, withinType = input$withintype_calfst)
-          incProgress(amount = 1)
-          setProgress(message = 'ccfAUC: Calculation done!')
-      })
-      return(cc)
-  })
-  
-  output$calfst.patientlist <- renderUI({
-      if(!is.null(calfst())){
-          plot.list <- calfst()$Fst.plot
-          names <- names(plot.list)
-          tagList(
-              selectInput("calfst.pl", "Patient",
-                          choices = names, width = 600) 
-          )
-      }
-  })
-  
-  getpatient.calfst <- eventReactive(input$calfst.pl,{
-      return(input$calfst.pl)
-  })
-  
-  output$calfst_plot <- renderPlot({
-      if(!is.null(calfst())){
-          return(calfst()$Fst.plot[[getpatient.calfst()]])
-      }
-  },  
-  width = 560,
-  height = 560,
-  res = 100)
-  
-  output$calfst_db_ui <- renderUI({
-      if(!is.null(calfst())){
-          fluidRow(
-              column(
-                  width = 7
-              ),
-              column(
-                  width = 2,
-                  radioButtons(inputId = 'Download_calfst_plot_check', 
-                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                               choiceNames = list(
-                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                               ),
-                               choiceValues = c("png", "pdf"), 
-                               inline = T)
-              ),
-              column(
-                  width = 3,
-                  downloadBttn('Download_calfst_plot', 'Download')
-              )
-          )
-      }
-  })
-  
-  output$calfst_avg_table <- DT::renderDataTable({
-      if(!is.null(calfst())){
-          t <- calfst()$Fst.avg
-          rows <- which(t$Patient_ID == getpatient.calfst())
-          dt <- datatable(t[rows,],
-                          options = list(searching = TRUE,
-                                         pageLength = 10, 
-                                         scrollX = TRUE,
-                                         dom = "t",
-                                         fixedHeader = TRUE),
-                          rownames = F) 
-          return(dt)
-      }
-  })
-  
-  
-  output$calfst_avg_table_ui <- renderUI({
-      if(!is.null(calfst())){
-          tagList(
-              h4(strong('Fst average value')),
-              br(),
-              DT::dataTableOutput('calfst_avg_table'),
-              br(),
-              fluidRow(
-                  column(
-                      width = 9
-                  ),
-                  column(
-                      width = 3,
-                      downloadBttn('Download_calfst_avg_table', 'Download')
-                  )
-              )
-          )
-      }
-  })
-  
-  output$calfst_pair_table <- DT::renderDataTable({
-      if(!is.null(calfst())){
-          m <- calfst()$Fst.pair
-          rownames(m) <- colnames(m)
-          m <- as.data.frame(m)
-          dt <- datatable(m,options = list(searching = TRUE,
-                                         pageLength = 10, 
-                                         scrollX = TRUE,
-                                         dom = "t",
-                                         fixedHeader = TRUE),
-                          rownames = T) 
-          return(dt)
-      }
-  })
-  
-  
-  output$calfst_pair_table_ui <- renderUI({
-      if(!is.null(calfst())){
-          tagList(
-              h4(strong('Fst pair')),
-              br(),
-              DT::dataTableOutput('calfst_pair_table'),
-              br(),
-              fluidRow(
-                  column(
-                      width = 9
-                  ),
-                  column(
-                      width = 3,
-                      downloadBttn('Download_calfst_pair_table', 'Download')
-                  )
-              )
-          )
-      }
-  })
-  
-  
-  ## neidist sever
+  ## calfst sever
   calfst <- eventReactive(input$submit_calfst,{
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'ccfAUC: Calculation in progress',
@@ -855,11 +718,12 @@ shinyServer(function(input, output, session){
           m <- calfst()$Fst.pair
           rownames(m) <- colnames(m)
           m <- as.data.frame(m)
+          colnames(m) <- rownames(m)
           dt <- datatable(m,options = list(searching = TRUE,
-                                           pageLength = 10, 
-                                           scrollX = TRUE,
-                                           dom = "t",
-                                           fixedHeader = TRUE),
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
                           rownames = T) 
           return(dt)
       }
@@ -885,7 +749,282 @@ shinyServer(function(input, output, session){
           )
       }
   })
-      
+  
+  
+  ## neidist sever
+  calneidist <- eventReactive(input$submit_calneidist,{
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'calNeiDist: Calculation in progress',
+                      detail = 'This may take a while...')
+          maf <- varsLs$maf
+          validate(
+              need(!(is.null(maf)), "")
+          )
+          cc <- calNeiDist(maf, min.vaf = input$minvaf_calneidist, withinType = input$withintype_calneidist)
+          incProgress(amount = 1)
+          setProgress(message = 'ccfAUC: Calculation done!')
+      })
+      return(cc)
+  })
+  
+  output$calneidist.patientlist <- renderUI({
+      if(!is.null(calneidist())){
+          plot.list <- calneidist()$Nei.plot
+          names <- names(plot.list)
+          tagList(
+              selectInput("calneidist.pl", "Patient",
+                          choices = names, width = 600) 
+          )
+      }
+  })
+  
+  getpatient.calneidist <- eventReactive(input$calneidist.pl,{
+      return(input$calneidist.pl)
+  })
+  
+  output$calneidist_plot <- renderPlot({
+      if(!is.null(calneidist())){
+          return(calneidist()$Nei.plot[[getpatient.calneidist()]])
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$calneidist_db_ui <- renderUI({
+      if(!is.null(calneidist())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_calneidist_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_calneidist_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$calneidist_avg_table <- DT::renderDataTable({
+      if(!is.null(calneidist())){
+          t <- calneidist()$Nei.dist.avg
+          rows <- which(t$Patient_ID == getpatient.calneidist())
+          dt <- datatable(t[rows,],
+                          options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$calneidist_avg_table_ui <- renderUI({
+      if(!is.null(calneidist())){
+          tagList(
+              h4(strong('Nei dist average value')),
+              br(),
+              DT::dataTableOutput('calneidist_avg_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_calneidist_avg_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  output$calneidist_pair_table <- DT::renderDataTable({
+      if(!is.null(calneidist())){
+          m <- calneidist()$Nei.dist
+          rownames(m) <- colnames(m)
+          m <- as.data.frame(m)
+          colnames(m) <- rownames(m)
+          dt <- datatable(m,options = list(searching = TRUE,
+                                           pageLength = 10, 
+                                           scrollX = TRUE,
+                                           dom = "t",
+                                           fixedHeader = TRUE),
+                          rownames = T) 
+          return(dt)
+      }
+  })
+  
+  
+  output$calneidist_pair_table_ui <- renderUI({
+      if(!is.null(calneidist())){
+          tagList(
+              h4(strong('Nei dist pair')),
+              br(),
+              DT::dataTableOutput('calneidist_pair_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_calneidist_pair_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+   
+  ## comparejsi sever
+  comparejsi <- eventReactive(input$submit_comparejsi,{
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'compareJSI : Calculation in progress',
+                      detail = 'This may take a while...')
+          maf <- varsLs$maf
+          validate(
+              need(!(is.null(maf)), "")
+          )
+          cc <- compareJSI(maf, min.vaf = input$minvaf_comparejsi, pairByType = input$pairbytype_comparejsi)
+          incProgress(amount = 1)
+          setProgress(message = 'ccfAUC: Calculation done!')
+      })
+      return(cc)
+  })
+  
+  output$comparejsi.patientlist <- renderUI({
+      if(!is.null(comparejsi())){
+          plot.list <- comparejsi()$JSI.plot
+          names <- names(plot.list)
+          tagList(
+              selectInput("comparejsi.pl", "Patient",
+                          choices = names, width = 600) 
+          )
+      }
+  })
+  
+  getpatient.comparejsi <- eventReactive(input$comparejsi.pl,{
+      return(input$comparejsi.pl)
+  })
+  
+  output$comparejsi_plot <- renderPlot({
+      if(!is.null(comparejsi())){
+          return(comparejsi()$JSI.plot[[getpatient.comparejsi()]])
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$comparejsi_db_ui <- renderUI({
+      if(!is.null(comparejsi())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_comparejsi_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_comparejsi_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$comparejsi_avg_table <- DT::renderDataTable({
+      if(!is.null(comparejsi())){
+          t <- comparejsi()$JSI.multi
+          rows <- which(t$Patient_ID == getpatient.comparejsi())
+          dt <- datatable(t[rows,],
+                          options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$comparejsi_avg_table_ui <- renderUI({
+      if(!is.null(comparejsi())){
+          tagList(
+              h4(strong('JSI average value')),
+              br(),
+              DT::dataTableOutput('comparejsi_avg_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_comparejsi_avg_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  output$comparejsi_pair_table <- DT::renderDataTable({
+      if(!is.null(comparejsi())){
+          m <- comparejsi()$JSI.pair
+          m <- as.data.frame(m)
+          dt <- datatable(m,options = list(searching = TRUE,
+                                           pageLength = 10, 
+                                           scrollX = TRUE,
+                                           dom = "t",
+                                           fixedHeader = TRUE),
+                          rownames = T) 
+          return(dt)
+      }
+  })
+  
+  
+  output$comparejsi_pair_table_ui <- renderUI({
+      if(!is.null(comparejsi())){
+          tagList(
+              h4(strong('JSI pair')),
+              br(),
+              DT::dataTableOutput('comparejsi_pair_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_comparejsi_pair_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
   stopButtonValue4 <- reactiveValues(a = 0)
   observeEvent(input$stop4,{
     stopButtonValue4$a <- 1

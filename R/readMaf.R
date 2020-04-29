@@ -140,8 +140,7 @@ readMaf <- function(## maf parameters
                 "Chromosome",
                 "Start_Position",
                 "Reference_Allele",
-                "Tumor_Seq_Allele2",
-                "Hugo_Symbol"
+                "Tumor_Seq_Allele2"
             ),
             sep = ":",
             remove = FALSE
@@ -219,22 +218,22 @@ readMaf <- function(## maf parameters
     }
     
     mafData <- mafData %>% 
-        dplyr::select(-Total_allele_depth, -Mut_ID_Type) %>% 
+        dplyr::select(-Total_allele_depth, -Mut_ID_Type)
         ## split gene
-        tidyr::separate_rows(Hugo_Symbol,sep = ",|;") %>% 
-        dplyr::filter(Hugo_Symbol != "NONE") %>% 
-        tidyr::unite("Mut_ID",
-                     c("Patient_ID",
-                      "Chromosome",
-                      "Start_Position",
-                      "Reference_Allele",
-                      "Tumor_Seq_Allele2",
-                       "Hugo_Symbol"
-            ),
-            sep = ":",
-            remove = FALSE
-        ) %>% 
-        dplyr::distinct()
+        # tidyr::separate_rows(Hugo_Symbol,sep = ",|;") %>% 
+        # dplyr::filter(Hugo_Symbol != "NONE") %>% 
+        # tidyr::unite("Mut_ID",
+        #              c("Patient_ID",
+        #               "Chromosome",
+        #               "Start_Position",
+        #               "Reference_Allele",
+        #               "Tumor_Seq_Allele2",
+        #                "Hugo_Symbol"
+        #     ),
+        #     sep = ":",
+        #     remove = FALSE
+        # ) %>% 
+        # dplyr::distinct()
         
         
     ## generate classMaf

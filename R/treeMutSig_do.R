@@ -25,11 +25,8 @@ doTreeMutSig <- function(phyloTree,
    
    ## Select mutations in selected genes
    if(!is.null(geneList)){
-      selectedGenes <- geneList
-      mutSigRef <- mutSigRef  %>%
-         dplyr::rowwise() %>%
-         dplyr::filter(any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% selectedGenes)) %>%
-         as.data.frame()
+      mutSigRef <- mutSigRef %>% 
+         dplyr::filter(Hugo_Symbol %in% geneList)
    }
    
    ## get the mutational signature of the branch 

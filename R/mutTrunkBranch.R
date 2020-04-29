@@ -29,7 +29,7 @@ mutTrunkBranch <- function(phyloTree_list,
         phyloTree <- phyloTree_list[names(phyloTree_list)  %in% patient.id] 
     }
     
-    mtb_input_list <- lapply(phyloTree_list,function(x,CT){
+    mtb_input_list <- lapply(phyloTree_list,function(x, CT, geneList){
         mutSigRef <- x@mut.branches
         refBuild <- x@refBuild
         ## get refBuild
@@ -39,6 +39,10 @@ mutTrunkBranch <- function(phyloTree_list,
         #     incProgress(amount=1)
         #     setProgress(message = paste('Process- ',patientID, sep=""))
         # }
+        if(!is.null(geneList)){
+            mutSigRef <- mutSigRef %>% 
+                dplyr::filter(Hugo_Symbol %in% geneList)
+        }
         sigsInput <- countTriplet(mutSigRef = mutSigRef,
                                   withinType = FALSE,
                                   refBuild = refBuild,
@@ -50,7 +54,7 @@ mutTrunkBranch <- function(phyloTree_list,
             trunkName = trunkName,
             patientID = patientID)
         )
-    }, CT = CT)
+    }, CT = CT, geneList = geneList)
     mtb_output_list <- lapply(mtb_input_list, doMutTrunkBranch,CT = CT)
     mtb_output_list <- mtb_output_list[!is.na(mtb_output_list)]
     if(length(mtb_output_list) == 0){
