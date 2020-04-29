@@ -1,16 +1,16 @@
-plotMutSigProfile_branch <- function(sig.product, mode){
+plotMutSigProfiler_branch <- function(sig.spectrum, mode){
    
    # products <- plyr::rbind.fill(products)
    # 
-   # sig.product <- products %>%
+   # sig.spectrum <- products %>%
    #     dplyr::filter(Branch_Tumor_Type == "Private_P", Patient_ID == "Uchi2")
-   if(nrow(sig.product) == 0){
+   if(nrow(sig.spectrum) == 0){
       return(NA)
    }
-   sig.product <- as.data.frame(sig.product)
+   sig.spectrum <- as.data.frame(sig.spectrum)
    ## calculate RSS and Cosine similarity
-   sig.Reconstructed <- sig.product[sig.product$value.type == "Reconstructed",]
-   sig.Original <- sig.product[sig.product$value.type == "Original",]
+   sig.Reconstructed <- sig.spectrum[sig.spectrum$value.type == "Reconstructed",]
+   sig.Original <- sig.spectrum[sig.spectrum$value.type == "Original",]
    m1 <- sig.Reconstructed$Mutation_Probability
    m2 <- sig.Original$Mutation_Probability
    RSS <- round(sum((m1 - m2)^2),3)
@@ -19,38 +19,38 @@ plotMutSigProfile_branch <- function(sig.product, mode){
    sig.diff <- sig.Original
    sig.diff$Mutation_Probability <- sig.Original$Mutation_Probability - sig.Reconstructed$Mutation_Probability
    sig.diff$value.type <- "Difference"
-   sig.product <- rbind(sig.product,sig.diff)
+   sig.spectrum <- rbind(sig.spectrum,sig.diff)
    
    if(!is.null(mode)){
-      sig.product <- dplyr::filter(sig.product, value.type == mode)
+      sig.spectrum <- dplyr::filter(sig.spectrum, value.type == mode)
    }
    
-   ls.mutationType <-as.character(sig.product$Group)
+   ls.mutationType <-as.character(sig.spectrum$Group)
    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
    
    ## generate Mutation Type for every column
-   sig.product$Group <- as.character(sig.product$Group)
+   sig.spectrum$Group <- as.character(sig.spectrum$Group)
    for (mutationGroup in ls.mutationGroup) {
-      sig.product$Group[which(grepl(mutationGroup, sig.product$Group))] <- mutationGroup
+      sig.spectrum$Group[which(grepl(mutationGroup, sig.spectrum$Group))] <- mutationGroup
    }
    
    ## specific the label order of x axis
    orderlist <- c(ls.mutationType)
-   sig.product$Type <- factor(ls.mutationType, levels = unique(orderlist) )
-   sig.product$Group <- factor(sig.product$Group, levels = ls.mutationGroup)
+   sig.spectrum$Type <- factor(ls.mutationType, levels = unique(orderlist) )
+   sig.spectrum$Group <- factor(sig.spectrum$Group, levels = ls.mutationGroup)
    
    ## specific the order of y axis
    if(is.null(mode)){
-      sig.product$value.type <- factor(sig.product$value.type,
+      sig.spectrum$value.type <- factor(sig.spectrum$value.type,
                                        levels = c("Original","Reconstructed","Difference"))
-      sig.product <- dplyr::arrange(sig.product,value.type)
+      sig.spectrum <- dplyr::arrange(sig.spectrum,value.type)
    }
    else{
-      sig.product$value.type <- factor(sig.product$value.type,
-                                       levels = unique(sig.product$value.type)) 
+      sig.spectrum$value.type <- factor(sig.spectrum$value.type,
+                                       levels = unique(sig.spectrum$value.type)) 
    }
    
-   if(nrow(sig.product) == 0){
+   if(nrow(sig.spectrum) == 0){
       warning(paste0("Patient ", patientID, ": There is no enough eligible mutations can be used."))
       return(NA)
    }
@@ -64,17 +64,17 @@ plotMutSigProfile_branch <- function(sig.product, mode){
                               "#e4e8f3","#fdefeb","#e5e8ef"))
    names(background.colors) <- paste(ls.mutationGroup,1,sep = "")
    all.scales <- c(group.colors,background.colors)
-   sig.product$Group.background <- paste(sig.product$Group,1,sep = "")
+   sig.spectrum$Group.background <- paste(sig.spectrum$Group,1,sep = "")
    
    if(!is.null(mode)){
-       sig.product <- sig.product[sig.product$value.type == mode, ]
+       sig.spectrum <- sig.spectrum[sig.spectrum$value.type == mode, ]
    }
 
-   name <- paste0(unique(sig.product$Patient_ID),"_",sig.product[1,1])
+   name <- paste0(unique(sig.spectrum$Patient_ID),"_",sig.spectrum[1,1])
 
-   pic <- ggplot(sig.product, aes(x=Type, y=Mutation_Probability, group=Group, fill=Group))
-   if("Original" %in% sig.product$value.type){
-       sig.Original <- sig.product[sig.product$value.type == "Original",]
+   pic <- ggplot(sig.spectrum, aes(x=Type, y=Mutation_Probability, group=Group, fill=Group))
+   if("Original" %in% sig.spectrum$value.type){
+       sig.Original <- sig.spectrum[sig.spectrum$value.type == "Original",]
        pic <- pic + geom_rect(data = sig.Original,
                               aes(fill = Group.background),
                               xmin = -Inf,
@@ -82,8 +82,8 @@ plotMutSigProfile_branch <- function(sig.product, mode){
                               ymin = min(sig.Original$Mutation_Probability),
                               ymax = max(sig.Original$Mutation_Probability))
    }
-   if("Reconstructed" %in% sig.product$value.type){
-       sig.Reconstructed <- sig.product[sig.product$value.type == "Reconstructed",]
+   if("Reconstructed" %in% sig.spectrum$value.type){
+       sig.Reconstructed <- sig.spectrum[sig.spectrum$value.type == "Reconstructed",]
        pic <- pic + geom_rect(data = sig.Reconstructed,
                               aes(fill = Group.background),
                               xmin = -Inf,
@@ -91,8 +91,8 @@ plotMutSigProfile_branch <- function(sig.product, mode){
                               ymin = min(sig.Reconstructed$Mutation_Probability),
                               ymax = max(sig.Reconstructed$Mutation_Probability))
    }
-   if("Difference" %in% sig.product$value.type){
-       sig.Difference <- sig.product[sig.product$value.type == "Difference",]
+   if("Difference" %in% sig.spectrum$value.type){
+       sig.Difference <- sig.spectrum[sig.spectrum$value.type == "Difference",]
        pic <- pic + geom_rect(data = sig.Difference,
                               aes(fill = Group.background),
                               xmin = -Inf,
@@ -110,7 +110,7 @@ plotMutSigProfile_branch <- function(sig.product, mode){
            strip.text.y=element_text(size=14),
            panel.spacing.y = unit(0.5, "lines"),
            panel.spacing.x = unit(0, "lines"),
-           plot.title = element_text(size = 13, face = "bold", hjust = 0,vjust = 0),
+           plot.title = element_text(size = 13, hjust = 0,vjust = 0),
            axis.text.x= element_text(angle = 90,vjust = 0.2,size = 5,colour = "black"),
            axis.ticks.x=element_line(color = "black"),
            axis.ticks.length.y = unit(0.2, "cm"),
@@ -123,7 +123,7 @@ plotMutSigProfile_branch <- function(sig.product, mode){
        ylab("Mutation probability") + 
        ggtitle(paste(name,"\n",
                      "RSS = ", RSS, "; Cosine similarity = ", cosine_sim,"\n",
-                    unique(sig.product$Signature),sep = ""))
+                    unique(sig.spectrum$Signature),sep = ""))
    # message(paste0(patientID," mutational signature plot generation done!"))
    return(pic)
 }

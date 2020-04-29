@@ -15,7 +15,7 @@ getMutMatrix <- function(mafData, use.ccf = FALSE){
     tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE) %>% 
     dplyr::select(mutation_id, Tumor_Sample_Barcode)
     
-
+    # print(M[450:451,])
     M$mutation <- 1
     mutBinary <- suppressMessages(tidyr::spread(M, Tumor_Sample_Barcode, mutation))
     mut.id <- mutBinary$mutation_id

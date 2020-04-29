@@ -54,38 +54,28 @@ calNeiDist <- function(maf,
         mafData <- mafData %>% 
             dplyr::filter(Clonal_Status == "Subclonal")
     }
-    Nei.dist <- mafData %>%
-        dplyr::filter(Patient_ID %in% patient.id) %>%
-        tidyr::unite(
-            "mutation_id",
-            c(
-                "Chromosome",
-                "Start_Position",
-                "Reference_Allele",
-                "Tumor_Seq_Allele2"
-            ),
-            sep = ":",
-            remove = FALSE
-        ) %>%
+    input_data <- mafData %>%
+        dplyr::filter(Patient_ID %in% patient.id) %>% 
         dplyr::mutate(
             CCF = dplyr::if_else(is.na(CCF), 0, CCF)
         ) %>% 
         dplyr::filter(VAF_adj > min.vaf)%>% 
         dplyr::select(
-                mutation_id,
+                Mut_ID,
                 Tumor_Type,
                 Tumor_Sample_Barcode,
                 Patient_ID,
                 CCF) %>%
             data.table::as.data.table()
     ## fresh patient id
-    patient.id <- unique(Nei.dist$Patient_ID)
+    patient.id <- unique(input_data$Patient_ID)
     Nei.plot <- list()
     Nei.avg <- list()
     avg.list <- c()
-    df.list <- list()
+    # df.list <- list()
+    mat.list <- list()
     if(withinType){
-        Nei.dist <- Nei.dist %>% 
+        Nei.dist <- input_data %>% 
             dplyr::group_by(Patient_ID) %>%
             dplyr::group_map(~groupByTypeND(.), keep = TRUE) %>%
             rlang::set_names(patient.id)
@@ -103,10 +93,10 @@ calNeiDist <- function(maf,
                 name <- paste0(patient,"_",type) 
                 ## get result for each patient in each type
                 Nei.dist.p.t <- Nei.dist.p[[type]]$dist.mat
-                
-                df <- Nei.dist.p[[type]]$dist.df
-                df$type <- name
-                df.list[[type]] <- df
+                mat.list[[name]] <- Nei.dist.p.t
+                # df <- Nei.dist.p[[type]]$dist.df
+                # df$type <- name
+                # df.list[[type]] <- df
                 
                 type.list <- c(type.list, type)
                 patient.list <- c(patient.list,patient)
@@ -125,10 +115,10 @@ calNeiDist <- function(maf,
                 
             }
         }
-        Nei.dist <- plyr::rbind.fill(df.list)
-        colnames(Nei.dist) <- c("Patient_ID","Pair","Nei.dist","Tumor_Type")
-        Nei.dist <- Nei.dist %>%  
-            dplyr::select(Patient_ID, Tumor_Type, Pair, Nei.dist)
+        # Nei.dist <- plyr::rbind.fill(df.list)
+        # colnames(Nei.dist) <- c("Patient_ID","Pair","Nei.dist","Tumor_Type")
+        # Nei.dist <- Nei.dist %>%  
+        #     dplyr::select(Patient_ID, Tumor_Type, Pair, Nei.dist)
         
         Nei.avg <- data.frame(Patient_ID = patient.list,
                               Tumor_Type = type.list,
@@ -136,20 +126,20 @@ calNeiDist <- function(maf,
         
     }
     else{
-        Nei.dist <- Nei.dist %>% 
+        Nei.dist <- input_data %>% 
             dplyr::group_by(Patient_ID) %>%
             dplyr::group_map(~nei_dist(., withinType = withinType), keep = TRUE) %>%
             rlang::set_names(patient.id) 
         
         Nei.dist <- Nei.dist[!is.na(Nei.dist)]
         patient.id <- names(Nei.dist)
-        
-        avg.list <- c()
-        df.list
+        # df.list
         for(i in 1:length(Nei.dist)){
+            patient <- patient.id[[i]]
             avg <- mean(Nei.dist[[i]]$dist.mat)
             avg.list <- append(avg.list,avg)
-            df.list[[i]] <- Nei.dist[[i]]$dist.df
+            mat.list[[patient]] <- Nei.dist[[i]]$dist.mat
+            # df.list[[i]] <- Nei.dist[[i]]$dist.df
             if(plot){
                 Nei.plot[[patient.id[i]]] <- plotCorr(
                     Nei.dist[[i]]$dist.mat, 
@@ -160,18 +150,17 @@ calNeiDist <- function(maf,
                 )
             }
         }
-        Nei.dist <- plyr::rbind.fill(df.list)
-        colnames(Nei.dist) <- c("Patient_ID","Pair","Nei.dist")
-       
+        # Nei.dist <- plyr::rbind.fill(df.list)
+        # colnames(Nei.dist) <- c("Patient_ID","Pair","Nei.dist")
         Nei.avg <- data.frame(Patient_ID = patient.id,
                               Nei.dist.avg = avg.list)
     }
     
     if(plot){
-        return(list(Nei.dist.avg = Nei.avg, Nei.dist = Nei.dist, Nei.plot =  Nei.plot))           
+        return(list(Nei.dist.avg = Nei.avg, Nei.dist = mat.list, Nei.plot =  Nei.plot))           
     }
     else{
-        return(list(Nei.dist.avg = Nei.avg, Nei.dist = Nei.dist))           
+        return(list(Nei.dist.avg = Nei.avg, Nei.dist = mat.list))           
     }
 
 }

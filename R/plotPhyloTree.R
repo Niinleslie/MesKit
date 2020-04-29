@@ -40,8 +40,7 @@ plotPhyloTree <- function(phyloTree = NULL,
                           show.geneList = TRUE,
                           min.mut.count = 15,
                           mut.threshold = 50,
-                          patient.id = NULL,
-                          use.shiny = FALSE){
+                          patient.id = NULL){
    heatmap.options <- c('binary','CCF')
    if(!heatmap.type %in% heatmap.options){
       stop("Type of heatmap can only be 'binary' or 'CCF'")
@@ -77,7 +76,6 @@ plotPhyloTree <- function(phyloTree = NULL,
                        geneList = geneList,
                        show.geneList = show.geneList,
                        mut.threshold = mut.threshold,
-                       min.mut.count = min.mut.count,
-                       use.shiny = use.shiny)
+                       min.mut.count = min.mut.count)
    return(tree.list)
 }

@@ -70,7 +70,8 @@ mutHeatmap <- function(maf,
                         plot.geneList = plot.geneList,
                         show.gene = show.gene,
                         show.geneList = show.geneList,
-                        mut.threshold = mut.threshold)
+                        mut.threshold = mut.threshold,
+                        plot.tree = FALSE)
     },
     use.ccf = use.ccf,
     show.class.label = show.class.label,

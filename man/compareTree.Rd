@@ -8,9 +8,7 @@ compareTree(
   tree1,
   tree2,
   plot = FALSE,
-  branchCol = "mutSig",
   min.ratio = 1/30,
-  use.ccf = FALSE,
   show.bootstrap = FALSE,
   use.box = FALSE,
   common.lty = "solid"

@@ -22,7 +22,7 @@ nei_dist <- function(df, withinType = FALSE) {
                             values_from = CCF,
                             values_fill = list(CCF = 0)
    ) %>%
-      dplyr::select(-Patient_ID, -mutation_id, -Tumor_Type)
+      dplyr::select(-Patient_ID, -Mut_ID, -Tumor_Type)
    
    dist <- diag(0, nrow = ncol(df), ncol = ncol(df))
    

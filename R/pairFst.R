@@ -31,12 +31,12 @@ fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, titl
          dplyr::select(-Tumor_Type)
       # ## filter by min.vaf
       # idx <- (df %>% 
-      #             dplyr::group_by(mutation_id) %>% 
+      #             dplyr::group_by(Mut_ID) %>% 
       #             dplyr::summarise(max = max(VAF_adj)) %>% 
       #             dplyr::filter(max > min.vaf) %>% 
-      #             as.data.frame())$mutation_id  
+      #             as.data.frame())$Mut_ID  
       # 
-      # df <- df[df$mutation_id %in% idx,] %>% 
+      # df <- df[df$Mut_ID %in% idx,] %>% 
       #     dplyr::select(-Tumor_Type)
       # 
       # if(length(unique(df$Tumor_Sample_Barcode))  < 2 ){
@@ -74,12 +74,11 @@ fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, titl
          ) %>%
          dplyr::ungroup() %>%
          dplyr::select(-Patient_ID)
-      colnames(maf.pair) <- c("mutation_id", "vaf1", "vaf2", "depth1", "depth2")
+      colnames(maf.pair) <- c("Mut_ID", "vaf1", "vaf2", "depth1", "depth2")
       
       name <- paste(samples[pair[1]],samples[pair[2]],sep = "_")
-      
+      # print(maf.pair)
       Fst.dist[pair[1],pair[2]] <- Fst.dist[pair[2],pair[1]] <- fst.hudson.pair(maf.pair)
-      
       sub <- data.frame(patientID, name, fst.hudson.pair(maf.pair))
       Fst.df <- rbind(Fst.df,sub)
       

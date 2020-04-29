@@ -38,21 +38,21 @@ JSI_dist <- function(df, pairByType){
       if(pairByType){
          name <- paste(types[pair[1]],types[pair[2]], sep = "_")
          vaf.pair <- subset(df, Tumor_Type %in% c(types[pair[1]],types[pair[2]])) %>%
-            tidyr::unite("mutation_id2",
-                         c("mutation_id",
+            tidyr::unite("Mut_ID2",
+                         c("Mut_ID",
                            "Tumor_Type"),
                          sep = ":",
                          remove = FALSE
             ) %>%
-            dplyr::distinct(mutation_id2, .keep_all = T) %>%
-            dplyr::select(mutation_id, Tumor_Type, Clonal_Status, VAF_adj) %>% 
+            dplyr::distinct(Mut_ID2, .keep_all = T) %>%
+            dplyr::select(Mut_ID, Tumor_Type, Clonal_Status, VAF_adj) %>% 
             tidyr::pivot_wider(
                names_from = Tumor_Type,       
                values_from = c(VAF_adj, Clonal_Status),
                values_fill = c(VAF_adj = 0, Clonal_Status = 'NA')
             ) %>%
             dplyr::ungroup()
-         colnames(vaf.pair) <- c("mutation_id", "vaf1", "vaf2", "status1", "status2")
+         colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")
          
          
       }
@@ -60,14 +60,14 @@ JSI_dist <- function(df, pairByType){
          name <- paste(samples[pair[1]],samples[pair[2]], sep = "_")
          
          vaf.pair <- subset(df, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>%
-            dplyr::select(mutation_id, Tumor_Sample_Barcode, Clonal_Status, VAF_adj) %>% 
+            dplyr::select(Mut_ID, Tumor_Sample_Barcode, Clonal_Status, VAF_adj) %>% 
             tidyr::pivot_wider(
                names_from = Tumor_Sample_Barcode,       
                values_from = c(VAF_adj, Clonal_Status),
                values_fill = c(VAF_adj = 0, Clonal_Status = 'NA')
             ) %>%
             dplyr::ungroup()
-         colnames(vaf.pair) <- c("mutation_id", "vaf1", "vaf2", "status1", "status2")
+         colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")
       }
       
       vaf.pair <- vaf.pair %>% 

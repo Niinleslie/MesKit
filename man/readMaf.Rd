@@ -14,7 +14,6 @@ readMaf(
   min.average.adj.vaf = 0.04,
   min.ref.depth = 4,
   min.alt.depth = 4,
-  min.total.depth = 8,
   mutType = "All",
   mutNonSilent = NULL,
   chrSilent = NULL,
