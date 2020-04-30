@@ -62,6 +62,7 @@ mutHeatmap <- function(maf,
                                                 mut.threshold){
         binary.mat <- x[[1]]
         ccf.mat <- x[[2]]
+        patient <- x[[3]]
         p <- plotHeatmap(binary.mat = binary.mat,
                         ccf.mat = ccf.mat,
                         use.ccf = use.ccf,
@@ -71,7 +72,8 @@ mutHeatmap <- function(maf,
                         show.gene = show.gene,
                         show.geneList = show.geneList,
                         mut.threshold = mut.threshold,
-                        plot.tree = FALSE)
+                        plot.tree = FALSE,
+                        patient = patient)
     },
     use.ccf = use.ccf,
     show.class.label = show.class.label,

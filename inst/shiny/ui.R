@@ -703,26 +703,84 @@ bodyITH <- tabItem("ITH",
 bodyAL <- tabItem("AL",
                   fluidRow(
                       column(
-                          width = 3
+                          width = 3,
+                          box(
+                              width = NULL,
+                              conditionalPanel(
+                                  condition = "input.al_tabbox == 'pannel_classifymut'",
+                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                  br(),
+                                  fluidRow(
+                                      column(
+                                          width = 9,
+                                          div(
+                                              tags$button(
+                                                  id = "submit_classifymut", type = "button", class = "action-button bttn",
+                                                  class = "bttn-unite", class = paste0("bttn-md"),
+                                                  class = paste0("bttn-default"),
+                                                  list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                                  style = "margin-bottom:0px;margin-right:0px;"
+                                              )
+                                          )
+                                      )
+                                  )
+                              ),
+                              conditionalPanel(
+                                  condition = "input.al_tabbox == 'pannel_plotcna'",
+                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                  br(),
+                                  fileInput(inputId = 'segFile_plotcna', 
+                                            label = div(style = "font-size:1.5em; font-weight:600; ", 'Seg file'),
+                                            placeholder = "Default file: HCC6046.seg.tsv", 
+                                            width = 400),
+                                  fluidRow(
+                                      column(
+                                          width = 9,
+                                          div(
+                                              tags$button(
+                                                  id = "submit_plotcna", type = "button", class = "action-button bttn",
+                                                  class = "bttn-unite", class = paste0("bttn-md"),
+                                                  class = paste0("bttn-default"),
+                                                  list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                                  style = "margin-bottom:0px;margin-right:0px;"
+                                              )
+                                          )
+                                      )
+                                  )
+                              ),
+                          )
                       ),
                       column(
                           width = 9,
-                          div(strong("Alterational Landscape"),style = "font-size:27px; font-weight:500;"),
-                          p("",
-                            style = "font-size:20px; font-weight:500;line-height:40px;"),
-                          tabBox(
-                              id = 'AL_tabbox',
-                              selected = 'al_classifymut',
-                              side = 'left',
-                              height = "100%",
-                              width = "100%",
-                              tabPanel(
-                                  value = 'al_classifymut',
-                                  title = div(icon("newspaper"), "Mutational landscape"), 
-                                  uiOutput('warningMessage08'),
-                                  div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
-                                  br(),
-                                  uiOutput("ccfdendb")
+                          box(
+                              width = NULL,
+                              div(strong("Alterational Landscape"),style = "font-size:27px; font-weight:500;"),
+                              p("",
+                                style = "font-size:20px; font-weight:500;line-height:40px;"),
+                              tabBox(
+                                  id = 'al_tabbox',
+                                  selected = 'pannel_classifymut',
+                                  side = 'left',
+                                  height = "100%",
+                                  width = "100%",
+                                  tabPanel(
+                                      value = 'pannel_classifymut',
+                                      title = div(icon("newspaper"), "Mutational landscape"), 
+                                      uiOutput('warningMessage_classifymut'),
+                                      div(plotOutput('classifymut_plot', height = "100%", width = "100%"), align = "center"),
+                                      br(),
+                                      uiOutput("classifymut_db_ui"),
+                                      uiOutput("classifymut_table_ui")
+                                  ),
+                                  tabPanel(
+                                      value = 'pannel_plotcna',
+                                      title = div(icon("newspaper"), "CNA profile"), 
+                                      uiOutput('warningMessage_plotcna'),
+                                      div(plotOutput('plotcna_plot', height = "100%", width = "100%"), align = "center"),
+                                      br(),
+                                      uiOutput("plotcna_db_ui"),
+                                      uiOutput("plotcna_table_ui")
+                                  )
                               )
                           )
                       )
@@ -820,6 +878,46 @@ bodyclone <- tabItem('clone',
                                        )
                                    )
                                )
+                           ),
+                           conditionalPanel(
+                               condition = "input.clt == 'clone_testneutral'",
+                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                               tags$table(
+                                   tags$tr(id = "inline", 
+                                           width = "100%",
+                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
+                                           tags$td(width = "70%", textInput(inputId = "minvaf_testneutral", value = 0.1, label = NULL)))
+                               ), 
+                               bsTooltip(id = "minvaf_testneutral",
+                                         title = "The minimum value of vaf",
+                                         placement = "top",
+                                         trigger = "hover"),
+                               br(),
+                               tags$table(
+                                   tags$tr(id = "inline", 
+                                           width = "100%",
+                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Max vaf: ")),
+                                           tags$td(width = "70%", textInput(inputId = "maxvaf_testneutral", value = 0.3, label = NULL)))
+                               ), 
+                               bsTooltip(id = "maxvaf_testneutral",
+                                         title = "The maximum value of vaf",
+                                         placement = "top",
+                                         trigger = "hover"),
+                               br(),
+                               fluidRow(
+                                   column(
+                                       width = 9,
+                                       div(
+                                           tags$button(
+                                               id = "submit_testneutral", type = "button", class = "action-button bttn",
+                                               class = "bttn-unite", class = paste0("bttn-md"),
+                                               class = paste0("bttn-default"),
+                                               list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                               style = "margin-bottom:0px;margin-right:0px;"
+                                           )
+                                       )
+                                   )
+                               )
                            )
                          )
                        ),
@@ -861,6 +959,16 @@ bodyclone <- tabItem('clone',
                                  uiOutput("comparejsi_db_ui"),
                                  uiOutput("comparejsi_avg_table_ui"),
                                  uiOutput("comparejsi_pair_table_ui")
+                             ),
+                             tabPanel(
+                                 title = div(icon("box"), "testNeutral"),
+                                 value = "clone_testneutral",
+                                 uiOutput('testneutral.patientlist'),
+                                 uiOutput('testneutral.samplelist'),
+                                 uiOutput('warningMessage_testneutral'),
+                                 div(plotOutput("testneutral_plot",height = "100%"),align = "center") ,
+                                 uiOutput("testneutral_db_ui"),
+                                 uiOutput("testneutral_table_ui")
                              )
                            )
                          )
@@ -1127,52 +1235,52 @@ bodySignature <- tabItem('signature',
                              width = 3,
                              box(
                                width = NULL,
+                               # conditionalPanel(
+                               #   condition = "input.sgt == 'S01'",
+                               #   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                               #   br(),
+                               #   checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
+                               #   bsTooltip(id = "oncogeneMapping",
+                               #             title = 'The file with driver gene list.',
+                               #             placement = "top",
+                               #             trigger = "hover"),
+                               #   conditionalPanel(
+                               #     condition = "input.oncogeneMapping == true",
+                               #     fileInput(inputId = 'driverGenesFile', 
+                               #               label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
+                               #               placeholder = "Default file: putative_driver_genes.txt", 
+                               #               width = 400)
+                               #   ), 
+                               #   numericInput('mutThreshold', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 15),
+                               #   selectInput("signaturesRef", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
+                               #               choices = c("cosmic_v2",
+                               #                           "nature2013",
+                               #                           "geome_cosmic_v3",
+                               #                            "exome_cosmic_v3"),
+                               #               selected = "cosmic_v2"),
+                               #   bsTooltip(id = "signaturesRef",
+                               #             title = 'The parameter used for deconstructSig.Default "cosmic". Option: "nature2013". ',
+                               #             placement = "top",
+                               #             trigger = "hover"),
+                               #   br(),
+                               #   br(),
+                               #   fluidRow(
+                               #     column(
+                               #       width = 9,
+                               #       div(
+                               #         tags$button(
+                               #           id = "submitSig", type = "button", class = "action-button bttn",
+                               #           class = "bttn-unite", class = paste0("bttn-md"),
+                               #           class = paste0("bttn-default"),
+                               #           list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                               #           style = "margin-bottom:0px;margin-right:0px;"
+                               #         )
+                               #       )
+                               #     )
+                               #   )
+                               # ),
                                conditionalPanel(
-                                 condition = "input.sgt == 'S01'",
-                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                                 br(),
-                                 checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
-                                 bsTooltip(id = "oncogeneMapping",
-                                           title = 'The file with driver gene list.',
-                                           placement = "top",
-                                           trigger = "hover"),
-                                 conditionalPanel(
-                                   condition = "input.oncogeneMapping == true",
-                                   fileInput(inputId = 'driverGenesFile', 
-                                             label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
-                                             placeholder = "Default file: putative_driver_genes.txt", 
-                                             width = 400)
-                                 ), 
-                                 numericInput('mutThreshold', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 15),
-                                 selectInput("signaturesRef", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                                             choices = c("cosmic_v2",
-                                                         "nature2013",
-                                                         "geome_cosmic_v3",
-                                                          "exome_cosmic_v3"),
-                                             selected = "cosmic_v2"),
-                                 bsTooltip(id = "signaturesRef",
-                                           title = 'The parameter used for deconstructSig.Default "cosmic". Option: "nature2013". ',
-                                           placement = "top",
-                                           trigger = "hover"),
-                                 br(),
-                                 br(),
-                                 fluidRow(
-                                   column(
-                                     width = 9,
-                                     div(
-                                       tags$button(
-                                         id = "submitSig", type = "button", class = "action-button bttn",
-                                         class = "bttn-unite", class = paste0("bttn-md"),
-                                         class = paste0("bttn-default"),
-                                         list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                         style = "margin-bottom:0px;margin-right:0px;"
-                                       )
-                                     )
-                                   )
-                                 )
-                               ),
-                               conditionalPanel(
-                                 condition = "input.sgt == 'S02'",
+                                 condition = "input.sgt == 'S_treemutsig'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
                                  fileInput('driverGenesFile1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driver genes file')), 
@@ -1191,8 +1299,8 @@ bodySignature <- tabItem('signature',
                                            title = 'The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". ". Option: "nature2013". ',
                                            placement = "top",
                                            trigger = "hover"),
-                                 sliderInput(inputId='widthsig1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                 sliderInput(inputId='heightsig1',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
+                                 sliderInput(inputId='width_treemutsig',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
+                                 sliderInput(inputId='height_treemutsig',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
                                  br(),
                                  br(),
                                  fluidRow(
@@ -1200,7 +1308,7 @@ bodySignature <- tabItem('signature',
                                      width = 9,
                                      div(
                                        tags$button(
-                                         id = "submitSig1", type = "button", class = "action-button bttn",
+                                         id = "submit_treemutsig", type = "button", class = "action-button bttn",
                                          class = "bttn-unite", class = paste0("bttn-md"),
                                          class = paste0("bttn-default"),
                                          list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
@@ -1211,7 +1319,7 @@ bodySignature <- tabItem('signature',
                                  )
                                ), 
                                conditionalPanel(
-                                 condition = "input.sgt == 'S03'",
+                                 condition = "input.sgt == 'S_muttrunkbranch'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                                  br(),
                                  fileInput('driverGenesFile2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Upload driverGenesFile')), 
@@ -1235,8 +1343,8 @@ bodySignature <- tabItem('signature',
                                            title = 'Confidence level of the interval for wilcox.test. Default: 0.95. Option: on the scale of 0 to 1.',
                                            placement = "top",
                                            trigger = "hover"),
-                                 sliderInput(inputId='widthsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800, width = 500),
-                                 sliderInput(inputId='heightsig2',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
+                                 sliderInput(inputId='width_muttrunkbranch',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 470, width = 500),
+                                 sliderInput(inputId='height_muttrunkbranch',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 470, width = 500), 
                                  br(),
                                  br(),
                                  fluidRow(
@@ -1244,7 +1352,7 @@ bodySignature <- tabItem('signature',
                                      width = 9,
                                      div(
                                        tags$button(
-                                         id = "submitSig2", type = "button", class = "action-button bttn",
+                                         id = "submit_muttrunkbranch", type = "button", class = "action-button bttn",
                                          class = "bttn-unite", class = paste0("bttn-md"),
                                          class = paste0("bttn-default"),
                                          list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
@@ -1253,55 +1361,55 @@ bodySignature <- tabItem('signature',
                                      )
                                    )
                                  )
-                               ), 
-                               conditionalPanel(
-                                   condition = "input.sgt == 'S04'",
-                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                                   br(),
-                                   checkboxInput(inputId="oncogeneMapping4", label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Driver genes mapping'), value = FALSE),
-                                   bsTooltip(id = "oncogeneMapping4",
-                                             title = 'Whether to upload driver genes.',
-                                             placement = "top",
-                                             trigger = "hover"),
-                                   conditionalPanel(
-                                       condition = "input.oncogeneMapping4 == true",
-                                       fileInput(inputId = 'driverGenesFile4', 
-                                                 label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
-                                                 placeholder = "Default file: putative_driver_genes.txt", 
-                                                 width = 400)
-                                   ), 
-                                   numericInput('mutThreshold4', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 15),
-                                   bsTooltip(id = "mutThreshold4",
-                                             title = 'The threshold for the variants in a branch. Default 15.',
-                                             placement = "top",
-                                             trigger = "hover"),
-                                   selectInput("signaturesRef4", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                                               choices = c("cosmic_v2",
-                                                           "nature2013",
-                                                           "geome_cosmic_v3",
-                                                           "exome_cosmic_v3"),
-                                               selected = "cosmic"),
-                                   bsTooltip(id = "signaturesRef4",
-                                             title = 'The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". ',
-                                             placement = "top",
-                                             trigger = "hover"),
-                                   br(),
-                                   br(),
-                                   fluidRow(
-                                       column(
-                                           width = 9,
-                                           div(
-                                               tags$button(
-                                                   id = "submitSig4", type = "button", class = "action-button bttn",
-                                                   class = "bttn-unite", class = paste0("bttn-md"),
-                                                   class = paste0("bttn-default"),
-                                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                                   style = "margin-bottom:0px;margin-right:0px;"
-                                               )
-                                           )
-                                       )
-                                   )
                                )
+                               # conditionalPanel(
+                               #     condition = "input.sgt == 'S04'",
+                               #     div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                               #     br(),
+                               #     checkboxInput(inputId="oncogeneMapping4", label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Driver genes mapping'), value = FALSE),
+                               #     bsTooltip(id = "oncogeneMapping4",
+                               #               title = 'Whether to upload driver genes.',
+                               #               placement = "top",
+                               #               trigger = "hover"),
+                               #     conditionalPanel(
+                               #         condition = "input.oncogeneMapping4 == true",
+                               #         fileInput(inputId = 'driverGenesFile4', 
+                               #                   label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
+                               #                   placeholder = "Default file: putative_driver_genes.txt", 
+                               #                   width = 400)
+                               #     ), 
+                               #     numericInput('mutThreshold4', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 15),
+                               #     bsTooltip(id = "mutThreshold4",
+                               #               title = 'The threshold for the variants in a branch. Default 15.',
+                               #               placement = "top",
+                               #               trigger = "hover"),
+                               #     selectInput("signaturesRef4", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
+                               #                 choices = c("cosmic_v2",
+                               #                             "nature2013",
+                               #                             "geome_cosmic_v3",
+                               #                             "exome_cosmic_v3"),
+                               #                 selected = "cosmic"),
+                               #     bsTooltip(id = "signaturesRef4",
+                               #               title = 'The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". ',
+                               #               placement = "top",
+                               #               trigger = "hover"),
+                               #     br(),
+                               #     br(),
+                               #     fluidRow(
+                               #         column(
+                               #             width = 9,
+                               #             div(
+                               #                 tags$button(
+                               #                     id = "submitSig4", type = "button", class = "action-button bttn",
+                               #                     class = "bttn-unite", class = paste0("bttn-md"),
+                               #                     class = paste0("bttn-default"),
+                               #                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                               #                     style = "margin-bottom:0px;margin-right:0px;"
+                               #                 )
+                               #             )
+                               #         )
+                               #     )
+                               # )
                              )
                            ),
                            column(
@@ -1314,43 +1422,45 @@ bodySignature <- tabItem('signature',
                                tabBox(
                                  id = 'sgt',
                                  side = 'left',
-                                 selected = 'S04',
+                                 selected = 'S_treemutsig',
                                  width = "100%",
                                  height = "100%",
-                                 tabPanel(
-                                     title = div(icon("newspaper"), "Summary-Trunk or branch"), 
-                                     value = 'S04',
-                                     uiOutput('warningMessage11'),
-                                     DT::dataTableOutput('sigBTt',width = "100%"),
-                                     br(),
-                                     uiOutput("sigbtdb")
-                                 ),
+                                 # tabPanel(
+                                 #     title = div(icon("newspaper"), "Summary-Trunk or branch"), 
+                                 #     value = 'S04',
+                                 #     uiOutput('warningMessage11'),
+                                 #     DT::dataTableOutput('sigBTt',width = "100%"),
+                                 #     br(),
+                                 #     uiOutput("sigbtdb")
+                                 # ),
                                  tabPanel(
                                      title = div(icon("image"), "Mutational trunkOrBranch plot"),
-                                     value = 'S03',
-                                     uiOutput('warningMessage12'),
-                                     uiOutput('mtb.patientlist'),
-                                     div(plotOutput('sigOFAPlot2', height = "100%", width = "100%"),align = "center"),
-                                     uiOutput("sigpdb2")
-                                 ), 
-                                 tabPanel(
-                                     title = div(icon("newspaper"), "Summary-Signature"), 
-                                     value = 'S01',
-                                     uiOutput('warningMessage13'),
-                                     uiOutput('sigsummary.patientlist'),
-                                     DT::dataTableOutput('sigOFAt',width = "100%"),
+                                     value = 'S_muttrunkbranch',
+                                     # uiOutput('warningMessage_muttrunkbranch'),
+                                     uiOutput("muttrunkbranch.patientlist"),
+                                     div(plotOutput('muttrunkbranch_plot', height = "100%", width = "100%"),align = "center"),
+                                     uiOutput("muttrunkbranch_download_button_ui"),
                                      br(),
-                                     uiOutput("sigpdb")
-                                 ),
+                                     uiOutput('muttrunkbranch_table_ui')
+                                 ), 
+                                 # tabPanel(
+                                 #     title = div(icon("newspaper"), "Summary-Signature"), 
+                                 #     value = 'S01',
+                                 #     uiOutput('warningMessage13'),
+                                 #     uiOutput('sigsummary.patientlist'),
+                                 #     DT::dataTableOutput('sigOFAt',width = "100%"),
+                                 #     br(),
+                                 #     uiOutput("sigpdb")
+                                 # ),
                                  tabPanel(
                                    title = div(icon("microsoft"), "Signature plot"), 
-                                   value = 'S02',
-                                   uiOutput('warningMessage14'),
+                                   value = 'S_treemutsig',
+                                   # uiOutput('warningMessage_treemutsig'),
                                    uiOutput("treemutsig.patientlist"),
-                                   div(plotOutput('sigOFAPlot1', height = "100%", width = "100%"),align = "center"),
-                                   uiOutput("sigpdb1"),
+                                   div(plotOutput('treemutsig_plot', height = "100%", width = "100%"),align = "center"),
+                                   uiOutput("treemutsig_download_button_ui"),
                                    br(),
-                                   uiOutput('sigOFATableUI1')
+                                   uiOutput('treemutsig_table_ui')
                                  )
                                )
                              )
@@ -1411,7 +1521,7 @@ bodySurvival <- tabItem('Survival',
                                   width = 9,
                                   div(
                                     tags$button(
-                                      id = "submit10", type = "button", class = "action-button bttn",
+                                      id = "submit_phylotree", type = "button", class = "action-button bttn",
                                       class = "bttn-unite", class = paste0("bttn-md"),
                                       class = paste0("bttn-default"),
                                       list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
@@ -1431,13 +1541,14 @@ bodySurvival <- tabItem('Survival',
                                 br(),"trees with mutational signature information, along with a CCF heatmap (if CCF data is available) ",
                                 style = "font-size:20px; font-weight:500;line-height:40px;"),
                               conditionalPanel(
-                                condition = 'input.submit10',
+                                condition = 'submit_phylotree',
                                 width = NULL,
                                 height = "100%",
+                                uiOutput("phylotree.patientlist"),
                                 uiOutput('warningMessage15'),
-                                div(plotOutput("phylotree",height = 600,width = 900),align = "center"),
+                                div(plotOutput("phylotree_plot",height = 600,width = 900),align = "center"),
                                 br(),
-                                uiOutput("phtdb")
+                                uiOutput("phylotree_downloadbutton_ui")
                               )
                             )
                           )

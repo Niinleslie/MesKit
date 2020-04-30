@@ -8,8 +8,8 @@ ccfAUC(
   maf,
   patient.id = NULL,
   min.ccf = 0,
-  plot.density = TRUE,
-  withinType = FALSE
+  withinType = FALSE,
+  plot.density = TRUE
 )
 }
 \arguments{
@@ -19,9 +19,9 @@ ccfAUC(
 
 \item{min.ccf}{the minimum value of CCF. Default: 0}
 
-\item{plot.density}{whether to show the density plot. Default: TRUE}
-
 \item{withinType}{calculate AUC within types in each patients,default is FALSE.}
+
+\item{plot.density}{whether to show the density plot. Default: TRUE}
 }
 \value{
 A list containing AUC of CCF and a graph

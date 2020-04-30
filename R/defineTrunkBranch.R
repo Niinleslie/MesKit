@@ -178,16 +178,16 @@ doPlotTrunkBranch <- function(mtb_output, pvalue = 0.05, CT){
    dat$rect.ymin <- 0
    dat$rect.ymax <- 0
    groups <- unique(dat$group.name)
-   patient1 <- unique(dat[group.name == groups[1],]$Patient_ID)
+   # patient1 <- unique(dat[group.name == groups[1],]$Patient_ID)
    i <- 0
    for(g in groups){
       ## get position for x axis
-      patient2 <- unique(dat[group.name == g,]$Patient_ID)
-      if(patient1 != patient2){
-         ## The space between the patients
-         i <- i + 0.1
-      }
-      patient1 <- patient2
+      # patient2 <- unique(dat[group.name == g,]$Patient_ID)
+      # if(patient1 != patient2){
+      #    ## The space between the patients
+      #    i <- i + 0.1
+      # }
+      # patient1 <- patient2
       dat[group.name == g,]$rect.xmin <- i
       dat[group.name == g,]$rect.xmax <- i + 0.1
       i <- i + 0.15
@@ -256,7 +256,7 @@ doPlotTrunkBranch <- function(mtb_output, pvalue = 0.05, CT){
    segment.table <- data.table()
    for(pg in unique(dat$PG)){
       fractions <- dat[PG == pg]$fraction
-      if(any(fractions == 0)){
+      if(all(fractions == 0)){
          next
       }
       x1 <- min(dat[PG == pg]$rect.xmax)
@@ -296,9 +296,9 @@ doPlotTrunkBranch <- function(mtb_output, pvalue = 0.05, CT){
       
       ## lable patientid
       geom_text(data = patient.text.table,
-                aes(x = p.x, y = 1.08, label = Patient_ID),size = 5)+
-      
-      ## label number of mutation
+                aes(x = p.x, y = 1.1, label = Patient_ID),size = 6)+
+
+      # label number of mutation
       geom_text(data = num.table,
                 aes(x = g.x, y = 1.03, label = num),size = 4)+
       
@@ -307,6 +307,7 @@ doPlotTrunkBranch <- function(mtb_output, pvalue = 0.05, CT){
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
+            plot.title = element_text(hjust = 0.48,size = 17,vjust = -2),
             axis.ticks.x = element_blank(),
             axis.title.y = element_text(size = 11,colour = "black"),
             axis.text.x = element_text(angle = 60,size = 11,colour = "black",hjust = 1,margin = margin(t = -10)),
@@ -316,6 +317,7 @@ doPlotTrunkBranch <- function(mtb_output, pvalue = 0.05, CT){
       scale_fill_manual(values = group.colors) + 
       xlab("") + 
       ylab("Proportion")+
+      # ggtitle(unique(dat$Patient_ID)) + 
       scale_y_continuous(breaks = c(0,0.25,0.50,0.75,1))+
       scale_x_continuous(breaks = unique(dat$rect.xmin+(dat$rect.xmax - dat$rect.xmin)/2) ,
                          labels = rep(c("Trunk","Branches"),length(unique(dat$Patient_ID))))

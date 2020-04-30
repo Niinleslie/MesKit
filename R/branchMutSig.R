@@ -1,4 +1,4 @@
-plotMutSigProfiler_branch <- function(sig.spectrum, mode){
+plotMutSigProfile_branch <- function(sig.spectrum, mode){
    
    # products <- plyr::rbind.fill(products)
    # 
