@@ -41,17 +41,17 @@ shinyServer(function(input, output, session){
   height7 <- reactive({
     return(input$height7)
   })
-  widthsig1 <- reactive({
-    return(input$widthsig1)
+  width_treemutsig <- reactive({
+    return(input$width_treemutsig)
   })
-  heightsig1 <- reactive({
-    return(input$heightsig1)
+  height_treemutsig <- reactive({
+    return(input$height_treemutsig)
   })
-  widthsig2 <- reactive({
-    return(input$widthsig2)
+  width_muttrunkbranch <- reactive({
+    return(input$width_muttrunkbranch)
   })
-  heightsig2 <- reactive({
-    return(input$heightsig2)
+  height_muttrunkbranch <- reactive({
+    return(input$height_muttrunkbranch)
   })
   width11 <- reactive({
     return(input$width11)
@@ -929,7 +929,7 @@ shinyServer(function(input, output, session){
   height = 560,
   res = 100)
   
-  output$comparejsi_db_ui <- renderUI({
+  output$comparejsi_download_button_ui <- renderUI({
       if(!is.null(comparejsi())){
           fluidRow(
               column(
@@ -999,7 +999,7 @@ shinyServer(function(input, output, session){
                                            scrollX = TRUE,
                                            dom = "t",
                                            fixedHeader = TRUE),
-                          rownames = T) 
+                          rownames = F) 
           return(dt)
       }
   })
@@ -1025,6 +1025,306 @@ shinyServer(function(input, output, session){
       }
   })
   
+  ## classifymut sever
+  classifymut <- eventReactive(input$submit_classifymut,{
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'Mutational lanscape : Calculation in progress',
+                      detail = 'This may take a while...')
+          maf <- varsLs$maf
+          validate(
+              need(!(is.null(maf)), "")
+          )
+          cc <- classifyMut(maf)
+          incProgress(amount = 1)
+          setProgress(message = 'Mutational lanscape: Calculation done!')
+      })
+      return(cc)
+  })
+  
+  output$classifymut_plot <- renderPlot({
+      if(!is.null(classifymut())){
+          return(classifymut()$mut.profile.plot)
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$classifymut_download_button_ui <- renderUI({
+      if(!is.null(classifymut())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_classifymut_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_classifymut_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$classifymut_table <- DT::renderDataTable({
+      if(!is.null(classifymut())){
+          t <- classifymut()$mut.class
+          dt <- datatable(t,
+                          options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$classifymut_table_ui <- renderUI({
+      if(!is.null(classifymut())){
+          tagList(
+              h4(strong('Mutation class')),
+              br(),
+              DT::dataTableOutput('classifymut_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_classifymut_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  ## plotCNA sever 
+  plotcna <- eventReactive(input$submit_plotcna,{
+      
+      validate(
+          need(!is.null(input$segFile_plotcna$datapath),
+               "PlotCNA need copy number information,upload seg file first"
+                    )
+          )
+      
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'plotCNA : Calculation in progress',
+                      detail = 'This may take a while...')
+          seg <- readSegment(segCN.file = input$segFile_plotcna$datapath)
+          validate(
+              need(!(is.null(seg)), "")
+          )
+          incProgress(amount = 1)
+          setProgress(message = 'Complete reading seg file!')
+          cna.plot <- plotCNA(seg)
+          incProgress(amount = 1)
+          setProgress(message = 'PlotCNA done!')
+      })
+      return(list(seg = seg, cna.plot = cna.plot))
+  })
+  
+  output$plotcna_plot <- renderPlot({
+      if(!is.null(plotcna())){
+          return(plotcna()$cna.plot)
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$plotcna_download_button_ui <- renderUI({
+      if(!is.null(plotcna())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_plotcna_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_plotcna_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$plotcna_table <- DT::renderDataTable({
+      if(!is.null(plotcna())){
+          t <- plotcna()$seg
+          dt <- datatable(t,
+                          options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$plotcna_table_ui <- renderUI({
+      if(!is.null(plotcna())){
+          tagList(
+              h4(strong('Seg file ')),
+              br(),
+              DT::dataTableOutput('plotcna_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_plotcna_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+  
+  ## testneutral sever
+  testneutral <- eventReactive(input$submit_testneutral,{
+      withProgress(min = 0, max = 2, value = 0, {
+          setProgress(message = 'testNeutral : Calculation in progress',
+                      detail = 'This may take a while...')
+          maf <- varsLs$maf
+          validate(
+              need(!(is.null(maf)), "")
+          )
+          cc <- testNeutral(maf,
+                            min.vaf = as.numeric(input$minvaf_testneutral),
+                            max.vaf = as.numeric(input$maxvaf_testneutral))
+          incProgress(amount = 1)
+          setProgress(message = 'testNeutral: Calculation done!')
+      })
+      return(cc)
+  })
+  
+  output$testneutral.patientlist <- renderUI({
+      if(!is.null(testneutral())){
+          patient.list <- testneutral()$model.fitting.plot
+          names <- names(patient.list)
+          tagList(
+              selectInput("testneutral.pl", "Patient",
+                          choices = names, width = 600) 
+          )
+      }
+  })
+  
+  getpatient.testneutral <- eventReactive(input$testneutral.pl,{
+      return(input$testneutral.pl)
+  })
+  
+  output$testneutral.samplelist <- renderUI({
+      if(!is.null(testneutral())){
+          patient <- input$testneutral.pl
+          sample.list <- testneutral()$model.fitting.plot[[patient]]
+          names <- names(sample.list)
+          tagList(
+              selectInput("testneutral.sl", "Tumor sample barcode",
+                          choices = names, width = 600) 
+          )
+      }
+  })
+  
+  getsample.testneutral <- eventReactive(input$testneutral.sl,{
+      return(input$testneutral.sl)
+  })
+  
+  output$testneutral_plot <- renderPlot({
+      if(!is.null(testneutral())){
+          patient <- input$testneutral.pl
+          sample <- input$testneutral.sl
+          return(testneutral()$model.fitting.plot[[patient]][[sample]])
+      }
+  },  
+  width = 560,
+  height = 560,
+  res = 100)
+  
+  output$testneutral_download_button_ui <- renderUI({
+      if(!is.null(testneutral())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_testneutral_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_testneutral_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$testneutral_table <- DT::renderDataTable({
+      if(!is.null(testneutral())){
+          t <- testneutral()$neutrality.metrics
+          t <- t[t$Patient == getpatient.testneutral(),]
+          dt <- datatable(t,
+                          options = list(searching = TRUE,
+                                         pageLength = 10, 
+                                         scrollX = TRUE,
+                                         dom = "t",
+                                         fixedHeader = TRUE),
+                          rownames = F) 
+          return(dt)
+      }
+  })
+  
+  
+  output$testneutral_table_ui <- renderUI({
+      if(!is.null(testneutral())){
+          tagList(
+              h4(strong('Neutrality metrics')),
+              br(),
+              DT::dataTableOutput('testneutral_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_testneutral_table', 'Download')
+                  )
+              )
+          )
+      }
+  })
+
   stopButtonValue4 <- reactiveValues(a = 0)
   observeEvent(input$stop4,{
     stopButtonValue4$a <- 1
@@ -1590,7 +1890,6 @@ shinyServer(function(input, output, session){
   res = 100
   )
   
-  tms <- reactiveValues()
   
   stopButtonValueSig <- reactiveValues(a = 0)
   observeEvent(input$stopSig,{
@@ -1758,10 +2057,10 @@ shinyServer(function(input, output, session){
   observeEvent(input$submitSig1,{
     stopButtonValueSig1$a <- 0
   })
-  sigOFA1 <- eventReactive(input$submitSig1, {
+  treemutsig <- eventReactive(input$submit_treemutsig, {
       
       phyloTree <- isolate(varsLs$phyloTree)
-      withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
+      withProgress(min = 0, max = 2, value = 0,{
           setProgress(message = 'treeMutSig: Calculation in progress',
                       detail = 'This may take a while...')
           
@@ -1769,33 +2068,71 @@ shinyServer(function(input, output, session){
                             min.mut.count = input$mutThreshold, 
                             signaturesRef=input$signaturesRef1)
           
+          mutSig.summary <- tms$mutSig.summary
+          incProgress(amount = 1)
+          setProgress(message = 'treeMutSig: Calculation done!')
+          plot.list <- plotMutSigProfiler(tms$mutSig.spectrum)
+          
+          incProgress(amount = 1)
+          setProgress(message = 'Plot mutational signature profiler done!')
+          return(list(plot.list = plot.list, mutSig.summary = mutSig.summary))
+          
           Sys.sleep(1)
       })
-      
-      df.signature <- tms$mutSig.summary
-      plot.list <- plotMutSigProfiler(tms$mutSig.spectrum)
-      return(list(plot.list, df.signature))
   })
   
-  getpatient.tms <- eventReactive(input$tms.pl,{
-      return(input$tms.pl)
+  getpatient.treemutsig <- eventReactive(input$treemutsig.pl,{
+      return(input$treemutsig.pl)
   })
   
   output$treemutsig.patientlist <- renderUI({
-      if(!is.null(sigOFA1())){
-          plot.list <- sigOFA1()[[1]]
+      if(!is.null(treemutsig())){
+          plot.list <- treemutsig()$plot.list
           names <- names(plot.list)
-          selectInput("tms.pl", "Patient_branches",
+          selectInput("treemutsig.pl", "Patient_branches",
                       choices = names, width = 600)
       }
   })
   
-  output$sigOFATableUI1 <- renderUI({
-    if(!is.null(sigOFA1())){
+  output$treemutsig_plot <- renderPlot({
+      return(treemutsig()$plot.list[[getpatient.treemutsig()]])
+  },
+  width = width_treemutsig,
+  height = height_treemutsig,
+  res = 100
+  )
+  
+  output$treemutsig_download_button_ui <- renderUI({
+      if(!is.null(treemutsig())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_treemutsig_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_treemutsig_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$treemutsig_table_ui <- renderUI({
+    if(!is.null(treemutsig())){
       tagList(
         h4(strong('Signature summary')),
         br(),
-        DT::dataTableOutput('sigOFATable1'),
+        DT::dataTableOutput('treemutsig_table'),
         br(),
         fluidRow(
           column(
@@ -1803,26 +2140,36 @@ shinyServer(function(input, output, session){
           ),
           column(
             width = 3,
-            downloadBttn('DownloadSigOFATable1', 'Download')
+            downloadBttn('Download_treemutsig_table', 'Download')
           )
         )
       )
     }
   })
-  output$sigOFAPlot1 <- renderPlot({
-    return(sigOFA1()[[1]][[getpatient.tms()]])
-  },
-  width = widthsig1,
-  height = heightsig1,
-  res = 100
-  )
-  output$sigOFATable1 <- DT::renderDataTable({
-    data <- sigOFA1()[[2]][[getpatient.tms()]][,c(1:2)]
-    datatable(data, options = list(searching = TRUE, pageLength = 10, 
-                                   lengthMenu = c(5, 10, 15, 18), 
-                                   scrollX = TRUE, dom = "t",
-                                   fixedHeader = TRUE),rownames = F)
+  
+  output$treemutsig_table <- DT::renderDataTable({
+    if(!is.null(treemutsig())){
+        mutSig.summary <- treemutsig()$mutSig.summary
+        mutSig.summary <- mutSig.summary[!is.na(mutSig.summary)] 
+        for(patient in names(mutSig.summary)){
+            s <- mutSig.summary[[patient]]
+            s$Patient_ID <- patient
+            s$ID <- paste(s$Patient_ID, s[,1], sep = "_")
+            mutSig.summary[[patient]] <- s
+        }
+        mutSig.summary <- plyr::rbind.fill(mutSig.summary)
+        idx <- which(mutSig.summary$ID == getpatient.treemutsig())
+        data <- mutSig.summary[idx,] %>% 
+            dplyr::select(-ID,-Patient_ID)
+        datatable(data, options = list(searching = TRUE, pageLength = 10, 
+                                       lengthMenu = c(5, 10, 15, 18), 
+                                       scrollX = TRUE, dom = "t",
+                                       fixedHeader = TRUE),rownames = F)
+    }
   })
+  
+  
+  
   stopButtonValueSig2 <- reactiveValues(a = 0)
   observeEvent(input$stopSig2,{
     stopButtonValueSig2$a <- 1
@@ -1830,146 +2177,111 @@ shinyServer(function(input, output, session){
   observeEvent(input$submitSig2,{
     stopButtonValueSig2$a <- 0
   })
-  sigOFA2 <- eventReactive(input$submitSig2, {
+  
+  muttrunkbranch <- eventReactive(input$submit_muttrunkbranch, {
       phyloTree <- isolate(varsLs$phyloTree)
       withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
-          setProgress(message = 'treeMutSig: Calculation in progress',
+          setProgress(message = 'mutTrunkBranch : Calculation in progress',
                       detail = 'This may take a while...')
-          
           
           mtb <- mutTrunkBranch(phyloTree, 
                                 geneList = NULL)
-          
-          Sys.sleep(1)
+          incProgress(amount = 1)
+          setProgress(message = 'mutTrunkBranch done!')
+          return(list(
+              mutTrunkBranch.plot = mtb$mutTrunkBranch.plot,
+              mutTrunkBranch.res = mtb$mutTrunkBranch.res
+          ))
       })
-      return(mtb$mutTrunkBranch.plot)
-  })
-  getpatient.mtb <- eventReactive(input$mtb.pl,{
-      return(input$mtb.pl)
   })
   
-  output$mtb.patientlist <- renderUI({
-      if(!is.null(sigOFA2())){
-          plot.list <- sigOFA2()
+  getpatient.muttrunkbranch <- eventReactive(input$muttrunkbranch.pl,{
+      return(input$muttrunkbranch.pl)
+  })
+  
+  
+  
+  output$muttrunkbranch.patientlist <- renderUI({
+      if(!is.null(muttrunkbranch())){
+          plot.list <- muttrunkbranch()$mutTrunkBranch.plot
           names <- names(plot.list)
-          selectInput("mtb.pl", "Patient_branches",
+          selectInput("muttrunkbranch.pl", "Patient_branches",
                       choices = names, width = 600)
       }
   })
-  # output$sigOFATableUI2 <- renderUI({
-  #   if(!is.null(sigOFA2()[[2]]))
-  #   tagList(
-  #     h4(strong('Signature summary')),
-  #     br(),
-  #     DT::dataTableOutput('sigOFATable2'),
-  #     fluidRow(
-  #       column(
-  #         width = 9
-  #       ),
-  #       column(
-  #         width = 3,
-  #         downloadBttn('DownloadSigOFATable2', 'Download')
-  #       )
-  #     )
-  #   )
-  # })
-  # output$sigOFATable2 <- renderDataTable({
-  #   if(!is.null(sigOFA2()[[2]])){
-  #     return(datatable(sigOFA2()[[2]], options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T)))
-  #   }
-  # })
   
-  output$sigOFAPlot2 <- renderPlot({
-      if(!is.null(sigOFA2())){
-          return(sigOFA2()[[getpatient.mtb()]]) 
+  output$muttrunkbranch_plot <- renderPlot({
+      if(!is.null(muttrunkbranch())){
+          plot.list <- muttrunkbranch()$mutTrunkBranch.plot
+          p <- plot.list[[getpatient.muttrunkbranch()]]
+          return(p) 
       }
   },
-  width = widthsig2,
-  height = heightsig2,
+  width = width_muttrunkbranch,
+  height = height_muttrunkbranch,
   res = 100
   )
-  output$sigpdb <- renderUI({
-    if(!is.null(sigOFA())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSignatureSummary', 'Download')
-        )
-      )
+  
+  output$muttrunkbranch_download_button_ui <- renderUI({
+      if(!is.null(muttrunkbranch())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons('Download_muttrunkbranch_plot_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),choiceValues = c("png", "pdf"), inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_muttrunkbranch_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$muttrunkbranch_table_ui <- renderUI({
+    if(!is.null(muttrunkbranch())){
+        tagList(
+            h4(strong('Signature summary')),
+            br(),
+            DT::dataTableOutput('muttrunkbranch_table'),
+            fluidRow(
+                column(
+                    width = 9
+                ),
+                column(
+                    width = 3,
+                    downloadBttn('Download_muttrunkbranch_table', 'Download')
+                )
+            )
+        ) 
     }
   })
-  output$sigbtdb <- renderUI({
-    if(!is.null(sigBT())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSignatureBT', 'Download')
-        )
-      )
+  
+  output$muttrunkbranch_table <- renderDataTable({
+    if(!is.null(muttrunkbranch())){
+      t <- muttrunkbranch()$mutTrunkBranch.res[[getpatient.muttrunkbranch()]]
+      return(datatable(t,
+                       options = list(searching = TRUE, pageLength = 10,
+                                      lengthMenu = c(5, 10, 15, 18), scrollX = T)))
     }
   })
-  output$sigpdb1 <- renderUI({
-    if(!is.null(sigOFA1())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadSignaturePlotCheck1', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),choiceValues = c("png", "pdf"), inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSignaturePlot1', 'Download')
-        )
-      )
-    }
-  })
-  output$sigpdb2 <- renderUI({
-    if(!is.null(sigOFA2())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadSignaturePlotCheck2', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),choiceValues = c("png", "pdf"), inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSignaturePlot2', 'Download')
-        )
-      )
-    }
-  })
+
+
   stopButtonValue10<- reactiveValues(a = 0)
   observeEvent(input$stop10,{
     stopButtonValue10$a <- 1
   })
-  observeEvent(input$submit10,{
+  observeEvent(input$submit_phylotree,{
     stopButtonValue10$a <- 0
   })
-  pht <- eventReactive(input$submit10, {
+  
+  phylotree <- eventReactive(input$submit_phylotree, {
       
       phyloTree <- isolate(varsLs$phyloTree)
       withProgress(min = 0, max = length(names(phyloTree))+1, value = 0,{
@@ -1982,35 +2294,28 @@ shinyServer(function(input, output, session){
           Sys.sleep(1)
       })
       
-      
-      output$tree.patientlist <- renderUI({
-          if(!is.null(plot.list)){
-              names <- names(plot.list)
-              selectInput("t.pl", "Patient",
-                          choices = names, width = 600)
-          }
-      })
-      
-      if(length(names(plot.list)) == 1){
-          n <- names(plot.list)[1]
-      }else{
-          n <- getpatient.tree()
+      return(plot.list)
+  })
+  
+  output$phylotree.patientlist <- renderUI({
+      if(!is.null(phylotree())){
+          names <- names(phylotree())
+          selectInput("phylotree.pl", "Patient",
+                      choices = names, width = 600)
       }
-      
-      return(plot.list[[n]])
   })
   
-  getpatient.tree <- eventReactive(input$t.pl,{
-      return(input$t.pl)
+  getpatient.phylotree <- eventReactive(input$phylotree.pl,{
+      return(input$phylotree.pl)
   })
   
-  output$phylotree <- renderPlot({
-    return(pht()) 
+  output$phylotree_plot <- renderPlot({
+    return(phylotree()[[getpatient.phylotree()]]) 
   },
   res = 100
   )
-  output$phtdb <- renderUI({
-    if(!is.null(pht())){
+  output$phylotree_downloadbutton_ui<- renderUI({
+    if(!is.null(phylotree())){
       br()
       br()
       fluidRow(
@@ -2019,7 +2324,7 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 2,
-          radioButtons('DownloadPhyloTreeCheck', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+          radioButtons('Download_phylotree_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                        choiceNames = list(
                          tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
                          tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
@@ -2028,7 +2333,7 @@ shinyServer(function(input, output, session){
         ),
         column(
           width = 3,
-          downloadBttn('DownloadPhyloTree', 'Download')
+          downloadBttn('Download_phylotree', 'Download')
         )
       )
     }
@@ -2152,18 +2457,18 @@ shinyServer(function(input, output, session){
     },
     contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
   )
-  output$DownloadPhyloTree <- downloadHandler(
+  output$Download_phylotree <- downloadHandler(
     filename = function() {
-      paste("Rplot.",input$DownloadPhyloTreeCheck, sep='')
+      paste("Rplot.",input$Download_phylotree_check, sep='')
     },
     content = function(file) {
-      if (input$DownloadPhyloTreeCheck == "png"){
+      if (input$Download_phylotree_check == "png"){
         png(file,width = 1000, height = 650,res = 100)
       }
-      else if (input$DownloadPhyloTreeCheck == "pdf"){
+      else if (input$Download_phylotree_check == "pdf"){
         pdf(file,width = 10, height = 6.5)
       }
-      print(pht())
+      print(phylotree())
       dev.off()
     }
   )
@@ -2232,10 +2537,10 @@ shinyServer(function(input, output, session){
     },
     contentType = 'text/csv'
   )
-  output$DownloadSigOFATable1 <- downloadHandler(
+  output$Download_treemutsig_table <- downloadHandler(
     filename = "Rtable.csv",
     content = function(file){
-      data <- sigOFA1()[[2]][,c(1:2)]
+      data <- treemutsig()[[2]][,c(1:2)]
       write.csv(data,file,row.names = F)
     },
     contentType = 'text/csv'
@@ -2247,12 +2552,12 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadSignaturePlotCheck1 == "png"){
-        png(file,width = input$widthsig1, height = input$heightsig1,res = 100)
+        png(file,width = input$width_treemutsig, height = input$height_treemutsig,res = 100)
       }
       else if (input$DownloadSignaturePlotCheck1 == "pdf"){
-        pdf(file,width = input$widthsig1/100, height = input$heightsig1/100)
+        pdf(file,width = input$width_treemutsig/100, height = input$height_treemutsig/100)
       }
-      print(sigOFA1()[[1]])
+      print(treemutsig()[[1]])
       dev.off()
     },
     contentType = paste('image/',input$DownloadSignaturePlotCheck1,sep="")
@@ -2264,12 +2569,12 @@ shinyServer(function(input, output, session){
     },
     content = function(file) {
       if (input$DownloadSignaturePlotCheck2 == "png"){
-        png(file,width = input$widthsig2, height = input$heightsig2,res = 100)
+        png(file,width = input$width_muttrunkbranch, height = input$height_muttrunkbranch,res = 100)
       }
       else if (input$DownloadSignaturePlotCheck2 == "pdf"){
-        pdf(file,width = input$widthsig2/100, height = input$heightsig2/100)
+        pdf(file,width = input$width_muttrunkbranch/100, height = input$height_muttrunkbranch/100)
       }
-      print(sigOFA2())
+      print(muttrunkbranch())
       dev.off()
     },
     contentType = paste('image/',input$DownloadSignaturePlotCheck2,sep="")
@@ -2494,7 +2799,7 @@ shinyServer(function(input, output, session){
   })
   output$warningMessage15 <- renderUI({
       maf <- isolate(varsLs$maf)
-      if(is.null(maf)&input$submit10){
+      if(is.null(maf)&input$submit_phylotree){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
                      style = "color: red;
