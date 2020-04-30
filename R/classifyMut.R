@@ -7,14 +7,6 @@
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
 #' @param patient.id  Select the specific patients. Default: NULL, all patients are included
 #' @param classByType  FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)
-#' @param geneList  A List of genes to restrict the analysis. Default NULL.
-#' @param plot  TRUE(Default).
-#' @param topGenesCount  The number of genes print, default is 10
-#' @param remove_empty_columns  Whether remove the samples without alterations. Only works when plot is TRUE
-#' @param remove_empty_rows  Whether remove the genes without alterations. Only works when plot is TRUE
-#' @param showColnames  TRUE(Default). Show sample names of columns.
-#' @param patientsCol  A list containing customized colors for distinct patients. Default: NULL.
-#' @param bgCol  Background grid color. Default: "#f0f0f0"
 #' @return a data.frame with classification of mutations 
 #' 
 #' @examples
@@ -22,159 +14,23 @@
 #' @export classifyMut
 
 
-classifyMut <- function(maf,
-     class = "SP",
+classifyMut <- function(
+     maf,
      patient.id = NULL,
-     classByType = FALSE,
-     geneList = NULL, 
-     plot =  TRUE,
-     topGenesCount = 15,
-     remove_empty_columns = TRUE,
-     remove_empty_rows = TRUE,
-     showColnames = TRUE,
-     patientsCol = NULL,
-     bgCol = "#f0f0f0") {
-     
-  class.options = c('SP', 'CS', 'SPCS')
-  if(!class %in% class.options){
-    stop("class can only be either 'SP', 'CS' or 'SPCS'")
-  }
+     class = "SP",
+     classByType = FALSE) {
   
-  
-  if(is.null(patient.id)){
-    patient.id = unique(maf@data$Patient_ID)
-  }else{
-    patient.setdiff <- setdiff(patient.id, unique(maf@data$Patient_ID))
-    if(length(patient.setdiff) > 0){
-      stop(paste0(patient.setdiff, " can not be found in your data"))
-    }
-  }
-  
-  maf_data <- maf@data %>%
-    tidyr::unite(
-      "mutation_id",
-      c("Chromosome",
-        "Start_Position",
-        "Reference_Allele",
-        "Tumor_Seq_Allele2"
-      ),
-      sep = ":",
-      remove = FALSE
-    ) %>%
-    dplyr::filter(Patient_ID %in% patient.id)
-  
-  mutation_barcode_count <-
-    maf_data %>%
-      dplyr::group_by(., Patient_ID, mutation_id) %>%
-      #dplyr::group_by(., Patient_ID) %>%
-      #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_Type, mutation_id)
-        #else dplyr::group_by(., Patient_ID, mutation_id)
-        #} %>%
-    dplyr::summarise(unique_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
-  
-  patient_barcode_count <-
-    maf_data %>%
-      dplyr::group_by(., Patient_ID) %>%
-      #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_Type)
-        #else dplyr::group_by(., Patient_ID)
-        #} %>%
-    dplyr::summarise(total_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
-
-
-
-  type_barcode_count <-maf_data %>%
-      #dplyr::group_by(., Patient_ID, Tumor_Type, mutation_id) %>%
-      #dplyr::summarise(type_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
-      dplyr::group_by(., Patient_ID, mutation_id) %>%
-      dplyr::summarise(
-          type_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode), 
-          type_barcode_ID = paste(unique(Tumor_Type), collapse = "_")
-      )
-
-  maf_data <-
-    suppressMessages(maf_data %>%
-                       dplyr::left_join(mutation_barcode_count) %>%
-                       dplyr::left_join(patient_barcode_count) %>%
-                       dplyr::left_join(type_barcode_count)
-                       )
-  
-  if(length(unique(maf_data$Tumor_Type)) == 1){
-    TypeCount = "Single"
-  }else{TypeCount = "Multi"}
-
-  if(class == "SP"){
-    maf_data <- maf_data %>%
-      dplyr::mutate(
-        Mutation_Type = mutType_SP(
-          #Tumor_Type, 
-          unique_barcode_count, 
-          total_barcode_count,
-          type_barcode_count,
-          type_barcode_ID, 
-          TypeCount,
-          classByType)
-      )
-  }else{
-    if(! "Clonal_Status" %in% colnames(maf_data)){
-      stop(paste0("Clonal status could not be identified without CCF data!"))
-    }
-    else{
-      if(class == "CS"){
-        maf_data <- maf_data %>%
-          dplyr::mutate(
-            Mutation_Type = Clonal_Status
-          )
-      }
-      else if(class == "SPCS"){
-        maf_data <- maf_data %>%
-          dplyr::filter(!is.na(Clonal_Status)) %>%
-          dplyr::mutate(Mutation_Type =
-                          mutType_SPCS(
-                            #Tumor_Type, 
-                            unique_barcode_count, 
-                            total_barcode_count,
-                            type_barcode_count,
-                            type_barcode_ID, 
-                            Clonal_Status,
-                            TypeCount,
-                            classByType)
-          )
-      }
-    }
-  }
-  
-  maf_data <- maf_data %>%
-    dplyr::select(Hugo_Symbol, Chromosome, 
-                  Start_Position, End_Position,
-                  Reference_Allele, Tumor_Seq_Allele2, 
-                  Tumor_Sample_Barcode, Mutation_Type,
-                  unique_barcode_count, Patient_ID
-                  #type_barcode_ID,type_barcode_count,total_barcode_count
-    )
-  
-  if (!is.null(geneList)) {
-    geneSelect <- geneList
-    
-    maf_data <- maf_data %>%
-      dplyr::rowwise() %>%
-      dplyr::mutate(Selected_Mut = dplyr::if_else(
-        any(strsplit(Hugo_Symbol, ",|;")[[1]] %in% geneSelect),
-        TRUE,
-        FALSE)) %>%
-      dplyr::mutate(Hugo_Symbol = dplyr::if_else(
-        Selected_Mut == TRUE,
-        geneSelect[geneSelect %in% strsplit(Hugo_Symbol, ",|;")[[1]]][1],
-        Hugo_Symbol)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-Selected_Mut)
-  }
-  
-  
-  mut.class <- maf_data %>% 
+  mut.class <- do.classify(
+    maf, 
+    class = class,
+    patient.id = patient.id,
+    classByType = classByType
+    ) %>% 
     dplyr::mutate(Mut_ID = paste(
       Hugo_Symbol, Chromosome,
       Start_Position,
-      Reference_Allele, Tumor_Seq_Allele2,
+      Reference_Allele, 
+      Tumor_Seq_Allele2,
       sep = ":"
       )
     ) %>%
@@ -183,23 +39,6 @@ classifyMut <- function(maf,
       Mut_ID, Mutation_Type
       )
 
-    if(plot){
-
-      p <- plotMutProfile(maf_data,
-                      class = class,
-                      topGenesCount = topGenesCount,
-                      bgCol = bgCol,
-                      classByType = classByType,
-                      patientsCol = patientsCol,                        
-                      remove_empty_columns = remove_empty_columns,
-                      remove_empty_rows = remove_empty_rows, 
-                      showColnames = showColnames
-        )
-
-      return(list(mut.class = mut.class, mut.profile.plot = p))
-    }
-    else{
-      return(mut.class = mut.class)
-      }
+    return(mut.class)
 
 }

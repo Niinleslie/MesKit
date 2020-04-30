@@ -34,8 +34,8 @@ readMaf <- function(## maf parameters
     ## filter selection
     min.vaf = 0.02,
     max.vaf = 1,
-    min.average.vaf = 0.02,
-    min.average.adj.vaf = 0.02,
+    min.average.vaf = 0,
+    min.average.adj.vaf = 0,
     min.ref.depth = 4,
     min.alt.depth = 4,
     mutType = "All",
