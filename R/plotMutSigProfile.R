@@ -6,11 +6,11 @@
 #' 
 #' @examples
 #' tree.mutSig <- treeMutSig(phyloTree)
-#' plotMutSigProfiler(tree.mutSig$mutSig.spectrum)
-#' @export  plotMutSigProfiler
+#' plotMutSigProfile(tree.mutSig$mutSig.spectrum)
+#' @export  plotMutSigProfile
 
 
-plotMutSigProfiler <- function(mutSig.spectrum, patient.id = NULL, mode = NULL){
+plotMutSigProfile <- function(mutSig.spectrum, patient.id = NULL, mode = NULL){
    
    if(!is.null(mode)){
        mode.options <- c("Original","Reconstructed","Difference")
@@ -37,7 +37,7 @@ plotMutSigProfiler <- function(mutSig.spectrum, patient.id = NULL, mode = NULL){
    name <-  paste(as.data.frame(group_keys(mutSig.spectrum))[,1],
                   as.data.frame(group_keys(mutSig.spectrum))[,2] ,sep = "_") 
    plot.list <- mutSig.spectrum %>% 
-       dplyr::group_map(~plotMutSigProfiler_branch(., mode = mode), keep = TRUE) %>% 
+       dplyr::group_map(~plotMutSigProfile_branch(., mode = mode), keep = TRUE) %>% 
        rlang::set_names(name)
        
    
