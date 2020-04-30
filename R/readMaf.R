@@ -34,8 +34,8 @@ readMaf <- function(## maf parameters
     ## filter selection
     min.vaf = 0.02,
     max.vaf = 1,
-    min.average.vaf = 0.04,
-    min.average.adj.vaf = 0.04,
+    min.average.vaf = 0.02,
+    min.average.adj.vaf = 0.02,
     min.ref.depth = 4,
     min.alt.depth = 4,
     mutType = "All",
@@ -82,11 +82,13 @@ readMaf <- function(## maf parameters
         )
     }
 
+    # pre-process with gene symbols
+    mafData <- preprocess_HugoSymbol(mafData)
+
     ## Rescale vaf coloum 0-1
     if(max(mafData$VAF, na.rm = TRUE) > 1){
         mafData$VAF <- as.numeric(as.character(mafData$VAFdat))/100
     } 
-
 
 
     ## VAF and allele depth filter
