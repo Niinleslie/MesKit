@@ -7,6 +7,7 @@ doTreeMutSig <- function(phyloTree,
    
    ## get branches information from phyloTree object
    mutSigRef <- phyloTree@mut.branches
+   
    patientID <- phyloTree@patientID
    refBuild <- phyloTree@refBuild
    ref.options = c('hg18', 'hg19', 'hg38')
@@ -15,8 +16,6 @@ doTreeMutSig <- function(phyloTree,
    }else {
       refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
    }
-   
-   
    
    # if(use.shiny){
    #     incProgress(amount=1)

@@ -132,14 +132,24 @@ getTreeData <- function(phyloTree = NULL,
        }
    }
    if(!is.null(branchCol) & !compare){
-      signature <- doTreeMutSig(phyloTree, min.mut.count = min.mut.count)$mutSigsOutput %>%
-         dplyr::group_by(branch) %>% 
-         dplyr::filter(sig.prob == max(sig.prob)) %>% 
-         dplyr::ungroup() %>% 
-         as.data.frame()
-      treeData <- addSignature(tree, treeData, signature)
+      if(branchCol == "mutSig"){
+          signature <- doTreeMutSig(phyloTree, min.mut.count = min.mut.count)$mutSigsOutput %>%
+              dplyr::group_by(branch) %>% 
+              dplyr::filter(sig.prob == max(sig.prob)) %>% 
+              dplyr::ungroup() %>% 
+              as.data.frame()
+          treeData <- addSignature(tree, treeData, signature) 
+      }else{
+          branch.type <- phyloTree@branch.type
+          types <- as.character(branch.type$Branch_Tumor_Type)
+          names(types) <- as.character(branch.type$Branch_ID)
+          # print(types)
+          treeData <- treeData %>% 
+              dplyr::mutate(Branch_Tumor_Type = types[label]) %>% 
+              as.data.table()
+      }
    }
-   treeData <- treeData[distance!= 0|sample == rootLabel,]
+   treeData <- treeData[treeData$distance!= 0|treeData$sample == rootLabel,]
    return(treeData)
 }
 
@@ -387,19 +397,19 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
 addSignature <- function(tree, treeData, signature){
    #add signature to treeData
    treeData$Signature <- ''
-   treeData$Branch_Tumor_Type <- ''
+   # treeData$Branch_Tumor_Type <- ''
    sigs <- strsplit(as.character(signature$branch),"∩")
    sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
    t <- 1
    while(t<=length(sigs)){
       pos <- which(treeData$label == sigs[[t]])
       treeData$Signature[pos] <- as.character(signature$sig[t]) 
-      treeData$Branch_Tumor_Type[pos] <- as.character(signature$Branch_Tumor_Type[t])
+      # treeData$Branch_Tumor_Type[pos] <- as.character(signature$Branch_Tumor_Type[t])
       t <- t + 1
    }
    if(treeData$Signature[which(treeData$sample == 'NORMAL')] == ''){
       treeData$Signature[which(treeData$sample == 'NORMAL')] = as.character(signature$sig[1])
-      treeData$Branch_Tumor_Type[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_Type[1])
+      # treeData$Branch_Tumor_Type[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_Type[1])
       
    }
    treeData[treeData$Signature == '',]$Signature <- "noMapSig"

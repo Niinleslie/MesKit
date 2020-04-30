@@ -6,7 +6,8 @@ getHeatmapMatrix <- function(mafData){
    }else{
       ccf.mat <- matrix() 
    }
-   return(list(binary.mat, ccf.mat))
+   patient <- unique(mafData$Patient_ID)
+   return(list(binary.mat, ccf.mat, patient))
 }
 
 plotHeatmap <- function(binary.mat,
@@ -18,7 +19,8 @@ plotHeatmap <- function(binary.mat,
                         show.gene = FALSE,
                         show.geneList = TRUE,
                         mut.threshold = 50,
-                        plot.tree = TRUE){
+                        plot.tree = TRUE,
+                        patient){
    mut_sort <- binary.mat
    ccf_sort <- ccf.mat
    
@@ -56,7 +58,12 @@ plotHeatmap <- function(binary.mat,
                             type = type,
                             mutation.classes = mutation.classes,
                             geneList = geneList,
-                            plot.geneList = plot.geneList)
+                            plot.geneList = plot.geneList,
+                            patient = patient)
+   
+   if(class(mut_dat)!= "data.frame"){
+       return(NA)
+   }
    
    ## Do not the row name if the number of mutations is greater than mut.threshold
    mut.num <- nrow(mut_dat)/length(unique(mut_dat$sample))
@@ -132,7 +139,8 @@ plotHeatmap <- function(binary.mat,
       theme(axis.ticks = element_blank()) +
       theme(legend.title = element_text(color = "black")) +
       theme(legend.text = element_text( color = "black")) +
-      theme(legend.position = "right" )+
+      theme(legend.position = "right")+
+       # theme(axis.text.x.top = element_text(margin = margin(b = -50)))+
       
       ## annotation bar
       geom_rect(data = annotation.bar,
@@ -155,10 +163,12 @@ plotHeatmap <- function(binary.mat,
       #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
    }else if(!use.ccf){
       mut_dat$Mutation <- as.character(mut_dat$Mutation)
+      
       p <- p_basic + 
          geom_rect(data = mut_dat,
                    mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = Mutation))+
-         scale_fill_manual(values = c("#deebf7", "#08306b"))
+         scale_fill_manual(values = c("0" = "#deebf7",
+                                      "1" = "#08306b"))
       #ggsave(paste(patientID, "_mut.pdf", sep = ""), p, width = 4.5, height = 6.5)
    }
    if(is.null(geneList) & show.gene){
@@ -173,8 +183,15 @@ plotHeatmap <- function(binary.mat,
                                                 hjust = 0))
    }else if(!is.null(geneList)){
       if(plot.geneList & show.geneList){
-         y.breaks <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
-         y.labels <- unique(mut_dat$Gene)
+         y.dat <- mut_dat %>% 
+             dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
+             dplyr::distinct(y.breaks, .keep_all = TRUE)
+         y.breaks <- y.dat$y.breaks
+         y.labels <- y.dat$Gene
+         # print(y.dat)
+         # y.breaks <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
+         # y.labels <- unique(mut_dat$Gene)
+         
          p <- p + 
             scale_y_continuous(breaks = y.breaks,
                                labels = y.labels,
@@ -208,7 +225,8 @@ heatmap_input <- function(mat,
                           type,
                           mutation.classes,
                           geneList,
-                          plot.geneList){
+                          plot.geneList,
+                          patient){
    mat <- as.data.frame(mat)
    sample.num <- ncol(mat)
    mat$class <- factor(mutation.classes, levels = unique(mutation.classes)) 
@@ -225,7 +243,11 @@ heatmap_input <- function(mat,
          mat <- mat  %>%
             dplyr::rowwise() %>%
             dplyr::filter(any(strsplit(Gene, ",|;")[[1]] %in% geneList)) %>%
-            as.data.frame() 
+            as.data.frame()
+         if(nrow(mat) == 0){
+             message("Warning: None genes map to mutation data")
+             return(NA)
+         }
       }else{mat <- mat  %>%
          dplyr::rowwise() %>%
          dplyr::mutate(Gene = dplyr::if_else(
@@ -237,12 +259,14 @@ heatmap_input <- function(mat,
       }
    }
    mut.num <- nrow(mat)
+   # print(mat)
    mat$mutation <- 1:nrow(mat)
    mat <- dplyr::arrange(mat,class)
-   
+
    ## cumsum postion of axis y
    mat$ymin <- cumsum(c(0, rep(2, mut.num-1)))
    mat$ymax <- mat$ymin + 1.5
+   # print(mat)
    value.name <- "Mutation"
    if(type == "CCF"){
       value.name <- "CCF"

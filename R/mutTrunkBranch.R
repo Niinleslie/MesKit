@@ -26,7 +26,7 @@ mutTrunkBranch <- function(phyloTree_list,
         if(length(patient.setdiff) > 0){
             stop(paste0(patient.setdiff, " can not be found in your data"))
         }
-        phyloTree <- phyloTree_list[names(phyloTree_list)  %in% patient.id] 
+        phyloTree_list <- phyloTree_list[names(phyloTree_list) %in% patient.id] 
     }
     
     mtb_input_list <- lapply(phyloTree_list,function(x, CT, geneList){
