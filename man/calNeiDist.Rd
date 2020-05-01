@@ -2,7 +2,7 @@
 % Please edit documentation in R/calNeiDist.R
 \name{calNeiDist}
 \alias{calNeiDist}
-\title{calFst}
+\title{calNeiDist}
 \usage{
 calNeiDist(
   maf,

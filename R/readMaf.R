@@ -34,8 +34,8 @@ readMaf <- function(## maf parameters
     ## filter selection
     min.vaf = 0.02,
     max.vaf = 1,
-    min.average.vaf = 0.02,
-    min.average.adj.vaf = 0.02,
+    min.average.vaf = 0,
+    min.average.adj.vaf = 0,
     min.ref.depth = 4,
     min.alt.depth = 4,
     mutType = "All",
@@ -198,7 +198,7 @@ readMaf <- function(## maf parameters
     
     ## read ccf files
     if (!is.null(ccfFile)) {
-        ccf <- suppressWarnings(read.table(
+        ccf <- suppressWarnings(data.table::fread(
             ccfFile,
             quote = "",
             header = TRUE,
@@ -334,7 +334,7 @@ uniteCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  m
         
         ## if any region CCFm < 0.5
         t1 <- mafData_merge_ccf %>%
-            dplyr::filter(!is.na(CCF)) %>%
+            # dplyr::filter(!is.na(CCF)) %>%
             dplyr::select(Mut_ID_Type,Tumor_Sample_Barcode, CCF) %>% 
             dplyr::group_by(Mut_ID_Type) %>%
             dplyr::summarise(condition2 = dplyr::if_else(
