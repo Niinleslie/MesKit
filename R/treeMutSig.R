@@ -42,7 +42,6 @@ treeMutSig <- function(phyloTree_list,
                            geneList = geneList,
                            min.mut.count = min.mut.count,
                            signaturesRef = signaturesRef,
-                           tri.counts.method = tri.counts.method,
                            withinType = withinType)
     mutSigSummary <- lapply(treeMSOutput, doMutSigSummary, withinType)
     cos_sim.mat <- lapply(treeMSOutput,function(x)x$cos_sim.mat)

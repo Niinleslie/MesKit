@@ -10,8 +10,8 @@ readMaf(
   adjusted.VAF = FALSE,
   min.vaf = 0.02,
   max.vaf = 1,
-  min.average.vaf = 0.02,
-  min.average.adj.vaf = 0.02,
+  min.average.vaf = 0,
+  min.average.adj.vaf = 0,
   min.ref.depth = 4,
   min.alt.depth = 4,
   mutType = "All",
@@ -23,29 +23,29 @@ readMaf(
 )
 }
 \arguments{
-\item{mafFile}{tab delimited MAF file (plain text or *.gz compressed). Required.}
+\item{mafFile}{Tab delimited MAF file (plain text or *.gz compressed). Required.}
 
-\item{ccfFile}{CCF file of SNVs. Default NULL.}
+\item{ccfFile}{CCF file of somatic mutations. Default NULL.}
 
-\item{min.vaf}{the minimum VAF for filtering variants. Default: 0.02.}
+\item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02.}
 
-\item{max.vaf}{the maximum VAF for filtering variants. Default: 1.}
+\item{max.vaf}{The maximum VAF for filtering variants. Default: 1.}
 
-\item{min.ref.depth}{the minimum reference allele depth for filtering variants. Default: 8.}
+\item{min.ref.depth}{The minimum reference allele depth for filtering variants. Default: 4.}
 
-\item{mutType}{select proper variant classification you need. Default "All".Option: "nonSilent".}
+\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSilent".}
 
-\item{mutNonSilent}{variant classifications which are considered as non-silent. Default NULL.}
+\item{mutNonSilent}{Variant classifications which are considered as non-silent. Default NULL.}
 
 \item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
-\item{use.indel}{logical value. whether to use INDELs besides somatic SNVs. Default FALSE.}
+\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default FALSE.}
 
-\item{ccf.conf.level}{the confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
+\item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
 
-\item{refBuild}{human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".}
+\item{refBuild}{Human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default: "hg19".}
 
-\item{max.ref.depth}{the maximum reference allele depth for filtering variants. Default: 8.}
+\item{max.ref.depth}{The maximum reference allele depth for filtering variants. Default: 4.}
 }
 \value{
 an object of class Maf.
@@ -54,7 +54,7 @@ an object of class Maf.
 Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 }
 \examples{
-maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+maf.File <- system.file("extdata/", "HCC6046.maf", package = "MesKit")
 ccf.File <- system.file("extdata/", "HCC6046.CCF.txt", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")

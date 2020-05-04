@@ -2,7 +2,6 @@ doTreeMutSig <- function(phyloTree,
                          geneList=NULL,
                          min.mut.count=15,
                          signaturesRef="cosmic_v2",
-                         tri.counts.method = "default",
                          withinType = FALSE){
    
    ## get branches information from phyloTree object

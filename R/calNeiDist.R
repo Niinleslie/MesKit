@@ -25,7 +25,9 @@ calNeiDist <- function(maf,
     plot = TRUE, 
     use.circle = TRUE, 
     title = NULL,
-    withinType = FALSE) {
+    withinType = FALSE,
+    number.cex = 8, 
+    number.col = "#C77960") {
     
     mafData <- maf@data
 
@@ -108,6 +110,8 @@ calNeiDist <- function(maf,
                     Nei.plot[[name]] <- plotCorr(
                         Nei.dist.p.t, 
                         use.circle = use.circle, 
+                        number.cex = number.cex,
+                        number.col = number.col,
                         title = if(!is.null(title)) title else{paste0("Nei's distance of ",type, " in ", patient,
                                                                       ": ",round(avg,2))}
                     )
@@ -144,6 +148,7 @@ calNeiDist <- function(maf,
                 Nei.plot[[patient.id[i]]] <- plotCorr(
                     Nei.dist[[i]]$dist.mat, 
                     use.circle = use.circle, 
+                    number.cex = number.cex, number.col = number.col,
                     title = if(!is.null(title)) title else{paste0("Nei's distance of patient ", patient.id[i],
                                                                   ": ",round(avg,2))}
                     #paste0(Nei’s distance, " of patient ", patient.id[i])

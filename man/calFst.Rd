@@ -11,7 +11,9 @@ calFst(
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,
-  withinType = FALSE
+  withinType = FALSE,
+  number.cex = 8,
+  number.col = "#C77960"
 )
 }
 \arguments{

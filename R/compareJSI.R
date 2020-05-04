@@ -21,19 +21,21 @@ compareJSI <- function(
     min.vaf = 0.08,
     plot = TRUE, 
     use.circle = TRUE, 
-    title = NULL) {
-
+    title = NULL,
+    number.cex = 8, 
+    number.col = "#C77960") {
+    
     mafData <- maf@data
-
+    
     if(! "CCF" %in% colnames(mafData)){
         stop(paste0("Error: calculation of Jaccard similarity requires CCF data." ,
-            "No CCF data was found when generate Maf object."))
+                    "No CCF data was found when generate Maf object."))
     }
     
     if(min.vaf < 0){
         stop("Error: min.vaf must be greater than 0")
     }
-
+    
     if(is.null(patient.id)){
         patient.id = unique(mafData$Patient_ID)
     }else{
@@ -43,7 +45,7 @@ compareJSI <- function(
         }
         mafData <- mafData[Patient_ID %in% patient.id,]
     }
-
+    
     JSI.dist <- mafData %>%
         dplyr::select(
             Mut_ID,
@@ -63,8 +65,8 @@ compareJSI <- function(
     }
     # patient.id <- names(JSI.dist)
     
-    JSI.pair <- lapply(JSI.dist, function(x) x$JSI.pair) 
-    # colnames(JSI.df) <- c("Patient_ID","Pair", "JSI")
+    JSI.df <-  plyr::rbind.fill(lapply(JSI.dist, function(x) x$JSI.df)) 
+    colnames(JSI.df) <- c("Patient_ID","Pair", "JSI")
     
     JSI.multi <-  plyr::rbind.fill(lapply(JSI.dist, function(x) x$JSI.multi)) 
     
@@ -73,7 +75,7 @@ compareJSI <- function(
     if(plot){
         for(i in 1:length(JSI.dist)){
             # 
-            dist.mat <- JSI.pair[[i]]
+            dist.mat <- JSI.dist[[i]]$JSI.pair
             mat.value <- sort(unique(as.numeric(dist.mat))) 
             if(length(mat.value[mat.value!=0 &mat.value !=1]) == 0){
                 message(paste0("Warnings: there is no JSI greater than 0 within sample pairs,can not calculate JSI for ", patient.id[i], "."))
@@ -81,10 +83,12 @@ compareJSI <- function(
                 next
             }
             JSI.plot[[i]] <- plotCorr(
-                dist.mat, 
+                JSI.dist[[i]]$JSI.pair, 
                 use.circle = use.circle,
+                number.cex = number.cex, 
+                number.col = number.col,
                 title = if(!is.null(title)) title else{paste0("Jaccard similarity of patient ", patient.id[i])}
-                )
+            )
         }
         names(JSI.plot) <- patient.id
         JSI.plot <- JSI.plot[!is.na(JSI.plot)]
@@ -94,18 +98,17 @@ compareJSI <- function(
         
         JSI.out <- list(
             JSI.multi = JSI.multi, 
-            JSI.pair =JSI.pair,
+            JSI.pair = JSI.df,
             JSI.plot = JSI.plot)
         return(JSI.out)
     }
-
-   JSI.out <- list(
-    JSI.multi = JSI.multi, 
-    JSI.pair = JSI.df
+    
+    JSI.out <- list(
+        JSI.multi = JSI.multi, 
+        JSI.pair = JSI.df
     )
-
-   return(JSI.out)  
-   #return(list(JSI.dist = JSI.dist, JSI.plot =  JSI.plot))  
-
+    
+    return(JSI.out)  
+    #return(list(JSI.dist = JSI.dist, JSI.plot =  JSI.plot))  
+    
 }
-
