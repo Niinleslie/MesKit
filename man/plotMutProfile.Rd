@@ -32,7 +32,7 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{topGenesCount}{The number of genes print, default is 10}
 
-\item{geneList}{A List of genes to restrict the analysis. Default NULL.}
+\item{geneList}{A list of genes to restrict the analysis. Default NULL.}
 
 \item{bgCol}{Background grid color. Default: "#f0f0f0"}
 

@@ -12,7 +12,8 @@ fst.hudson.pair <- function(maf.pair) {
    return(Fst.h)
 }
 
-fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, title = NULL, withinType = FALSE) {
+fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, title = NULL, 
+                               withinType = FALSE, number.cex = 8, number.col = "#C77960") {
    
    df <- as.data.frame(df)
    patient <- unique(df$Patient_ID)
@@ -101,13 +102,16 @@ fst.hudson.patient <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, titl
       Fst.plot = if(plot) plotCorr(
          Fst.dist, 
          use.circle, 
+         number.cex = number.cex,
+         number.col = number.col,
          title = if(!is.null(title)) title else{paste0("Fst of patient ", patientID, ": ",round(Fst.avg,2))}) else{NA} 
    )
    )
 }
 
 
-groupByType <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, title = NULL, withinType = FALSE){
+groupByType <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, 
+                        title = NULL, withinType = FALSE, number.cex = 8, number.col = "#C77960"){
    
    types <- unique(df$Tumor_Type)
    
@@ -119,6 +123,8 @@ groupByType <- function(df, min.vaf, plot = TRUE, use.circle = TRUE, title = NUL
                              plot = plot,
                              use.circle = use.circle,
                              title = title,
+                             number.cex = number.cex, 
+                             number.col = number.col,
                              withinType = withinType),keep = TRUE) %>% 
       rlang::set_names(types)
    

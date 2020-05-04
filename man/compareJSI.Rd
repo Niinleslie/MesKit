@@ -11,7 +11,9 @@ compareJSI(
   min.vaf = 0.08,
   plot = TRUE,
   use.circle = TRUE,
-  title = NULL
+  title = NULL,
+  number.cex = 8,
+  number.col = "#C77960"
 )
 }
 \arguments{

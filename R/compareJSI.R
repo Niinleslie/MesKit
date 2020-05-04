@@ -21,7 +21,9 @@ compareJSI <- function(
     min.vaf = 0.08,
     plot = TRUE, 
     use.circle = TRUE, 
-    title = NULL) {
+    title = NULL,
+    number.cex = 8, 
+    number.col = "#C77960") {
 
     mafData <- maf@data
 
@@ -83,6 +85,8 @@ compareJSI <- function(
             JSI.plot[[i]] <- plotCorr(
                 JSI.dist[[i]]$JSI.pair, 
                 use.circle = use.circle,
+                number.cex = number.cex, 
+                number.col = number.col,
                 title = if(!is.null(title)) title else{paste0("Jaccard similarity of patient ", patient.id[i])}
                 )
         }
