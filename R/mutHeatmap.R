@@ -32,9 +32,7 @@ mutHeatmap <- function(maf,
                        class.text.size = 4,
                        sample.text.size = 9,
                        legend.title.size = 10){
-
     mafData <- maf@data
-
     ## select the specificed patient
     if(!is.null(patient.id)){
         patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
@@ -230,8 +228,8 @@ mutHeatmap <- function(maf,
                 breaks = unique(mut_dat$xmin) + (unique(mut_dat$xmax) - unique(mut_dat$xmin))/2,
                 labels = unique(mut_dat$sample),
                 position = "bottom")+
-            
-            ggtitle(paste0(patient," (",mut.num,")")) + 
+
+            ggtitle(paste0(patient,"(",mut.num,")")) + 
             theme(plot.title = element_text(hjust = 0.5,vjust = -3))+
             
             theme(axis.ticks = element_blank()) +

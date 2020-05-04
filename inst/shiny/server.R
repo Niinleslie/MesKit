@@ -2064,14 +2064,12 @@ shinyServer(function(input, output, session){
           setProgress(message = 'treeMutSig: Calculation in progress',
                       detail = 'This may take a while...')
           
-          tms <- treeMutSig(phyloTree, 
-                            min.mut.count = input$mutThreshold, 
-                            signaturesRef=input$signaturesRef1)
+          tms <- treeMutSig(phyloTree)
           
           mutSig.summary <- tms$mutSig.summary
           incProgress(amount = 1)
           setProgress(message = 'treeMutSig: Calculation done!')
-          plot.list <- plotMutSigProfiler(tms$mutSig.spectrum)
+          plot.list <- plotMutSigProfile(tms$mutSig.spectrum)
           
           incProgress(amount = 1)
           setProgress(message = 'Plot mutational signature profiler done!')

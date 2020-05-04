@@ -2,7 +2,6 @@ doTreeMutSig <- function(phyloTree,
                          geneList=NULL,
                          min.mut.count=15,
                          signaturesRef="cosmic_v2",
-                         tri.counts.method = "default",
                          withinType = FALSE){
    
    ## get branches information from phyloTree object
@@ -80,13 +79,13 @@ doTreeMutSig <- function(phyloTree,
       }
       ## get the mutational signature of the branch
       if (branch.mut.num < min.mut.count){
-         sigs.branch.name <- "noMapSig"
-         sigs.prob <- 0
+         sigs.name <- "noMapSig"
+         sigs.contribution <- 0
          message(paste0("Warnings: ",
                         "mutation number of Branch " , branchName,
                         " is less than the min.mut.count argument! ",
                         "This branch will be skipped")
-         )
+      )
          # if (any(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$mut_id == "NoSigTag")) {
          #    mut.count <- 0
          # }
@@ -97,17 +96,18 @@ doTreeMutSig <- function(phyloTree,
            mut.count <- length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
         }
       }else{
+          
           ## get mutation signature
          fit <- fitSignature(sigsInput = sigsInput[branchName,], sigsRef = sigsRef)
          fit$Reconstructed <- fit$Reconstructed/sum(fit$Reconstructed)
          fit$contribution <- fit$contribution/sum(fit$contribution)
-         sigsWhich <- fit$contribution
-         
-         # sigs.branch <- sigsWhich[["weights"]][which(sigsWhich[["weights"]] != 0)]
-         sigs.branch <- sigsWhich[,which(sigsWhich > 0.1)]
-         sigs.branch.name <- colnames(sigsWhich)[which(sigsWhich > 0.1)]
-         sigs.branch.name <- gsub('[.]', ' ', sigs.branch.name)
-         sigs.prob <- as.numeric(sigs.branch)
+
+         # sigs.contribution <- sigs.contribution[["weights"]][which(sigs.contribution[["weights"]] != 0)]
+         idx <- which(fit$contribution[1,] > 0.1)
+         sigs.name <- colnames(fit$contribution)[idx]
+         sigs.name <- gsub('[.]', ' ', sigs.name)
+         sigs.contribution <- fit$contribution[,idx]
+         sigs.contribution <- as.numeric(sigs.contribution)
          
          if(withinType){
             mut.count <- length(mutSigRef[which(mutSigRef$Branch_Tumor_Type == branchName), 1])
@@ -122,7 +122,7 @@ doTreeMutSig <- function(phyloTree,
          sig.branch.spectrum <- tidyr::pivot_longer(sig.rec ,
                                                    -Branch,
                                                    names_to = "group",
-                                                   values_to = "sigs.prob") %>% 
+                                                   values_to = "sigs.contribution") %>% 
                               as.data.frame()
          sig.branch.spectrum$value.type <- "Reconstructed"
          
@@ -132,7 +132,7 @@ doTreeMutSig <- function(phyloTree,
          sig.Original <- tidyr::pivot_longer(sig.Original ,
                                            -Branch,
                                            names_to = "group",
-                                           values_to = "sigs.prob") %>% 
+                                           values_to = "sigs.contribution") %>% 
                        as.data.frame()
          sig.Original$value.type <- "Original"
          
@@ -141,26 +141,27 @@ doTreeMutSig <- function(phyloTree,
              sig.branch.spectrum$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
          }
          
+         
          ## sort signature by proportion
-         sig.order <- order(sigs.branch,decreasing = T)
-         sigs.branch <- sigs.branch[sig.order]
-         sigs.branch.name <- sigs.branch.name[sig.order]
+         sig.order <- order(sigs.contribution,decreasing = T)
+         sigs.contribution <- sigs.contribution[sig.order]
+         sigs.name <- sigs.name[sig.order]
          ##  title
          t <- ''
-         for(i in  1:length(sigs.branch)){
+         for(i in  1:length(sigs.contribution)){
              if(i == 1){
-                 t <- paste(sigs.branch.name[i], ": ", round(sigs.branch[i],3), sep = "")
+                 t <- paste(sigs.name[i], ": ", round(sigs.contribution[i],3), sep = "")
                  next
              }
-            t <- paste(t, " & ", sigs.branch.name[i], ": ", round(sigs.branch[i],3), sep = "")
+            t <- paste(t, " & ", sigs.name[i], ": ", round(sigs.contribution[i],3), sep = "")
          }
          sig.branch.spectrum$Signature <- t
          sig.spectrum <- rbind(sig.spectrum, sig.branch.spectrum)
       }
       
       mutSigsBranch <- data.frame(
-         sig = sigs.branch.name, 
-         sig.prob=format(round(sigs.prob, digits = 4)))
+         sig = sigs.name, 
+         sig.prob = format(round(sigs.contribution, digits = 4)))
       
       if(withinType){
          mutSigsBranch$mut.count <- mut.count

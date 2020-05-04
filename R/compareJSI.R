@@ -24,18 +24,18 @@ compareJSI <- function(
     title = NULL,
     number.cex = 8, 
     number.col = "#C77960") {
-
+    
     mafData <- maf@data
-
+    
     if(! "CCF" %in% colnames(mafData)){
         stop(paste0("Error: calculation of Jaccard similarity requires CCF data." ,
-            "No CCF data was found when generate Maf object."))
+                    "No CCF data was found when generate Maf object."))
     }
     
     if(min.vaf < 0){
         stop("Error: min.vaf must be greater than 0")
     }
-
+    
     if(is.null(patient.id)){
         patient.id = unique(mafData$Patient_ID)
     }else{
@@ -45,7 +45,7 @@ compareJSI <- function(
         }
         mafData <- mafData[Patient_ID %in% patient.id,]
     }
-
+    
     JSI.dist <- mafData %>%
         dplyr::select(
             Mut_ID,
@@ -88,7 +88,7 @@ compareJSI <- function(
                 number.cex = number.cex, 
                 number.col = number.col,
                 title = if(!is.null(title)) title else{paste0("Jaccard similarity of patient ", patient.id[i])}
-                )
+            )
         }
         names(JSI.plot) <- patient.id
         JSI.plot <- JSI.plot[!is.na(JSI.plot)]
@@ -102,14 +102,13 @@ compareJSI <- function(
             JSI.plot = JSI.plot)
         return(JSI.out)
     }
-
-   JSI.out <- list(
-    JSI.multi = JSI.multi, 
-    JSI.pair = JSI.df
+    
+    JSI.out <- list(
+        JSI.multi = JSI.multi, 
+        JSI.pair = JSI.df
     )
-
-   return(JSI.out)  
-   #return(list(JSI.dist = JSI.dist, JSI.plot =  JSI.plot))  
-
+    
+    return(JSI.out)  
+    #return(list(JSI.dist = JSI.dist, JSI.plot =  JSI.plot))  
+    
 }
-
