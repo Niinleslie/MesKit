@@ -19,7 +19,6 @@ plotHeatmap <- function(binary.mat,
                         show.gene = FALSE,
                         show.geneList = TRUE,
                         mut.threshold = 50,
-                        plot.tree = TRUE,
                         patient){
    mut_sort <- binary.mat
    ccf_sort <- ccf.mat
@@ -28,7 +27,9 @@ plotHeatmap <- function(binary.mat,
        stop(paste0("Error :Heatmap requires CCF data when use.ccf is True"))
    }
    
-   ## delete "NORMAL" 
+   
+   
+   ## delete "NORMAL"
    if(!1 %in% mut_sort[,"NORMAL"]){
       mut_sort <- mut_sort[,which(colnames(mut_sort)!= "NORMAL")]
       if(use.ccf){
@@ -42,18 +43,20 @@ plotHeatmap <- function(binary.mat,
       type <- "CCF"
       mat <- ccf_sort
    }
+   
    shared.num <- ncol(mut_sort)
    mutation.classes <- apply(mut_sort,1,function(x,shared.num){
       if(sum(x) == shared.num){
-         return("Shared")
+         return("Public")
       }
       else if(sum(x) == 1){
-         return("Private")
+         return("Shared")
       }
       else{
-         return("P-shared")
+         return("Private")
       }
    },shared.num = shared.num)
+   
    mut_dat <- heatmap_input(mat,
                             type = type,
                             mutation.classes = mutation.classes,
@@ -61,19 +64,41 @@ plotHeatmap <- function(binary.mat,
                             plot.geneList = plot.geneList,
                             patient = patient)
    
-   if(class(mut_dat)!= "data.frame"){
+   if(nrow(mut_dat) == 0){
        return(NA)
    }
    
    ## Do not the row name if the number of mutations is greater than mut.threshold
    mut.num <- nrow(mut_dat)/length(unique(mut_dat$sample))
    
-   if(show.gene == TRUE|(!is.null(geneList) & show.geneList == TRUE))
-   if(mut.num >= mut.threshold){
-       message("Warning: the number of mutations is ", mut.num,
-               " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
-      show.gene = FALSE
-      show.geneList = FALSE 
+   if(show.gene){
+       if(mut.num >= mut.threshold){
+           message("Warning: the number of mutations is ", mut.num,
+                   " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
+           show.gene = FALSE
+           # show.geneList = FALSE 
+       }
+   }
+   
+   if(!is.null(geneList) & show.geneList){
+       if(plot.geneList){
+           if(mut.num >= mut.threshold){
+               message("Warning: the number of mutations on geneList is ", mut.num,
+                       " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
+               show.geneList = FALSE
+           }
+       }
+       else{
+           gene.num <- nrow(mut_dat %>% 
+               dplyr::filter(Gene != "nogene") %>% 
+               dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
+               dplyr::distinct(y.breaks, .keep_all = TRUE))
+           if(gene.num >= mut.threshold){
+               message("Warning: the number of mutations on geneList is ", gene.num,
+                       " which is greater than mut.threthold. Let mut.threshold be larger than ", gene.num," if you want to show gene")
+               show.geneList = FALSE
+           }
+       }
    }
    
    ## the num of each mutation class
@@ -125,17 +150,19 @@ plotHeatmap <- function(binary.mat,
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
       
       ## set label for axis X
-      theme(axis.text.x.top = element_text(angle = 90,
-                                           hjust = 0,
+      theme(axis.text.x.bottom = element_text(angle = 90,
+                                           hjust = 1,
                                            size = 9,
                                            color = "black",
-                                           margin = margin(b = -15)))+
+                                           margin = margin(t = -15)))+
       scale_x_continuous(
          breaks = unique(mut_dat$xmin) + (unique(mut_dat$xmax) - unique(mut_dat$xmin))/2,
          labels = unique(mut_dat$sample),
-         position = "top")+
-      
-      
+         position = "bottom")+
+       
+       ggtitle(paste0(patient,"(",mut.num,")")) + 
+       theme(plot.title = element_text(hjust = 0.5,vjust = -3))+
+       
       theme(axis.ticks = element_blank()) +
       theme(legend.title = element_text(color = "black")) +
       theme(legend.text = element_text( color = "black")) +
@@ -188,10 +215,6 @@ plotHeatmap <- function(binary.mat,
              dplyr::distinct(y.breaks, .keep_all = TRUE)
          y.breaks <- y.dat$y.breaks
          y.labels <- y.dat$Gene
-         # print(y.dat)
-         # y.breaks <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
-         # y.labels <- unique(mut_dat$Gene)
-         
          p <- p + 
             scale_y_continuous(breaks = y.breaks,
                                labels = y.labels,
@@ -203,9 +226,12 @@ plotHeatmap <- function(binary.mat,
                                                    hjust = 0))
       }
       else if(!plot.geneList & show.geneList){
-         gene.pos <- unique(which(mut_dat$Gene != "nogene")) 
-         y.breaks <- unique((mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)[gene.pos])
-         y.labels <- unique(mut_dat$Gene[gene.pos]) 
+          y.dat <- mut_dat %>% 
+              dplyr::filter(Gene != "nogene") %>% 
+              dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
+              dplyr::distinct(y.breaks, .keep_all = TRUE)
+          y.breaks <- y.dat$y.breaks
+          y.labels <- y.dat$Gene
          p <- p + 
             scale_y_continuous(breaks = y.breaks,
                                labels = y.labels,
@@ -246,7 +272,7 @@ heatmap_input <- function(mat,
             as.data.frame()
          if(nrow(mat) == 0){
              message("Warning: None genes map to mutation data")
-             return(NA)
+             return(data.frame())
          }
       }else{mat <- mat  %>%
          dplyr::rowwise() %>%

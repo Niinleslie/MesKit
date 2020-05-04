@@ -21,19 +21,19 @@
 #' @export mutHeatmap
 
 mutHeatmap <- function(maf,
-                        use.ccf = FALSE,
-                        show.class.label = TRUE,
-                        geneList = NULL,
-                        plot.geneList = FALSE,
-                        show.gene = FALSE,
-                        show.geneList = TRUE,
-                        patient.id = NULL,
-                       mut.threshold = 50){
+                       use.ccf = FALSE,
+                       show.class.label = TRUE,
+                       geneList = NULL,
+                       plot.geneList = FALSE,
+                       show.gene = FALSE,
+                       show.geneList = TRUE,
+                       patient.id = NULL,
+                       mut.threshold = 50,
+                       class.text.size = 4,
+                       sample.text.size = 9,
+                       legend.title.size = 10){
     mafData <- maf@data
     mafData$Patient_ID <- as.character(mafData$Patient_ID)
-    
-
-    
     ## select the specificed patient
     if(!is.null(patient.id)){
         patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
@@ -46,42 +46,277 @@ mutHeatmap <- function(maf,
     
     
     ## split data by patients
-    dat.list <- split(mafData, mafData$Patient_ID)
-    
-    ## get mutation matrix
-    matrix.list <- lapply(dat.list, getHeatmapMatrix)
+    mafData_list <- split(mafData, mafData$Patient_ID)
     
     ## plot heatmap
-    heatmap.list <- lapply(matrix.list,function(x,
-                                                use.ccf,
-                                                show.class.label,
-                                                geneList,
-                                                plot.geneList,
-                                                show.gene,
-                                                show.geneList,
-                                                mut.threshold){
-        binary.mat <- x[[1]]
-        ccf.mat <- x[[2]]
-        patient <- x[[3]]
-        p <- plotHeatmap(binary.mat = binary.mat,
-                        ccf.mat = ccf.mat,
-                        use.ccf = use.ccf,
-                        show.class.label = show.class.label,
-                        geneList = geneList,
-                        plot.geneList = plot.geneList,
-                        show.gene = show.gene,
-                        show.geneList = show.geneList,
-                        mut.threshold = mut.threshold,
-                        plot.tree = FALSE,
-                        patient = patient)
-    },
-    use.ccf = use.ccf,
-    show.class.label = show.class.label,
-    geneList = geneList,
-    plot.geneList = plot.geneList,
-    show.gene = show.gene,
-    show.geneList = show.geneList,
-    mut.threshold = mut.threshold)
+    heatmap_list <- list()
+    for(i in 1:length(mafData_list)){
+        
+        dat <- mafData_list[[i]]
+        patient <- unique(dat$Patient_ID)
+        
+        ## get mutation matrix
+        mut_sort <- getMutMatrix(dat, use.ccf = FALSE)
+        if("CCF" %in% colnames(dat)){
+            ccf_sort <- getMutMatrix(dat, use.ccf = TRUE)
+        }else{
+            ccf_sort <- matrix() 
+        }
+        
+        if(all(is.na(ccf_sort)) & use.ccf){
+            stop(paste0("Error :Heatmap requires CCF data when use.ccf is True"))
+        }
+        
+        ## delete "NORMAL"
+        if(!1 %in% mut_sort[,"NORMAL"]){
+            mut_sort <- mut_sort[,which(colnames(mut_sort)!= "NORMAL")]
+            if(use.ccf){
+                ccf_sort <- ccf_sort[,which(colnames(ccf_sort)!= "NORMAL")]
+            }
+        }
+        
+        mat <- mut_sort
+        type  <- "Mutation"
+        if(use.ccf){
+            type <- "CCF"
+            mat <- ccf_sort
+        }
+        
+        shared.num <- ncol(mut_sort)
+        mutation.classes <- apply(mut_sort,1,function(x,shared.num){
+            if(sum(x) == shared.num){
+                return("Public")
+            }
+            else if(sum(x) == 1){
+                return("Private")
+            }
+            else{
+                return("Shared")
+            }
+        },shared.num = shared.num)
+        
+        mat <- as.data.frame(mat)
+        sample.num <- ncol(mat)
+        mat$class <- factor(mutation.classes, levels = unique(mutation.classes)) 
+        ## get gene name
+        genes <- lapply(rownames(mat),function(x){
+            s <- strsplit(x,":")[[1]][1]
+            return(s)
+        }) %>% unlist()
+        mat$Gene <- as.character(genes) 
+        
+        ## flit mutation in gene list
+        if(!is.null(geneList)){
+            if(plot.geneList){
+                mat <- mat  %>%
+                    dplyr::filter(Gene %in% geneList) %>%
+                    as.data.frame()
+                if(nrow(mat) == 0){
+                    message("Warning: None genes map to mutation data")
+                    next
+                }
+            }else{
+              mat <- mat  %>%
+                dplyr::mutate(Gene = dplyr::if_else(
+                    Gene %in% geneList,
+                    Gene,
+                    "genelist.out"
+                )) %>%
+                as.data.frame()
+              mut.genelist.num <- length(which(mat$Gene != "genelist.out"))
+            }
+        }
+        
+        ## sort mutation
+        mut.num <- nrow(mat)
+        mat$mutation <- 1:nrow(mat)
+        mat <- dplyr::arrange(mat,class)
+        
+        ## cumsum postion of axis y
+        mat$ymin <- cumsum(c(0, rep(2, mut.num-1)))
+        mat$ymax <- mat$ymin + 1.5
+        
+        value.name <- "Mutation"
+        if(type == "CCF"){
+            value.name <- "CCF"
+        }
+        mut_dat <- reshape2::melt(mat,
+                                  id.vars = c("ymin","ymax","mutation","class", "Gene"),
+                                  variable.name = "sample",
+                                  value.name = value.name)
+        mut_dat$xmin <- rep(cumsum(c(0, rep(0.5, sample.num-1))) ,each = nrow(mat))
+        mut_dat$xmax <- mut_dat$xmin + 0.49
+        mut_dat$sample <- factor(mut_dat$sample, levels =unique(mut_dat$sample))
+        
+        if(nrow(mut_dat) == 0){
+            next
+        }
+        
+        ## Do not gene names if the number of mutations is greater than mut.threshold
+        if(show.gene){
+            if(mut.num >= mut.threshold){
+                message("Warning: the number of mutations is ", mut.num,
+                        " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
+                show.gene = FALSE
+                # show.geneList = FALSE 
+            }
+        }
+        
+        if(!is.null(geneList) & show.geneList){
+            if(plot.geneList){
+                if(mut.num >= mut.threshold){
+                    message("Warning: the number of mutations on geneList is ", mut.num,
+                            " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
+                    show.geneList = FALSE
+                }
+            }
+            else{
+                if(mut.genelist.num >= mut.threshold){
+                    message("Warning: the number of mutations on geneList is ", mut.genelist.num,
+                            " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.genelist.num," if you want to show gene")
+                    show.geneList = FALSE
+                }
+            }
+        }
+        
+        ## the number of each mutation class
+        classes.num <- c()
+        classes.sum <- length(mut_dat$class)/length(unique(mut_dat$sample))
+        
+        ## set table for annotation bar
+        annotation.bar <- data.frame()
+        annotation.bar.width <- (max(mut_dat$xmax)- max(mut_dat$xmin))*0.5
+        
+        ## position of annotation bar
+        ab.xmax <- min(mut_dat$xmin)
+        ab.xmin <- ab.xmax - annotation.bar.width
+        ymin <- min(mut_dat$ymin)
+        classes.level <- unique(mut_dat$class)
+        for(class in classes.level){
+            ymax <- max(mut_dat[mut_dat$class == class,]$ymax)
+            sub <- c(ab.xmin, ab.xmax, ymin, ymax)
+            annotation.bar <- rbind(annotation.bar, sub)
+            ymin <- ymax
+            ## percentage of class
+            class.num <- length(which(mut_dat$class == class))/(classes.sum*length(unique(mut_dat$sample)))
+            percentage <- paste0("\n",round(class.num,3)*100,"%")
+            classes.num[class] <- percentage
+        }
+        colnames(annotation.bar) <- c("xmin","xmax","ymin","ymax")
+        
+        ## color of annotation bar
+        class.all.colors <- c( "Public" = "#7fc97f",
+                               "Private" = "#fdc086",
+                               "Shared" = "#E64B35FF" )
+        class.colors <- class.all.colors[classes.level]
+        
+        ## label of annotation bar
+        classes.label <- paste0(classes.level,classes.num)
+        
+        p_basic <- ggplot() +
+            labs(x = "", y = "") + theme_bw() +
+            theme(panel.border = element_blank()) +
+            theme(axis.text.y = element_blank())+
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+            theme(legend.title = element_text(size = legend.title.size))+
+            
+            ## set label for axis X
+            theme(axis.text.x.bottom = element_text(angle = 90,
+                                                    hjust = 1,
+                                                    size = sample.text.size,
+                                                    color = "black",
+                                                    margin = margin(t = -15)))+
+            scale_x_continuous(
+                breaks = unique(mut_dat$xmin) + (unique(mut_dat$xmax) - unique(mut_dat$xmin))/2,
+                labels = unique(mut_dat$sample),
+                position = "bottom")+
+            
+            ggtitle(paste0(patient,"(",mut.num,")")) + 
+            theme(plot.title = element_text(hjust = 0.5,vjust = -3))+
+            
+            theme(axis.ticks = element_blank()) +
+            theme(legend.title = element_text(color = "black")) +
+            theme(legend.text = element_text( color = "black")) +
+            theme(legend.position = "right")+
+            # theme(axis.text.x.top = element_text(margin = margin(b = -50)))+
+            
+            ## annotation bar
+            geom_rect(data = annotation.bar,
+                      mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax),
+                      fill = class.colors)
+        if(show.class.label){
+            p_basic <- p_basic + 
+                geom_text(data = annotation.bar,
+                          mapping = aes(x = xmin + (xmax-xmin)/2,
+                                        y = ymin + (ymax-ymin)/2),
+                          label = classes.label,
+                          size = class.text.size,
+                          angle = 90)
+        }
+        if(use.ccf){
+            p <- p_basic + 
+                geom_rect(data = mut_dat,
+                          mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = CCF))+
+                scale_fill_gradient(low = "#deebf7", high = "#08306b", na.value="black", limit=c(0, 1))
+            
+            #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
+        }else if(!use.ccf){
+            mut_dat$Mutation <- as.character(mut_dat$Mutation)
+            
+            p <- p_basic + 
+                geom_rect(data = mut_dat,
+                          mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = Mutation))+
+                scale_fill_manual(values = c("0" = "#deebf7",
+                                             "1" = "#08306b"))
+            #ggsave(paste(patientID, "_mut.pdf", sep = ""), p, width = 4.5, height = 6.5)
+        }
+        if(is.null(geneList) & show.gene){
+            breaks.gene <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
+            p <- p + scale_y_continuous(breaks = breaks.gene,
+                                        labels = mut_dat[mut_dat$sample==unique(mut_dat$sample)[1],]$Gene,
+                                        position = "right")+
+                theme(axis.text.y.right = element_text(size = 9,
+                                                       colour = "black",
+                                                       face = "italic",
+                                                       margin = margin(l = -15),
+                                                       hjust = 0))
+        }else if(!is.null(geneList)){
+            if(plot.geneList & show.geneList){
+                y.dat <- mut_dat %>% 
+                    dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
+                    dplyr::distinct(y.breaks, .keep_all = TRUE)
+                y.breaks <- y.dat$y.breaks
+                y.labels <- y.dat$Gene
+                p <- p + 
+                    scale_y_continuous(breaks = y.breaks,
+                                       labels = y.labels,
+                                       position = "right") +
+                    theme(axis.text.y.right = element_text(size = 9,
+                                                           colour = "black",
+                                                           face = "italic",
+                                                           margin = margin(l = -15),
+                                                           hjust = 0))
+            }
+            else if(!plot.geneList & show.geneList){
+                y.dat <- mut_dat %>% 
+                    dplyr::filter(Gene != "genelist.out") %>% 
+                    dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
+                    dplyr::distinct(y.breaks, .keep_all = TRUE)
+                y.breaks <- y.dat$y.breaks
+                y.labels <- y.dat$Gene
+                p <- p + 
+                    scale_y_continuous(breaks = y.breaks,
+                                       labels = y.labels,
+                                       position = "right") +
+                    theme(axis.text.y.right = element_text(size = 9,
+                                                           colour = "black",
+                                                           face = "italic",
+                                                           margin = margin(l = -15),
+                                                           hjust = 0))
+            }
+        }
+       heatmap_list[[patient]] <- p 
+    }
     
-    return(heatmap.list)
+    return(heatmap_list)
 }

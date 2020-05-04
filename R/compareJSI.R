@@ -63,8 +63,8 @@ compareJSI <- function(
     }
     # patient.id <- names(JSI.dist)
     
-    JSI.df <-  plyr::rbind.fill(lapply(JSI.dist, function(x) x$JSI.df)) 
-    colnames(JSI.df) <- c("Patient_ID","Pair", "JSI")
+    JSI.pair <- lapply(JSI.dist, function(x) x$JSI.pair) 
+    # colnames(JSI.df) <- c("Patient_ID","Pair", "JSI")
     
     JSI.multi <-  plyr::rbind.fill(lapply(JSI.dist, function(x) x$JSI.multi)) 
     
@@ -73,7 +73,7 @@ compareJSI <- function(
     if(plot){
         for(i in 1:length(JSI.dist)){
             # 
-            dist.mat <- JSI.dist[[i]]$JSI.pair
+            dist.mat <- JSI.pair[[i]]
             mat.value <- sort(unique(as.numeric(dist.mat))) 
             if(length(mat.value[mat.value!=0 &mat.value !=1]) == 0){
                 message(paste0("Warnings: there is no JSI greater than 0 within sample pairs,can not calculate JSI for ", patient.id[i], "."))
@@ -81,7 +81,7 @@ compareJSI <- function(
                 next
             }
             JSI.plot[[i]] <- plotCorr(
-                JSI.dist[[i]]$JSI.pair, 
+                dist.mat, 
                 use.circle = use.circle,
                 title = if(!is.null(title)) title else{paste0("Jaccard similarity of patient ", patient.id[i])}
                 )
@@ -94,7 +94,7 @@ compareJSI <- function(
         
         JSI.out <- list(
             JSI.multi = JSI.multi, 
-            JSI.pair = JSI.df,
+            JSI.pair =JSI.pair,
             JSI.plot = JSI.plot)
         return(JSI.out)
     }

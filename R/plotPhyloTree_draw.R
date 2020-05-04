@@ -551,6 +551,12 @@ drawPhyloTree <- function(phyloTree = NULL,
                               min.mut.count = min.mut.count,
                               compare = FALSE)
    }
+    
+   ## get title 
+   pm <- getPrivateMutation(phyloTree = phyloTree)
+   totalMutSum <- pm[[1]]
+   privateMutProportion <- pm[[2]]
+    
    set.seed(1234)
    myBoots <- phyloTree@bootstrap.value
    rootLabel <- "NORMAL"
@@ -803,10 +809,6 @@ drawPhyloTree <- function(phyloTree = NULL,
       #       draw_plot(p, x = 0,y = 0, width = 0.7) +
       #       draw_plot(h, x = 0.6,y = 0, width = 0.3)
       
-      ## get title 
-      pm <- getPrivateMutation(phyloTree = phyloTree)
-      totalMutSum <- pm[[1]]
-      privateMutProportion <- pm[[2]]
       title <- ggdraw() + 
          draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
       
@@ -818,6 +820,10 @@ drawPhyloTree <- function(phyloTree = NULL,
       return(PH)
    }
    else{
+       p <- p + 
+           ggtitle(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""))+
+           theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5))
+       
       return(p)
    }
 }
