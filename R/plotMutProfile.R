@@ -8,7 +8,7 @@
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
 #' @param classByType  FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)
 #' @param topGenesCount  The number of genes print, default is 10
-#' @param geneList  A List of genes to restrict the analysis. Default NULL.
+#' @param geneList  A list of genes to restrict the analysis. Default NULL.
 #' @param patientsCol  A list containing customized colors for distinct patients. Default: NULL.
 #' @param bgCol  Background grid color. Default: "#f0f0f0"
 #' @param remove_empty_columns  Whether remove the samples without alterations. Only works when plot is TRUE
@@ -33,18 +33,65 @@ plotMutProfile <- function(maf,
                            remove_empty_columns = TRUE,
                            remove_empty_rows = TRUE, 
                            showColnames = TRUE) {
-        
-    maf.plot <- genHeatmapPlotMat(maf, topGenesCount = topGenesCount, patient.id = patient.id,
-                                  geneList = geneList, classByType = classByType, class = class)  
-    mat <- maf.plot[[1]]
+
+
+   maf_data <- do.classify(maf, classByType = classByType, patient.id = patient.id, class = class)
+  
+  if (!is.null(geneList)) {  
+  
+      maf_data <- maf_data %>%
+        dplyr::rowwise() %>%
+        dplyr::mutate(Selected_Mut = dplyr::if_else(
+          any(Hugo_Symbol %in% geneList),
+          TRUE,
+          FALSE)) %>%
+        dplyr::filter(Selected_Mut)
+   }
     
-    maf_data <- do.classify(maf, classByType = classByType, patient.id = patient.id, class = class)
+   patient.split <- maf_data %>%
+     dplyr::select(Patient_ID, Tumor_Sample_Barcode) %>%
+     dplyr::distinct() %>%
+     dplyr::select(Patient_ID) %>%
+     as.matrix() %>%
+     as.vector() %>%
+     as.character()
+   
     
-    #col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
-                    #distinct(.)
-    #col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
-    patient.split <- maf.plot[[2]]
-    col_labels <- maf.plot[[3]]
+    if(length(unique(patient.split)) == 1){
+        patient.split = NULL
+    }
+
+    # long -> wider
+    mat <- maf_data %>%
+        dplyr::ungroup() %>%
+        dplyr::group_by(Hugo_Symbol) %>%
+        dplyr::mutate(
+            total_barcode_count = sum(unique_barcode_count)
+            ) %>%
+        dplyr::select(Hugo_Symbol,
+                      Patient_ID,
+                      Tumor_Sample_Barcode,
+                      Mutation_Type,
+                      total_barcode_count
+                      ) %>%
+        tidyr::pivot_wider(
+            #names_from = Tumor_Sample_Barcode,
+            names_from = c(Patient_ID, Tumor_Sample_Barcode),
+            values_from = Mutation_Type,
+            values_fn = list(Mutation_Type = multiHits)
+        ) %>%
+        dplyr::ungroup() %>%
+        dplyr::arrange(dplyr::desc(total_barcode_count)) %>%       
+        #dplyr::select_if(function(x) {!all(is.na(x))}) %>%
+        dplyr::slice(1:topGenesCount) %>%
+        tibble::column_to_rownames(., "Hugo_Symbol") %>% 
+        dplyr::select(-total_barcode_count) %>%
+        as.matrix()
+    
+
+    col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
+                    distinct(.)
+    col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
 
     # get the order or rows
     stat <- rep(0, topGenesCount)
@@ -277,9 +324,17 @@ plotMutProfile <- function(maf,
     }else {
     
         set.seed(1234)
-        patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
-        names(patientsCol) <- patient.id
-    
+        if (is.null(patientsCol)) {
+          patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
+          names(patientsCol) <- patient.id
+        } else {
+          if (length(patientsCol) == length(patient.id)) {
+            names(patientsCol) <- patient.id
+          } else {
+            stop("The number of color you set for patients and the number of patients are not equal.")
+          }
+        }
+            
         patientLegend <-  ComplexHeatmap::Legend(
                                     labels = patient.id, 
                                     legend_gp = grid::gpar(fill = patientsCol), 

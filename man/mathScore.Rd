@@ -18,13 +18,18 @@ mathScore(
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
 \item{min.vaf}{the minimum VAF for filtering variants. Default: 0.02}
+
+\item{withinType}{calculate AUC within types in each patients, default is FALSE.}
 }
 \value{
-a list containing MATH scores and violin plot of all samples
+a data.table of MATH scores
 }
 \description{
-Calculate MATH score and VAF value could be filtered with minvaf and maxvaf.
+calculates MATH score of each tumor sample or based on Mutant-Allele Tumor Heterogeneity (MATH) approach.
 }
 \examples{
-mathScore(maf, min.vaf=0.02, max.vaf=1)
+mathScore(maf, min.vaf = 0.02)
+}
+\references{
+Mroz, Edmund A. et al. Intra-Tumor Genetic Heterogeneity and Mortality in Head and Neck Cancer: Analysis of Data from The Cancer Genome Atlas. Ed. Andrew H. Beck. PLoS Medicine 12.2 (2015): e1001786.
 }

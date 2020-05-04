@@ -171,7 +171,7 @@ testPowerLaw <- function(
                         hjust = 0)+
                annotate("text",
                         x = x.min,
-                        y = y.max*0.95,
+                        y = y.max*0.9,
                         label = KDlabel,
                         size = 4,
                         fontface = "bold",
@@ -179,7 +179,7 @@ testPowerLaw <- function(
                         hjust = 0)+
                annotate("text",
                         x = x.min,
-                        y = y.max*0.9,
+                        y = y.max*0.8,
                         label = Mdlabel,
                         size = 4,
                         fontface = "bold",
@@ -187,7 +187,7 @@ testPowerLaw <- function(
                         hjust = 0)+
                annotate("text",
                         x = x.min,
-                        y = y.max*0.85,
+                        y = y.max*0.7,
                         label = R2label,
                         size = 4,
                         fontface = "bold",

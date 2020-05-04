@@ -1,4 +1,4 @@
-plotCorr <- function(corrMat, use.circle = TRUE, title = NULL, number.cex = 8, number.col = "#C77960"){
+plotCorr <- function(corrMat, use.circle = TRUE, title = NULL, number.cex = 8, number.col = "#c05836"){
     corrMat[lower.tri(corrMat)] <- 0
     maxCorr <- max(corrMat[corrMat!=1])
     minCorr <- min(corrMat[corrMat!=1 & corrMat!=0])

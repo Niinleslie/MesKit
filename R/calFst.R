@@ -326,134 +326,144 @@ calFst <- function(
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,
-  withinType = FALSE){
-
-	mafData <- maf@data
-
-    if(is.null(patient.id)){
-        patient.id = unique(mafData$Patient_ID)
-    }else{
-        patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
-        if(length(patient.setdiff) > 0){
-            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
-        }
+  withinType = FALSE,
+  number.cex = 8, 
+  number.col = "#C77960" ){
+  
+  mafData <- maf@data
+  
+  if(is.null(patient.id)){
+    patient.id = unique(mafData$Patient_ID)
+  }else{
+    patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
+    if(length(patient.setdiff) > 0){
+      stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
     }
-
-	if(!"VAF_adj" %in% colnames(mafData)){
-		stop("Adjust VAF was not found in maf object.
+  }
+  
+  if(!"VAF_adj" %in% colnames(mafData)){
+    stop("Adjust VAF was not found in maf object.
 		     Check if CCF data was provided or let adjusted.VAF be TRUE in function readMaf when VAF have been adjusted")
-	}
-	
-	if(min.vaf <= 0){
-	    stop("Error: min.vaf must be greater than 0")
-	}
-
-	
-	mafData <-  mafData %>%
-	    dplyr::filter(VAF_adj > min.vaf,
-	                  Patient_ID %in% patient.id) %>% 
-	    #dplyr::filter(Variant_Type == "SNP") %>%
-	    dplyr::mutate(
-	        totalDepth = Ref_allele_depth + Alt_allele_depth)
-	
-    if(withinType){
-        filter.out <- mafData %>%
-            dplyr::filter(Clonal_Status == "Subclonal") %>%
-            dplyr::select(        	
-                Mut_ID,
-                Tumor_Type,
-                Tumor_Sample_Barcode,
-                Patient_ID,
-                VAF_adj,
-                #!!vaf.col,
-                totalDepth)
-        
-        ## fresh patient.id
-        patient.id <- unique(filter.out$Patient_ID)
-        
-        Fst.out <- filter.out %>% 
-            dplyr::group_by(Patient_ID) %>%
-            dplyr::group_map(
-                ~groupByType(.,
-                             min.vaf = min.vaf,
-                             plot = plot,
-                             use.circle = use.circle,
-                             title = title,
-                             withinType = withinType), 
-                keep = TRUE) %>%
-            rlang::set_names(patient.id)
-    }else{
-	    filter.out <- mafData %>%
-	        dplyr::filter(Clonal_Status == "Subclonal") %>%
-	        dplyr::select(        	
-	            Mut_ID,
-	            Tumor_Sample_Barcode,
-	            Patient_ID,
-	            VAF_adj,
-	            totalDepth)
-	    ## fresh patient.id
-	    patient.id <- unique(filter.out$Patient_ID)
-	    
-	    Fst.out <- filter.out %>% 
-	        dplyr::group_by(Patient_ID) %>%
-	        dplyr::group_map(~fst.hudson.patient(.,
-	                         min.vaf = min.vaf,
-	                         plot = plot,
-	                         use.circle = use.circle,
-	                         title = title,
-	                         withinType = withinType), 
-	            keep = TRUE) %>%
-	        rlang::set_names(patient.id)
-	    
-	    Fst.out <- Fst.out[!is.na(Fst.out)]
-	}
-        
+  }
+  
+  if(min.vaf <= 0){
+    stop("Error: min.vaf must be greater than 0")
+  }
+  
+  
+  mafData <-  mafData %>%
+    dplyr::filter(VAF_adj > min.vaf,
+                  Patient_ID %in% patient.id) %>% 
+    #dplyr::filter(Variant_Type == "SNP") %>%
+    dplyr::mutate(
+      totalDepth = Ref_allele_depth + Alt_allele_depth)
   
   if(withinType){
-      patient.list <- c()
-      type.list <- c()
-      avg.list <- c()
-      name.list <- c()
-      Fst.pair <- list()
-      Fst.plot <- list()
-      for(patient in names(Fst.out)){
-          
-          ## get result for each patient
-          Fst.out.p <- Fst.out[[patient]]
-          
-          for(type in names(Fst.out.p)){
-              ## get result for each patient in each type
-              Fst.out.p.t <- Fst.out.p[[type]]
-               
-              name <- paste0(patient,"_",type) 
-              patient.list <- c(patient.list,patient)
-              type.list <- c(type.list,type)
-              avg.list <- c(avg.list,Fst.out.p.t$Fst.avg)
-              
-              Fst.pair[[name]] <- Fst.out.p.t$Fst.pair
-              Fst.plot[[name]] <- Fst.out.p.t$Fst.plot
-          }
+    filter.out <- mafData %>%
+      dplyr::filter(Clonal_Status == "Subclonal") %>%
+      dplyr::select(        	
+        Mut_ID,
+        Tumor_Type,
+        Tumor_Sample_Barcode,
+        Patient_ID,
+        VAF_adj,
+        #!!vaf.col,
+        totalDepth)
+    
+    ## fresh patient.id
+    patient.id <- unique(filter.out$Patient_ID)
+    
+    Fst.out <- filter.out %>% 
+      dplyr::group_by(Patient_ID) %>%
+      dplyr::group_map(
+        ~groupByType(.,
+                     min.vaf = min.vaf,
+                     plot = plot,
+                     use.circle = use.circle,
+                     title = title,
+                     number.cex = number.cex,
+                     number.col = number.col,
+                     withinType = withinType), 
+        keep = TRUE) %>%
+      rlang::set_names(patient.id)
+  }else{
+    filter.out <- mafData %>%
+      dplyr::filter(Clonal_Status == "Subclonal") %>%
+      dplyr::select(        	
+        Mut_ID,
+        Tumor_Sample_Barcode,
+        Patient_ID,
+        VAF_adj,
+        totalDepth)
+    ## fresh patient.id
+    patient.id <- unique(filter.out$Patient_ID)
+    
+    Fst.out <- filter.out %>% 
+      dplyr::group_by(Patient_ID) %>%
+      dplyr::group_map(~fst.hudson.patient(.,
+                                           min.vaf = min.vaf,
+                                           plot = plot,
+                                           use.circle = use.circle,
+                                           title = title,
+                                           number.cex = number.cex, 
+                                           number.col = number.col,
+                                           withinType = withinType), 
+                       keep = TRUE) %>%
+      rlang::set_names(patient.id)
+    
+    Fst.out <- Fst.out[!is.na(Fst.out)]
+  }
+  
+  
+  if(withinType){
+    patient.list <- c()
+    type.list <- c()
+    avg.list <- c()
+    name.list <- c()
+    Fst.pair <- list()
+    Fst.plot <- list()
+    for(patient in names(Fst.out)){
+      
+      ## get result for each patient
+      Fst.out.p <- Fst.out[[patient]]
+      
+      for(type in names(Fst.out.p)){
+        ## get result for each patient in each type
+        Fst.out.p.t <- Fst.out.p[[type]]
+        
+        name <- paste0(patient,"_",type) 
+        patient.list <- c(patient.list,patient)
+        type.list <- c(type.list,type)
+        avg.list <- c(avg.list,Fst.out.p.t$Fst.avg)
+        
+        Fst.pair[[name]] <- Fst.out.p.t$Fst.pair
+        Fst.plot[[name]] <- Fst.out.p.t$Fst.plot
       }
-      Fst.avg = data.frame(Patient_ID = patient.list,
-                           Tumor_Type = type.list,
-                           Fst.avg = avg.list)
-      
-      Fst.out=list(
-          Fst.avg = Fst.avg,
-          Fst.pair = Fst.pair,
-          Fst.plot = Fst.plot
-      )
-      
+    }
+    Fst.avg = data.frame(Patient_ID = patient.list,
+                         Tumor_Type = type.list,
+                         Fst.avg = avg.list)
+    
+    Fst.out=list(
+      Fst.avg = Fst.avg,
+      Fst.pair = Fst.pair,
+      Fst.plot = Fst.plot
+    )
+    
   }
   else{
-      Fst.out=list(
-          Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
-          Fst.pair = lapply(Fst.out, function(x) x$Fst.pair),
-          Fst.plot = lapply(Fst.out, function(x) x$Fst.plot)
-      )  
+    Fst.out=list(
+      Fst.avg = data.frame(Patient_ID = names(Fst.out), Fst.avg = unlist(lapply(Fst.out, function(x) x$Fst.avg))),
+      Fst.pair = lapply(Fst.out, function(x) x$Fst.pair),
+      Fst.plot = lapply(Fst.out, function(x) x$Fst.plot)
+    )  
   }
-
+  
   
   return(Fst.out)
+<<<<<<< HEAD
 }
 >>>>>>> 76c155305e8a78ba390291810c7b38dad221073d
+=======
+}
+>>>>>>> ac0983680247db451afb237ddccd3104fda3c2b9

@@ -1,6 +1,7 @@
 getTreeData <- function(phyloTree = NULL,
                         branchCol = "mutSig",
                         min.mut.count = 15,
+                        signaturesRef="cosmic_v2",
                         compare = FALSE){
    tree <- phyloTree@tree
    rootLabel <- "NORMAL"
@@ -133,7 +134,9 @@ getTreeData <- function(phyloTree = NULL,
    }
    if(!is.null(branchCol) & !compare){
       if(branchCol == "mutSig"){
-          signature <- doTreeMutSig(phyloTree, min.mut.count = min.mut.count)$mutSigsOutput %>%
+          signature <- doTreeMutSig(phyloTree,
+                                    min.mut.count = min.mut.count,
+                                    signaturesRef = signaturesRef)$mutSigsOutput %>%
               dplyr::group_by(branch) %>% 
               dplyr::filter(sig.prob == max(sig.prob)) %>% 
               dplyr::ungroup() %>% 
@@ -518,18 +521,11 @@ drawPhyloTree <- function(phyloTree = NULL,
                           branchCol = "mutSig",
                           show.bootstrap = TRUE,
                           use.box = TRUE,
-                          show.heatmap = TRUE,
-                          use.ccf = FALSE,
                           compare = FALSE,
                           common.lty = "solid",
                           min.ratio = 1/30,
-                          show.class.label = FALSE,
-                          geneList = NULL,
-                          plot.geneList = FALSE,
-                          show.gene = FALSE,
-                          show.geneList = TRUE,
                           min.mut.count = 15,
-                          mut.threshold = 150){
+                          signaturesRef="cosmic_v2"){
     
     patientID <- phyloTree@patientID
     
@@ -549,8 +545,15 @@ drawPhyloTree <- function(phyloTree = NULL,
       treeData <- getTreeData(phyloTree = phyloTree,
                               branchCol = branchCol,
                               min.mut.count = min.mut.count,
+                              signaturesRef = signaturesRef,
                               compare = FALSE)
    }
+    
+   ## get title 
+   pm <- getPrivateMutation(phyloTree = phyloTree)
+   totalMutSum <- pm[[1]]
+   privateMutProportion <- pm[[2]]
+    
    set.seed(1234)
    myBoots <- phyloTree@bootstrap.value
    rootLabel <- "NORMAL"
@@ -782,42 +785,40 @@ drawPhyloTree <- function(phyloTree = NULL,
                                 fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
                                 segment.colour = "grey50", segment.size = 0.5, force = 5)
    }
-   if(show.heatmap){
-      ## combind heatmap and tree
-      h <- plotHeatmap(binary.mat =  phyloTree@binary.matrix,
-                       ccf.mat = phyloTree@ccf.matrix,
-                       use.ccf = use.ccf,
-                       show.class.label = show.class.label,
-                       geneList = geneList,
-                       plot.geneList = plot.geneList,
-                       show.gene = show.gene,
-                       show.geneList = show.geneList,
-                       mut.threshold = mut.threshold)
-      PH <- cowplot::plot_grid(p,
-                               h,
-                               rel_widths = c(1,0.5))
-      # PH <- ggdraw(xlim = c(0.1,0.7)) +
-      #     draw_plot(p, x = -0.05,y = 0, width = 0.7) +
-      #     draw_plot(h, x = 0.48,y = -0.01, width = 0.2,height = 1)
-      # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) +
-      #       draw_plot(p, x = 0,y = 0, width = 0.7) +
-      #       draw_plot(h, x = 0.6,y = 0, width = 0.3)
-      
-      ## get title 
-      pm <- getPrivateMutation(phyloTree = phyloTree)
-      totalMutSum <- pm[[1]]
-      privateMutProportion <- pm[[2]]
-      title <- ggdraw() + 
-         draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
-      
-      ## combind heatmap,tree and title
-      PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1)) + 
-         theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
-      
-      # ggsave(filename = paste0(patientID,".pdf"),plot = PH,width = 10,height = 6.5)
-      return(PH)
-   }
-   else{
+   # if(show.heatmap){
+   #    ## combind heatmap and tree
+   #    h <- plotHeatmap(binary.mat =  phyloTree@binary.matrix,
+   #                     ccf.mat = phyloTree@ccf.matrix,
+   #                     use.ccf = use.ccf,
+   #                     show.class.label = show.class.label,
+   #                     geneList = geneList,
+   #                     plot.geneList = plot.geneList,
+   #                     show.gene = show.gene,
+   #                     show.geneList = show.geneList,
+   #                     mut.threshold = mut.threshold)
+   #    PH <- cowplot::plot_grid(p,
+   #                             h,
+   #                             rel_widths = c(1,0.5))
+   #    # PH <- ggdraw(xlim = c(0.1,0.7)) +
+   #    #     draw_plot(p, x = -0.05,y = 0, width = 0.7) +
+   #    #     draw_plot(h, x = 0.48,y = -0.01, width = 0.2,height = 1)
+   #    # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) +
+   #    #       draw_plot(p, x = 0,y = 0, width = 0.7) +
+   #    #       draw_plot(h, x = 0.6,y = 0, width = 0.3)
+   #    
+   #    title <- ggdraw() + 
+   #       draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
+   #    
+   #    ## combind heatmap,tree and title
+   #    PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1)) + 
+   #       theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
+   #    
+   #    # ggsave(filename = paste0(patientID,".pdf"),plot = PH,width = 10,height = 6.5)
+   #    return(PH)
+   # }
+   tree.title <- paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = "")
+   p <- p + 
+       ggtitle(tree.title)+
+       theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5))
       return(p)
-   }
 }

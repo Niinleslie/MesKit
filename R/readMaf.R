@@ -1,22 +1,22 @@
 #' readMaf
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
-#' @param mafFile tab delimited MAF file (plain text or *.gz compressed). Required.
-#' @param ccfFile CCF file of SNVs. Default NULL.
-#' @param min.vaf the minimum VAF for filtering variants. Default: 0.02.
-#' @param max.vaf the maximum VAF for filtering variants. Default: 1.
-#' @param min.ref.depth the minimum reference allele depth for filtering variants. Default: 8.
-#' @param max.ref.depth the maximum reference allele depth for filtering variants. Default: 8.
-#' @param mutType select proper variant classification you need. Default "All".Option: "nonSilent".
-#' @param mutNonSilent variant classifications which are considered as non-silent. Default NULL.
+#' @param mafFile Tab delimited MAF file (plain text or *.gz compressed). Required.
+#' @param ccfFile CCF file of somatic mutations. Default NULL.
+#' @param min.vaf The minimum VAF for filtering variants. Default: 0.02.
+#' @param max.vaf The maximum VAF for filtering variants. Default: 1.
+#' @param min.ref.depth The minimum reference allele depth for filtering variants. Default: 4.
+#' @param max.ref.depth The maximum reference allele depth for filtering variants. Default: 4.
+#' @param mutType select Proper variant classification you need. Default "All". Option: "nonSilent".
+#' @param mutNonSilent Variant classifications which are considered as non-silent. Default NULL.
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
-#' @param use.indel logical value. whether to use INDELs besides somatic SNVs. Default FALSE.
-#' @param ccf.conf.level the confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95
-#' @param refBuild human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default "hg19".
+#' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default FALSE.
+#' @param ccf.conf.level The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95
+#' @param refBuild Human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default: "hg19".
 #'
 #'
 #' @examples
-#' maf.File <- system.file("extdata/maf", "HCC6046.maf", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC6046.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata/", "HCC6046.CCF.txt", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
@@ -27,11 +27,10 @@
 
 
 ## read.maf main function
-readMaf <- function(## maf parameters
+readMaf <- function(
     mafFile,
     ccfFile = NULL,
     adjusted.VAF = FALSE,
-    ## filter selection
     min.vaf = 0.02,
     max.vaf = 1,
     min.average.vaf = 0,
@@ -83,6 +82,10 @@ readMaf <- function(## maf parameters
     }
 
     # pre-process with gene symbols
+    mafData$Tumor_Sample_Barcode <- as.character(mafData$Tumor_Sample_Barcode)
+    mafData$Patient_ID <- as.character(mafData$Patient_ID)
+    mafData$Tumor_Type <- as.character(mafData$Tumor_Type)
+
     mafData <- preprocess_HugoSymbol(mafData)
 
     ## Rescale vaf coloum 0-1
@@ -189,7 +192,7 @@ readMaf <- function(## maf parameters
                                   dplyr::select(Tumor_Sample_Barcode,Tumor_Type) %>%
                                   dplyr::distinct(Tumor_Sample_Barcode, .keep_all = TRUE)
                               if(nrow(tsb.info) < 2){
-                                  stop("Errors: each patient should have least two tumor samples.")
+                                  stop("Errors: each patient should have at least two tumor samples.")
                               }
                               return(tsb.info)
                           })
