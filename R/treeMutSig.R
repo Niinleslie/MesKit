@@ -23,7 +23,7 @@ treeMutSig <- function(phyloTree_list,
                        geneList=NULL,
                        min.mut.count=15,
                        signaturesRef="cosmic_v2",
-                       withinType = FALSE,
+                       withinTumor = FALSE,
                        patient.id = NULL){
     
     signaturesRef.options <- c("cosmic_v2","nature2013","genome_cosmic_v3","exome_cosmic_v3")
@@ -42,10 +42,10 @@ treeMutSig <- function(phyloTree_list,
                            geneList = geneList,
                            min.mut.count = min.mut.count,
                            signaturesRef = signaturesRef,
-                           withinType = withinType)
-    mutSigSummary <- lapply(treeMSOutput, doMutSigSummary, withinType)
+                           withinTumor = withinTumor)
+    mutSig.summary <- lapply(treeMSOutput, doMutSigSummary, withinTumor)
     cos_sim.mat <- lapply(treeMSOutput,function(x)x$cos_sim.mat)
-    sig.spectrum <- lapply(treeMSOutput,function(x)x$sig.spectrum)
+    mutSig.spectrum <- lapply(treeMSOutput,function(x)x$spectrum_df)
     
-    return(list(mutSig.summary = mutSigSummary, cos_sim.mat = cos_sim.mat, mutSig.spectrum = sig.spectrum))
+    return(list(mutSig.summary = mutSig.summary, cos_sim.mat = cos_sim.mat, mutSig.spectrum =  mutSig.spectrum))
 }

@@ -44,11 +44,16 @@ mutTrunkBranch <- function(phyloTree_list,
                 dplyr::filter(Hugo_Symbol %in% geneList)
         }
         sigsInput <- countTriplet(mutSigRef = mutSigRef,
-                                  withinType = FALSE,
+                                  withinTumor = FALSE,
                                   refBuild = refBuild,
                                   patientID = patientID,
                                   CT = CT)
-        trunkName <- unique(mutSigRef[which(mutSigRef$Alias == "T"), ]$Branch_ID) 
+        branch_ids <- unique(mutSigRef$Branch_ID)
+        branch_sample_num <- lapply(branch_ids,function(x){
+            s <- strsplit(x,"∩")[[1]]
+            num <- length(s)
+        })
+        trunkName <- branch_ids[which.max(branch_sample_num)]
         return(list(
             sigsInput = sigsInput, 
             trunkName = trunkName,

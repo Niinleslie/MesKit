@@ -1,4 +1,4 @@
-Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Tumor_Type
+Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Tumor_ID
 KLHL17	1	899515	899515	Silent	SNP	C	T	85	1	0.012	P_1	V402	P
 AGRN	1	982996	982996	Missense_Mutation	SNP	G	A	97	1	0.01	P_1	V402	P
 PANK4	1	2452742	2452742	Nonsense_Mutation	SNP	C	A	80	5	0.059	P_1	V402	P

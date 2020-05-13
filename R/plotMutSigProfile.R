@@ -32,7 +32,7 @@ plotMutSigProfile <- function(mutSig.spectrum, patient.id = NULL, mode = NULL){
    if("Branch" %in% colnames(mutSig.spectrum)){
        mutSig.spectrum <- dplyr::group_by(mutSig.spectrum, Patient_ID, Branch) 
    }else{
-       mutSig.spectrum <- dplyr::group_by(mutSig.spectrum, Patient_ID, Branch_Tumor_Type) 
+       mutSig.spectrum <- dplyr::group_by(mutSig.spectrum, Patient_ID, Branch_Tumor_ID) 
    }
    name <-  paste(as.data.frame(group_keys(mutSig.spectrum))[,1],
                   as.data.frame(group_keys(mutSig.spectrum))[,2] ,sep = "_") 

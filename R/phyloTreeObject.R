@@ -40,9 +40,9 @@ doGetPhyloTree <- function(patient.dat = NULL,
       matTree <- ape::fastme.ols(dist.gene(mut_dat))
       bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
    }
-   branchAlias <- readPhyloTree(matTree)
+   branch.id <- readPhyloTree(matTree)
    
-   mut.branches_types <- treeMutationalBranches(patient.dat, branchAlias, binary.matrix)
+   mut.branches_types <- treeMutationalBranches(patient.dat, branch.id, binary.matrix)
    mut.branches <- mut.branches_types$mut.branches
    branch.type <- mut.branches_types$branch.type
    
@@ -72,29 +72,29 @@ byML <- function(mut_dat){
    return(matTree)
 }
 
-treeMutationalBranches <- function(patient.dat, branchAlias, binary.matrix){
+treeMutationalBranches <- function(patient.dat, branch.id, binary.matrix){
    binary.matrix <- as.data.frame(binary.matrix)
    binary.matrix$mut.id <- rownames(binary.matrix)
    ## get mutationalSigs-related  infomation
-   maf_input <- patient.dat
-   branchChar <- as.character(branchAlias$Branch)
-   mutId <- dplyr::select(tidyr::unite(maf_input, "mut.id", 
+   mafData <- patient.dat
+   branchChar <- as.character(branch.id$Branch_ID)
+   mutId <- dplyr::select(tidyr::unite(mafData, "mut.id", 
                                        Hugo_Symbol, Chromosome, 
                                        Start_Position, 
                                        Reference_Allele, Tumor_Seq_Allele2, 
                                        sep=":"), mut.id)
-   mutSigRef <- data.frame(as.character(maf_input$Tumor_Sample_Barcode), 
-                           as.character(maf_input$Tumor_Type),
-                           paste("chr", as.character(maf_input$Chromosome), sep=""),
-                           maf_input$Start_Position, 
-                           maf_input$End_Position,
-                           maf_input$Reference_Allele, 
-                           maf_input$Tumor_Seq_Allele2,
-                           maf_input$Hugo_Symbol, 
+   mutSigRef <- data.frame(as.character(mafData$Tumor_Sample_Barcode), 
+                           as.character(mafData$Tumor_ID),
+                           paste("chr", as.character(mafData$Chromosome), sep=""),
+                           mafData$Start_Position, 
+                           mafData$End_Position,
+                           mafData$Reference_Allele, 
+                           mafData$Tumor_Seq_Allele2,
+                           mafData$Hugo_Symbol, 
                            mutId,
                            stringsAsFactors=FALSE)
    colnames(mutSigRef) <- c("Branch_ID", 
-                            "Branch_Tumor_Type",
+                            "Branch_Tumor_ID",
                             "chr", "pos", 
                             "pos_end", "ref", 
                             "alt", "Hugo_Symbol", 
@@ -115,20 +115,20 @@ treeMutationalBranches <- function(patient.dat, branchAlias, binary.matrix){
       unbranch <- names(binary.matrix)[which(!(names(binary.matrix) %in% branch.id))]
       
       ## get branch tumor type
-      types <- unique(patient.dat[Tumor_Sample_Barcode %in% branch, ]$Tumor_Type)
+      types <- unique(patient.dat[Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
       tsbs <- unique(patient.dat[Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
       tsbs.all <- unique(patient.dat$Tumor_Sample_Barcode)
       
       if(length(tsbs.all) == length(tsbs)){
-         Branch_Tumor_Type <- "Public"
+         Branch_Tumor_ID <- "Public"
       } 
       else if(length(types) > 1){
-         Branch_Tumor_Type <- paste0("Shared_",paste(types,collapse = "_"))
+         Branch_Tumor_ID <- paste0("Shared_",paste(types,collapse = "_"))
       }
       else if(length(types) == 1 & length(branch) > 1){
-         Branch_Tumor_Type <- paste0("Shared_",paste(types,collapse = "_"))
+         Branch_Tumor_ID <- paste0("Shared_",paste(types,collapse = "_"))
       }else if(length(types) == 1 & length(branch) == 1){
-         Branch_Tumor_Type <- paste0("Private_",paste(types,collapse = "_"))
+         Branch_Tumor_ID <- paste0("Private_",paste(types,collapse = "_"))
       }
       
       ## generate mutation intersection for specific branch
@@ -139,15 +139,16 @@ treeMutationalBranches <- function(patient.dat, branchAlias, binary.matrix){
       if (nrow(branch.intersection) == 0){
          # message(paste(branchName, ": There are no private mutations for branch ", sep=""))
          branch.mut <- data.frame(Branch_ID=branchName,
-                                  Branch_Tumor_Type = Branch_Tumor_Type,
+                                  Branch_Tumor_ID = Branch_Tumor_ID,
                                   chr=NA,
                                   pos=NA,
                                   pos_end=NA,
                                   ref=NA,
                                   alt=NA,
                                   Hugo_Symbol=NA,
-                                  mut_id=NA,
-                                  Alias=NA)
+                                  mut_id=NA
+                                  # Alias=NA
+                                  )
          mutBranchesOutput[[branchName]] <- branch.mut
          next()
       }
@@ -158,12 +159,12 @@ treeMutationalBranches <- function(patient.dat, branchAlias, binary.matrix){
       branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
       branch.mut$Branch_ID <- branchName
       
-      ## Tumor_Type 
-      branch.mut$Branch_Tumor_Type <- Branch_Tumor_Type
+      ## Tumor_ID 
+      branch.mut$Branch_Tumor_ID <- Branch_Tumor_ID
       
-      # branch.mut$Branch_Tumor_Type <- paste(types,collapse = "_")
+      # branch.mut$Branch_Tumor_ID <- paste(types,collapse = "_")
       branch.mut <- branch.mut[!duplicated(branch.mut),]
-      branch.mut$Alias <- as.character(branchAlias[which(branchAlias$Branch == branchName), ]$Alias)
+      # branch.mut$Alias <- as.character(branch.id[which(branch.id$Branch == branchName), ]$Alias)
       
       ## generate branch mutation list
       mutBranchesOutput[[branchName]] <- branch.mut
@@ -172,7 +173,7 @@ treeMutationalBranches <- function(patient.dat, branchAlias, binary.matrix){
        dplyr::select(-mut_id)
    
    branch.type <- mutBranchesOutput %>% 
-       dplyr::select(Branch_ID, Branch_Tumor_Type)
+       dplyr::select(Branch_ID, Branch_Tumor_ID)
    
    mut.branches <- mutBranchesOutput %>% 
        dplyr::filter(!is.na(chr))

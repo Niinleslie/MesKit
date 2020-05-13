@@ -1,56 +1,56 @@
-plotMutSigProfile_branch <- function(sig.spectrum, mode){
+plotMutSigProfile_branch <- function(spectrum_df, mode){
    
    # products <- plyr::rbind.fill(products)
    # 
-   # sig.spectrum <- products %>%
-   #     dplyr::filter(Branch_Tumor_Type == "Private_P", Patient_ID == "Uchi2")
-   if(nrow(sig.spectrum) == 0){
+   # spectrum_df <- products %>%
+   #     dplyr::filter(Branch_Tumor_ID == "Private_P", Patient_ID == "Uchi2")
+   if(nrow(spectrum_df) == 0){
       return(NA)
    }
-   sig.spectrum <- as.data.frame(sig.spectrum)
+   spectrum_df <- as.data.frame(spectrum_df)
    ## calculate RSS and Cosine similarity
-   sig.Reconstructed <- sig.spectrum[sig.spectrum$value.type == "Reconstructed",]
-   sig.Original <- sig.spectrum[sig.spectrum$value.type == "Original",]
-   m1 <- sig.Reconstructed$Mutation_Probability
-   m2 <- sig.Original$Mutation_Probability
+   reconstructed_spectrum <- spectrum_df[spectrum_df$spectrum.type == "Reconstructed",]
+   original_spectrum <- spectrum_df[spectrum_df$spectrum.type == "Original",]
+   m1 <- reconstructed_spectrum$Mutation_Probability
+   m2 <- original_spectrum$Mutation_Probability
    RSS <- round(sum((m1 - m2)^2),3)
    cosine_sim <- round(sum(m1*m2)/(sqrt(sum(m1^2))*sqrt(sum(m2^2))),3)
    
-   sig.diff <- sig.Original
-   sig.diff$Mutation_Probability <- sig.Original$Mutation_Probability - sig.Reconstructed$Mutation_Probability
-   sig.diff$value.type <- "Difference"
-   sig.spectrum <- rbind(sig.spectrum,sig.diff)
+   diff_spectrum <- original_spectrum
+   diff_spectrum$Mutation_Probability <- original_spectrum$Mutation_Probability - reconstructed_spectrum$Mutation_Probability
+   diff_spectrum$spectrum.type <- "Difference"
+   spectrum_df <- rbind(spectrum_df,diff_spectrum)
    
    if(!is.null(mode)){
-      sig.spectrum <- dplyr::filter(sig.spectrum, value.type == mode)
+      spectrum_df <- dplyr::filter(spectrum_df, spectrum.type == mode)
    }
    
-   ls.mutationType <-as.character(sig.spectrum$Group)
+   ls.mutationType <-as.character(spectrum_df$Group)
    ls.mutationGroup <- c("C>A", "C>G", "C>T", "T>A", "T>C", "T>G")
    
    ## generate Mutation Type for every column
-   sig.spectrum$Group <- as.character(sig.spectrum$Group)
+   spectrum_df$Group <- as.character(spectrum_df$Group)
    for (mutationGroup in ls.mutationGroup) {
-      sig.spectrum$Group[which(grepl(mutationGroup, sig.spectrum$Group))] <- mutationGroup
+      spectrum_df$Group[which(grepl(mutationGroup, spectrum_df$Group))] <- mutationGroup
    }
    
    ## specific the label order of x axis
    orderlist <- c(ls.mutationType)
-   sig.spectrum$Type <- factor(ls.mutationType, levels = unique(orderlist) )
-   sig.spectrum$Group <- factor(sig.spectrum$Group, levels = ls.mutationGroup)
+   spectrum_df$Type <- factor(ls.mutationType, levels = unique(orderlist) )
+   spectrum_df$Group <- factor(spectrum_df$Group, levels = ls.mutationGroup)
    
    ## specific the order of y axis
    if(is.null(mode)){
-      sig.spectrum$value.type <- factor(sig.spectrum$value.type,
+      spectrum_df$spectrum.type <- factor(spectrum_df$spectrum.type,
                                        levels = c("Original","Reconstructed","Difference"))
-      sig.spectrum <- dplyr::arrange(sig.spectrum,value.type)
+      spectrum_df <- dplyr::arrange(spectrum_df,spectrum.type)
    }
    else{
-      sig.spectrum$value.type <- factor(sig.spectrum$value.type,
-                                       levels = unique(sig.spectrum$value.type)) 
+      spectrum_df$spectrum.type <- factor(spectrum_df$spectrum.type,
+                                       levels = unique(spectrum_df$spectrum.type)) 
    }
    
-   if(nrow(sig.spectrum) == 0){
+   if(nrow(spectrum_df) == 0){
       warning(paste0("Patient ", patientID, ": There is no enough eligible mutations can be used."))
       return(NA)
    }
@@ -64,35 +64,35 @@ plotMutSigProfile_branch <- function(sig.spectrum, mode){
                               "#e4e8f3","#fdefeb","#e5e8ef"))
    names(background.colors) <- paste(ls.mutationGroup,1,sep = "")
    all.scales <- c(group.colors,background.colors)
-   sig.spectrum$Group.background <- paste(sig.spectrum$Group,1,sep = "")
+   spectrum_df$Group.background <- paste(spectrum_df$Group,1,sep = "")
    
    if(!is.null(mode)){
-       sig.spectrum <- sig.spectrum[sig.spectrum$value.type == mode, ]
+       spectrum_df <- spectrum_df[spectrum_df$spectrum.type == mode, ]
    }
 
-   name <- paste0(unique(sig.spectrum$Patient_ID),"_",sig.spectrum[1,1])
+   name <- paste0(unique(spectrum_df$Patient_ID),"_",spectrum_df[1,1])
 
-   pic <- ggplot(sig.spectrum, aes(x=Type, y=Mutation_Probability, group=Group, fill=Group))
-   if("Original" %in% sig.spectrum$value.type){
-       sig.Original <- sig.spectrum[sig.spectrum$value.type == "Original",]
-       pic <- pic + geom_rect(data = sig.Original,
+   pic <- ggplot(spectrum_df, aes(x=Type, y=Mutation_Probability, group=Group, fill=Group))
+   if("Original" %in% spectrum_df$spectrum.type){
+       original_spectrum <- spectrum_df[spectrum_df$spectrum.type == "Original",]
+       pic <- pic + geom_rect(data = original_spectrum,
                               aes(fill = Group.background),
                               xmin = -Inf,
                               xmax = Inf,
-                              ymin = min(sig.Original$Mutation_Probability),
-                              ymax = max(sig.Original$Mutation_Probability))
+                              ymin = min(original_spectrum$Mutation_Probability),
+                              ymax = max(original_spectrum$Mutation_Probability))
    }
-   if("Reconstructed" %in% sig.spectrum$value.type){
-       sig.Reconstructed <- sig.spectrum[sig.spectrum$value.type == "Reconstructed",]
-       pic <- pic + geom_rect(data = sig.Reconstructed,
+   if("Reconstructed" %in% spectrum_df$spectrum.type){
+       reconstructed_spectrum <- spectrum_df[spectrum_df$spectrum.type == "Reconstructed",]
+       pic <- pic + geom_rect(data = reconstructed_spectrum,
                               aes(fill = Group.background),
                               xmin = -Inf,
                               xmax = Inf,
-                              ymin = min(sig.Reconstructed$Mutation_Probability),
-                              ymax = max(sig.Reconstructed$Mutation_Probability))
+                              ymin = min(reconstructed_spectrum$Mutation_Probability),
+                              ymax = max(reconstructed_spectrum$Mutation_Probability))
    }
-   if("Difference" %in% sig.spectrum$value.type){
-       sig.Difference <- sig.spectrum[sig.spectrum$value.type == "Difference",]
+   if("Difference" %in% spectrum_df$spectrum.type){
+       sig.Difference <- spectrum_df[spectrum_df$spectrum.type == "Difference",]
        pic <- pic + geom_rect(data = sig.Difference,
                               aes(fill = Group.background),
                               xmin = -Inf,
@@ -115,7 +115,7 @@ plotMutSigProfile_branch <- function(sig.spectrum, mode){
            axis.ticks.x=element_line(color = "black"),
            axis.ticks.length.y = unit(0.2, "cm"),
            axis.text.y=element_text(size=6, color = "black"))+
-       facet_grid(value.type ~ Group,scales =  "free") + 
+       facet_grid(spectrum.type ~ Group,scales =  "free") + 
        ## color setting
        scale_fill_manual(values= all.scales) +
        scale_y_continuous(expand = c(0,0)) + 
@@ -123,7 +123,7 @@ plotMutSigProfile_branch <- function(sig.spectrum, mode){
        ylab("Mutation probability") + 
        ggtitle(paste(name,"\n",
                      "RSS = ", RSS, "; Cosine similarity = ", cosine_sim,"\n",
-                    unique(sig.spectrum$Signature),sep = ""))
+                    unique(spectrum_df$Signature),sep = ""))
    # message(paste0(patientID," mutational signature plot generation done!"))
    return(pic)
 }

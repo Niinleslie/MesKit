@@ -1,4 +1,4 @@
-Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Tumor_Type
+Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Tumor_ID
 CFAP74	1	1880545	1880545	Intron	SNP	C	A	16	3	0.1578	HCC5647_T1	HCC5647	Primary
 CFAP74	1	1880550	1880550	Intron	SNP	T	C	18	3	0.1428	HCC5647_T1	HCC5647	Primary
 CFAP74	1	1887387	1887387	Intron	SNP	T	A	15	8	0.3478	HCC5647_T1	HCC5647	Primary

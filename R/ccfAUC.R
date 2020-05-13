@@ -9,7 +9,7 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param min.ccf the minimum value of CCF. Default: 0
 #' @param plot.density whether to show the density plot. Default: TRUE
-#' @param withinType calculate AUC within types in each patients,default is FALSE.
+#' @param withinTumor calculate AUC within types in each patients,default is FALSE.
 #' 
 #' @return A list containing AUC of CCF and a graph
 #' 
@@ -20,89 +20,150 @@
 #' @export ccfAUC
 
 ccfAUC <- function(
-    maf, 
-    patient.id = NULL, 
-    min.ccf = 0, 
-    withinType = FALSE,
-    plot.density = TRUE
-    ){
-    
-    mafData <- maf@data
-
-    if(! "CCF" %in% colnames(mafData)){
-        stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
-            "No CCF data was found when generate Maf object."))
-    }
-
-    if(is.null(patient.id)){
-        patient.id = unique(mafData$Patient_ID)
-    }else{
-        patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
-        if(length(patient.setdiff) > 0){
-            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
-        }
-    }
-    
-    if(min.ccf < 0){
-        stop("Error: min.ccf must be greater than 0")
-    }
-
-    mafData <- mafData %>%
-        dplyr::filter(Patient_ID %in% patient.id,
-                      CCF > min.ccf,
-                      !is.na(CCF))
-    
-    if(withinType){
-        mafData <- dplyr::filter(mafData, !is.na(Type_Average_CCF))
-        AUC.df <- mafData %>%
-            dplyr::group_by(Patient_ID, Tumor_Type) %>%
-            dplyr::summarise(AUC = ccfAUC.sample(Type_Average_CCF)) %>%
-            as.data.frame() 
-    }else{
-        AUC.df <- mafData %>%
-            dplyr::group_by(Patient_ID, Tumor_Sample_Barcode) %>%
-            dplyr::summarise(AUC = ccfAUC.sample(CCF)) %>%
-            as.data.frame() 
-    }
-
-    # violin plot of AUC
-    if(plot.density){
-        density.plot <- mafData %>%
-        dplyr::group_by(Patient_ID) %>%
-        dplyr::group_map(~plotDensity(.x, withinType = withinType), keep = TRUE) %>%
-        rlang::set_names(patient.id)      
-    }else{
-        density.plot <- NULL
-    }
-    
-    # if(plot) {
-    #   CCF.plot <- ggplot(AUC.df, aes(x=as.factor(Patient_ID), y=AUC, fill = Patient_ID)) + 
-    #     geom_violin() + theme_bw() +     
-    #     #ylim(0,1) + 
-    #     theme(legend.title = element_blank(),
-    #           legend.text = element_text(size = 12),
-    #           panel.border = element_blank(), 
-    #           panel.grid.major = element_line(linetype = 2, color = "grey"),
-    #           panel.grid.minor = element_blank(),
-    #           axis.line=element_line(color= "black", size= 1),
-    #           axis.line.y = element_blank(),
-    #           axis.line.x = element_blank(),
-    #           axis.title = element_text(size = 12),
-    #           axis.ticks.x = element_blank(),
-    #           axis.text.x = element_text(size = 11, color = "black", angle = 90),
-    #           axis.text.y = element_text(size = 11, color = "black")) +     
-    #     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0), 
-    #                        limits = c(0,1), 
-    #                        expand = c(0,0)) +
-    #     scale_x_discrete(limits = levels(AUC.df$Patient_ID)) +
-    #     labs(y = "AUC of ccf", x = "") + annotate("segment", x = 0, xend = 0, y = 0, yend = 1, size = 0.5)        
-    #   
-    # }else{
-    #   CCF.plot <- NULL
-    # }
-    
-
-    return(list(AUC.value = AUC.df, CCF.density.plot = density.plot))
-    message("Calculation of AUC of CCF is done!")       
-        
+   maf, 
+   patient.id = NULL, 
+   min.ccf = 0, 
+   withinTumor = FALSE,
+   plot.density = TRUE
+){
+   
+   mafData <- maf@data
+   
+   if(! "CCF" %in% colnames(mafData)){
+      stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
+                  "No CCF data was found when generate Maf object."))
+   }
+   
+   if(is.null(patient.id)){
+      patient.id = unique(mafData$Patient_ID)
+   }else{
+      patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
+      if(length(patient.setdiff) > 0){
+         stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
+      }
+      mafData <- mafData[Patient_ID %in% patient.id]
+   }
+   
+   if(min.ccf < 0){
+      stop("Error: min.ccf must be greater than 0")
+   }
+   
+   mafData <- mafData %>% dplyr::filter(CCF > min.ccf,!is.na(CCF))
+   ## fresh patient.id
+   patient.id <- unique(mafData$Patient_ID)
+   
+   if(plot.density){
+      CCF.density.plot <- list()
+   }
+   AUC.df <- data.frame()
+   for(patient in patient.id){
+      patient.data <- subset(mafData, Patient_ID == patient)
+      
+      if(withinTumor){
+         ids <- unique(patient.data$Tumor_ID)
+      }else{
+         ids <- unique(patient.data$Tumor_Sample_Barcode)
+      }
+      CCF.sort <- data.frame()
+      for(id in ids){
+         if(withinTumor){
+            subdata <- subset(patient.data, Tumor_ID == id)
+            ccf <- subdata$Tumor_Average_CCF
+         }else{
+            subdata <- subset(patient.data, Tumor_Sample_Barcode == id)
+            ccf <- subdata$CCF
+         }
+         df_ccf <- data.frame(CCF = as.vector(sort(ccf)), prop = c(1:length(ccf))/length(ccf))
+         auc <- suppressWarnings(stats::integrate(approxfun(df_ccf$CCF,df_ccf$prop),
+                                                   min(df_ccf$CCF),
+                                                   max(df_ccf$CCF),
+                                                   subdivisions = length(df_ccf),
+                                                   stop.on.error = F)$value)
+         if(withinTumor){
+            a <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
+         }else{
+            a <- data.frame(Patient_ID = patient, Tumor_Sample_Barcode = id, AUC = auc)
+         }
+         AUC.df <- rbind(AUC.df, a)
+         
+         if(withinTumor){
+            c <-  subdata %>%         
+               dplyr::arrange(Tumor_Average_CCF) %>%
+               dplyr::mutate(prop = c(1:nrow(.)/nrow(.)))
+         }else{
+            c <-  subdata %>%         
+               dplyr::arrange(CCF) %>%
+               dplyr::mutate(prop = c(1:nrow(.)/nrow(.)))
+         }
+         CCF.sort <- rbind(CCF.sort,c)
+            
+      }
+      
+      if(plot.density){
+         if(withinTumor){
+            p <- ggplot2::ggplot(CCF.sort, 
+                                 aes(x=Tumor_Average_CCF, y=prop, group=Tumor_ID, color=Tumor_ID))
+         }else{
+            p <- ggplot2::ggplot(CCF.sort, 
+                                 aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))
+         }
+         p <- p + 
+            #geom_smooth(na.rm = TRUE, se = FALSE, size = 1.2, formula = y ~ s(x, bs = "cs"), method = "gam") +
+            theme_bw() + 
+            geom_line(size=1.2) +
+            xlim(0,1) + ylim(0,1) +     
+            coord_fixed() +
+            theme(
+               #legend.position='none', 
+               legend.title = element_blank(),
+               title=element_text(size=13), 
+               panel.grid=element_blank(), 
+               panel.border=element_blank(), 
+               axis.line=element_line(size=0.7, colour = "black"),
+               axis.text = element_text(size=11, colour = "black"),
+               legend.text = element_text(size=11, colour = "black"),
+               panel.grid.major = element_line(linetype = 2, color = "grey")
+            )+
+            labs(x = "CCF", y = "Proportion", 
+                 title = paste0("AUC plot of CCF : ", patient))
+         
+         CCF.density.plot[[patient]] <- p
+      }
+      
+   }
+   
+   if(plot.density){
+      return(list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot))
+   }else{
+      return(list(AUC.value = AUC.df))
+   }
+   message("Calculation of AUC of CCF is done!")       
+   
 }
+
+
+# if(plot) {
+#   CCF.plot <- ggplot(AUC.df, aes(x=as.factor(Patient_ID), y=AUC, fill = Patient_ID)) + 
+#     geom_violin() + theme_bw() +     
+#     #ylim(0,1) + 
+#     theme(legend.title = element_blank(),
+#           legend.text = element_text(size = 12),
+#           panel.border = element_blank(), 
+#           panel.grid.major = element_line(linetype = 2, color = "grey"),
+#           panel.grid.minor = element_blank(),
+#           axis.line=element_line(color= "black", size= 1),
+#           axis.line.y = element_blank(),
+#           axis.line.x = element_blank(),
+#           axis.title = element_text(size = 12),
+#           axis.ticks.x = element_blank(),
+#           axis.text.x = element_text(size = 11, color = "black", angle = 90),
+#           axis.text.y = element_text(size = 11, color = "black")) +     
+#     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0), 
+#                        limits = c(0,1), 
+#                        expand = c(0,0)) +
+#     scale_x_discrete(limits = levels(AUC.df$Patient_ID)) +
+#     labs(y = "AUC of ccf", x = "") + annotate("segment", x = 0, xend = 0, y = 0, yend = 1, size = 0.5)        
+#   
+# }else{
+#   CCF.plot <- NULL
+# }

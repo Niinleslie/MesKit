@@ -7,7 +7,7 @@ testPowerLaw <- function(
    R2.threshold,
    min.mut.count,
    plot,
-   withinType){
+   withinTumor){
    
    subPowerLaw <- function(
       sample.df,
@@ -17,12 +17,12 @@ testPowerLaw <- function(
       R2.threshold,
       min.mut.count,
       plot,
-      withinType){
+      withinTumor){
       
-      if(withinType){
-         type.id <- unique(sample.df$Tumor_Type)
+      if(withinTumor){
+         type.id <- unique(sample.df$Tumor_ID)
          sample.df <- sample.df %>% 
-            dplyr::mutate(VAF_adj = Type_Average_VAF_adj)
+            dplyr::mutate(VAF_adj = Tumor_Average_VAF_adj)
       }
       else{
          sample.id <- unique(sample.df$Tumor_Sample_Barcode)
@@ -38,7 +38,7 @@ testPowerLaw <- function(
       if(nrow(sample.df) < min.mut.count){
          R2.out = data.frame()
          vaf.plot  = NA
-         if(withinType){
+         if(withinTumor){
             warning(paste0("Sample ", type.id, ": There is no enough eligible mutations can be used."))
          }else{
             warning(paste0("Sample ", sample.id, ": There is no enough eligible mutations can be used."))
@@ -91,10 +91,10 @@ testPowerLaw <- function(
          R2 = lmLine$adj.r.squared
          
          
-         if(withinType){
+         if(withinTumor){
             R2.out <- data.frame(
                Patient = as.character(unique(sample.df$Patient_ID)),
-               Tumor_Type = type.id,
+               Tumor_ID = type.id,
                Eligible_Mut_Count = nrow(sample.df ),
                Area = area,
                Kolmogorov_Distance = kolmogorovdist,
@@ -194,9 +194,9 @@ testPowerLaw <- function(
                         parse = TRUE,
                         hjust = 0)
             
-            if(withinType){
+            if(withinTumor){
                vaf.plot <- vaf.plot +  
-                  labs(title= unique(sample.df$Tumor_Type),
+                  labs(title= unique(sample.df$Tumor_ID),
                        x="Inverse allelic frequency 1/vaf",
                        y="Cumulative number of SSNVs")
             }
@@ -212,9 +212,9 @@ testPowerLaw <- function(
       return(list(model.fitting.out = R2.out, model.fitting.plot = vaf.plot))		
    }
    
-   if(withinType){
+   if(withinTumor){
       patient.R2 <- df %>%
-         dplyr::group_by(Tumor_Type) %>%
+         dplyr::group_by(Tumor_ID) %>%
          dplyr::group_map(~subPowerLaw(.,
                                        min.vaf,
                                        max.vaf,
@@ -222,9 +222,9 @@ testPowerLaw <- function(
                                        R2.threshold,
                                        plot,
                                        min.mut.count = min.mut.count,
-                                       withinType = withinType), 
+                                       withinTumor = withinTumor), 
                           keep = TRUE) %>%
-         rlang::set_names(unique(df$Tumor_Type))
+         rlang::set_names(unique(df$Tumor_ID))
    }else{
       patient.R2 <- df %>%
          dplyr::group_by(Tumor_Sample_Barcode) %>%
@@ -235,7 +235,7 @@ testPowerLaw <- function(
                                        R2.threshold,
                                        plot,
                                        min.mut.count = min.mut.count,
-                                       withinType = withinType), 
+                                       withinTumor = withinTumor), 
                           keep = TRUE) %>%
          rlang::set_names(unique(df$Tumor_Sample_Barcode))
    }
