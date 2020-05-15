@@ -1,25 +1,13 @@
-doGetPhyloTree <- function(patient.dat = NULL,
+doGetPhyloTree <- function(patient.data = NULL,
                            refBuild = NULL,
                            method = "NJ",
-                           min.vaf = 0.02, 
-                           min.CCF = NULL,
                            bootstrap.rep.num = 100){
-   patientID <- unique(patient.dat$Patient_ID)
-   if(!is.null(min.CCF)){
-      
-      if("CCF" %in% colnames(patient.dat)){
-         patient.dat <- patient.dat[CCF > min.CCF, ]
-      }
-      else{
-         warnings("min.CCF argument only works when CCF data is provided!")
-         
-      }
-   }
-   patient.dat <- patient.dat[which(patient.dat$VAF > min.vaf), ]
+   patientID <- unique(patient.data$Patient_ID)
+   
    ## information input
-   binary.matrix <- getMutMatrix(patient.dat, use.ccf = FALSE)
-   if("CCF" %in% colnames(patient.dat)){
-      ccf.matrix <- getMutMatrix(patient.dat, use.ccf = TRUE)
+   binary.matrix <- getMutMatrix(patient.data, use.ccf = FALSE)
+   if("CCF" %in% colnames(patient.data)){
+      ccf.matrix <- getMutMatrix(patient.data, use.ccf = TRUE)
    }else{
       ccf.matrix <- matrix() 
    }
@@ -42,7 +30,7 @@ doGetPhyloTree <- function(patient.dat = NULL,
    }
    branch.id <- readPhyloTree(matTree)
    
-   mut.branches_types <- treeMutationalBranches(patient.dat, branch.id, binary.matrix)
+   mut.branches_types <- treeMutationalBranches(patient.data, branch.id, binary.matrix)
    mut.branches <- mut.branches_types$mut.branches
    branch.type <- mut.branches_types$branch.type
    
@@ -72,25 +60,25 @@ byML <- function(mut_dat){
    return(matTree)
 }
 
-treeMutationalBranches <- function(patient.dat, branch.id, binary.matrix){
+treeMutationalBranches <- function(patient.data, branch.id, binary.matrix){
    binary.matrix <- as.data.frame(binary.matrix)
    binary.matrix$mut.id <- rownames(binary.matrix)
    ## get mutationalSigs-related  infomation
-   mafData <- patient.dat
+   patient.data <- patient.data
    branchChar <- as.character(branch.id$Branch_ID)
-   mutId <- dplyr::select(tidyr::unite(mafData, "mut.id", 
+   mutId <- dplyr::select(tidyr::unite(patient.data, "mut.id", 
                                        Hugo_Symbol, Chromosome, 
                                        Start_Position, 
                                        Reference_Allele, Tumor_Seq_Allele2, 
                                        sep=":"), mut.id)
-   mutSigRef <- data.frame(as.character(mafData$Tumor_Sample_Barcode), 
-                           as.character(mafData$Tumor_ID),
-                           paste("chr", as.character(mafData$Chromosome), sep=""),
-                           mafData$Start_Position, 
-                           mafData$End_Position,
-                           mafData$Reference_Allele, 
-                           mafData$Tumor_Seq_Allele2,
-                           mafData$Hugo_Symbol, 
+   mutSigRef <- data.frame(as.character(patient.data$Tumor_Sample_Barcode), 
+                           as.character(patient.data$Tumor_ID),
+                           paste("chr", as.character(patient.data$Chromosome), sep=""),
+                           patient.data$Start_Position, 
+                           patient.data$End_Position,
+                           patient.data$Reference_Allele, 
+                           patient.data$Tumor_Seq_Allele2,
+                           patient.data$Hugo_Symbol, 
                            mutId,
                            stringsAsFactors=FALSE)
    colnames(mutSigRef) <- c("Branch_ID", 
@@ -115,9 +103,9 @@ treeMutationalBranches <- function(patient.dat, branch.id, binary.matrix){
       unbranch <- names(binary.matrix)[which(!(names(binary.matrix) %in% branch.id))]
       
       ## get branch tumor type
-      types <- unique(patient.dat[Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
-      tsbs <- unique(patient.dat[Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
-      tsbs.all <- unique(patient.dat$Tumor_Sample_Barcode)
+      types <- unique(patient.data[Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
+      tsbs <- unique(patient.data[Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
+      tsbs.all <- unique(patient.data$Tumor_Sample_Barcode)
       
       if(length(tsbs.all) == length(tsbs)){
          Branch_Tumor_ID <- "Public"

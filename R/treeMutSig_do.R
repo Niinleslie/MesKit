@@ -2,6 +2,8 @@ doTreeMutSig <- function(phyloTree,
                          geneList=NULL,
                          min.mut.count=15,
                          signaturesRef="cosmic_v2",
+                         associated = c(), 
+                         signature.cutoff = 0.1,
                          withinTumor = FALSE){
    ## get branches information from phyloTree object
    mutSigRef <- phyloTree@mut.branches
@@ -32,24 +34,42 @@ doTreeMutSig <- function(phyloTree,
                              refBuild = refBuild,
                              patientID = patientID,
                              CT = FALSE)
+   df.aetiology <- NULL
+   if(class(signaturesRef) == 'character'){
+       signaturesRef <- match.arg(signaturesRef,
+                                  choices = c("cosmic_v2","nature2013","genome_cosmic_v3","exome_cosmic_v3"),
+                                  several.ok = FALSE)
+       signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
+       if (signaturesRef == "cosmic_v2"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.cosmic.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
+                                      sig = rownames(signatures.aetiology$cosmic_v2))
+       }else if(signaturesRef == "nature2013"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.nature2013.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
+                                      sig = rownames(signatures.aetiology$nature2013))
+       }else if(signaturesRef == "genome_cosmic_v3"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.genome.cosmic.v3.may2019.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
+                                      sig = rownames(signatures.aetiology$cosmic_v3))
+       }else if(signaturesRef == "exome_cosmic_v3"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
+                                      sig = rownames(signatures.aetiology$cosmic_v3))
+       }
+   }else if(class(signaturesRef)!= 'data.frame'){
+       stop('Input signature reference needs to be a data frame')
+   }else{
+       sigsRef <- signaturesRef 
+   }
    
-   signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
-   if (signaturesRef == "cosmic_v2"){
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.cosmic.rds", package = "MesKit"))
-       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
-                                  sig = rownames(signatures.aetiology$cosmic_v2))
-   }else if(signaturesRef == "nature2013"){
-      sigsRef <- readRDS(file = system.file("extdata", "signatures.nature2013.rds", package = "MesKit"))
-      df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
-                                 sig = rownames(signatures.aetiology$nature2013))
-   }else if(signaturesRef == "genome_cosmic_v3"){
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.genome.cosmic.v3.may2019.rds", package = "MesKit"))
-       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
-                                  sig = rownames(signatures.aetiology$cosmic_v3))
-   }else if(signaturesRef == "exome_cosmic_v3"){
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019.rds", package = "MesKit"))
-       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
-                                  sig = rownames(signatures.aetiology$cosmic_v3))
+   ## subset of the signatures reference
+   if(!is.null(associated)){
+       signature.setdiff <- setdiff(associated, rownames(sigsRef))
+       if(length(signature.setdiff) > 0){
+           stop(paste0(signature.setdiff, " can not be found in signature reference"))
+       }
+       sigsRef <- sigsRef[rownames(sigsRef) %in% associated, ]
    }
    
    ## cal cos sim signature and branch 
@@ -95,7 +115,7 @@ doTreeMutSig <- function(phyloTree,
          fit$Reconstructed <- fit$Reconstructed/sum(fit$Reconstructed)
          fit$weight <- fit$weight/sum(fit$weight)
 
-         idx <- which(fit$weight[1,] > 0.1)
+         idx <- which(fit$weight[1,] > signature.cutoff)
          sig_names <- colnames(fit$weight)[idx]
          sig_names <- gsub('[.]', ' ', sig_names)
          sig_weights <- fit$weight[,idx]
@@ -401,15 +421,16 @@ doMutSigSummary <- function(treeMSOutput, withinTumor){
    ls.branchesName <- mutSigsOutput$branch
    ls.aeti <- c()
    
-   for(i in 1:nrow(mutSigsOutput)){
-      signature <- as.character(mutSigsOutput$sig[i]) 
-      aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
-      ls.aeti <- c(ls.aeti, aetiology)
+   if(!is.null(df.aetiology)){
+       for(i in 1:nrow(mutSigsOutput)){
+           signature <- as.character(mutSigsOutput$sig[i]) 
+           aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
+           ls.aeti <- c(ls.aeti, aetiology)
+       }
+       mutSigsOutput$aeti <- ls.aeti  
    }
    
-   mutSigsOutput$aeti <- ls.aeti
    if(withinTumor){
-      
       ## order branch tumor type 
       branch_tumor_ids <- unique(mutSigsOutput$Branch_Tumor_ID) 
       public <- branch_tumor_ids[grep("Public", branch_tumor_ids)] 
@@ -418,14 +439,22 @@ doMutSigSummary <- function(treeMSOutput, withinTumor){
       type.level <- c(public, shared, private)
       mutSigsOutput$Branch_Tumor_ID <- factor(mutSigsOutput$Branch_Tumor_ID, levels = type.level)
       
-      colnames(mutSigsOutput) <- c("Branch_Tumor_ID", "Signature","Mutation_number", "Signature_weight", "Aetiology")
-      
+      if(!is.null(df.aetiology)){
+          colnames(mutSigsOutput) <- c("Branch_Tumor_ID", "Signature","Mutation_number", "Signature_weight", "Aetiology")
+      }else{
+          colnames(mutSigsOutput) <- c("Branch_Tumor_ID", "Signature","Mutation_number", "Signature_weight")
+      }
+
       mutSigsOutput <- mutSigsOutput %>% 
          dplyr::arrange(Branch_Tumor_ID,Signature_weight)
    }
    else{
       ## rename column
-      colnames(mutSigsOutput) <- c("Branch","Signature","Mutation_number","Signature_weight","Branch_Tumor_ID", "Aetiology")
+       if(!is.null(df.aetiology)){
+           colnames(mutSigsOutput) <- c("Branch","Signature","Mutation_number","Signature_weight","Branch_Tumor_ID", "Aetiology")
+       }else{
+           colnames(mutSigsOutput) <- c("Branch","Signature","Mutation_number","Signature_weight","Branch_Tumor_ID")
+       }
       
       mutSigsOutput <- mutSigsOutput %>% 
          dplyr::select(-Branch_Tumor_ID) %>% 
