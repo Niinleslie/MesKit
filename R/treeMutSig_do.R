@@ -2,8 +2,9 @@ doTreeMutSig <- function(phyloTree,
                          geneList=NULL,
                          min.mut.count=15,
                          signaturesRef="cosmic_v2",
-                         withinType = FALSE){
-   
+                         associated = c(), 
+                         signature.cutoff = 0.1,
+                         withinTumor = FALSE){
    ## get branches information from phyloTree object
    mutSigRef <- phyloTree@mut.branches
    
@@ -16,10 +17,6 @@ doTreeMutSig <- function(phyloTree,
       refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
    }
    
-   # if(use.shiny){
-   #     incProgress(amount=1)
-   #     setProgress(message = paste('Generating ', "mutation signatures - ", patientID, sep=""))
-   # }
    
    ## Select mutations in selected genes
    if(!is.null(geneList)){
@@ -29,58 +26,74 @@ doTreeMutSig <- function(phyloTree,
    
    ## get the mutational signature of the branch 
    mutSigsOutput <- data.frame()
-   sig.spectrum <- data.frame()
+   spectrum_df <- data.frame()
    
    ## count 96 substitution typs in each branches
    sigsInput <- countTriplet(mutSigRef = mutSigRef,
-                             withinType = withinType,
+                             withinTumor = withinTumor,
                              refBuild = refBuild,
                              patientID = patientID,
                              CT = FALSE)
+   df.aetiology <- NULL
+   if(class(signaturesRef) == 'character'){
+       signaturesRef <- match.arg(signaturesRef,
+                                  choices = c("cosmic_v2","nature2013","genome_cosmic_v3","exome_cosmic_v3"),
+                                  several.ok = FALSE)
+       signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
+       if (signaturesRef == "cosmic_v2"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.cosmic.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
+                                      sig = rownames(signatures.aetiology$cosmic_v2))
+       }else if(signaturesRef == "nature2013"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.nature2013.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
+                                      sig = rownames(signatures.aetiology$nature2013))
+       }else if(signaturesRef == "genome_cosmic_v3"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.genome.cosmic.v3.may2019.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
+                                      sig = rownames(signatures.aetiology$cosmic_v3))
+       }else if(signaturesRef == "exome_cosmic_v3"){
+           sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019.rds", package = "MesKit"))
+           df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
+                                      sig = rownames(signatures.aetiology$cosmic_v3))
+       }
+   }else if(class(signaturesRef)!= 'data.frame'){
+       stop('Input signature reference needs to be a data frame')
+   }else{
+       sigsRef <- signaturesRef 
+   }
    
-
-   signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
-   if (signaturesRef == "cosmic_v2") {
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.cosmic.rds", package = "MesKit"))
-       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
-                                  sig = rownames(signatures.aetiology$cosmic_v2))
-   } else if (signaturesRef == "nature2013") {
-      sigsRef <- sigsRef <- readRDS(file = system.file("extdata", "signatures.nature2013.rds", package = "MesKit"))
-      df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
-                                 sig = rownames(signatures.aetiology$nature2013))
-   }else if(signaturesRef == "genome_cosmic_v3"){
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.genome.cosmic.v3.may2019.rds", package = "MesKit"))
-       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
-                                  sig = rownames(signatures.aetiology$cosmic_v3))
-   }else if(signaturesRef == "exome_cosmic_v3"){
-       sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019.rds", package = "MesKit"))
-       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
-                                  sig = rownames(signatures.aetiology$cosmic_v3))
+   ## subset of the signatures reference
+   if(!is.null(associated)){
+       signature.setdiff <- setdiff(associated, rownames(sigsRef))
+       if(length(signature.setdiff) > 0){
+           stop(paste0(signature.setdiff, " can not be found in signature reference"))
+       }
+       sigsRef <- sigsRef[rownames(sigsRef) %in% associated, ]
    }
    
    ## cal cos sim signature and branch 
    cos_sim.mat <- calSim(sigsInput = sigsInput[which(rowSums(sigsInput)!=0),], sigsRef = sigsRef)
    
-   if(withinType){
-      branchesName <- unique(mutSigRef$Branch_Tumor_Type) 
+   if(withinTumor){
+      branchesName <- unique(mutSigRef$Branch_Tumor_ID) 
    }else{
        branchesName <- unique(mutSigRef$Branch_ID) 
    }
    
-   signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
    for (branchCounter in length(branchesName):1){
       ## generate a single branch
       branchName <- branchesName[branchCounter]
-      
-      if(withinType){
-         branch.mut.num <- length(mutSigRef[which(mutSigRef$Branch_Tumor_Type == branchName), 1])
+      # print(branchName)
+      if(withinTumor){
+         branch.mut.num <- length(which(mutSigRef$Branch_Tumor_ID == branchName))
       }else{
-         branch.mut.num <-  length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
+         branch.mut.num <-  length(which(mutSigRef$Branch_ID == branchName))
       }
       ## get the mutational signature of the branch
       if (branch.mut.num < min.mut.count){
-         sigs.name <- "noMapSig"
-         sigs.contribution <- 0
+         sig_names <- "noMapSig"
+         sig_weights <- 0
          message(paste0("Warnings: ",
                         "mutation number of Branch " , branchName,
                         " is less than the min.mut.count argument! ",
@@ -89,8 +102,8 @@ doTreeMutSig <- function(phyloTree,
          # if (any(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$mut_id == "NoSigTag")) {
          #    mut.count <- 0
          # }
-        if(withinType){
-           mut.count <- length(mutSigRef[which(mutSigRef$Branch_Tumor_Type == branchName), 1])
+        if(withinTumor){
+           mut.count <- length(mutSigRef[which(mutSigRef$Branch_Tumor_ID == branchName), 1])
         }
         else{
            mut.count <- length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
@@ -100,87 +113,86 @@ doTreeMutSig <- function(phyloTree,
           ## get mutation signature
          fit <- fitSignature(sigsInput = sigsInput[branchName,], sigsRef = sigsRef)
          fit$Reconstructed <- fit$Reconstructed/sum(fit$Reconstructed)
-         fit$contribution <- fit$contribution/sum(fit$contribution)
+         fit$weight <- fit$weight/sum(fit$weight)
 
-         # sigs.contribution <- sigs.contribution[["weights"]][which(sigs.contribution[["weights"]] != 0)]
-         idx <- which(fit$contribution[1,] > 0.1)
-         sigs.name <- colnames(fit$contribution)[idx]
-         sigs.name <- gsub('[.]', ' ', sigs.name)
-         sigs.contribution <- fit$contribution[,idx]
-         sigs.contribution <- as.numeric(sigs.contribution)
+         idx <- which(fit$weight[1,] > signature.cutoff)
+         sig_names <- colnames(fit$weight)[idx]
+         sig_names <- gsub('[.]', ' ', sig_names)
+         sig_weights <- fit$weight[,idx]
+         sig_weights <- as.numeric(sig_weights)
          
-         if(withinType){
-            mut.count <- length(mutSigRef[which(mutSigRef$Branch_Tumor_Type == branchName), 1])
-         }
-         else{
+         if(withinTumor){
+            mut.count <- length(mutSigRef[which(mutSigRef$Branch_Tumor_ID == branchName), 1])
+         }else{
             mut.count <- length(mutSigRef[which(mutSigRef$Branch_ID == branchName), 1])
          }
          
-         ## get spectrum of sigs output 
-         sig.rec <- as.data.frame(fit$Reconstructed)
-         sig.rec$Branch <- as.character(row.names(fit$Reconstructed)) 
-         sig.branch.spectrum <- tidyr::pivot_longer(sig.rec ,
+         ## get spectrum of reconstructed
+         reconstructed_spectrum <- as.data.frame(fit$Reconstructed)
+         reconstructed_spectrum$Branch <- as.character(row.names(fit$Reconstructed)) 
+         reconstructed_spectrum <- tidyr::pivot_longer(reconstructed_spectrum ,
                                                    -Branch,
                                                    names_to = "group",
-                                                   values_to = "sigs.contribution") %>% 
+                                                   values_to = "sig_weights") %>% 
                               as.data.frame()
-         sig.branch.spectrum$value.type <- "Reconstructed"
+         reconstructed_spectrum$spectrum.type <- "Reconstructed"
          
          ## get Original fractions of 96 types
-         sig.Original <- as.data.frame(sigsInput[branchName,]/sum(sigsInput[branchName,]))
-         sig.Original$Branch <- as.character(row.names(fit$Reconstructed)) 
-         sig.Original <- tidyr::pivot_longer(sig.Original ,
+         original_spectrum <- as.data.frame(sigsInput[branchName,]/sum(sigsInput[branchName,]))
+         original_spectrum$Branch <- as.character(row.names(fit$Reconstructed)) 
+         original_spectrum <- tidyr::pivot_longer(original_spectrum ,
                                            -Branch,
                                            names_to = "group",
-                                           values_to = "sigs.contribution") %>% 
+                                           values_to = "sig_weights") %>% 
                        as.data.frame()
-         sig.Original$value.type <- "Original"
+         original_spectrum$spectrum.type <- "Original"
          
-         sig.branch.spectrum <- rbind(sig.branch.spectrum,sig.Original)
-         if(!withinType){
-             sig.branch.spectrum$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
-         }
+         reconstructed_spectrum <- rbind(reconstructed_spectrum,original_spectrum)
          
+         # if(!withinTumor){
+         #     reconstructed_spectrum$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
+         # }
+         # 
          
-         ## sort signature by proportion
-         sig.order <- order(sigs.contribution,decreasing = T)
-         sigs.contribution <- sigs.contribution[sig.order]
-         sigs.name <- sigs.name[sig.order]
+         ## sort signature by weights
+         sig_order <- order(sig_weights,decreasing = T)
+         sig_weights <- sig_weights[sig_order]
+         sig_names <- sig_names[sig_order]
          ##  title
          t <- ''
-         for(i in  1:length(sigs.contribution)){
+         for(i in  1:length(sig_weights)){
              if(i == 1){
-                 t <- paste(sigs.name[i], ": ", round(sigs.contribution[i],3), sep = "")
+                 t <- paste(sig_names[i], ": ", round(sig_weights[i],3), sep = "")
                  next
              }
-            t <- paste(t, " & ", sigs.name[i], ": ", round(sigs.contribution[i],3), sep = "")
+            t <- paste(t, " & ", sig_names[i], ": ", round(sig_weights[i],3), sep = "")
          }
-         sig.branch.spectrum$Signature <- t
-         sig.spectrum <- rbind(sig.spectrum, sig.branch.spectrum)
+         reconstructed_spectrum$Signature <- t
+         spectrum_df <- rbind(spectrum_df, reconstructed_spectrum)
       }
       
       mutSigsBranch <- data.frame(
-         sig = sigs.name, 
-         sig.prob = format(round(sigs.contribution, digits = 4)))
+         sig = sig_names, 
+         weight = format(round(sig_weights, digits = 4)))
       
-      if(withinType){
+      if(withinTumor){
          mutSigsBranch$mut.count <- mut.count
-         mutSigsBranch$Branch_Tumor_Type <- as.character(branchName)
+         mutSigsBranch$Branch_Tumor_ID <- as.character(branchName)
          mutSigsBranch <- dplyr::select(mutSigsBranch,
-                                        Branch_Tumor_Type,
+                                        Branch_Tumor_ID,
                                         sig, 
                                         mut.count,
-                                        sig.prob)
+                                        weight)
          
       }else{
          mutSigsBranch$branch <- c(branchName)
-         mutSigsBranch$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
+         # mutSigsBranch$Alias <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Alias))
          mutSigsBranch$mut.count <- mut.count
-         mutSigsBranch$Branch_Tumor_Type <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Branch_Tumor_Type))
+         mutSigsBranch$Branch_Tumor_ID <- as.character(unique(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$Branch_Tumor_ID))
          
          mutSigsBranch <- dplyr::select(mutSigsBranch,
-                                        branch, Alias, sig, mut.count,
-                                        sig.prob, Branch_Tumor_Type)
+                                        branch, sig, mut.count,
+                                        weight, Branch_Tumor_ID)
          
       }
       
@@ -188,44 +200,42 @@ doTreeMutSig <- function(phyloTree,
       ## collect branches' mutataional signature information
       mutSigsOutput <- rbind(mutSigsOutput, mutSigsBranch)
    }
-   mutSigsOutput$sig.prob <- as.numeric(as.vector(mutSigsOutput$sig.prob))
+   mutSigsOutput$weight <- as.numeric(as.vector(mutSigsOutput$weight))
    
    ## calculation process(maybe could be replaced by lapply)
-   if(nrow(sig.spectrum) > 0){
-       if(withinType){
-           sig.spectrum$Alias <- sig.spectrum$Branch
-       }
-       if(withinType){
-           all.types <- unique(sig.spectrum$Alias) 
-           public <- all.types[grep("Public", all.types)] 
-           shared <- all.types[grep("Shared", all.types)] 
-           private <- all.types[grep("Private", all.types)]
+   if(nrow(spectrum_df) > 0){
+       # if(withinTumor){
+       #     spectrum_df$Alias <- spectrum_df$Branch
+       # }
+       if(withinTumor){
+           branch_tumor_ids <- unique(spectrum_df$Branch) 
+           public <- branch_tumor_ids[grep("Public", branch_tumor_ids)] 
+           shared <- branch_tumor_ids[grep("Shared", branch_tumor_ids)] 
+           private <- branch_tumor_ids[grep("Private", branch_tumor_ids)]
            type.level <- c(public, shared, private)
-           sig.spectrum$Alias <- factor(sig.spectrum$Alias, levels = type.level)
-           sig.spectrum$Patient_ID <- patientID
-           colnames(sig.spectrum) <- c("Branch_Tumor_Type", "Group", "Mutation_Probability","value.type","Signature","Alias","Patient_ID")
-           rownames(sig.spectrum) <- 1:nrow(sig.spectrum)
+           spectrum_df$Patient_ID <- patientID
+           colnames(spectrum_df) <- c("Branch_Tumor_ID", "Group", "Mutation_Probability","spectrum.type","Signature","Patient_ID")
+           rownames(spectrum_df) <- 1:nrow(spectrum_df)
        }else{
-           sig.spectrum$Patient_ID <- patientID
-           colnames(sig.spectrum) <- c("Branch", "Group", "Mutation_Probability","value.type","Alias", "Signature","Patient_ID")
+           spectrum_df$Patient_ID <- patientID
+           colnames(spectrum_df) <- c("Branch", "Group", "Mutation_Probability","spectrum.type", "Signature","Patient_ID")
+           rownames(spectrum_df) <- 1:nrow(spectrum_df)
        }
    }
    
    cos_sim.mat <- as.matrix(cos_sim.mat)
-   if(withinType){
-       Alias <- unique(mutSigsOutput$Branch_Tumor_Type)
-       names(Alias) <- unique(mutSigsOutput$Branch_Tumor_Type)
-   }else{
-       Alias <- unique(mutSigsOutput$Alias)
-       names(Alias) <- unique(mutSigsOutput$branch)
-   }
-   rownames(cos_sim.mat) <- Alias[rownames(cos_sim.mat)] 
-   
+   # if(withinTumor){
+   #     Alias <- unique(mutSigsOutput$Branch_Tumor_ID)
+   #     names(Alias) <- unique(mutSigsOutput$Branch_Tumor_ID)
+   # }else{
+   #     Alias <- unique(mutSigsOutput$Alias)
+   #     names(Alias) <- unique(mutSigsOutput$branch)
+   # }
+   # rownames(cos_sim.mat) <- Alias[rownames(cos_sim.mat)] 
    message(paste0("Patient ", phyloTree@patientID, ": mutational signatures identified successfully!"))
-   
    treeMSOutput <- list(
       sigsInput=sigsInput, 
-      sig.spectrum=sig.spectrum,
+      spectrum_df=spectrum_df,
       cos_sim.mat = cos_sim.mat,
       mutSigsOutput=mutSigsOutput, 
       df.aetiology=df.aetiology, 
@@ -233,7 +243,7 @@ doTreeMutSig <- function(phyloTree,
    return(treeMSOutput)
 }
 
-countTriplet <- function(mutSigRef, withinType, refBuild, patientID, CT){
+countTriplet <- function(mutSigRef, withinTumor, refBuild, patientID, CT){
     
     if(nrow(mutSigRef) == 0){
         stop("Error: There are not enough mutations in ",patientID)
@@ -288,8 +298,8 @@ countTriplet <- function(mutSigRef, withinType, refBuild, patientID, CT){
     names(ref64.type) <- ref64.seq
     ref64 <- ref64.type
     
-    if(withinType){
-        ref.list <- split(mutSigRef, mutSigRef$Branch_Tumor_Type)
+    if(withinTumor){
+        ref.list <- split(mutSigRef, mutSigRef$Branch_Tumor_ID)
     }else{
         ref.list <- split(mutSigRef, mutSigRef$Branch_ID)
     }
@@ -380,7 +390,7 @@ fitSignature <- function(sigsInput, sigsRef){
     
     ref <- t(as.matrix(sigsRef))
     
-    contribution.mat <- matrix(1, ncol = sample.n, nrow = sig.n)
+    weight.mat <- matrix(1, ncol = sample.n, nrow = sig.n)
     Reconstructed.mat <- matrix(1, ncol = sample.n, nrow = type.n)
     
     ## solve nonnegative least-squares constraints.
@@ -388,22 +398,22 @@ fitSignature <- function(sigsInput, sigsRef){
     for(i in 1:sample.n){
         type.count <- as.numeric(sigsInput[i,]) 
         lsq <- pracma::lsqnonneg(ref, type.count)
-        contribution.mat[,i] <- lsq$x
+        weight.mat[,i] <- lsq$x
         Reconstructed.mat[,i] <- ref %*% as.matrix(lsq$x)
     }
     
-    colnames(contribution.mat) <- rownames(sigsInput)
-    rownames(contribution.mat) <- rownames(sigsRef)
+    colnames(weight.mat) <- rownames(sigsInput)
+    rownames(weight.mat) <- rownames(sigsRef)
     
     colnames(Reconstructed.mat) <- rownames(sigsInput)
     rownames(Reconstructed.mat) <- colnames(sigsInput)
     
-    return(list(contribution = t(contribution.mat), Reconstructed = t(Reconstructed.mat)))
+    return(list(weight = t(weight.mat), Reconstructed = t(Reconstructed.mat)))
     
 }
 
 ## Provide a summary data frame for signatures in different branches.
-doMutSigSummary <- function(treeMSOutput, withinType){
+doMutSigSummary <- function(treeMSOutput, withinTumor){
    mutSigsOutput <- treeMSOutput$mutSigsOutput
    df.aetiology <- treeMSOutput$df.aetiology
    
@@ -411,35 +421,43 @@ doMutSigSummary <- function(treeMSOutput, withinType){
    ls.branchesName <- mutSigsOutput$branch
    ls.aeti <- c()
    
-   for(i in 1:nrow(mutSigsOutput)){
-      signature <- as.character(mutSigsOutput$sig[i]) 
-      aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
-      ls.aeti <- c(ls.aeti, aetiology)
+   if(!is.null(df.aetiology)){
+       for(i in 1:nrow(mutSigsOutput)){
+           signature <- as.character(mutSigsOutput$sig[i]) 
+           aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
+           ls.aeti <- c(ls.aeti, aetiology)
+       }
+       mutSigsOutput$aeti <- ls.aeti  
    }
    
-   mutSigsOutput$aeti <- ls.aeti
-   if(withinType){
-      
+   if(withinTumor){
       ## order branch tumor type 
-      all.types <- unique(mutSigsOutput$Branch_Tumor_Type) 
-      public <- all.types[grep("Public", all.types)] 
-      shared <- all.types[grep("Shared", all.types)] 
-      private <- all.types[grep("Private", all.types)]
+      branch_tumor_ids <- unique(mutSigsOutput$Branch_Tumor_ID) 
+      public <- branch_tumor_ids[grep("Public", branch_tumor_ids)] 
+      shared <- branch_tumor_ids[grep("Shared", branch_tumor_ids)] 
+      private <- branch_tumor_ids[grep("Private", branch_tumor_ids)]
       type.level <- c(public, shared, private)
-      mutSigsOutput$Branch_Tumor_Type <- factor(mutSigsOutput$Branch_Tumor_Type, levels = type.level)
+      mutSigsOutput$Branch_Tumor_ID <- factor(mutSigsOutput$Branch_Tumor_ID, levels = type.level)
       
-      colnames(mutSigsOutput) <- c("Branch_Tumor_Type", "Signature","Mutation_number", "Signature_weight", "Aetiology")
-      
+      if(!is.null(df.aetiology)){
+          colnames(mutSigsOutput) <- c("Branch_Tumor_ID", "Signature","Mutation_number", "Signature_weight", "Aetiology")
+      }else{
+          colnames(mutSigsOutput) <- c("Branch_Tumor_ID", "Signature","Mutation_number", "Signature_weight")
+      }
+
       mutSigsOutput <- mutSigsOutput %>% 
-         dplyr::arrange(Branch_Tumor_Type,Signature_weight)
+         dplyr::arrange(Branch_Tumor_ID,Signature_weight)
    }
    else{
-      
       ## rename column
-      colnames(mutSigsOutput) <- c("Branch", "Alias",  "Signature","Mutation_number","Signature_weight","Branch_Tumor_Type", "Aetiology")
+       if(!is.null(df.aetiology)){
+           colnames(mutSigsOutput) <- c("Branch","Signature","Mutation_number","Signature_weight","Branch_Tumor_ID", "Aetiology")
+       }else{
+           colnames(mutSigsOutput) <- c("Branch","Signature","Mutation_number","Signature_weight","Branch_Tumor_ID")
+       }
       
       mutSigsOutput <- mutSigsOutput %>% 
-         dplyr::select(-Branch_Tumor_Type) %>% 
+         dplyr::select(-Branch_Tumor_ID) %>% 
          dplyr::arrange(plyr::desc(Branch), plyr::desc(Signature_weight))
    }
    mutSigsOutput <- mutSigsOutput %>% 

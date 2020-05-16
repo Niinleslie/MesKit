@@ -17,27 +17,34 @@
 classifyMut <- function(
      maf,
      patient.id = NULL,
+     chrSilent = NULL,
+     mutType = "All",
+     use.indel = TRUE,
      class = "SP",
      classByType = FALSE) {
   
-  mut.class <- do.classify(
-    maf, 
-    class = class,
-    patient.id = patient.id,
-    classByType = classByType
-    ) %>% 
-    dplyr::mutate(Mut_ID = paste(
-      Hugo_Symbol, Chromosome,
-      Start_Position,
-      Reference_Allele, 
-      Tumor_Seq_Allele2,
-      sep = ":"
-      )
-    ) %>%
+    maf <- subsetMaf(maf,
+                     patient.id = patient.id,
+                     chrSilent = chrSilent,
+                     mutType = mutType,
+                     use.indel = use.indel)
+    
+    mut.class <- do.classify(
+        maf, 
+        class = class,
+        patient.id = patient.id,
+        classByType = classByType
+        ) %>% 
+        dplyr::mutate(Mut_ID = paste(
+          Hugo_Symbol, Chromosome,
+          Start_Position,
+          Reference_Allele, 
+          Tumor_Seq_Allele2,
+          sep = ":"
+         )) %>%
     dplyr::select(
       Patient_ID, Tumor_Sample_Barcode,
-      Mut_ID, Mutation_Type
-      )
+      Mut_ID, Mutation_Type)
 
     return(mut.class)
 

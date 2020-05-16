@@ -1,22 +1,22 @@
-ccfPair <- function(mafData, pairByType = FALSE){
+ccfPair <- function(mafData, pairByTumor = FALSE){
   
    mafData <- as.data.frame(mafData)
    patientid <- unique(mafData$Patient_ID)
-   if(pairByType){
-      types <- unique(mafData$Tumor_Type)
+   if(pairByTumor){
+      types <- unique(mafData$Tumor_ID)
       if(length(types) < 2){
-         message(paste0("Warnings: Only one tumor type was found of ",patientid,". It you want to compare CCF between regions, pairByType should be set as FALSE"))
+         message(paste0("Warnings: Only one tumor type was found of ",patientid,". It you want to compare CCF between regions, pairByTumor should be set as FALSE"))
          return(NA)
       }
       
       ## get average CCF
       mafData <- mafData %>% 
-         # dplyr::mutate(Type_Average_CCF = dplyr::if_else(
-         #     Type_Average_CCF > 1,
+         # dplyr::mutate(Tumor_Average_CCF = dplyr::if_else(
+         #     Tumor_Average_CCF > 1,
          #     1,
-         #     Type_Average_CCF
+         #     Tumor_Average_CCF
          # )) %>% 
-          dplyr::mutate(CCF = Type_Average_CCF) %>%
+          dplyr::mutate(CCF = Tumor_Average_CCF) %>%
           dplyr::filter(!is.na(CCF))
       pairs <- combn(length(types), 2, simplify = FALSE)  
    }else{
@@ -33,22 +33,22 @@ ccfPair <- function(mafData, pairByType = FALSE){
    pair.name <- c()
    i <- 1
    for (pair in pairs){
-      if(pairByType){
+      if(pairByTumor){
          S1 <- types[pair[1]]
          S2 <- types[pair[2]]  
       }else{
          S1 <- samples[pair[1]]
          S2 <- samples[pair[2]]
       }
-      if(pairByType){
-         ccf.pair <- mafData %>% dplyr::filter(Tumor_Type %in% c(S1, S2)) %>%
+      if(pairByTumor){
+         ccf.pair <- mafData %>% dplyr::filter(Tumor_ID %in% c(S1, S2)) %>%
             tidyr::unite("Mut_ID", c("Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
                          sep = ":", remove = FALSE) %>% 
-            tidyr::unite("Mut_ID2", c("Tumor_Type","Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
+            tidyr::unite("Mut_ID2", c("Tumor_ID","Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
                          sep = ":", remove = FALSE) %>% 
             dplyr::distinct(Mut_ID2, .keep_all = TRUE) %>%
-            dplyr::select(Tumor_Type, Hugo_Symbol, Mut_ID, CCF) %>% 
-            tidyr::spread(key = Tumor_Type, value = CCF)
+            dplyr::select(Tumor_ID, Hugo_Symbol, Mut_ID, CCF) %>% 
+            tidyr::spread(key = Tumor_ID, value = CCF)
             # dplyr::rename("sample1" = S1, "sample2" = S2) %>% 
             # dplyr::filter(!is.na(S1),!is.na(S2))
          
@@ -104,7 +104,7 @@ ccfPair <- function(mafData, pairByType = FALSE){
 #    scale_x_continuous(expand = c(0,0), limits = c(0,1))+
 #    scale_y_continuous(expand = c(0,0), limits = c(0,1))
 # # labs(x = S1, y = S2) +
-# if(pairByType){
+# if(pairByTumor){
 #    p[[i]] <- p[[i]] + ggtitle(paste("CCF density plot in paired tumor types:\n ", S1, " vs ", S2, sep = ""))
 # 
 # }

@@ -2,7 +2,7 @@
 
 # type = "SP"(shared pattern)
 mutType_SP <- function(
-  #Tumor_Type, 
+  #Tumor_ID, 
   unique_barcode_count, 
   total_barcode_count,
   type_barcode_count,
@@ -14,7 +14,7 @@ mutType_SP <- function(
     dplyr::case_when(
         unique_barcode_count == 1 ~ "Private",
         #(TypeCount == "Single") & (unique_barcode_count == 1) ~ "Private",
-        #(TypeCount == "Multi") & (unique_barcode_count == 1) ~ paste0("Private_", Tumor_Type),
+        #(TypeCount == "Multi") & (unique_barcode_count == 1) ~ paste0("Private_", Tumor_ID),
         (unique_barcode_count == total_barcode_count) ~ "Public",        
         (TypeCount == "Single") & (1 < type_barcode_count) &
             (type_barcode_count < total_barcode_count) ~ "Shared",
@@ -34,7 +34,7 @@ mutType_SP <- function(
 
 # type = "SPCS"(shared pattern & clonal/subclonal)
 mutType_SPCS <- function(
-  #Tumor_Type, 
+  #Tumor_ID, 
   unique_barcode_count, 
   total_barcode_count,
   type_barcode_count,
@@ -114,7 +114,7 @@ do.classify <- function(
     maf_data %>%
     dplyr::group_by(., Patient_ID, mutation_id) %>%
     #dplyr::group_by(., Patient_ID) %>%
-    #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_Type, mutation_id)
+    #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_ID, mutation_id)
     #else dplyr::group_by(., Patient_ID, mutation_id)
     #} %>%
     dplyr::summarise(unique_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
@@ -122,7 +122,7 @@ do.classify <- function(
   patient_barcode_count <-
     maf_data %>%
     dplyr::group_by(., Patient_ID) %>%
-    #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_Type)
+    #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_ID)
     #else dplyr::group_by(., Patient_ID)
     #} %>%
     dplyr::summarise(total_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
@@ -130,12 +130,12 @@ do.classify <- function(
   
   
   type_barcode_count <-maf_data %>%
-    #dplyr::group_by(., Patient_ID, Tumor_Type, mutation_id) %>%
+    #dplyr::group_by(., Patient_ID, Tumor_ID, mutation_id) %>%
     #dplyr::summarise(type_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
     dplyr::group_by(., Patient_ID, mutation_id) %>%
     dplyr::summarise(
       type_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode), 
-      type_barcode_ID = paste(unique(Tumor_Type), collapse = "_")
+      type_barcode_ID = paste(unique(Tumor_ID), collapse = "_")
     )
   
   maf_data <-
@@ -145,7 +145,7 @@ do.classify <- function(
                        dplyr::left_join(type_barcode_count)
     )
   
-  if(length(unique(maf_data$Tumor_Type)) == 1){
+  if(length(unique(maf_data$Tumor_ID)) == 1){
     TypeCount = "Single"
   }else{TypeCount = "Multi"}
   
@@ -153,7 +153,7 @@ do.classify <- function(
     maf_data <- maf_data %>%
       dplyr::mutate(
         Mutation_Type = mutType_SP(
-          #Tumor_Type, 
+          #Tumor_ID, 
           unique_barcode_count, 
           total_barcode_count,
           type_barcode_count,
@@ -177,7 +177,7 @@ do.classify <- function(
           dplyr::filter(!is.na(Clonal_Status)) %>%
           dplyr::mutate(Mutation_Type =
                           mutType_SPCS(
-                            #Tumor_Type, 
+                            #Tumor_ID, 
                             unique_barcode_count, 
                             total_barcode_count,
                             type_barcode_count,

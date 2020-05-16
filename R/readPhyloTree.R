@@ -35,9 +35,9 @@ readPhyloTree <- function(tree){
   edges_label <- unlist(g)[-Root]
   nodes.num <- seq_along(tree$tip.label) - 1
   tree_branch <- edges_label[order(unlist(lapply(edges_label, function(x) length(unlist(strsplit(x, split = "∩"))))))]
-  edges.num <- length(strsplit(tail(tree_branch, 1), split = "∩")[[1]])
-  tree_branch_Alias <- c(paste(rep("B", length(tree_branch)-1), (length(tree_branch)-1):1, sep = ""), "T")
-  tree_sampleID <- data.frame(Branch = tree_branch, Alias = tree_branch_Alias)
+  # edges.num <- length(strsplit(tail(tree_branch, 1), split = "∩")[[1]])
+  # tree_branch_Alias <- c(paste(rep("B", length(tree_branch)-1), (length(tree_branch)-1):1, sep = ""), "T")
+  tree_sampleID <- data.frame(Branch_ID = tree_branch)
   
   return(tree_sampleID)
 }
