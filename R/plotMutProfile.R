@@ -298,7 +298,31 @@ plotMutProfile <- function(maf,
                             grid_height = unit(4, "mm"), legend_gp = grid::gpar(fill = col_type(class)))
     
     ## patient legend
-    patient.id <- unique(patient.split)
+    #patient.id <- unique(patient.split)
+    
+    if (is.null(patient.split)) {
+      patient.id <- NULL
+    } else {
+      excluded_sample_index <- c()
+      for (i in 1:ncol(mat)) {
+        if (all(is.na(mat[,i]))) {
+          excluded_sample_index <- c(excluded_sample_index, i)
+        }
+      }
+      
+      if(!(is.null(excluded_sample_index))) {
+        included_patients <- colnames(mat)[-excluded_sample_index]
+      } else {
+        included_patients <- colnames(mat)
+      }
+      patientID <- c()
+      for (i in included_patients) {
+        patientID <- c(patientID, strsplit(i, "_")[[1]][1])
+      }
+      patient.id <- unique(patientID)
+    }
+    
+    
     
     ## multi-hits legend
     multiLegend <- ComplexHeatmap::Legend(
