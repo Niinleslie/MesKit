@@ -61,8 +61,8 @@ compareTree <- function(phyloTree1,
 	            else{
 	                pos1 <- which(treedat1$end_num == treedat1[sample == "internal node",]$end_num[i])
 	                pos2 <- which(treedat2$end_num == treedat2[sample == "internal node",]$end_num[m12[i]])
-	                treedat1$is.match[pos1] <- paste0("Common ",x)
-	                treedat2$is.match[pos2] <- paste0("Common ",x)
+	                treedat1$is.match[pos1] <- paste0("com",x)
+	                treedat2$is.match[pos2] <- paste0("com",x)
 	                x <- x + 1
 	            }
 	        }

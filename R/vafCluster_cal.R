@@ -12,13 +12,13 @@
          mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf)
          mathscore <- mathtbscoreLs
       }
-      else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
-         mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf) 
-         mathtbscore <- mathtbscoreLs
-         mathscore <- mathtbscore[which(
-            mathtbscore$Tumor_Sample_Barcode == plotOption), 
-            ]$MATH_Score
-      }
+      # else if (plotOption %in% unique(maf@data$Tumor_Sample_Barcode)) {
+      #    mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf) 
+      #    mathtbscore <- mathtbscoreLs
+      #    mathscore <- mathtbscore[which(
+      #       mathtbscore$Tumor_Sample_Barcode == plotOption), 
+      #       ]$MATH_Score
+      # }
    } 
    return(mathscore)
 }
@@ -462,25 +462,25 @@ doVafCluster <- function(patient.dat = NULL,
    }
    
    ## plot specific sample's vaf plot
-   else if (plotOption %in% unique(vafInputMt$Samples))
-   {
-      ## data preparation
-      sampleName <- plotOption
-      sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
-      ## data cleaning
-      sampleMt <- sampleMt[complete.cases(sampleMt), ]
-      sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
-      if (length(sampleMt[,1]) < 3) {
-         stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
-      }
-      clusterMt <- .clusterGenerator(patient.dat, sampleName)
-      ## calculate ScoreMATH
-      mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
-      ## VAF plot for specifc sample
-      pic <- .drawVAF(clusterMt, plotOption, mathscore)
-      message(paste0("VAF density plot of ", patientID, " has been generated!"))
-      return(suppressWarnings(suppressMessages(pic)))
-      # return(suppressWarnings(suppressMessages(pic)))
-   }
+   # else if (plotOption %in% unique(vafInputMt$Samples))
+   # {
+   #    ## data preparation
+   #    sampleName <- plotOption
+   #    sampleMt <- vafInputMt[which(vafInputMt$Samples %in% plotOption),]
+   #    ## data cleaning
+   #    sampleMt <- sampleMt[complete.cases(sampleMt), ]
+   #    sampleMt <- sampleMt[which(sampleMt$VAF != 0),]
+   #    if (length(sampleMt[,1]) < 3) {
+   #       stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
+   #    }
+   #    clusterMt <- .clusterGenerator(patient.dat, sampleName)
+   #    ## calculate ScoreMATH
+   #    mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
+   #    ## VAF plot for specifc sample
+   #    pic <- .drawVAF(clusterMt, plotOption, mathscore)
+   #    message(paste0("VAF density plot of ", patientID, " has been generated!"))
+   #    return(suppressWarnings(suppressMessages(pic)))
+   #    # return(suppressWarnings(suppressMessages(pic)))
+   # }
    
 }

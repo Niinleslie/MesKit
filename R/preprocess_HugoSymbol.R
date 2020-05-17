@@ -5,9 +5,6 @@ preprocess_HugoSymbol <- function(mafData){
       ## remove NONE
       dplyr::filter(!all(strsplit(Hugo_Symbol,",|;")[[1]] == "NONE")) %>% 
       as.data.table()
-   
-      # dplyr::mutate(Hugo_Symbol = stringr::str_replace(Hugo_Symbol,"^(NONE[,;])*","")) %>% 
-      # dplyr::mutate(Hugo_Symbol = stringr::str_replace_all(Hugo_Symbol,"([,;]NONE)*",""))
       
    h <- lapply(remove.all_none.dat$Hugo_Symbol,function(x){
       s <- strsplit(x,",|;")[[1]]

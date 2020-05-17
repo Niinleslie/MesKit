@@ -8,11 +8,11 @@ ccfAUC.sample <- function(ccf){
    return(area)
 }
 
-sortCCF <- function(df, withinType){
+sortCCF <- function(df, withinTumor){
    
-   if(withinType){
+   if(withinTumor){
       CCF.sort <- df %>%
-         dplyr::arrange(Type_Average_CCF) %>%
+         dplyr::arrange(Tumor_Average_CCF) %>%
          dplyr::mutate(prop = c(1:nrow(.)/nrow(.)))
    }else{
       CCF.sort <- df %>%
@@ -21,27 +21,27 @@ sortCCF <- function(df, withinType){
    }
 }
 
-plotDensity <- function(df,withinType){
-   if(withinType){
+plotDensity <- function(df,withinTumor){
+   if(withinTumor){
       CCF.sort <- df %>%
-         dplyr::select(Patient_ID, Tumor_Type, Type_Average_CCF) %>%
-         dplyr::group_by(Tumor_Type) %>%
-         dplyr::group_map(~sortCCF(.x, withinType), keep = TRUE) %>%
+         dplyr::select(Patient_ID, Tumor_ID, Tumor_Average_CCF) %>%
+         dplyr::group_by(Tumor_ID) %>%
+         dplyr::group_map(~sortCCF(.x, withinTumor), keep = TRUE) %>%
          do.call("rbind",.)%>%
          as.data.frame()   
    }else{
       CCF.sort <- df %>%
          dplyr::select(Patient_ID, Tumor_Sample_Barcode, CCF) %>%
          dplyr::group_by(Tumor_Sample_Barcode) %>%
-         dplyr::group_map(~sortCCF(.x, withinType), keep = TRUE) %>%
+         dplyr::group_map(~sortCCF(.x, withinTumor), keep = TRUE) %>%
          do.call("rbind",.)%>%
          as.data.frame()  
    }
    
    
-   if(withinType){
+   if(withinTumor){
       p <- ggplot2::ggplot(CCF.sort, 
-                           aes(x=Type_Average_CCF, y=prop, group=Tumor_Type, color=Tumor_Type))
+                           aes(x=Tumor_Average_CCF, y=prop, group=Tumor_ID, color=Tumor_ID))
    }else{
       p <- ggplot2::ggplot(CCF.sort, 
                            aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))

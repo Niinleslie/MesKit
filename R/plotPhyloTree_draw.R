@@ -23,13 +23,13 @@ getTreeData <- function(phyloTree = NULL,
    nodeNoOnTree <- ccn[[3]]
    nodeOnTree <- ccn[[4]]
    if(length(mainTrunk) != 0){
-      gta <- getTrunkAngles(tree = tree, treeEdge = treeEdge,
+      gta <- getNodeAngle(tree = tree, treeEdge = treeEdge,
                             mainTrunk = mainTrunk, numList = numList,
                             pointsList = pointsList, rootNode = rootNode,
                             horizon = pi/2, W = pi, numNORMAL = numNORMAL)
-      collateralWs <- gta[[1]]
-      collateralAngles <- gta[[2]]
-      collateralPoints <- gta[[3]]
+      adjacentWs <- gta[[1]]
+      adjacentAngles <- gta[[2]]
+      adjacentPoints <- gta[[3]]
    }
    #X1, y1 are the starting point, x2 and y2 are the end point.Horizon stands for the Angle between the line and the positive x axis;W stands for the Angle occupied by branches (explained in the paper)
    #Distance means distance;Node is the internal node with the start;End_num is the number of each node in edge;
@@ -39,8 +39,8 @@ getTreeData <- function(phyloTree = NULL,
                                       'angle' = 0,'distance' = 0,
                                       'node' = rootNode, 'end_num' = rootNode)
    treeData <- setPhyloTree(tree = tree, treeEdge = treeEdge, treeData = treeData, rootNode = rootNode,
-                            mainTrunk = mainTrunk, collateralPoints = collateralPoints,
-                            collateralWs = collateralWs, collateralAngles = collateralAngles,
+                            mainTrunk = mainTrunk, adjacentPoints = adjacentPoints,
+                            adjacentWs = adjacentWs, adjacentAngles = adjacentAngles,
                             horizon = pi/2, W = pi)
    # subTrees <- ape::subtrees(tree)
    # subroot <- unlist(lapply(subTrees, function(x){return(x$name)}))
@@ -60,16 +60,16 @@ getTreeData <- function(phyloTree = NULL,
          nodeOnTree <- append(nodeOnTree,ccn[[4]])
          horizon <- treeData[end_num == rootNode,]$angle
          W <- treeData[end_num == rootNode,]$W
-         gta <- getTrunkAngles(tree = tree, treeEdge = subEdge,
+         gta <- getNodeAngle(tree = tree, treeEdge = subEdge,
                                mainTrunk = mainTrunk, numList = numList,
                                pointsList = pointsList, rootNode = rootNode,
                                horizon = horizon, W = W, numNORMAL = NULL)
-         collateralWs <- gta[[1]]
-         collateralAngles <- gta[[2]]
-         collateralPoints <- gta[[3]]
+         adjacentWs <- gta[[1]]
+         adjacentAngles <- gta[[2]]
+         adjacentPoints <- gta[[3]]
          treeData <- setPhyloTree(tree = tree, treeEdge = subEdge, treeData = treeData, rootNode = rootNode,
-                                  mainTrunk = mainTrunk, collateralPoints = collateralPoints,
-                                  collateralWs = collateralWs, collateralAngles = collateralAngles,
+                                  mainTrunk = mainTrunk, adjacentPoints = adjacentPoints,
+                                  adjacentWs = adjacentWs, adjacentAngles = adjacentAngles,
                                   horizon = horizon, W = W)
          if(length(nodeOnTree) == tree$Nnode){
             break
@@ -138,17 +138,18 @@ getTreeData <- function(phyloTree = NULL,
                                     min.mut.count = min.mut.count,
                                     signaturesRef = signaturesRef)$mutSigsOutput %>%
               dplyr::group_by(branch) %>% 
-              dplyr::filter(sig.prob == max(sig.prob)) %>% 
+              dplyr::filter(weight == max(weight)) %>% 
               dplyr::ungroup() %>% 
               as.data.frame()
-          treeData <- addSignature(tree, treeData, signature) 
+          # print(signature)
+          treeData <- addSignature(tree, treeData, signature, signaturesRef = signaturesRef) 
       }else{
           branch.type <- phyloTree@branch.type
-          types <- as.character(branch.type$Branch_Tumor_Type)
+          types <- as.character(branch.type$Branch_Tumor_ID)
           names(types) <- as.character(branch.type$Branch_ID)
           # print(types)
           treeData <- treeData %>% 
-              dplyr::mutate(Branch_Tumor_Type = types[label]) %>% 
+              dplyr::mutate(Branch_Tumor_ID = types[label]) %>% 
               as.data.table()
       }
    }
@@ -157,7 +158,7 @@ getTreeData <- function(phyloTree = NULL,
 }
 
 
-setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, collateralPoints, collateralWs, collateralAngles,
+setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacentPoints, adjacentWs, adjacentAngles,
                          horizon = pi/2 , W = pi){
    trunkPath <- rev(c(mainTrunk,rootNode))
    if(length(trunkPath) > 0){
@@ -182,14 +183,14 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, collater
          treeData <- rbind(treeData, subdat)
       }
    }
-   if(length(collateralPoints) > 0){
-      for(i in 1:length(collateralPoints)){
-         point <- collateralPoints[i]
+   if(length(adjacentPoints) > 0){
+      for(i in 1:length(adjacentPoints)){
+         point <- adjacentPoints[i]
          startnode <- treeEdge[endNum == point, ]$node
          x1 <- treeData[end_num == startnode,]$x2
          y1 <- treeData[end_num == startnode,]$y2
-         W <- collateralWs[point]
-         angle <- collateralAngles[point]
+         W <- adjacentWs[point]
+         angle <- adjacentAngles[point]
          distance <- treeEdge[endNum == point, ]$length
          x2 <- x1 + distance*cos(angle)
          y2 <- y1 + distance*sin(angle)
@@ -239,24 +240,25 @@ calMainTrunk <- function(tree, treeEdge, rootNode, rootLabel = "NORMAL"){
    }
    result <- path[[names(which.max(distanceTable))]]
 }
-getTrunkAngles <- function(tree, treeEdge, mainTrunk,
+getNodeAngle <- function(tree, treeEdge, mainTrunk,
                            numList, pointsList, rootNode,
                            horizon = pi/2, W = pi ,numNORMAL = NULL){
+    # print(pointsList)
    if(!is.null(numNORMAL)){
       treeEdge <- treeEdge[endNum != numNORMAL,]    
    }
    nodes <- factor(rev(c(mainTrunk,rootNode)), levels = rev(c(mainTrunk,rootNode)))
-   collateralPoints <- c()
+   adjacentPoints <- c()
    for(n in nodes){
       p <- treeEdge[node == n,]$endNum %>% setdiff(nodes)
-      collateralPoints <- append(collateralPoints,p)
+      adjacentPoints <- append(adjacentPoints,p)
    }
    left <- c()
    right <- c()
    leftList <- c()
    rightList <- c()
    i <- 1
-   for(point in collateralPoints){
+   for(point in adjacentPoints){
       if(i == 1){
          if(horizon < pi/2){
             leftList <- append(leftList, point)
@@ -280,8 +282,8 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
       }
       i <- i+1
    }
-   collateralWs <- rep(0,length(tree$edge.length)+1)
-   collateralAngles <- rep(0,length(tree$edge.length)+1)
+   adjacentWs <- rep(0,length(tree$edge.length)+1)
+   adjacentAngles <- rep(0,length(tree$edge.length)+1)
    if(length(rightList) > 0){
       startr <- horizon - W/2
       wrt <- W/2
@@ -294,17 +296,18 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
             n <- right[i]
          }
          wr <- wrt*n/totalR
-         collateralWs[rightList[i]] <- wr
+         adjacentWs[rightList[i]] <- wr
          if(i == 1){
             angler <- wr/2 + startr
-            if(all(
-               horizon != pi/2,
-               (startr != 0|n == 1),
-               (startr != pi/2 | n == 1)
-            )){
-               angler <- startr
+            c1 <- horizon != pi/2
+            c2 <- any(startr != 0,n == 1)
+            c3 <- any(startr != pi/2,n == 1)
+            if(all(c1,c2,c3)){
+                if(length(c(leftList,rightList))!=1){
+                    angler <- startr
+                }
             }
-            collateralAngles[rightList[i]] <- angler
+            adjacentAngles[rightList[i]] <- angler
             startr <- angler
          }else{
             
@@ -312,8 +315,8 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
                startr <- startr - wr/2
             }
             
-            angler <- wr/2 + startr + collateralWs[rightList[i-1]]/2
-            collateralAngles[rightList[i]] <- angler
+            angler <- wr/2 + startr + adjacentWs[rightList[i-1]]/2
+            adjacentAngles[rightList[i]] <- angler
             startr <- angler
          }
       }
@@ -330,19 +333,20 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
             n <- left[i]
          }
          wl <- wlt*n/totalL
-         collateralWs[leftList[i]] <- wl
+         adjacentWs[leftList[i]] <- wl
          if(i == 1){
             anglel <- startl - wl/2
+            c1 <- horizon != pi/2
+            c2 <- any(startl != pi, n == 1)
+            c3 <- any(startl != pi/2, n == 1)
             # angle extension
-            if(all(
-               horizon != pi/2,
-               (startl != pi|n == 1),
-               (startl != pi/2 | n == 1)
-            )){
-               anglel <- startl
+            if(all(c1,c2,c3)){
+                if(length(c(leftList,rightList))!=1){
+                  anglel <- startl  
+                }
+               
             }
-            
-            collateralAngles[leftList[i]] <- anglel
+            adjacentAngles[leftList[i]] <- anglel
             startl <- anglel
          }
          else{
@@ -351,13 +355,13 @@ getTrunkAngles <- function(tree, treeEdge, mainTrunk,
                startl <- startl  + wl/2
             }
             
-            anglel <- startl- wl/2 - collateralWs[leftList[i-1]]/2
-            collateralAngles[leftList[i]] <- anglel
+            anglel <- startl- wl/2 - adjacentWs[leftList[i-1]]/2
+            adjacentAngles[leftList[i]] <- anglel
             startl <- anglel
          }
       }
    }
-   return(list(collateralWs,collateralAngles, collateralPoints))
+   return(list(adjacentWs,adjacentAngles, adjacentPoints))
 }
 
 
@@ -397,56 +401,65 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
 
 
 
-addSignature <- function(tree, treeData, signature){
+addSignature <- function(tree, treeData, signature, signaturesRef){
    #add signature to treeData
    treeData$Signature <- ''
-   # treeData$Branch_Tumor_Type <- ''
+   # treeData$Branch_Tumor_ID <- ''
    sigs <- strsplit(as.character(signature$branch),"∩")
    sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
    t <- 1
    while(t<=length(sigs)){
       pos <- which(treeData$label == sigs[[t]])
       treeData$Signature[pos] <- as.character(signature$sig[t]) 
-      # treeData$Branch_Tumor_Type[pos] <- as.character(signature$Branch_Tumor_Type[t])
+      # treeData$Branch_Tumor_ID[pos] <- as.character(signature$Branch_Tumor_ID[t])
       t <- t + 1
    }
    if(treeData$Signature[which(treeData$sample == 'NORMAL')] == ''){
       treeData$Signature[which(treeData$sample == 'NORMAL')] = as.character(signature$sig[1])
-      # treeData$Branch_Tumor_Type[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_Type[1])
+      # treeData$Branch_Tumor_ID[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_ID[1])
       
    }
    treeData[treeData$Signature == '',]$Signature <- "noMapSig"
    treeData <- treeData[order(treeData$Signature), ]
-   treeData$Signature <- gsub('Signature ', '', treeData$Signature)
+   
+   if(signaturesRef %in% c("cosmic_v2","nature2013")){
+       treeData$Signature <- gsub('Signature ', '', treeData$Signature)
+   }else{
+       treeData$Signature <- gsub('SBS', '', treeData$Signature)
+   }
    return(treeData)
 }
 
-getColors <- function(signatures){
-   allColorScale <- c("#E41A1C","#377EB8","#7F0000",
-                      "#35978f","#FC8D62","#2166ac",
-                      "#E78AC3","#A6D854","#FFD92F",
-                      "#E5C494","#8DD3C7", "#6E016B" ,
-                      "#BEBADA", "#e08214", "#80B1D3",
-                      "#d6604d","#ffff99","#FCCDE5",
-                      "#FF6A5A","#BC80BD","#CCEBC5" ,
-                      "#fb9a99","#B6646A", "#9F994E", 
-                      "#7570B3" ,"#c51b7d" ,"#66A61E" ,
-                      "#E6AB02" ,"#003c30", "#666666",'black')
-   allSignature <- append(gsub('Signature.', '',row.names(deconstructSigs::signatures.cosmic)), 'noMapSig')
-   colorScale <- c()
-   
-   for(i in 1:length(signatures)){
-      color <- allColorScale[which(allSignature == signatures[i])]
-      colorScale <- append(colorScale, color)
-   }
-   
-   if('black' %in% colorScale){
-      num <- which(colorScale == 'black')
-      colorScale <- colorScale[-num]
-      colorScale <- append(colorScale, 'black')
-   }
-   
-   return(colorScale)
+getSigColors <- function(signatures){
+    
+   signature_colors <- c("1" = "#E41A1C", "2" = "#377EB8","3" = "#7F0000",
+                        "4" = "#35978f","5" = "#A6D854", "6" = "#FFD92F",
+                        "7" = "#E5C494", "8" = "#8DD3C7","9" = "#6E016B",
+                        "10" = "#BEBADA", "11" = "#e08214", "12" =  "#80B1D3",
+                        "13" = "#d6604d", "14" = "#ffff99","15" = "#FCCDE5",
+                        "16" = "#FF6A5A","17" = "#BC80BD","18" = "#CCEBC5",
+                        "19" = "#fb9a99", "20"  = "#B6646A", "21" = "#9F994E", 
+                        "22" = "#7570B3" , "23" = "#c51b7d" , "24" = "#66A61E" ,
+                         "25"  = "#E6AB02" ,"26" = "#003c30",  "27" =  "#666666",
+                         "28" = "#524762","29" =  "#8926AC","30" = "#C42669",
+                        "1A" = "#47B39F","1B" = "#B84C60", "R1" = "#B93183",
+                        "R2" = "#B93183",  "R3" = "#845AD1", "U1" = "#7BA52E",
+                        "U2" = "#7A4287","7a" = "#663399", "7b" = "#AD8B5E",
+                        "7c" = "#194682", "7d" = "#FF8931",  "10a" = "#AD3D07",
+                        "10b" = "#0D5DFF", "17a" = "#F2A200", "17b" = "#8C3B45",
+                         "31" = "#009F9A", "32" = "#FF2B32", "33" = "#153E71",
+                        "34" = "#FF8C2F", "35" ="#2F8CFF", "36" = "#62BA1F",
+                        "37" = "#9745D6",  "38" = "#3826CA", "39" = "#96C4BC",
+                        "40"  = "#982B9F", "41" = "#9C3C33", "42" = "#3EB15A",
+                        "43" = "#EF1297",  "44" = "#B1098C",  "45" = "#883E93",
+                        "46" = "#6ED66B", "47" ="#9F679F" , "48" = "#5B309F",
+                        "49" = "#4E7A9F", "50" = "#9F6878",  "51" =  "#154E0F",
+                        "52" =  "#9D887D", "53" = "#143045", "54" =  "#8F1B1D",
+                        "55" = "#544C9F", "56"  =  "#7F4E10", "57" =  "#429F74",
+                        "58" = "#6E6A5F", "59" = "#235F9F", "60" =  "#8A1D1B",
+                        "84" = "#4B9F34", "85" = "#598F4D", "noMapSig" = "black")
+   color_scale <- signature_colors[signatures]
+   return(color_scale)
 }
 
 getPrivateMutation <- function(phyloTree){
@@ -619,31 +632,31 @@ drawPhyloTree <- function(phyloTree = NULL,
                                   data = treeData[is.match == "NO"],size = segmentSize)
          }
          else{
-            colorScale <- getColors(unique(treeData$Signature))
+            color_scale <- getSigColors(unique(treeData$Signature))
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
-            p <- p + scale_color_manual(values = colorScale)
+            p <- p + scale_color_manual(values = color_scale)
          }
       }
       else{
          
          ## sort branch tumor type 
-         all.types <- unique(treeData$Branch_Tumor_Type) 
+         all.types <- unique(treeData$Branch_Tumor_ID) 
          public <- all.types[grep("Public", all.types)] 
          shared <- all.types[grep("Shared", all.types)] 
          private <- all.types[grep("Private", all.types)]
          type.level <- c(public, shared, private)
-         treeData$Branch_Tumor_Type <- factor(treeData$Branch_Tumor_Type, levels = type.level)
+         treeData$Branch_Tumor_ID <- factor(treeData$Branch_Tumor_ID, levels = type.level)
          
          if(compare){
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_Type),
+            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID),
                                   data = treeData[is.match != "NO"],
                                   linetype = common.lty,
                                   size = segmentSize)
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_Type),
+            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID),
                                   data = treeData[is.match == "NO"],size = segmentSize)
          }
          else{
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_Type), size=segmentSize)
+            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID), size=segmentSize)
          }
          p <- p + scale_color_discrete(breaks = type.level)
       }

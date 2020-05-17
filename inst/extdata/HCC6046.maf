@@ -1,4 +1,4 @@
-Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Tumor_Type
+Hugo_Symbol	Chromosome	Start_Position	End_Position	Variant_Classification	Variant_Type	Reference_Allele	Tumor_Seq_Allele2	Ref_allele_depth	Alt_allele_depth	VAF	Tumor_Sample_Barcode	Patient_ID	Tumor_ID
 CDK11B	1	1583495	1583495	Intron	SNP	T	C	26	6	0.1875	HCC6046_T1	HCC6046	Primary
 MEGF6	1	3440592	3440592	Intron	SNP	T	C	13	13	0.5	HCC6046_T1	HCC6046	Primary
 WRAP73	1	3549862	3549862	Intron	SNP	-	T	97	5	0.049	HCC6046_T1	HCC6046	Primary

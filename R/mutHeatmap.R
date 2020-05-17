@@ -31,7 +31,8 @@ mutHeatmap <- function(maf,
                        mut.threshold = 50,
                        class.text.size = 4,
                        sample.text.size = 9,
-                       legend.title.size = 10){
+                       legend.title.size = 10,
+                       gene.text.size = 9){
     mafData <- maf@data
     ## select the specificed patient
     if(!is.null(patient.id)){
@@ -273,7 +274,7 @@ mutHeatmap <- function(maf,
             p <- p + scale_y_continuous(breaks = breaks.gene,
                                         labels = mut_dat[mut_dat$sample==unique(mut_dat$sample)[1],]$Gene,
                                         position = "right")+
-                theme(axis.text.y.right = element_text(size = 9,
+                theme(axis.text.y.right = element_text(size = gene.text.size,
                                                        colour = "black",
                                                        face = "italic",
                                                        margin = margin(l = -15),
@@ -289,7 +290,7 @@ mutHeatmap <- function(maf,
                     scale_y_continuous(breaks = y.breaks,
                                        labels = y.labels,
                                        position = "right") +
-                    theme(axis.text.y.right = element_text(size = 9,
+                    theme(axis.text.y.right = element_text(size = gene.text.size,
                                                            colour = "black",
                                                            face = "italic",
                                                            margin = margin(l = -15),
@@ -306,7 +307,7 @@ mutHeatmap <- function(maf,
                     scale_y_continuous(breaks = y.breaks,
                                        labels = y.labels,
                                        position = "right") +
-                    theme(axis.text.y.right = element_text(size = 9,
+                    theme(axis.text.y.right = element_text(size = gene.text.size,
                                                            colour = "black",
                                                            face = "italic",
                                                            margin = margin(l = -15),
