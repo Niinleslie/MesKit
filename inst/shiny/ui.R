@@ -22,7 +22,7 @@ sidebar <- dashboardSidebar(
               menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
               menuItem(strong("Alterational landscape"), tabName = "AL", icon = icon("bar-chart")),
               menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("bar-chart")),
-              menuItem(strong("Functional exploration"), tabName = "function", icon = icon("bar-chart")),
+              # menuItem(strong("Functional exploration"), tabName = "function", icon = icon("bar-chart")),
               menuItem(strong("Mutational signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
               menuItem(strong("Phylogenetic tree visualization"), tabName = "Survival", icon = icon("tree"))
   )
@@ -794,45 +794,23 @@ bodyclone <- tabItem('clone',
                          box(
                            width = NULL,
                            conditionalPanel(
-                             condition = "input.clt == 'c01'",
+                             condition = "input.clt == 'clone_compareccf'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                              br(),
-                             sliderInput('width5',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                             br(),
-                             br(),
+                             # checkboxInput('showdensity', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show density'),value = FALSE,width = 400),
+                             # bsTooltip(id = "showdensity",
+                             #           title = "If TRUE, the default, perform density estimation",
+                             #           placement = "top",
+                             #           trigger = "hover"),
+                             # sliderInput('widthccfden',label = div(style = "font-size:1.5em; font-weight:600;", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                             # br(),
+                             # br(),
                              fluidRow(
                                column(
                                  width = 9,
                                  div(
                                    tags$button(
-                                     id = "submit7", type = "button", class = "action-button bttn",
-                                     class = "bttn-unite", class = paste0("bttn-md"),
-                                     class = paste0("bttn-default"),
-                                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                     style = "margin-bottom:0px;margin-right:0px;"
-                                   )
-                                 )
-                               )
-                             )
-                           ), 
-                           conditionalPanel(
-                             condition = "input.clt == 'c02'",
-                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                             br(),
-                             checkboxInput('showdensity', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show density'),value = FALSE,width = 400),
-                             bsTooltip(id = "showdensity",
-                                       title = "If TRUE, the default, perform density estimation",
-                                       placement = "top",
-                                       trigger = "hover"),
-                             sliderInput('widthccfden',label = div(style = "font-size:1.5em; font-weight:600;", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                             br(),
-                             br(),
-                             fluidRow(
-                               column(
-                                 width = 9,
-                                 div(
-                                   tags$button(
-                                     id = "submitccfden", type = "button", class = "action-button bttn",
+                                     id = "submit_compareccf", type = "button", class = "action-button bttn",
                                      class = "bttn-unite", class = paste0("bttn-md"),
                                      class = paste0("bttn-default"),
                                      list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
@@ -930,25 +908,18 @@ bodyclone <- tabItem('clone',
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
-                             selected = 'c02',
+                             selected = 'clone_compareccf',
                              side = 'left',
                              height = "100%",
                              width = "100%",
-                             # tabPanel(
-                             #   value = 'c01',
-                             #   title = div(icon("newspaper"), "Subclonal plot"),
-                             #   uiOutput('warningMessage07'),
-                             #   div(plotOutput('cloneplot', height = "100%", width = "100%"), align = "center"),
-                             #   br(),
-                             #   uiOutput("clpdb")
-                             # ),
                              tabPanel(
-                               value = 'c02',
-                               title = div(icon("newspaper"), "CCF density"), 
-                               uiOutput('warningMessage08'),
-                               div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
+                               value = 'clone_compareccf',
+                               title = div(icon("newspaper"), "compareCCF"), 
+                               uiOutput('warningMessage_compareccf'),
+                               uiOutput('compareccf.patientlist'),
+                               uiOutput('compareccf.samplelist'), 
                                br(),
-                               uiOutput("ccfdendb")
+                               uiOutput("compareccf_table_ui")
                              ),
                              tabPanel(
                                  title = div(icon("box"), "compareJSI"),

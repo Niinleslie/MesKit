@@ -51,5 +51,5 @@ Nei's distance of CCF for each sample-pair
 calNeiDist(maf)
 }
 \references{
-Lee JK, Wang J, Sa JK, et al. Spatiotemporal genomic architecture informs precision oncology in glioblastoma. Nat Genet. 2017;49(4):594–599. doi:10.1038/ng.3806
+Lee JK, Wang J, Sa JK, et al. Spatiotemporal genomic architecture informs precision oncology in glioblastoma. Nat Genet. 2017;49(4):594–599.
 }

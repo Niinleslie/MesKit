@@ -47,8 +47,8 @@ genetic divergence between regions of subclonal sSNVs using the Weir and Cockerh
 calFst(maf)
 }
 \references{
-Sun R, Hu Z, Sottoriva A, et al. Between-region genetic divergence reflects the mode and tempo of tumor evolution. Nat Genet. 2017;49(7):1015–1024. doi:10.1038/ng.3891
+Sun R, Hu Z, Sottoriva A, et al. Between-region genetic divergence reflects the mode and tempo of tumor evolution. Nat Genet. 2017;49(7):1015–1024.
 
 Bhatia G, Patterson N, Sankararaman S, Price AL. Estimating and interpreting FST: the impact of rare variants. 
-Genome Res. 2013;23(9):1514–1521. doi:10.1101/gr.154831.113
+Genome Res. 2013;23(9):1514–1521.
 }
