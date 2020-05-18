@@ -92,7 +92,7 @@ doTreeMutSig <- function(phyloTree,
       }
       ## get the mutational signature of the branch
       if (branch.mut.num < min.mut.count){
-         sig_names <- "noMapSig"
+         sig_names <- "Unknown"
          sig_weights <- 0
          message(paste0("Warnings: ",
                         "mutation number of Branch " , branchName,
@@ -461,7 +461,7 @@ doMutSigSummary <- function(treeMSOutput, withinTumor){
          dplyr::arrange(plyr::desc(Branch), plyr::desc(Signature_weight))
    }
    mutSigsOutput <- mutSigsOutput %>% 
-      dplyr::filter(Signature != "noMapSig")
+      dplyr::filter(Signature != "Unknown")
    
    if(nrow(mutSigsOutput) == 0){
        mutSigsOutput <- NA

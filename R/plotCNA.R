@@ -150,10 +150,13 @@ plotCNA <- function(seg, refBuild = "hg19",
         max <- sort(unique(patient.seg$hmax))
         CNADat <- patient.seg[Type != "Neutral",]
         patient.type <- unique(CNADat$Type)
+        
+        ## set color for CNA type
         type.all.levels <- c("Loss", "Deletion",  "Gain",  "Amplification")
         type.all.colors <- c("#6baed6", "#084594", "#f4a582", "#d73027")
         type.level <- type.all.levels[type.all.levels %in% patient.type]
         type.color <- type.all.colors[type.all.levels %in% patient.type]
+        
         CNADat$Type <- factor(CNADat$Type, levels = type.level)
         segmentTable <- data.table::data.table(y = c(min(min),max(max)), yend = c(min(min),max(max)))
         seg.add <- 20000000
@@ -183,12 +186,21 @@ plotCNA <- function(seg, refBuild = "hg19",
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){
             set.seed(1234)
-            patient.colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
-            names(patient.colors) <- patient.rect.table$patient
-            allScales <- append(allScales,patient.colors)
+            patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
+            names(patient_colors) <- patient.rect.table$patient
         }
-            
         p <- ggplot()+
+            ## background color
+            geom_rect(data = backgroundTable, 
+                      mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), 
+                      fill = "#f0f0f0")+
+            
+            ## CNA regions
+            geom_rect(data = CNADat,
+                      mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
+            scale_fill_manual(values = type.color, name = "Type")+
+            
+            ## chr bar
             geom_rect(data = chrTable,
                 mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),
                 fill = rep(c("black","white"), 11), color = "black")+
@@ -196,9 +208,6 @@ plotCNA <- function(seg, refBuild = "hg19",
                 mapping = aes(x = start + (end - start)/2, y = 0.25, label = chr), 
                 size = chrom.fontsize,
                 color = rep(c("white","black"), 11))+
-            geom_rect(data = backgroundTable, 
-                mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), 
-                fill = "#f0f0f0")+
             
             ## vertical line 
             geom_segment(aes(x = chrTable$end[1:(nrow(chrTable)-1)],
@@ -223,10 +232,6 @@ plotCNA <- function(seg, refBuild = "hg19",
                 legend.box.margin = margin(l = -20),
                 legend.title = element_text(size = legend.title.fontsize),
                 legend.text = element_text(size = legend.text.fontsize,margin = margin(b = 3)))+
-            geom_rect(data = CNADat,
-                mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
-            # scale_fill_manual(name = "Type",breaks = type.level, values = type.color)+
-            scale_fill_manual(values = allScales)+
             # geom_text(
             #     data = Y.text.table,
             #     mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
@@ -237,46 +242,12 @@ plotCNA <- function(seg, refBuild = "hg19",
         ## patient bar
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){
-            mainplot <- p + geom_rect(data = patient.rect.table,
-                               mapping = aes(xmax = -20000000, xmin = -40000000,
-                                             ymin = hmin, ymax = hmax,fill = patient))
-            patient.rect.legend <- (ggplot()+
-                                    geom_rect(data = patient.rect.table,
-                                            mapping = aes(xmax = -20000000, 
-                                                        xmin = -40000000,
-                                                        ymin = hmin, 
-                                                        ymax = hmax,
-                                                        fill = patient)) +
-                                        theme(legend.text = element_text(size = legend.text.fontsize),
-                                              legend.title = element_text(size = legend.title.fontsize))+
-
-                                    scale_fill_manual(values = allScales,name = "Patient")) %>% 
-                                     ggplotGrob %>%
-                 {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
-            type.legend <- (ggplot() + 
-                            geom_rect(data = CNADat,
-                                      mapping = aes(xmin = Update_Start,
-                                                    xmax = Update_End,
-                                                    ymin = hmin, ymax = hmax, fill = Type))+
-                                theme(legend.text = element_text(size = legend.text.fontsize),
-                                      legend.title = element_text(size = legend.title.fontsize))+
-
-                            scale_fill_manual(values = allScales,name = "Type"))%>% 
-                           ggplotGrob %>% {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
-            legendColumn <-
-                plot_grid(
-                    type.legend + theme(legend.position = "none"),
-                    type.legend,
-                    type.legend + theme(legend.position = "none"),
-                    patient.rect.legend,
-                    type.legend + theme(legend.position = "none"),
-                    ncol = 1,
-                    align = "v",
-                    rel_heights = c(1,1,.05,1,1)) + 
-                theme(plot.margin = margin(l = -30)) 
-            p <- plot_grid(mainplot + theme(legend.position = "none"),
-                      legendColumn,
-                      rel_widths = c(1,.15))
+            p <- p + 
+                structure(ggplot2::standardise_aes_names("fill"), class = "new_aes") +
+                geom_rect(data = patient.rect.table,
+                          mapping = aes(xmax = -20000000, xmin = -40000000,
+                                        ymin = hmin, ymax = hmax,fill = patient)) +  
+                scale_fill_manual(values = patient_colors,name = "Patient")
         }
         
         CNAplot.list[[patient]] <- p

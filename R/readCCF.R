@@ -1,11 +1,13 @@
 ##--- combine CCF into maf object
 readCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  min.average.adj.vaf) {
+   
    mafData_merge_ccf <-  
       dplyr::left_join(mafData, ccf, 
                        by = c("Patient_ID",
                               "Tumor_Sample_Barcode",
                                "Chromosome",
                                "Start_Position")) %>% 
+       # dplyr::mutate(CCF = dplyr::if_else(is.na(CCF), 0,CCF))%>%
       dplyr::mutate(CCF = dplyr::if_else(VAF == 0, 0,CCF))%>%
       dplyr::mutate(CCF = dplyr::if_else(CCF > 1,1,CCF))
    
@@ -21,6 +23,7 @@ readCCF <- function(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF,  mi
          mafData_merge_ccf <- mafData_merge_ccf
       }else if("CCF_Std" %in% colnames(ccf)){
          mafData_merge_ccf <- mafData_merge_ccf %>%
+            # dplyr::mutate(CCF_Std = dplyr::if_else(is.na(CCF_Std), 0,CCF_Std))%>%
             dplyr::mutate(
                CCF_CI_High = CCF + qnorm((1 - ccf.conf.level) / 2, lower.tail = FALSE) * CCF_Std
             ) 

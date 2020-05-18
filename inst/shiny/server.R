@@ -520,7 +520,7 @@ shinyServer(function(input, output, session){
           validate(
               need(!(is.null(maf)), "")
           )
-          cc <- ccfAUC(maf, min.ccf = input$minccf_ccfauc, withinType = input$withintype_ccfauc)
+          cc <- ccfAUC(maf, min.ccf = input$minccf_ccfauc, withinTumor = input$withinTumor_ccfauc)
           incProgress(amount = 1)
           setProgress(message = 'ccfAUC: Calculation done!')
       })
@@ -615,17 +615,17 @@ shinyServer(function(input, output, session){
   ## calfst sever
   calfst <- eventReactive(input$submit_calfst,{
       withProgress(min = 0, max = 2, value = 0, {
-          setProgress(message = 'ccfAUC: Calculation in progress',
+          setProgress(message = 'calFst: Calculation in progress',
                       detail = 'This may take a while...')
           maf <- varsLs$maf
           validate(
               need(!(is.null(maf)), "")
           )
-          cc <- calFst(maf, min.vaf = input$minvaf_calfst, withinType = input$withintype_calfst)
+          fst <- calFst(maf, min.vaf = input$minvaf_calfst, withinTumor = input$withinTumor_calfst)
           incProgress(amount = 1)
-          setProgress(message = 'ccfAUC: Calculation done!')
+          setProgress(message = 'calFst: Calculation done!')
       })
-      return(cc)
+      return(fst)
   })
   
   output$calfst.patientlist <- renderUI({
@@ -760,7 +760,7 @@ shinyServer(function(input, output, session){
           validate(
               need(!(is.null(maf)), "")
           )
-          cc <- calNeiDist(maf, min.vaf = input$minvaf_calneidist, withinType = input$withintype_calneidist)
+          cc <- calNeiDist(maf, min.vaf = input$minvaf_calneidist, withinTumor = input$withinTumor_calneidist)
           incProgress(amount = 1)
           setProgress(message = 'ccfAUC: Calculation done!')
       })
@@ -898,7 +898,7 @@ shinyServer(function(input, output, session){
           validate(
               need(!(is.null(maf)), "")
           )
-          cc <- compareJSI(maf, min.vaf = input$minvaf_comparejsi, pairByType = input$pairbytype_comparejsi)
+          cc <- compareJSI(maf, min.vaf = input$minvaf_comparejsi, pairByTumor = input$pairByTumor_comparejsi)
           incProgress(amount = 1)
           setProgress(message = 'ccfAUC: Calculation done!')
       })
