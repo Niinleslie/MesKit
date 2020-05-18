@@ -49,6 +49,5 @@ calFst(maf)
 \references{
 Sun R, Hu Z, Sottoriva A, et al. Between-region genetic divergence reflects the mode and tempo of tumor evolution. Nat Genet. 2017;49(7):1015–1024.
 
-Bhatia G, Patterson N, Sankararaman S, Price AL. Estimating and interpreting FST: the impact of rare variants. 
-Genome Res. 2013;23(9):1514-1521.
+Bhatia G, Patterson N, Sankararaman S, Price AL. Estimating and interpreting FST: the impact of rare variants. Genomic Res. 2013;23(9):1514-1521.
 }
