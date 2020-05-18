@@ -20,7 +20,7 @@
 #' plotPhyloTree(phyloTree_list)
 #
 #' @return return a list of phylotree graph .
-#' @import reshape2 ape ggplot2 ggrepel
+#' @import ape ggplot2 ggrepel
 #' @export plotPhyloTree
 #' 
 
