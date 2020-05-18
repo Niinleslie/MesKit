@@ -141,7 +141,6 @@ getTreeData <- function(phyloTree = NULL,
               dplyr::filter(weight == max(weight)) %>% 
               dplyr::ungroup() %>% 
               as.data.frame()
-          # print(signature)
           treeData <- addSignature(tree, treeData, signature, signaturesRef = signaturesRef) 
       }else{
           branch.type <- phyloTree@branch.type
@@ -417,9 +416,9 @@ addSignature <- function(tree, treeData, signature, signaturesRef){
    if(treeData$Signature[which(treeData$sample == 'NORMAL')] == ''){
       treeData$Signature[which(treeData$sample == 'NORMAL')] = as.character(signature$sig[1])
       # treeData$Branch_Tumor_ID[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_ID[1])
-      
    }
-   treeData[treeData$Signature == '',]$Signature <- "noMapSig"
+   
+   treeData[treeData$Signature == '',]$Signature <- "Unknown"
    treeData <- treeData[order(treeData$Signature), ]
    
    if(signaturesRef %in% c("cosmic_v2","nature2013")){
@@ -457,7 +456,7 @@ getSigColors <- function(signatures){
                         "52" =  "#9D887D", "53" = "#143045", "54" =  "#8F1B1D",
                         "55" = "#544C9F", "56"  =  "#7F4E10", "57" =  "#429F74",
                         "58" = "#6E6A5F", "59" = "#235F9F", "60" =  "#8A1D1B",
-                        "84" = "#4B9F34", "85" = "#598F4D", "noMapSig" = "black")
+                        "84" = "#4B9F34", "85" = "#598F4D", "Unknown" = "black")
    color_scale <- signature_colors[signatures]
    return(color_scale)
 }
@@ -699,9 +698,9 @@ drawPhyloTree <- function(phyloTree = NULL,
                   panel.grid.minor = element_blank(), panel.background = element_blank(),
                   panel.border = element_blank(),
                   legend.title = element_text(),
-                  legend.position = 'top',
-                  legend.direction = "horizontal") + 
-      guides(color = guide_legend(nrow=1))+
+                  # legend.direction = "horizontal",
+                  legend.position = 'right') + 
+      # guides(color = guide_legend(nrow=1))+
       coord_fixed(ratio= 1) +
       scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
       scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5))

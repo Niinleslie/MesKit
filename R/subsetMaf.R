@@ -6,14 +6,14 @@
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
 #' @param mutType select Proper variant classification you need. Default "All". Option: "nonSilent".
 #' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.
-#' @param min.vaf The minimum VAF for filtering variants. Default: 0.02.
+#' @param min.vaf The minimum VAF for filtering variants. Default: 0.
 #' @param max.vaf The maximum VAF for filtering variants. Default: 1.
 #' @param min.average.vaf The minimum tumor average VAF for filtering variants. Default: 0.
 #' @param min.average.adj.vaf The minimum tumor average ajust VAF for filtering variants. Default: 0.
 #' @param min.ccf The minimum CCF for filtering variants. Default: 0.
-#' @param min.ref.depth The minimum reference allele depth for filtering variants. Default: 4.
-#' @param min.alt.depth The minimum alteratation allele depth for filtering variants. Default: 4.
-#' @param min.total.depth The minimum total allele depth for filtering variants. Default: 10.
+#' @param min.ref.depth The minimum reference allele depth for filtering variants. Default: 0.
+#' @param min.alt.depth The minimum alteratation allele depth for filtering variants. Default: 0.
+#' @param min.total.depth The minimum total allele depth for filtering variants. Default: 0.
 #' @param clonalStatus subset by clonal status.Default: NULL.Option: "Clonal","Subclonal".
 #'
 #'
@@ -29,14 +29,14 @@ subsetMaf <- function(maf,
                       chrSilent = NULL,
                       mutType = "All",
                       use.indel = TRUE,
-                      min.vaf = 0.02,
+                      min.vaf = 0,
                       max.vaf = 1,
                       min.average.vaf = 0,
                       min.average.adj.vaf = 0,
                       min.ccf = 0,
-                      min.ref.depth = 4,
-                      min.alt.depth = 4,
-                      min.total.depth = 10,
+                      min.ref.depth = 0,
+                      min.alt.depth = 0,
+                      min.total.depth = 0,
                       clonalStatus = NULL){
    
    mafData <- maf@data
@@ -48,13 +48,13 @@ subsetMaf <- function(maf,
       dplyr::group_by(Patient_ID,Tumor_ID,Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2) %>%
       dplyr::mutate(Total_allele_depth = Ref_allele_depth + Alt_allele_depth) %>% 
       dplyr::mutate(Tumor_Average_VAF = round(sum(VAF * Total_allele_depth)/sum(Total_allele_depth),3)) %>% 
-      dplyr::filter(Tumor_Average_VAF > min.average.vaf)
+      dplyr::filter(Tumor_Average_VAF >=min.average.vaf)
    
    ## calculate average adjust VAF
    if("VAF_adj" %in% colnames(mafData)){
       mafData <- mafData %>%
          dplyr::mutate(Tumor_Average_VAF_adj = round(sum(VAF_adj * Total_allele_depth)/sum(Total_allele_depth),3)) %>%
-         dplyr::filter(Tumor_Average_VAF_adj > min.average.adj.vaf)
+         dplyr::filter(Tumor_Average_VAF_adj>=min.average.adj.vaf)
    }
    
    ## calculate average adjust CCF
@@ -99,18 +99,18 @@ subsetMaf <- function(maf,
    }
    
    ## allele depth filter
-   mafData <- mafData[Ref_allele_depth > min.ref.depth&
-                      Alt_allele_depth > min.alt.depth &
-                      Ref_allele_depth + Alt_allele_depth > min.total.depth]
+   mafData <- mafData[Ref_allele_depth>=min.ref.depth&
+                      Alt_allele_depth>=min.alt.depth &
+                      Ref_allele_depth + Alt_allele_depth>=min.total.depth]
    mafData$Ref_allele_depth[is.na(mafData$Ref_allele_depth)] <- 0
    mafData$Alt_allele_depth[is.na(mafData$Alt_allele_depth)] <- 0
    
    ## vaf filter
-   mafData <- mafData[VAF > min.vaf & VAF < max.vaf]
+   mafData <- mafData[VAF >= min.vaf & VAF <= max.vaf]
    
    ## ccf filter
    if("CCF" %in% colnames(mafData)){
-      mafData <- mafData[CCF > min.ccf]
+      mafData <- mafData[CCF >= min.ccf]
    }
    
    if(!is.null(clonalStatus)){

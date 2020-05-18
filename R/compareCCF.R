@@ -25,13 +25,13 @@ compareCCF <- function(maf,
                     min.ccf = 0){
     
   
-  mafData <- maf@data
   maf <- subsetMaf(maf,
                    patient.id = patient.id,
                    chrSilent = chrSilent,
                    mutType = mutType,
                    use.indel = use.indel,
                    min.ccf = min.ccf)
+  mafData <- maf@data
   ## check if ccf data is provided
   if(! "CCF" %in% colnames(mafData)){
     stop(paste0("ccfDensity function requires CCF data.\n",

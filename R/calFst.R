@@ -1,7 +1,6 @@
 #' calFst
 #' @description genetic divergence between regions of subclonal sSNVs using the Weir and Cockerham method 
-#' @references Sun R, Hu Z, Sottoriva A, et al. Between-region genetic divergence reflects the mode and tempo of tumor evolution. 
-#' Nat Genet. 2017;49(7):1015–1024. doi:10.1038/ng.3891
+#' @references Sun R, Hu Z, Sottoriva A, et al. Between-region genetic divergence reflects the mode and tempo of tumor evolution. Nat Genet. 2017;49(7):1015–1024. doi:10.1038/ng.3891
 #' 
 #' Bhatia G, Patterson N, Sankararaman S, Price AL. Estimating and interpreting FST: the impact of rare variants. 
 #' Genome Res. 2013;23(9):1514–1521. doi:10.1101/gr.154831.113
@@ -11,7 +10,8 @@
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
 #' @param mutType select Proper variant classification you need. Default "All". Option: "nonSilent".
 #' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.
-#' @param min.vaf specify the minimum VAF_adj, default is 0.08
+#' @param min.vaf specify the minimum VAF_adj, default is 0.02
+#' @param min.total.depth The minimum total allele depth for filtering variants. Default: 2.
 #' @param withinTumor calculate fst within types in each patients,default is FALSE.
 #'  
 #' @return a list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
@@ -27,7 +27,8 @@ calFst <- function(
    chrSilent = NULL,
    mutType = "All",
    use.indel = TRUE,
-   min.vaf = 0.08,
+   min.vaf = 0.02,
+   min.total.depth = 2,
    plot = TRUE,
    use.circle = TRUE,
    title = NULL,
@@ -35,7 +36,10 @@ calFst <- function(
    number.cex = 8, 
    number.col = "#C77960" ){
    
-   
+    
+    if(min.total.depth <= 1){
+        stop("min.total.depth should be greater than 1")
+    }
     if(withinTumor){
         clonalStatus <- "Subclonal"
     }else{
@@ -47,6 +51,7 @@ calFst <- function(
                     mutType = mutType,
                     use.indel = use.indel,
                     min.vaf = min.vaf,
+                    min.total.depth = min.total.depth,
                     clonalStatus = clonalStatus)
    mafData <- maf@data
    
@@ -70,7 +75,9 @@ calFst <- function(
    
    Fst.avg <- data.frame()
    Fst.pair <- list()
-   Fst.plot <- ifelse(plot, list(), NA)
+   if(plot){
+       Fst.plot <- list()
+   }
    for(patient in patient.id){
       patient.data <- subset(Fst.input, Patient_ID == patient)
       
@@ -120,9 +127,13 @@ calFst <- function(
                covariance = (vaf1-vaf2)^2-(vaf1*(1-vaf1))/(depth1-1)-(vaf2*(1-vaf2))/(depth2-1), 
                sd = vaf1*(1-vaf2)+vaf2*(1-vaf1)
             )
-            
             fst <- mean(maf.pair$covariance)/mean(maf.pair$sd)
             dist_mat[pair[1],pair[2]] <- dist_mat[pair[2],pair[1]] <- fst
+            # if(fst == -Inf){
+            #     maf.pair <- maf.pair %>% 
+            #         dplyr::filter(depth1 == 1)
+            #     print(maf.pair)
+            # }
          }
          
          ## average fst

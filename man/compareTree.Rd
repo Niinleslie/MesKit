@@ -5,8 +5,8 @@
 \title{compareTree}
 \usage{
 compareTree(
-  tree1,
-  tree2,
+  phyloTree1,
+  phyloTree2,
   plot = FALSE,
   min.ratio = 1/30,
   show.bootstrap = FALSE,
@@ -15,9 +15,9 @@ compareTree(
 )
 }
 \arguments{
-\item{tree1}{a phyloTree object}
+\item{phyloTree1}{a phyloTree object}
 
-\item{tree2}{a phyloTree object}
+\item{phyloTree2}{a phyloTree object}
 
 \item{plot}{FALSE(Default). If TRUE, two trees will be plotted on the same device and their similarities will be shown.}
 
@@ -37,8 +37,8 @@ Weighted.path.difference	 difference in the path length, counted using branches 
 compares two phylogenetic trees and returns a detailed report of several distance methods
 }
 \examples{
-tree1 <- getPhyloTree(maf, method = "NJ")[['patientID']]
-tree2 <- getPhyloTree(maf, method = "MP")[['patientID']]
-compareTree(tree1, tree2)
-compareTree(tree1, tree2, plot = TRUE)
+phyloTree1 <- getPhyloTree(maf, method = "NJ")[['patientID']]
+phyloTree2 <- getPhyloTree(maf, method = "MP")[['patientID']]
+compareTree(phyloTree1, phyloTree2)
+compareTree(phyloTree1, phyloTree2, plot = TRUE)
 }

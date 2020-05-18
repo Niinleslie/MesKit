@@ -42,7 +42,6 @@ getPhyloTree <- function(maf,
 
   mafData <- maf@data
   refBuild <- maf@ref.build
-  mafData$Patient_ID <- as.character(mafData$Patient_ID)
   dat.list <- split(mafData, mafData$Patient_ID)
   phyloTree.list <- list()
   phyloTree.list <- lapply(dat.list, doGetPhyloTree,
