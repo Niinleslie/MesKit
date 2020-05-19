@@ -1,4 +1,4 @@
-new_scale <- function(new_aes) {
+new_scale <- function(new_aes) { 
  structure(ggplot2::standardise_aes_names(new_aes), class = "new_aes")
 }
 
@@ -15,7 +15,15 @@ new_scale_colour <- function() {
 }
 
 ggplot_add.new_aes <- function(object, plot, object_name) {
+    plot$scales$scales <- lapply(plot$scales$scales, bump_aes, new_aes = object)
+    plot$labels <- bump_aes(plot$labels, new_aes = object)
+    plot
+}
+
+ggplot_add.new_aes <- function(object, plot, object_name) {
  plot$layers <- lapply(plot$layers, bump_aes, new_aes = object)
+ 
+ 
  plot$scales$scales <- lapply(plot$scales$scales, bump_aes, new_aes = object)
  plot$labels <- bump_aes(plot$labels, new_aes = object)
  plot
@@ -116,3 +124,4 @@ change_name.NULL <- function(list, old, new) {
 remove_new <- function(aes) {
  stringi::stri_replace_all(aes, "", regex = "(_new)*")
 }
+
