@@ -24,10 +24,12 @@ testNeutral <- function(maf,
                         mutType = "All",
                         use.indel = TRUE,
                         withinTumor = FALSE, 
-                        min.depth = 10, R2.threshold = 0.98,
-                        min.vaf = 0.1, max.vaf = 0.3,
-                        plot = TRUE,
-                        min.mut.count = 20){
+                        min.depth = 10, 
+                        min.vaf = 0.1, 
+                        max.vaf = 0.3,
+                        R2.threshold = 0.98,
+                        min.mut.count = 20,
+                        plot = TRUE){
     if(min.vaf <= 0){
         stop("Error: min.vaf must be greater than 0")
     }
