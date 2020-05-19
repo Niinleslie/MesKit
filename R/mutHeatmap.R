@@ -259,16 +259,15 @@ mutHeatmap <- function(maf,
                 geom_rect(data = mut_dat,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = CCF))+
                 scale_fill_gradient(low = "#deebf7", high = "#08306b", na.value="black", limit=c(0, 1)) + 
-                structure(ggplot2::standardise_aes_names("fill"), class = "new_aes") 
+                new_scale_fill()
             #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
         }else if(!use.ccf){
             mut_dat$Mutation <- as.character(mut_dat$Mutation)
-            
             p <- p_basic + 
                 geom_rect(data = mut_dat,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = Mutation))+
                 scale_fill_manual(name = "Mutation",values = c("0" = "#deebf7","1" = "#08306b")) + 
-                structure(ggplot2::standardise_aes_names("fill"), class = "new_aes") 
+                new_scale_fill()
             #ggsave(paste(patientID, "_mut.pdf", sep = ""), p, width = 4.5, height = 6.5)
         }
         if(is.null(geneList) & show.gene){

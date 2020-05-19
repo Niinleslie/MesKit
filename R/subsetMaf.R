@@ -4,7 +4,7 @@
 #' @param geneList subset by geneList.Default:NULL
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
-#' @param mutType select Proper variant classification you need. Default "All". Option: "nonSilent".
+#' @param mutType select Proper variant classification you need. Default "All". Option: "nonSyn".
 #' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.
 #' @param min.vaf The minimum VAF for filtering variants. Default: 0.
 #' @param max.vaf The maximum VAF for filtering variants. Default: 1.
@@ -40,7 +40,7 @@ subsetMaf <- function(maf,
                       clonalStatus = NULL){
    
    mafData <- maf@data
-   mutNonSilent <- maf@mutNonSilent
+   nonSyn.vc <- maf@nonSyn.vc
    
    ## merge VAF,VAF_adj,CCF by tumor id
    ## calculate average VAF
@@ -83,9 +83,9 @@ subsetMaf <- function(maf,
    }
    
    ## filter variant classification
-   mutType <- match.arg(mutType, choices = c("All","nonSilent"), several.ok = FALSE)
-   if (mutType == "nonSilent") {
-      mafData <-  mafData[Variant_Classification %in% mutNonSilent]
+   mutType <- match.arg(mutType, choices = c("All","nonSyn"), several.ok = FALSE)
+   if (mutType == "nonSyn") {
+      mafData <-  mafData[Variant_Classification %in% nonSyn.vc]
    }
    
    ## use.indel filter

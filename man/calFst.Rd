@@ -27,7 +27,7 @@ calFst(
 
 \item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
-\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSilent".}
+\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
 
 \item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
 
@@ -47,8 +47,7 @@ genetic divergence between regions of subclonal sSNVs using the Weir and Cockerh
 calFst(maf)
 }
 \references{
-Sun R, Hu Z, Sottoriva A, et al. Between-region genetic divergence reflects the mode and tempo of tumor evolution. Nat Genet. 2017;49(7):1015–1024. doi:10.1038/ng.3891
+Sun R, Hu Z, Sottoriva A, et al. Between-region genetic divergence reflects the mode and tempo of tumor evolution. Nat Genet. 2017;49(7):1015-1024.
 
-Bhatia G, Patterson N, Sankararaman S, Price AL. Estimating and interpreting FST: the impact of rare variants. 
-Genome Res. 2013;23(9):1514–1521. doi:10.1101/gr.154831.113
+Bhatia G, Patterson N, Sankararaman S, Price AL. Estimating and interpreting FST: the impact of rare variants. Genomic Res. 2013;23(9):1514-1521.
 }

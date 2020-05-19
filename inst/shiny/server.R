@@ -1213,13 +1213,13 @@ shinyServer(function(input, output, session){
           validate(
               need(!(is.null(maf)), "")
           )
-          cc <- testNeutral(maf,
+          t <- testNeutral(maf,
                             min.vaf = as.numeric(input$minvaf_testneutral),
                             max.vaf = as.numeric(input$maxvaf_testneutral))
           incProgress(amount = 1)
           setProgress(message = 'testNeutral: Calculation done!')
       })
-      return(cc)
+      return(t)
   })
   
   output$testneutral.patientlist <- renderUI({
@@ -1325,579 +1325,81 @@ shinyServer(function(input, output, session){
       }
   })
 
-  stopButtonValue4 <- reactiveValues(a = 0)
-  observeEvent(input$stop4,{
-    stopButtonValue4$a <- 1
-  })
-  observeEvent(input$submit4,{
-    stopButtonValue4$a <- 0
-  })
-  msp <- eventReactive(input$submit4, {
-    if(input$submit4 & stopButtonValue4$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'Mutsharedprivateplot: Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
-      maf <- isolate(varsLs$maf)
-      validate(
-          need(!(is.null(maf)), "")
-      )
-      return(mutPrivateShared(maf, show.num = input$showNum1))
-    }
-  })
-  # 
-  # output$mutSharedPrivatePlot <- renderPlot({
-  #   if (input$submit4 & input$plotChoiceSpp == "sharedPrivatePlot"){
-  #     msp()
-  #   } else if (input$submit5 & input$plotChoiceSpp == "stackPlot") {
-  #     stk()
-  #   }
-  # },
-  # width = width2,
-  # height = 560,
-  # res = 100
-  # )
-  output$mutSharedPrivatePlot <- renderPlot({
-    msp()
-  },
-  width = width2,
-  height = 560,
-  res = 100
-  )
-  output$mspdb <- renderUI({
-    if(!is.null(msp())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadSharedPlotCheck',
-                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),
-                       choiceValues = c("png", "pdf"), 
-                       inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadSharedPlot', 'Download')
-        )
-      )
-    }
-    # else if(!is.null(stk())){
-    #     fluidRow(
-    #       column(
-    #         width = 7
-    #       ),
-    #       column(
-    #         width = 2,
-    #         radioButtons('DownloadStackPlottCheck',
-    #                      label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-    #                      choiceNames = list(
-    #                        tags$span(style = "font-size:14.5px; font-weight:400; ", "png"),
-    #                        tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-    #                      ),
-    #                      choiceValues = c("png", "pdf"),
-    #                      inline = T)
-    #       ),
-    #       column(
-    #         width = 3,
-    #         downloadBttn('DownloadStackPlot', 'Download')
-    #       )
-    #     )
-    #   }
-  })
-  stopButtonValue5 <- reactiveValues(a = 0)
-  observeEvent(input$stop5,{
-    stopButtonValue5$a <- 1
-  })
-  observeEvent(input$submit5,{
-    stopButtonValue5$a <- 0
-  })
-  stk <- eventReactive(input$submit5, {
-    if(input$submit5 & stopButtonValue5$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'mutOncoTSG: Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
-      if(is.null(input$oncogeneListFile$datapath)){
-        oncogeneListFile <- system.file("extdata/", "oncogene.list.txt", package = "MesKit")
-      }
-      else{
-        oncogeneListFile <- input$oncogeneListFile$datapath
-      }
-      if(is.null(input$tsgListFile$datapath)){
-        tsgListFile <- system.file("extdata/", "TSG.list.txt", package = "MesKit")
-      }
-      else{
-        tsgListFile <- input$tsgListFile$datapath
-      }
-      maf <- isolate(varsLs$maf)
-      validate(
-          need(!(is.null(maf)), "")
-      )
-      mutOncoTSG(maf, oncogeneListFile = oncogeneListFile,
-                   tsgListFile = tsgListFile, 
-                   show.percentage = input$showPercentage)
-    }
-  })
-  output$mutoncotsg <- renderPlot({
-    stk()
-  },
-  width = width3,
-  height = 560,
-  res = 100
-  )
-  output$stkdb <- renderUI({
-    if(!is.null(stk())){
-      fluidRow(
-        column(
-          width = 6
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadStackPlotCheck',
-                       label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"),
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),
-                       choiceValues = c("png", "pdf"),
-                       inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadStackPlot', 'Download')
-        )
-      )
-    }
-  })
-  stopButtonValue6 <- reactiveValues(a = 0)
-  observeEvent(input$stop6,{
-    stopButtonValue6$a <- 1
-  })
-  observeEvent(input$submit6,{
-    stopButtonValue6$a <- 0
-  })
-  ji <- eventReactive(input$submit6, {
-    if(stopButtonValue6$a != 1&input$submit6){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'Paired-samples similarity: Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
-      maf <- isolate(varsLs$maf)
-      validate(
-          need(!(is.null(maf)), "")
-      )
-      return(MesKit::JaccardIndex(maf,type = input$JItype))
-    }
-    # progress <- Progress$new(session, min=1, max=15)
-    # on.exit(progress$close())
-    # progress$set(message = 'Calculation in progress',
-    #              detail = 'This may take a while...')
-    # 
-    # for (i in 1:15) {
-    #   progress$set(value = i)
-    #   Sys.sleep(0.01)
-    # }
-    # maf <- isolate(varsLs$maf)
-    # return(MesKit::JaccardIndex(maf,type = input$JItype))
-  })
-  output$JaccardIndex <- renderPlot({
-    ji()
-  },
-  width = width4,
-  height = width4,
-  res = 100
-  )
-  output$jidb <- renderUI({
-    if(!is.null(ji())){
-      fluidRow(
-        column(
-          width = 5
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadJaccardIndexCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),
-                       choiceValues = c("png", "pdf"), 
-                       inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadJaccardIndex', 'Download')
-        )
-      )
-    }
-  })
-  stopButtonValue7 <- reactiveValues(a = 0)
-  observeEvent(input$stop7,{
-    stopButtonValue7$a <- 1
-  })
-  observeEvent(input$submit7,{
-    stopButtonValue7$a <- 0
-  })
-  clp <- eventReactive(input$submit7, {
-    if(input$submit7 & stopButtonValue7$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'Subclonal plot: Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
-      if(!is.null(input$mafFile) & !is.null(input$sampleInfo)){
-        validate(
-          need(!(is.null(input$ccf.cluster$datapath)), "click the button 'use ccf',Upload ccf.cluster in Session 'Input Data' ")
-        )
-        validate(
-          need(!(is.null(input$ccf.loci$datapath)), "Upload ccf.loci in Session 'Input Data'")
-        )
-        maf <- isolate(varsLs$maf)
-        validate(
-            need(!(is.null(maf)), "")
-        )
-        p <- MesKit::tumorClonesPlot(maf)
-        return(p)
-      }
-      else{
-        maf <- isolate(varsLs$maf)
-        p <- MesKit::tumorClonesPlot(maf)
-        return(p)
-      }
-    }
-  })
-  output$cloneplot <- renderPlot({
-    clp()
-  },
-  width = width5,
-  height = 560,
-  res = 100
-  )
-  output$clpdb <- renderUI({
-    if(!is.null(clp())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadClonePlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),
-                       choiceValues = c("png", "pdf"), 
-                       inline = T)
-        ),
-        column(
-          width = 3,
-          div(downloadBttn('DownloadClonePlot', 'Download'))
-        )
-      )
-    }
-  })
-  
-  ccfden <- eventReactive(input$submitccfden, {
-    if(input$submitccfden){
+  ## compareccf sever
+  compareccf <- eventReactive(input$submit_compareccf, {
       progress <- Progress$new(session, min=0, max=1)
       on.exit(progress$close())
-      progress$set(message = 'CCF Density: Calculation in progress',
+      progress$set(message = 'compareCCF: Calculation in progress',
                    detail = 'This may take a while...')
       maf <- isolate(varsLs$maf)
       validate(
           need(!(is.null(maf)), "")
       )
-      cd <- ccfDensity(maf, show.density = input$showdensity)
+      cc <- compareCCF(maf)
       progress$set(value = 1)
-      return(cd)
-    }
-  })
-  output$ccfdenplot <- renderPlot({
-    ccfden()
-  },
-  width = widthccfDen,
-  height = 560,
-  res = 100
-  )
-  output$ccfdendb <- renderUI({
-    if(!is.null(ccfden())){
-      fluidRow(
-        column(
-          width = 7
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadCCFDensityCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),
-                       choiceValues = c("png", "pdf"), 
-                       inline = T)
-        ),
-        column(
-          width = 3,
-          div(downloadBttn('DownloadCCFDensity', 'Download'))
-        )
-      )
-    }
+      return(cc)
   })
   
-  stopButtonValue8 <- reactiveValues(a = 0)
-  observeEvent(input$stop8,{
-    stopButtonValue8$a <- 1
-  })
-  observeEvent(input$submit8,{
-    stopButtonValue8$a <- 0
-  })
-  GO <- eventReactive(input$submit8, {
-    if(input$submit8 & stopButtonValue8$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'GO analysis: Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
-      phyloTree <- isolate(varsLs$phyloTree)
-      maf <- isolate(varsLs$maf)
-      validate(
-          need(!(is.null(phyloTree)), "")
-      )
-      if (input$driverGenesMapping1) {
-          if(is.null(input$driverGenesFile1$datapath)){
-              driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
-          } else{
-              driverGenesFile <- input$driverGenesFile1$datapath
-          }
-      }
-      else{
-          driverGenesFile <- NULL
-      }
-      treeGO(phyloTree, 
-                        GO.type = input$GOtype, 
-                        plotType = input$plotType, 
-                        pAdjustMethod=input$pAdjustMethod, 
-                        qval = as.numeric(input$qval1), 
-                        pval = as.numeric(input$pval1), 
-                        showCategory = input$showCategory,
-                        driverGenesFile = driverGenesFile)
-    }
-  })
-  # Datatable under GO plot
-  output$gotui <- renderUI({
-    if(!is.null(GO())){
-      tagList(
-        h4(strong('Result list')),
-        br(),
-        DT::dataTableOutput('gotable'),
-        fluidRow(
-          column(
-            width = 9
-          ),
-          column(
-            width = 3,
-            br(),
-            downloadBttn('DownloadGOTable', 'Download')
+  output$compareccf.patientlist <- renderUI({
+      if(!is.null(compareccf())){
+          patient.list <- compareccf()
+          names <- names(patient.list)
+          tagList(
+              selectInput("compareccf.pl", "Patient",
+                          choices = names, width = 600) 
           )
-        )
-      )
-    }
-  })
-  output$gotable <- renderDataTable({
-    data <- GO()[[1]][[which(names(GO()[[1]]) == input$gl)]]
-    # targets <- which(colnames(data) %in% c("geneID"))-1
-    datatable(data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
-  })
-  output$chooselist1 <- renderUI({
-    if(!is.null(GO())){
-      if("All" %in% names(GO()[[2]])){
-        names <- names(GO()[[2]])
-        names <- names[-(which(names == "All"))]
-        names <- append(names,"All",after = 0)
       }
-      else{
-        names <- names(GO()[[2]])
-      }
-      selectInput("gl","Branch",
-                  choices = names ,selected = names[1],width = 600)
-    }
   })
-  output$GOplot <- renderPlot({
-    return(GO()[[2]][[which(names(GO()[[2]]) == input$gl)]])
-  },
-  width = width6,
-  height = height6
-  )
-  output$GOdb <- renderUI({
-    if(!is.null(GO())){
-      fluidRow(
-        column(
-          width = 6
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadGOPlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),choiceValues = c("png", "pdf"), inline = T)
-        ),
-        column(
-          width = 3,
-          downloadBttn('DownloadGOPlot', 'Download')
-        )
-      )
-    }
+  
+  
+  getpatient.compareccf <- eventReactive(input$compareccf.pl,{
+      return(input$compareccf.pl)
   })
-  stopButtonValue9 <- reactiveValues(a = 0)
-  observeEvent(input$stop9,{
-    stopButtonValue9$a <- 1
-  })
-  observeEvent(input$submit9,{
-    stopButtonValue9$a <- 0
-  })
-  Path <- eventReactive(input$submit9, {
-    if(input$submit9 != 0 & stopButtonValue9$a != 1){
-      progress <- Progress$new(session, min=1, max=15)
-      on.exit(progress$close())
-      progress$set(message = 'Pathway analysis: Calculation in progress',
-                   detail = 'This may take a while...')
-      
-      for (i in 1:15) {
-        progress$set(value = i)
-        Sys.sleep(0.01)
-      }
-      phyloTree <- isolate(varsLs$phyloTree)
-      maf <- isolate(varsLs$maf)
-      validate(
-          need(!(is.null(phyloTree)), "")
-      )
-      if (input$driverGenesMapping2) {
-          if(is.null(input$driverGenesFile2$datapath)){
-              driverGenesFile <- system.file("extdata", "putative_driver_genes.txt", package = "MesKit")
-          } else{
-              driverGenesFile <- input$driverGenesFile2$datapath
-          }
-      }
-      else{
-          driverGenesFile <- NULL
-      }
-      list <- treePathway(phyloTree, driverGenesFile = driverGenesFile,
-                                     pathway.type=input$pathwaytype, 
-                                     plotType = input$pathplotType, 
-                                     pAdjustMethod=input$pathpAdjustMethod, 
-                                     qval = as.numeric(input$qval2), 
-                                     pval = as.numeric(input$pval2),
-                                     showCategory = input$pathshowCategory
-                                     
-      )
-      return(list)
-    }
-  })
-  output$Pathdb <- renderUI({
-    if(!is.null(Path())){
-      fluidRow(
-        column(
-          width = 6
-        ),
-        column(
-          width = 2,
-          radioButtons('DownloadPathPlotCheck',label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
-                       choiceNames = list(
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
-                         tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                       ),choiceValues = c("png", "pdf"), inline = T)
-        ),
-        column(
-          width = 3,
-          br(),
-          downloadBttn('DownloadPathPlot', 'Download')
-        )
-      )
-      
-    }
-  })
-  output$chooselist2 <- renderUI({
-    if(!is.null(Path())){
-      if("All" %in% names(Path()[[2]])){
-        names <- names(Path()[[2]])
-        names <- names[-(which(names == "All"))]
-        names <- append(names,"All",after = 0)
-      }
-      else{
-        names <- names(Path()[[2]])
-      }
-      selectInput("pl","Branch",
-                  choices = names ,selected = names[1],width = 600)
-    }
-  })
-  # Datatable under Pathway plot
-  output$patht <- renderUI({
-    if(!is.null(Path())){
-      tagList(
-        h4(strong('Result list')),
-        br(),
-        DT::dataTableOutput('pathtable'),
-        fluidRow(
-          column(
-            width = 9
-          ),
-          column(
-            width = 3,
-            downloadBttn('DownloadPathTable', 'Download')
+  
+  output$compareccf.samplelist <- renderUI({
+      if(!is.null(compareccf())){
+          patient <- input$compareccf.pl
+          sample.list <- compareccf()[[patient]]
+          names <- names(sample.list)
+          tagList(
+              selectInput("compareccf.sl", "pairwise",
+                          choices = names, width = 600) 
           )
-        )
-      )
-    }
+      }
   })
-  output$pathtable <- renderDataTable({
-    data <- Path()[[1]][[which(names(Path()[[1]]) == input$pl)]]
-    return(DT::datatable(data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)) 
-    
+  
+  getsample.compareccf <- eventReactive(input$compareccf.sl,{
+      return(input$compareccf.sl)
   })
-  output$Pathwayplot <- renderPlot({
-    return(Path()[[2]][[which(names(Path()[[2]]) == input$pl)]]) 
-  },
-  width = width7,
-  height = height7,
-  res = 100
-  )
   
   
-  stopButtonValueSig <- reactiveValues(a = 0)
-  observeEvent(input$stopSig,{
-    stopButtonValueSig$a <- 1
+  output$compareccf_table_ui <- renderUI({
+      if(!is.null(compareccf())){
+          tagList(
+              br(),
+              DT::dataTableOutput('compareccf_table'),
+              br(),
+              fluidRow(
+                  column(
+                      width = 9
+                  ),
+                  column(
+                      width = 3,
+                      downloadBttn('Download_compareccf_table', 'Download')
+                  )
+              )
+          )
+      }
   })
-  observeEvent(input$submitSig,{
-    stopButtonValueSig$a <- 0
+  
+  output$compareccf_table <- DT::renderDataTable({
+      if(!is.null(compareccf())){
+          t <- compareccf()[[getpatient.compareccf()]][[getsample.compareccf()]]
+          dt <- datatable(t,rownames = F) 
+          return(dt)
+      }
   })
+  
   
   observeEvent(input$submitSig,{
       if(is.null(tree.mutSig[["value"]])){
@@ -1961,7 +1463,6 @@ shinyServer(function(input, output, session){
          }
          
          s <- mutSig.summary[[n]]
-         print(s)
          output$sigOFAt <- DT::renderDataTable({
              return(datatable(s, 
                               options = list(searching = TRUE, 
