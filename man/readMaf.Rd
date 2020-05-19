@@ -8,16 +8,7 @@ readMaf(
   mafFile,
   ccfFile = NULL,
   adjusted.VAF = FALSE,
-  min.vaf = 0.02,
-  max.vaf = 1,
-  min.average.vaf = 0,
-  min.average.adj.vaf = 0,
-  min.ref.depth = 4,
-  min.alt.depth = 4,
-  mutType = "All",
-  mutNonSilent = NULL,
-  chrSilent = NULL,
-  use.indel = FALSE,
+  nonSyn.vc = NULL,
   ccf.conf.level = 0.95,
   refBuild = "hg19"
 )
@@ -27,25 +18,11 @@ readMaf(
 
 \item{ccfFile}{CCF file of somatic mutations. Default NULL.}
 
-\item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02.}
-
-\item{max.vaf}{The maximum VAF for filtering variants. Default: 1.}
-
-\item{min.ref.depth}{The minimum reference allele depth for filtering variants. Default: 4.}
-
-\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSilent".}
-
-\item{mutNonSilent}{Variant classifications which are considered as non-silent. Default NULL.}
-
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
-
-\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default FALSE.}
+\item{nonSyn.vc}{a list of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"}
 
 \item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
 
 \item{refBuild}{Human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default: "hg19".}
-
-\item{max.ref.depth}{The maximum reference allele depth for filtering variants. Default: 4.}
 }
 \value{
 an object of class Maf.

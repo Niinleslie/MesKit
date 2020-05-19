@@ -141,7 +141,6 @@ getTreeData <- function(phyloTree = NULL,
               dplyr::filter(weight == max(weight)) %>% 
               dplyr::ungroup() %>% 
               as.data.frame()
-          # print(signature)
           treeData <- addSignature(tree, treeData, signature, signaturesRef = signaturesRef) 
       }else{
           branch.type <- phyloTree@branch.type
@@ -417,9 +416,9 @@ addSignature <- function(tree, treeData, signature, signaturesRef){
    if(treeData$Signature[which(treeData$sample == 'NORMAL')] == ''){
       treeData$Signature[which(treeData$sample == 'NORMAL')] = as.character(signature$sig[1])
       # treeData$Branch_Tumor_ID[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_ID[1])
-      
    }
-   treeData[treeData$Signature == '',]$Signature <- "noMapSig"
+   
+   treeData[treeData$Signature == '',]$Signature <- "Unknown"
    treeData <- treeData[order(treeData$Signature), ]
    
    if(signaturesRef %in% c("cosmic_v2","nature2013")){
@@ -457,7 +456,7 @@ getSigColors <- function(signatures){
                         "52" =  "#9D887D", "53" = "#143045", "54" =  "#8F1B1D",
                         "55" = "#544C9F", "56"  =  "#7F4E10", "57" =  "#429F74",
                         "58" = "#6E6A5F", "59" = "#235F9F", "60" =  "#8A1D1B",
-                        "84" = "#4B9F34", "85" = "#598F4D", "noMapSig" = "black")
+                        "84" = "#4B9F34", "85" = "#598F4D", "Unknown" = "black")
    color_scale <- signature_colors[signatures]
    return(color_scale)
 }
@@ -529,309 +528,235 @@ labelBranch <- function(tree){
 }
 
 
-drawPhyloTree <- function(phyloTree = NULL,
-                          treeData = NULL,
-                          branchCol = "mutSig",
-                          show.bootstrap = TRUE,
-                          use.box = TRUE,
-                          compare = FALSE,
-                          common.lty = "solid",
-                          min.ratio = 1/30,
-                          min.mut.count = 15,
-                          signaturesRef="cosmic_v2"){
-    
-    patientID <- phyloTree@patientID
-    
-    ## shiny progression
-    # if(use.shiny){
-    #     incProgress(amount=1)
-    #     setProgress(message = paste('Drawing ', "phylogenetic tree - ", patientID, sep=""))
-    # }
-    
-   if(!is.null(min.ratio)){
-      if(min.ratio > 0){
-         min.len <- max(phyloTree@tree$edge.length)*min.ratio
-         phyloTree@tree$edge.length[phyloTree@tree$edge.length < min.len] <- min.len
-      }
-   }
-   if(is.null(treeData)){
-      treeData <- getTreeData(phyloTree = phyloTree,
-                              branchCol = branchCol,
-                              min.mut.count = min.mut.count,
-                              signaturesRef = signaturesRef,
-                              compare = FALSE)
-   }
-    
-   ## get title 
-   pm <- getPrivateMutation(phyloTree = phyloTree)
-   totalMutSum <- pm[[1]]
-   privateMutProportion <- pm[[2]]
-    
-   set.seed(1234)
-   myBoots <- phyloTree@bootstrap.value
-   rootLabel <- "NORMAL"
-   ## plot phylotree
-   samplePointsSize <- 3
-   sampleTextSize <- 3
-   nodePointsSize <- 1.7
-   segmentSize <- 1.5
-   # nodeStrokeSize <- 0.5
-   # sampleStrokeSize <- 1
-   nodeStrokeSize <- 0.25
-   sampleStrokeSize <- 1.5
-   bootLabelSize <- 2.2
-   bootTextSize <- 2.2
-   bootPaddingSize <- 0.35
-   samplesLength <- nrow(treeData[sample != "internal node",]) 
-   if(samplesLength > 7){
-      samplePointsSize <- 1.5 
-      sampleTextSize <- 2
-      segmentSize <- 0.8
-      nodePointsSize <- 0.8
-      # nodeStrokeSize <- 0.25
-      # sampleStrokeSize <- 0.5
-      nodeStrokeSize <- 0.15
-      sampleStrokeSize <- 0.8
-      bootLabelSize <- 1.5
-      bootTextSize <- 1.5
-      bootPaddingSize <- 0.1
-   }
-   rootNode <- treeData[sample == rootLabel,]$node
-   if(length(myBoots) == 1){
-      bootsData <- data.frame(x2 = 0, y2 = 0, node = rootNode, end_num = rootNode, boots = myBoots)
-   }else{
-      sub <- data.table::data.table(x2 = 0, y2 = 0,node = rootNode, end_num = rootNode)
-      bootsData <- rbind(treeData[sample == 'internal node',][,.(x2,y2,node,end_num)],sub)
-      boots <- c()
-      LN <- min(bootsData$node)-1
-      for(i in 1:nrow(bootsData)){      
-         if(i == nrow(bootsData)){
-            boots <- append(boots,  myBoots[rootNode - LN])
-            next
-         }
-         boots <- append(boots, myBoots[bootsData$end_num[i] - LN])
-         
-      }
-      bootsData <- cbind(bootsData, boots = boots)
-   }
-   p <- ggplot(data = treeData)
-   textAdjust <- mean(as.numeric(treeData$distance))
-   # maxy <- max(abs(treeData$y2))
-   # maxx <- max(abs(treeData$x2)))
-   # ratecoord <- maxy/maxx
-   if(!is.null(branchCol)){
-      if(branchCol == "mutSig"){
-         if(compare){
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
-                                  color = "black",
-                                  data = treeData[is.match != "NO"],
-                                  linetype = common.lty,
-                                  size = segmentSize)
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
-                                  color = "black",
-                                  data = treeData[is.match == "NO"],size = segmentSize)
-         }
-         else{
-            color_scale <- getSigColors(unique(treeData$Signature))
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
-            p <- p + scale_color_manual(values = color_scale)
-         }
-      }
-      else{
-         
-         ## sort branch tumor type 
-         all.types <- unique(treeData$Branch_Tumor_ID) 
-         public <- all.types[grep("Public", all.types)] 
-         shared <- all.types[grep("Shared", all.types)] 
-         private <- all.types[grep("Private", all.types)]
-         type.level <- c(public, shared, private)
-         treeData$Branch_Tumor_ID <- factor(treeData$Branch_Tumor_ID, levels = type.level)
-         
-         if(compare){
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID),
-                                  data = treeData[is.match != "NO"],
-                                  linetype = common.lty,
-                                  size = segmentSize)
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID),
-                                  data = treeData[is.match == "NO"],size = segmentSize)
-         }
-         else{
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID), size=segmentSize)
-         }
-         p <- p + scale_color_discrete(breaks = type.level)
-      }
-   }
-   else{
-      if(compare){
-         p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
-                               data = treeData[!sample %in% c("internal node",rootLabel),], 
-                               size = segmentSize, show.legend = T)
-         p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
-                               data = treeData[sample == rootLabel,], 
-                               size = segmentSize, show.legend = F )
-         p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
-                               data = treeData[sample == 'internal node'&is.match != "NO",],
-                               linetype = common.lty,
-                               size = segmentSize, show.legend = F )
-         p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
-                               data = treeData[sample == 'internal node'&is.match == "NO",],
-                               size = segmentSize, show.legend = F)
-      }else{
-         p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
-                               data = treeData[!sample %in% c("internal node",rootLabel),], 
-                               size=segmentSize, show.legend = T)
-         p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
-                               data = treeData[sample == rootLabel,], 
-                               size = segmentSize, show.legend = F )
-         p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
-                               data = treeData[sample == 'internal node',], 
-                               size = segmentSize, show.legend = F )
-      }
-   }
-   p <- p + theme(axis.title.x = element_blank(),
-                  axis.text.x = element_blank(),
-                  axis.ticks.x = element_blank(),
-                  axis.title.y = element_blank(),
-                  axis.text.y = element_blank(),
-                  axis.ticks.y = element_blank(),
-                  axis.line = element_blank(),
-                  panel.grid.major = element_blank(),
-                  panel.grid.minor = element_blank(), panel.background = element_blank(),
-                  panel.border = element_blank(),
-                  legend.title = element_text(),
-                  legend.position = 'top',
-                  legend.direction = "horizontal") + 
-      guides(color = guide_legend(nrow=1))+
-      coord_fixed(ratio= 1) +
-      scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
-      scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5))
-   
-   ## label Sample ID
-   # if(samplesLength > 10000){
-   #    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
-   #                           y = y2 + sin(angle)*textAdjust/10,
-   #                           label = sample,
-   #                           angle = angle*180/pi),
-   #                       hjust = 0,
-   #                       fontface = "bold",
-   #                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 > 0 & y2 !=max(treeData$y2), ],
-   #                       size = sampleTextSize)
-   #    p <- p + geom_text(aes(x = x2 + cos(angle)*textAdjust/10,
-   #                           y = y2 + sin(angle)*textAdjust/10,
-   #                           label = sample,
-   #                           angle = angle*180/pi + 180),
-   #                       hjust = 1,
-   #                       fontface = "bold",
-   #                       data = treeData[(!sample %in% c("internal node",rootLabel)) &x2 < 0& y2 !=max(treeData$y2), ],
-   #                       size = sampleTextSize)
-   #    ## label NORMAL
-   #    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
-   #                       label = rootLabel,
-   #                       data = treeData[sample == rootLabel,], 
-   #                       size = sampleTextSize)
-   #    ## lable sample on the top
-   #    if(nrow(treeData[which.max(treeData$y2), ]) > 0){
-   #       p <- p + geom_text(aes(x = x2,
-   #                              y = y2 + textAdjust/5,
-   #                              label = sample),
-   #                          data = treeData[which.max(treeData$y2), ],
-   #                          size = sampleTextSize)
-   #    } 
-   # }
-   # else{
-      p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                               nudge_y = textAdjust/10,
-                               nudge_x = textAdjust/10,
-                               segment.color = "grey",
-                               segment.size = 0.25,
-                               data = treeData[(!sample %in% c("internal node",rootLabel)) &
-                                                  x2 >= 0, ],
-                               size = sampleTextSize ,force = 10)
-      p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                               nudge_y = textAdjust/10,
-                               nudge_x = -textAdjust/10,
-                               segment.color = "grey",
-                               segment.size = 0.25,
-                               data = treeData[(!sample %in% c("internal node",rootLabel)) &
-                                                  x2 < 0, ],
-                               size = sampleTextSize ,force = 10)
-      ## label NORMAL
-      p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
-                         label = rootLabel,
-                         data = treeData[sample == rootLabel,], 
-                         size = sampleTextSize)
-   # }
-   
-   p <- p + geom_point(aes(x = x2,y = y2),
-                       data = treeData[sample == 'internal node',],
-                       size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
-                       stroke = nodeStrokeSize)
-   p <- p + geom_point(aes(x = x2, y = y2), 
-                       data = treeData[sample != 'internal node',],
-                       size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
-   Nd <- treeData[sample == rootLabel,]$distance
-   if(length(Nd)!=0){
-      if(Nd != 0){
-         # p <- p + geom_point(aes(x =0 , y = 0), size = 1.7, color = "grey50",
-         #                     fill = 'grey50', shape = 21, stroke = 0.5)
-         p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
-                             fill = 'white', shape = 21, stroke = nodeStrokeSize)
-      }
-   }
-   if(show.bootstrap){
-      if(use.box){
-         p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
-                                   data = bootsData,
-                                   # nudge_y = textAdjust/6,
-                                   fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                   segment.colour = "grey50", segment.size = 0.25, force = 5)
-      }else{
-         p <- p + geom_text_repel(aes(x = x2, y = y2,label = boots),
-                                  data = bootsData,
-                                  fontface = 'bold', size = bootTextSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                  segment.colour = "grey50", segment.size = 0.25, force = 5)
-      }
-   }
-   if(compare){
-      p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2,label = is.match),
-                                data = treeData[is.match != "NO",],
-                                fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                segment.colour = "grey50", segment.size = 0.5, force = 5)
-   }
-   # if(show.heatmap){
-   #    ## combind heatmap and tree
-   #    h <- plotHeatmap(binary.mat =  phyloTree@binary.matrix,
-   #                     ccf.mat = phyloTree@ccf.matrix,
-   #                     use.ccf = use.ccf,
-   #                     show.class.label = show.class.label,
-   #                     geneList = geneList,
-   #                     plot.geneList = plot.geneList,
-   #                     show.gene = show.gene,
-   #                     show.geneList = show.geneList,
-   #                     mut.threshold = mut.threshold)
-   #    PH <- cowplot::plot_grid(p,
-   #                             h,
-   #                             rel_widths = c(1,0.5))
-   #    # PH <- ggdraw(xlim = c(0.1,0.7)) +
-   #    #     draw_plot(p, x = -0.05,y = 0, width = 0.7) +
-   #    #     draw_plot(h, x = 0.48,y = -0.01, width = 0.2,height = 1)
-   #    # PH <- ggdraw(xlim = c(0,1),ylim = c(0,1)) +
-   #    #       draw_plot(p, x = 0,y = 0, width = 0.7) +
-   #    #       draw_plot(h, x = 0.6,y = 0, width = 0.3)
-   #    
-   #    title <- ggdraw() + 
-   #       draw_label(paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = ""),fontface = "bold")
-   #    
-   #    ## combind heatmap,tree and title
-   #    PH <- plot_grid(title,PH,ncol = 1,rel_heights=c(0.09, 1)) + 
-   #       theme(plot.margin=grid::unit(c(0,0,0,0), "mm"))
-   #    
-   #    # ggsave(filename = paste0(patientID,".pdf"),plot = PH,width = 10,height = 6.5)
-   #    return(PH)
-   # }
-   tree.title <- paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = "")
-   p <- p + 
-       ggtitle(tree.title)+
-       theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5))
-      return(p)
-}
+# drawPhyloTree <- function(phyloTree = NULL,
+#                           treeData = NULL,
+#                           branchCol = "mutSig",
+#                           show.bootstrap = TRUE,
+#                           use.box = TRUE,
+#                           compare = FALSE,
+#                           common.lty = "solid",
+#                           min.ratio = 1/30,
+#                           min.mut.count = 15,
+#                           signaturesRef="cosmic_v2"){
+#     
+#    patientID <- phyloTree@patientID
+#    if(!is.null(min.ratio)){
+#       if(min.ratio > 0){
+#          min.len <- max(phyloTree@tree$edge.length)*min.ratio
+#          phyloTree@tree$edge.length[phyloTree@tree$edge.length < min.len] <- min.len
+#       }
+#    }
+#    if(is.null(treeData)){
+#       treeData <- getTreeData(phyloTree = phyloTree,
+#                               branchCol = branchCol,
+#                               min.mut.count = min.mut.count,
+#                               signaturesRef = signaturesRef,
+#                               compare = FALSE)
+#    }
+#     
+#    ## get title 
+#    pm <- getPrivateMutation(phyloTree = phyloTree)
+#    totalMutSum <- pm[[1]]
+#    privateMutProportion <- pm[[2]]
+#     
+#    set.seed(1234)
+#    myBoots <- phyloTree@bootstrap.value
+#    rootLabel <- "NORMAL"
+#    ## plot phylotree
+#    samplePointsSize <- 3
+#    sampleTextSize <- 3
+#    nodePointsSize <- 1.7
+#    segmentSize <- 1.5
+#    # nodeStrokeSize <- 0.5
+#    # sampleStrokeSize <- 1
+#    nodeStrokeSize <- 0.25
+#    sampleStrokeSize <- 1.5
+#    bootLabelSize <- 2.2
+#    bootTextSize <- 2.2
+#    bootPaddingSize <- 0.35
+#    samplesLength <- nrow(treeData[sample != "internal node",]) 
+#    if(samplesLength > 7){
+#       samplePointsSize <- 1.5 
+#       sampleTextSize <- 2
+#       segmentSize <- 0.8
+#       nodePointsSize <- 0.8
+#       # nodeStrokeSize <- 0.25
+#       # sampleStrokeSize <- 0.5
+#       nodeStrokeSize <- 0.15
+#       sampleStrokeSize <- 0.8
+#       bootLabelSize <- 1.5
+#       bootTextSize <- 1.5
+#       bootPaddingSize <- 0.1
+#    }
+#    rootNode <- treeData[sample == rootLabel,]$node
+#    if(length(myBoots) == 1){
+#       bootsData <- data.frame(x2 = 0, y2 = 0, node = rootNode, end_num = rootNode, boots = myBoots)
+#    }else{
+#       sub <- data.table::data.table(x2 = 0, y2 = 0,node = rootNode, end_num = rootNode)
+#       bootsData <- rbind(treeData[sample == 'internal node',][,.(x2,y2,node,end_num)],sub)
+#       boots <- c()
+#       LN <- min(bootsData$node)-1
+#       for(i in 1:nrow(bootsData)){      
+#          if(i == nrow(bootsData)){
+#             boots <- append(boots,  myBoots[rootNode - LN])
+#             next
+#          }
+#          boots <- append(boots, myBoots[bootsData$end_num[i] - LN])
+#          
+#       }
+#       bootsData <- cbind(bootsData, boots = boots)
+#    }
+#    p <- ggplot(data = treeData)
+#    textAdjust <- mean(as.numeric(treeData$distance))
+#    # maxy <- max(abs(treeData$y2))
+#    # maxx <- max(abs(treeData$x2)))
+#    # ratecoord <- maxy/maxx
+#    if(!is.null(branchCol)){
+#       if(branchCol == "mutSig"){
+#          if(compare){
+#             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
+#                                   color = "black",
+#                                   data = treeData[is.match != "NO"],
+#                                   linetype = common.lty,
+#                                   size = segmentSize)
+#             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
+#                                   color = "black",
+#                                   data = treeData[is.match == "NO"],size = segmentSize)
+#          }
+#          else{
+#             color_scale <- getSigColors(unique(treeData$Signature))
+#             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
+#             p <- p + scale_color_manual(values = color_scale)
+#          }
+#       }
+#       else{
+#          
+#          ## sort branch tumor type 
+#          all.types <- unique(treeData$Branch_Tumor_ID) 
+#          public <- all.types[grep("Public", all.types)] 
+#          shared <- all.types[grep("Shared", all.types)] 
+#          private <- all.types[grep("Private", all.types)]
+#          type.level <- c(public, shared, private)
+#          treeData$Branch_Tumor_ID <- factor(treeData$Branch_Tumor_ID, levels = type.level)
+#          
+#          if(compare){
+#             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID),
+#                                   data = treeData[is.match != "NO"],
+#                                   linetype = common.lty,
+#                                   size = segmentSize)
+#             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID),
+#                                   data = treeData[is.match == "NO"],size = segmentSize)
+#          }
+#          else{
+#             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Branch_Tumor_ID), size=segmentSize)
+#          }
+#          p <- p + scale_color_discrete(breaks = type.level)
+#       }
+#    }
+#    else{
+#       if(compare){
+#          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
+#                                data = treeData[!sample %in% c("internal node",rootLabel),], 
+#                                size = segmentSize, show.legend = T)
+#          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
+#                                data = treeData[sample == rootLabel,], 
+#                                size = segmentSize, show.legend = F )
+#          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
+#                                data = treeData[sample == 'internal node'&is.match != "NO",],
+#                                linetype = common.lty,
+#                                size = segmentSize, show.legend = F )
+#          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
+#                                data = treeData[sample == 'internal node'&is.match == "NO",],
+#                                size = segmentSize, show.legend = F)
+#       }else{
+#          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = sample),
+#                                data = treeData[!sample %in% c("internal node",rootLabel),], 
+#                                size=segmentSize, show.legend = T)
+#          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = 'black',
+#                                data = treeData[sample == rootLabel,], 
+#                                size = segmentSize, show.legend = F )
+#          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = '#67001F',
+#                                data = treeData[sample == 'internal node',], 
+#                                size = segmentSize, show.legend = F )
+#       }
+#    }
+#    p <- p + theme(axis.title.x = element_blank(),
+#                   axis.text.x = element_blank(),
+#                   axis.ticks.x = element_blank(),
+#                   axis.title.y = element_blank(),
+#                   axis.text.y = element_blank(),
+#                   axis.ticks.y = element_blank(),
+#                   axis.line = element_blank(),
+#                   panel.grid.major = element_blank(),
+#                   panel.grid.minor = element_blank(), panel.background = element_blank(),
+#                   panel.border = element_blank(),
+#                   legend.title = element_text(),
+#                   # legend.direction = "horizontal",
+#                   legend.position = 'right') + 
+#       # guides(color = guide_legend(nrow=1))+
+#       coord_fixed(ratio= 1) +
+#       scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
+#       scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5))
+#       p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+#                                nudge_y = textAdjust/10,
+#                                nudge_x = textAdjust/10,
+#                                segment.color = "grey",
+#                                segment.size = 0.25,
+#                                data = treeData[(!sample %in% c("internal node",rootLabel)) &
+#                                                   x2 >= 0, ],
+#                                size = sampleTextSize ,force = 10)
+#       p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+#                                nudge_y = textAdjust/10,
+#                                nudge_x = -textAdjust/10,
+#                                segment.color = "grey",
+#                                segment.size = 0.25,
+#                                data = treeData[(!sample %in% c("internal node",rootLabel)) &
+#                                                   x2 < 0, ],
+#                                size = sampleTextSize ,force = 10)
+#       ## label NORMAL
+#       p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+#                          label = rootLabel,
+#                          data = treeData[sample == rootLabel,], 
+#                          size = sampleTextSize)
+#    # }
+#    
+#    p <- p + geom_point(aes(x = x2,y = y2),
+#                        data = treeData[sample == 'internal node',],
+#                        size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
+#                        stroke = nodeStrokeSize)
+#    p <- p + geom_point(aes(x = x2, y = y2), 
+#                        data = treeData[sample != 'internal node',],
+#                        size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
+#    Nd <- treeData[sample == rootLabel,]$distance
+#    if(length(Nd)!=0){
+#       if(Nd != 0){
+#          p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
+#                              fill = 'white', shape = 21, stroke = nodeStrokeSize)
+#       }
+#    }
+#    if(show.bootstrap){
+#       if(use.box){
+#          p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
+#                                    data = bootsData,
+#                                    # nudge_y = textAdjust/6,
+#                                    fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+#                                    segment.colour = "grey50", segment.size = 0.25, force = 5)
+#       }else{
+#          p <- p + geom_text_repel(aes(x = x2, y = y2,label = boots),
+#                                   data = bootsData,
+#                                   fontface = 'bold', size = bootTextSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+#                                   segment.colour = "grey50", segment.size = 0.25, force = 5)
+#       }
+#    }
+#    if(compare){
+#       p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2,label = is.match),
+#                                 data = treeData[is.match != "NO",],
+#                                 fontface = 'bold', size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+#                                 segment.colour = "grey50", segment.size = 0.5, force = 5)
+#    }
+#    tree.title <- paste(patientID,"\n(n = " ,totalMutSum ,"; ",privateMutProportion,")",sep = "")
+#    p <- p + 
+#        ggtitle(tree.title)+
+#        theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5))
+#    return(p)
+# }

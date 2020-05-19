@@ -7,7 +7,7 @@ suppressMessages(library(shinydashboard))
 suppressMessages(library(shinyWidgets))
 # suppressMessages(library(shinycssloaders))
 # suppressMessages(library(shinyjs))
-# suppressMessages(library(shinyBS))
+suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
 suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
 #suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
@@ -22,7 +22,7 @@ sidebar <- dashboardSidebar(
               menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
               menuItem(strong("Alterational landscape"), tabName = "AL", icon = icon("bar-chart")),
               menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("bar-chart")),
-              menuItem(strong("Functional exploration"), tabName = "function", icon = icon("bar-chart")),
+              # menuItem(strong("Functional exploration"), tabName = "function", icon = icon("bar-chart")),
               menuItem(strong("Mutational signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
               menuItem(strong("Phylogenetic tree visualization"), tabName = "Survival", icon = icon("tree"))
   )
@@ -501,11 +501,11 @@ bodyITH <- tabItem("ITH",
                                        title = "The minimum value of ccf",
                                        placement = "top",
                                        trigger = "hover"),
-                             checkboxInput('withintype_ccfauc',
+                             checkboxInput('withinTumor_ccfauc',
                                            value = FALSE,
                                            label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Within type'),
                                            width = 500),
-                             bsTooltip(id = "withintype_ccfauc",
+                             bsTooltip(id = "withinTumor_ccfauc",
                                        title = "calculate ccf within type",
                                        placement = "top",
                                        trigger = "hover"),
@@ -538,11 +538,11 @@ bodyITH <- tabItem("ITH",
                                        title = "The minimum value of ccf",
                                        placement = "top",
                                        trigger = "hover"),
-                             checkboxInput('withintype_calfst',
+                             checkboxInput('withinTumor_calfst',
                                            value = FALSE,
                                            label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Within type'),
                                            width = 500),
-                             bsTooltip(id = "withintype_calfst",
+                             bsTooltip(id = "withinTumor_calfst",
                                        title = "calculate ccf within type",
                                        placement = "top",
                                        trigger = "hover"),
@@ -575,11 +575,11 @@ bodyITH <- tabItem("ITH",
                                        title = "The minimum value of ccf",
                                        placement = "top",
                                        trigger = "hover"),
-                             checkboxInput('withintype_calneidist',
+                             checkboxInput('withinTumor_calneidist',
                                            value = FALSE,
                                            label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Within type'),
                                            width = 500),
-                             bsTooltip(id = "withintype_calneidist",
+                             bsTooltip(id = "withinTumor_calneidist",
                                        title = "calculate ccf within type",
                                        placement = "top",
                                        trigger = "hover"),
@@ -612,17 +612,17 @@ bodyITH <- tabItem("ITH",
                            id = 'tith',
                            height = "100%", 
                            width = "100%",
-                           selected = "caInput00",
+                           selected = "caInput02",
                            side = "left",
-                           tabPanel(
-                             title = div(icon("chart-bar"), "TMB"),
-                             value = "caInput00",
-                             uiOutput('warningMessage01'),
-                             DT::dataTableOutput('mathScoreTMB'),
-                             br(),
-                             br(),
-                             uiOutput("msdbtmb")
-                           ),
+                           # tabPanel(
+                           #   title = div(icon("chart-bar"), "TMB"),
+                           #   value = "caInput00",
+                           #   uiOutput('warningMessage01'),
+                           #   DT::dataTableOutput('mathScoreTMB'),
+                           #   br(),
+                           #   br(),
+                           #   uiOutput("msdbtmb")
+                           # ),
                            tabPanel(
                              title = div(icon("chart-bar"), "MATH score"),
                              value = "caInput02",
@@ -633,38 +633,38 @@ bodyITH <- tabItem("ITH",
                              uiOutput("msdb")
                            ),
                            tabPanel(
-                             title = div(icon("image"), "Vaf clustering"),
+                             title = div(icon("image"), "VAF clustering"),
                              value = "caInput03",
                              uiOutput("vafcluster.patientlist"),
                              uiOutput('warningMessage03'),
                              div(plotOutput("vaf",height = "100%"),align = "center"),
                              uiOutput("vcdb")
                            ),
-                           tabPanel(
-                             title = div(icon("map"), "TrunkOrBranch summary"),
-                             value = "caInput05",
-                             conditionalPanel(
-                               condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
-                               uiOutput('warningMessage04'),
-                               div(plotOutput("mutSharedPrivatePlot",height = "100%"),align ="center"),  
-                               br(),
-                               uiOutput("mspdb")
-                             ),
-                             conditionalPanel(
-                               condition = "input.plotChoiceSpp == 'mutOncoTSG'",
-                               uiOutput('warningMessage05'),
-                               div(plotOutput("mutoncotsg",height = "100%"),align ="center"),
-                               br(),
-                               uiOutput("stkdb")
-                             )
-                           ),
-                           tabPanel(
-                             title = div(icon("box"), "Paired-samples similarity"),
-                             value = "caInput06",
-                             uiOutput('warningMessage06'),
-                             div(plotOutput("JaccardIndex",height = "100%"),align = "center") ,
-                             uiOutput("jidb")
-                           ),
+                           # tabPanel(
+                           #   title = div(icon("map"), "TrunkOrBranch summary"),
+                           #   value = "caInput05",
+                           #   conditionalPanel(
+                           #     condition = "input.plotChoiceSpp == 'sharedPrivatePlot'",
+                           #     uiOutput('warningMessage04'),
+                           #     div(plotOutput("mutSharedPrivatePlot",height = "100%"),align ="center"),  
+                           #     br(),
+                           #     uiOutput("mspdb")
+                           #   ),
+                           #   conditionalPanel(
+                           #     condition = "input.plotChoiceSpp == 'mutOncoTSG'",
+                           #     uiOutput('warningMessage05'),
+                           #     div(plotOutput("mutoncotsg",height = "100%"),align ="center"),
+                           #     br(),
+                           #     uiOutput("stkdb")
+                           #   )
+                           # ),
+                           # tabPanel(
+                           #   title = div(icon("box"), "Paired-samples similarity"),
+                           #   value = "caInput06",
+                           #   uiOutput('warningMessage06'),
+                           #   div(plotOutput("JaccardIndex",height = "100%"),align = "center") ,
+                           #   uiOutput("jidb")
+                           # ),
                            tabPanel(
                                title = div(icon("box"), "ccfAUC"),
                                value = "caInput_ccfauc",
@@ -794,45 +794,23 @@ bodyclone <- tabItem('clone',
                          box(
                            width = NULL,
                            conditionalPanel(
-                             condition = "input.clt == 'c01'",
+                             condition = "input.clt == 'clone_compareccf'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                              br(),
-                             sliderInput('width5',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                             br(),
-                             br(),
+                             # checkboxInput('showdensity', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show density'),value = FALSE,width = 400),
+                             # bsTooltip(id = "showdensity",
+                             #           title = "If TRUE, the default, perform density estimation",
+                             #           placement = "top",
+                             #           trigger = "hover"),
+                             # sliderInput('widthccfden',label = div(style = "font-size:1.5em; font-weight:600;", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
+                             # br(),
+                             # br(),
                              fluidRow(
                                column(
                                  width = 9,
                                  div(
                                    tags$button(
-                                     id = "submit7", type = "button", class = "action-button bttn",
-                                     class = "bttn-unite", class = paste0("bttn-md"),
-                                     class = paste0("bttn-default"),
-                                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                     style = "margin-bottom:0px;margin-right:0px;"
-                                   )
-                                 )
-                               )
-                             )
-                           ), 
-                           conditionalPanel(
-                             condition = "input.clt == 'c02'",
-                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                             br(),
-                             checkboxInput('showdensity', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show density'),value = FALSE,width = 400),
-                             bsTooltip(id = "showdensity",
-                                       title = "If TRUE, the default, perform density estimation",
-                                       placement = "top",
-                                       trigger = "hover"),
-                             sliderInput('widthccfden',label = div(style = "font-size:1.5em; font-weight:600;", 'Image width'),min = 700,max = 1100, value = 850,width = 500),
-                             br(),
-                             br(),
-                             fluidRow(
-                               column(
-                                 width = 9,
-                                 div(
-                                   tags$button(
-                                     id = "submitccfden", type = "button", class = "action-button bttn",
+                                     id = "submit_compareccf", type = "button", class = "action-button bttn",
                                      class = "bttn-unite", class = paste0("bttn-md"),
                                      class = paste0("bttn-default"),
                                      list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
@@ -855,11 +833,11 @@ bodyclone <- tabItem('clone',
                                          title = "The minimum value of vaf",
                                          placement = "top",
                                          trigger = "hover"),
-                               checkboxInput('pairbytype_comparejsi',
+                               checkboxInput('pairByTumor_comparejsi',
                                              value = FALSE,
                                              label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Pair by type'),
                                              width = 500),
-                               bsTooltip(id = "pairbytype_comparejsi",
+                               bsTooltip(id = "pairByTumor_comparejsi",
                                          title = "calculate JSI within type",
                                          placement = "top",
                                          trigger = "hover"),
@@ -930,25 +908,18 @@ bodyclone <- tabItem('clone',
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
-                             selected = 'c02',
+                             selected = 'clone_compareccf',
                              side = 'left',
                              height = "100%",
                              width = "100%",
-                             # tabPanel(
-                             #   value = 'c01',
-                             #   title = div(icon("newspaper"), "Subclonal plot"),
-                             #   uiOutput('warningMessage07'),
-                             #   div(plotOutput('cloneplot', height = "100%", width = "100%"), align = "center"),
-                             #   br(),
-                             #   uiOutput("clpdb")
-                             # ),
                              tabPanel(
-                               value = 'c02',
-                               title = div(icon("newspaper"), "CCF density"), 
-                               uiOutput('warningMessage08'),
-                               div(plotOutput('ccfdenplot', height = "100%", width = "100%"), align = "center"),
+                               value = 'clone_compareccf',
+                               title = div(icon("newspaper"), "compareCCF"), 
+                               uiOutput('warningMessage_compareccf'),
+                               uiOutput('compareccf.patientlist'),
+                               uiOutput('compareccf.samplelist'), 
                                br(),
-                               uiOutput("ccfdendb")
+                               uiOutput("compareccf_table_ui")
                              ),
                              tabPanel(
                                  title = div(icon("box"), "compareJSI"),

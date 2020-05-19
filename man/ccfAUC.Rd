@@ -7,8 +7,11 @@
 ccfAUC(
   maf,
   patient.id = NULL,
+  chrSilent = NULL,
+  mutType = "All",
+  use.indel = TRUE,
   min.ccf = 0,
-  withinType = FALSE,
+  withinTumor = FALSE,
   plot.density = TRUE
 )
 }
@@ -17,9 +20,15 @@ ccfAUC(
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
+\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
+
+\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
+
+\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default TRUE.}
+
 \item{min.ccf}{the minimum value of CCF. Default: 0}
 
-\item{withinType}{calculate AUC within types in each patients,default is FALSE.}
+\item{withinTumor}{calculate AUC within types in each patients,default is FALSE.}
 
 \item{plot.density}{whether to show the density plot. Default: TRUE}
 }
@@ -27,8 +36,7 @@ ccfAUC(
 A list containing AUC of CCF and a graph
 }
 \description{
-The tumor heterogeneity was estimated as the area under the curve (AUC) of the cumulative density 
-function from all cancer cell fractions per tumor
+The tumor heterogeneity was estimated as the area under the curve (AUC) of the cumulative density function from all cancer cell fractions per tumor
 }
 \examples{
 ccfAUC(maf)
@@ -36,6 +44,5 @@ ccfAUC(maf, patient.id = "HCC4064")
 
 }
 \references{
-Charoentong P, Finotello F, et al. Pan-cancer Immunogenomic Analyses Reveal Genotype-Immunophenotype Relationships and Predictors of Response to Checkpoint Blockade. 
-Cell reports 2017, 18:248-262.
+Charoentong P, Finotello F, et al. Pan-cancer Immunogenomic Analyses Reveal Genotype-Immunophenotype Relationships and Predictors of Response to Checkpoint Blockade. Cell reports 2017, 18:248-262.
 }

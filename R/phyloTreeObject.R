@@ -66,27 +66,21 @@ treeMutationalBranches <- function(patient.data, branch.id, binary.matrix){
    ## get mutationalSigs-related  infomation
    patient.data <- patient.data
    branchChar <- as.character(branch.id$Branch_ID)
-   mutId <- dplyr::select(tidyr::unite(patient.data, "mut.id", 
+   mutId <- dplyr::select(tidyr::unite(patient.data, "mut_id", 
                                        Hugo_Symbol, Chromosome, 
                                        Start_Position, 
                                        Reference_Allele, Tumor_Seq_Allele2, 
-                                       sep=":"), mut.id)
-   mutSigRef <- data.frame(as.character(patient.data$Tumor_Sample_Barcode), 
-                           as.character(patient.data$Tumor_ID),
-                           paste("chr", as.character(patient.data$Chromosome), sep=""),
-                           patient.data$Start_Position, 
-                           patient.data$End_Position,
-                           patient.data$Reference_Allele, 
-                           patient.data$Tumor_Seq_Allele2,
-                           patient.data$Hugo_Symbol, 
-                           mutId,
+                                       sep=":"), mut_id)
+   mutSigRef <- data.frame(Branch_ID = as.character(patient.data$Tumor_Sample_Barcode), 
+                           Branch_Tumor_ID = as.character(patient.data$Tumor_ID),
+                           chr = paste("chr", as.character(patient.data$Chromosome), sep=""),
+                           pos = patient.data$Start_Position, 
+                           pos_end = patient.data$End_Position,
+                           ref = patient.data$Reference_Allele, 
+                           alt = patient.data$Tumor_Seq_Allele2,
+                           Hugo_Symbol = patient.data$Hugo_Symbol, 
+                           mut_id = mutId,
                            stringsAsFactors=FALSE)
-   colnames(mutSigRef) <- c("Branch_ID", 
-                            "Branch_Tumor_ID",
-                            "chr", "pos", 
-                            "pos_end", "ref", 
-                            "alt", "Hugo_Symbol", 
-                            "mut_id")
    
    ## get branch infomation
    ls.branch <- branchChar[order(nchar(branchChar), branchChar)]
@@ -142,7 +136,6 @@ treeMutationalBranches <- function(patient.data, branch.id, binary.matrix){
       }
       
       branch.mut.id <- branch.intersection$mut.id
-      
       ## data duplication
       branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
       branch.mut$Branch_ID <- branchName
@@ -159,6 +152,8 @@ treeMutationalBranches <- function(patient.data, branch.id, binary.matrix){
    }
    mutBranchesOutput <- plyr::rbind.fill(mutBranchesOutput) %>% 
        dplyr::select(-mut_id)
+   
+   
    
    branch.type <- mutBranchesOutput %>% 
        dplyr::select(Branch_ID, Branch_Tumor_ID)

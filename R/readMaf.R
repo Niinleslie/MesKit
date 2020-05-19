@@ -3,8 +3,7 @@
 #'
 #' @param mafFile Tab delimited MAF file (plain text or *.gz compressed). Required.
 #' @param ccfFile CCF file of somatic mutations. Default NULL.
-#' @param mutType select Proper variant classification you need. Default "All". Option: "nonSilent".
-#' @param mutNonSilent Variant classifications which are considered as non-silent. Default NULL.
+#' @param nonSyn.vc a list of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"
 #' @param ccf.conf.level The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95
 #' @param refBuild Human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default: "hg19".
 #'
@@ -25,15 +24,15 @@ readMaf <- function(
     mafFile,
     ccfFile = NULL,
     adjusted.VAF = FALSE,
-    mutNonSilent = NULL,
+    nonSyn.vc = NULL,
     ccf.conf.level = 0.95,
     refBuild = "hg19") {
 
     refBuild <- match.arg(refBuild, choices =  c('hg18', 'hg19', 'hg38'), several.ok = FALSE)
     
     ## get non-silent muation types
-    if (is.null(mutNonSilent)) {
-        mutNonSilent <- c(
+    if (is.null(nonSyn.vc)) {
+        nonSyn.vc <- c(
             "Frame_Shift_Del",
             "Frame_Shift_Ins",
             "Splice_Site",
@@ -117,7 +116,7 @@ readMaf <- function(
     maf <- classMaf(
         data = data.table::setDT(mafData),
         sample.info = sample.info,
-        mutNonSilent = mutNonSilent,
+        nonSyn.vc = nonSyn.vc,
         ref.build = refBuild
     )
     
@@ -133,7 +132,7 @@ classMaf <- setClass(
     slots = c(
         data = 'data.table',
         sample.info = 'list',
-        mutNonSilent = 'character',
+        nonSyn.vc = 'character',
         ref.build = 'character'
         
     )
