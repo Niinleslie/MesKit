@@ -20,6 +20,9 @@
 compareJSI <- function(
    maf, 
    patient.id = NULL,
+   chrSilent = NULL,
+   mutType = "All",
+   use.indel = TRUE,
    pairByTumor = FALSE,
    min.vaf = 0.02,
    plot = TRUE, 
@@ -28,26 +31,21 @@ compareJSI <- function(
    number.cex = 8, 
    number.col = "#C77960") {
    
-   mafData <- maf@data
    
-   if(! "CCF" %in% colnames(mafData)){
+   if(! "CCF" %in% colnames(maf@data)){
       stop(paste0("Error: calculation of Jaccard similarity requires CCF data." ,
                   "No CCF data was found when generate Maf object."))
    }
    
-   if(min.vaf < 0){
-      stop("Error: min.vaf must be greater than 0")
-   }
+   maf <- subsetMaf(maf,
+                    patient.id = patient.id,
+                    chrSilent = chrSilent,
+                    mutType = mutType,
+                    use.indel = use.indel,
+                    min.vaf = min.vaf,
+                    use.adjVAF = T)
    
-   if(is.null(patient.id)){
-      patient.id = unique(mafData$Patient_ID)
-   }else{
-      patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
-      if(length(patient.setdiff) > 0){
-         stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
-      }
-      mafData <- mafData[Patient_ID %in% patient.id,]
-   }
+   mafData <- maf@data
    
    JSI_input <-  mafData %>%
       dplyr::select(
@@ -56,8 +54,7 @@ compareJSI <- function(
          Tumor_Sample_Barcode,
          Patient_ID,
          Clonal_Status,
-         VAF_adj) %>%
-      dplyr::filter(VAF_adj > min.vaf)
+         VAF_adj)
    
    ## fresh patient.id
    patient.id <- unique(JSI_input$Patient_ID)

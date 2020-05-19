@@ -48,5 +48,4 @@ plot binary or CCF heatmap of somatic mutations.
 \examples{
 mutHeatmap(phyloTree)
 mutHeatmap(phyloTree, use.ccf = TRUE)
-
 }

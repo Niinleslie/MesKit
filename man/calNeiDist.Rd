@@ -10,7 +10,7 @@ calNeiDist(
   chrSilent = NULL,
   mutType = "All",
   use.indel = TRUE,
-  min.vaf = 0.02,
+  min.ccf = 0.02,
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,
@@ -26,11 +26,11 @@ calNeiDist(
 
 \item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
-\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
+\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSilent".}
 
 \item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
 
-\item{min.vaf}{specify the minimum VAF, default is 0.08}
+\item{min.ccf}{specify the minimum CCF, default is 0.08}
 
 \item{plot}{logical (Default:TRUE). Whether to show the plot, default TRUE}
 

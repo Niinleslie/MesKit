@@ -19,7 +19,8 @@ subsetMaf(
   min.ref.depth = 0,
   min.alt.depth = 0,
   min.total.depth = 0,
-  clonalStatus = NULL
+  clonalStatus = NULL,
+  use.adjVAF = FALSE
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ subsetMaf(
 \item{min.total.depth}{The minimum total allele depth for filtering variants. Default: 0.}
 
 \item{clonalStatus}{subset by clonal status.Default: NULL.Option: "Clonal","Subclonal".}
+
+\item{use.adjVAF}{let VAF = VAF_adj, Tumor_Average_VAF = Tumor_Average_VAF_adj.Default: FALSE.}
 }
 \value{
 Maf object.

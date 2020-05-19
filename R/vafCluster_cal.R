@@ -1,7 +1,7 @@
 ## Functions for all plotOption
 ## Calculate ScoreMATH
 .mathCal <- function(maf, min.vaf, max.vaf, showMATH=TRUE, 
-                     plotOption, sampleName = ""){
+                     plotOption, sampleName = "", use.adjVAF = FALSE){
    if (showMATH){
       if (plotOption == "combine"){
          mathtbscoreLs <- mathScore(maf, min.vaf = min.vaf)
@@ -293,7 +293,8 @@ doVafCluster <- function(patient.dat = NULL,
                          min.vaf=0.02,
                          max.vaf=1,
                          showMATH=TRUE, 
-                         plotOption="combine"){
+                         plotOption="combine",
+                         use.adjVAF = FALSE){
    
    patientID <- unique(patient.dat$Patient_ID) 
    
@@ -337,7 +338,7 @@ doVafCluster <- function(patient.dat = NULL,
       for (counterMt in seq_along(tsbLs[,1])){
          sampleName <- as.character(tsbLs[,1][counterMt])
          ## calculate ScoreMATH
-         mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
+         mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName, use.adjVAF = use.adjVAF)
          sampleMt <- vafInputMt[which(
             vafInputMt$Samples %in% sampleName),]
          ## data cleaning
@@ -365,7 +366,7 @@ doVafCluster <- function(patient.dat = NULL,
       ## combine: print VAF pictures for all samples in one document
       if (plotOption == "combine"){
          if (showMATH){
-            mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, "compare", sampleName)
+            mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, "compare", sampleName, use.adjVAF = use.adjVAF)
             
             ## set the columns of the picture and generate all single pictures
             combineTitle <- cowplot::ggdraw() + 
@@ -410,7 +411,7 @@ doVafCluster <- function(patient.dat = NULL,
    ## plot all samples' vaf distribution with ggridges
    else if (plotOption == "compare"){
       ## calculate ScoreMATH
-      mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption)
+      mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, use.adjVAF = use.adjVAF)
       mathscore <- mathtbscoreLs[mathtbscoreLs$Patient_ID == patientID,]
       
       ## record sample with few mutations

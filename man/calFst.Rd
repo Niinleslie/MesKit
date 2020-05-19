@@ -12,6 +12,7 @@ calFst(
   use.indel = TRUE,
   min.vaf = 0.02,
   min.total.depth = 2,
+  use.adjVAF = use.adjVAF,
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,
@@ -34,6 +35,8 @@ calFst(
 \item{min.vaf}{specify the minimum VAF_adj, default is 0.02}
 
 \item{min.total.depth}{The minimum total allele depth for filtering variants. Default: 2.}
+
+\item{use.adjVAF}{calculate Fst by adjusted VAF.Default: FALSE.}
 
 \item{withinTumor}{calculate fst within types in each patients,default is FALSE.}
 }
