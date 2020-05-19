@@ -423,8 +423,12 @@ doMutSigSummary <- function(treeMSOutput, withinTumor){
    
    if(!is.null(df.aetiology)){
        for(i in 1:nrow(mutSigsOutput)){
-           signature <- as.character(mutSigsOutput$sig[i]) 
-           aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
+           signature <- as.character(mutSigsOutput$sig[i])
+           if(signature == "Unknown"){
+               aetiology <- "Unknown"  
+           }else{
+               aetiology <- as.character(df.aetiology[which(df.aetiology$sig == signature), ]$aeti)
+           }
            ls.aeti <- c(ls.aeti, aetiology)
        }
        mutSigsOutput$aeti <- ls.aeti  

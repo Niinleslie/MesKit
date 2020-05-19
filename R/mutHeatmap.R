@@ -263,7 +263,6 @@ mutHeatmap <- function(maf,
             #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
         }else if(!use.ccf){
             mut_dat$Mutation <- as.character(mut_dat$Mutation)
-            
             p <- p_basic + 
                 geom_rect(data = mut_dat,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = Mutation))+
