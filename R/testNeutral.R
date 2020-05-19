@@ -11,6 +11,7 @@
 #' @param R2.threshold the threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
 #' @param min.vaf the minimum value of adjusted VAF value. Default: 0.1
 #' @param max.vaf the maximum value of adjusted VAF value. Default: 0.3
+#' @param use.adjVAF test neutral by adjusted VAF.Default: FALSE. 
 #' @param min.mut.count the minimun number of subclonal mutations used to fit model. Default: 20
 #' @param plot logical, whether to print model fitting plot of each sample. Default: TRUE
 #' 
@@ -27,13 +28,15 @@ testNeutral <- function(maf,
                         min.depth = 10, R2.threshold = 0.98,
                         min.vaf = 0.1, max.vaf = 0.3,
                         plot = TRUE,
-                        min.mut.count = 20){
+                        min.mut.count = 20,
+                        use.adjVAF = FALSE){
     if(min.vaf <= 0){
         stop("Error: min.vaf must be greater than 0")
     }
     if(max.vaf < min.vaf){
         stop("Error: max.vaf must be greater than min.vaf")
     }
+    
    maf <- subsetMaf(maf,
                     patient.id = patient.id,
                     chrSilent = chrSilent,
@@ -42,7 +45,9 @@ testNeutral <- function(maf,
                     min.vaf = min.vaf,
                     max.vaf = max.vaf,
                     min.total.depth = min.depth,
-                    clonalStatus = "Subclonal")
+                    clonalStatus = "Subclonal",
+                    use.adjVAF = use.adjVAF)
+   
    mafData <- maf@data
    if(! "CCF" %in% colnames(mafData)){
       stop(paste0("Error: inferring whether a tumor follows neutral evolution requires CCF data.",

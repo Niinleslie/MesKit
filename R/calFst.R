@@ -10,6 +10,7 @@
 #' @param mutType select Proper variant classification you need. Default "All". Option: "nonSyn".
 #' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.
 #' @param min.vaf specify the minimum VAF_adj, default is 0.02
+#' @param use.adjVAF calculate Fst by adjusted VAF.Default: FALSE. 
 #' @param min.total.depth The minimum total allele depth for filtering variants. Default: 2.
 #' @param withinTumor calculate fst within types in each patients,default is FALSE.
 #'  
@@ -28,12 +29,13 @@ calFst <- function(
    use.indel = TRUE,
    min.vaf = 0.02,
    min.total.depth = 2,
+   use.adjVAF = use.adjVAF,
    plot = TRUE,
    use.circle = TRUE,
    title = NULL,
    withinTumor = FALSE,
    number.cex = 8, 
-   number.col = "#C77960" ){
+   number.col = "#C77960"){
    
     
     if(min.total.depth <= 1){
@@ -51,7 +53,8 @@ calFst <- function(
                     use.indel = use.indel,
                     min.vaf = min.vaf,
                     min.total.depth = min.total.depth,
-                    clonalStatus = clonalStatus)
+                    clonalStatus = clonalStatus,
+                    use.adjVAF = use.adjVAF)
    mafData <- maf@data
    
    if(!"VAF_adj" %in% colnames(mafData)){
