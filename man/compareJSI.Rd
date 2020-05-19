@@ -7,6 +7,9 @@
 compareJSI(
   maf,
   patient.id = NULL,
+  chrSilent = NULL,
+  mutType = "All",
+  use.indel = TRUE,
   pairByTumor = FALSE,
   min.vaf = 0.02,
   plot = TRUE,
@@ -21,6 +24,12 @@ compareJSI(
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
+\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
+
+\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
+
+\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
+
 \item{min.vaf}{specify the minimum VAF_adj, default is 0.08}
 
 \item{plot}{logical (Default:TRUE). Whether to show the plot, default TRUE}
@@ -28,12 +37,6 @@ compareJSI(
 \item{use.circle}{logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix}
 
 \item{title}{the title of the plot, default is "Jaccard similarity"}
-
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
-
-\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
-
-\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
 }
 \value{
 correlation matrix and heatmap via Jaccard similarity coefficient method

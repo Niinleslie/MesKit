@@ -16,7 +16,8 @@ testNeutral(
   min.vaf = 0.1,
   max.vaf = 0.3,
   plot = TRUE,
-  min.mut.count = 20
+  min.mut.count = 20,
+  use.adjVAF = FALSE
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ testNeutral(
 \item{plot}{logical, whether to print model fitting plot of each sample. Default: TRUE}
 
 \item{min.mut.count}{the minimun number of subclonal mutations used to fit model. Default: 20}
+
+\item{use.adjVAF}{test neutral by adjusted VAF.Default: FALSE.}
 }
 \description{
 Evaluat whether a tumor follows neutral evolution or under strong selection during the growth based on variant frequency distribution (VAF) of subclonal The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth.
