@@ -1,4 +1,5 @@
-<img src="https://github.com/Niinleslie/MesKit/tree/master/vignettes/logo.png" height="80" width="240" /> 
+
+<img src="https://github.com/Niinleslie/MesKit/tree/mnliu/vignettes/logo.png" height="80" width="240" /> 
 
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
@@ -16,8 +17,11 @@ remotes::install_github("Niinleslie/MesKit")
 ## Usage
 A complete documentation of MesKit can be found [here.](http://meskit.renlab.org/)
 
-<div  align="left">    
+
+<div  align="left">   
+
 <img src="https://github.com/Niinleslie/MesKit/tree/master/vignettes/MesKit_overview.png" height="500" width="600" />
+
 </div>
    
 
