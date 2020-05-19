@@ -1,4 +1,4 @@
-<img src="/vignettes/logo.png" height="80" width="240" /> 
+<img src="https://github.com/Niinleslie/MesKit/tree/master/vignettes/logo.png" height="80" width="240" /> 
 
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
@@ -17,7 +17,7 @@ remotes::install_github("Niinleslie/MesKit")
 A complete documentation of MesKit can be found [here.](http://meskit.renlab.org/)
 
 <div  align="left">    
-<img src="/vignettes/MesKit_workflow.png" height="500" width="600" />
+<img src="https://github.com/Niinleslie/MesKit/tree/master/vignettes/MesKit_overview.png" height="500" width="600" />
 </div>
    
 
@@ -55,7 +55,6 @@ We provided a docker image for a quick configuration of shiny app bundle with sh
 This software was mainly developed by:
 
 * Mengni Liu, liumn5@mail2.sysu.edu.cn, Sun Yat-sen university 
-* Chengwei Wang, wangchw8@outlook.com, Sun Yat-sen university 
 * Jianyu Chen, chenjy327@mail2.sysu.edu.cn, Sun Yat-sen university 
 * Xin Wang, wangx555@mail2.sysu.edu.cn, Sun Yat-sen university
 
