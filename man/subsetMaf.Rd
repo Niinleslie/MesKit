@@ -29,7 +29,7 @@ subsetMaf(
 
 \item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 
-\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSilent".}
+\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
 
 \item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
 

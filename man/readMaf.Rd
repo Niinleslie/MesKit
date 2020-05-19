@@ -8,7 +8,7 @@ readMaf(
   mafFile,
   ccfFile = NULL,
   adjusted.VAF = FALSE,
-  mutNonSilent = NULL,
+  nonSyn.vc = NULL,
   ccf.conf.level = 0.95,
   refBuild = "hg19"
 )
@@ -18,13 +18,11 @@ readMaf(
 
 \item{ccfFile}{CCF file of somatic mutations. Default NULL.}
 
-\item{mutNonSilent}{Variant classifications which are considered as non-silent. Default NULL.}
+\item{nonSyn.vc}{a list of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"}
 
 \item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
 
 \item{refBuild}{Human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default: "hg19".}
-
-\item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSilent".}
 }
 \value{
 an object of class Maf.

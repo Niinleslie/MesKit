@@ -7,7 +7,7 @@
 #' @param bootstrap.rep.num bootstrap iterations.
 #' @param patient.id select the specific patients. Default: NULL, all patients are included.
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
-#' @param mutType select Proper variant classification you need. Default "All". Option: "nonSilent".
+#' @param mutType select Proper variant classification you need. Default "All". Option: "nonSyn".
 #' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.
 #' 
 #' 
