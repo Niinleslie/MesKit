@@ -21,7 +21,8 @@
 #' @export calNeiDist
 
 calNeiDist <- function(maf, 
-    patient.id = NULL, 
+    patient.id = NULL,
+    withinTumor = FALSE, 
     chrSilent = NULL,
     mutType = "All",
     use.indel = TRUE,
@@ -29,7 +30,6 @@ calNeiDist <- function(maf,
     plot = TRUE, 
     use.circle = TRUE, 
     title = NULL,
-    withinTumor = FALSE,
     number.cex = 8, 
     number.col = "#C77960") {
     
