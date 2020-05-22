@@ -17,7 +17,8 @@
 #' @examples
 #' mutHeatmap(phyloTree)
 #' mutHeatmap(phyloTree, use.ccf = TRUE)
-#'
+#' @importFrom ggplot2 ggplot_add
+#' @importFrom ggplot2 guide_legend
 #' @export mutHeatmap
 
 mutHeatmap <- function(maf,
@@ -320,8 +321,7 @@ mutHeatmap <- function(maf,
         p <- p + 
             ## annotation bar
             geom_rect(data = annotation.bar,
-                      mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = class)
-            ) + 
+                      mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = class)) + 
             scale_fill_manual(values = class_colors,name = "Class")
         
         heatmap_list[[patient]] <- p

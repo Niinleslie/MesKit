@@ -15,6 +15,7 @@
 #' @param min.alt.depth The minimum alteratation allele depth for filtering variants. Default: 0.
 #' @param min.total.depth The minimum total allele depth for filtering variants. Default: 0.
 #' @param clonalStatus subset by clonal status.Default: NULL.Option: "Clonal","Subclonal".
+#' @param use.adjVAF let VAF = VAF_adj, Tumor_Average_VAF = Tumor_Average_VAF_adj.Default: FALSE. 
 #'
 #'
 #' @examples
@@ -37,7 +38,8 @@ subsetMaf <- function(maf,
                       min.ref.depth = 0,
                       min.alt.depth = 0,
                       min.total.depth = 0,
-                      clonalStatus = NULL){
+                      clonalStatus = NULL,
+                      use.adjVAF = FALSE){
    
    mafData <- maf@data
    nonSyn.vc <- maf@nonSyn.vc
@@ -55,6 +57,16 @@ subsetMaf <- function(maf,
       mafData <- mafData %>%
          dplyr::mutate(Tumor_Average_VAF_adj = round(sum(VAF_adj * Total_allele_depth)/sum(Total_allele_depth),3)) %>%
          dplyr::filter(Tumor_Average_VAF_adj>=min.average.adj.vaf)
+   }
+   
+   if(use.adjVAF){
+       if(!"VAF_adj" %in% colnames(mafData)){
+           stop("Adjusted VAF was not found in maf data.")
+       }
+       else{
+           mafData$VAF <- mafData$VAF_adj
+           mafData$Tumor_Average_VAF <- mafData$Tumor_Average_VAF_adj
+       }
    }
    
    ## calculate average adjust CCF
@@ -120,6 +132,7 @@ subsetMaf <- function(maf,
       clonalStatus <- match.arg(clonalStatus, choices = c("Clonal", "Subclonal"))
       mafData <- mafData[Clonal_Status == clonalStatus]
    }
+   
    
    maf@data <- mafData
    

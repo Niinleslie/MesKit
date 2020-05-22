@@ -14,7 +14,8 @@ vafCluster(
   min.vaf = 0.02,
   max.vaf = 1,
   showMATH = TRUE,
-  plotOption = "combine"
+  plotOption = "combine",
+  use.adjVAF = FALSE
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ vafCluster(
 \item{plotOption}{character. Three options for displaying clustering of VAFs in samples. Default "compare"
 "compare": prints comparison of VAFs distribution among samples;
 "combine" prints VAFs distribution of samples all together;}
+
+\item{use.adjVAF}{cluster by adjusted VAF.Default: FALSE.}
 }
 \description{
 Generate variant allele frequency(VAF) frequency distribution

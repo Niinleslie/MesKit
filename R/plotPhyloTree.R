@@ -33,7 +33,7 @@ plotPhyloTree <- function(phyloTree_list = NULL,
                           common.lty = "solid",
                           min.ratio = 1/30,
                           min.mut.count = 15,
-                          signaturesRef="cosmic_v2",
+                          signaturesRef = "cosmic_v2",
                           compare = FALSE,
                           treeData = NULL){
 

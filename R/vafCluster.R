@@ -14,7 +14,7 @@
 #' @param plotOption character. Three options for displaying clustering of VAFs in samples. Default "compare"
 #' "compare": prints comparison of VAFs distribution among samples;
 #' "combine" prints VAFs distribution of samples all together;
-#' 
+#' @param use.adjVAF cluster by adjusted VAF.Default: FALSE. 
 #' @examples
 #' vafCluster(maf, plotOption="compare")
 #' vafCluster(maf, plotOption="combine", showMATH=FALSE)
@@ -32,7 +32,8 @@ vafCluster <-function(maf,
                       min.vaf=0.02,
                       max.vaf=1,
                       showMATH=TRUE, 
-                      plotOption="combine"){
+                      plotOption="combine",
+                      use.adjVAF = FALSE){
   plotOption <- match.arg(plotOption, choices = c('combine', 'compare'), several.ok = FALSE)
    
   maf <- subsetMaf(maf,
@@ -41,7 +42,8 @@ vafCluster <-function(maf,
                    mutType = mutType,
                    use.indel = use.indel,
                    min.vaf = min.vaf,
-                   max.vaf = max.vaf)
+                   max.vaf = max.vaf,
+                   use.adjVAF = use.adjVAF)
   
   ## remove mutation in CNV region
   if(!is.null(segCN.file)){
@@ -56,6 +58,7 @@ vafCluster <-function(maf,
                         min.vaf = min.vaf,
                         max.vaf = max.vaf,
                         showMATH = showMATH, 
-                        plotOption = plotOption)
+                        plotOption = plotOption,
+                        use.adjVAF = use.adjVAF)
   return(result.list)
 }
