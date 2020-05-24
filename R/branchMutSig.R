@@ -70,7 +70,7 @@ plotMutSigProfile_branch <- function(spectrum_df, mode){
        spectrum_df <- spectrum_df[spectrum_df$spectrum.type == mode, ]
    }
 
-   name <- paste0(unique(spectrum_df$Patient_ID),"_",spectrum_df[1,1])
+   name <- paste0(unique(spectrum_df$Patient_ID),":",spectrum_df[1,1])
 
    pic <- ggplot(spectrum_df, aes(x=Type, y=Mutation_Probability, group=Group, fill=Group))
    if("Original" %in% spectrum_df$spectrum.type){
@@ -105,7 +105,7 @@ plotMutSigProfile_branch <- function(spectrum_df, mode){
        # geom_hline(yintercept = 0)+
        theme(
            legend.position='none', 
-           strip.background = element_rect(colour = "black"),
+           strip.background = element_rect(colour = "black", fill = "grey"),
            strip.text.x=element_text(size=14),
            strip.text.y=element_text(size=14),
            panel.spacing.y = unit(0.5, "lines"),

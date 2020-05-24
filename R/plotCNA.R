@@ -4,6 +4,8 @@
 #' @param refBuild human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".
 #' @param show.GISTIC.gene Whether GISTIC gene in seg.Default FALSE.
 #' @param patient.id select the specific patients. Default: NULL, all patients are included.
+#' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
+#' 
 #' 
 #' @examples
 #' segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
@@ -14,7 +16,9 @@
 #'
 
 
-plotCNA <- function(seg, refBuild = "hg19",
+plotCNA <- function(seg, 
+                    refBuild = "hg19",
+                    chrSilent = NULL,
                     sample.fontsize = 11,
                     chrom.fontsize = 3,
                     legend.text.fontsize = 9,
@@ -23,6 +27,10 @@ plotCNA <- function(seg, refBuild = "hg19",
                     chrom.bar.height = 0.5,
                     show.GISTIC.gene = FALSE,
                     patient.id = NULL){
+    
+    if(!is.null(chrSilent)){
+        seg <- seg[Chromosome %in% chrSilent]
+    }
     
     ## select patients in patient.id 
     if(is.null(patient.id)|length(patient.id) > 1){
@@ -43,7 +51,6 @@ plotCNA <- function(seg, refBuild = "hg19",
         }
         seg <- seg[Patient_ID %in% patient.id]
     }
-    
     
     if(show.GISTIC.gene){
       if(!"Gistic.type" %in% colnames(seg)){
@@ -219,35 +226,79 @@ plotCNA <- function(seg, refBuild = "hg19",
                          size = 0.7) +
             
             theme(
-                panel.grid =element_blank(), 
-                # axis.text = element_blank(), 
                 axis.text.x = element_blank(),
-                axis.text.y = element_text(size = sample.fontsize, margin = margin(r = -20),colour = "black"),
+                axis.text.y.left =  element_text(size = sample.fontsize,
+                                           margin = margin(l = 0),
+                                           colour = "black"),
                 axis.ticks = element_blank(),
+                # axis.line.y = element_line(colour = "darkblue", size = 1, linetype = "solid"),
+                panel.grid =element_blank(),
                 panel.border = element_blank(),
                 panel.background = element_blank(),
                 axis.title.x = element_blank(),
                 axis.title.y = element_blank(),
-                legend.key.width  = unit(1.1,'lines'),
-                legend.box.margin = margin(l = -20),
-                legend.title = element_text(size = legend.title.fontsize),
-                legend.text = element_text(size = legend.text.fontsize,margin = margin(b = 3)))+
+                # legend.key.width  = unit(1.1,'lines'),
+                # legend.box.margin = margin(l = 0),
+                # legend.title = element_text(size = legend.title.fontsize),
+                # legend.text = element_text(size = legend.text.fontsize,margin = margin(b = 3))
+                )+
             # geom_text(
             #     data = Y.text.table,
             #     mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
+            scale_x_continuous(expand = c(0,0))+
             scale_y_continuous(breaks = Y.text.table$Pos,
                                labels = Y.text.table$Tumor_Sample_Barcode)+
             ggtitle("Copy number variant profile")+
-            theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, vjust = -1))
+            theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, vjust = -2))
         ## patient bar
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){
             p <- p + 
-                structure(ggplot2::standardise_aes_names("fill"), class = "new_aes") +
                 geom_rect(data = patient.rect.table,
-                          mapping = aes(xmax = -20000000, xmin = -40000000,
-                                        ymin = hmin, ymax = hmax,fill = patient)) +  
-                scale_fill_manual(values = patient_colors,name = "Patient")
+                          mapping = aes(xmax = -20000000, xmin = -40000000,ymin = hmin, ymax = hmax),
+                          fill =  patient_colors)
+            # print(CNADat)
+            ## multi legend
+            patient_legend <- (
+                    ggplot()+
+                    geom_rect(data = patient.rect.table,
+                              mapping = aes(xmax = -20000000, xmin = -40000000,
+                                            ymin = hmin, ymax = hmax,fill = patient)) +  
+                    scale_fill_manual(values = patient_colors,name = "Patient") + 
+                    theme(legend.background = element_blank(),
+                          legend.title = element_text(size = legend.title.fontsize),
+                          legend.text = element_text(size = legend.text.fontsize,margin = margin(b = 3)))
+            )%>%
+                ggplotGrob %>%
+                {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            
+            type_legend <- (
+                    ggplot()+
+                   geom_rect(data = CNADat,mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
+                   scale_fill_manual(values = type.color, name = "Type")+
+                   theme(legend.background = element_blank(),
+                         legend.title = element_text(size = legend.title.fontsize),
+                         legend.text = element_text(size = legend.text.fontsize,margin = margin(b = 3)))
+            ) %>% 
+                ggplotGrob %>%
+                {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            
+            legends_column <-
+                plot_grid(
+                    patient_legend + theme(legend.position = "none"),
+                    type_legend,
+                    patient_legend + theme(legend.position = "none"),
+                    patient_legend,
+                    patient_legend + theme(legend.position = "none"),
+                    ncol = 1,
+                    rel_heights = c(1,1,.1,1,1),
+                    align = "v")
+            
+            p <- plot_grid(p + theme(legend.position = "none"),
+                           legends_column + theme(plot.margin = margin(r = 15)),
+                           nrow = 1,
+                           rel_widths = c(1,.2))
+            
         }
         
         CNAplot.list[[patient]] <- p
@@ -259,7 +310,6 @@ plotCNA <- function(seg, refBuild = "hg19",
     
     return(CNAplot.list)
 }
-
 
 
 

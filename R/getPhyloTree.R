@@ -18,13 +18,14 @@
 #' phyloTree <- getPhyloTree(maf)
 #' @return  a list of class PhyloTree
 #' @import phangorn ape
+#' @exportClass phyloTree_list
 #' @exportClass phyloTree
 #' @export getPhyloTree
 
 getPhyloTree <- function(maf, 
                       method = "NJ",
                       min.vaf = 0.02, 
-                      min.ccf = 0,
+                      min.ccf = NULL,
                       bootstrap.rep.num = 100,
                       patient.id = NULL,
                       chrSilent = NULL,
@@ -32,21 +33,101 @@ getPhyloTree <- function(maf,
                       use.indel = TRUE){
   
   method <- match.arg(method, choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"), several.ok = FALSE)
-  maf <- subsetMaf(maf,
-                   patient.id = patient.id,
-                   chrSilent = chrSilent,
-                   mutType = mutType,
-                   use.indel = use.indel,
-                   min.vaf = min.vaf,
-                   min.ccf = min.ccf)
-
-  mafData <- maf@data
-  refBuild <- maf@ref.build
-  dat.list <- split(mafData, mafData$Patient_ID)
-  phyloTree.list <- list()
-  phyloTree.list <- lapply(dat.list, doGetPhyloTree,
-                           refBuild = refBuild,
-                           method = method,
-                           bootstrap.rep.num = bootstrap.rep.num)
-  return(phyloTree.list)
+  
+  if(class(maf) == "classMaf"){
+      maf_list <- list(maf)
+  }else if(class(maf) == "classMaf_list"){
+      ## patient filter
+      if(!is.null(patient.id)){
+          maf_list <- subsetMaf_list(maf, patient.id = patient.id)
+      }else{
+          maf_list <- maf@patient.list
+      }
+  }else{
+      stop("maf should be either classMaf or classMaf_list")
+  }
+  
+  phyloTree_patient_list <- list()
+  for(m in maf_list){
+      maf_data <- subsetMaf(m,
+                     chrSilent = chrSilent,
+                     mutType = mutType,
+                     use.indel = use.indel,
+                     min.vaf = min.vaf,
+                     min.ccf = min.ccf)
+      
+      refBuild <- m@ref.build
+      patient <- unique(maf_data$Patient_ID)
+      
+      ## information input
+      binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
+      if("CCF" %in% colnames(maf_data)){
+          ccf.matrix <- getMutMatrix(maf_data, use.ccf = TRUE)
+      }else{
+          ccf.matrix <- matrix() 
+      }
+      mut_dat <- t(binary.matrix)
+      if(method == "NJ"){
+          matTree <- nj(dist.gene(mut_dat))
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
+      }else if(method == "MP"){
+          matTree <- byMP(mut_dat)
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100 
+      }else if(method == "ML"){
+          matTree <- byML(mut_dat)
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
+      }else if(method == "FASTME.bal"){
+          matTree <- ape::fastme.bal(dist.gene(mut_dat))
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
+      }else if(method == "FASTME.ols"){
+          matTree <- ape::fastme.ols(dist.gene(mut_dat))
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
+      }
+      branch.id <- readPhyloTree(matTree)
+      
+      mut.branches_types <- treeMutationalBranches(maf_data, branch.id, binary.matrix)
+      mut.branches <- mut.branches_types$mut.branches
+      branch.type <- mut.branches_types$branch.type
+      
+      phylo.tree <- new('phyloTree',
+                        patientID = patient, tree = matTree, 
+                        binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
+                        mut.branches = mut.branches, branch.type = branch.type,
+                        refBuild = refBuild,
+                        bootstrap.value = bootstrap.value, method = method)
+      phyloTree_patient_list[[patient]] <- phylo.tree
+  }
+  
+  if(length(phyloTree_patient_list) > 1){
+      phyloTree_list <- new(
+          'phyloTree_list',
+          patient.list = phyloTree_patient_list
+      )
+      return(phyloTree_list)
+  }else if(length(phyloTree_patient_list) == 1){
+      return(phyloTree_patient_list[[1]])
+  }else{
+      return(NA)
+  }
 }
+
+## Prevent class 'phylo' from not existing
+setClass('phylo')
+## set phyloTree class
+setClass('phyloTree', slots = c(
+    patientID = 'character', 
+    tree = 'phylo',
+    bootstrap.value = 'numeric',    
+    method = 'character', 
+    binary.matrix = 'matrix', 
+    ccf.matrix = 'matrix', 
+    mut.branches = 'data.frame', 
+    branch.type = 'data.frame',
+    refBuild = 'character'
+    
+))
+
+## set class for multiple phyloTree
+setClass('phyloTree_list', slots = c(
+    patient.list = 'list'
+))

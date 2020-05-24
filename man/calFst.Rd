@@ -12,7 +12,7 @@ calFst(
   use.indel = TRUE,
   min.vaf = 0.02,
   min.total.depth = 2,
-  use.adjVAF = use.adjVAF,
+  use.adjVAF = FALSE,
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,

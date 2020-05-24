@@ -7,8 +7,7 @@
          mathtbscoreLs <- mathScore(maf, min.vaf = min.vaf)
          mathtbscore <- mathtbscoreLs
          mathscore <- mathtbscore[which(mathtbscore$Tumor_Sample_Barcode == sampleName), ]$MATH_Score
-      }
-      else if (plotOption == "compare"){
+      }else if (plotOption == "compare"){
          mathtbscoreLs <- mathScore(maf, min.vaf=min.vaf)
          mathscore <- mathtbscoreLs
       }
@@ -53,7 +52,7 @@
          ## generate cha for ggplot and specific titles for minifigures
          vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
-                          theme(legend.position=\'none\',", 
+                          theme(legend.position=\'right\',", 
                              "plot.title=element_text(size=13), ",
                              "panel.grid=element_blank(), ", 
                              "panel.border=element_blank(), ", 
@@ -93,7 +92,7 @@
          ## generate cha for ggplot and specific titles for minifigures
          vafDrawCha <- paste("ggplot(clusterMt, aes(x=VAF)) + 
                           theme_bw() + 
-                          theme(legend.position=\'none\', ", 
+                          theme(legend.position=\'right\', ", 
                              "plot.title=element_text(size=13, hjust=1, ", 
                              "vjust=0.5, face='bold'), ",
                              "panel.grid=element_blank(), ", 
@@ -189,7 +188,7 @@
 ## Functions for specific plotOption: "compare"
 ## VAF painter for OFA
 .ofaVAF <- function(clusterAll, tsbLs, 
-                    plotOption, mathscore, patientID, 
+                    plotOption, mathscore, patient, 
                     min.vaf, max.vaf){
    
    # build color vector for later use
@@ -212,7 +211,7 @@
                          "geom_point(aes(x=VAF, ", 
                          "y=Tumor_Sample_Barcode, ", 
                          "color=cluster), ", 
-                         "alpha=0.5, show.legend=FALSE) + ", 
+                         "alpha=0.5, show.legend=T) + ", 
                          "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                          "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ", 
                          .ofaVlineVAF(clusterAll, tsbLs, plotOption),  
@@ -230,13 +229,13 @@
                          "axis.title=element_text(size=13), ", 
                          "axis.text=element_text(size=12, colour = \"black\"), ", 
                          "axis.line=element_line(size=0.7)) + ", 
-                         "ggtitle(\"VAF clustering of ", patientID, "\") + ", 
+                         "ggtitle(\"VAF clustering of ", patient, "\") + ", 
                          "ggridges::geom_density_ridges(fill=\"whitesmoke\", ", 
                          "calc_ecdf=TRUE, alpha=0.5) + ",
                          "geom_point(aes(x=VAF, ", 
                          "y=Tumor_Sample_Barcode, ", 
                          "color=cluster), ", 
-                         "alpha=0.5, show.legend=FALSE) + ", 
+                         "alpha=0.5, show.legend=T) + ", 
                          "ggridges::geom_density_ridges(color=\"#00C0EB\", ", 
                          "fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1) + ",
                          .ofaVlineVAF(clusterAll, tsbLs, plotOption), 
@@ -288,29 +287,35 @@
 }
 
 
-doVafCluster <- function(patient.dat = NULL,
-                         maf = maf,
+doVafCluster <- function(maf = NULL,
+                         seg = NULL,
+                         chrSilent = NULL,
+                         mutType = "All",
+                         use.indel = TRUE,
                          min.vaf=0.02,
                          max.vaf=1,
                          showMATH=TRUE, 
                          plotOption="combine",
                          use.adjVAF = FALSE){
-   
-   patientID <- unique(patient.dat$Patient_ID) 
-   
-   ## filter maf data of patient 
-   maf@data <- maf@data[Patient_ID == patientID]
-   
-   ## fileter by min.vaf and max.vaf
-   patient.dat <- patient.dat[which(
-      !is.na(patient.dat$VAF)), ][which(
-         patient.dat$VAF > min.vaf & patient.dat$VAF < max.vaf), ]
+    ## remove mutation in CNA regions
+    if(!is.null(seg)){
+        maf <- copyNumberFilter(maf,seg)
+    }
+   maf_data <- subsetMaf(maf,
+                     chrSilent = chrSilent,
+                     mutType = mutType,
+                     use.indel = use.indel,
+                     min.vaf = min.vaf,
+                     max.vaf = max.vaf,
+                     use.adjVAF = use.adjVAF)
+   maf@data <- maf_data
+   patient <- unique(maf_data$Patient_ID) 
    
    ## extract vaf info
-   n <- length(patient.dat$Hugo_Symbol)
-   vafInputMt <- data.frame(patient.dat$Hugo_Symbol, 
-                            patient.dat$VAF, 
-                            patient.dat$Tumor_Sample_Barcode)
+   n <- length(maf_data$Hugo_Symbol)
+   vafInputMt <- data.frame(maf_data$Hugo_Symbol, 
+                            maf_data$VAF, 
+                            maf_data$Tumor_Sample_Barcode)
    colnames(vafInputMt) <- c("Hugo_Symbol", "VAF", "Samples")
    clusterAll <- data.frame()
    ## extract all tumor sample barcode
@@ -319,7 +324,7 @@ doVafCluster <- function(patient.dat = NULL,
    
    # if(use.shiny){
    #     incProgress(amount=1)
-   #     setProgress(message = paste('Generating ', "VAF density plot - ", patientID, sep=""))
+   #     setProgress(message = paste('Generating ', "VAF density plot - ", patient, sep=""))
    # }
    
    
@@ -349,8 +354,8 @@ doVafCluster <- function(patient.dat = NULL,
             next()
          }
          
-         ## infer possible cluster from patient.dat
-         clusterMt <- .clusterGenerator(patient.dat, sampleName)
+         ## infer possible cluster from maf_data
+         clusterMt <- .clusterGenerator(maf_data, sampleName)
          clusterMt <- clusterMt[which(clusterMt$Tumor_Sample_Barcode == sampleName), ]
          
          # prepare separated pictures for later combination 
@@ -371,10 +376,10 @@ doVafCluster <- function(patient.dat = NULL,
             ## set the columns of the picture and generate all single pictures
             combineTitle <- cowplot::ggdraw() + 
                cowplot::draw_label(
-                  paste("VAF clustering of ", patientID, sep=""),
+                  paste("VAF clustering of ", patient, sep=""),
                   fontface = 'bold',
-                  x = 0,
-                  hjust = 0,
+                  x = 0.5,
+                  hjust = 0.5,
                   size = 16
                ) +
                theme(
@@ -402,7 +407,7 @@ doVafCluster <- function(patient.dat = NULL,
                                          ", ncol=2, align=\"v\", scale=0.85)" , 
                                          sep="")))
          }
-         message(paste0("VAF density plot of ", patientID, " has been generated!"))
+         message(paste0("VAF density plot of ", patient, " has been generated!"))
          return(suppressWarnings(suppressMessages(pic)))
          # return(suppressWarnings(suppressMessages(pic)))
       }
@@ -412,7 +417,7 @@ doVafCluster <- function(patient.dat = NULL,
    else if (plotOption == "compare"){
       ## calculate ScoreMATH
       mathtbscoreLs <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, use.adjVAF = use.adjVAF)
-      mathscore <- mathtbscoreLs[mathtbscoreLs$Patient_ID == patientID,]
+      mathscore <- mathtbscoreLs[mathtbscoreLs$Patient_ID == patient,]
       
       ## record sample with few mutations
       fs <- c()
@@ -421,7 +426,7 @@ doVafCluster <- function(patient.dat = NULL,
       count <- 1
       for (i in seq_along(tsbLs[,1])){
          sampleName <- as.character(tsbLs[,1][counterMt])
-         sampleDat <- patient.dat[patient.dat$Tumor_Sample_Barcode == sampleName,]
+         sampleDat <- maf_data[maf_data$Tumor_Sample_Barcode == sampleName,]
          sampleMt <- vafInputMt[which(
             vafInputMt$Samples %in% sampleName),]
          ## data cleaning
@@ -431,7 +436,7 @@ doVafCluster <- function(patient.dat = NULL,
             message(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
             clusterAll <- clusterAll[clusterAll$Tumor_Sample_Barcode != sampleName,]
             mathscore <- mathscore[mathscore$Tumor_Sample_Barcode != sampleName,]
-            # patient.dat <- patient.dat[patient.dat$Tumor_Sample_Barcode != sampleName, ]
+            # maf_data <- maf_data[maf_data$Tumor_Sample_Barcode != sampleName, ]
             fs <- append(fs,sampleName)
             counterMt <- counterMt + 1
             next()
@@ -455,9 +460,10 @@ doVafCluster <- function(patient.dat = NULL,
       # mathscore <- mathtbscoreLs$patientLevel$MATH_Score
       pic <- suppressMessages(eval(parse(text=.ofaVAF(clusterAll, 
                                                       tsbLs, plotOption, 
-                                                      mathscore, patientID, 
+                                                      mathscore, patient, 
                                                       min.vaf, max.vaf))))
-      message(paste0("VAF density plot of ", patientID, " has been generated!"))
+      pic <- pic +theme(plot.title = element_text(hjust = 0.5))
+      message(paste0("VAF density plot of ", patient, " has been generated!"))
       return(suppressWarnings(suppressMessages(pic)))
       # return(suppressWarnings(suppressMessages(pic)))
    }
@@ -474,12 +480,12 @@ doVafCluster <- function(patient.dat = NULL,
    #    if (length(sampleMt[,1]) < 3) {
    #       stop(paste("Sample ", sampleName, " has too few mutaions",sep = ""))
    #    }
-   #    clusterMt <- .clusterGenerator(patient.dat, sampleName)
+   #    clusterMt <- .clusterGenerator(maf_data, sampleName)
    #    ## calculate ScoreMATH
    #    mathscore <- .mathCal(maf, min.vaf, max.vaf, showMATH, plotOption, sampleName)
    #    ## VAF plot for specifc sample
    #    pic <- .drawVAF(clusterMt, plotOption, mathscore)
-   #    message(paste0("VAF density plot of ", patientID, " has been generated!"))
+   #    message(paste0("VAF density plot of ", patient, " has been generated!"))
    #    return(suppressWarnings(suppressMessages(pic)))
    #    # return(suppressWarnings(suppressMessages(pic)))
    # }

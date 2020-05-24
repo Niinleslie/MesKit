@@ -1,5 +1,4 @@
 #' Subset Maf object
-#' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
 #' @param geneList subset by geneList.Default:NULL
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
@@ -20,8 +19,8 @@
 #'
 #' @examples
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
-#' maf <- subsetMaf(maf)
-#' @return Maf object.
+#' maf_data <- subsetMaf(maf)
+#' @return Maf data.
 #' @export
 
 subsetMaf <- function(maf,
@@ -32,109 +31,98 @@ subsetMaf <- function(maf,
                       use.indel = TRUE,
                       min.vaf = 0,
                       max.vaf = 1,
-                      min.average.vaf = 0,
-                      min.average.adj.vaf = 0,
-                      min.ccf = 0,
+                      min.average.vaf = NULL,
+                      min.average.adj.vaf = NULL,
+                      min.ccf = NULL,
                       min.ref.depth = 0,
                       min.alt.depth = 0,
                       min.total.depth = 0,
                       clonalStatus = NULL,
                       use.adjVAF = FALSE){
    
-   mafData <- maf@data
+   maf_data <- maf@data
    nonSyn.vc <- maf@nonSyn.vc
    
-   ## merge VAF,VAF_adj,CCF by tumor id
-   ## calculate average VAF
-   mafData <- mafData %>% 
-      dplyr::group_by(Patient_ID,Tumor_ID,Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2) %>%
-      dplyr::mutate(Total_allele_depth = Ref_allele_depth + Alt_allele_depth) %>% 
-      dplyr::mutate(Tumor_Average_VAF = round(sum(VAF * Total_allele_depth)/sum(Total_allele_depth),3)) %>% 
-      dplyr::filter(Tumor_Average_VAF >=min.average.vaf)
-   
-   ## calculate average adjust VAF
-   if("VAF_adj" %in% colnames(mafData)){
-      mafData <- mafData %>%
-         dplyr::mutate(Tumor_Average_VAF_adj = round(sum(VAF_adj * Total_allele_depth)/sum(Total_allele_depth),3)) %>%
-         dplyr::filter(Tumor_Average_VAF_adj>=min.average.adj.vaf)
-   }
-   
    if(use.adjVAF){
-       if(!"VAF_adj" %in% colnames(mafData)){
+       if(!"VAF_adj" %in% colnames(maf_data)){
            stop("Adjusted VAF was not found in maf data.")
        }
        else{
-           mafData$VAF <- mafData$VAF_adj
-           mafData$Tumor_Average_VAF <- mafData$Tumor_Average_VAF_adj
+           maf_data$VAF <- maf_data$VAF_adj
+           maf_data$Tumor_Average_VAF <- maf_data$Tumor_Average_VAF_adj
        }
    }
    
-   ## calculate average adjust CCF
-   if("CCF" %in% colnames(mafData)){
-      mafData <- mafData %>% 
-         dplyr::mutate(Tumor_Average_CCF = round(sum(CCF * Total_allele_depth)/sum(Total_allele_depth),3))
-   }
    
-   mafData <- mafData %>% 
-      dplyr::ungroup() %>%
-      dplyr::select(-Total_allele_depth) %>%  
-      as.data.table()
-   
-   ## patient filter
-   if(!is.null(patient.id)){
-      patient.setdiff <- setdiff(patient.id, unique(mafData$Patient_ID))
-      if(length(patient.setdiff) > 0){
-         stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
-      }
-      mafData <- mafData[Patient_ID %in% patient.id]
-   }
+   # ## patient filter
+   # if(!is.null(patient.id)){
+   #    patient.setdiff <- setdiff(patient.id, unique(maf_data$Patient_ID))
+   #    if(length(patient.setdiff) > 0){
+   #       stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
+   #    }
+   #    maf_data <- maf_data[Patient_ID %in% patient.id]
+   # }
    
    ## chromosome filter
    if (!is.null(chrSilent)) {
-      mafData <- mafData[mafData$Chromosome %in% chrSilent]
+      maf_data <- maf_data[Chromosome %in% chrSilent]
    }
    
    ## filter variant classification
    mutType <- match.arg(mutType, choices = c("All","nonSyn"), several.ok = FALSE)
    if (mutType == "nonSyn") {
-      mafData <-  mafData[Variant_Classification %in% nonSyn.vc]
+      maf_data <-  maf_data[Variant_Classification %in% nonSyn.vc]
    }
    
    ## use.indel filter
    if (!use.indel) {
-      mafData <- mafData[Variant_Type == "SNP"]
+      maf_data <- maf_data[Variant_Type == "SNP"]
    }
    
    ## Select mutations in selected genes
    if(!is.null(geneList)){
-      mafData <- mafData[Hugo_Symbol %in% geneList]
+      maf_data <- maf_data[Hugo_Symbol %in% geneList]
    }
    
    ## allele depth filter
-   mafData <- mafData[Ref_allele_depth>=min.ref.depth&
+   maf_data$Ref_allele_depth[is.na(maf_data$Ref_allele_depth)] <- 0
+   maf_data$Alt_allele_depth[is.na(maf_data$Alt_allele_depth)] <- 0
+   maf_data <- maf_data[Ref_allele_depth>=min.ref.depth&
                       Alt_allele_depth>=min.alt.depth &
                       Ref_allele_depth + Alt_allele_depth>=min.total.depth]
-   mafData$Ref_allele_depth[is.na(mafData$Ref_allele_depth)] <- 0
-   mafData$Alt_allele_depth[is.na(mafData$Alt_allele_depth)] <- 0
    
    ## vaf filter
-   mafData <- mafData[VAF >= min.vaf & VAF <= max.vaf]
+   maf_data <- maf_data[VAF >= min.vaf & VAF <= max.vaf]
+   if(!is.null(min.average.vaf)){
+       if(min.average.vaf > 0){
+           maf_data <- maf_data[Tumor_Average_VAF >=min.average.vaf]
+       }
+   }
+   
+   if("VAF_adj" %in% colnames(maf_data)){
+       if(!is.null(min.average.adj.vaf)){
+           if(min.average.adj.vaf > 0){
+               maf_data <- maf_data[Tumor_Average_VAF_adj>=min.average.adj.vaf]
+           }
+       }
+   }
    
    ## ccf filter
-   if("CCF" %in% colnames(mafData)){
-      mafData <- mafData[CCF >= min.ccf]
+   if("CCF" %in% colnames(maf_data)){
+      if(!is.null(min.ccf)){
+          if(min.ccf > 0){
+              maf_data <- maf_data[CCF >= min.ccf]
+          }
+      }
    }
    
    if(!is.null(clonalStatus)){
-      if(!"Clonal_Status" %in% colnames(mafData)){
+      if(!"Clonal_Status" %in% colnames(maf_data)){
          stop("Missing information about clonal status in maf data")
       }
       clonalStatus <- match.arg(clonalStatus, choices = c("Clonal", "Subclonal"))
-      mafData <- mafData[Clonal_Status == clonalStatus]
+      maf_data <- maf_data[Clonal_Status == clonalStatus]
    }
    
-   
-   maf@data <- mafData
-   
-   return(maf) 
+   return(maf_data) 
 }

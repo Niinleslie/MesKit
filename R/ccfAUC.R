@@ -30,120 +30,136 @@ ccfAUC <- function(
    withinTumor = FALSE,
    plot.density = TRUE
 ){
+    if(class(maf) == "classMaf"){
+        maf_list <- list(maf)
+    }else if(class(maf) == "classMaf_list"){
+        ## patient filter
+        if(!is.null(patient.id)){
+            maf_list <- subsetMaf_list(maf, patient.id = patient.id)
+        }else{
+            maf_list <- maf@patient.list
+        }
+    }else{
+        stop("maf should be either classMaf or classMaf_list")
+    }
     
-    maf <- subsetMaf(maf,
-                     patient.id = patient.id,
-                     chrSilent = chrSilent,
-                     mutType = mutType,
-                     # min.vaf = 0.02,
-                     use.indel = use.indel,
-                     min.ccf = min.ccf)
-    mafData <- maf@data %>% 
-        dplyr::filter(!is.na(CCF))
+    result <- list()
+    for(m in maf_list){
+        maf_data <- subsetMaf(m,
+                             chrSilent = chrSilent,
+                             mutType = mutType,
+                         # min.vaf = 0.02,
+                             use.indel = use.indel,
+                             min.ccf = min.ccf) %>% 
+            dplyr::filter(!is.na(CCF))
+        if(withinTumor) {
+            maf_data <- dplyr::filter(maf_data, !is.na(Tumor_Average_CCF))
+        }
+        patient <- unique(maf_data$Patient_ID)
+        
+        if(! "CCF" %in% colnames(maf_data)){
+            stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
+                        "No CCF data was found when generate Maf object."))
+        }
+        
+        if(plot.density){
+            CCF.density.plot <- list()
+        }
+        AUC.df <- data.frame()
+        
+        if(withinTumor){
+            ids <- unique(maf_data$Tumor_ID)
+        }else{
+            ids <- unique(maf_data$Tumor_Sample_Barcode)
+        }
+        CCF.sort <- data.frame()
+        for(id in ids){
+            if(withinTumor){
+                subdata <- subset(maf_data, Tumor_ID == id)
+                ccf <- subdata$Tumor_Average_CCF
+            }else{
+                subdata <- subset(maf_data, Tumor_Sample_Barcode == id)
+                ccf <- subdata$CCF
+            }
+            df_ccf <- data.frame(CCF = as.vector(sort(ccf)), prop = c(1:length(ccf))/length(ccf))
+            auc <- suppressWarnings(stats::integrate(approxfun(df_ccf$CCF,df_ccf$prop),
+                                                     min(df_ccf$CCF),
+                                                     max(df_ccf$CCF),
+                                                     # subdivisions = length(df_ccf),
+                                                     stop.on.error = F)$value)
+            # auc <- 0
+            # for(i in 1:(nrow(df_ccf)-1)){
+            #     mutArea <- (df_ccf[i, "prop"] + df_ccf[i+1, "prop"])*(df_ccf[i+1, "CCF"] - df_ccf[i, "CCF"])/2
+            #     auc <- mutArea + auc
+            # }
+            if(withinTumor){
+                a <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
+            }else{
+                a <- data.frame(Patient_ID = patient, Tumor_Sample_Barcode = id, AUC = auc)
+            }
+            AUC.df <- rbind(AUC.df, a)
+            
+            if(withinTumor){
+                c <-  subdata %>%         
+                    dplyr::arrange(Tumor_Average_CCF) %>%
+                    dplyr::mutate(prop = c(1:nrow(.)/nrow(.))) %>% 
+                    dplyr::mutate(Tumor_ID = paste0(Tumor_ID," (",round(auc,3),")"))
+                
+            }else{
+                c <-  subdata %>%         
+                    dplyr::arrange(CCF) %>%
+                    dplyr::mutate(prop = c(1:nrow(.)/nrow(.))) %>% 
+                    dplyr::mutate(Tumor_Sample_Barcode = paste0(Tumor_Sample_Barcode," (",round(auc,3),")"))
+                
+            }
+            CCF.sort <- rbind(CCF.sort,c)
+            
+        }
+        
+        if(plot.density){
+            if(withinTumor){
+                p <- ggplot2::ggplot(CCF.sort, 
+                                     aes(x=Tumor_Average_CCF, y=prop, group=Tumor_ID, color=Tumor_ID))
+            }else{
+                p <- ggplot2::ggplot(CCF.sort, 
+                                     aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))
+            }
+            p <- p + 
+                #geom_smooth(na.rm = TRUE, se = FALSE, size = 1.2, formula = y ~ s(x, bs = "cs"), method = "gam") +
+                theme_bw() + 
+                geom_line(size=1.2) +
+                xlim(0,1) + ylim(0,1) +     
+                coord_fixed() +
+                theme(
+                    #legend.position='none', 
+                    legend.title = element_blank(),
+                    title =  element_text(size=13), 
+                    panel.grid=element_blank(), 
+                    panel.border=element_blank(), 
+                    axis.line=element_line(size=0.7, colour = "black"),
+                    axis.text = element_text(size=11, colour = "black"),
+                    legend.text = element_text(size=11, colour = "black"),
+                    panel.grid.major = element_line(linetype = 2, color = "grey")
+                )+
+                labs(x = "CCF", y = "Proportion", 
+                     title = paste0("AUC plot of CCF : ", patient))
+            
+            CCF.density.plot <- p
+            result[[patient]] <- list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot)
+            next
+        }else{
+            result[[patient]] <- AUC.df
+        }
+    }
     
-   if(! "CCF" %in% colnames(mafData)){
-      stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
-                  "No CCF data was found when generate Maf object."))
-   }
-   
-   ## fresh patient.id
-   patient.id <- unique(mafData$Patient_ID)
-   
-   if(plot.density){
-      CCF.density.plot <- list()
-   }
-   AUC.df <- data.frame()
-   for(patient in patient.id){
-      patient.data <- subset(mafData, Patient_ID == patient)
-      
-      if(withinTumor){
-         ids <- unique(patient.data$Tumor_ID)
-      }else{
-         ids <- unique(patient.data$Tumor_Sample_Barcode)
-      }
-      CCF.sort <- data.frame()
-      for(id in ids){
-         if(withinTumor){
-            subdata <- subset(patient.data, Tumor_ID == id)
-            ccf <- subdata$Tumor_Average_CCF
-         }else{
-            subdata <- subset(patient.data, Tumor_Sample_Barcode == id)
-            ccf <- subdata$CCF
-         }
-         df_ccf <- data.frame(CCF = as.vector(sort(ccf)), prop = c(1:length(ccf))/length(ccf))
-         auc <- suppressWarnings(stats::integrate(approxfun(df_ccf$CCF,df_ccf$prop),
-                                                   min(df_ccf$CCF),
-                                                   max(df_ccf$CCF),
-                                                   # subdivisions = length(df_ccf),
-                                                   stop.on.error = F)$value)
-         # auc <- 0
-         # for(i in 1:(nrow(df_ccf)-1)){
-         #     mutArea <- (df_ccf[i, "prop"] + df_ccf[i+1, "prop"])*(df_ccf[i+1, "CCF"] - df_ccf[i, "CCF"])/2
-         #     auc <- mutArea + auc
-         # }
-         if(withinTumor){
-            a <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
-         }else{
-            a <- data.frame(Patient_ID = patient, Tumor_Sample_Barcode = id, AUC = auc)
-         }
-         AUC.df <- rbind(AUC.df, a)
-         
-         if(withinTumor){
-            c <-  subdata %>%         
-               dplyr::arrange(Tumor_Average_CCF) %>%
-               dplyr::mutate(prop = c(1:nrow(.)/nrow(.))) %>% 
-                dplyr::mutate(Tumor_ID = paste0(Tumor_ID," (",round(auc,3),")"))
-            
-         }else{
-            c <-  subdata %>%         
-               dplyr::arrange(CCF) %>%
-               dplyr::mutate(prop = c(1:nrow(.)/nrow(.))) %>% 
-               dplyr::mutate(Tumor_Sample_Barcode = paste0(Tumor_Sample_Barcode," (",round(auc,3),")"))
-
-         }
-         CCF.sort <- rbind(CCF.sort,c)
-            
-      }
-      
-      if(plot.density){
-         if(withinTumor){
-            p <- ggplot2::ggplot(CCF.sort, 
-                                 aes(x=Tumor_Average_CCF, y=prop, group=Tumor_ID, color=Tumor_ID))
-         }else{
-            p <- ggplot2::ggplot(CCF.sort, 
-                                 aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))
-         }
-         p <- p + 
-            #geom_smooth(na.rm = TRUE, se = FALSE, size = 1.2, formula = y ~ s(x, bs = "cs"), method = "gam") +
-            theme_bw() + 
-            geom_line(size=1.2) +
-            xlim(0,1) + ylim(0,1) +     
-            coord_fixed() +
-            theme(
-               #legend.position='none', 
-               legend.title = element_blank(),
-               title=element_text(size=13), 
-               panel.grid=element_blank(), 
-               panel.border=element_blank(), 
-               axis.line=element_line(size=0.7, colour = "black"),
-               axis.text = element_text(size=11, colour = "black"),
-               legend.text = element_text(size=11, colour = "black"),
-               panel.grid.major = element_line(linetype = 2, color = "grey")
-            )+
-            labs(x = "CCF", y = "Proportion", 
-                 title = paste0("AUC plot of CCF : ", patient))
-         
-         CCF.density.plot[[patient]] <- p
-      }
-      
-   }
-   
-   if(plot.density){
-      return(list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot))
-   }else{
-      return(list(AUC.value = AUC.df))
-   }
-   message("Calculation of AUC of CCF is done!")       
+    if(length(result) > 1){
+        return(result)
+    }else if(length(result) == 0){
+        return(NA)
+    }else{
+        return(result[[1]])
+    }
+    return(result)
    
 }
 

@@ -33,29 +33,11 @@ readSegment <- function(segCN.file = NULL,
                         gistic.qval = 0.25,
                         verbose = TRUE,
                         min.seg.size = 500){
-    seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
-    standardCol <- c("Patient_ID","Tumor_Sample_Barcode",
-                     "Chromosome","Start_Position",
-                     "End_Position")
-  if(!all(standardCol %in% colnames(seg))){
-     stop("segCN.file should contain Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position and End_Position") 
-  }
-  # if(is.null(seg$Patient_ID)){
-  #     seg$Patient_ID <- "ALL"
-  # }
-  # Replace chr with numeric value for better ordering
-  seg$Chromosome = gsub(pattern = 'chr', replacement = '', x = seg$Chromosome, fixed = TRUE)
-  seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
-  seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE) 
-  if("Start" %in% colnames(seg)){
-      seg <- dplyr::rename(seg,Start_Position = Start)
-  }
-  if("End" %in% colnames(seg)){
-      seg <- dplyr::rename(seg, End_Position = End)
-  }
-  if("Sample" %in% colnames(seg)){
-      seg <- dplyr::rename(seg,Tumor_Sample_Barcode = Sample)
-  }
+  seg <- suppressWarnings(data.table::fread(segCN.file, header=TRUE, sep="\t", stringsAsFactors = FALSE))
+  
+  ## valid seg
+  seg <- validSeg(seg)
+  
   if(!"CopyNumber" %in% colnames(seg)){
     if("SegmentMean" %in% colnames(seg)){
         suppressWarnings(seg[,CopyNumber := round(2^(SegmentMean)*2) ])

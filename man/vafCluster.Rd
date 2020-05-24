@@ -23,7 +23,7 @@ vafCluster(
 
 \item{segCN.file}{the segment file.}
 
-\item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
+\item{patient.id}{Select the specific patients in Maf list. Default: NULL, all patients are included.}
 
 \item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
 

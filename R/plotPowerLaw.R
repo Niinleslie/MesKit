@@ -1,4 +1,4 @@
-plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel){
+plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel, patient){
  area <- test.df$Area
  kolmogorovdist = test.df$Kolmogorov_Distance
  meandist = test.df$Mean_Distance 
@@ -38,7 +38,7 @@ plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel){
   #            round(y.min+(y.max-y.min)/4),
   #            round(y.min+(y.max-y.min)*2/4),
   #            round(y.max)))+
-  labs(title= id,
+  labs(title= paste0(patient, ":", id) ,
        x="Inverse allelic frequency 1/vaf",
        y="Cumulative number of SSNVs")+
   annotate("text",
