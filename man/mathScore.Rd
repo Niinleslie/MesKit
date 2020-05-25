@@ -20,9 +20,9 @@ mathScore(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{withinTumor}{Calculate AUC within types in each patients.Default :FALSE.}
+\item{withinTumor}{Calculate AUC within types in each patients. Default :FALSE.}
 
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
+\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
 
 \item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
 
@@ -33,7 +33,7 @@ mathScore(
 \item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02}
 }
 \value{
-a data.table of MATH scores
+a data.frame of MATH scores
 }
 \description{
 calculates MATH score of each tumor sample or based on Mutant-Allele Tumor Heterogeneity (MATH) approach.

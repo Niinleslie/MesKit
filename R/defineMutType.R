@@ -8,9 +8,9 @@ mutType_SP <- function(
     type_barcode_count,
     tumor_barcode_ID, 
     TypeCount,
-    classByType) {
+    classByTumor) {
     
-    if(classByType){
+    if(classByTumor){
         dplyr::case_when(
             #unique_barcode_count == 1 ~ "Private",
             (TypeCount == "Single") & (unique_barcode_count == 1) ~ "Private",
@@ -41,9 +41,9 @@ mutType_SPCS <- function(
     tumor_barcode_ID, 
     Clonal_Status, 
     TypeCount,
-    classByType) {
+    classByTumor) {
     
-    if(classByType){
+    if(classByTumor){
         dplyr::case_when(
             #TypeCount == "Single" & unique_barcode_count == 1 ~ paste0("Private_", Clonal_Status),
             #TypeCount == "Multi" & unique_barcode_count == 1 ~ paste0("Private_", "_", Clonal_Status),      
@@ -85,7 +85,7 @@ do.classify <- function(
     maf,
     class = "SP",
     patient.id = NULL,
-    classByType = FALSE) {
+    classByTumor = FALSE) {
     
     class.options = c('SP', 'CS', 'SPCS')
     if(!class %in% class.options){
@@ -119,7 +119,7 @@ do.classify <- function(
         maf_data %>%
         dplyr::group_by(., Patient_ID, mutation_id) %>%
         #dplyr::group_by(., Patient_ID) %>%
-        #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_ID, mutation_id)
+        #{if(classByTumor) dplyr::group_by(., Patient_ID, Tumor_ID, mutation_id)
         #else dplyr::group_by(., Patient_ID, mutation_id)
         #} %>%
         dplyr::summarise(unique_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
@@ -127,7 +127,7 @@ do.classify <- function(
     patient_barcode_count <-
         maf_data %>%
         dplyr::group_by(., Patient_ID) %>%
-        #{if(classByType) dplyr::group_by(., Patient_ID, Tumor_ID)
+        #{if(classByTumor) dplyr::group_by(., Patient_ID, Tumor_ID)
         #else dplyr::group_by(., Patient_ID)
         #} %>%
         dplyr::summarise(total_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
@@ -164,7 +164,7 @@ do.classify <- function(
                     type_barcode_count,
                     tumor_barcode_ID, 
                     TypeCount,
-                    classByType)
+                    classByTumor)
             )
     }else{
         if(! "Clonal_Status" %in% colnames(maf_data)){
@@ -189,7 +189,7 @@ do.classify <- function(
                                           tumor_barcode_ID, 
                                           Clonal_Status,
                                           TypeCount,
-                                          classByType)
+                                          classByTumor)
                     )
             }
         }

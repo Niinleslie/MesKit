@@ -6,8 +6,8 @@
 \usage{
 subsetMaf(
   maf,
-  geneList = NULL,
   patient.id = NULL,
+  geneList = NULL,
   chrSilent = NULL,
   mutType = "All",
   use.indel = TRUE,
@@ -24,11 +24,11 @@ subsetMaf(
 )
 }
 \arguments{
-\item{geneList}{subset by geneList.Default:NULL}
-
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
+\item{geneList}{subset by geneList.Default:NULL}
+
+\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
 
 \item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
 

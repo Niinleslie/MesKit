@@ -24,8 +24,8 @@
 #' @export
 
 subsetMaf <- function(maf,
-                      geneList = NULL,
                       patient.id = NULL,
+                      geneList = NULL,
                       chrSilent = NULL,
                       mutType = "All",
                       use.indel = TRUE,

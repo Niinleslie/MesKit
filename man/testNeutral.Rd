@@ -25,7 +25,7 @@ testNeutral(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
+\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
 
 \item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
 
@@ -46,8 +46,12 @@ testNeutral(
 \item{plot}{Logical, whether to print model fitting plot of each sample. Default: TRUE}
 }
 \description{
-Evaluat whether a tumor follows neutral evolution or under strong selection during the growth based on variant frequency distribution (VAF) of subclonal The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth.
+Evaluate whether a tumor follows neutral evolution or under strong selection during the growth based on variant frequency distribution (VAF) of subclonal mutations.
+The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth.
 }
 \examples{
 testNeutral(maf)
+}
+\references{
+Williams, M., Werner, B. et al. Identification of neutral tumor evolution across cancer types. Nat Genet 48, 238-244 (2016)
 }

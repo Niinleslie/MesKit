@@ -24,7 +24,7 @@ ccfAUC(
 
 \item{mutType}{select Proper variant classification you need. Default "All". Option: "nonSyn".}
 
-\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default TRUE.}
+\item{use.indel}{Logical value. Whether to include INDELs in analysis. Default: TRUE.}
 
 \item{min.ccf}{the minimum value of CCF. Default: 0}
 

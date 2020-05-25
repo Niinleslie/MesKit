@@ -7,10 +7,10 @@
 #' @param patient.id select the specific patients. Default: NULL, all patients are included
 #' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
 #' @param mutType select Proper variant classification you need. Default "All". Option: "nonSyn".
-#' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default TRUE.
+#' @param use.indel Logical value. Whether to include INDELs in analysis. Default: TRUE.
 #' @param min.ccf the minimum value of CCF. Default: 0
-#' @param plot.density whether to show the density plot. Default: TRUE
 #' @param withinTumor calculate AUC within types in each patients,default is FALSE.
+#' @param plot.density whether to show the density plot. Default: TRUE
 #' 
 #' @return A list containing AUC of CCF and a graph
 #' 
