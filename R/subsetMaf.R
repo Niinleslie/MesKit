@@ -2,7 +2,7 @@
 #'
 #' @param geneList subset by geneList.Default:NULL
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
-#' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
+#' @param chrSilent Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.
 #' @param mutType select Proper variant classification you need. Default "All". Option: "nonSyn".
 #' @param use.indel Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.
 #' @param min.vaf The minimum VAF for filtering variants. Default: 0.
