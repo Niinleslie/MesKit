@@ -8,7 +8,7 @@ getPhyloTree(
   maf,
   method = "NJ",
   min.vaf = 0.02,
-  min.ccf = 0,
+  min.ccf = NULL,
   bootstrap.rep.num = 100,
   patient.id = NULL,
   chrSilent = NULL,

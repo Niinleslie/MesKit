@@ -1,48 +1,3 @@
-doGetPhyloTree <- function(patient.data = NULL,
-                           refBuild = NULL,
-                           method = "NJ",
-                           bootstrap.rep.num = 100){
-   patientID <- unique(patient.data$Patient_ID)
-   
-   ## information input
-   binary.matrix <- getMutMatrix(patient.data, use.ccf = FALSE)
-   if("CCF" %in% colnames(patient.data)){
-      ccf.matrix <- getMutMatrix(patient.data, use.ccf = TRUE)
-   }else{
-      ccf.matrix <- matrix() 
-   }
-   mut_dat <- t(binary.matrix)
-   if(method == "NJ"){
-      matTree <- nj(dist.gene(mut_dat))
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
-   }else if(method == "MP"){
-      matTree <- byMP(mut_dat)
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100 
-   }else if(method == "ML"){
-      matTree <- byML(mut_dat)
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
-   }else if(method == "FASTME.bal"){
-      matTree <- ape::fastme.bal(dist.gene(mut_dat))
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
-   }else if(method == "FASTME.ols"){
-      matTree <- ape::fastme.ols(dist.gene(mut_dat))
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = T)/(bootstrap.rep.num)*100
-   }
-   branch.id <- readPhyloTree(matTree)
-   
-   mut.branches_types <- treeMutationalBranches(patient.data, branch.id, binary.matrix)
-   mut.branches <- mut.branches_types$mut.branches
-   branch.type <- mut.branches_types$branch.type
-   
-   phylo.tree <- new('phyloTree',
-                     patientID = patientID, tree = matTree, 
-                     binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
-                     mut.branches = mut.branches, branch.type = branch.type,
-                     refBuild = refBuild,
-                     bootstrap.value = bootstrap.value, method = method)
-   return(phylo.tree)
-}
-
 byMP <- function(mut_dat){
    matTree <- nj(dist.gene(mut_dat))
    tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
@@ -60,63 +15,74 @@ byML <- function(mut_dat){
    return(matTree)
 }
 
-treeMutationalBranches <- function(patient.data, branch.id, binary.matrix){
+treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    binary.matrix <- as.data.frame(binary.matrix)
-   binary.matrix$mut.id <- rownames(binary.matrix)
+   binary.matrix$mut_id <- rownames(binary.matrix)
    ## get mutationalSigs-related  infomation
-   patient.data <- patient.data
-   branchChar <- as.character(branch.id$Branch_ID)
-   mutId <- dplyr::select(tidyr::unite(patient.data, "mut_id", 
+   mut_id <- dplyr::select(tidyr::unite(maf_data, "mut_id", 
                                        Hugo_Symbol, Chromosome, 
                                        Start_Position, 
                                        Reference_Allele, Tumor_Seq_Allele2, 
                                        sep=":"), mut_id)
-   mutSigRef <- data.frame(Branch_ID = as.character(patient.data$Tumor_Sample_Barcode), 
-                           Branch_Tumor_ID = as.character(patient.data$Tumor_ID),
-                           chr = paste("chr", as.character(patient.data$Chromosome), sep=""),
-                           pos = patient.data$Start_Position, 
-                           pos_end = patient.data$End_Position,
-                           ref = patient.data$Reference_Allele, 
-                           alt = patient.data$Tumor_Seq_Allele2,
-                           Hugo_Symbol = patient.data$Hugo_Symbol, 
-                           mut_id = mutId,
+   mutSigRef <- data.frame(Branch_ID = as.character(maf_data$Tumor_Sample_Barcode), 
+                           Branch_Tumor_ID = as.character(maf_data$Tumor_ID),
+                           chr = as.character(maf_data$Chromosome),
+                           pos = maf_data$Start_Position, 
+                           pos_end = maf_data$End_Position,
+                           ref = maf_data$Reference_Allele, 
+                           alt = maf_data$Tumor_Seq_Allele2,
+                           Hugo_Symbol = maf_data$Hugo_Symbol, 
+                           mut_id = mut_id,
                            stringsAsFactors=FALSE)
    
    ## get branch infomation
+   branchChar <- as.character(branch.id$Branch_ID)
    ls.branch <- branchChar[order(nchar(branchChar), branchChar)]
    branches <- strsplit(ls.branch, split='∩')
    
    ## generate mutational intersections for each branch
    mutBranchesOutput <- list()
    for (branch in branches){
-      ## generate intersection's mut.id and get the mutation information in mutSigRef
+      ## generate intersection's mut_id and get the mutation information in mutSigRef
       branch <- unlist(branch)
       ## generate the branch name
       branchName <- paste(branch, collapse="∩")
-      branch.id <- append(branch, "mut.id")
-      unbranch <- names(binary.matrix)[which(!(names(binary.matrix) %in% branch.id))]
-      
+      # branch.id <- append(branch, "mut_id")
+      unbranch <- names(binary.matrix)[!names(binary.matrix) %in% branch]
+      unbranch <- unbranch[unbranch!="mut_id"]
       ## get branch tumor type
-      types <- unique(patient.data[Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
-      tsbs <- unique(patient.data[Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
-      tsbs.all <- unique(patient.data$Tumor_Sample_Barcode)
+      types <- unique(maf_data[Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
+      tsbs <- unique(maf_data[Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
+      tsbs.all <- unique(maf_data$Tumor_Sample_Barcode)
       
       if(length(tsbs.all) == length(tsbs)){
          Branch_Tumor_ID <- "Public"
-      } 
-      else if(length(types) > 1){
-         Branch_Tumor_ID <- paste0("Shared_",paste(types,collapse = "_"))
-      }
-      else if(length(types) == 1 & length(branch) > 1){
-         Branch_Tumor_ID <- paste0("Shared_",paste(types,collapse = "_"))
+      }else if(length(types) > 1){
+         if(length(unique(maf_data$Tumor_ID)) == 1){
+             Branch_Tumor_ID <- "Shared"
+         }else{
+             Branch_Tumor_ID <- paste0("Shared_",paste(types,collapse = "_"))
+         }
+      }else if(length(types) == 1 & length(branch) > 1){
+          if(length(unique(maf_data$Tumor_ID)) == 1){
+              Branch_Tumor_ID <- "Shared"
+          }else{
+              Branch_Tumor_ID <- paste0("Shared_",paste(types,collapse = "_"))
+          }
       }else if(length(types) == 1 & length(branch) == 1){
-         Branch_Tumor_ID <- paste0("Private_",paste(types,collapse = "_"))
+          if(length(unique(maf_data$Tumor_ID)) == 1){
+              Branch_Tumor_ID <- "Private"
+          }else{
+              Branch_Tumor_ID <- paste0("Private_",paste(types,collapse = "_"))
+          }
       }
       
       ## generate mutation intersection for specific branch
       branch.intersection <- dplyr::intersect(
          binary.matrix %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1)), 
-         binary.matrix %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0))) 
+         binary.matrix %>% dplyr::filter_at(unbranch, dplyr::all_vars(. == 0)))
+      # print(branch)
+      # print(branch.intersection)
       ## special situation: branch.intersection NULL
       if (nrow(branch.intersection) == 0){
          # message(paste(branchName, ": There are no private mutations for branch ", sep=""))
@@ -135,7 +101,7 @@ treeMutationalBranches <- function(patient.data, branch.id, binary.matrix){
          next()
       }
       
-      branch.mut.id <- branch.intersection$mut.id
+      branch.mut.id <- branch.intersection$mut_id
       ## data duplication
       branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% branch.mut.id), ]
       branch.mut$Branch_ID <- branchName
@@ -150,10 +116,11 @@ treeMutationalBranches <- function(patient.data, branch.id, binary.matrix){
       ## generate branch mutation list
       mutBranchesOutput[[branchName]] <- branch.mut
    }
+   
+   # print(binary.matrix[!binary.matrix$mut_id %in% mutBranchesOutput$mut_id,])
+   
    mutBranchesOutput <- plyr::rbind.fill(mutBranchesOutput) %>% 
        dplyr::select(-mut_id)
-   
-   
    
    branch.type <- mutBranchesOutput %>% 
        dplyr::select(Branch_ID, Branch_Tumor_ID)
@@ -181,5 +148,121 @@ setClass('phyloTree', slots = c(
     mut.branches = 'data.frame', 
     branch.type = 'data.frame',
     refBuild = 'character'
+
 ))
 
+#' @name showBinaryMatrix
+#' @rdname showBinaryMatrix
+#' @param object An object of phyloTree
+#' @return binary matrix of phyloTree
+#' @exportMethod showBinaryMatrix
+#' @examples 
+#' showBinaryMatrix(phyloTree)
+setGeneric(name = "showBinaryMatrix", function(object) standardGeneric("showBinaryMatrix"))
+
+#' @rdname showBinaryMatrix
+#' @aliases showBinaryMatrix
+setMethod(f = "showBinaryMatrix",signature = "phyloTree", function(object)object@binary.matrix)
+
+#' @name showPatientID
+#' @rdname showPatientID
+#' @param object An object of phyloTree
+#' @return patientID of phyloTree
+#' @exportMethod showPatientID
+#' @examples 
+#' showPatientID(phyloTree)
+setGeneric(name = "showPatientID", function(object) standardGeneric("showPatientID"))
+
+#' @rdname showPatientID
+#' @aliases showPatientID
+setMethod(f = "showPatientID",signature = "phyloTree", function(object)object@patientID)
+
+#' @name showBootstrapValue
+#' @rdname showBootstrapValue
+#' @param object An object of phyloTree
+#' @return bootstrap value of phyloTree
+#' @exportMethod showBootstrapValue
+#' @examples 
+#' showBootstrapValue(phyloTree)
+setGeneric(name = "showBootstrapValue", function(object) standardGeneric("showBootstrapValue"))
+
+#' @rdname showBootstrapValue
+#' @aliases showBootstrapValue
+setMethod(f = "showBootstrapValue",signature = "phyloTree", function(object)object@bootstrap.value)
+
+#' @name showTreeMethod
+#' @rdname showTreeMethod
+#' @param object An object of phyloTree
+#' @return tree construction method of phyloTree
+#' @exportMethod showTreeMethod
+#' @examples 
+#' showTreeMethod(phyloTree)
+setGeneric(name = "showTreeMethod", function(object) standardGeneric("showTreeMethod"))
+
+#' @rdname showTreeMethod
+#' @aliases showTreeMethod
+setMethod(f = "showTreeMethod",signature = "phyloTree", function(object)object@method)
+
+#' @name showCCFMatrix
+#' @rdname showCCFMatrix
+#' @param object An object of phyloTree
+#' @return ccf matrix of phyloTree
+#' @exportMethod showCCFMatrix
+#' @examples 
+#' showCCFMatrix(phyloTree)
+setGeneric(name = "showCCFMatrix", function(object) standardGeneric("showCCFMatrix"))
+
+#' @rdname showCCFMatrix
+#' @aliases showCCFMatrix
+setMethod(f = "showCCFMatrix",signature = "phyloTree", function(object)object@ccf.matrix)
+
+#' @name showMutBranches
+#' @rdname showMutBranches
+#' @param object An object of phyloTree
+#' @return branches mutation of phyloTree
+#' @exportMethod showMutBranches
+#' @examples 
+#' showMutBranches(phyloTree)
+setGeneric(name = "showMutBranches", function(object) standardGeneric("showMutBranches"))
+
+#' @rdname showMutBranches
+#' @aliases showMutBranches
+setMethod(f = "showMutBranches",signature = "phyloTree", function(object)object@mut.branches)
+
+#' @name showBranchType
+#' @rdname showBranchType
+#' @param object An object of phyloTree
+#' @return branch type of phyloTree
+#' @exportMethod showBranchType
+#' @examples 
+#' showBranchType(phyloTree)
+setGeneric(name = "showBranchType", function(object) standardGeneric("showBranchType"))
+
+#' @rdname showBranchType
+#' @aliases showBranchType
+setMethod(f = "showBranchType",signature = "phyloTree", function(object)object@branch.type)
+
+
+
+
+#' @name subset_phyloTree_list
+#' @rdname subset_phyloTree_list
+#' @param object An object of phyloTree_list
+#' @return select the specific patients in phyloTree_list
+#' @exportMethod subset_phyloTree_list
+#' @examples 
+#' subset_phyloTree_list(phyloTree)
+setGeneric(name = "subset_phyloTree_list", function(object,patient.id = NULL) standardGeneric("subset_phyloTree_list"))
+
+#' @rdname subset_phyloTree_list
+#' @aliases subset_phyloTree_list
+setMethod(f = "subset_phyloTree_list",signature = "phyloTree_list", function(object,patient.id = NULL){
+    if(!is.null(patient.id)){
+        patient.setdiff <- setdiff(patient.id, names(object@patient.list))
+        if(length(patient.setdiff) > 0){
+            stop(paste0(patient.setdiff, " can not be found in your data"))
+        }
+        object@patient.list <- object@patient.list[names(object@patient.list)  %in% patient.id] 
+    }
+    return(object@patient.list)
+}) 

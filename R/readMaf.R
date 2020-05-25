@@ -16,6 +16,7 @@
 #' @return an object of class Maf.
 #'
 #' @exportClass classMaf
+#' @exportClass classMaf_list
 #' @export readMaf
 
 
@@ -45,7 +46,7 @@ readMaf <- function(
         )
     }
 
-    mafData <- data.table::fread(
+    maf_data <- data.table::fread(
             file = mafFile,
             quote = "",
             header = TRUE,
@@ -57,45 +58,24 @@ readMaf <- function(
         )
     
     ## check maf data
-    mafData <- validMaf(mafData)
+    maf_data <- validMaf(maf_data)
     
-    ## get mutation id:
-    mafData <- mafData %>% 
-        tidyr::unite(
-            "Mut_ID",
-            c(
-                "Patient_ID",
-                "Chromosome",
-                "Start_Position",
-                "Reference_Allele",
-                "Tumor_Seq_Allele2"
-            ),
-            sep = ":",
-            remove = FALSE
-        )
+    ## calculate average VAF
+    maf_data <- maf_data %>% 
+        dplyr::group_by(Patient_ID,Tumor_ID,Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2) %>%
+        dplyr::mutate(Total_allele_depth = Ref_allele_depth + Alt_allele_depth) %>% 
+        dplyr::mutate(Tumor_Average_VAF = round(sum(VAF * Total_allele_depth)/sum(Total_allele_depth),3)) %>% 
+        dplyr::ungroup() %>% 
+        as.data.frame()
     
     if(adjusted.VAF){
-        mafData$VAF_adj <- mafData$VAF
+        maf_data$VAF_adj <- maf_data$VAF
     } 
 
-    # Add sampleinfo
-    patients.dat <- split(mafData, mafData$Patient_ID)
-    sample.info <- lapply(patients.dat,
-                          function(x){
-                              tsb.info <- x %>% 
-                                  dplyr::select(Tumor_Sample_Barcode,Tumor_ID) %>%
-                                  dplyr::distinct(Tumor_Sample_Barcode, .keep_all = TRUE)
-                              if(nrow(tsb.info) < 2){
-                                  stop("Errors: each patient should have at least two tumor samples.")
-                              }
-                              return(tsb.info)
-                          })
 
-    
-    
     ## read ccf files
     if (!is.null(ccfFile)) {
-        ccf <- suppressWarnings(data.table::fread(
+        ccf_data <- suppressWarnings(data.table::fread(
             ccfFile,
             quote = "",
             header = TRUE,
@@ -103,27 +83,50 @@ readMaf <- function(
             sep = '\t',
             stringsAsFactors = FALSE
         ))
-        ## check ccf data
-        ccf <- validCCF(ccf)
-        ## merge ccf to maf
-        mafData <- readCCF(mafData, ccf, ccf.conf.level, sample.info, adjusted.VAF)
+        ## check ccf_data
+        ccf_data <- validCCF(ccf_data)
+        ## merge ccf_data to maf_data
+        maf_data <- readCCF(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VAF)
     }
     
-
-        
-        
-    ## generate classMaf
-    maf <- classMaf(
-        data = data.table::setDT(mafData),
-        sample.info = sample.info,
-        nonSyn.vc = nonSyn.vc,
-        ref.build = refBuild
-    )
+    ## calculate average adjust VAF
+    if("VAF_adj" %in% colnames(maf_data)){
+        maf_data <- maf_data %>%
+            dplyr::group_by(Patient_ID,Tumor_ID,Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2) %>%
+            dplyr::mutate(Tumor_Average_VAF_adj = round(sum(VAF_adj * Total_allele_depth)/sum(Total_allele_depth),3))
+    }
     
-    # ## for parameter vafColumn="VAF", select particular VAF column
-    # colnames(maf@data)[colnames(maf@data) == vafColumn] <- "VAF"
+    maf_data <- maf_data %>% 
+        dplyr::ungroup() %>% 
+        dplyr::select(-Total_allele_depth) %>% 
+        as.data.frame()
     
-    return(maf)
+    data_list <- split(maf_data, maf_data$Patient_ID)
+    maf_patient_list <- list()
+    for(data in data_list){
+        patient <- unique(data$Patient_ID)
+        info <- data %>% 
+            dplyr::select(Tumor_Sample_Barcode,Tumor_ID) %>%
+            dplyr::distinct(Tumor_Sample_Barcode, .keep_all = TRUE)
+        if(nrow(info) < 2){
+            stop("Errors: each patient should have at least two tumor samples.")
+        }
+        maf <- classMaf(
+            data = data.table::setDT(data),
+            sample.info = as.data.frame(info),
+            nonSyn.vc = nonSyn.vc,
+            ref.build = refBuild
+        )
+        maf_patient_list[[patient]] <- maf
+    }
+    
+    if(length(data_list) > 1){
+        ## set claassMaf_list
+        maf_list <-  classMaf_list(patient.list = maf_patient_list)
+        return(maf_list)
+    }else{
+        return(maf_patient_list[[1]])
+    }
 }
 
 ##--- classMaf class
@@ -131,10 +134,18 @@ classMaf <- setClass(
     Class = "classMaf",
     slots = c(
         data = 'data.table',
-        sample.info = 'list',
+        sample.info = 'data.frame',
         nonSyn.vc = 'character',
         ref.build = 'character'
         
+    )
+)
+
+##--- classMaf_list class
+classMaf_list <- setClass(
+    Class = "classMaf_list",
+    slots = c(
+        patient.list = 'list'
     )
 )
 

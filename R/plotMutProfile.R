@@ -33,8 +33,24 @@ plotMutProfile <- function(maf,
                            remove_empty_columns = TRUE,
                            remove_empty_rows = TRUE, 
                            showColnames = TRUE) {
-
-
+  
+    if(class(maf) == "classMaf_list"){
+        ## patient filter
+        if(!is.null(patient.id)){
+            maf <- subsetMaf_list(maf, patient.id = patient.id)
+        }
+        maf_data_list <- lapply(maf@patient.list,function(x)x@data)
+        maf_data <- plyr::rbind.fill(maf_data_list)
+        maf <- classMaf(
+            data = as.data.table(maf_data),
+            sample.info = data.frame(),
+            nonSyn.vc = "",
+            ref.build = ""
+        )
+    }else if(class(maf) == "classMaf"){
+        stop("maf should be either classMaf or classMaf_list")
+    }
+    
    maf_data <- do.classify(maf, classByType = classByType, patient.id = patient.id, class = class)
   
   if (!is.null(geneList)) {  
@@ -154,17 +170,20 @@ plotMutProfile <- function(maf,
                       "Private_Clonal",
                       "Private_Subclonal"                    
                   )
+              
           }
-        
+          mutTypes <- as.character(na.omit(unique(unlist(strsplit(mat, ";")))))
+          cols <- cols[which(names(cols) %in% mutTypes)]
+          
           return(cols)
       }
 
       alter_fun <- function(class){
           if(class == "SP"){
               l <- list(
-              background = function(x, y, w, h)
-                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                  gp = grid::gpar(fill = bgCol, col = NA)),
+              #background = function(x, y, w, h)
+                  #grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                 # gp = grid::gpar(fill = bgCol, col = NA)),
               Private = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("SP")["Private"], col = NA)),
@@ -179,9 +198,9 @@ plotMutProfile <- function(maf,
               ))
           }else if(class == "CS"){
               l <- list(
-              background = function(x, y, w, h)
-                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                  gp = grid::gpar(fill = bgCol, col = NA)),
+              #background = function(x, y, w, h)
+                  #grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  #gp = grid::gpar(fill = bgCol, col = NA)),
               Clonal = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("CS")["Clonal"], col = NA)),
@@ -193,33 +212,43 @@ plotMutProfile <- function(maf,
                   ))
           }else if(class == "SPCS" ){
               l <- list(
-              background = function(x, y, w, h)
-                  grid::grid.rect(x, y, w * 0.9, h * 0.9,
-                                  gp = grid::gpar(fill = bgCol, col = NA)),
+              #background = function(x, y, w, h)
+                  #grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                  #gp = grid::gpar(fill = bgCol, col = NA)),
               Private_Clonal = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("SPCS")["Private_Clonal"], col = NA)),
               Private_Subclonal = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("SPCS")["Private_Subclonal"], col = NA)),
-              Shared_Clonal = function(x, y, w, h)
+              Public_Clonal = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("SPCS")["Public_Clonal"], col = NA)),
-              Shared_Subclonal = function(x, y, w, h)
+              Public_Subclonal = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("SPCS")["Public_Subclonal"], col = NA)),
-              P_shared_Clonal = function(x, y, w, h)
+              Shared_Clonal = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("SPCS")["Shared_Clonal"], col = NA)),
-              P_shared_Subclonal = function(x, y, w, h)
+              Shared_Subclonal = function(x, y, w, h)
                   grid::grid.rect(x, y, w * 0.9, h * 0.9,
                                   gp = grid::gpar(fill = col_type("SPCS")["Shared_Subclonal"], col = NA)),
               Multi_hits = function(x, y, w, h)
                   grid::grid.points(x, y, pch = 16, size = grid::unit(0.5, "char") 
               ))
           }
-          return(l)            
+          
+          mutTypes <- as.character(na.omit(unique(unlist(strsplit(mat, ";")))))
+          l_filter <- l[which(names(l) %in% mutTypes)]
+          l_final <- c(background = function(x, y, w, h)
+                            grid::grid.rect(x, y, w * 0.9, h * 0.9,
+                                    gp = grid::gpar(fill = bgCol, col = NA)), l_filter)
+          
+          
+          return(l_final)            
       }
+      
+      
      
     } else{
       
@@ -250,9 +279,9 @@ plotMutProfile <- function(maf,
       # sort types in legend
       if (class == "SP" | class == "SPCS") {
         sortType <- function(types) {
-            publicType <- types[grep("Public", types)]
-            sharedType <- types[grep("Shared", types)]
-            privateType <- types[grep("Private", types)]
+            publicType <- sort(types[grep("Public", types)])
+            sharedType <- sort(types[grep("Shared", types)])
+            privateType <- sort(types[grep("Private", types)])
             return(c(publicType, sharedType, privateType))
         }
       
@@ -398,7 +427,7 @@ plotMutProfile <- function(maf,
             pct_digits = 2,
             pct_side = "right",
             row_names_side = "left", 
-            column_split = patient.split,
+            column_split = factor(patient.split,levels = unique(patient.split)),
             column_order = colnames(mat),
             column_labels = col_labels,
             show_column_names = showColnames,

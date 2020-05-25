@@ -97,8 +97,9 @@ doTreeMutSig <- function(phyloTree,
          message(paste0("Warnings: ",
                         "mutation number of Branch " , branchName,
                         " is less than the min.mut.count argument! ",
-                        "This branch will be skipped")
-      )
+                        "This branch will be skipped"))
+         ## remove branch
+         cos_sim.mat <- cos_sim.mat[rownames(cos_sim.mat)!=branchName,]
          # if (any(mutSigRef[which(mutSigRef$Branch_ID == branchName), ]$mut_id == "NoSigTag")) {
          #    mut.count <- 0
          # }
@@ -319,7 +320,7 @@ countTripletBranch <- function(ref, triplet96, ref64, refBuild, CT){
     
     CpG = c("ACG", "CCG", "TCG", "GCG")
 
-    context <- Biostrings::getSeq(get(refBuild),Rle(ref$chr),ref$pos-1, ref$pos+1) 
+    context <- Biostrings::getSeq(get(refBuild),Rle(paste("chr",ref$chr,sep = "")),ref$pos-1, ref$pos+1) 
     context <- as.character(context)
     context1 <- context
     context <- ref64[context]
@@ -377,7 +378,7 @@ calSim <- function(sigsInput, sigsRef){
         }
     }
     
-    return(as.data.frame(cos_sim.mat) )
+    return(as.data.frame(cos_sim.mat))
     
 }
 

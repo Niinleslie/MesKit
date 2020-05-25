@@ -13,9 +13,9 @@ subsetMaf(
   use.indel = TRUE,
   min.vaf = 0,
   max.vaf = 1,
-  min.average.vaf = 0,
-  min.average.adj.vaf = 0,
-  min.ccf = 0,
+  min.average.vaf = NULL,
+  min.average.adj.vaf = NULL,
+  min.ccf = NULL,
   min.ref.depth = 0,
   min.alt.depth = 0,
   min.total.depth = 0,
@@ -55,12 +55,12 @@ subsetMaf(
 \item{use.adjVAF}{let VAF = VAF_adj, Tumor_Average_VAF = Tumor_Average_VAF_adj.Default: FALSE.}
 }
 \value{
-Maf object.
+Maf data.
 }
 \description{
-Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
+Subset Maf object
 }
 \examples{
 maf <- readMaf(mafFile=maf.File, refBuild="hg19")
-maf <- subsetMaf(maf)
+maf_data <- subsetMaf(maf)
 }
