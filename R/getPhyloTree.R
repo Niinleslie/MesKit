@@ -42,7 +42,7 @@ getPhyloTree <- function(maf,
           maf_list <- maf
       }
   }else{
-      stop("Error:maf should be either Maf or MafList object")
+      stop("Error: maf should be either Maf or MafList object")
   }
   
   phyloTree_patient_list <- list()

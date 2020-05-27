@@ -49,7 +49,7 @@ calNeiDist <- function(maf,
             maf_list <- maf
         }
     }else{
-        stop("Error:maf should be either Maf or MafList object")
+        stop("Error: input should be either Maf or MafList object")
     }
     
     result <- list()
@@ -64,7 +64,7 @@ calNeiDist <- function(maf,
         patient <- unique(maf_data$Patient_ID)
         
         if(! "CCF" %in% colnames(maf_data)){
-            stop(paste0("Calculation of Nei’s distance requires CCF data." ,
+            stop(paste0("Error: calculation of Nei’s distance requires CCF data." ,
                         "No CCF data was found when generate Maf object with readMaf function"))
         }
         

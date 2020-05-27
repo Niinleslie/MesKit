@@ -39,7 +39,7 @@ calFst <- function(
    
     
     if(min.total.depth <= 1){
-        stop("Error:min.total.depth should be greater than 1")
+        stop("Error: min.total.depth should be greater than 1")
     }
     if(withinTumor){
         clonalStatus <- "Subclonal"
@@ -58,7 +58,7 @@ calFst <- function(
         }
         
     }else{
-        stop("Error:maf should be either Maf or MafList object")
+        stop("Error: input should be either Maf or MafList object")
     }
     
     result <- list()
@@ -74,7 +74,7 @@ calFst <- function(
             
         patient <- unique(maf_data$Patient_ID)
         if(!"VAF_adj" %in% colnames(maf_data)){
-            stop("Error:Adjust VAF was not found in maf object.
+            stop("Error: adjust_VAF was not found in maf object.
 		     Check if CCF data was provided or let adjusted.VAF be TRUE in function readMaf when VAF have been adjusted")
         }
         

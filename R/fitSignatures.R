@@ -25,7 +25,7 @@ fitSignatures <- function(tri_matrix = NULL,
     if(!is.null(patient.id)){
          patient.setdiff <- setdiff(patient.id, names(tri_matrix))
          if(length(patient.setdiff) > 0){
-            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
+            stop(paste0("Error: Patient ", patient.setdiff, " can not be found in your data"))
          }
          tri_matrix <- tri_matrix[names(tri_matrix) %in% patient.id]
     }
