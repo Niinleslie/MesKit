@@ -38,7 +38,7 @@ plotCNA <- function(seg,
         if(length(patient.id) > 1){
             patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
             if(length(patient.setdiff) > 0){
-                stop(paste0(patient.setdiff, " can not be found in your data"))
+                stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
             }
             seg <- seg[Patient_ID %in% patient.id]
         }
@@ -48,14 +48,14 @@ plotCNA <- function(seg,
     }else if(length(patient.id) == 1){
         patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
         if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
+            stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
         }
         seg <- seg[Patient_ID %in% patient.id]
     }
     
     if(show.GISTIC.gene){
       if(!"Gistic.type" %in% colnames(seg)){
-        stop("Error:GISTIC genes information were not found. Please check readSegment")
+        stop("Error: GISTIC genes information were not found. Please check readSegment")
       }
     }
     # if("Start" %in% colnames(seg)){
@@ -63,7 +63,7 @@ plotCNA <- function(seg,
     # }
     ref.options <- c("hg19","hg18","hg38")
     if(!refBuild %in% ref.options){
-        stop("Error:refBuild can only be either 'hg18','hg19' or 'hg38'")
+        stop("Error: refBuild should only be either 'hg18','hg19' or 'hg38'")
     }
     if(refBuild == 'hg19'){
         chrLens = c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663,
@@ -81,7 +81,7 @@ plotCNA <- function(seg,
                      114364328, 107043718, 101991189, 90338345, 83257441, 80373285,
                      58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
     } else{
-        stop('Available reference builds: hg18, hg19, hg38')
+        stop('"Error: available reference builds: hg18, hg19, hg38')
     }
     updatePosition <- function(x,pos,chrname,chrLens){
         return(as.numeric(x[pos]) + as.numeric(chrLens[as.numeric(x[chrname]) ]) )

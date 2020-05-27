@@ -48,7 +48,7 @@ plotMutProfile <- function(maf,
             ref.build = ""
         )
     }else if(class(maf) == "Maf"){
-        stop("Error:maf should be either Maf or MafList object")
+        stop("Error: input should be either Maf or MafList object")
     }
     
    maf_data <- do.classify(maf, classByTumor = classByTumor, patient.id = patient.id, class = class)

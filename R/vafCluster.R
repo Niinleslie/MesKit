@@ -50,7 +50,7 @@ vafCluster <-function(maf,
       }
       
   }else{
-      stop("Error:maf should be either Maf or MafList object")
+      stop("Error: input should be either Maf or MafList object")
   }
   
   result <- list()
@@ -89,7 +89,7 @@ vafCluster <-function(maf,
               subdata <- maf_data[ID == id]  
               ## data cleaning
               if (nrow(subdata) < 3) {
-                  message(paste("Sample ", id, " has too few mutaions",sep = ""))
+                  message(paste0("Error: mutations of Sample ", id, " are not enough for clustering"))
                   next()
               }
               
@@ -135,7 +135,7 @@ vafCluster <-function(maf,
           for (id in id_list){
               subdata <- maf_data[ID == id]  
               if (nrow(subdata) < 3) {
-                  message(paste(id, " has too few mutations",sep = ""))
+                  message(paste0("Error: mutations of Sample ", id, " are not enough for clustering"))
                   maf_data <- maf_data[ID != id]
                   next
               }

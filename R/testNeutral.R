@@ -53,7 +53,7 @@ testNeutral <- function(maf,
             maf_list <- maf
         }
     }else{
-        stop("Error:maf should be either Maf or MafList object")
+        stop("Error: input should be either Maf or MafList object")
     }
     
     result <- list()
@@ -93,7 +93,7 @@ testNeutral <- function(maf,
             }
             ## warning
             if(nrow(subdata) < min.mut.count){
-                warning(paste0("Sample ", id, " of ", patient, ": There is no enough eligible mutations can be used."))
+                warning(paste0("Eligible mutations of sample ", id, " from ", patient, " is not enough for testing neutral evolution."))
                 next
             }
             

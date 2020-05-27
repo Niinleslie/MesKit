@@ -50,7 +50,7 @@ getMutMatrix <- function(mafData, use.ccf = FALSE){
   
   ## get CCF matrix
   if(use.ccf & !"CCF" %in% colnames(mafData)){
-    stop("Error:No CCF data was found when during Maf object generation")
+    stop("Error: no CCF data was found from Maf object")
   }
 
   if(use.ccf & "CCF" %in% colnames(mafData)){
