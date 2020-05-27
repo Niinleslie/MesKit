@@ -8,7 +8,7 @@ plotMutProfile(
   maf,
   patient.id = NULL,
   class = "SP",
-  classByType = FALSE,
+  classByTumor = FALSE,
   topGenesCount = 10,
   geneList = NULL,
   bgCol = "#f0f0f0",
@@ -28,7 +28,7 @@ or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClo
 \item{class}{The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
 other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
-\item{classByType}{FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)}
+\item{classByTumor}{FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)}
 
 \item{topGenesCount}{The number of genes print, default is 10}
 
