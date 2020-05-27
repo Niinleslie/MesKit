@@ -8,7 +8,7 @@ doMutTrunkBranch <- function(mtb_input,CT){
       return(NA)
    }
    df.pValue <- ls.BT$df.pValue
-   sigsInputBoxplot <- ls.BT$sigsInputBoxplot
+   tri_matrixBoxplot <- ls.BT$tri_matrixBoxplot
    
    if(CT){
        ls.mutationGroup <- c("C>A","C>G","C>T at CpG","C>T other","T>A","T>C","T>G")
@@ -24,10 +24,10 @@ doMutTrunkBranch <- function(mtb_input,CT){
    output <- cbind(output, Significance=rep("-", nrow(output)))
    output$Significance <- as.character(output$Significance)
    for (mutationGroup in ls.mutationGroup) {
-      output$Branch[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
-         sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Branch"),]$mut.num)
-      output$Trunk[which(output$Group == mutationGroup)] <- sum(sigsInputBoxplot[which(
-         sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Trunk"),]$mut.num)
+      output$Branch[which(output$Group == mutationGroup)] <- sum(tri_matrixBoxplot[which(
+         tri_matrixBoxplot$Group == mutationGroup & tri_matrixBoxplot$BT == "Branch"),]$mut.num)
+      output$Trunk[which(output$Group == mutationGroup)] <- sum(tri_matrixBoxplot[which(
+         tri_matrixBoxplot$Group == mutationGroup & tri_matrixBoxplot$BT == "Trunk"),]$mut.num)
       
       # significant level
       if (!is.null(output[which(output$p.value < 0.05), ]$Significance)) {
@@ -47,20 +47,20 @@ doMutTrunkBranch <- function(mtb_input,CT){
 
 .dataProcessBT <- function(mtb_input,CT) {
    ## input data from mtb_input
-   sigsInput <- mtb_input$sigsInput
+   tri_matrix <- mtb_input$tri_matrix
    ## label the Trunk
-   if (length(mtb_input$trunkName) != 0){
-      trunkName <- mtb_input$trunkName
+   if (length(mtb_input$trunk_name) != 0){
+      trunk_name <- mtb_input$trunk_name
    } else {
       warning(paste0("Patient ",mtb_input$patientID,": no trunk mutations are detected!"))
       return(NA)
    } 
    ## separate trunk and branch data
-   sigsInput.trunk <- sigsInput[which(rownames(sigsInput) == trunkName), ]
-   sigsInput.branch <- sigsInput[which(rownames(sigsInput) != trunkName), ]
-   sigsInput.branch <- colSums(sigsInput.branch)
-   sigsInputBT <- rbind(Trunk=sigsInput.trunk, Branch=sigsInput.branch)
-   sigsInputBTTrans <- data.frame(Mutational_Type=colnames(sigsInputBT), t(sigsInputBT))
+   tri_matrix.trunk <- tri_matrix[which(rownames(tri_matrix) == trunk_name), ]
+   tri_matrix.branch <- tri_matrix[which(rownames(tri_matrix) != trunk_name), ]
+   tri_matrix.branch <- colSums(tri_matrix.branch)
+   tri_matrixBT <- rbind(Trunk=tri_matrix.trunk, Branch=tri_matrix.branch)
+   tri_matrixBTTrans <- data.frame(Mutational_Type=colnames(tri_matrixBT), t(tri_matrixBT))
    
    if(CT){
        ls.mutationGroup <- c("C>A","C>G","C>T at CpG","C>T other","T>A","T>C","T>G")
@@ -69,38 +69,42 @@ doMutTrunkBranch <- function(mtb_input,CT){
    }
 
    ## generate Mutation Type for every column
+   # print(mtb_input$patientID)
+   # print(tri_matrixBTTrans)
+   tri_matrixBTTrans$Group <- ''
    for (mutationGroup in ls.mutationGroup) {
-      sigsInputBTTrans$Group[which(grepl(mutationGroup, sigsInputBTTrans$Mutational_Type))] <- mutationGroup
+       # print(mutationGroup)
+      tri_matrixBTTrans$Group[which(grepl(mutationGroup, tri_matrixBTTrans$Mutational_Type))] <- mutationGroup
    }
+   # print(1)
+   tri_matrixBSum <- tri_matrixBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
+   tri_matrixTSum <- tri_matrixBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
    
-   sigsInputBSum <- sigsInputBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Branch))
-   sigsInputTSum <- sigsInputBTTrans %>% dplyr::group_by(Group) %>% dplyr::summarise(sum = sum(Trunk))
-   
-   sigsInputBTTrans <- cbind(sigsInputBTTrans, 
-                             BranchFrac=rep(0, nrow(sigsInputBTTrans)), 
-                             TrunkFrac=rep(0, nrow(sigsInputBTTrans)))
+   tri_matrixBTTrans <- cbind(tri_matrixBTTrans, 
+                             BranchFrac=rep(0, nrow(tri_matrixBTTrans)), 
+                             TrunkFrac=rep(0, nrow(tri_matrixBTTrans)))
    for (mutationGroup in ls.mutationGroup) {
-      groupBSum <- sigsInputBSum$sum[which(sigsInputBSum$Group == mutationGroup)]
+      groupBSum <- tri_matrixBSum$sum[which(tri_matrixBSum$Group == mutationGroup)]
       if (groupBSum == 0) {
-         sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch <- 0
-         # sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$BranchFrac <- 0
+         tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$Branch <- 0
+         # tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$BranchFrac <- 0
       }
-      groupTSum <- sigsInputTSum$sum[which(sigsInputTSum$Group == mutationGroup)]
+      groupTSum <- tri_matrixTSum$sum[which(tri_matrixTSum$Group == mutationGroup)]
       if (groupBSum == 0) {
-         sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk <- 0
-         # sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$TrunkFrac <- 0
+         tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$Trunk <- 0
+         # tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$TrunkFrac <- 0
       }
       
-      sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$BranchFrac <-
-         100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Branch/groupBSum
-      sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$TrunkFrac <-
-         100*sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]$Trunk/groupTSum
+      tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$BranchFrac <-
+         100*tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$Branch/groupBSum
+      tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$TrunkFrac <-
+         100*tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]$Trunk/groupTSum
    }
    
-   sigsInputBoxplot <- data.frame(matrix(nrow=0, ncol=5))
-   colnames(sigsInputBoxplot) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
+   tri_matrixBoxplot <- data.frame(matrix(nrow=0, ncol=5))
+   colnames(tri_matrixBoxplot) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
    for (mutationGroup in ls.mutationGroup) {
-      dat.group <- sigsInputBTTrans[which(sigsInputBTTrans$Group == mutationGroup), ]
+      dat.group <- tri_matrixBTTrans[which(tri_matrixBTTrans$Group == mutationGroup), ]
       df.groupT <- data.frame(rep(paste(mutationGroup, "Trunk", sep=" "), nrow(dat.group)), 
                               rep(mutationGroup, nrow(dat.group)), 
                               rep("Trunk", nrow(dat.group)),
@@ -113,16 +117,16 @@ doMutTrunkBranch <- function(mtb_input,CT){
                               dat.group$Branch)
       colnames(df.groupB) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
       colnames(df.groupT) <- c("GroupBT", "Group", "BT", "mut.frac", "mut.num")
-      sigsInputBoxplot <- rbind(sigsInputBoxplot, df.groupT, df.groupB)
+      tri_matrixBoxplot <- rbind(tri_matrixBoxplot, df.groupT, df.groupB)
    }
    
    df.pValue <- data.frame(matrix(ncol = 2, nrow = 0))
    colnames(df.pValue) <- c("Group", "p.value")
    for (mutationGroup in ls.mutationGroup) {
-      branch.mut.num <- sum(sigsInputBoxplot[which(sigsInputBoxplot$Group == mutationGroup &  sigsInputBoxplot$BT == "Branch"), ]$mut.num) 
-      branch.mut.num2 <- sum(sigsInputBoxplot[which(sigsInputBoxplot$Group != mutationGroup &  sigsInputBoxplot$BT == "Branch"), ]$mut.num)
-      trunk.mut.num <-  sum(sigsInputBoxplot[which(sigsInputBoxplot$Group == mutationGroup & sigsInputBoxplot$BT == "Trunk"), ]$mut.num) 
-      trunk.mut.num2 <-  sum(sigsInputBoxplot[which(sigsInputBoxplot$Group != mutationGroup & sigsInputBoxplot$BT == "Trunk"), ]$mut.num) 
+      branch.mut.num <- sum(tri_matrixBoxplot[which(tri_matrixBoxplot$Group == mutationGroup &  tri_matrixBoxplot$BT == "Branch"), ]$mut.num) 
+      branch.mut.num2 <- sum(tri_matrixBoxplot[which(tri_matrixBoxplot$Group != mutationGroup &  tri_matrixBoxplot$BT == "Branch"), ]$mut.num)
+      trunk.mut.num <-  sum(tri_matrixBoxplot[which(tri_matrixBoxplot$Group == mutationGroup & tri_matrixBoxplot$BT == "Trunk"), ]$mut.num) 
+      trunk.mut.num2 <-  sum(tri_matrixBoxplot[which(tri_matrixBoxplot$Group != mutationGroup & tri_matrixBoxplot$BT == "Trunk"), ]$mut.num) 
       # pValue <- wilcox.test(branch.mut.frac,
       #                       trunk.mut.frac,
       #                       paired=TRUE,
@@ -145,7 +149,7 @@ doMutTrunkBranch <- function(mtb_input,CT){
       colnames(row.pValue) <- c("Group", "p.value")
       df.pValue <- rbind(df.pValue, row.pValue)
    }
-   output <- list(df.pValue=df.pValue, sigsInputBoxplot=sigsInputBoxplot)
+   output <- list(df.pValue=df.pValue, tri_matrixBoxplot=tri_matrixBoxplot)
    return(output)
 }
 
@@ -341,254 +345,3 @@ doPlotTrunkBranch <- function(mtb_output, pvalue = 0.05, CT){
    return(pic)
 }
 
-# getYmax <- function(BT.dat){
-#     if(nrow(BT.dat) == 0){
-#         return(0)
-#     }
-#     BT.dat <- as.data.table(BT.dat)
-#     
-#     ## maximum mut.frac in Branch
-#     Branch.ymax <- 0
-#     Branch.mutfrac <- BT.dat[BT == "Branch"]$mut.frac
-#     if(length(Branch.mutfrac)> 0){
-#         Branch.outlier <- boxplot(Branch.mutfrac,range = 100,plot = FALSE)$out
-#         Branch.ymax <- max(Branch.mutfrac[!Branch.mutfrac %in% Branch.outlier])  
-#     }
-#     
-#     ## maximum mut.frac in Trunk
-#     Trunk.ymax <- 0
-#     Trunk.mutfrac <- BT.dat[BT == "Trunk"]$mut.frac
-#     if(length(Trunk.mutfrac) > 0){
-#         Trunk.outlier <- boxplot(Trunk.mutfrac,range = 100, plot = FALSE)$out
-#         Trunk.ymax <- max(Trunk.mutfrac[!Trunk.mutfrac %in% Trunk.outlier])  
-#     }
-#     
-#     return(max(Trunk.ymax,Branch.ymax) + 5)
-# }
-# 
-# 
-# doPlotTrunkBranch <- function(mtb_input){
-#     ## input data from mtb_input
-#     ls.BT <- .dataProcessBT(mtb_input)
-#     if(any(is.na(ls.BT)) ){
-#         return(NA)
-#     }
-#     df.pValue <- ls.BT$df.pValue
-#     sigsInputBoxplot <- ls.BT$sigsInputBoxplot
-#     
-#     ## p values of mutational list
-#     if(is.na(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value)){
-#         CApV <- grid::textGrob(expression(""), 
-#                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75) 
-#     }
-#     else{
-#         if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value < 0.01) {
-#             CApV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
-#                       digits = 3)), "**", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)    
-#         }else if (df.pValue[which(df.pValue$Group == "C>A"), ]$p.value < 0.05) {
-#             CApV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "C>A"), ]$p.value, 
-#                       digits = 3)), "*", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)    
-#         } else {
-#             CApV <- grid::textGrob(expression(""), 
-#                                    gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75) 
-#         }
-#     }
-#     if (is.na(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value)){
-#         CGpV <- grid::textGrob(expression(""), 
-#                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75) 
-#     }else{
-#         if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < 0.01) {
-#             CGpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
-#                       digits = 3)), "**", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else if (df.pValue[which(df.pValue$Group == "C>G"), ]$p.value < 0.05) {
-#             CGpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "C>G"), ]$p.value, 
-#                       digits = 3)), "*", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else {
-#             CGpV <- grid::textGrob(expression(""), 
-#                                    gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         }
-#     }
-#     if (is.na(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value)){
-#         CTpV <- grid::textGrob(expression(""), 
-#                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#     }else{
-#         if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < 0.01) {
-#             CTpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
-#                       digits = 3)), "**", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else if (df.pValue[which(df.pValue$Group == "C>T"), ]$p.value < 0.05) {
-#             CTpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "C>T"), ]$p.value, 
-#                       digits = 3)), "*", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else {
-#             CTpV <- grid::textGrob(expression(""), 
-#                                    gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         }
-#     }
-#     
-#     if (is.na(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value)){
-#         TApV <- grid::textGrob(expression(""), 
-#                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#     }else{
-#         if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < 0.01) {
-#             TApV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
-#                       digits = 3)), "**", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else if (df.pValue[which(df.pValue$Group == "T>A"), ]$p.value < 0.05) {
-#             TApV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "T>A"), ]$p.value, 
-#                       digits = 3)), "*", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else {
-#             TApV <- grid::textGrob(expression(""), 
-#                                    gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         }
-#     }
-#     
-#     if (is.na(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value)){
-#         TCpV <- grid::textGrob(expression(""), 
-#                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#     }else{
-#         if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < 0.01) {
-#             TCpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
-#                       digits = 3)), "**", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else if (df.pValue[which(df.pValue$Group == "T>C"), ]$p.value < 0.05) {
-#             TCpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "T>C"), ]$p.value, 
-#                       digits = 3)), "*", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else {
-#             TCpV <- grid::textGrob(expression(""), 
-#                                    gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         }
-#     }
-#     
-#     if (is.na(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value)){
-#         TGpV <- grid::textGrob(expression(""), 
-#                                gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#     }else{
-#         if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < 0.01) {
-#             TGpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
-#                       digits = 3)), "**", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else if (df.pValue[which(df.pValue$Group == "T>G"), ]$p.value < 0.05) {
-#             TGpV <- grid::textGrob(paste("p = ", as.character(
-#                 round(df.pValue[which(df.pValue$Group == "T>G"), ]$p.value, 
-#                       digits = 3)), "*", sep=""), 
-#                 gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         } else {
-#             TGpV <- grid::textGrob(expression(""), 
-#                                    gp=grid::gpar(fontsize=12),vjust=0,hjust=0.75)
-#         }
-#     }
-#     
-#     
-#     ## names of mutational list
-#     CA <- grid::textGrob(expression(bold("C > A")),
-#                          gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-#     CG <- grid::textGrob(expression(bold("C > G")),
-#                          gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-#     CT <- grid::textGrob(expression(bold("C > T")),
-#                          gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-#     TA <- grid::textGrob(expression(bold("T > A")),
-#                          gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-#     TC <- grid::textGrob(expression(bold("T > C")),
-#                          gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-#     TG <- grid::textGrob(expression(bold("T > G")),
-#                          gp=grid::gpar(fontsize=12, fontface="bold"),vjust=0,hjust=1)
-#     
-#     group.colors <- c("#E64B35FF", "#4DBBD5FF", "#00A087FF",
-#                       "#3C5488FF", "#F39B7FFF", "#8491B4FF")
-#     
-#     sigsInputBoxplot <- dplyr::filter(sigsInputBoxplot,
-#                                       !mut.frac %in% c(NA,NaN),
-#                                       !mut.num %in% c(NA,NaN))
-#     
-#     pic <- ggplot(sigsInputBoxplot, aes(x=GroupBT, y=mut.frac, fill=Group)) + 
-#         geom_boxplot(coef=100) + 
-#         ggtitle(paste0(mtb_input$patientID)) + 
-#         theme(panel.grid=element_blank(), 
-#               panel.border=element_blank(), 
-#               panel.background = element_blank(), 
-#               legend.position='none', 
-#               plot.title = element_text(size = 13, face = "bold", vjust = 0, color = "black"),
-#               axis.text.x=element_text(size=10, angle = 90, vjust = 0.5, hjust=1, color = "black"), 
-#               axis.ticks.x = element_blank(), 
-#               axis.line.y = element_blank(),
-#               axis.ticks.length.y = unit(0.3, "cm"),
-#               axis.text.y=element_text(size=10, color = "black")) + 
-#         annotate("segment", x = 0.3, xend = 0.3, y = 0, yend = 100, size = 0.6) + 
-#         ## background colors
-#         geom_rect(aes(xmin=0.5, xmax=2.5, ymin=0, ymax=100),
-#                   fill="#fce7e4", alpha=0.15) + 
-#         geom_rect(aes(xmin=2.5, xmax=4.5, ymin=0, ymax=100),
-#                   fill="#ecf8fa", alpha=0.25) + 
-#         geom_rect(aes(xmin=4.5, xmax=6.5, ymin=0, ymax=100),
-#                   fill="#dbfff9", alpha=0.05) + 
-#         geom_rect(aes(xmin=6.5, xmax=8.5, ymin=0, ymax=100),
-#                   fill="#e4e8f3", alpha=0.08) + 
-#         geom_rect(aes(xmin=8.5, xmax=10.5, ymin=0, ymax=100),
-#                   fill="#fdefeb", alpha=0.15) + 
-#         geom_rect(aes(xmin=10.5, xmax=12.5, ymin=0, ymax=100),
-#                   fill="#e5e8ef", alpha=0.1) + 
-#         geom_boxplot(coef=100) + 
-#         ## color setting
-#         scale_fill_manual(values=group.colors) + 
-#         ## axis setting
-#         scale_x_discrete(name = "", labels=c( "Trunk","Branch", "Trunk", "Branch",  
-#                                               "Trunk", "Branch",  "Trunk", "Branch", 
-#                                               "Trunk", "Branch",  "Trunk","Branch")) + 
-#         scale_y_continuous(name = "Mutation fraction (%)", limits=c(-5, 100), breaks=seq(0, 100, 25)) + 
-#         coord_cartesian(ylim = c(0,100), expand = TRUE) + 
-#         ## x axis bar
-#         geom_rect(aes(xmin=0.5, xmax=2.5, ymin=-5, ymax=-0.5),
-#                   fill=group.colors[1], alpha=1) + 
-#         geom_rect(aes(xmin=2.5, xmax=4.5, ymin=-5, ymax=-0.5),
-#                   fill=group.colors[2], alpha=0.25) + 
-#         geom_rect(aes(xmin=4.5, xmax=6.5, ymin=-5, ymax=-0.5),
-#                   fill=group.colors[3], alpha=0.05) + 
-#         geom_rect(aes(xmin=6.5, xmax=8.5, ymin=-5, ymax=-0.5),
-#                   fill=group.colors[4], alpha=0.08) + 
-#         geom_rect(aes(xmin=8.5, xmax=10.5, ymin=-5, ymax=-0.5),
-#                   fill=group.colors[5], alpha=0.15) + 
-#         geom_rect(aes(xmin=10.5, xmax=12.5, ymin=-5, ymax=-0.5),
-#                   fill=group.colors[6], alpha=0.1) + 
-#         ## Mutational Type Labels
-#         annotation_custom(grob = CA,  xmin = 1, xmax = 3, ymin = -8.5, ymax = -0) + 
-#         annotation_custom(grob = CG,  xmin = 3, xmax = 5, ymin = -8.5, ymax = -0) + 
-#         annotation_custom(grob = CT,  xmin = 5, xmax = 7, ymin = -8.5, ymax = -0) + 
-#         annotation_custom(grob = TA,  xmin = 7, xmax = 9, ymin = -8.5, ymax = -0) + 
-#         annotation_custom(grob = TC,  xmin = 9, xmax = 11, ymin = -8.5, ymax = -0) + 
-#         annotation_custom(grob = TG,  xmin = 11, xmax = 13, ymin = -8.5, ymax = -0) + 
-#         ## Mutational Type p value of wilcox.test
-#         
-#         annotation_custom(grob = CApV,
-#                           xmin = 0.7, xmax = 3,
-#                           ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ]),
-#                           ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>A"), ])) +
-#         annotation_custom(grob = CGpV,
-#                           xmin = 2.7, xmax = 5,
-#                           ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ]),
-#                           ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>G"), ])) +
-#         annotation_custom(grob = CTpV,  xmin = 4.7, xmax = 7, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>T"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "C>T"), ])) +
-#         annotation_custom(grob = TApV,  xmin = 6.7, xmax = 9, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>A"), ])) +
-#         annotation_custom(grob = TCpV,  xmin = 8.7, xmax = 11, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>C"), ])) +
-#         annotation_custom(grob = TGpV,  xmin = 10.7, xmax = 13, ymin = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>G"), ]), ymax = getYmax(sigsInputBoxplot[which(sigsInputBoxplot$Group == "T>G"), ]))
-#     #message("Branch-trunk plot generation done!")
-#     
-#     return(pic)
-# }

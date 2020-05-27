@@ -34,21 +34,21 @@ plotMutProfile <- function(maf,
                            remove_empty_rows = TRUE, 
                            showColnames = TRUE) {
   
-    if(class(maf) == "classMaf_list"){
+    if(class(maf) == "MafList"){
         ## patient filter
         if(!is.null(patient.id)){
-            maf <- subsetMaf_list(maf, patient.id = patient.id)
+            maf <- subsetMafList(maf, patient.id = patient.id)
         }
-        maf_data_list <- lapply(maf@patient.list,function(x)x@data)
+        maf_data_list <- lapply(maf,function(x)x@data)
         maf_data <- plyr::rbind.fill(maf_data_list)
-        maf <- classMaf(
+        maf <- Maf(
             data = as.data.table(maf_data),
             sample.info = data.frame(),
             nonSyn.vc = "",
             ref.build = ""
         )
-    }else if(class(maf) == "classMaf"){
-        stop("maf should be either classMaf or classMaf_list")
+    }else if(class(maf) == "Maf"){
+        stop("Error:maf should be either Maf or MafList object")
     }
     
    maf_data <- do.classify(maf, classByType = classByType, patient.id = patient.id, class = class)
@@ -384,7 +384,7 @@ plotMutProfile <- function(maf,
           if (length(patientsCol) == length(patient.id)) {
             names(patientsCol) <- patient.id
           } else {
-            stop("The number of color you set for patients and the number of patients are not equal.")
+            stop("Error:The number of color you set for patients and the number of patients are not equal.")
           }
         }
             

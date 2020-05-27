@@ -89,7 +89,7 @@ do.classify <- function(
     
     class.options = c('SP', 'CS', 'SPCS')
     if(!class %in% class.options){
-        stop("class can only be either 'SP', 'CS' or 'SPCS'")
+        stop("Error:class can only be either 'SP', 'CS' or 'SPCS'")
     }
     
     
