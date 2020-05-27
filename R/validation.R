@@ -23,7 +23,7 @@ validMaf <- function(maf_data){
    maf_data <- maf_data[!Chromosome %in% c("M","MT")]
    
    ## sort HugoSymbol
-   maf_data <- preprocess_HugoSymbol(maf_data)
+   # maf_data <- preprocess_HugoSymbol(maf_data)
    
    ## Rescale vaf coloum 0-1
    if(max(maf_data$VAF, na.rm = TRUE) > 1){

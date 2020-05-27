@@ -25,7 +25,7 @@ readMaf(
 \item{refBuild}{Human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default: "hg19".}
 }
 \value{
-an object of class Maf.
+an object of Maf or MafList.
 }
 \description{
 Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.

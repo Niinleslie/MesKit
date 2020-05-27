@@ -27,14 +27,14 @@ all edge length which are smaller than min.ratio*the longest edge length will be
 \item{common.col}{Color of common branches.}
 }
 \value{
-a vector containing the following tree distance methods by R package phangorn
+A vector containing the following tree distance methods by R package phangorn
 Symmetric.difference  Robinson-Foulds distance
 KF-branch distance  the branch score distance (Kuhner & Felsenstein 1994)
 Path.difference  difference in the path length, counted as the number of branches 
 Weighted.path.difference	 difference in the path length, counted using branches lengths
 }
 \description{
-compares two phylogenetic trees and returns a detailed report of several distance methods
+Compares two phylogenetic trees and returns a detailed report of several distance methods
 }
 \examples{
 phyloTree1 <- getPhyloTree(maf, method = "NJ", patient.id = 'patientID')

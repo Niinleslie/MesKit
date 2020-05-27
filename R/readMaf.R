@@ -13,10 +13,7 @@
 #' ccf.File <- system.file("extdata/", "HCC6046.CCF.txt", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
-#' @return an object of class Maf.
-#'
-#' @exportClass classMaf
-#' @exportClass classMaf_list
+#' @return an object of Maf or MafList.
 #' @export readMaf
 
 
@@ -109,9 +106,10 @@ readMaf <- function(
             dplyr::select(Tumor_Sample_Barcode,Tumor_ID) %>%
             dplyr::distinct(Tumor_Sample_Barcode, .keep_all = TRUE)
         if(nrow(info) < 2){
-            stop("Errors: each patient should have at least two tumor samples.")
+            stop("Error: each patient should have at least two tumor samples.")
         }
-        maf <- classMaf(
+        ## set Maf
+        maf <- Maf(
             data = data.table::setDT(data),
             sample.info = as.data.frame(info),
             nonSyn.vc = nonSyn.vc,
@@ -121,33 +119,15 @@ readMaf <- function(
     }
     
     if(length(data_list) > 1){
-        ## set claassMaf_list
-        maf_list <-  classMaf_list(patient.list = maf_patient_list)
+        ## set MafList
+        maf_list <-  MafList(maf_patient_list)
         return(maf_list)
     }else{
         return(maf_patient_list[[1]])
     }
 }
 
-##--- classMaf class
-classMaf <- setClass(
-    Class = "classMaf",
-    slots = c(
-        data = 'data.table',
-        sample.info = 'data.frame',
-        nonSyn.vc = 'character',
-        ref.build = 'character'
-        
-    )
-)
 
-##--- classMaf_list class
-classMaf_list <- setClass(
-    Class = "classMaf_list",
-    slots = c(
-        patient.list = 'list'
-    )
-)
 
 
 

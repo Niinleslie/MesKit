@@ -135,28 +135,20 @@ getTreeData <- function(phyloTree = NULL,
    if(!is.null(branchCol) & !compare){
        ## add signature
       if(branchCol == "mutSig"){
-          cos_sim.mat <- doTreeMutSig(phyloTree,
-                                    min.mut.count = min.mut.count,
-                                    signaturesRef = signaturesRef)$cos_sim.mat
-          signatures <- apply(cos_sim.mat,1,function(x)names(which.max(x)))
+          tri_matrix <- triMatrix(phyloTree)
+          cos_sim_matrix <- fitSignatures(tri_matrix, signaturesRef = signaturesRef,
+                                          min.mut.count = min.mut.count)[[1]]$cosine.similarity
+          signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))
           treeData <- treeData[, Signature:= signatures[label]]
           # print(treeData$label)
           # print(signatures)
           treeData[Signature == ''|is.na(Signature)]$Signature <- "Unknown"
           treeData <- treeData[order(Signature), ]
           if(signaturesRef %in% c("cosmic_v2","nature2013")){
-              treeData$Signature <- gsub('Signature.', '', treeData$Signature)
+              treeData$Signature <- gsub('Signature ', '', treeData$Signature)
           }else{
               treeData$Signature <- gsub('SBS', '', treeData$Signature)
           }
-          # signature <- doTreeMutSig(phyloTree,
-          #                           min.mut.count = min.mut.count,
-          #                           signaturesRef = signaturesRef)$mutSigsOutput %>%
-          #     dplyr::group_by(branch) %>% 
-          #     dplyr::filter(weight == max(weight)) %>% 
-          #     dplyr::ungroup() %>% 
-          #     as.data.frame()
-          # treeData <- addSignature(tree, treeData, signature, signaturesRef = signaturesRef) 
       }else{
           branch.type <- phyloTree@branch.type
           types <- as.character(branch.type$Branch_Tumor_ID)

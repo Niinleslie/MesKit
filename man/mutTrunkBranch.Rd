@@ -8,7 +8,6 @@ mutTrunkBranch(
   phyloTree,
   patient.id = NULL,
   CT = FALSE,
-  geneList = NULL,
   pvalue = 0.05,
   plot = TRUE
 )
@@ -19,8 +18,6 @@ mutTrunkBranch(
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included}
 
 \item{CT}{Distinction between C>T at CpG and C>T at other sites, Default FALSE}
-
-\item{geneList}{List of genes to restrict the analysis. Default: NULL.}
 
 \item{pvalue}{Confidence level of the interval for Fisher test. Default: 0.05.}
 
