@@ -1,8 +1,5 @@
-#' Set Maf class
+#' Maf class
 #' @description Maf class.
-#' @name Maf
-#' @aliases Maf
-#' @docType class
 #' @rdname Maf-class
 #' @exportClass Maf
 Maf <- setClass(
@@ -16,11 +13,8 @@ Maf <- setClass(
   )
 )
 
-#' MafList class
+#' MafList 
 #' @description S4 class for storing multi-patients Maf object.
-#' @name MafList
-#' @aliases MafList
-#' @docType class
 #' @rdname MafList-class
 #' @exportClass MafList
 MafList <- setClass(
@@ -34,9 +28,6 @@ setClass('phylo')
 
 #' phyloTree class
 #' @description S4 class for storing informations about phylogenetic tree .
-#' @name phyloTree
-#' @aliases phyloTree
-#' @docType phyloTree
 #' @rdname phyloTree-class
 #' @exportClass phyloTree
 setClass('phyloTree', slots = c(
@@ -55,9 +46,6 @@ setClass('phyloTree', slots = c(
 
 #' phyloTreeList class
 #' @description S4 class for storing multi-patients phyloTree.
-#' @name phyloTreeList
-#' @aliases phyloTreeList
-#' @docType phyloTreeList
 #' @rdname phyloTreeList-class
 #' @exportClass phyloTreeList
 setClass('phyloTreeList', contains = "list")
