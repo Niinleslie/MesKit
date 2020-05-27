@@ -133,26 +133,32 @@ getTreeData <- function(phyloTree = NULL,
        }
    }
    if(!is.null(branchCol) & !compare){
+       ## add signature
       if(branchCol == "mutSig"){
-          signature <- doTreeMutSig(phyloTree,
-                                    min.mut.count = min.mut.count,
-                                    signaturesRef = signaturesRef)$mutSigsOutput %>%
-              dplyr::group_by(branch) %>% 
-              dplyr::filter(weight == max(weight)) %>% 
-              dplyr::ungroup() %>% 
-              as.data.frame()
-          treeData <- addSignature(tree, treeData, signature, signaturesRef = signaturesRef) 
+          tri_matrix <- triMatrix(phyloTree)
+          cos_sim_matrix <- fitSignatures(tri_matrix, signaturesRef = signaturesRef,
+                                          min.mut.count = min.mut.count)[[1]]$cosine.similarity
+          signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))
+          treeData <- treeData[, Signature:= signatures[label]]
+          # print(treeData$label)
+          # print(signatures)
+          treeData[Signature == ''|is.na(Signature)]$Signature <- "Unknown"
+          treeData <- treeData[order(Signature), ]
+          if(signaturesRef %in% c("cosmic_v2","nature2013")){
+              treeData$Signature <- gsub('Signature ', '', treeData$Signature)
+          }else{
+              treeData$Signature <- gsub('SBS', '', treeData$Signature)
+          }
       }else{
           branch.type <- phyloTree@branch.type
           types <- as.character(branch.type$Branch_Tumor_ID)
           names(types) <- as.character(branch.type$Branch_ID)
-          # print(types)
-          treeData <- treeData %>% 
-              dplyr::mutate(Branch_Tumor_ID = types[label]) %>% 
-              as.data.table()
+          treeData <- treeData[, Branch_Tumor_ID:= types[label]] 
+              # dplyr::mutate(Branch_Tumor_ID = types[label]) %>% 
+              # as.data.table()
       }
    }
-   treeData <- treeData[treeData$distance!= 0|treeData$sample == rootLabel,]
+   treeData <- treeData[distance!= 0|sample == rootLabel]
    return(treeData)
 }
 
@@ -404,6 +410,7 @@ addSignature <- function(tree, treeData, signature, signaturesRef){
    #add signature to treeData
    treeData$Signature <- ''
    # treeData$Branch_Tumor_ID <- ''
+   print(treeData)
    sigs <- strsplit(as.character(signature$branch),"∩")
    sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
    t <- 1
@@ -418,8 +425,8 @@ addSignature <- function(tree, treeData, signature, signaturesRef){
       # treeData$Branch_Tumor_ID[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_ID[1])
    }
    
-   treeData[treeData$Signature == '',]$Signature <- "Unknown"
-   treeData <- treeData[order(treeData$Signature), ]
+   treeData[Signature == '',]$Signature <- "Unknown"
+   treeData <- treeData[order(Signature), ]
    
    if(signaturesRef %in% c("cosmic_v2","nature2013")){
        treeData$Signature <- gsub('Signature ', '', treeData$Signature)
@@ -469,6 +476,7 @@ getPrivateMutation <- function(phyloTree){
    private.muts <- mut.branches[mut.branches$Branch_ID %in% samples,]
    totalMutSum <- nrow(mut.branches)
    privateMutSum <- nrow(private.muts)
+   # print(privateMutSum)
    privateMutProportion <- paste(round((privateMutSum/totalMutSum)*100,1),"%",sep = "")
    return(list(totalMutSum, privateMutProportion))
 }

@@ -11,7 +11,7 @@ classifyMut(
   mutType = "All",
   use.indel = TRUE,
   class = "SP",
-  classByType = FALSE
+  classByTumor = FALSE
 )
 }
 \arguments{
@@ -21,10 +21,12 @@ or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClo
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included}
 
+\item{use.indel}{Logical value. Whether to include INDELs in analysis. Default: TRUE.}
+
 \item{class}{The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
 other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
-\item{classByType}{FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)}
+\item{classByTumor}{FALSE(Default). Classify mutations based on "Tumor_ID".}
 }
 \value{
 a data.frame with classification of mutations

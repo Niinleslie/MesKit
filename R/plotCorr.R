@@ -8,9 +8,8 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL, number.cex = 8, n
     
     #col_fun <- circlize::colorRamp2(pretty(c(0, maxCorr),6),
     #                                c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
-    len.max <- nchar(as.character(minCorr))
-    signi.digit <- gsub(pattern =  "0\\.0*[1,9]*","",as.character(minCorr))
-    digits <- nchar(as.character(minCorr)) - nchar(signi.digit) 
+    significant_digit <- gsub(pattern =  "0\\.0*","",as.character(minCorr))
+    digits <- nchar(as.character(minCorr)) - nchar(significant_digit) 
     col_fun <- circlize::colorRamp2(breaks = round( seq(0, maxCorr, length = 6),digits = digits),
                                     c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
 
