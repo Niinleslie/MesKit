@@ -8,15 +8,11 @@ vafCluster(
   maf,
   segCN.file = NULL,
   patient.id = NULL,
-  chrSilent = NULL,
-  mutType = "All",
-  use.indel = TRUE,
   min.vaf = 0.02,
   max.vaf = 1,
-  showMATH = TRUE,
   plotOption = "combine",
-  use.adjVAF = FALSE,
-  withinTumor = FALSE
+  withinTumor = FALSE,
+  ...
 )
 }
 \arguments{
@@ -26,25 +22,17 @@ vafCluster(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
-
-\item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
-
-\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
-
 \item{min.vaf}{The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1}
 
 \item{max.vaf}{The maximum value of VAF. Default: 0. Option: on the scale of 0 to 1}
-
-\item{showMATH}{Logical value. Whether to show MATH Scores in the plot. Default TRUE}
 
 \item{plotOption}{Character value. Three options for displaying clustering of VAFs in samples. Default "compare"
 "compare": prints comparison of VAFs distribution among samples;
 "combine" prints VAFs distribution of samples all together;}
 
-\item{use.adjVAF}{Cluster by adjusted VAF. Default: FALSE.}
-
 \item{withinTumor}{Cluster VAF within tumors in each patients,default is FALSE.}
+
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \description{
 Generate variant allele frequency(VAF) frequency distribution

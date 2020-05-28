@@ -1,8 +1,7 @@
 getTreeData <- function(phyloTree = NULL,
                         branchCol = "mutSig",
-                        min.mut.count = 15,
-                        signaturesRef="cosmic_v2",
-                        compare = FALSE){
+                        compare = FALSE,
+                        ...){
    tree <- getTree(phyloTree)
    rootLabel <- "NORMAL"
    tree <- ape::root(tree, tree$tip.label[which(tree$tip.label == rootLabel)])
@@ -135,9 +134,8 @@ getTreeData <- function(phyloTree = NULL,
    if(!is.null(branchCol) & !compare){
        ## add signature
       if(branchCol == "mutSig"){
-          tri_matrix <- triMatrix(phyloTree)
-          cos_sim_matrix <- fitSignatures(tri_matrix, signaturesRef = signaturesRef,
-                                          min.mut.count = min.mut.count)[[1]]$cosine.similarity
+          tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
+          cos_sim_matrix <- fitSignatures(tri_matrix,...)[[1]]$cosine.similarity
           signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))
           treeData <- treeData[, Signature:= signatures[label]]
           # print(treeData$label)

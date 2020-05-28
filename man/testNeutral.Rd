@@ -7,17 +7,14 @@
 testNeutral(
   maf,
   patient.id = NULL,
-  chrSilent = NULL,
-  mutType = "All",
-  use.indel = TRUE,
   withinTumor = FALSE,
-  min.depth = 2,
+  min.total.depth = 2,
   min.vaf = 0.1,
   max.vaf = 0.3,
   R2.threshold = 0.98,
-  use.adjVAF = FALSE,
   min.mut.count = 20,
-  plot = TRUE
+  plot = TRUE,
+  ...
 )
 }
 \arguments{
@@ -25,15 +22,9 @@ testNeutral(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
-
-\item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
-
-\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
-
 \item{withinTumor}{Test neutral within tumros in each patients,default is FALSE.}
 
-\item{min.depth}{The minimun total depth of coverage. Defalut: 2}
+\item{min.total.depth}{The minimun total depth of coverage. Defalut: 2}
 
 \item{min.vaf}{The minimum value of adjusted VAF value. Default: 0.1}
 
@@ -41,11 +32,11 @@ testNeutral(
 
 \item{R2.threshold}{The threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98}
 
-\item{use.adjVAF}{Whether to use the adjusted VAF in analysis. Default: FALSE.}
-
 \item{min.mut.count}{The minimun number of subclonal mutations used to fit model. Default: 20}
 
 \item{plot}{Logical, whether to print model fitting plot of each sample. Default: TRUE}
+
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \description{
 Evaluate whether a tumor follows neutral evolution or under strong selection during the growth based on variant frequency distribution (VAF) of subclonal mutations.

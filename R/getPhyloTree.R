@@ -4,11 +4,8 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param method Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood),""FASTME.ols" or "FASTME.bal". 
 #' @param min.vaf The minimum value of vaf. Default 0.02.
-#' @param min.ccf The minimum value of CCF. Default NULL.
 #' @param bootstrap.rep.num Bootstrap iterations.. Default 100.
-#' @param chrSilent Select chromosomes needed to be dismissed. Default NULL.
-#' @param mutType Select Proper variant classification you need. Default "All". Option: "nonSyn".
-#' @param use.indel Logical value. Whether to include INDELs in analysis. Default: TRUE.
+#' @param ... Other options passed to \code{\link{subsetMaf}}
 #' 
 #' 
 #' @examples
@@ -24,11 +21,7 @@ getPhyloTree <- function(maf,
                       patient.id = NULL, 
                       method = "NJ",
                       min.vaf = 0.02, 
-                      min.ccf = NULL,
-                      bootstrap.rep.num = 100,  
-                      chrSilent = NULL,
-                      mutType = "All",
-                      use.indel = TRUE){
+                      bootstrap.rep.num = 100,...){
   
   method <- match.arg(method, choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"), several.ok = FALSE)
   
@@ -37,12 +30,7 @@ getPhyloTree <- function(maf,
   
   phyloTree_patient_list <- list()
   for(m in maf_list){
-      maf_data <- subsetMaf(m,
-                     chrSilent = chrSilent,
-                     mutType = mutType,
-                     use.indel = use.indel,
-                     min.vaf = min.vaf,
-                     min.ccf = min.ccf)
+      maf_data <- subsetMaf(m,min.vaf = min.vaf)
       
       refBuild <- getMafRef(m)
       patient <- unique(maf_data$Patient_ID)
