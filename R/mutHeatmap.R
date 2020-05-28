@@ -5,25 +5,21 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param min.vaf The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1.
 #' @param use.ccf Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.
-#' @param min.ccf The minimum value of CCF. Default: NULL. Option: on the scale of 0 to 1.
 #' @param geneList List of genes to restrict the analysis. Default NULL.
 #' @param plot.geneList If TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.
 #' @param show.gene Show the name of genes next to the heatmap.Default FALSE.
 #' @param show.geneList Show the names of gene on the geneList.Default FALSE.
 #' @param mut.threshold Show.gene and show. geneList will be FALSE when patient have more mutations than threshold.Default is 150.
-#' @param chrSilent Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.
-#' @param mutType Select Proper variant classification you need. Default "All". Option: "nonSyn".
-#' @param use.indel Logical value. Whether to include INDELs in analysis. Default: TRUE.
+#' @param ... Other options passed to \code{\link{subsetMaf}}
 #' 
 #' @return heatmap of somatic mutations
 #'
 #' @export mutHeatmap
 
 mutHeatmap <- function(maf,
-                        patient.id = NULL,
+                       patient.id = NULL,
                        min.vaf = 0.02,
                        use.ccf = FALSE,
-                       min.ccf = NULL,                       
                        geneList = NULL,
                        plot.geneList = FALSE,
                        show.gene = FALSE,
@@ -31,22 +27,14 @@ mutHeatmap <- function(maf,
                        mut.threshold = 50,
                        sample.text.size = 9,
                        legend.title.size = 10,
-                       gene.text.size = 9,
-                       chrSilent = NULL,
-                       mutType = "All",
-                       use.indel = TRUE){
+                       gene.text.size = 9,...){
     
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
     heatmap_list <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m,
-                       min.vaf = min.vaf,
-                       min.ccf = min.ccf,
-                       chrSilent = chrSilent,
-                       mutType = mutType,
-                       use.indel = use.indel)
+        maf_data <- subsetMaf(m,min.vaf = min.vaf,...)
         
         ## get mutation matrix
         binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)

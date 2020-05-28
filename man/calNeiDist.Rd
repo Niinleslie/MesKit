@@ -8,15 +8,13 @@ calNeiDist(
   maf,
   patient.id = NULL,
   withinTumor = FALSE,
-  chrSilent = NULL,
-  mutType = "All",
-  use.indel = TRUE,
   min.ccf = 0.02,
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,
   number.cex = 8,
-  number.col = "#C77960"
+  number.col = "#C77960",
+  ...
 )
 }
 \arguments{
@@ -26,12 +24,6 @@ calNeiDist(
 
 \item{withinTumor}{Calculate fst within types in each patients,default is FALSE.}
 
-\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
-
-\item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSilent".}
-
-\item{use.indel}{Logical. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
-
 \item{min.ccf}{Specify the minimum CCF, default is 0.08}
 
 \item{plot}{Logical (Default:TRUE). Whether to show the plot, default TRUE}
@@ -39,6 +31,8 @@ calNeiDist(
 \item{use.circle}{Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix}
 
 \item{title}{The title of the plot, default is "Nei's distance"}
+
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \value{
 Nei's genetic distance matrix and heatmap of sample-pairs from the same patient

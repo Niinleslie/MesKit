@@ -9,7 +9,6 @@ mutHeatmap(
   patient.id = NULL,
   min.vaf = 0.02,
   use.ccf = FALSE,
-  min.ccf = NULL,
   geneList = NULL,
   plot.geneList = FALSE,
   show.gene = FALSE,
@@ -18,9 +17,7 @@ mutHeatmap(
   sample.text.size = 9,
   legend.title.size = 10,
   gene.text.size = 9,
-  chrSilent = NULL,
-  mutType = "All",
-  use.indel = TRUE
+  ...
 )
 }
 \arguments{
@@ -32,8 +29,6 @@ mutHeatmap(
 
 \item{use.ccf}{Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.}
 
-\item{min.ccf}{The minimum value of CCF. Default: NULL. Option: on the scale of 0 to 1.}
-
 \item{geneList}{List of genes to restrict the analysis. Default NULL.}
 
 \item{plot.geneList}{If TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.}
@@ -44,11 +39,7 @@ mutHeatmap(
 
 \item{mut.threshold}{Show.gene and show. geneList will be FALSE when patient have more mutations than threshold.Default is 150.}
 
-\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
-
-\item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
-
-\item{use.indel}{Logical value. Whether to include INDELs in analysis. Default: TRUE.}
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \value{
 heatmap of somatic mutations

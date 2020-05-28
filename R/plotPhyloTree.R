@@ -9,8 +9,7 @@
 #'  all edge length of a phylogenetic tree should be greater than
 #'  min.ratio*the longest edge length.
 #'  If not, the edge length will be reset as min.ratio*longest edge length.
-#' @param min.mut.count The threshold for the variants in a branch. Default 15.
-#' @param signaturesRef The parameter used for deconstructSig. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".
+#' @param ... Other options passed to \code{\link{fitSignatures}}
 #' 
 #' are mapped along the trees as indicated
 #' @examples
@@ -22,14 +21,12 @@
 #' 
 
 
-plotPhyloTree <- function(phyloTree = NULL,
+plotPhyloTree <- function(phyloTree,
                           patient.id = NULL,
                           branchCol = "mutType",
                           show.bootstrap = TRUE,
                           use.box = TRUE,
-                          min.ratio = 1/20,
-                          min.mut.count = 15,
-                          signaturesRef = "cosmic_v2"){
+                          min.ratio = 1/20,...){
    
    if(!is.null(branchCol)){
        branchCol.options <- c("mutSig","mutType")
@@ -64,9 +61,7 @@ plotPhyloTree <- function(phyloTree = NULL,
        }else{
            compare <- FALSE
            treeData <- getTreeData(phyloTree = phyloTree,
-                                   branchCol = branchCol,
-                                   min.mut.count = min.mut.count,
-                                   signaturesRef = signaturesRef)
+                                   branchCol = branchCol,...)
        }
 
        ## get title 
