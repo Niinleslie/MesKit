@@ -1,193 +1,197 @@
-#' @name showMafData
-#' @rdname showMafData
+#' @name getMafData
+#' @rdname getMafData
 #' @param object An object of Maf
 #' @return Maf data
-#' @exportMethod showMafData
+#' @exportMethod getMafData
 #' @examples 
-#' showMafData(maf)
-setGeneric(name = "showMafData", function(object) standardGeneric("showMafData"))
+#' getMafData(maf)
+setGeneric(name = "getMafData", function(object) standardGeneric("getMafData"))
 
-#' @rdname showMafData
-#' @aliases showMafData
-setMethod(f = "showMafData",signature = "Maf", function(object)object@data)
+#' @rdname getMafData
+#' @aliases getMafData
+setMethod(f = "getMafData",signature = "Maf", function(object)object@data)
 
 
-#' @name showSampleInfo
-#' @rdname showSampleInfo
+#' @name getSampleInfo
+#' @rdname getSampleInfo
 #' @param object An object of Maf
 #' @return sample information
-#' @exportMethod showSampleInfo
+#' @exportMethod getSampleInfo
 #' @examples 
-#' showSampleInfo(maf)
-setGeneric(name = "showSampleInfo", function(object) standardGeneric("showSampleInfo"))
+#' getSampleInfo(maf)
+setGeneric(name = "getSampleInfo", function(object) standardGeneric("getSampleInfo"))
 
-#' @rdname showSampleInfo
-#' @aliases showSampleInfo
-setMethod(f = "showSampleInfo",signature = "Maf", function(object)object@sample.info)
+#' @rdname getSampleInfo
+#' @aliases getSampleInfo
+setMethod(f = "getSampleInfo",signature = "Maf", function(object)object@sample.info)
 
-#' @name showNonSyn_vc
-#' @rdname showNonSyn_vc
+#' @name getNonSyn_vc
+#' @rdname getNonSyn_vc
 #' @param object An object of Maf
 #' @return a list of Variant classifications which are considered as non-silent.
-#' @exportMethod showNonSyn_vc
+#' @exportMethod getNonSyn_vc
 #' @examples 
-#' showNonSyn_vc(maf)
-setGeneric(name = "showNonSyn_vc", function(object) standardGeneric("showNonSyn_vc"))
+#' getNonSyn_vc(maf)
+setGeneric(name = "getNonSyn_vc", function(object) standardGeneric("getNonSyn_vc"))
 
-#' @rdname showNonSyn_vc
-#' @aliases showNonSyn_vc
-setMethod(f = "showNonSyn_vc",signature = "Maf", function(object)object@nonSyn.vc)
+#' @rdname getNonSyn_vc
+#' @aliases getNonSyn_vc
+setMethod(f = "getNonSyn_vc",signature = "Maf", function(object)object@nonSyn.vc)
 
-#' @name showRefBuild
-#' @rdname showRefBuild
+#' @name getMafRef
+#' @rdname getMafRef
 #' @param object An object of Maf
 #' @return Human reference genome versions of Maf
-#' @exportMethod showRefBuild
+#' @exportMethod getMafRef
 #' @examples 
-#' showRefBuild(maf)
-setGeneric(name = "showRefBuild", function(object) standardGeneric("showRefBuild"))
+#' getMafRef(maf)
+setGeneric(name = "getMafRef", function(object) standardGeneric("getMafRef"))
 
-#' @rdname showRefBuild
-#' @aliases showRefBuild
-setMethod(f = "showRefBuild",signature = "Maf", function(object)object@ref.build)
+#' @rdname getMafRef
+#' @aliases getMafRef
+setMethod(f = "getMafRef",signature = "Maf", function(object)object@ref.build)
 
-#' @name subsetMafList
-#' @rdname subsetMafList
-#' @param object An object of Maf
-#' @return Human reference genome versions of Maf
-#' @exportMethod subsetMafList
+#' @name getMafList
+#' @rdname getMafList
+#' @param object An object of MafList
+#' @return get the patients in MafList
+#' @exportMethod getMafList
 #' @examples 
-#' subsetMafList(maf)
-setGeneric(name = "subsetMafList", function(object,patient.id = NULL) standardGeneric("subsetMafList"))
+#' getMafList(maf)
+setGeneric(name = "getMafList", function(object) standardGeneric("getMafList"))
+
+#' @rdname getMafList
+#' @aliases getMafList
+setMethod(f = "getMafList",signature = "MafList", function(object)names(object)) 
 
 
-#' @rdname subsetMafList
-#' @aliases subsetMafList
-setMethod(f = "subsetMafList",signature = "MafList", 
-          function(object,patient.id = NULL){
-  if(!is.null(patient.id)){
-    patient.setdiff <- setdiff(patient.id, names(object))
-    if(length(patient.setdiff) > 0){
-      stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
-    }
-    object <- object[names(object)  %in% patient.id]
-  }
-  return(object)
-}) 
+#' @name getTree
+#' @rdname getTree
+#' @param object An object of phyloTree
+#' @return tree object of phyloTree
+#' @exportMethod getTree
+#' @examples 
+#' getTree(phyloTree)
+setGeneric(name = "getTree", function(object) standardGeneric("getTree"))
+
+#' @rdname getTree
+#' @aliases getTree
+setMethod(f = "getTree",signature = "phyloTree", function(object)object@tree)
 
 
-#' @name showBinaryMatrix
-#' @rdname showBinaryMatrix
+#' @name getBinaryMatrix
+#' @rdname getBinaryMatrix
 #' @param object An object of phyloTree
 #' @return binary matrix of phyloTree
-#' @exportMethod showBinaryMatrix
+#' @exportMethod getBinaryMatrix
 #' @examples 
-#' showBinaryMatrix(phyloTree)
-setGeneric(name = "showBinaryMatrix", function(object) standardGeneric("showBinaryMatrix"))
+#' getBinaryMatrix(phyloTree)
+setGeneric(name = "getBinaryMatrix", function(object) standardGeneric("getBinaryMatrix"))
 
-#' @rdname showBinaryMatrix
-#' @aliases showBinaryMatrix
-setMethod(f = "showBinaryMatrix",signature = "phyloTree", function(object)object@binary.matrix)
+#' @rdname getBinaryMatrix
+#' @aliases getBinaryMatrix
+setMethod(f = "getBinaryMatrix",signature = "phyloTree", function(object)object@binary.matrix)
 
-#' @name showPatientID
-#' @rdname showPatientID
+#' @name getPatientID
+#' @rdname getPatientID
 #' @param object An object of phyloTree
 #' @return patientID of phyloTree
-#' @exportMethod showPatientID
+#' @exportMethod getPatientID
 #' @examples 
-#' showPatientID(phyloTree)
-setGeneric(name = "showPatientID", function(object) standardGeneric("showPatientID"))
+#' getPatientID(phyloTree)
+setGeneric(name = "getPatientID", function(object) standardGeneric("getPatientID"))
 
-#' @rdname showPatientID
-#' @aliases showPatientID
-setMethod(f = "showPatientID",signature = "phyloTree", function(object)object@patientID)
+#' @rdname getPatientID
+#' @aliases getPatientID
+setMethod(f = "getPatientID",signature = "phyloTree", function(object)object@patientID)
 
-#' @name showBootstrapValue
-#' @rdname showBootstrapValue
+#' @name getBootstrapValue
+#' @rdname getBootstrapValue
 #' @param object An object of phyloTree
 #' @return bootstrap value of phyloTree
-#' @exportMethod showBootstrapValue
+#' @exportMethod getBootstrapValue
 #' @examples 
-#' showBootstrapValue(phyloTree)
-setGeneric(name = "showBootstrapValue", function(object) standardGeneric("showBootstrapValue"))
+#' getBootstrapValue(phyloTree)
+setGeneric(name = "getBootstrapValue", function(object) standardGeneric("getBootstrapValue"))
 
-#' @rdname showBootstrapValue
-#' @aliases showBootstrapValue
-setMethod(f = "showBootstrapValue",signature = "phyloTree", function(object)object@bootstrap.value)
+#' @rdname getBootstrapValue
+#' @aliases getBootstrapValue
+setMethod(f = "getBootstrapValue",signature = "phyloTree", function(object)object@bootstrap.value)
 
-#' @name showTreeMethod
-#' @rdname showTreeMethod
+#' @name getTreeMethod
+#' @rdname getTreeMethod
 #' @param object An object of phyloTree
 #' @return tree construction method of phyloTree
-#' @exportMethod showTreeMethod
+#' @exportMethod getTreeMethod
 #' @examples 
-#' showTreeMethod(phyloTree)
-setGeneric(name = "showTreeMethod", function(object) standardGeneric("showTreeMethod"))
+#' getTreeMethod(phyloTree)
+setGeneric(name = "getTreeMethod", function(object) standardGeneric("getTreeMethod"))
 
-#' @rdname showTreeMethod
-#' @aliases showTreeMethod
-setMethod(f = "showTreeMethod",signature = "phyloTree", function(object)object@method)
+#' @rdname getTreeMethod
+#' @aliases getTreeMethod
+setMethod(f = "getTreeMethod",signature = "phyloTree", function(object)object@method)
 
-#' @name showCCFMatrix
-#' @rdname showCCFMatrix
+#' @name getCCFMatrix
+#' @rdname getCCFMatrix
 #' @param object An object of phyloTree
 #' @return ccf matrix of phyloTree
-#' @exportMethod showCCFMatrix
+#' @exportMethod getCCFMatrix
 #' @examples 
-#' showCCFMatrix(phyloTree)
-setGeneric(name = "showCCFMatrix", function(object) standardGeneric("showCCFMatrix"))
+#' getCCFMatrix(phyloTree)
+setGeneric(name = "getCCFMatrix", function(object) standardGeneric("getCCFMatrix"))
 
-#' @rdname showCCFMatrix
-#' @aliases showCCFMatrix
-setMethod(f = "showCCFMatrix",signature = "phyloTree", function(object)object@ccf.matrix)
+#' @rdname getCCFMatrix
+#' @aliases getCCFMatrix
+setMethod(f = "getCCFMatrix",signature = "phyloTree", function(object)object@ccf.matrix)
 
-#' @name showMutBranches
-#' @rdname showMutBranches
+#' @name getMutBranches
+#' @rdname getMutBranches
 #' @param object An object of phyloTree
 #' @return branches mutation of phyloTree
-#' @exportMethod showMutBranches
+#' @exportMethod getMutBranches
 #' @examples 
-#' showMutBranches(phyloTree)
-setGeneric(name = "showMutBranches", function(object) standardGeneric("showMutBranches"))
+#' getMutBranches(phyloTree)
+setGeneric(name = "getMutBranches", function(object) standardGeneric("getMutBranches"))
 
-#' @rdname showMutBranches
-#' @aliases showMutBranches
-setMethod(f = "showMutBranches",signature = "phyloTree", function(object)object@mut.branches)
+#' @rdname getMutBranches
+#' @aliases getMutBranches
+setMethod(f = "getMutBranches",signature = "phyloTree", function(object)object@mut.branches)
 
-#' @name showBranchType
-#' @rdname showBranchType
+#' @name getBranchType
+#' @rdname getBranchType
 #' @param object An object of phyloTree
 #' @return branch type of phyloTree
-#' @exportMethod showBranchType
+#' @exportMethod getBranchType
 #' @examples 
-#' showBranchType(phyloTree)
-setGeneric(name = "showBranchType", function(object) standardGeneric("showBranchType"))
+#' getBranchType(phyloTree)
+setGeneric(name = "getBranchType", function(object) standardGeneric("getBranchType"))
 
-#' @rdname showBranchType
-#' @aliases showBranchType
-setMethod(f = "showBranchType",signature = "phyloTree", function(object)object@branch.type)
+#' @rdname getBranchType
+#' @aliases getBranchType
+setMethod(f = "getBranchType",signature = "phyloTree", function(object)object@branch.type)
 
+#' @name getPhyloTreeRef
+#' @rdname getPhyloTreeRef
+#' @param object An object of phyloTree
+#' @return reference genome versions of phyloTree
+#' @exportMethod getPhyloTreeRef
+#' @examples 
+#' getPhyloTreeRef(phyloTree)
+setGeneric(name = "getPhyloTreeRef", function(object) standardGeneric("getPhyloTreeRef"))
 
+#' @rdname getPhyloTreeRef
+#' @aliases getPhyloTreeRef
+setMethod(f = "getPhyloTreeRef",signature = "phyloTree", function(object)object@ref.build)
 
-
-#' @name subsetPhyloTreeList
-#' @rdname subsetPhyloTreeList
+#' @name getPhyloTreeList
+#' @rdname getPhyloTreeList
 #' @param object An object of phyloTreeList
-#' @return select the specific patients in phyloTreeList
-#' @exportMethod subsetPhyloTreeList
+#' @return get the patients in phyloTreeList
+#' @exportMethod getPhyloTreeList
 #' @examples 
-#' subsetPhyloTreeList(phyloTree)
-setGeneric(name = "subsetPhyloTreeList", function(object,patient.id = NULL) standardGeneric("subsetPhyloTreeList"))
+#' getPhyloTreeList(phyloTree)
+setGeneric(name = "getPhyloTreeList", function(object) standardGeneric("getPhyloTreeList"))
 
-#' @rdname subsetPhyloTreeList
-#' @aliases subsetPhyloTreeList
-setMethod(f = "subsetPhyloTreeList",signature = "phyloTreeList", function(object,patient.id = NULL){
-    if(!is.null(patient.id)){
-        patient.setdiff <- setdiff(patient.id, names(object))
-        if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
-        }
-        object<- object[names(object)  %in% patient.id] 
-    }
-    return(object)
-}) 
+#' @rdname getPhyloTreeList
+#' @aliases getPhyloTreeList
+setMethod(f = "getPhyloTreeList",signature = "phyloTreeList", function(object)names(object)) 

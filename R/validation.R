@@ -64,6 +64,10 @@ validSeg <- function(seg){
     seg$Chromosome = gsub(pattern = 'chr', replacement = '', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE) 
+    
+    seg$Start_Position <- as.numeric(seg$Start_Position)
+    seg$End_Position <- as.numeric(seg$End_Position)
+    
     return(seg)
 }
 

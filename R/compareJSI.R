@@ -32,18 +32,9 @@ compareJSI <- function(
    number.cex = 8, 
    number.col = "#C77960") {
    
-    if(class(maf) == "Maf"){
-        maf_list <- list(maf)
-    }else if(class(maf) == "MafList"){
-        ## patient filter
-        if(!is.null(patient.id)){
-            maf_list <- subsetMafList(maf, patient.id = patient.id)
-        }else{
-            maf_list <- maf
-        }
-    }else{
-        stop("Error: maf should be either Maf or MafList object")
-    }
+    ## check input data
+    maf_list <- checkMafInput(maf, patient.id = patient.id)
+    
     result <- list()
     for(m in maf_list){
         if(! "CCF" %in% colnames(m@data)){
@@ -51,12 +42,11 @@ compareJSI <- function(
                         "No CCF data was found when generate Maf object."))
         }
         maf_data <- subsetMaf(m,
-                         patient.id = patient.id,
-                         chrSilent = chrSilent,
-                         mutType = mutType,
-                         use.indel = use.indel,
-                         min.vaf = min.vaf,
-                         use.adjVAF = T)
+                            chrSilent = chrSilent,
+                            mutType = mutType,
+                            use.indel = use.indel,
+                            min.vaf = min.vaf,
+                            use.adjVAF = T)
         patient <- unique(maf_data$Patient_ID)
         
         JSI_input <-  maf_data %>%
@@ -76,7 +66,10 @@ compareJSI <- function(
                 Tumor_ID,
                 Tumor_Sample_Barcode,
                 Clonal_Status,
-                VAF_adj)
+                VAF_adj) %>% 
+            ## valid clonal status
+            dplyr::filter(!is.na(Clonal_Status))
+        JSI_input$Clonal_Status <- as.character(JSI_input$Clonal_Status)
         
         JSI.multi <- data.frame()
         JSI.pair <- list()
@@ -130,19 +123,19 @@ compareJSI <- function(
                     tidyr::pivot_wider(
                         names_from = Tumor_ID,       
                         values_from = c(VAF_adj, Clonal_Status),
-                        values_fill = c(VAF_adj = 0, Clonal_Status = 'NA')
+                        values_fill = c(VAF_adj = 0, Clonal_Status = 'nostatus')
                     ) %>%
                     dplyr::ungroup()
                 colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")
             }
             else{
                 name <- paste(samples[pair[1]],samples[pair[2]], sep = "_")
-                vaf.pair <- subset(JSI_input, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>%
+                vaf.pair <- subset(JSI_input, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>% 
                     dplyr::select(Mut_ID, Tumor_Sample_Barcode, Clonal_Status, VAF_adj) %>% 
                     tidyr::pivot_wider(
                         names_from = Tumor_Sample_Barcode,       
                         values_from = c(VAF_adj, Clonal_Status),
-                        values_fill = c(VAF_adj = 0, Clonal_Status = 'NA')
+                        values_fill = c(VAF_adj = 0, Clonal_Status = 'nostatus')
                     ) %>%
                     dplyr::ungroup()
                 colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")

@@ -167,7 +167,7 @@ fitSignatures <- function(tri_matrix = NULL,
       sub <- data.frame(Branch = branch_name, 
                         Signature = sig_cut,
                         # Mutation_number = mut_sum,
-                        contribution = sig_con)
+                        Contribution = sig_con)
       if(!is.null(df.aetiology)){
         aet <- aetiology_ref[sig_cut]
         sub$Aetiology <- as.character(aet)  
@@ -177,7 +177,7 @@ fitSignatures <- function(tri_matrix = NULL,
     ## order data frame by contribution of each branch
     signatures_aetiology <- dplyr::arrange(signatures_aetiology,
                                            plyr::desc(Branch),
-                                           plyr::desc(contribution))
+                                           plyr::desc(Contribution))
     
     
     result[[patient]] <- list(

@@ -36,18 +36,8 @@ mutHeatmap <- function(maf,
                        mutType = "All",
                        use.indel = TRUE){
     
-    if(class(maf) == "Maf"){
-        maf_list <- list(maf)
-    }else if(class(maf) == "MafList"){
-        ## patient filter
-        if(!is.null(patient.id)){
-            maf <- subsetMafList(maf,
-                                  patient.id = patient.id)
-        }
-        maf_list <- maf
-    }else{
-        stop("Error:maf should be either maf or maf list")
-    }
+    ## check input data
+    maf_list <- checkMafInput(maf, patient.id = patient.id)
     
     heatmap_list <- list()
     for(m in maf_list){
@@ -57,17 +47,10 @@ mutHeatmap <- function(maf,
                        chrSilent = chrSilent,
                        mutType = mutType,
                        use.indel = use.indel)
-        m@data <- maf_data
-        ## classify mutation
-        maf_data <- m %>% 
-            do.classify(class = "SP",classByTumor = T) %>% 
-            tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE)
-            
         
-        patient <- unique(maf_data$Patient_ID)
         ## get mutation matrix
         binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
-
+        
         if(use.ccf){
             if("CCF" %in% colnames(maf_data)){
                 ccf.matrix <- getMutMatrix(maf_data, use.ccf = TRUE)
@@ -83,6 +66,14 @@ mutHeatmap <- function(maf,
                 ccf.matrix <- ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")]
             }
         }
+        
+        ## classify mutation
+        maf_data <- maf_data %>% 
+            do.classify(class = "SP",classByTumor = T) %>% 
+            tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE)
+            
+        patient <- unique(maf_data$Patient_ID)
+        
         
         mat <- binary.matrix
         # print(nrow(mat))
@@ -263,21 +254,13 @@ mutHeatmap <- function(maf,
                 position = "bottom")+
             
             ggtitle(paste0(patient,"(n=",mut.num,")")) + 
-            theme(plot.title = element_text(hjust = 0.5,vjust = -3))+
+            theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,vjust = -3))+
             
             theme(axis.ticks = element_blank()) +
             theme(legend.title = element_text(color = "black")) +
             theme(legend.text = element_text( color = "black")) +
             theme(legend.position = "right")
-        # if(show.type.label){
-        #     p_basic <- p_basic + 
-        #         geom_text(data = annotation.bar,
-        #                   mapping = aes(x = xmin + (xmax-xmin)/2,
-        #                                 y = ymin + (ymax-ymin)/2),
-        #                   label = type_label,
-        #                   size = type.text.size,
-        #                   angle = 90)
-        # }
+        
         if(use.ccf){
             p <- p_basic + 
                 geom_rect(data = mut_dat,
@@ -352,20 +335,24 @@ mutHeatmap <- function(maf,
            # scale_fill_manual(values = type_colors,name = "Class")
         
         ## multi legend
-        class_legend <- (
+        type_legend <- (
             ggplot()+
                 geom_rect(data = annotation.bar,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax, fill = factor(mutation_type))) +
-                scale_fill_manual(values = type_colors,name = "Type"))%>%
+                scale_fill_manual(values = type_colors,name = "Type") + 
+                theme(legend.background = element_blank()))%>%
             ggplotGrob %>%
             {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
         
         legends_column <-
             plot_grid(
                 mutation_legend + theme(legend.position = "none"),
-                mutation_legend,class_legend,
-                class_legend + theme(legend.position = "none"),
+                mutation_legend,
+                mutation_legend + theme(legend.position = "none"),
+                type_legend,
+                type_legend + theme(legend.position = "none"),
                 ncol = 1,
+                rel_heights = c(.3,1,.1,1,.9),
                 align = "v")
         
         heat_map <- plot_grid(p + theme(legend.position = "none"),
