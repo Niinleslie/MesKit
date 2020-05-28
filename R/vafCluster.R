@@ -7,9 +7,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param min.vaf The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1
 #' @param max.vaf The maximum value of VAF. Default: 0. Option: on the scale of 0 to 1
-#' @param plotOption Character value. Three options for displaying clustering of VAFs in samples. Default "compare"
-#' "compare": prints comparison of VAFs distribution among samples;
-#' "combine" prints VAFs distribution of samples all together;
+#' @param plotOption Character. "compare": prints comparison of VAFs distribution among samples; "combine": prints VAFs distribution of samples all together;
 #' @param withinTumor Cluster VAF within tumors in each patients,default is FALSE.
 #' @param ... Other options passed to \code{\link{subsetMaf}}
 #' 

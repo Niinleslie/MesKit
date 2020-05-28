@@ -27,14 +27,15 @@ mutHeatmap <- function(maf,
                        mut.threshold = 50,
                        sample.text.size = 9,
                        legend.title.size = 10,
-                       gene.text.size = 9,...){
+                       gene.text.size = 9,
+                       ...){
     
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
     heatmap_list <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m,min.vaf = min.vaf,...)
+        maf_data <- subsetMaf(m, min.vaf = min.vaf, ...)
         
         ## get mutation matrix
         binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)

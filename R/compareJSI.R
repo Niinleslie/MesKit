@@ -25,7 +25,8 @@ compareJSI <- function(
    use.circle = TRUE, 
    title = NULL,
    number.cex = 8, 
-   number.col = "#C77960",...) {
+   number.col = "#C77960",
+   ...) {
    
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
@@ -38,7 +39,8 @@ compareJSI <- function(
         }
         maf_data <- subsetMaf(m,
                             min.vaf = min.vaf,
-                            use.adjVAF = TRUE)
+                            use.adjVAF = TRUE,
+                            ...)
         patient <- unique(maf_data$Patient_ID)
         
         JSI_input <-  maf_data %>%

@@ -135,7 +135,7 @@ getTreeData <- function(phyloTree = NULL,
        ## add signature
       if(branchCol == "mutSig"){
           tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
-          cos_sim_matrix <- fitSignatures(tri_matrix,...)[[1]]$cosine.similarity
+          cos_sim_matrix <- fitSignatures(tri_matrix, ...)[[1]]$cosine.similarity
           signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))
           treeData <- treeData[, Signature:= signatures[label]]
           # print(treeData$label)
