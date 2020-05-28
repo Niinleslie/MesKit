@@ -36,7 +36,11 @@ plotMutProfile <- function(maf,
   
     if(class(maf) == "MafList"){
         if(!is.null(patient.id)){
-            maf <- subsetMafList(maf, patient.id = patient.id)
+            patient.setdiff <- setdiff(patient.id, names(maf))
+            if(length(patient.setdiff) > 0){
+                stop(paste0("Patient ", patient.setdiff, " can not be found in MafList"))
+            }
+            maf <- maf[names(maf)  %in% patient.id]
         }
         maf_data_list <- lapply(maf,function(x)getMafData(x))
         maf_data <- plyr::rbind.fill(maf_data_list)
@@ -46,7 +50,7 @@ plotMutProfile <- function(maf,
         stop("Error: input should be either Maf or MafList object")
     }
     
-   maf_data <- do.classify(maf_data, classByTumor = classByTumor, patient.id = patient.id, class = class)
+   maf_data <- do.classify(maf_data, classByTumor = classByTumor,class = class)
   
   if (!is.null(geneList)) {  
   

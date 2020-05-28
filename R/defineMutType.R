@@ -84,22 +84,11 @@ multiHits <- function(x) {
 do.classify <- function(
     maf_data,
     class = "SP",
-    patient.id = NULL,
     classByTumor = FALSE) {
     
     class.options = c('SP', 'CS', 'SPCS')
     if(!class %in% class.options){
         stop("Error:class can only be either 'SP', 'CS' or 'SPCS'")
-    }
-    
-    
-    if(is.null(patient.id)){
-        patient.id = unique(maf_data$Patient_ID)
-    }else{
-        patient.setdiff <- setdiff(patient.id, unique(maf_data$Patient_ID))
-        if(length(patient.setdiff) > 0){
-            stop(paste0(patient.setdiff, " can not be found in your data"))
-        }
     }
     
     maf_data <- maf_data %>%
@@ -112,8 +101,7 @@ do.classify <- function(
             ),
             sep = ":",
             remove = FALSE
-        ) %>%
-        dplyr::filter(Patient_ID %in% patient.id)
+        )
     
     mutation_barcode_count <-
         maf_data %>%

@@ -9,11 +9,8 @@ getPhyloTree(
   patient.id = NULL,
   method = "NJ",
   min.vaf = 0.02,
-  min.ccf = NULL,
   bootstrap.rep.num = 100,
-  chrSilent = NULL,
-  mutType = "All",
-  use.indel = TRUE
+  ...
 )
 }
 \arguments{
@@ -25,15 +22,9 @@ getPhyloTree(
 
 \item{min.vaf}{The minimum value of vaf. Default 0.02.}
 
-\item{min.ccf}{The minimum value of CCF. Default NULL.}
-
 \item{bootstrap.rep.num}{Bootstrap iterations.. Default 100.}
 
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
-
-\item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
-
-\item{use.indel}{Logical value. Whether to include INDELs in analysis. Default: TRUE.}
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \value{
 PhyloTree or phyloTreeList object

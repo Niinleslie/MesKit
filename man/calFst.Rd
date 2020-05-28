@@ -7,18 +7,15 @@
 calFst(
   maf,
   patient.id = NULL,
-  chrSilent = NULL,
-  mutType = "All",
-  use.indel = TRUE,
   min.vaf = 0.02,
   min.total.depth = 2,
-  use.adjVAF = FALSE,
   plot = TRUE,
+  withinTumor = FALSE,
   use.circle = TRUE,
   title = NULL,
-  withinTumor = FALSE,
   number.cex = 8,
-  number.col = "#C77960"
+  number.col = "#C77960",
+  ...
 )
 }
 \arguments{
@@ -26,19 +23,15 @@ calFst(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
-
-\item{mutType}{Select proper variant classification you need. Default "All". Option: "nonSyn".}
-
-\item{use.indel}{Logical value. Whether to use INDELs besides somatic SNVs. Default: TRUE.}
-
 \item{min.vaf}{Specify the minimum VAF_adj, default is 0.02}
 
 \item{min.total.depth}{The minimum total allele depth for filtering variants. Default: 2.}
 
-\item{use.adjVAF}{Calculate Fst by adjusted VAF.Default: FALSE.}
+\item{plot}{Logical (Default:TRUE). Whether to show the plot, default TRUE}
 
 \item{withinTumor}{Calculate fst within types in each patients,default is FALSE.}
+
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \value{
 A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
