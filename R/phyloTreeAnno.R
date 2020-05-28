@@ -1,9 +1,8 @@
 getTreeData <- function(phyloTree = NULL,
                         branchCol = "mutSig",
-                        min.mut.count = 15,
-                        signaturesRef="cosmic_v2",
-                        compare = FALSE){
-   tree <- phyloTree@tree
+                        compare = FALSE,
+                        ...){
+   tree <- getTree(phyloTree)
    rootLabel <- "NORMAL"
    tree <- ape::root(tree, tree$tip.label[which(tree$tip.label == rootLabel)])
    treeEdge <- data.table::data.table(node = tree$edge[,1], endNum = tree$edge[,2], length = tree$edge.length)
@@ -135,9 +134,8 @@ getTreeData <- function(phyloTree = NULL,
    if(!is.null(branchCol) & !compare){
        ## add signature
       if(branchCol == "mutSig"){
-          tri_matrix <- triMatrix(phyloTree)
-          cos_sim_matrix <- fitSignatures(tri_matrix, signaturesRef = signaturesRef,
-                                          min.mut.count = min.mut.count)[[1]]$cosine.similarity
+          tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
+          cos_sim_matrix <- fitSignatures(tri_matrix, ...)[[1]]$cosine.similarity
           signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))
           treeData <- treeData[, Signature:= signatures[label]]
           # print(treeData$label)
@@ -150,11 +148,11 @@ getTreeData <- function(phyloTree = NULL,
               treeData$Signature <- gsub('SBS', '', treeData$Signature)
           }
       }else{
-          branch.type <- phyloTree@branch.type
-          types <- as.character(branch.type$Branch_Tumor_ID)
-          names(types) <- as.character(branch.type$Branch_ID)
-          treeData <- treeData[, Branch_Tumor_ID:= types[label]] 
-              # dplyr::mutate(Branch_Tumor_ID = types[label]) %>% 
+          branch_type <- getBranchType(phyloTree)
+          types <- as.character(branch_type$Mutation_Type)
+          names(types) <- as.character(branch_type$Branch_ID)
+          treeData <- treeData[, Mutation_Type:= types[label]] 
+              # dplyr::mutate(Mutation_Type = types[label]) %>% 
               # as.data.table()
       }
    }
@@ -404,38 +402,6 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
    return(list(numList,pointsList, nodeNoOnTree, nodeOnTree))
 }
 
-
-
-addSignature <- function(tree, treeData, signature, signaturesRef){
-   #add signature to treeData
-   treeData$Signature <- ''
-   # treeData$Branch_Tumor_ID <- ''
-   print(treeData)
-   sigs <- strsplit(as.character(signature$branch),"∩")
-   sigs <- lapply(sigs, function(x){return(paste(sort(x,decreasing = T),collapse = "∩"))})
-   t <- 1
-   while(t<=length(sigs)){
-      pos <- which(treeData$label == sigs[[t]])
-      treeData$Signature[pos] <- as.character(signature$sig[t]) 
-      # treeData$Branch_Tumor_ID[pos] <- as.character(signature$Branch_Tumor_ID[t])
-      t <- t + 1
-   }
-   if(treeData$Signature[which(treeData$sample == 'NORMAL')] == ''){
-      treeData$Signature[which(treeData$sample == 'NORMAL')] = as.character(signature$sig[1])
-      # treeData$Branch_Tumor_ID[which(treeData$sample == 'NORMAL')] = as.character(signature$Branch_Tumor_ID[1])
-   }
-   
-   treeData[Signature == '',]$Signature <- "Unknown"
-   treeData <- treeData[order(Signature), ]
-   
-   if(signaturesRef %in% c("cosmic_v2","nature2013")){
-       treeData$Signature <- gsub('Signature ', '', treeData$Signature)
-   }else{
-       treeData$Signature <- gsub('SBS', '', treeData$Signature)
-   }
-   return(treeData)
-}
-
 getSigColors <- function(signatures){
     
    signature_colors <- c("1" = "#E41A1C", "2" = "#377EB8","3" = "#7F0000",
@@ -466,19 +432,6 @@ getSigColors <- function(signatures){
                         "84" = "#4B9F34", "85" = "#598F4D", "Unknown" = "black")
    color_scale <- signature_colors[signatures]
    return(color_scale)
-}
-
-getPrivateMutation <- function(phyloTree){
-   mut.branches <- phyloTree@mut.branches
-   private.idx <- unlist(lapply(unique(mut.branches$Branch_ID),
-                                 function(x){return(length(strsplit(x,"∩")[[1]]) == 1)}))
-   samples <- unique(mut.branches$Branch_ID)[private.idx]
-   private.muts <- mut.branches[mut.branches$Branch_ID %in% samples,]
-   totalMutSum <- nrow(mut.branches)
-   privateMutSum <- nrow(private.muts)
-   # print(privateMutSum)
-   privateMutProportion <- paste(round((privateMutSum/totalMutSum)*100,1),"%",sep = "")
-   return(list(totalMutSum, privateMutProportion))
 }
 
 labelBranch <- function(tree){

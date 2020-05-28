@@ -34,17 +34,19 @@ compareTree <- function(phyloTree1,
         stop("Error: min.ratio must greater than 0")
     }
     
-	tree1 <- phyloTree1@tree
-	tree2 <- phyloTree2@tree
+	tree1 <- getTree(phyloTree1)
+	tree2 <- getTree(phyloTree2)
 	dist <- phangorn::treedist(tree1, tree2)
 	names(dist) <- c("Symmetric.difference", "KF-branch distance", "Path difference", "Weighted path difference")
 	if(plot){
 	    compare <- TRUE
 	    if(!is.null(min.ratio)){
-	        min1 <- max(phyloTree1@tree$edge.length)*min.ratio
-	        min2 <- max(phyloTree2@tree$edge.length)*min.ratio
-	        phyloTree1@tree$edge.length[phyloTree1@tree$edge.length < min1] <- min1
-	        phyloTree2@tree$edge.length[phyloTree2@tree$edge.length < min2] <- min2
+	        min1 <- max(tree1$edge.length)*min.ratio
+	        min2 <- max(tree2$edge.length)*min.ratio
+	        tree1$edge.length[tree1$edge.length < min1] <- min1
+	        tree2$edge.length[tree2$edge.length < min2] <- min2
+	        phyloTree1@tree <- tree1
+	        phyloTree2@tree <- tree2
 	    }
 	    treedat1 <- getTreeData(phyloTree1, compare = compare)
 	    treedat2 <- getTreeData(phyloTree2, compare = compare)
@@ -87,7 +89,8 @@ compareTree <- function(phyloTree1,
 	                        branchCol = NULL)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
-	                                labels = c(phyloTree1@method,phyloTree2@method))
+	                                labels = c(getTreeMethod(phyloTree1),getTreeMethod(phyloTree2))
+	                                )
 	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(phyloTree1@method,phyloTree2@method))
 	    return(list(compare.dist = dist, compare.plot = ptree))
 	}

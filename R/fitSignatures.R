@@ -81,12 +81,12 @@ fitSignatures <- function(tri_matrix = NULL,
     branch_remove <- rownames(tri_matrix[rowSums(tri_matrix) <= min.mut.count,])
     if(length(branch_remove) > 0){
       message("Warning: mutation number of ", paste(branch_remove, collapse = ", ")," in ",patient, " are less than min.mut.count")
-      branch_left <- setdiff(branch_remove, rownames(tri_matrix))
+      branch_left <- setdiff(rownames(tri_matrix),branch_remove)
       if(length(branch_left) == 0){
         next
       }
       
-      tri_matrix <- tri_matrix[rowSums(tri_matrix)> min.mut.count,]
+      tri_matrix <- tri_matrix[branch_left,]
       ## rebuild matrix if there is only one branch left
       if(class(tri_matrix) == "numeric"){
         type_name <- names(tri_matrix)
@@ -167,7 +167,7 @@ fitSignatures <- function(tri_matrix = NULL,
       sub <- data.frame(Branch = branch_name, 
                         Signature = sig_cut,
                         # Mutation_number = mut_sum,
-                        contribution = sig_con)
+                        Contribution = sig_con)
       if(!is.null(df.aetiology)){
         aet <- aetiology_ref[sig_cut]
         sub$Aetiology <- as.character(aet)  
@@ -177,8 +177,7 @@ fitSignatures <- function(tri_matrix = NULL,
     ## order data frame by contribution of each branch
     signatures_aetiology <- dplyr::arrange(signatures_aetiology,
                                            plyr::desc(Branch),
-                                           plyr::desc(contribution))
-    
+                                           plyr::desc(Contribution))
     
     result[[patient]] <- list(
       reconstructed.mat = recon_matrix,

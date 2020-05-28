@@ -5,14 +5,13 @@
 \title{plotPhyloTree}
 \usage{
 plotPhyloTree(
-  phyloTree = NULL,
+  phyloTree,
   patient.id = NULL,
-  branchCol = "mutSig",
+  branchCol = "mutType",
   show.bootstrap = TRUE,
   use.box = TRUE,
   min.ratio = 1/20,
-  min.mut.count = 15,
-  signaturesRef = "cosmic_v2"
+  ...
 )
 }
 \arguments{
@@ -20,7 +19,7 @@ plotPhyloTree(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{branchCol}{Character."mutSig" for coloring branches by mutation signature; "mutType" for coloring branches by branch tumor type; NULL for coloring automatically.Default is 'mutSig'.}
+\item{branchCol}{Specify the colors of branches (Default: NULL). Other options: "mutType" for coloring branches by branch tumor type; "mutSig" for coloring branches by mutation signature.}
 
 \item{show.bootstrap}{Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.}
 
@@ -31,9 +30,7 @@ all edge length of a phylogenetic tree should be greater than
 min.ratio*the longest edge length.
 If not, the edge length will be reset as min.ratio*longest edge length.}
 
-\item{min.mut.count}{The threshold for the variants in a branch. Default 15.}
-
-\item{signaturesRef}{The parameter used for deconstructSig. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".
+\item{...}{Other options passed to \code{\link{fitSignatures}}
 
 are mapped along the trees as indicated}
 }

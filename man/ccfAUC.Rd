@@ -7,12 +7,10 @@
 ccfAUC(
   maf,
   patient.id = NULL,
-  chrSilent = NULL,
-  mutType = "All",
-  use.indel = TRUE,
   min.ccf = 0,
   withinTumor = FALSE,
-  plot.density = TRUE
+  plot.density = TRUE,
+  ...
 )
 }
 \arguments{
@@ -20,17 +18,13 @@ ccfAUC(
 
 \item{patient.id}{select the specific patients. Default: NULL, all patients are included}
 
-\item{chrSilent}{Select chromosomes needed to be dismissed. Default NULL.}
-
-\item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
-
-\item{use.indel}{Logical value. Whether to include INDELs in analysis. Default: TRUE.}
-
 \item{min.ccf}{The minimum value of CCF. Default: 0}
 
 \item{withinTumor}{Calculate AUC within types in each patients,default is FALSE.}
 
 \item{plot.density}{whether to show the density plot. Default: TRUE}
+
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \value{
 A list containing AUC of CCF and a graph
