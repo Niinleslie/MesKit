@@ -82,7 +82,7 @@ multiHits <- function(x) {
 
 
 do.classify <- function(
-    maf,
+    maf_data,
     class = "SP",
     patient.id = NULL,
     classByTumor = FALSE) {
@@ -94,15 +94,15 @@ do.classify <- function(
     
     
     if(is.null(patient.id)){
-        patient.id = unique(maf@data$Patient_ID)
+        patient.id = unique(maf_data$Patient_ID)
     }else{
-        patient.setdiff <- setdiff(patient.id, unique(maf@data$Patient_ID))
+        patient.setdiff <- setdiff(patient.id, unique(maf_data$Patient_ID))
         if(length(patient.setdiff) > 0){
             stop(paste0(patient.setdiff, " can not be found in your data"))
         }
     }
     
-    maf_data <- maf@data %>%
+    maf_data <- maf_data %>%
         tidyr::unite(
             "mutation_id",
             c("Chromosome",

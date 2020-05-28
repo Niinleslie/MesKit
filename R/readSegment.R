@@ -40,6 +40,7 @@ readSegment <- function(segCN.file = NULL,
   
   if(!"CopyNumber" %in% colnames(seg)){
     if("SegmentMean" %in% colnames(seg)){
+        seg$SegmentMean <- as.numeric(seg$SegmentMean)
         suppressWarnings(seg[,CopyNumber := round(2^(SegmentMean)*2) ])
         seg <- dplyr::select(seg, Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position, CopyNumber)
     }
@@ -47,6 +48,8 @@ readSegment <- function(segCN.file = NULL,
         stop("Error:segCN.file does not contain Copynumber or SegmentMean information")  
     }
   }
+  seg$CopyNumber <- as.numeric(seg$CopyNumber)
+  
   seg[ ,Width := End_Position - Start_Position]
   seg <- dplyr::mutate(seg, Type = unlist(lapply(seg$CopyNumber, function(x){
       if(x == 0){
