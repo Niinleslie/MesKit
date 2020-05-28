@@ -32,6 +32,8 @@ calNeiDist <- function(maf,
     number.cex = 8, 
     number.col = "#C77960"){
     
+    ## check input data
+    maf_list <- checkMafInput(maf, patient.id = patient.id)
     
     if(withinTumor){
         clonalStatus <- "Subclonal"
@@ -39,23 +41,10 @@ calNeiDist <- function(maf,
         clonalStatus <- NULL
     }
     
-    if(class(maf) == "Maf"){
-        maf_list <- list(maf)
-    }else if(class(maf) == "MafList"){
-        ## patient filter
-        if(!is.null(patient.id)){
-            maf_list <- subsetMafList(maf, patient.id = patient.id)
-        }else{
-            maf_list <- maf
-        }
-    }else{
-        stop("Error: input should be either Maf or MafList object")
-    }
     
     result <- list()
     for( m in maf_list){
         maf_data <- subsetMaf(m,
-                         patient.id = patient.id,
                          chrSilent = chrSilent,
                          mutType = mutType,
                          use.indel = use.indel,

@@ -32,18 +32,8 @@ getPhyloTree <- function(maf,
   
   method <- match.arg(method, choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"), several.ok = FALSE)
   
-  if(class(maf) == "Maf"){
-      maf_list <- list(maf)
-  }else if(class(maf) == "MafList"){
-      ## patient filter
-      if(!is.null(patient.id)){
-          maf_list <- subsetMafList(maf, patient.id = patient.id)
-      }else{
-          maf_list <- maf
-      }
-  }else{
-      stop("Error: maf should be either Maf or MafList object")
-  }
+  ## check input data
+  maf_list <- checkMafInput(maf, patient.id = patient.id)
   
   phyloTree_patient_list <- list()
   for(m in maf_list){
@@ -54,7 +44,7 @@ getPhyloTree <- function(maf,
                      min.vaf = min.vaf,
                      min.ccf = min.ccf)
       
-      refBuild <- m@ref.build
+      refBuild <- getMafRef(m)
       patient <- unique(maf_data$Patient_ID)
       
       ## information input
@@ -91,7 +81,7 @@ getPhyloTree <- function(maf,
                         patientID = patient, tree = matTree, 
                         binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
                         mut.branches = mut.branches, branch.type = branch.type,
-                        refBuild = refBuild,
+                        ref.build = refBuild,
                         bootstrap.value = bootstrap.value, method = method)
       phyloTree_patient_list[[patient]] <- phylo.tree
   }

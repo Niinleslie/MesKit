@@ -6,7 +6,7 @@
 #' or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClonal/Private-SubClonal 
 #' @param class  The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
-#' @param classByType  FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)
+#' @param classByTumor  FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)
 #' @param topGenesCount  The number of genes print, default is 10
 #' @param geneList  A list of genes to restrict the analysis. Default NULL.
 #' @param patientsCol  A list containing customized colors for distinct patients. Default: NULL.
@@ -25,7 +25,7 @@
 plotMutProfile <- function(maf,
                            patient.id = NULL,
                            class = "SP",
-                           classByType = FALSE,
+                           classByTumor = FALSE,
                            topGenesCount = 10,
                            geneList = NULL,
                            bgCol = "#f0f0f0",
@@ -35,23 +35,18 @@ plotMutProfile <- function(maf,
                            showColnames = TRUE) {
   
     if(class(maf) == "MafList"){
-        ## patient filter
         if(!is.null(patient.id)){
             maf <- subsetMafList(maf, patient.id = patient.id)
         }
-        maf_data_list <- lapply(maf,function(x)x@data)
+        maf_data_list <- lapply(maf,function(x)getMafData(x))
         maf_data <- plyr::rbind.fill(maf_data_list)
-        maf <- Maf(
-            data = as.data.table(maf_data),
-            sample.info = data.frame(),
-            nonSyn.vc = "",
-            ref.build = ""
-        )
     }else if(class(maf) == "Maf"){
+        maf_data <- getMafData(maf)
+    }else{
         stop("Error: input should be either Maf or MafList object")
     }
     
-   maf_data <- do.classify(maf, classByType = classByType, patient.id = patient.id, class = class)
+   maf_data <- do.classify(maf_data, classByTumor = classByTumor, patient.id = patient.id, class = class)
   
   if (!is.null(geneList)) {  
   
@@ -143,7 +138,7 @@ plotMutProfile <- function(maf,
         }
     }
         
-    if (!(classByType)) {
+    if (!(classByTumor)) {
       col_type <- function(class) {
           if (class == "SP") {
               cols <- c("#3C5488FF", "#00A087FF", "#F39B7fFF")

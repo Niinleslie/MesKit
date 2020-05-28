@@ -43,18 +43,8 @@ testNeutral <- function(maf,
         stop("Error: max.vaf must be greater than min.vaf")
     }
     
-    if(class(maf) == "Maf"){
-        maf_list <- list(maf)
-    }else if(class(maf) == "MafList"){
-        ## patient filter
-        if(!is.null(patient.id)){
-            maf_list <- subsetMafList(maf, patient.id = patient.id)
-        }else{
-            maf_list <- maf
-        }
-    }else{
-        stop("Error: input should be either Maf or MafList object")
-    }
+    ## check input data
+    maf_list <- checkMafInput(maf, patient.id = patient.id)
     
     result <- list()
     for(m in maf_list){
