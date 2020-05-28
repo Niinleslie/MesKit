@@ -51,18 +51,6 @@ setGeneric(name = "getMafRef", function(object) standardGeneric("getMafRef"))
 #' @aliases getMafRef
 setMethod(f = "getMafRef",signature = "Maf", function(object)object@ref.build)
 
-#' @name getMafList
-#' @rdname getMafList
-#' @param object An object of MafList
-#' @return get the patients in MafList
-#' @exportMethod getMafList
-#' @examples 
-#' getMafList(maf)
-setGeneric(name = "getMafList", function(object) standardGeneric("getMafList"))
-
-#' @rdname getMafList
-#' @aliases getMafList
-setMethod(f = "getMafList",signature = "MafList", function(object)names(object)) 
 
 
 #' @name getTree
@@ -182,16 +170,3 @@ setGeneric(name = "getPhyloTreeRef", function(object) standardGeneric("getPhyloT
 #' @rdname getPhyloTreeRef
 #' @aliases getPhyloTreeRef
 setMethod(f = "getPhyloTreeRef",signature = "phyloTree", function(object)object@ref.build)
-
-#' @name getPhyloTreeList
-#' @rdname getPhyloTreeList
-#' @param object An object of phyloTreeList
-#' @return get the patients in phyloTreeList
-#' @exportMethod getPhyloTreeList
-#' @examples 
-#' getPhyloTreeList(phyloTree)
-setGeneric(name = "getPhyloTreeList", function(object) standardGeneric("getPhyloTreeList"))
-
-#' @rdname getPhyloTreeList
-#' @aliases getPhyloTreeList
-setMethod(f = "getPhyloTreeList",signature = "phyloTreeList", function(object)names(object)) 

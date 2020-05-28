@@ -273,7 +273,7 @@ plotPhyloTree <- function(phyloTree = NULL,
        if(compare){
            tree.title <- patient
        }else{
-           tree.title <- paste(patient,"(n=" ,nrow(showBinaryMatrix(phyloTree)) ,")",sep = "")
+           tree.title <- paste(patient,"(n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
        }
        p <- p + 
            ggtitle(tree.title)+

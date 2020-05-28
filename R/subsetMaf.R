@@ -39,7 +39,7 @@ subsetMaf <- function(maf,
                       use.adjVAF = FALSE){
    
    maf_data <- getMafData(maf)
-   nonSyn.vc <- getNonSyn_vc()
+   nonSyn.vc <- getNonSyn_vc(maf)
    
    if(use.adjVAF){
        if(!"VAF_adj" %in% colnames(maf_data)){
