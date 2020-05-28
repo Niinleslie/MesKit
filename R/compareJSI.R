@@ -38,7 +38,7 @@ compareJSI <- function(
         }
         maf_data <- subsetMaf(m,
                             min.vaf = min.vaf,
-                            use.adjVAF = TRUE)
+                            use.adjVAF = TRUE,...)
         patient <- unique(maf_data$Patient_ID)
         
         JSI_input <-  maf_data %>%

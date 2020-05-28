@@ -160,14 +160,7 @@ shinyServer(function(input, output, session){
       
       ## Rshiny: progress bar
       setProgress(message = 'Input data: Generating ', detail = paste("phyloTree from MAF ",sep="")) 
-      colNames <- colnames(inputData()@data)
-      standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
-                       "Variant_Classification", "Variant_Type", "Reference_Allele",
-                       "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
-      is <- intersect(colNames,standardCol)
-      if(length(is)== 10){
-          varsLs[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsLs$maf),method = input$method)
-      }
+      varsLs[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsLs$maf),method = input$method)
       incProgress(amount=1)
       
       setProgress(message = paste("Input data: MAF and phyloTree Generation Done!", sep=""), detail = "") 
@@ -217,20 +210,21 @@ shinyServer(function(input, output, session){
   output$ie1 <- renderUI({
     if(buttonValue$a == 1){
       tagList(
-        box(
-          width = NULL,
           div(
             h3(strong("The MAF files")),
-            p("MAF files contain many fields of information about chromosome and gene mutations and their annotations. The following fields are highly recommended to be contained in the MAF files.",
+            p("MAF files contain many fields of information about chromosome and gene mutations and 
+              their annotations. The following fields are highly recommended to be contained in
+              the MAF files.",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
-            h4(strong("Mandatory fields:")),
-            p("Hugo_Symbol, Chromosome, Start_Position, End_Position, Variant_Classification, Variant_Type, Reference_Allele, Tumor_Seq_Allele2, VAF, Tumor_Sample_Barcode.",
+            p("Mandatory fields: Hugo_Symbol,Chromosome,Start_Position,End_Position,
+                        Variant_Classification, Variant_Type,Reference_Allele,
+                        Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,
+                        VAF,Tumor_Sample_Barcode,Patient_ID,Tumor_ID",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
-            h4(strong("Example MAF file"))
+            h3(strong("Example MAF file"))
           ),
           DT::dataTableOutput("ied1",width = "100%"),
           br()
-        )
       )
     }
   })
@@ -285,20 +279,16 @@ shinyServer(function(input, output, session){
   ## output Introduction of CCF
   output$ie3 <- renderUI({
     if(buttonValue$c == 1){
-      box(
-        width = NULL,
         tagList(
           h3(strong("The CCF file")),
           p("CCF files contain cancer cell fraction of each mutation.",
             style = "font-size:16px; font-weight:500;line-height:30px;"),
-          h4(strong("Mandatory fields:")),
-          p("Chromosome,Start,Sample,CCF",
+          p("Mandatory fields: Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position,End_Position",
             style = "font-size:16px; font-weight:500;line-height:30px;"),
-          h4(strong("Example CCF file:")),
+          h3(strong("Example CCF file:")),
           DT::dataTableOutput("ied3"),
           br()
         )
-      )
     }
   })
   output$ied3 <- renderDataTable({
@@ -328,22 +318,19 @@ shinyServer(function(input, output, session){
   # })
   output$datapreview <- renderUI({
       if(input$submit1){
-          colNames <- colnames(inputData()@data)
-          standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
-                           "Variant_Classification", "Variant_Type", "Reference_Allele",
-                           "Tumor_Seq_Allele2", "VAF", "Tumor_Sample_Barcode")
-          is <- intersect(colNames,standardCol)
-          if(length(is) == 10){
-              DT::dataTableOutput('maftable', width = '100%')
-          }
-          else{
-              uiOutput("warningMessage00")
-          }
+        DT::dataTableOutput('maftable', width = '100%')
+        # uiOutput("warningMessage00")
       }
   })
   output$maftable <- DT::renderDataTable({
     if(input$submit1){
-        datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
+        maf <- inputData()
+        if(class(maf) == "Maf"){
+            t <- datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
+        }else{
+            t <- datatable(inputData()[[1]]@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
+        }
+        return(t)
     }
   })
   stopButtonValue2 <- reactiveValues(a = 0)

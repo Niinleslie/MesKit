@@ -137,16 +137,16 @@ getTreeData <- function(phyloTree = NULL,
           tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
           cos_sim_matrix <- fitSignatures(tri_matrix,...)[[1]]$cosine.similarity
           signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))
+          if(any(grepl("Signature", signatures))){
+              signatures <- gsub('Signature ', '', signatures)
+          }else if(any(grepl("SBS", signatures))){
+              signatures <- gsub('SBS', '', signatures)
+          }
           treeData <- treeData[, Signature:= signatures[label]]
           # print(treeData$label)
           # print(signatures)
           treeData[Signature == ''|is.na(Signature)]$Signature <- "Unknown"
           treeData <- treeData[order(Signature), ]
-          if(signaturesRef %in% c("cosmic_v2","nature2013")){
-              treeData$Signature <- gsub('Signature ', '', treeData$Signature)
-          }else{
-              treeData$Signature <- gsub('SBS', '', treeData$Signature)
-          }
       }else{
           branch_type <- getBranchType(phyloTree)
           types <- as.character(branch_type$Mutation_Type)

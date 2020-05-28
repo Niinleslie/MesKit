@@ -19,6 +19,7 @@
 mutHeatmap <- function(maf,
                        patient.id = NULL,
                        min.vaf = 0.02,
+                       min.ccf = 0,
                        use.ccf = FALSE,
                        geneList = NULL,
                        plot.geneList = FALSE,
@@ -34,7 +35,7 @@ mutHeatmap <- function(maf,
     
     heatmap_list <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m,min.vaf = min.vaf,...)
+        maf_data <- subsetMaf(m, min.vaf = min.vaf, min.ccf = min.ccf, ...)
         
         ## get mutation matrix
         binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
@@ -102,7 +103,7 @@ mutHeatmap <- function(maf,
                     dplyr::filter(Gene %in% geneList) %>%
                     as.data.frame()
                 if(nrow(mat) == 0){
-                    message("Warning: None genes map to mutation data")
+                    message("Warning: None genes map to data")
                     next
                 }
             }else{
@@ -185,9 +186,9 @@ mutHeatmap <- function(maf,
         ## set colors
         mutation_type_colors <- sample(colors(),length(mutation_type_level),replace = FALSE)
         ## get colors
-        mutation_type_colors <- c("#7fc97f","#fdc086", "#E64B35FF", "#1C9F95",
-                                  "#186D0E","#519F9D","#950B9F","#78339F",
-                                   "#2F4D49", "#439F18", "#971D37","#8C9F3C")
+        mutation_type_colors <- c("#7fc97f","#fdc086", "#E64B35FF", "#82166E",
+                                  "#B77B42","#6349B7","#D5017D","#B77562",
+                                   "#88A4FF", "#439F18", "#971D37","#8C9F3C")
         if(length(mutation_type_level) > length(mutation_type_colors)){
             left_colors <- sample(colors(),
                                   length(mutation_type_level)-length(mutation_type_colors),
@@ -204,10 +205,8 @@ mutHeatmap <- function(maf,
             type_colors <- append(type_colors, mutation_type_colors[as.character(type)])
             ## percentage of type
             type.num <- length(which(mut_dat$mutation_type == type))/(mutation_type_sum*length(unique(mut_dat$sample)))
-            percentage <- paste0("\n",round(type.num,3)*100,"%")
-            mutation_type_num[type] <- percentage
             
-            name_percentage <- paste0(as.character(type),paste0("(",round(type.num,3)*100,"%)"))
+            name_percentage <- paste0(as.character(type),paste0(" (",round(type.num,3)*100,"%)"))
             type_name_percentage <- append(type_name_percentage, name_percentage)
             
             ymax <- max(mut_dat[mut_dat$mutation_type == type,]$ymax)
@@ -241,7 +240,7 @@ mutHeatmap <- function(maf,
                 labels = unique(mut_dat$sample),
                 position = "bottom")+
             
-            ggtitle(paste0(patient,"(n=",mut.num,")")) + 
+            ggtitle(paste0(patient," (n=",mut.num,")")) + 
             theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,vjust = -3))+
             
             theme(axis.ticks = element_blank()) +

@@ -8,7 +8,7 @@
 #' @param max.vaf The maximum VAF for filtering variants. Default: 1.
 #' @param min.average.vaf The minimum tumor average VAF for filtering variants. Default: 0.
 #' @param min.average.adj.vaf The minimum tumor average ajust VAF for filtering variants. Default: 0.
-#' @param min.ccf The minimum CCF for filtering variants. Default: 0.
+#' @param min.ccf The minimum CCF for filtering variants. Default: NULL.
 #' @param min.ref.depth The minimum reference allele depth for filtering variants. Default: 0.
 #' @param min.alt.depth The minimum alteratation allele depth for filtering variants. Default: 0.
 #' @param min.total.depth The minimum total allele depth for filtering variants. Default: 0.
@@ -18,20 +18,22 @@
 #'
 #' @examples
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
+#' ## Maf
 #' maf_data <- subsetMaf(maf)
 #' @return Maf data.
 #' @export subsetMaf
 
 subsetMaf <- function(maf,
+                      patient.id = NULL,
                       geneList = NULL,
                       chrSilent = NULL,
                       mutType = "All",
                       use.indel = TRUE,
                       min.vaf = 0,
                       max.vaf = 1,
-                      min.average.vaf = NULL,
-                      min.average.adj.vaf = NULL,
-                      min.ccf = NULL,
+                      min.average.vaf = 0,
+                      min.average.adj.vaf = 0,
+                      min.ccf = 0,
                       min.ref.depth = 0,
                       min.alt.depth = 0,
                       min.total.depth = 0,
