@@ -17,14 +17,15 @@
 compareCCF <- function(maf,
                     patient.id = NULL,
                     min.ccf = 0,
-                    pairByTumor = FALSE){
+                    pairByTumor = FALSE,
+                    ...){
     
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
     ccf.pair.list <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m,min.ccf = min.ccf) %>% 
+        maf_data <- subsetMaf(m, min.ccf = min.ccf, ...) %>% 
             tidyr::unite(
                 "Mut_ID",
                 c(

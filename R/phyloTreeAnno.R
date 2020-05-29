@@ -1,7 +1,7 @@
 getTreeData <- function(phyloTree = NULL,
                         branchCol = "mutSig",
-                        compare = FALSE,
-                        ...){
+                        signaturesRef = signaturesRef,
+                        min.mut.count = min.mut.count){
    tree <- getTree(phyloTree)
    rootLabel <- "NORMAL"
    tree <- ape::root(tree, tree$tip.label[which(tree$tip.label == rootLabel)])
@@ -131,21 +131,29 @@ getTreeData <- function(phyloTree = NULL,
            }
        }
    }
-   if(!is.null(branchCol) & !compare){
+   if(!is.null(branchCol)){
        ## add signature
       if(branchCol == "mutSig"){
           tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
-          cos_sim_matrix <- fitSignatures(tri_matrix,...)[[1]]$cosine.similarity
+          fit_out <- fitSignatures(tri_matrix,
+                                          signaturesRef = signaturesRef,
+                                          min.mut.count = min.mut.count)
+          cos_sim_matrix <- fit_out[[1]]$cosine.similarity
+          sig_level <- colnames(cos_sim_matrix)
           signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))
           if(any(grepl("Signature", signatures))){
               signatures <- gsub('Signature ', '', signatures)
+              sig_level <- gsub('Signature ', '', sig_level)
           }else if(any(grepl("SBS", signatures))){
               signatures <- gsub('SBS', '', signatures)
+              sig_level <- gsub('SBS', '', sig_level)
           }
           treeData <- treeData[, Signature:= signatures[label]]
-          # print(treeData$label)
-          # print(signatures)
           treeData[Signature == ''|is.na(Signature)]$Signature <- "Unknown"
+          if("Unknown" %in% treeData$Signature){
+              sig_level <- c(sig_level,"Unknown")
+          }
+          treeData$Signature <- factor(treeData$Signature, levels = sig_level)
           treeData <- treeData[order(Signature), ]
       }else{
           branch_type <- getBranchType(phyloTree)

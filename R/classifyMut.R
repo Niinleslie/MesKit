@@ -19,14 +19,15 @@ classifyMut <- function(
      maf,
      class = "SP",
      patient.id = NULL,
-     classByTumor = FALSE,...) {
+     classByTumor = FALSE,
+     ...) {
     
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
     result <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m,...)
+        maf_data <- subsetMaf(m, ...)
         patient <- unique(maf_data$Patient_ID)
         mut.class <- do.classify(
             maf_data, 

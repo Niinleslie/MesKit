@@ -28,7 +28,8 @@ mutHeatmap <- function(maf,
                        mut.threshold = 50,
                        sample.text.size = 9,
                        legend.title.size = 10,
-                       gene.text.size = 9,...){
+                       gene.text.size = 9,
+                       ...){
     
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)

@@ -26,9 +26,7 @@ vafCluster(
 
 \item{max.vaf}{The maximum value of VAF. Default: 0. Option: on the scale of 0 to 1}
 
-\item{plotOption}{Character value. Three options for displaying clustering of VAFs in samples. Default "compare"
-"compare": prints comparison of VAFs distribution among samples;
-"combine" prints VAFs distribution of samples all together;}
+\item{plotOption}{Character. "compare": prints comparison of VAFs distribution among samples; "combine": prints VAFs distribution of samples all together;}
 
 \item{withinTumor}{Cluster VAF within tumors in each patients,default is FALSE.}
 

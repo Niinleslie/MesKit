@@ -15,7 +15,8 @@ plotMutProfile(
   patientsCol = NULL,
   remove_empty_columns = TRUE,
   remove_empty_rows = TRUE,
-  showColnames = TRUE
+  showColnames = TRUE,
+  ...
 )
 }
 \arguments{
@@ -43,6 +44,11 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 \item{remove_empty_rows}{Whether remove the genes without alterations. Only works when plot is TRUE}
 
 \item{showColnames}{TRUE(Default). Show sample names of columns.}
+
+\item{...}{Other options passed to \code{\link{subsetMaf}}}
+}
+\value{
+Mutation profile
 }
 \description{
 plotMutProfile

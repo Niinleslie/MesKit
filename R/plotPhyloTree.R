@@ -9,7 +9,8 @@
 #'  all edge length of a phylogenetic tree should be greater than
 #'  min.ratio*the longest edge length.
 #'  If not, the edge length will be reset as min.ratio*longest edge length.
-#' @param ... Other options passed to \code{\link{fitSignatures}}
+#' @param signaturesRef Signature reference,Users can upload their own reference. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".
+#' @param min.mut.count The threshold for the variants in a branch. Default 15.
 #' 
 #' are mapped along the trees as indicated
 #' @examples
@@ -27,7 +28,8 @@ plotPhyloTree <- function(phyloTree,
                           show.bootstrap = TRUE,
                           use.box = TRUE,
                           min.ratio = 1/20,
-                          signaturesRef = "cosmic_v2",...){
+                          signaturesRef = "cosmic_v2",
+                          min.mut.count = 15){
    
    if(!is.null(branchCol)){
        branchCol.options <- c("mutSig","mutType")
@@ -62,7 +64,9 @@ plotPhyloTree <- function(phyloTree,
        }else{
            compare <- FALSE
            treeData <- getTreeData(phyloTree = phyloTree,
-                                   branchCol = branchCol,...)
+                                   branchCol = branchCol,
+                                   signaturesRef = signaturesRef,
+                                   min.mut.count = min.mut.count)
        }
 
        ## get title 
@@ -124,15 +128,10 @@ plotPhyloTree <- function(phyloTree,
        
        if(!is.null(branchCol)){
            if(branchCol == "mutSig"){
-                   color_scale <- getSigColors(unique(treeData$Signature))
-                   signatrues <- unique(treeData$Signature)
-                   if("Unknown" %in% signatrues){
-                       signatrues <- signatrues[signatrues!= "Unknown"] %>% as.numeric() %>% sort() %>% as.character() %>% append("Unknown")
-                   }else{
-                       signatrues <- signatrues %>% as.numeric() %>% sort() %>% as.character()
-                   }
+                   color_scale <- getSigColors(as.character(unique(treeData$Signature)) )
+                   sig_level <- levels(treeData$Signature)
                    p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
-                   p <- p + scale_color_manual(breaks = signatrues ,values = color_scale) + 
+                   p <- p + scale_color_manual(breaks = sig_level ,values = color_scale) + 
                        theme(legend.title = element_text())
            }
            else{

@@ -188,24 +188,6 @@ shinyServer(function(input, output, session){
     buttonValue$c <- 0
     buttonValue$d <- 0
   })
-  observeEvent(input$iecontrol03,{
-    buttonValue$a <- 0
-    buttonValue$b <- 0
-    buttonValue$c <- buttonValue$c + 1
-    if(buttonValue$c == 2){
-      buttonValue$c <- 0
-    }
-    buttonValue$d <- 0
-  })
-  observeEvent(input$iecontrol04,{
-    buttonValue$a <- 0
-    buttonValue$b <- 0
-    buttonValue$c <- 0
-    buttonValue$d <- buttonValue$d + 1
-    if(buttonValue$d == 2){
-      buttonValue$d <- 0
-    }
-  })
   ## output Introduction of maf datatable
   output$ie1 <- renderUI({
     if(buttonValue$a == 1){
@@ -216,7 +198,7 @@ shinyServer(function(input, output, session){
               their annotations. The following fields are highly recommended to be contained in
               the MAF files.",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
-            p("Mandatory fields: Hugo_Symbol,Chromosome,Start_Position,End_Position,
+            p(strong("Mandatory fields"),": Hugo_Symbol,Chromosome,Start_Position,End_Position,
                         Variant_Classification, Variant_Type,Reference_Allele,
                         Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,
                         VAF,Tumor_Sample_Barcode,Patient_ID,Tumor_ID",
@@ -277,13 +259,13 @@ shinyServer(function(input, output, session){
   #   }
   # })
   ## output Introduction of CCF
-  output$ie3 <- renderUI({
-    if(buttonValue$c == 1){
+  output$ie2 <- renderUI({
+    if(buttonValue$b == 1){
         tagList(
           h3(strong("The CCF file")),
           p("CCF files contain cancer cell fraction of each mutation.",
             style = "font-size:16px; font-weight:500;line-height:30px;"),
-          p("Mandatory fields: Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position,End_Position",
+          p(strong("Mandatory fields"),": Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position,End_Position",
             style = "font-size:16px; font-weight:500;line-height:30px;"),
           h3(strong("Example CCF file:")),
           DT::dataTableOutput("ied3"),
@@ -291,8 +273,8 @@ shinyServer(function(input, output, session){
         )
     }
   })
-  output$ied3 <- renderDataTable({
-    if(input$iecontrol03){
+  output$ied2 <- renderDataTable({
+    if(input$iecontrol02){
       spd3 <- read.table('dom/ccf.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
       datatable(spd3, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
     }

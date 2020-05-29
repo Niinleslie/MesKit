@@ -47,13 +47,10 @@ calFst <- function(
     result <- list()
     for(m in maf_list){
         maf_data <- subsetMaf(m,
-                         chrSilent = chrSilent,
-                         mutType = mutType,
-                         use.indel = use.indel,
                          min.vaf = min.vaf,
                          min.total.depth = min.total.depth,
                          clonalStatus = clonalStatus,
-                         use.adjVAF = use.adjVAF)
+                         ...)
             
         patient <- unique(maf_data$Patient_ID)
         if(!"VAF_adj" %in% colnames(maf_data)){
