@@ -31,7 +31,7 @@ ccfAUC <- function(
     result <- list()
     for(m in maf_list){
         maf_data <- subsetMaf(m,
-                              min.ccf = min.ccf) %>% 
+                              min.ccf = min.ccf,...) %>% 
             dplyr::filter(!is.na(CCF))
         if(withinTumor) {
             maf_data <- dplyr::filter(maf_data, !is.na(Tumor_Average_CCF))

@@ -69,7 +69,7 @@ readSegment <- function(segCN.file = NULL,
       }
   }))) %>%
       dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size) %>%
-      dplyr::select(Patient_ID, Chromosome, Start_Position, End_Position, Tumor_Sample_Barcode, CopyNumber, Type) %>% 
+      dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID, CopyNumber, Type) %>% 
        as.data.table()
   seg$Chromosome <- as.numeric(seg$Chromosome)
   seg$Start_Position <- as.numeric(seg$Start_Position)
@@ -136,7 +136,7 @@ readSegment <- function(segCN.file = NULL,
       data.table::setkey(x = gisticCNVgenes,Chromosome, Start_Position, End_Position)
       mapDat <- data.table::foverlaps(gisticCNVgenes,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
                 na.omit() %>% 
-                dplyr::select(Patient_ID, Chromosome, Start_Position, End_Position, Tumor_Sample_Barcode, CopyNumber, Type, Gistic.type) %>% 
+                dplyr::select( Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID,  CopyNumber, Type, Gistic.type) %>% 
                 dplyr::distinct(.)
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
   }
@@ -156,7 +156,7 @@ readSegment <- function(segCN.file = NULL,
       mapDat <- data.table::foverlaps(gisticLesions,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
           na.omit() %>% 
           dplyr::filter(Qvalue < gistic.qval) %>% 
-          dplyr::select(Patient_ID, Chromosome, Start_Position, End_Position, Tumor_Sample_Barcode, CopyNumber, Type, Gistic.type) %>%
+          dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position, Patient_ID,  CopyNumber, Type, Gistic.type) %>%
           dplyr::distinct(.) %>% 
           data.table::as.data.table()
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]

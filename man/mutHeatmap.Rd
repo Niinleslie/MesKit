@@ -8,6 +8,7 @@ mutHeatmap(
   maf,
   patient.id = NULL,
   min.vaf = 0.02,
+  min.ccf = 0,
   use.ccf = FALSE,
   geneList = NULL,
   plot.geneList = FALSE,

@@ -41,11 +41,8 @@ calNeiDist <- function(maf,
     result <- list()
     for( m in maf_list){
         maf_data <- subsetMaf(m,
-                         chrSilent = chrSilent,
-                         mutType = mutType,
-                         use.indel = use.indel,
                          min.ccf = min.ccf,
-                         clonalStatus = clonalStatus)
+                         clonalStatus = clonalStatus,...)
         patient <- unique(maf_data$Patient_ID)
         
         if(! "CCF" %in% colnames(maf_data)){
@@ -130,9 +127,9 @@ calNeiDist <- function(maf,
                     significant_digit <- gsub(pattern =  "0\\.0*","",as.character(min_value))
                     digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
                     if(withinTumor){
-                        title_id <- paste0("Nei distance of ",id," in ", patient, ": ",round(Nei.dist.avg,digits))
+                        title_id <- paste0("Nei's distance of ",id," in ", patient, ": ",round(Nei.dist.avg,digits))
                     }else{
-                        title_id <- paste0("Nei distance of patient ", patient, ": ",round(Nei.dist.avg,digits))
+                        title_id <- paste0("Nei's distance of patient ", patient, ": ",round(Nei.dist.avg,digits))
                     }
                 }else{
                     title_id <- title

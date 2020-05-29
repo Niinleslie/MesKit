@@ -14,7 +14,8 @@
 #' @param remove_empty_columns  Whether remove the samples without alterations. Only works when plot is TRUE
 #' @param remove_empty_rows  Whether remove the genes without alterations. Only works when plot is TRUE
 #' @param showColnames  TRUE(Default). Show sample names of columns.
-#' @return NULL
+#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @return Mutation profile
 #' 
 #' @examples
 #' plotMutProfile(maf, class = "SP")
@@ -32,25 +33,22 @@ plotMutProfile <- function(maf,
                            patientsCol = NULL,
                            remove_empty_columns = TRUE,
                            remove_empty_rows = TRUE, 
-                           showColnames = TRUE) {
-  
-    if(class(maf) == "MafList"){
-        if(!is.null(patient.id)){
-            patient.setdiff <- setdiff(patient.id, names(maf))
-            if(length(patient.setdiff) > 0){
-                stop(paste0("Patient ", patient.setdiff, " can not be found in MafList"))
-            }
-            maf <- maf[names(maf)  %in% patient.id]
-        }
-        maf_data_list <- lapply(maf,function(x)getMafData(x))
-        maf_data <- plyr::rbind.fill(maf_data_list)
-    }else if(class(maf) == "Maf"){
-        maf_data <- getMafData(maf)
-    }else{
-        stop("Error: input should be either Maf or MafList object")
-    }
+                           showColnames = TRUE,
+                           ...) {
     
-   maf_data <- do.classify(maf_data, classByTumor = classByTumor,class = class)
+    ## check maf
+    maf_list <- checkMafInput(maf, patient.id = patient.id)
+    
+    ## merge maf data
+    maf_data_list <- list()
+    i <- 1
+    for(m in maf_list){
+        maf_data_list[[i]] <- subsetMaf(m,...)
+        i <- i + 1
+    }
+    maf_data <- plyr::rbind.fill(maf_data_list)
+    
+   maf_data <- do.classify(maf_data, classByTumor = classByTumor, class = class)
   
   if (!is.null(geneList)) {  
   
