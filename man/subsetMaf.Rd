@@ -6,7 +6,6 @@
 \usage{
 subsetMaf(
   maf,
-  patient.id = NULL,
   geneList = NULL,
   chrSilent = NULL,
   mutType = "All",

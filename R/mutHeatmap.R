@@ -242,7 +242,7 @@ mutHeatmap <- function(maf,
                 position = "bottom")+
             
             ggtitle(paste0(patient," (n=",mut.num,")")) + 
-            theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,vjust = -3))+
+            theme(plot.title = element_text(size = 13.5,face = "bold",colour = "black", hjust = 0.5,vjust = -3))+
             
             theme(axis.ticks = element_blank()) +
             theme(legend.title = element_text(color = "black")) +

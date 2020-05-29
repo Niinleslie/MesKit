@@ -27,6 +27,7 @@ plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel, patient){
         axis.ticks = element_line(size = 1),
         axis.title = element_text(size = 13,face = "bold",colour = "black"),
         axis.text = element_text(size = 10,face = "bold",colour = "black"),
+        plot.title = element_text(size = 13.5,face = "bold"),
         axis.ticks.length = unit(.25, "cm"))+
   geom_segment(aes(x = min(inv_f),xend= max(inv_f), y=-Inf,yend=-Inf), size = 1)+
   geom_segment(aes(y = y.min ,yend = y.max,x=-Inf,xend=-Inf), size = 1.5)+
@@ -51,7 +52,7 @@ plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel, patient){
            hjust = 0)+
   annotate("text",
            x = x.min,
-           y = y.max*0.9,
+           y = y.max*0.95,
            label = KDlabel,
            size = 4,
            fontface = "bold",
@@ -59,7 +60,7 @@ plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel, patient){
            hjust = 0)+
   annotate("text",
            x = x.min,
-           y = y.max*0.8,
+           y = y.max*0.9,
            label = Mdlabel,
            size = 4,
            fontface = "bold",
@@ -67,7 +68,7 @@ plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel, patient){
            hjust = 0)+
   annotate("text",
            x = x.min,
-           y = y.max*0.7,
+           y = y.max*0.85,
            label = R2label,
            size = 4,
            fontface = "bold",

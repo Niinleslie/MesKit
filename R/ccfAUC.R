@@ -114,7 +114,8 @@ ccfAUC <- function(
                 theme(
                     #legend.position='none', 
                     legend.title = element_blank(),
-                    title =  element_text(size=13), 
+                    plot.title =  element_text(size=13.5,face = "bold"), 
+                    axis.title = element_text(size=13),
                     panel.grid=element_blank(), 
                     panel.border=element_blank(), 
                     axis.line=element_line(size=0.7, colour = "black"),

@@ -115,7 +115,7 @@ calFst <- function(
                     tidyr::pivot_wider(
                         names_from = Tumor_Sample_Barcode,       
                         values_from = c(VAF_adj, totalDepth),
-                        values_fill = c(VAF_adj = 0, totalDepth = 0)
+                        values_fill = list(VAF_adj = 0, totalDepth = 0)
                     )
                 colnames(maf.pair) <- c("Mut_ID", "vaf1", "vaf2", "depth1", "depth2")
                 

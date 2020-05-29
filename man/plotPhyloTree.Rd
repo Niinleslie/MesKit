@@ -31,7 +31,7 @@ all edge length of a phylogenetic tree should be greater than
 min.ratio*the longest edge length.
 If not, the edge length will be reset as min.ratio*longest edge length.}
 
-\item{signaturesRef}{Signature reference,Users can upload their own reference. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".}
+\item{signaturesRef}{Signature reference,Users can upload their own reference. Default "cosmic_v2". Option:"exome_cosmic_v3","nature2013".}
 
 \item{min.mut.count}{The threshold for the variants in a branch. Default 15.
 

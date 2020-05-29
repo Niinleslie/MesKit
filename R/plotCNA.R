@@ -30,6 +30,10 @@ plotCNA <- function(seg,
 ){
     
     if(!is.null(chrSilent)){
+        chr.setdiff <- setdiff(chrSilent, unique(seg$Chromosome))
+        if(length(chr.setdiff) > 0){
+            stop(paste0("Chromosome ", chr.setdiff, " can not be found in your data"))
+        }
         seg <- seg[Chromosome %in% chrSilent]
     }
     
@@ -250,7 +254,7 @@ plotCNA <- function(seg,
             scale_y_continuous(breaks = Y.text.table$Pos,
                                labels = Y.text.table$Tumor_Sample_Barcode)+
             ggtitle("Copy number variant profile")+
-            theme(plot.title = element_text(size = 18, face = "bold", hjust = 0.5, vjust = -2))
+            theme(plot.title = element_text(size = 13.5, face = "bold", hjust = 0.5, vjust = -2))
         ## patient bar
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){

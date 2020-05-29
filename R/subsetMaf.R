@@ -24,7 +24,6 @@
 #' @export subsetMaf
 
 subsetMaf <- function(maf,
-                      patient.id = NULL,
                       geneList = NULL,
                       chrSilent = NULL,
                       mutType = "All",
@@ -65,6 +64,10 @@ subsetMaf <- function(maf,
    
    ## chromosome filter
    if (!is.null(chrSilent)) {
+      chr.setdiff <- setdiff(chrSilent, unique(maf_data$Chromosome))
+      if(length(chr.setdiff) > 0){
+         stop(paste0("Chromosome ", chr.setdiff, " can not be found in your data"))
+      }
       maf_data <- maf_data[Chromosome %in% chrSilent]
    }
    

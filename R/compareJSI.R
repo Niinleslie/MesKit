@@ -117,7 +117,7 @@ compareJSI <- function(
                     tidyr::pivot_wider(
                         names_from = Tumor_ID,       
                         values_from = c(VAF_adj, Clonal_Status),
-                        values_fill = c(VAF_adj = 0, Clonal_Status = "nostatus")
+                        values_fill = list(VAF_adj = 0, Clonal_Status = "nostatus")
                     ) %>%
                     dplyr::ungroup()
                 colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")

@@ -17,9 +17,9 @@ drawVAFCombine <- function(subdata){
    p <- ggplot(subdata, aes(x = VAF)) + 
          theme_bw() +
          theme(legend.position='right', 
-               plot.title=element_text(size=13,hjust = 0,vjust = 0.5,face = "bold"),
+               plot.title=element_text(size=12,hjust = 0,vjust = 0.5,face = "bold"),
                panel.grid=element_blank(), 
-               panel.border=element_blank(), 
+               panel.border=element_blank(),
                axis.line=element_line(size=0.7), 
                axis.title=element_text(size=13),
                axis.text=element_text(size=12, colour = "black"))+
