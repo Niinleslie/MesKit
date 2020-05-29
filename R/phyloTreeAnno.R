@@ -1,7 +1,8 @@
 getTreeData <- function(phyloTree = NULL,
                         branchCol = "mutSig",
                         signaturesRef = signaturesRef,
-                        min.mut.count = min.mut.count){
+                        min.mut.count = min.mut.count,
+                        compare = FALSE){
    tree <- getTree(phyloTree)
    rootLabel <- "NORMAL"
    tree <- ape::root(tree, tree$tip.label[which(tree$tip.label == rootLabel)])
@@ -131,7 +132,7 @@ getTreeData <- function(phyloTree = NULL,
            }
        }
    }
-   if(!is.null(branchCol)){
+   if(!is.null(branchCol) & !compare){
        ## add signature
       if(branchCol == "mutSig"){
           tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
