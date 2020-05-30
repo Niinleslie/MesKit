@@ -35,7 +35,12 @@ mathScore <- function(maf,
     MATH_list <- list()
     for(m in maf_list){
         maf_data <- subsetMaf(m,min.vaf = min.vaf,clonalStatus = clonalStatus,...)
-        patient <- unique(maf_data$Patient_ID)
+        
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
 
         ## MATH Caculation
         calMATH <- function(VAF){
@@ -107,7 +112,9 @@ mathScore <- function(maf,
     # }
     # 
     # return(list(MATH.df = MATH.df, MATH.plot = p))  
-    
+    if(length(result) == 0){
+        return(NA)
+    }
     return(result)   
     
 }

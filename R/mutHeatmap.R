@@ -10,6 +10,10 @@
 #' @param show.gene Show the name of genes next to the heatmap.Default FALSE.
 #' @param show.geneList Show the names of gene on the geneList.Default FALSE.
 #' @param mut.threshold Show.gene and show. geneList will be FALSE when patient have more mutations than threshold.Default is 150.
+#' @param sample.text.size Size of sample name.Default 9.
+#' @param legend.title.size Size of legend title.Default 10.
+#' @param gene.text.size Size of gene text. Default 9.
+#' 
 #' @param ... Other options passed to \code{\link{subsetMaf}}
 #' 
 #' @return heatmap of somatic mutations
@@ -37,7 +41,11 @@ mutHeatmap <- function(maf,
     heatmap_list <- list()
     for(m in maf_list){
         maf_data <- subsetMaf(m, min.vaf = min.vaf, min.ccf = min.ccf, ...)
-        
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         ## get mutation matrix
         binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
         
@@ -242,7 +250,7 @@ mutHeatmap <- function(maf,
                 position = "bottom")+
             
             ggtitle(paste0(patient," (n=",mut.num,")")) + 
-            theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,vjust = -3))+
+            theme(plot.title = element_text(size = 13.5,face = "bold",colour = "black", hjust = 0.5,vjust = -3))+
             
             theme(axis.ticks = element_blank()) +
             theme(legend.title = element_text(color = "black")) +
@@ -328,7 +336,9 @@ mutHeatmap <- function(maf,
                 geom_rect(data = annotation.bar,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax, fill = factor(mutation_type))) +
                 scale_fill_manual(values = type_colors,name = "Type") + 
-                theme(legend.background = element_blank()))%>%
+                theme(legend.background = element_blank(),
+                      legend.title = element_text(size = legend.title.size))
+            )%>%
             ggplotGrob %>%
             {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
         

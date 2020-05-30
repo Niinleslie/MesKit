@@ -40,8 +40,14 @@ compareJSI <- function(
         maf_data <- subsetMaf(m,
                             min.vaf = min.vaf,
                             use.adjVAF = TRUE,
-                            ...)
-        patient <- unique(maf_data$Patient_ID)
+                            ...) %>% 
+            ## valid clonal status
+            dplyr::filter(!is.na(Clonal_Status))
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         
         JSI_input <-  maf_data %>%
             tidyr::unite(
@@ -60,10 +66,7 @@ compareJSI <- function(
                 Tumor_ID,
                 Tumor_Sample_Barcode,
                 Clonal_Status,
-                VAF_adj) %>% 
-            ## valid clonal status
-            dplyr::filter(!is.na(Clonal_Status))
-        JSI_input$Clonal_Status <- as.character(JSI_input$Clonal_Status)
+                VAF_adj)
         
         JSI.multi <- data.frame()
         JSI.pair <- list()
@@ -117,7 +120,7 @@ compareJSI <- function(
                     tidyr::pivot_wider(
                         names_from = Tumor_ID,       
                         values_from = c(VAF_adj, Clonal_Status),
-                        values_fill = c(VAF_adj = 0, Clonal_Status = "nostatus")
+                        values_fill = list(VAF_adj = 0, Clonal_Status = "nostatus")
                     ) %>%
                     dplyr::ungroup()
                 colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")
@@ -163,6 +166,7 @@ compareJSI <- function(
             values <- sort(unique(as.numeric(dist_mat))) 
             if(length(values[values!=0 &values !=1]) == 0){
                 message(paste0("Warnings: there is no JSI within (0,1),can not plot JSI for ", patient, "."))
+                result[[patient]] <- list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = NA)
                 next
             }
             if(is.null(title)){
@@ -170,6 +174,8 @@ compareJSI <- function(
                 significant_digit <- gsub(pattern =  "0\\.0*","",as.character(min_value))
                 digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
                 title_id <- paste0("JSI of patient ", patient, ": ",round(multi,digits))
+            }else{
+                title_id <- title
             }
             p <- plotCorr(
                 dist_mat, 

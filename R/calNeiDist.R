@@ -43,7 +43,11 @@ calNeiDist <- function(maf,
         maf_data <- subsetMaf(m,
                          min.ccf = min.ccf,
                          clonalStatus = clonalStatus,...)
-        patient <- unique(maf_data$Patient_ID)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         
         if(! "CCF" %in% colnames(maf_data)){
             stop(paste0("Error: calculation of Nei’s distance requires CCF data." ,

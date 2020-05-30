@@ -9,7 +9,7 @@
 #'  all edge length of a phylogenetic tree should be greater than
 #'  min.ratio*the longest edge length.
 #'  If not, the edge length will be reset as min.ratio*longest edge length.
-#' @param signaturesRef Signature reference,Users can upload their own reference. Default "cosmic_v2". Option: "genome_cosmic_v3","exome_cosmic_v3","nature2013".
+#' @param signaturesRef Signature reference,Users can upload their own reference. Default "cosmic_v2". Option:"exome_cosmic_v3","nature2013".
 #' @param min.mut.count The threshold for the variants in a branch. Default 15.
 #' 
 #' are mapped along the trees as indicated
@@ -88,14 +88,14 @@ plotPhyloTree <- function(phyloTree,
        samplesLength <- nrow(treeData[sample != "internal node",]) 
        if(samplesLength > 7){
            samplePointsSize <- 1.5 
-           sampleTextSize <- 2
+           sampleTextSize <- 3
            segmentSize <- 0.8
            nodePointsSize <- 0.8
            # nodeStrokeSize <- 0.25
            # sampleStrokeSize <- 0.5
            nodeStrokeSize <- 0.15
            sampleStrokeSize <- 0.8
-           bootLabelSize <- 1.5
+           bootLabelSize <- 2
            bootTextSize <- 1.5
            bootPaddingSize <- 0.1
        }
@@ -205,7 +205,7 @@ plotPhyloTree <- function(phyloTree,
                       panel.grid.major = element_blank(),
                       panel.grid.minor = element_blank(), panel.background = element_blank(),
                       panel.border = element_blank(),
-                      # legend.title = element_text(),
+                      # legend.margin = margin(0),
                       # legend.title = element_blank(),
                       # legend.direction = "horizontal",
                       legend.position = 'right') + 
@@ -278,7 +278,7 @@ plotPhyloTree <- function(phyloTree,
        }
        p <- p + 
            ggtitle(tree.title)+
-           theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5))
+           theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
        
        tree_list[[patient]] <- p
        treeData <- NULL
