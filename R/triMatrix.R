@@ -73,7 +73,7 @@ triMatrix <- function(phyloTree,
   result <- list()
   for(phyloTree in phyloTree_list){
     
-    patient <- getPatientID(phyloTree)
+    patient <- getPhyloTreePatient(phyloTree)
     ## check reference
     refBuild <- getPhyloTreeRef(phyloTree)
     ref.options = c('hg18', 'hg19', 'hg38')
