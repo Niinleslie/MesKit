@@ -4,6 +4,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param method Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood),""FASTME.ols" or "FASTME.bal". 
 #' @param min.vaf The minimum value of vaf. Default 0.02.
+#' @param min.ccf The minimum value of CCF. Default: 0
 #' @param bootstrap.rep.num Bootstrap iterations.. Default 100.
 #' @param ... Other options passed to \code{\link{subsetMaf}}
 #' 
@@ -21,6 +22,7 @@ getPhyloTree <- function(maf,
                       patient.id = NULL, 
                       method = "NJ",
                       min.vaf = 0.02, 
+                      min.ccf = 0,
                       bootstrap.rep.num = 100,...){
   
   method <- match.arg(method, choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"), several.ok = FALSE)
@@ -30,11 +32,14 @@ getPhyloTree <- function(maf,
   
   phyloTree_patient_list <- list()
   for(m in maf_list){
-      maf_data <- subsetMaf(m,min.vaf = min.vaf)
-      
+      maf_data <- subsetMaf(m,min.vaf = min.vaf, min.ccf = min.ccf, ...)
+      patient <- getMafPatient(m)
+      if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+      }
+      # print(nrow(maf_data))
       refBuild <- getMafRef(m)
-      patient <- unique(maf_data$Patient_ID)
-      
       ## information input
       binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
       if("CCF" %in% colnames(maf_data)){

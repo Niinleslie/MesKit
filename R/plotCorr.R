@@ -76,6 +76,7 @@ plotCorr <- function(corrMat, use.circle = TRUE, title = NULL, number.cex = 8, n
             }
         },
         column_title = title,
+        column_title_gp = grid::gpar(fontsize = 13.5, fontface = "bold", col = "black"),
         cluster_rows = FALSE,
         cluster_columns = FALSE,
         show_column_names = FALSE,

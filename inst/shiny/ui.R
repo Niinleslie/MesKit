@@ -17,14 +17,14 @@ suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
 sidebar <- dashboardSidebar(
   width = 300,
   sidebarMenu(id="sidername",selected='home',
-              menuItem(strong("Home"), tabName = "home", icon = icon("home")),
+              menuItem(strong("Home"), tabName = "home", icon = icon("home")),              
               menuItem(strong("Input Data"), tabName = "input", icon = icon("gear")),
-              menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
               menuItem(strong("Alterational landscape"), tabName = "AL", icon = icon("bar-chart")),
-              menuItem(strong("Clonal analysis"), tabName = "clone", icon = icon("bar-chart")),
+              menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
+              menuItem(strong("Metastatic routes inference"), tabName = "clone", icon = icon("bar-chart")),
               # menuItem(strong("Functional exploration"), tabName = "function", icon = icon("bar-chart")),
-              menuItem(strong("Mutational signature analysis"), tabName = "signature", icon = icon("bar-chart")), 
-              menuItem(strong("Phylogenetic tree visualization"), tabName = "Survival", icon = icon("tree"))
+              menuItem(strong("Phylogenetic tree visualization"), tabName = "tree", icon = icon("tree")) 
+              # menuItem(strong("Phylogenetic tree visualization"), tabName = "Survival", icon = icon("tree"))
   )
 )
 
@@ -99,69 +99,80 @@ bodyIP <- tabItem("input",
                             #           title = "Upload maf data",
                             #           placement = "right",
                             #           trigger = "hover"),
-                            checkboxInput(inputId = 'useccf', 
-                                          label = div(style = "font-size:1.5em; font-weight:600;position: relative;padding-left:15px", 'use ccf'),value = FALSE, width = 200),
-                            bsTooltip(id = "useccf",
-                                      title = "Click if provide CCF data.",
-                                      placement = "top",
-                                      trigger = "hover"),
-                            conditionalPanel(
-                                condition = "input.useccf == true",
-                                fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
-                                                                tags$button(
-                                                                    Id = "iecontrol03",
-                                                                    type = "button",
-                                                                    class = "bttn-material-circle",
-                                                                    class = "btn action-button",
-                                                                    list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
-                                                                    style = " background-position: center;padding:0;margin-bottom:7px;"
-                                                                )
-                                ),
-                                placeholder = "example data: HCC6046.CCF.txt", width = 400)
-                            ),
-                            selectInput(inputId = "method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construction approach"),
-                                        choices = c(
-                                            "Neighbor joining" = "NJ",
-                                            "Maximum parsimony" = "MP",
-                                            "Maximum likelihood" = "ML",
-                                            "FASTME.bal" = "FASTME.bal",
-                                            "FASTME.ols" = "FASTME.ols"
-                                        ), selected = "NJ",width = 300),
-                            bsTooltip(id = "method",
-                                      title = "Approach to construct phylogenetic trees.",
-                                      placement = "top",
-                                      trigger = "hover"),
-                            selectInput(inputId = 'mutType', 
-                                        label = div(style = "font-size:1.5em; font-weight:600; ", 'Filter option'),
-                                        choices = c(All = 'All',
-                                                    nonSilent = 'nonSilent'), 
-                                        selected = "All", width = 400), 
-                            bsTooltip(id = "mutType", 
-                                      title = "Choose whether use nonsilent list to filter variant classification.", 
-                                      placement = "top", 
-                                      trigger = "hover"), 
-                            conditionalPanel(
-                              condition="input.mutType == 'nonSilent'", 
-                              selectInput(inputId = 'mutNonSilent', 
-                                          label = div(style = "font-size:1.5em; font-weight:600; ", 'Variant classification filter(Inclusive)'),
-                                          choices = c(),
-                                          multiple = TRUE, 
-                                          width = 400), 
-                              bsTooltip(id = "mutNonSilent", 
-                                        title = "Select variant classification needed to be silent", 
-                                        placement = "top", 
-                                        trigger = "hover") 
-
-                            ), 
-                            
-                            checkboxInput('useindel', 
-                                          label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'use indel'), 
-                                          value = FALSE, 
-                                          width = 400),
-                            bsTooltip(id = "useindel",
-                                      title = "Whether to use INDELs besides somatic SNVs",
-                                      placement = "top",
-                                      trigger = "hover"),
+                            # checkboxInput(inputId = 'useccf', 
+                            #               label = div(style = "font-size:1.5em; font-weight:600;position: relative;padding-left:15px", 'use ccf'),value = FALSE, width = 200),
+                            # bsTooltip(id = "useccf",
+                            #           title = "Click if provide CCF data.",
+                            #           placement = "top",
+                            #           trigger = "hover"),
+                          fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
+                                                          tags$button(
+                                                              Id = "iecontrol02",
+                                                              type = "button",
+                                                              class = "bttn-material-circle",
+                                                              class = "btn action-button",
+                                                              list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
+                                                              style = " background-position: center;padding:0;margin-bottom:7px;"
+                                                          )
+                          ),
+                          placeholder = "example data: HCC6046.CCF.txt", width = 400),
+                            # conditionalPanel(
+                            #     condition = "input.useccf == true",
+                            #     fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
+                            #                                     tags$button(
+                            #                                         Id = "iecontrol03",
+                            #                                         type = "button",
+                            #                                         class = "bttn-material-circle",
+                            #                                         class = "btn action-button",
+                            #                                         list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
+                            #                                         style = " background-position: center;padding:0;margin-bottom:7px;"
+                            #                                     )
+                            #     ),
+                            #     placeholder = "example data: HCC6046.CCF.txt", width = 400)
+                            # ),
+                            # selectInput(inputId = "method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construction approach"),
+                            #             choices = c(
+                            #                 "Neighbor joining" = "NJ",
+                            #                 "Maximum parsimony" = "MP",
+                            #                 "Maximum likelihood" = "ML",
+                            #                 "FASTME.bal" = "FASTME.bal",
+                            #                 "FASTME.ols" = "FASTME.ols"
+                            #             ), selected = "NJ",width = 300),
+                            # bsTooltip(id = "method",
+                            #           title = "Approach to construct phylogenetic trees.",
+                            #           placement = "top",
+                            #           trigger = "hover"),
+                            # selectInput(inputId = 'mutType', 
+                            #             label = div(style = "font-size:1.5em; font-weight:600; ", 'Filter option'),
+                            #             choices = c(All = 'All',
+                            #                         nonSilent = 'nonSilent'), 
+                            #             selected = "All", width = 400), 
+                            # bsTooltip(id = "mutType", 
+                            #           title = "Choose whether use nonsilent list to filter variant classification.", 
+                            #           placement = "top", 
+                            #           trigger = "hover"), 
+                            # conditionalPanel(
+                            #   condition="input.mutType == 'nonSilent'", 
+                            #   selectInput(inputId = 'mutNonSilent', 
+                            #               label = div(style = "font-size:1.5em; font-weight:600; ", 'Variant classification filter(Inclusive)'),
+                            #               choices = c(),
+                            #               multiple = TRUE, 
+                            #               width = 400), 
+                            #   bsTooltip(id = "mutNonSilent", 
+                            #             title = "Select variant classification needed to be silent", 
+                            #             placement = "top", 
+                            #             trigger = "hover") 
+                            # 
+                            # ), 
+                            # 
+                            # checkboxInput('useindel', 
+                            #               label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'use indel'), 
+                            #               value = FALSE, 
+                            #               width = 400),
+                            # bsTooltip(id = "useindel",
+                            #           title = "Whether to use INDELs besides somatic SNVs",
+                            #           placement = "top",
+                            #           trigger = "hover"),
                             # 
                             # textInput(inputId = "chrSilent", 
                             #           label = div(style = "font-size:1.5em; font-weight:600; ", 'Chromosome filter(Exclusive)'), 
@@ -184,12 +195,9 @@ bodyIP <- tabItem("input",
                         column(
                           width = 9, 
                           box(
-                            width = NULL,box(
-                              width = NULL,
-                              div(strong("Maf data preview"),style = "font-size:27px; font-weight:500;"),
-                              uiOutput("datapreview")
+                            width = NULL,
+                            uiOutput("datapreview"),
                               # DT::dataTableOutput('maftable', width = '100%')
-                            ),
                             uiOutput("ie1"),
                             uiOutput("ie2"),
                             uiOutput("ie3"),
@@ -948,308 +956,305 @@ bodyclone <- tabItem('clone',
 )    
 
 
-bodyfunction <- tabItem('function',
-                        fluidRow(
-                          column(
-                            width = 3,
-                            box(
-                              width = NULL,
-                              conditionalPanel(
-                                condition = "input.fat == 'F01'",
-                                div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                                br(),
-                                checkboxInput(inputId="driverGenesMapping1", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
-                                bsTooltip(id = "driverGenesMapping1",
-                                          title = 'The file with driver gene list.',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                conditionalPanel(
-                                    condition = "input.driverGenesMapping1 == true",
-                                    fileInput(inputId = 'driverGenesFile1', 
-                                              label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
-                                              placeholder = "Default file: putative_driver_genes.txt", 
-                                              width = 400)
-                                ),
-                                selectInput(inputId = "GOtype", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "GO type"),
-                                            choices = c(ALL = "ALL", 
-                                                        BP = "BP",
-                                                        MF = "MF", 
-                                                        CC = "CC"),
-                                            selected = "BP"),
-                                bsTooltip(id = "GOtype",
-                                          title = "One of BP, MF, and CC sub-ontologies, or ALL for pooling 3 GO sub-ontologies.",
-                                          placement = "top",
-                                          trigger = "hover"),
-                                
-                                selectInput(inputId = "plotType", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot type"),
-                                            choices = c(dot = "dot",
-                                                        bar = "bar"),
-                                            selected = "dot"),
-                                bsTooltip(id = "plotType",
-                                          title = "One of dot, bar",
-                                          placement = "top",
-                                          trigger = "hover"),
-                                
-                                selectInput(inputId = "pAdjustMethod", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
-                                            choices = c(holm = "holm", 
-                                                        hochberg = "hochberg",
-                                                        hommel = "hommel", 
-                                                        bonferroni = "bonferroni",
-                                                        BH = "BH", 
-                                                        BY = "BY",
-                                                        fdr = "fdr", 
-                                                        none = "none"),
-                                            selected = "BH"), 
-                                bsTooltip(id = "pAdjustMethod",
-                                          title = "Method to adjust P value.",
-                                          placement = "top",
-                                          trigger = "hover"),
+# bodyfunction <- tabItem('function',
+#                         fluidRow(
+#                           column(
+#                             width = 3,
+#                             box(
+#                               width = NULL,
+#                               conditionalPanel(
+#                                 condition = "input.fat == 'F01'",
+#                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+#                                 br(),
+#                                 checkboxInput(inputId="driverGenesMapping1", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
+#                                 bsTooltip(id = "driverGenesMapping1",
+#                                           title = 'The file with driver gene list.',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 conditionalPanel(
+#                                     condition = "input.driverGenesMapping1 == true",
+#                                     fileInput(inputId = 'driverGenesFile1', 
+#                                               label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
+#                                               placeholder = "Default file: putative_driver_genes.txt", 
+#                                               width = 400)
+#                                 ),
+#                                 selectInput(inputId = "GOtype", 
+#                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "GO type"),
+#                                             choices = c(ALL = "ALL", 
+#                                                         BP = "BP",
+#                                                         MF = "MF", 
+#                                                         CC = "CC"),
+#                                             selected = "BP"),
+#                                 bsTooltip(id = "GOtype",
+#                                           title = "One of BP, MF, and CC sub-ontologies, or ALL for pooling 3 GO sub-ontologies.",
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 
+#                                 selectInput(inputId = "plotType", 
+#                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot type"),
+#                                             choices = c(dot = "dot",
+#                                                         bar = "bar"),
+#                                             selected = "dot"),
+#                                 bsTooltip(id = "plotType",
+#                                           title = "One of dot, bar",
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 
+#                                 selectInput(inputId = "pAdjustMethod", 
+#                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
+#                                             choices = c(holm = "holm", 
+#                                                         hochberg = "hochberg",
+#                                                         hommel = "hommel", 
+#                                                         bonferroni = "bonferroni",
+#                                                         BH = "BH", 
+#                                                         BY = "BY",
+#                                                         fdr = "fdr", 
+#                                                         none = "none"),
+#                                             selected = "BH"), 
+#                                 bsTooltip(id = "pAdjustMethod",
+#                                           title = "Method to adjust P value.",
+#                                           placement = "top",
+#                                           trigger = "hover"),
+# 
+#                                 tags$table(
+#                                   tags$tr(id = "inline", 
+#                                           width = "100%",
+#                                           tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600;  ", "P-value:")),
+#                                           tags$td(width = "70%", textInput(inputId = "pval1", value = 0.05, label = NULL)))
+#                                 ), 
+#                                 bsTooltip(id = "pval1",
+#                                           title = "Cutoff value of pvalue. Default pval=0.05",
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 br(),
+#                                 tags$table(
+#                                   tags$tr(id = "inline",
+#                                           width = "100%",
+#                                           tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Q-value:")),
+#                                           tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
+#                                 ),
+#                                 bsTooltip(id = "qval1",
+#                                           title = "Cutoff value of qvalue. Default qval=0.20",
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 br(),
+#                                 numericInput(inputId = "showCategory", 
+#                                              label = div(style = "font-size:1.5em; font-weight:600;  ", "Show category"), 
+#                                              value = 5),
+#                                 bsTooltip(id = "showCategory",
+#                                           title = "Category numbers",
+#                                           placement = "top",
+#                                           trigger = "hover"),
+# 
+#                                 sliderInput('width6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+#                                 sliderInput('height6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
+#                                 br(),
+#                                 fluidRow(
+#                                   column(
+#                                     width = 9,
+#                                     div(
+#                                       tags$button(
+#                                         id = "submit8", type = "button", class = "action-button bttn",
+#                                         class = "bttn-unite", class = paste0("bttn-md"),
+#                                         class = paste0("bttn-default"),
+#                                         list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+#                                         style = "margin-bottom:0px;margin-right:0px;"
+#                                       )
+#                                     )
+#                                   )
+#                                 )
+#                               ),
+#                               conditionalPanel(
+#                                 condition = "input.fat == 'F02'",
+#                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+#                                 br(),
+#                                 checkboxInput(inputId="driverGenesMapping2", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
+#                                 bsTooltip(id = "driverGenesMapping2",
+#                                           title = 'The file with driver gene list.',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 conditionalPanel(
+#                                     condition = "input.driverGenesMapping2 == true",
+#                                     fileInput(inputId = 'driverGenesFile2', 
+#                                               label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
+#                                               placeholder = "Default file: putative_driver_genes.txt", 
+#                                               width = 400)
+#                                 ),
+#                                 selectInput(inputId = "pathwaytype", 
+#                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Pathway type"),
+#                                             choices = c(KEGG = "KEGG", 
+#                                                         Reactome = "Reactome"),
+#                                             selected = "KEGG"),
+#                                 bsTooltip(id = "pathwaytype",
+#                                           title = 'One of "KEGG" or "Reactome". Default type="KEGG"',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 
+#                                 selectInput(inputId = "pathplotType", 
+#                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot type"),
+#                                             choices = c(dot = "dot",
+#                                                         bar = "bar"),
+#                                             selected = "dot"), 
+#                                 bsTooltip(id = "pathplotType",
+#                                           title = 'One of "dot", "bar"',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 selectInput(inputId = "pathpAdjustMethod", 
+#                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
+#                                             choices = c(holm = "holm", 
+#                                                         hochberg = "hochberg",
+#                                                         hommel = "hommel", 
+#                                                         bonferroni = "bonferroni",
+#                                                         BH = "BH", 
+#                                                         BY = "BY",
+#                                                         fdr = "fdr", 
+#                                                         none = "none"),
+#                                             selected = "BH"), 
+#                                 bsTooltip(id = "pathpAdjustMethod",
+#                                           title = 'One of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none".',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 tags$table(
+#                                   tags$tr(id = "inline", 
+#                                           width = "100%",
+#                                           tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600; ", "P-value:")),
+#                                           tags$td(width = "70%", textInput(inputId = "pval2", value = 0.05, label = NULL)))
+#                                 ), 
+#                                 bsTooltip(id = "pval2",
+#                                           title = 'Cutoff value of pvalue. Default pval=0.05',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 br(),
+#                                 tags$table(
+#                                   tags$tr(id = "inline",
+#                                           width = "100%",
+#                                           tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Q-value:")),
+#                                           tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
+#                                 ),
+#                                 bsTooltip(id = "qval2",
+#                                           title = 'Cutoff value of qvalue. Default qval=0.20',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 br(),
+#                                 numericInput(inputId = "pathshowCategory", 
+#                                              label = div(style = "font-size:1.5em; font-weight:600;  ", "Show category"), 
+#                                              value = 5),
+#                                 bsTooltip(id = "pathshowCategory",
+#                                           title = 'Category numbers',
+#                                           placement = "top",
+#                                           trigger = "hover"),
+#                                 
+#                                 sliderInput('width7',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
+#                                 sliderInput('height7',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
+#                                 br(),
+#                                 fluidRow(
+#                                   column(
+#                                     width = 9,
+#                                     div(
+#                                       tags$button(
+#                                         id = "submit9", type = "button", class = "action-button bttn",
+#                                         class = "bttn-unite", class = paste0("bttn-md"),
+#                                         class = paste0("bttn-default"),
+#                                         list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+#                                         style = "margin-bottom:0px;margin-right:0px;"
+#                                       )
+#                                     )
+#                                   )
+#                                 )
+#                               )
+#                             )
+#                           ),
+#                           column(
+#                             width = 9,
+#                             box(
+#                               width = NULL,
+#                               height = "100%",
+#                               div(strong("Functional exploration"),style = "font-size:27px; font-weight:500;"),
+#                               p("MesKit supports GO and pathway enrichment analysis (KEGG/Reactome) both on tree-level and branch-level of phylogenetic tree objects.",
+#                                 style = "font-size:20px; font-weight:500;line-height:40px;"),
+#                               tabBox(
+#                                 id = 'fat',
+#                                 side = 'left',
+#                                 selected = 'F01',
+#                                 width = "100%",
+#                                 height = "100%",
+#                                 tabPanel(
+#                                   title = div(icon("lightbulb"), "GO analysis"),
+#                                   value = 'F01',
+#                                   uiOutput("chooselist1"),
+#                                   uiOutput('warningMessage09'),
+#                                   div(plotOutput('GOplot',height = "100%",width = "100%"),align = "center"),
+#                                   br(),
+#                                   uiOutput("GOdb"),
+#                                   br(),
+#                                   br(),
+#                                   uiOutput('gotui')
+#                                 ),
+#                                 tabPanel(
+#                                   title = div(icon("microsoft"), "Pathway analysis"),
+#                                   value = 'F02',
+#                                   uiOutput("chooselist2"),
+#                                   uiOutput('warningMessage10'),
+#                                   div(plotOutput('Pathwayplot',height = "100%"),align = "center"),
+#                                   br(),
+#                                   uiOutput("Pathdb"),
+#                                   uiOutput('patht')
+#                                 )
+#                               )
+#                             )
+#                           )
+#                         )
+# )
 
-                                tags$table(
-                                  tags$tr(id = "inline", 
-                                          width = "100%",
-                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600;  ", "P-value:")),
-                                          tags$td(width = "70%", textInput(inputId = "pval1", value = 0.05, label = NULL)))
-                                ), 
-                                bsTooltip(id = "pval1",
-                                          title = "Cutoff value of pvalue. Default pval=0.05",
-                                          placement = "top",
-                                          trigger = "hover"),
-                                br(),
-                                tags$table(
-                                  tags$tr(id = "inline",
-                                          width = "100%",
-                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Q-value:")),
-                                          tags$td(width = "70%", textInput(inputId = "qval1", value =  0.20, label = NULL)))
-                                ),
-                                bsTooltip(id = "qval1",
-                                          title = "Cutoff value of qvalue. Default qval=0.20",
-                                          placement = "top",
-                                          trigger = "hover"),
-                                br(),
-                                numericInput(inputId = "showCategory", 
-                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Show category"), 
-                                             value = 5),
-                                bsTooltip(id = "showCategory",
-                                          title = "Category numbers",
-                                          placement = "top",
-                                          trigger = "hover"),
-
-                                sliderInput('width6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                sliderInput('height6',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
-                                br(),
-                                fluidRow(
-                                  column(
-                                    width = 9,
-                                    div(
-                                      tags$button(
-                                        id = "submit8", type = "button", class = "action-button bttn",
-                                        class = "bttn-unite", class = paste0("bttn-md"),
-                                        class = paste0("bttn-default"),
-                                        list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                        style = "margin-bottom:0px;margin-right:0px;"
-                                      )
-                                    )
-                                  )
-                                )
-                              ),
-                              conditionalPanel(
-                                condition = "input.fat == 'F02'",
-                                div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                                br(),
-                                checkboxInput(inputId="driverGenesMapping2", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
-                                bsTooltip(id = "driverGenesMapping2",
-                                          title = 'The file with driver gene list.',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                conditionalPanel(
-                                    condition = "input.driverGenesMapping2 == true",
-                                    fileInput(inputId = 'driverGenesFile2', 
-                                              label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
-                                              placeholder = "Default file: putative_driver_genes.txt", 
-                                              width = 400)
-                                ),
-                                selectInput(inputId = "pathwaytype", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Pathway type"),
-                                            choices = c(KEGG = "KEGG", 
-                                                        Reactome = "Reactome"),
-                                            selected = "KEGG"),
-                                bsTooltip(id = "pathwaytype",
-                                          title = 'One of "KEGG" or "Reactome". Default type="KEGG"',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                
-                                selectInput(inputId = "pathplotType", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "Plot type"),
-                                            choices = c(dot = "dot",
-                                                        bar = "bar"),
-                                            selected = "dot"), 
-                                bsTooltip(id = "pathplotType",
-                                          title = 'One of "dot", "bar"',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                selectInput(inputId = "pathpAdjustMethod", 
-                                            label = div(style = "font-size:1.5em; font-weight:600;  ", "pAdjustMethod"),
-                                            choices = c(holm = "holm", 
-                                                        hochberg = "hochberg",
-                                                        hommel = "hommel", 
-                                                        bonferroni = "bonferroni",
-                                                        BH = "BH", 
-                                                        BY = "BY",
-                                                        fdr = "fdr", 
-                                                        none = "none"),
-                                            selected = "BH"), 
-                                bsTooltip(id = "pathpAdjustMethod",
-                                          title = 'One of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none".',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                tags$table(
-                                  tags$tr(id = "inline", 
-                                          width = "100%",
-                                          tags$td(width = "20%", div(style = "font-size:1.5em; font-weight:600; ", "P-value:")),
-                                          tags$td(width = "70%", textInput(inputId = "pval2", value = 0.05, label = NULL)))
-                                ), 
-                                bsTooltip(id = "pval2",
-                                          title = 'Cutoff value of pvalue. Default pval=0.05',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                br(),
-                                tags$table(
-                                  tags$tr(id = "inline",
-                                          width = "100%",
-                                          tags$td(width = "20%", tags$div(style = "font-size:1.5em; font-weight:600; ", "Q-value:")),
-                                          tags$td(width = "70%", textInput(inputId = "qval2", value =  0.20, label = NULL)))
-                                ),
-                                bsTooltip(id = "qval2",
-                                          title = 'Cutoff value of qvalue. Default qval=0.20',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                br(),
-                                numericInput(inputId = "pathshowCategory", 
-                                             label = div(style = "font-size:1.5em; font-weight:600;  ", "Show category"), 
-                                             value = 5),
-                                bsTooltip(id = "pathshowCategory",
-                                          title = 'Category numbers',
-                                          placement = "top",
-                                          trigger = "hover"),
-                                
-                                sliderInput('width7',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 800),
-                                sliderInput('height7',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 600, value = 560),
-                                br(),
-                                fluidRow(
-                                  column(
-                                    width = 9,
-                                    div(
-                                      tags$button(
-                                        id = "submit9", type = "button", class = "action-button bttn",
-                                        class = "bttn-unite", class = paste0("bttn-md"),
-                                        class = paste0("bttn-default"),
-                                        list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                        style = "margin-bottom:0px;margin-right:0px;"
-                                      )
-                                    )
-                                  )
-                                )
-                              )
-                            )
-                          ),
-                          column(
-                            width = 9,
-                            box(
-                              width = NULL,
-                              height = "100%",
-                              div(strong("Functional exploration"),style = "font-size:27px; font-weight:500;"),
-                              p("MesKit supports GO and pathway enrichment analysis (KEGG/Reactome) both on tree-level and branch-level of phylogenetic tree objects.",
-                                style = "font-size:20px; font-weight:500;line-height:40px;"),
-                              tabBox(
-                                id = 'fat',
-                                side = 'left',
-                                selected = 'F01',
-                                width = "100%",
-                                height = "100%",
-                                tabPanel(
-                                  title = div(icon("lightbulb"), "GO analysis"),
-                                  value = 'F01',
-                                  uiOutput("chooselist1"),
-                                  uiOutput('warningMessage09'),
-                                  div(plotOutput('GOplot',height = "100%",width = "100%"),align = "center"),
-                                  br(),
-                                  uiOutput("GOdb"),
-                                  br(),
-                                  br(),
-                                  uiOutput('gotui')
-                                ),
-                                tabPanel(
-                                  title = div(icon("microsoft"), "Pathway analysis"),
-                                  value = 'F02',
-                                  uiOutput("chooselist2"),
-                                  uiOutput('warningMessage10'),
-                                  div(plotOutput('Pathwayplot',height = "100%"),align = "center"),
-                                  br(),
-                                  uiOutput("Pathdb"),
-                                  uiOutput('patht')
-                                )
-                              )
-                            )
-                          )
-                        )
-)
 
 
-
-bodySignature <- tabItem('signature',
+bodytree <- tabItem('tree',
                          fluidRow(
                            column(
                              width = 3,
                              box(
                                width = NULL,
-                               # conditionalPanel(
-                               #   condition = "input.sgt == 'S01'",
-                               #   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                               #   br(),
-                               #   checkboxInput(inputId="oncogeneMapping", label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Driver genes mapping'), value = FALSE),
-                               #   bsTooltip(id = "oncogeneMapping",
-                               #             title = 'The file with driver gene list.',
-                               #             placement = "top",
-                               #             trigger = "hover"),
-                               #   conditionalPanel(
-                               #     condition = "input.oncogeneMapping == true",
-                               #     fileInput(inputId = 'driverGenesFile', 
-                               #               label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
-                               #               placeholder = "Default file: putative_driver_genes.txt", 
-                               #               width = 400)
-                               #   ), 
-                               #   numericInput('mutThreshold', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 15),
-                               #   selectInput("signaturesRef", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                               #               choices = c("cosmic_v2",
-                               #                           "nature2013",
-                               #                           "geome_cosmic_v3",
-                               #                            "exome_cosmic_v3"),
-                               #               selected = "cosmic_v2"),
-                               #   bsTooltip(id = "signaturesRef",
-                               #             title = 'The parameter used for deconstructSig.Default "cosmic". Option: "nature2013". ',
-                               #             placement = "top",
-                               #             trigger = "hover"),
-                               #   br(),
-                               #   br(),
-                               #   fluidRow(
-                               #     column(
-                               #       width = 9,
-                               #       div(
-                               #         tags$button(
-                               #           id = "submitSig", type = "button", class = "action-button bttn",
-                               #           class = "bttn-unite", class = paste0("bttn-md"),
-                               #           class = paste0("bttn-default"),
-                               #           list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                               #           style = "margin-bottom:0px;margin-right:0px;"
-                               #         )
-                               #       )
-                               #     )
-                               #   )
-                               # ),
+                               conditionalPanel(
+                                   condition = "input.sgt == 'S_phylotree'",
+                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                   checkboxInput('showmutSig',div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show mutation signature'),value = TRUE),
+                                   bsTooltip(id = "showmutSig",
+                                             title = 'Whether to show mutation signatures on branch or trunk',
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   checkboxInput('showheatmap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show heatmap'),value = TRUE),
+                                   bsTooltip(id = "showheatmap",
+                                             title = 'Whether to show heatmap of somatic mutations. Default is TRUE.',
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   checkboxInput('showbootstrap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Show bootstrap value'),value = TRUE),
+                                   bsTooltip(id = "showbootstrap",
+                                             title = 'Whether to add bootstrap value on internal nodes.',
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   conditionalPanel(
+                                       condition = "input.showbootstrap == true",
+                                       checkboxInput('usebox',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Use box'),value = TRUE),
+                                       bsTooltip(id = "usebox",
+                                                 title = 'Whether to add box arround bootstrap value on tree. ',
+                                                 placement = "top",
+                                                 trigger = "hover")
+                                   ), 
+                                   fluidRow(
+                                       column(
+                                           width = 9,
+                                           div(
+                                               tags$button(
+                                                   id = "submit_phylotree", type = "button", class = "action-button bttn",
+                                                   class = "bttn-unite", class = paste0("bttn-md"),
+                                                   class = paste0("bttn-default"),
+                                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                                   style = "margin-bottom:0px;margin-right:0px;"
+                                               )
+                                           )
+                                       )
+                                   )
+                               ), 
                                conditionalPanel(
                                  condition = "input.sgt == 'S_treemutsig'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
@@ -1333,54 +1338,6 @@ bodySignature <- tabItem('signature',
                                    )
                                  )
                                )
-                               # conditionalPanel(
-                               #     condition = "input.sgt == 'S04'",
-                               #     div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                               #     br(),
-                               #     checkboxInput(inputId="oncogeneMapping4", label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Driver genes mapping'), value = FALSE),
-                               #     bsTooltip(id = "oncogeneMapping4",
-                               #               title = 'Whether to upload driver genes.',
-                               #               placement = "top",
-                               #               trigger = "hover"),
-                               #     conditionalPanel(
-                               #         condition = "input.oncogeneMapping4 == true",
-                               #         fileInput(inputId = 'driverGenesFile4', 
-                               #                   label = div(style = "font-size:1.5em; font-weight:600; ", 'Driver genes list'),
-                               #                   placeholder = "Default file: putative_driver_genes.txt", 
-                               #                   width = 400)
-                               #     ), 
-                               #     numericInput('mutThreshold4', div(style = "font-size:1.5em; font-weight:600;  ", 'Mutation quantity threshold'), value = 15),
-                               #     bsTooltip(id = "mutThreshold4",
-                               #               title = 'The threshold for the variants in a branch. Default 15.',
-                               #               placement = "top",
-                               #               trigger = "hover"),
-                               #     selectInput("signaturesRef4", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
-                               #                 choices = c("cosmic_v2",
-                               #                             "nature2013",
-                               #                             "geome_cosmic_v3",
-                               #                             "exome_cosmic_v3"),
-                               #                 selected = "cosmic"),
-                               #     bsTooltip(id = "signaturesRef4",
-                               #               title = 'The parameter used for deconstructSig. Default "cosmic". Option: "nature2013". ',
-                               #               placement = "top",
-                               #               trigger = "hover"),
-                               #     br(),
-                               #     br(),
-                               #     fluidRow(
-                               #         column(
-                               #             width = 9,
-                               #             div(
-                               #                 tags$button(
-                               #                     id = "submitSig4", type = "button", class = "action-button bttn",
-                               #                     class = "bttn-unite", class = paste0("bttn-md"),
-                               #                     class = paste0("bttn-default"),
-                               #                     list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                               #                     style = "margin-bottom:0px;margin-right:0px;"
-                               #                 )
-                               #             )
-                               #         )
-                               #     )
-                               # )
                              )
                            ),
                            column(
@@ -1393,17 +1350,18 @@ bodySignature <- tabItem('signature',
                                tabBox(
                                  id = 'sgt',
                                  side = 'left',
-                                 selected = 'S_treemutsig',
+                                 selected = 'S_phylotree',
                                  width = "100%",
                                  height = "100%",
-                                 # tabPanel(
-                                 #     title = div(icon("newspaper"), "Summary-Trunk or branch"), 
-                                 #     value = 'S04',
-                                 #     uiOutput('warningMessage11'),
-                                 #     DT::dataTableOutput('sigBTt',width = "100%"),
-                                 #     br(),
-                                 #     uiOutput("sigbtdb")
-                                 # ),
+                                 tabPanel(
+                                     title = div(icon("newspaper"), "Plot phylotree"),
+                                     value = 'S_phylotree',
+                                     uiOutput("phylotree.patientlist"),
+                                     uiOutput('warningMessage15'),
+                                     div(plotOutput("phylotree_plot",height = 600,width = 900),align = "center"),
+                                     br(),
+                                     uiOutput("phylotree_downloadbutton_ui")
+                                 ),
                                  tabPanel(
                                      title = div(icon("image"), "Mutational trunkOrBranch plot"),
                                      value = 'S_muttrunkbranch',
@@ -1414,15 +1372,6 @@ bodySignature <- tabItem('signature',
                                      br(),
                                      uiOutput('muttrunkbranch_table_ui')
                                  ), 
-                                 # tabPanel(
-                                 #     title = div(icon("newspaper"), "Summary-Signature"), 
-                                 #     value = 'S01',
-                                 #     uiOutput('warningMessage13'),
-                                 #     uiOutput('sigsummary.patientlist'),
-                                 #     DT::dataTableOutput('sigOFAt',width = "100%"),
-                                 #     br(),
-                                 #     uiOutput("sigpdb")
-                                 # ),
                                  tabPanel(
                                    title = div(icon("microsoft"), "Signature plot"), 
                                    value = 'S_treemutsig',
@@ -1439,92 +1388,92 @@ bodySignature <- tabItem('signature',
                          )
 )
 
-bodySurvival <- tabItem('Survival',
-                        fluidRow(
-                          column(
-                            width = 3,
-                            box(
-                              width = NULL,
-                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                              checkboxInput('showmutSig',div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show mutation signature'),value = TRUE),
-                              bsTooltip(id = "showmutSig",
-                                        title = 'Whether to show mutation signatures on branch or trunk',
-                                        placement = "top",
-                                        trigger = "hover"),
-                              checkboxInput('showheatmap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show heatmap'),value = TRUE),
-                              bsTooltip(id = "showheatmap",
-                                        title = 'Whether to show heatmap of somatic mutations. Default is TRUE.',
-                                        placement = "top",
-                                        trigger = "hover"),
-                              # conditionalPanel(
-                              #     condition = "input.showheatmap == true",
-                              #     radioButtons(
-                              #         inputId = "heatmaptype",
-                              #         label = div(style = "font-size:1.5em; font-weight:600;  ", "Heatmap type"),
-                              #         choiceNames = list(
-                              #             tags$span(style = "font-size:1.5em; font-weight:600; ", "Binary"), 
-                              #             tags$span(style = "font-size:1.5em; font-weight:600; ", "CCF")
-                              #         ),
-                              #         choiceValues = c("binary", "CCF"),
-                              #         selected = "binary", 
-                              #         inline = TRUE
-                              #     ),
-                              #     bsTooltip(id = "heatmaptype",
-                              #               title = ' "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap.',
-                              #               placement = "top",
-                              #               trigger = "hover")
-                              # ), 
-                              checkboxInput('showbootstrap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Show bootstrap value'),value = TRUE),
-                              bsTooltip(id = "showbootstrap",
-                                        title = 'Whether to add bootstrap value on internal nodes.',
-                                        placement = "top",
-                                        trigger = "hover"),
-                              conditionalPanel(
-                                  condition = "input.showbootstrap == true",
-                                  checkboxInput('usebox',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Use box'),value = TRUE),
-                                  bsTooltip(id = "usebox",
-                                            title = 'Whether to add box arround bootstrap value on tree. ',
-                                            placement = "top",
-                                            trigger = "hover")
-                              ), 
-                              fluidRow(
-                                column(
-                                  width = 9,
-                                  div(
-                                    tags$button(
-                                      id = "submit_phylotree", type = "button", class = "action-button bttn",
-                                      class = "bttn-unite", class = paste0("bttn-md"),
-                                      class = paste0("bttn-default"),
-                                      list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
-                                      style = "margin-bottom:0px;margin-right:0px;"
-                                    )
-                                  )
-                                )
-                              )
-                            )
-                          ),
-                          column(
-                            width = 9,
-                            box(
-                              width = 13,
-                              div(strong("Phylogenetic tree visualization"),style = "font-size:27px; font-weight:500;"),
-                              p("Phylogenetic tree becomes more widely used in depicting evolutionary relationships among tumors. Here, MesKit is able to plot tree-like phylogentic trees with mutational signature information, along with a binary mutation heatmap or CCF heatmap (if CCF data is available).", 
-                                br(),"trees with mutational signature information, along with a CCF heatmap (if CCF data is available) ",
-                                style = "font-size:20px; font-weight:500;line-height:40px;"),
-                              conditionalPanel(
-                                condition = 'submit_phylotree',
-                                width = NULL,
-                                height = "100%",
-                                uiOutput("phylotree.patientlist"),
-                                uiOutput('warningMessage15'),
-                                div(plotOutput("phylotree_plot",height = 600,width = 900),align = "center"),
-                                br(),
-                                uiOutput("phylotree_downloadbutton_ui")
-                              )
-                            )
-                          )
-                        )
-)
+# bodySurvival <- tabItem('Survival',
+#                         fluidRow(
+#                           column(
+#                             width = 3,
+#                             box(
+#                               width = NULL,
+#                               div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+#                               checkboxInput('showmutSig',div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show mutation signature'),value = TRUE),
+#                               bsTooltip(id = "showmutSig",
+#                                         title = 'Whether to show mutation signatures on branch or trunk',
+#                                         placement = "top",
+#                                         trigger = "hover"),
+#                               checkboxInput('showheatmap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show heatmap'),value = TRUE),
+#                               bsTooltip(id = "showheatmap",
+#                                         title = 'Whether to show heatmap of somatic mutations. Default is TRUE.',
+#                                         placement = "top",
+#                                         trigger = "hover"),
+#                               # conditionalPanel(
+#                               #     condition = "input.showheatmap == true",
+#                               #     radioButtons(
+#                               #         inputId = "heatmaptype",
+#                               #         label = div(style = "font-size:1.5em; font-weight:600;  ", "Heatmap type"),
+#                               #         choiceNames = list(
+#                               #             tags$span(style = "font-size:1.5em; font-weight:600; ", "Binary"), 
+#                               #             tags$span(style = "font-size:1.5em; font-weight:600; ", "CCF")
+#                               #         ),
+#                               #         choiceValues = c("binary", "CCF"),
+#                               #         selected = "binary", 
+#                               #         inline = TRUE
+#                               #     ),
+#                               #     bsTooltip(id = "heatmaptype",
+#                               #               title = ' "binary" (default) for printing a binary heatmap of mutations; or "CCF" for printing a cancer cell frequency (CCF) heatmap.',
+#                               #               placement = "top",
+#                               #               trigger = "hover")
+#                               # ), 
+#                               checkboxInput('showbootstrap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Show bootstrap value'),value = TRUE),
+#                               bsTooltip(id = "showbootstrap",
+#                                         title = 'Whether to add bootstrap value on internal nodes.',
+#                                         placement = "top",
+#                                         trigger = "hover"),
+#                               conditionalPanel(
+#                                   condition = "input.showbootstrap == true",
+#                                   checkboxInput('usebox',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Use box'),value = TRUE),
+#                                   bsTooltip(id = "usebox",
+#                                             title = 'Whether to add box arround bootstrap value on tree. ',
+#                                             placement = "top",
+#                                             trigger = "hover")
+#                               ), 
+#                               fluidRow(
+#                                 column(
+#                                   width = 9,
+#                                   div(
+#                                     tags$button(
+#                                       id = "submit_phylotree", type = "button", class = "action-button bttn",
+#                                       class = "bttn-unite", class = paste0("bttn-md"),
+#                                       class = paste0("bttn-default"),
+#                                       list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+#                                       style = "margin-bottom:0px;margin-right:0px;"
+#                                     )
+#                                   )
+#                                 )
+#                               )
+#                             )
+#                           ),
+#                           column(
+#                             width = 9,
+#                             box(
+#                               width = 13,
+#                               div(strong("Phylogenetic tree visualization"),style = "font-size:27px; font-weight:500;"),
+#                               p("Phylogenetic tree becomes more widely used in depicting evolutionary relationships among tumors. Here, MesKit is able to plot tree-like phylogentic trees with mutational signature information, along with a binary mutation heatmap or CCF heatmap (if CCF data is available).", 
+#                                 br(),"trees with mutational signature information, along with a CCF heatmap (if CCF data is available) ",
+#                                 style = "font-size:20px; font-weight:500;line-height:40px;"),
+#                               conditionalPanel(
+#                                 condition = 'submit_phylotree',
+#                                 width = NULL,
+#                                 height = "100%",
+#                                 uiOutput("phylotree.patientlist"),
+#                                 uiOutput('warningMessage15'),
+#                                 div(plotOutput("phylotree_plot",height = 600,width = 900),align = "center"),
+#                                 br(),
+#                                 uiOutput("phylotree_downloadbutton_ui")
+#                               )
+#                             )
+#                           )
+#                         )
+# )
 
 
 
@@ -1640,7 +1589,8 @@ shinyUI(
                             color: green;
                             font-size:27px; 
                             font-weight:500;
-                            }
+                         }
+                         .main-sidebar { font-size: 16px; }
 
 
 table.dataTable tbody th, table.dataTable tbody td {
@@ -1689,9 +1639,9 @@ table.dataTable tbody th, table.dataTable tbody td {
         bodyAL,
         bodyITH,
         bodyclone,
-        bodyfunction,
-        bodySignature,
-        bodySurvival
+        # bodyfunction,
+        bodytree
+        # bodySurvival
       )
     )
   )

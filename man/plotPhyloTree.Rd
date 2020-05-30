@@ -11,7 +11,8 @@ plotPhyloTree(
   show.bootstrap = TRUE,
   use.box = TRUE,
   min.ratio = 1/20,
-  ...
+  signaturesRef = "cosmic_v2",
+  min.mut.count = 15
 )
 }
 \arguments{
@@ -30,7 +31,9 @@ all edge length of a phylogenetic tree should be greater than
 min.ratio*the longest edge length.
 If not, the edge length will be reset as min.ratio*longest edge length.}
 
-\item{...}{Other options passed to \code{\link{fitSignatures}}
+\item{signaturesRef}{Signature reference,Users can upload their own reference. Default "cosmic_v2". Option:"exome_cosmic_v3","nature2013".}
+
+\item{min.mut.count}{The threshold for the variants in a branch. Default 15.
 
 are mapped along the trees as indicated}
 }

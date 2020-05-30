@@ -346,15 +346,16 @@ calFst <- function(
     result <- list()
     for(m in maf_list){
         maf_data <- subsetMaf(m,
-                         chrSilent = chrSilent,
-                         mutType = mutType,
-                         use.indel = use.indel,
                          min.vaf = min.vaf,
                          min.total.depth = min.total.depth,
                          clonalStatus = clonalStatus,
-                         use.adjVAF = use.adjVAF)
+                         ...)
             
-        patient <- unique(maf_data$Patient_ID)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         if(!"VAF_adj" %in% colnames(maf_data)){
             stop("Error: adjust_VAF was not found in maf object.
 		     Check if CCF data was provided or let adjusted.VAF be TRUE in function readMaf when VAF have been adjusted")
@@ -483,7 +484,7 @@ calFst <- function(
                     tidyr::pivot_wider(
                         names_from = Tumor_Sample_Barcode,       
                         values_from = c(VAF_adj, totalDepth),
-                        values_fill = c(VAF_adj = 0, totalDepth = 0)
+                        values_fill = list(VAF_adj = 0, totalDepth = 0)
                     )
                 colnames(maf.pair) <- c("Mut_ID", "vaf1", "vaf2", "depth1", "depth2")
                 

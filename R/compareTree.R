@@ -7,6 +7,8 @@
 #' @param plot FALSE(Default). If TRUE, two trees will be plotted on the same device and their similarities will be shown.
 #' @param min.ratio Double (Default: 1/20). If min.ratio is not NULL,
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
+#' @param show.bootstrap Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.
+#' @param use.box Logical. Whether to add box around bootstrap value on tree. Default is TRUE.
 #' @param common.col Color of common branches.
 #' 
 #' @return A vector containing the following tree distance methods by R package phangorn

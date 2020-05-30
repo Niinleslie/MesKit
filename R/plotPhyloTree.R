@@ -9,7 +9,8 @@
 #'  all edge length of a phylogenetic tree should be greater than
 #'  min.ratio*the longest edge length.
 #'  If not, the edge length will be reset as min.ratio*longest edge length.
-#' @param ... Other options passed to \code{\link{fitSignatures}}
+#' @param signaturesRef Signature reference,Users can upload their own reference. Default "cosmic_v2". Option:"exome_cosmic_v3","nature2013".
+#' @param min.mut.count The threshold for the variants in a branch. Default 15.
 #' 
 #' are mapped along the trees as indicated
 #' @examples
@@ -26,7 +27,9 @@ plotPhyloTree <- function(phyloTree,
                           branchCol = "mutType",
                           show.bootstrap = TRUE,
                           use.box = TRUE,
-                          min.ratio = 1/20,...){
+                          min.ratio = 1/20,
+                          signaturesRef = "cosmic_v2",
+                          min.mut.count = 15){
    
    if(!is.null(branchCol)){
        branchCol.options <- c("mutSig","mutType")
@@ -61,7 +64,9 @@ plotPhyloTree <- function(phyloTree,
        }else{
            compare <- FALSE
            treeData <- getTreeData(phyloTree = phyloTree,
-                                   branchCol = branchCol,...)
+                                   branchCol = branchCol,
+                                   signaturesRef = signaturesRef,
+                                   min.mut.count = min.mut.count)
        }
 
        ## get title 
@@ -83,14 +88,14 @@ plotPhyloTree <- function(phyloTree,
        samplesLength <- nrow(treeData[sample != "internal node",]) 
        if(samplesLength > 7){
            samplePointsSize <- 1.5 
-           sampleTextSize <- 2
+           sampleTextSize <- 3
            segmentSize <- 0.8
            nodePointsSize <- 0.8
            # nodeStrokeSize <- 0.25
            # sampleStrokeSize <- 0.5
            nodeStrokeSize <- 0.15
            sampleStrokeSize <- 0.8
-           bootLabelSize <- 1.5
+           bootLabelSize <- 2
            bootTextSize <- 1.5
            bootPaddingSize <- 0.1
        }
@@ -123,9 +128,10 @@ plotPhyloTree <- function(phyloTree,
        
        if(!is.null(branchCol)){
            if(branchCol == "mutSig"){
-                   color_scale <- getSigColors(unique(treeData$Signature))
+                   color_scale <- getSigColors(as.character(unique(treeData$Signature)) )
+                   sig_level <- levels(treeData$Signature)
                    p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
-                   p <- p + scale_color_manual(values = color_scale) + 
+                   p <- p + scale_color_manual(breaks = sig_level ,values = color_scale) + 
                        theme(legend.title = element_text())
            }
            else{
@@ -137,9 +143,9 @@ plotPhyloTree <- function(phyloTree,
                type.level <- c(public, shared, private)
                
                ## get colors
-               type_all_colors <- c("#7fc97f","#fdc086", "#E64B35FF", "#1C9F95",
-                                    "#186D0E","#519F9D","#950B9F","#78339F",
-                                    "#2F4D49", "#439F18", "#971D37","#8C9F3C")
+               type_all_colors <- c("#7fc97f","#fdc086", "#E64B35FF", "#82166E",
+                                    "#B77B42","#6349B7","#D5017D","#B77562",
+                                    "#88A4FF", "#439F18", "#971D37","#8C9F3C")
                if(length(type.level) > length(type_all_colors)){
                    left_colors <- sample(colors(),
                                          length(type.level)-length(type_all_colors),
@@ -199,14 +205,14 @@ plotPhyloTree <- function(phyloTree,
                       panel.grid.major = element_blank(),
                       panel.grid.minor = element_blank(), panel.background = element_blank(),
                       panel.border = element_blank(),
-                      # legend.title = element_text(),
+                      # legend.margin = margin(0),
                       # legend.title = element_blank(),
                       # legend.direction = "horizontal",
                       legend.position = 'right') + 
            # guides(color = guide_legend(nrow=1))+
-           coord_fixed(ratio= 1) +
            scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
-           scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5))
+           # scale_y_discrete(expand = expansion(add = mean(treeData$distance)/5)) + 
+           coord_fixed(ratio= 1)
        p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
                                 nudge_y = textAdjust/10,
                                 nudge_x = textAdjust/10,
@@ -268,11 +274,11 @@ plotPhyloTree <- function(phyloTree,
        if(compare){
            tree.title <- patient
        }else{
-           tree.title <- paste(patient,"(n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
+           tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
        }
        p <- p + 
            ggtitle(tree.title)+
-           theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5))
+           theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
        
        tree_list[[patient]] <- p
        treeData <- NULL

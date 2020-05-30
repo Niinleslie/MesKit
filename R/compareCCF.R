@@ -291,9 +291,14 @@ compareCCF <- function(maf,
                 ),
                 sep = ":",
                 remove = FALSE
-            )
+            ) %>%
+            dplyr::filter(!is.na(CCF))
         
-        patient <- unique(maf_data$Patient_ID)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         
         ## check if ccf data is provided
         if(! "CCF" %in% colnames(maf_data)){
@@ -308,8 +313,7 @@ compareCCF <- function(maf,
             }
             ## get average CCF
             maf_data <- maf_data %>% 
-                dplyr::mutate(CCF = Tumor_Average_CCF) %>%
-                dplyr::filter(!is.na(CCF))
+                dplyr::mutate(CCF = Tumor_Average_CCF)
             pairs <- combn(length(types), 2, simplify = FALSE)  
         }else{
             samples <- unique(maf_data$Tumor_Sample_Barcode)

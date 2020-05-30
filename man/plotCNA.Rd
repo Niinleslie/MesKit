@@ -10,10 +10,10 @@ plotCNA(
   chrSilent = NULL,
   refBuild = "hg19",
   show.GISTIC.gene = FALSE,
-  sample.fontsize = 11,
-  chrom.fontsize = 3,
-  legend.text.fontsize = 9,
-  legend.title.fontsize = 11,
+  sample.text.size = 11,
+  chrom.text.size = 3,
+  legend.text.size = 9,
+  legend.title.size = 11,
   sample.bar.height = 0.5,
   chrom.bar.height = 0.5
 )
@@ -23,11 +23,21 @@ plotCNA(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{chrSilent}{Chromosomes excluded in the analysis. e.g, chrX, chrY. Default NULL.}
+\item{chrSilent}{Chromosomes excluded in the analysis. e.g, 1, 2, 3 . Default NULL.}
 
 \item{refBuild}{Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".}
 
 \item{show.GISTIC.gene}{Whether GISTIC gene in seg.Default FALSE.}
+
+\item{sample.text.size}{Size of sample name.Default 11.}
+
+\item{legend.text.size}{Size of legend text. Default 9.}
+
+\item{legend.title.size}{Size of legend title.Default 11.}
+
+\item{sample.bar.height}{Bar height of each sample .Default 0.5.}
+
+\item{chrom.bar.height}{Bar height of each chromosome .Default 0.5.}
 }
 \description{
 plotCNA
