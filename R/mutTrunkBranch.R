@@ -26,7 +26,7 @@ mutTrunkBranch <- function(phyloTree,
     result <- list()
     for(phyloTree in phyloTree_list){
         
-        patient <- getPatientID(phyloTree)
+        patient <- getPhyloTreePatient(phyloTree)
         mut_branches <- getMutBranches(phyloTree)
         if(CT){
             phyloTree@method <- c(getTreeMethod(phyloTree),"CT")
