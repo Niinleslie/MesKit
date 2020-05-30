@@ -39,7 +39,7 @@ setClass('phyloTree', slots = c(
   ccf.matrix = 'matrix', 
   mut.branches = 'data.frame', 
   branch.type = 'data.frame',
-  refBuild = 'character'
+  ref.build = 'character'
   
 ))
 

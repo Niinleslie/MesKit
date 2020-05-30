@@ -157,6 +157,9 @@ fitSignatures <- function(tri_matrix = NULL,
       branch_name <- rownames(tri_matrix)[i]
       contribution <- con_matrix[i,]
       sig_cut <- names(contribution[contribution > signature.cutoff])
+      if(length(sig_cut) == 0){
+          next
+      }
       sig_con <- as.numeric(contribution[contribution > signature.cutoff])  
       # mut_sum <- sum(tri_matrix[i,])
       

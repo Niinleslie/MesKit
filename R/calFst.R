@@ -52,7 +52,11 @@ calFst <- function(
                          clonalStatus = clonalStatus,
                          ...)
             
-        patient <- unique(maf_data$Patient_ID)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         if(!"VAF_adj" %in% colnames(maf_data)){
             stop("Error: adjust_VAF was not found in maf object.
 		     Check if CCF data was provided or let adjusted.VAF be TRUE in function readMaf when VAF have been adjusted")

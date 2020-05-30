@@ -48,6 +48,11 @@ testNeutral <- function(maf,
                          min.total.depth = min.total.depth,
                          clonalStatus = "Subclonal",
                          ...)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         patient <- unique(maf_data$Patient_ID)
         if(! "CCF" %in% colnames(maf_data)){
             stop(paste0("Error: inferring whether a tumor follows neutral evolution requires CCF data.",

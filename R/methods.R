@@ -52,6 +52,19 @@ setGeneric(name = "getMafRef", function(object) standardGeneric("getMafRef"))
 setMethod(f = "getMafRef",signature = "Maf", function(object)object@ref.build)
 
 
+#' @title getMafPatient
+#' @rdname getMafPatient
+#' @param object An object of Maf
+#' @return Human reference genome versions of Maf
+#' @exportMethod getMafPatient
+#' @examples 
+#' getMafPatient(maf)
+setGeneric(name = "getMafPatient", function(object) standardGeneric("getMafPatient"))
+
+#' @rdname getMafPatient
+#' @aliases getMafPatient
+setMethod(f = "getMafPatient",signature = "Maf", function(object)unique(getMafData(object)$Patient_ID))
+
 
 #' @title getTree
 #' @rdname getTree
@@ -80,18 +93,18 @@ setGeneric(name = "getBinaryMatrix", function(object) standardGeneric("getBinary
 #' @aliases getBinaryMatrix
 setMethod(f = "getBinaryMatrix",signature = "phyloTree", function(object)object@binary.matrix)
 
-#' @title getPatientID
-#' @rdname getPatientID
+#' @title getPhyloTreePatient
+#' @rdname getPhyloTreePatient
 #' @param object An object of phyloTree
 #' @return patientID of phyloTree
-#' @exportMethod getPatientID
+#' @exportMethod getPhyloTreePatient
 #' @examples 
-#' getPatientID(phyloTree)
-setGeneric(name = "getPatientID", function(object) standardGeneric("getPatientID"))
+#' getPhyloTreePatient(phyloTree)
+setGeneric(name = "getPhyloTreePatient", function(object) standardGeneric("getPhyloTreePatient"))
 
-#' @rdname getPatientID
-#' @aliases getPatientID
-setMethod(f = "getPatientID",signature = "phyloTree", function(object)object@patientID)
+#' @rdname getPhyloTreePatient
+#' @aliases getPhyloTreePatient
+setMethod(f = "getPhyloTreePatient",signature = "phyloTree", function(object)object@patientID)
 
 #' @title getBootstrapValue
 #' @rdname getBootstrapValue

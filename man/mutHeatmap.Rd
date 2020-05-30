@@ -40,6 +40,12 @@ mutHeatmap(
 
 \item{mut.threshold}{Show.gene and show. geneList will be FALSE when patient have more mutations than threshold.Default is 150.}
 
+\item{sample.text.size}{Size of sample name.Default 9.}
+
+\item{legend.title.size}{Size of legend title.Default 10.}
+
+\item{gene.text.size}{Size of gene text. Default 9.}
+
 \item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \value{

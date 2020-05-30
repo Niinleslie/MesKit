@@ -33,10 +33,13 @@ getPhyloTree <- function(maf,
   phyloTree_patient_list <- list()
   for(m in maf_list){
       maf_data <- subsetMaf(m,min.vaf = min.vaf, min.ccf = min.ccf, ...)
-      
+      patient <- getMafPatient(m)
+      if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+      }
+      # print(nrow(maf_data))
       refBuild <- getMafRef(m)
-      patient <- unique(maf_data$Patient_ID)
-      
       ## information input
       binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
       if("CCF" %in% colnames(maf_data)){

@@ -28,7 +28,11 @@ classifyMut <- function(
     result <- list()
     for(m in maf_list){
         maf_data <- subsetMaf(m, ...)
-        patient <- unique(maf_data$Patient_ID)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         mut.class <- do.classify(
             maf_data, 
             class = class,

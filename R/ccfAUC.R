@@ -32,11 +32,15 @@ ccfAUC <- function(
     for(m in maf_list){
         maf_data <- subsetMaf(m,
                               min.ccf = min.ccf,...) %>% 
-            dplyr::filter(!is.na(CCF))
+        dplyr::filter(!is.na(CCF))
         if(withinTumor) {
             maf_data <- dplyr::filter(maf_data, !is.na(Tumor_Average_CCF))
         }
-        patient <- unique(maf_data$Patient_ID)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filter.")
+            next
+        }
         
         if(! "CCF" %in% colnames(maf_data)){
             stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
