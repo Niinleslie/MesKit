@@ -301,7 +301,7 @@ mutTrunkBranch <- function(phyloTree,
                 pic <- pic + 
                     geom_text(data = pvalue_table,
                               aes(x = x+0.01, y = y, label = label),
-                              size = 7)
+                              size = 7,vjust = 0.8)
             }
             
             ## segment between trunk and branches

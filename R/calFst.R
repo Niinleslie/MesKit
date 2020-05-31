@@ -309,6 +309,10 @@ calFst <- function(
 #' @param min.total.depth The minimum total allele depth for filtering variants. Default: 2.
 #' @param plot Logical (Default:TRUE). Whether to show the plot, default TRUE
 #' @param withinTumor Calculate fst within types in each patients,default is FALSE.
+#' @param use.circle Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix
+#' @param title The title of the plot. Default is "Nei's distance"
+#' @param number.cex The size of text shown in correlation plot. Default 8.
+#' @param number.col The color of text shown in correlation plot. Default "#C77960".
 #' @param ... Other options passed to \code{\link{subsetMaf}}
 #'  
 #' @return A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.

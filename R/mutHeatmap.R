@@ -127,11 +127,14 @@ mutHeatmap <- function(maf,
             }
         }
         
+        ## distinc mutation within the sample mutation type
+        # 
+        # mat <- dplyr::distinct(mat, mutation_type, Gene, .keep_all = TRUE)
         ## sort mutation
         mut.num <- nrow(mat)        
         mat <- dplyr::arrange(mat,  mutation_type)
         mat$mutation <- 1:nrow(mat)
-
+        
         
         ## cumsum postion of axis y
         mat$ymin <- cumsum(c(0, rep(2, mut.num-1)))
@@ -210,7 +213,7 @@ mutHeatmap <- function(maf,
         
         type_colors <- c()
         type_name_percentage <- c()
-        for(type in mutation_type_level){
+        for(type in unique(mut_dat$mutation_type)){
             type_colors <- append(type_colors, mutation_type_colors[as.character(type)])
             ## percentage of type
             type.num <- length(which(mut_dat$mutation_type == type))/(mutation_type_sum*length(unique(mut_dat$sample)))
@@ -308,9 +311,15 @@ mutHeatmap <- function(maf,
                 y.dat <- mut_dat %>% 
                     dplyr::filter(Gene != "genelist.out") %>% 
                     dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
-                    dplyr::distinct(y.breaks, .keep_all = TRUE)
+                    dplyr::distinct(y.breaks, .keep_all = TRUE) %>% 
+                    dplyr::distinct(mutation_type, Gene, .keep_all = TRUE)
                 y.breaks <- y.dat$y.breaks
                 y.labels <- y.dat$Gene
+                # names(y.labels) <- y.breaks
+                # y.labels <- unique(y.labels)
+                # y.breaks <- as.numeric(names(y.labels))
+                # print(y.breaks)
+                # print(y.labels)
                 p <- p + 
                     scale_y_continuous(breaks = y.breaks,
                                        labels = y.labels,

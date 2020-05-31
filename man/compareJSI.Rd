@@ -8,7 +8,7 @@ compareJSI(
   maf,
   patient.id = NULL,
   pairByTumor = FALSE,
-  min.vaf = 0.02,
+  min.ccf = 0,
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,
@@ -24,13 +24,17 @@ compareJSI(
 
 \item{pairByTumor}{Compare JSI between different tumors. Default: FALSE.}
 
-\item{min.vaf}{Specify the minimum VAF_adj, default is 0.02.}
+\item{min.ccf}{The minimum value of CCF. Default: 0}
 
 \item{plot}{Logical (Default:TRUE).}
 
 \item{use.circle}{Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix.}
 
 \item{title}{Title of the plot, default is "Jaccard similarity".}
+
+\item{number.cex}{The size of text shown in correlation plot. Default 8.}
+
+\item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
 \item{...}{Other options passed to \code{\link{subsetMaf}}}
 }

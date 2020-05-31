@@ -83,12 +83,12 @@ vafCluster <-function(maf,
           
           # prepare separated pictures for later combination 
           p  <- drawVAFCombine(subdata)
-          if(length(id_list) == 1){
-                  p <- p + ggtitle(label = paste("VAF clustering of ", patient, sep=""),
-                                   subtitle = id)+
-                  theme(plot.title = element_text(face = "bold",size = 18,hjust = 0.5),
-                        plot.subtitle = element_text(size = 16,hjust = 1,vjust = -5))
-          }
+          # if(length(id_list) == 1){
+          #         p <- p + ggtitle(label = paste("VAF clustering of ", patient, sep=""),
+          #                          subtitle = id)+
+          #         theme(plot.title = element_text(face = "bold",size = 18,hjust = 0.5),
+          #               plot.subtitle = element_text(size = 16,hjust = 1,vjust = -5))
+          # }
           plot_list[[id]] <- p
       }
       
@@ -99,21 +99,21 @@ vafCluster <-function(maf,
           dplyr::rename(Cluster = cluster)
       
       ## combine: print VAF pictures for all samples in one document
-      pic <- cowplot::plot_grid(plotlist = plot_list,ncol = 2)
+      # pic <- cowplot::plot_grid(plotlist = plot_list,ncol = 2)
       
-      combineTitle <-  ggdraw() + draw_label(
-          paste("VAF clustering of ", patient, sep=""),
-          fontface = 'bold',
-          x = 0.5,
-          hjust = 0.5,
-          size = 13.5
-      )
-      pic <- cowplot::plot_grid(combineTitle,
-                                pic,
-                                ncol = 1,
-                                # rel_heights values control vertical title margins
-                                 rel_heights = c(0.1, 1))
-      result[[patient]] <- list(cluster.data = rebuild_data, cluster.plot = pic) 
+      # combineTitle <-  ggdraw() + draw_label(
+      #     paste("VAF clustering of ", patient, sep=""),
+      #     fontface = 'bold',
+      #     x = 0.5,
+      #     hjust = 0.5,
+      #     size = 13.5
+      # )
+      # pic <- cowplot::plot_grid(combineTitle,
+      #                           pic,
+      #                           ncol = 1,
+      #                           # rel_heights values control vertical title margins
+      #                            rel_heights = c(0.1, 1))
+      result[[patient]] <- list(cluster.data = rebuild_data, cluster.plot = plot_list) 
       
   }
   if(length(result) > 1){
