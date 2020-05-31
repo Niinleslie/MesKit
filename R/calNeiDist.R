@@ -6,9 +6,11 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param withinTumor Calculate fst within types in each patients,default is FALSE.
 #' @param min.ccf Specify the minimum CCF, default is 0.08
-#' @param plot Logical (Default:TRUE). Whether to show the plot, default TRUE
+#' @param plot Logical (Default:TRUE). Whether to show the plot. Default TRUE
 #' @param use.circle Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix
-#' @param title The title of the plot, default is "Nei's distance"
+#' @param title The title of the plot. Default is "Nei's distance"
+#' @param number.cex The size of text shown in correlation plot. Default 8.
+#' @param number.col The color of text shown in correlation plot. Default "#C77960".
 #' @param ... Other options passed to \code{\link{subsetMaf}}
 #' 
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient

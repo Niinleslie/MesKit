@@ -2,6 +2,7 @@
 drawVAFCombine <- function(subdata){
     
    id <- unique(subdata$ID)
+   patient <- unique(subdata$Patient_ID)
    ## A draft for density infomation(density_info) of ggplot
    picv <- ggplot(subdata, aes(x=VAF)) + 
       geom_line(size=1, colour="#00C0EB", stat="density")
@@ -17,7 +18,7 @@ drawVAFCombine <- function(subdata){
    p <- ggplot(subdata, aes(x = VAF)) + 
          theme_bw() +
          theme(legend.position='right', 
-               plot.title=element_text(size=12,hjust = 0,vjust = 0.5,face = "bold"),
+               plot.title=element_text(size=13.5,hjust = 0,vjust = 0.5,face = "bold"),
                panel.grid=element_blank(), 
                panel.border=element_blank(),
                axis.line=element_line(size=0.7), 
@@ -28,7 +29,7 @@ drawVAFCombine <- function(subdata){
           drawVAFCombineVline(subdata) + 
           # geom_rug(aes(y=0, colour=cluster), sides="b") + 
           scale_colour_manual(values=color_scale) + 
-          ggtitle(id) + 
+          ggtitle(paste0(patient,": ", id)) + 
           labs(y = "Density")
    
    return(p)

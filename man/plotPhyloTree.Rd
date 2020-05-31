@@ -20,7 +20,7 @@ plotPhyloTree(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{branchCol}{Specify the colors of branches (Default: NULL). Other options: "mutType" for coloring branches by branch tumor type; "mutSig" for coloring branches by mutation signature.}
+\item{branchCol}{Specify the colors of branches (Default: mutType). Other options: "mutSig" for coloring branches by branch mutation signature; "mutSig" for coloring branches by mutation signature.}
 
 \item{show.bootstrap}{Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.}
 
