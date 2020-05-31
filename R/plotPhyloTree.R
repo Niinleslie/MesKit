@@ -44,7 +44,7 @@ plotPhyloTree <- function(phyloTree,
    
    for(phyloTree in phyloTree_list){
        
-       patient <- getPatientID(phyloTree)
+       patient <- getPhyloTreePatient(phyloTree)
        
        if(min.ratio <= 0|min.ratio > 1){
            stop("Error: min.ratio should be within (0,1]")
