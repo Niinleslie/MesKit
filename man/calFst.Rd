@@ -31,6 +31,14 @@ calFst(
 
 \item{withinTumor}{Calculate fst within types in each patients,default is FALSE.}
 
+\item{use.circle}{Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix}
+
+\item{title}{The title of the plot. Default is "Nei's distance"}
+
+\item{number.cex}{The size of text shown in correlation plot. Default 8.}
+
+\item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
+
 \item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
 \value{

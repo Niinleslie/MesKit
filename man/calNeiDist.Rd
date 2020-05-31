@@ -26,11 +26,15 @@ calNeiDist(
 
 \item{min.ccf}{Specify the minimum CCF, default is 0.08}
 
-\item{plot}{Logical (Default:TRUE). Whether to show the plot, default TRUE}
+\item{plot}{Logical (Default:TRUE). Whether to show the plot. Default TRUE}
 
 \item{use.circle}{Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix}
 
-\item{title}{The title of the plot, default is "Nei's distance"}
+\item{title}{The title of the plot. Default is "Nei's distance"}
+
+\item{number.cex}{The size of text shown in correlation plot. Default 8.}
+
+\item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
 \item{...}{Other options passed to \code{\link{subsetMaf}}}
 }
