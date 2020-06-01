@@ -78,7 +78,7 @@ compareJSI <- function(
         
         if(pairByTumor){
             if(length(unique(JSI_input$Tumor_ID))  < 2 ){
-                message(paste0("Warnings: Only one tumor type was found of ",patient, ". It you want to compare CCF between regions, pairByTumor should be set as FALSE"))
+                message(paste0("Warnings: Only one tumor was found in ",patient, ". If you want to compare CCF between regions, pairByTumor should be set as FALSE"))
                 next
             }
         }else{
