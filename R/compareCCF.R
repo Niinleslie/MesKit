@@ -53,7 +53,7 @@ compareCCF <- function(maf,
         if(pairByTumor){
             types <- unique(maf_data$Tumor_ID)
             if(length(types) < 2){
-                message(paste0("Warnings: Only one tumor type was found in ",patient,". It you want to compare CCF between regions, pairByTumor should be set as FALSE"))
+                message(paste0("Warnings: Only one tumor type was found in  ",patient,". If you want to compare CCF between regions, pairByTumor should be set as FALSE"))
                 next
             }
             ## get average CCF
@@ -84,22 +84,21 @@ compareCCF <- function(maf,
                                  sep = ":", remove = FALSE) %>% 
                     dplyr::distinct(Mut_ID2, .keep_all = TRUE) %>%
                     dplyr::select(Tumor_ID, Hugo_Symbol, Mut_ID, CCF) %>% 
-                    tidyr::spread(key = Tumor_ID, value = CCF)
+                    tidyr::pivot_wider(names_from = Tumor_ID, values_from = CCF) %>% 
+                    tidyr::drop_na()
                 
             }else{
                 ccf.pair <- maf_data %>% dplyr::filter(Tumor_Sample_Barcode %in% c(S1, S2)) %>%
                     dplyr::select(Tumor_Sample_Barcode, Hugo_Symbol, Mut_ID, CCF) %>% 
-                    tidyr::spread(key = Tumor_Sample_Barcode, value = CCF)
+                    tidyr::pivot_wider(names_from = Tumor_Sample_Barcode, values_from = CCF) %>% 
+                    tidyr::drop_na()
             }
             if(nrow(ccf.pair) == 0){
                 message(paste0("Warning: No shared mutaions were detected between ",S1, " and ", S2) )
                 next
             }
-            v1 <- as.vector(ccf.pair[,3])
-            v2 <- as.vector(ccf.pair[,4])
-            ccf.pair <- ccf.pair[(!is.na(v1)&!is.na(v2)),]
             pair.name <- paste(S1,"-",S2, sep = "")
-            ccf.pair.list[[patient]][[pair.name]] <- ccf.pair
+            ccf.pair.list[[patient]][[pair.name]] <- as.data.frame(ccf.pair) 
         }
 
     }

@@ -94,19 +94,28 @@ plotMutProfile <- function(maf,
             values_fn = list(Mutation_Type = multiHits)
         ) %>%
         dplyr::ungroup() %>%
-        dplyr::arrange(dplyr::desc(total_barcode_count)) %>%       
+        dplyr::arrange(dplyr::desc(total_barcode_count))      
         #dplyr::select_if(function(x) {!all(is.na(x))}) %>%
-        dplyr::slice(1:topGenesCount) %>%
-        tibble::column_to_rownames(., "Hugo_Symbol") %>% 
-        dplyr::select(-total_barcode_count) %>%
-        as.matrix()
+      
+    if (nrow(mat) < topGenesCount) {
+      stop(paste0('The number of gene you are asking for exceeds the total of genes. ', 
+                  'You want the top ', topGenesCount, ' genes,', ' but there are only ', nrow(mat), ' genes in the result.'))
+    } else{
+      
+      mat <- mat %>% dplyr::slice(1:topGenesCount) %>%
+        
+                     tibble::column_to_rownames(., "Hugo_Symbol") %>% 
+                     dplyr::select(-total_barcode_count) %>%
+                     as.matrix()
+    }
     
-
+    
+    
     col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
                     distinct(.)
     col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
 
-    # get the order or rows
+    # get the order of rows
     stat <- rep(0, topGenesCount)
     for(i in 1:nrow(mat)){
       stat[i] <- sum(!is.na(mat[i, ])) / ncol(mat)
