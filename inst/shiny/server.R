@@ -107,16 +107,16 @@ shinyServer(function(input, output, session){
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
       
-      if (!is.null(input$mutNonSilent)){
-        ls.mutNonSilent <- strsplit(input$mutNonSilent, ",")
-      } else {
-        ls.mutNonSilent <- "Default"
-        updateSelectInput(session, "mutNonSilent", 
-                          selected = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
-                                       "Translation_Start_Site", "Nonsense_Mutation", 
-                                       "Nonstop_Mutation", "In_Frame_Del",
-                                       "In_Frame_Ins", "Missense_Mutation"))
-      }
+      # if (!is.null(input$mutNonSilent)){
+      #   ls.mutNonSilent <- strsplit(input$mutNonSilent, ",")
+      # } else {
+      #   ls.mutNonSilent <- "Default"
+      #   updateSelectInput(session, "mutNonSilent", 
+      #                     selected = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
+      #                                  "Translation_Start_Site", "Nonsense_Mutation", 
+      #                                  "Nonstop_Mutation", "In_Frame_Del",
+      #                                  "In_Frame_Ins", "Missense_Mutation"))
+      # }
       
       # if (!is.null(input$chrSilent)){
       #   ls.chrSilent <- strsplit(input$chrSilent, ",")
@@ -131,53 +131,44 @@ shinyServer(function(input, output, session){
       } else {
         if(!is.null(input$mafFile) & !is.null(input$ccfFile)){
           maf <- readMaf(mafFile = input$mafFile$datapath,
-                         ccfFile =  input$ccfFile$datapath)          
-          # if(maf@patientID == "0"){
-          #     name <- as.character(mafName()) 
-          #     maf@patientID <- name
-          # }
+                         ccfFile =  input$ccfFile$datapath,
+                         refBuild = input$ref)          
         }
         else{
-          maf <-  readMaf(mafFile = input$mafFile$datapath)
-          # if(maf@patientID == "0"){
-          #     name <- as.character(mafName()) 
-          #     maf@patientID <- name
-          # }
+          maf <-  readMaf(mafFile = input$mafFile$datapath, refBuild = input$ref)
         }
       }
       return(maf)
     }
   })
   
-  varsLs <- reactiveValues()
+  varsMaf <- reactiveValues()
   
   observeEvent(input$submit1,{
-    withProgress(min = 0, max = 2, value = 0, {
+    withProgress(min = 0, max = 1, value = 0, {
       ## Rshiny: progress bar
-      setProgress(message = 'Input data: Generating ', detail = paste("MAF Class", sep="")) 
-      varsLs[['maf']] <- inputData()
+      setProgress(message = 'Input data: Generating ', detail = paste("Maf/MafList Class", sep="")) 
+      varsMaf[['maf']] <- inputData()
       incProgress(amount=1)
       
       ## Rshiny: progress bar
-      setProgress(message = 'Input data: Generating ', detail = paste("phyloTree from MAF ",sep="")) 
-      varsLs[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsLs$maf),method = input$method)
-      incProgress(amount=1)
+      # setProgress(message = 'Input data: Generating ', detail = paste("phyloTree from MAF ",sep="")) 
+      # varsMaf[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsMaf$maf),method = input$method)
+      # incProgress(amount=1)
       
-      setProgress(message = paste("Input data: MAF and phyloTree Generation Done!", sep=""), detail = "") 
+      setProgress(message = paste("Input data: Maf/MafList Generation Done!", sep=""), detail = "") 
       Sys.sleep(1)
       
     })
   })
   
-  buttonValue <- reactiveValues(a = 0, b = 0, c = 0, d = 0)
+  buttonValue <- reactiveValues(a = 0, b = 0)
   observeEvent(input$iecontrol01,{
     buttonValue$a <- buttonValue$a + 1
     if(buttonValue$a == 2){
       buttonValue$a <- 0
     }
     buttonValue$b <- 0
-    buttonValue$c <- 0
-    buttonValue$d <- 0
   })
   observeEvent(input$iecontrol02,{
     buttonValue$a <- 0
@@ -185,8 +176,6 @@ shinyServer(function(input, output, session){
     if(buttonValue$b == 2){
       buttonValue$b <- 0
     }
-    buttonValue$c <- 0
-    buttonValue$d <- 0
   })
   ## output Introduction of maf datatable
   output$ie1 <- renderUI({
@@ -213,51 +202,10 @@ shinyServer(function(input, output, session){
   output$ied1 <- renderDataTable({
     if(input$iecontrol01){
       maftable <- read.table('dom/maf.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(maftable, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      d <- datatable(maftable, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      return(d)
     }
   })
-  ## output Introduction of sampleinfo datatable
-  # output$ie2 <- renderUI({
-  #   if(buttonValue$b == 1){
-  #     box(
-  #       width = NULL,
-  #       tagList(
-  #         div(
-  #           h3(strong("Information of samples")),
-  #           p("Below is an example of the first four rows of sample_info.txt. It should contain the sampleID, patientID, lesion and sampling time. The input files are located under the '/inst/extdata/' folder.",
-  #             style = "font-size:16px; font-weight:500;line-height:30px;"),
-  #           style = "width : 800px"
-  #         ),
-  #         tags$li(strong("tumors sampling across multiple spatially-distinct regions"),
-  #                 style = "width : 800px;font-size:16px; font-weight:500;"),
-  #         br(),
-  #         DT::dataTableOutput("ied2_1",width = "70%"),
-  #         br(),
-  #         tags$li(strong("tumors sampling across multiple time points"),
-  #                 style = "width : 800px;font-size:16px; font-weight:500;"),
-  #         br(),
-  #         DT::dataTableOutput("ied2_2",width = "70%"),
-  #         br(),
-  #         div(tags$span("Note:",style = "font-size:16px; font-weight:700;"),
-  #             tags$span("'-' represents sampling at the same time or sampling from the same site.",
-  #                       style = "font-size:16px; font-weight:500;")),
-  #         br()
-  #       )
-  #     )
-  #   }
-  # })
-  # output$ied2_1 <- renderDataTable({
-  #   if(input$iecontrol02){
-  #     spd1 <- read.table('dom/sampleinfo1.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-  #     datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
-  #   }
-  # })
-  # output$ied2_2 <- renderDataTable({
-  #   if(input$iecontrol02){
-  #     spd1 <- read.table('dom/sampleinfo2.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-  #     datatable(spd1, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
-  #   }
-  # })
   ## output Introduction of CCF
   output$ie2 <- renderUI({
     if(buttonValue$b == 1){
@@ -268,40 +216,22 @@ shinyServer(function(input, output, session){
           p(strong("Mandatory fields"),": Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position,End_Position",
             style = "font-size:16px; font-weight:500;line-height:30px;"),
           h3(strong("Example CCF file:")),
-          DT::dataTableOutput("ied3"),
+          DT::dataTableOutput("ied2"),
           br()
         )
     }
   })
   output$ied2 <- renderDataTable({
     if(input$iecontrol02){
-      spd3 <- read.table('dom/ccf.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-      datatable(spd3, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      ccftable <- read.table('dom/ccf.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
+      d <- datatable(ccftable, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      return(d)
     }
   })
-  ## output Introduction of ccf.loci
-  # output$ie4 <- renderUI({
-  #   if(buttonValue$d == 1){
-  #     box(
-  #       width = NULL,
-  #       tagList(
-  #         h3(strong("Example ccf.loci file")),
-  #         DT::dataTableOutput("ied4"),
-  #         br()
-  #       )
-  #     )
-  #   }
-  # })
-  # output$ied4 <- renderDataTable({
-  #   if(input$iecontrol04){
-  #     spd4 <- read.table('dom/ccf.loci.csv',encoding = "UTF-8",sep = ",",header = T,fill = T)
-  #     datatable(spd4, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
-  #   }
-  # })
+  
   output$datapreview <- renderUI({
       if(input$submit1){
         DT::dataTableOutput('maftable', width = '100%')
-        # uiOutput("warningMessage00")
       }
   })
   output$maftable <- DT::renderDataTable({
@@ -315,32 +245,19 @@ shinyServer(function(input, output, session){
         return(t)
     }
   })
-  stopButtonValue2 <- reactiveValues(a = 0)
-  observeEvent(input$stop2,{
-    stopButtonValue2$a <- 1
-  })
-  observeEvent(input$submit3,{
-    stopButtonValue2$a <- 0
-  })
-  stopButtonValue2 <- reactiveValues(a = 0)
-  observeEvent(input$stop2,{
-    stopButtonValue2$a <- 1
-  })
-  observeEvent(input$submit2,{
-    stopButtonValue2$a <- 0
-  })
+
   ms <- eventReactive(input$submit2, {
     progress <- Progress$new(session, min=1, max=15)
     on.exit(progress$close())
     progress$set(message = 'MATH Score: Calculation in progress',
                  detail = 'This may take a while...')
     
-    if(input$submit2 & stopButtonValue2$a != 1){
-      maf <- isolate(varsLs$maf)
+    if(input$submit2){
+      maf <- isolate(varsMaf$maf)
       validate(
           need(!(is.null(maf)), "")
       )
-      mathScore(maf,min.vaf = input$minvaf)
+      mathScore(maf, min.vaf = input$minvaf)
     }
   })
   output$mathScore <- DT::renderDataTable({
@@ -353,7 +270,7 @@ shinyServer(function(input, output, session){
   #                detail = 'This may take a while...')
   #   
   #   if(input$submit0){
-  #     maf <- isolate(varsLs$maf)
+  #     maf <- isolate(varsMaf$maf)
   #     validate(
   #         need(!(is.null(maf)), "")
   #     )
@@ -394,13 +311,6 @@ shinyServer(function(input, output, session){
   #   }
   # })
   
-  stopButtonValue3 <- reactiveValues(a = 0)
-  observeEvent(input$stop3,{
-    stopButtonValue3$a <- 1
-  })
-  observeEvent(input$submit3,{
-    stopButtonValue3$a <- 0
-  })
   sg <- eventReactive(input$useseg,{
       if(!is.null(input$segFile)){
           seg <- readSegment(segCN.file = input$segFile$datapath)
@@ -411,46 +321,80 @@ shinyServer(function(input, output, session){
       return(seg)
   })
   vc <- eventReactive(input$submit3, {
-    if(input$submit3 & stopButtonValue3$a != 1){
-      maf <- isolate(varsLs$maf)
+    if(input$submit3){
+      maf <- isolate(varsMaf$maf)
       validate(
           need(!(is.null(maf)), "")
       )
-      pmax <- length(unique(maf@data$Patient_ID))
-      plot.list <- NULL
+      setProgress(message = 'vafCluster: Calculation in progress',
+                  detail = 'This may take a while...')
       
-      withProgress(min = 0, max = pmax+1, value = 0, {
+      plot.list <- vafCluster(maf,
+                              # plotOption = input$plotOption, 
+                              # showMATH = input$showMATH,
+                              segCN.file = input$segFile$datapath)
+      withProgress(min = 0, max = 2, value = 0, {
+        incProgress(amount = 1)
         setProgress(message = 'vafCluster: Calculation in progress',
                     detail = 'This may take a while...')
           
-        plot.list <- vafCluster(maf,
-                                plotOption = input$plotOption, 
-                                showMATH = input$showMATH,
-                                segCN.file = input$segFile$datapath)
-        return(plot.list)
+        vc <- vafCluster(maf)
+        setProgress(message = 'vafCluster: Calculation done!')
+        return(vc)
      })
     }
   })
   
 
   
-  getpatient.vafcluster <- eventReactive(input$vc.pl, {
-      return(input$vc.pl)
+  getpatient.vafcluster <- eventReactive(input$vafcluster.patientlist, {
+      return(input$vafcluster.patientlist)
   })
   
   output$vafcluster.patientlist <- renderUI({
       if(!is.null(vc())){
-          plot.list <- vc()
-          names <- names(plot.list)
-          selectInput("vc.pl", "Patient",
-                      choices = names, width = 600)
+          if(!"cluster.plot" %in% names(vc())){
+              names <- names(vc())
+              selectInput("vafcluster.patientlist", "Patient",
+                          choices = names, width = 600) 
+          }
       }
+  })
+  
+  output$vafcluster.samplelist <- renderUI({
+      if(!is.null(vc())){
+          if(!"cluster.plot" %in% names(vc())){
+              sample.list <- vc()$cluster.plot
+              names <- names(sample.list) 
+          }else{
+              sample.list <- vc()$cluster.plot
+              names <- names(sample.list)  
+          }
+          if(input$withinTumor_vafcluster){
+              tagList(
+                  selectInput("vafcluster.sl", "Tumor ID",
+                              choices = names, width = 600) 
+              )
+          }else{
+              tagList(
+                  selectInput("vafcluster.sl", "Tumor Sample Barcode",
+                              choices = names, width = 600) 
+              )
+          }
+      }
+  })
+  
+  getsample.vafcluster <- eventReactive(input$vafcluster.sl,{
+      return(input$vafcluster.sl)
   })
   
   output$vaf <- renderPlot({
       if(!is.null(vc())){
-          plot.list <- vc()
-          plot.list[[getpatient.vafcluster()]]
+          if("cluster.plot" %in% names(vc())){
+              return(vc()$cluster.plot[[getsample.vafcluster()]])
+          }else{
+              return(vc()[[getpatient.vafcluster()]]$cluster.plot[[getsample.vafcluster()]])
+          }
       }
   },width = width1,
   height = 560,
@@ -482,10 +426,10 @@ shinyServer(function(input, output, session){
   })
   
   ccfauc <- eventReactive(input$submit_ccfauc,{
-      withProgress(min = 0, max = 2, value = 0, {
+      withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = 'ccfAUC: Calculation in progress',
                       detail = 'This may take a while...')
-          maf <- varsLs$maf
+          maf <- varsMaf$maf
           validate(
               need(!(is.null(maf)), "")
           )
@@ -498,12 +442,14 @@ shinyServer(function(input, output, session){
   
   output$ccfauc.patientlist <- renderUI({
       if(!is.null(ccfauc())){
-          plot.list <- ccfauc()$CCF.density.plot
-          names <- names(plot.list)
-          tagList(
-              selectInput("auc.pl", "Patient",
-                          choices = names, width = 600) 
-          )
+          if(!"CCF.density.plot" %in% names(ccfauc())){
+              cc <- ccfauc()
+              names <- names(cc)
+              tagList(
+                  selectInput("auc.pl", "Patient",
+                              choices = names, width = 600) 
+              ) 
+          }
       }
   })
   
@@ -513,7 +459,11 @@ shinyServer(function(input, output, session){
   
   output$ccfauc_plot <- renderPlot({
       if(!is.null(ccfauc())){
-          return(ccfauc()$CCF.density.plot[[getpatient.ccfauc()]])
+          if("CCF.density.plot" %in% names(ccfauc())){
+              return(ccfauc()$CCF.density.plot)
+          }else{
+              return(ccfauc()[[getpatient.ccfauc()]]$CCF.density.plot) 
+          }
       }
   },  
   width = 560,
@@ -547,9 +497,12 @@ shinyServer(function(input, output, session){
   
   output$ccfauc_table <- DT::renderDataTable({
       if(!is.null(ccfauc())){
-          t <- ccfauc()$AUC.value
-          rows <- which(t$Patient_ID == getpatient.ccfauc())
-          dt <- datatable(t[rows,][,1:3],
+          if("CCF.density.plot" %in% names(ccfauc())){
+             t <- ccfauc()$AUC.value
+          }else{
+              t <- ccfauc()[[getpatient.ccfauc()]]$AUC.value
+          }
+          dt <- datatable(t,
                            options = list(searching = TRUE,
                                           pageLength = 10, 
                                           scrollX = TRUE,
@@ -586,7 +539,7 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'calFst: Calculation in progress',
                       detail = 'This may take a while...')
-          maf <- varsLs$maf
+          maf <- varsMaf$maf
           validate(
               need(!(is.null(maf)), "")
           )
@@ -725,7 +678,7 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'calNeiDist: Calculation in progress',
                       detail = 'This may take a while...')
-          maf <- varsLs$maf
+          maf <- varsMaf$maf
           validate(
               need(!(is.null(maf)), "")
           )
@@ -863,7 +816,7 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'compareJSI : Calculation in progress',
                       detail = 'This may take a while...')
-          maf <- varsLs$maf
+          maf <- varsMaf$maf
           validate(
               need(!(is.null(maf)), "")
           )
@@ -999,7 +952,7 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'Mutational lanscape : Calculation in progress',
                       detail = 'This may take a while...')
-          maf <- varsLs$maf
+          maf <- varsMaf$maf
           validate(
               need(!(is.null(maf)), "")
           )
@@ -1178,7 +1131,7 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'testNeutral : Calculation in progress',
                       detail = 'This may take a while...')
-          maf <- varsLs$maf
+          maf <- varsMaf$maf
           validate(
               need(!(is.null(maf)), "")
           )
@@ -1300,7 +1253,7 @@ shinyServer(function(input, output, session){
       on.exit(progress$close())
       progress$set(message = 'compareCCF: Calculation in progress',
                    detail = 'This may take a while...')
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       validate(
           need(!(is.null(maf)), "")
       )
@@ -1404,7 +1357,7 @@ shinyServer(function(input, output, session){
        need(!(is.null(phyloTree)), "")
    )
    
-  if(input$submitSig & stopButtonValueSig$a != 1){
+  if(input$submitSig){
          
          mutSig.summary <- NULL
          
@@ -1518,15 +1471,7 @@ shinyServer(function(input, output, session){
                                     scrollX = TRUE), 
                      rownames = FALSE))
   })
-  
-  
-  stopButtonValueSig1 <- reactiveValues(a = 0)
-  observeEvent(input$stopSig1,{
-    stopButtonValueSig1$a <- 1
-  })
-  observeEvent(input$submitSig1,{
-    stopButtonValueSig1$a <- 0
-  })
+
   treemutsig <- eventReactive(input$submit_treemutsig, {
       
       phyloTree <- isolate(varsLs$phyloTree)
@@ -1637,14 +1582,7 @@ shinyServer(function(input, output, session){
   })
   
   
-  
-  stopButtonValueSig2 <- reactiveValues(a = 0)
-  observeEvent(input$stopSig2,{
-    stopButtonValueSig2$a <- 1
-  })
-  observeEvent(input$submitSig2,{
-    stopButtonValueSig2$a <- 0
-  })
+
   
   muttrunkbranch <- eventReactive(input$submit_muttrunkbranch, {
       phyloTree <- isolate(varsLs$phyloTree)
@@ -1740,14 +1678,6 @@ shinyServer(function(input, output, session){
     }
   })
 
-
-  stopButtonValue10<- reactiveValues(a = 0)
-  observeEvent(input$stop10,{
-    stopButtonValue10$a <- 1
-  })
-  observeEvent(input$submit_phylotree,{
-    stopButtonValue10$a <- 0
-  })
   
   phylotree <- eventReactive(input$submit_phylotree, {
       
@@ -1893,38 +1823,6 @@ shinyServer(function(input, output, session){
     },
     contentType = paste('image/',input$DownloadSharedPlotCheck,sep="")
   )
-  output$DownloadCCFDensity <- downloadHandler(
-    filename = function() {
-      paste("Rplot.",input$DownloadClonePlotCheck, sep='')
-    },
-    content = function(file) {
-      if (input$DownloadCCFDensityCheck == "png"){
-        png(file,width = input$widthccfden , height = 560,res = 100)
-      }
-      else if (input$DownloadCCFDensityCheck == "pdf"){
-        pdf(file,width = input$widthccfden/100 , height = 6)
-      }
-      print(ccfden())
-      dev.off()
-    },
-    contentType = paste('image/',input$DownloadCCFDensityCheck,sep="")
-  )
-  output$DownloadClonePlot <- downloadHandler(
-    filename = function() {
-      paste("Rplot.",input$DownloadClonePlotCheck, sep='')
-    },
-    content = function(file) {
-      if (input$DownloadClonePlotCheck == "png"){
-        png(file,width = input$width5 , height = 560,res = 100)
-      }
-      else if (input$DownloadClonePlotCheck == "pdf"){
-        pdf(file,width = input$width5/100 , height = 6)
-      }
-      print(clp())
-      dev.off()
-    },
-    contentType = paste('image/',input$DownloadClonePlotCheck,sep="")
-  )
   output$Download_phylotree <- downloadHandler(
     filename = function() {
       paste("Rplot.",input$Download_phylotree_check, sep='')
@@ -2049,7 +1947,7 @@ shinyServer(function(input, output, session){
   )
   output$warningMessage00 <- renderUI({
       if(input$submit1){
-          maf <- isolate(varsLs$maf)
+          maf <- isolate(varsMaf$maf)
           colNames <- colnames(maf@data)
           standardCol <- c("Hugo_Symbol","Chromosome","Start_Position","End_Position",
                            "Variant_Classification", "Variant_Type", "Reference_Allele",
@@ -2070,7 +1968,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage01 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit0){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2084,7 +1982,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage02 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit2){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2098,7 +1996,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage03 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit3){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2112,7 +2010,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage04 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit4){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2126,7 +2024,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage05 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit5){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2140,7 +2038,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage06 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit6){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2153,9 +2051,9 @@ shinyServer(function(input, output, session){
           return(NULL)
       }
   })
-  output$warningMessage07 <- renderUI({
-      maf <- isolate(varsLs$maf)
-      if(is.null(maf)&input$submit7){
+  output$warningMessage_ccfauc <- renderUI({
+      maf <- isolate(varsMaf$maf)
+      if(is.null(maf)&input$submit_ccfauc){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
                      style = "color: red;
@@ -2168,7 +2066,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage08 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submitccfden){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2182,7 +2080,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage09 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit8){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2196,7 +2094,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage10 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit9){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2210,7 +2108,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage11 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submitSig4){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2224,7 +2122,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage12 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submitSig2){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2238,7 +2136,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage13 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submitSig){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2252,7 +2150,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage14 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submitSig1){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
@@ -2266,7 +2164,7 @@ shinyServer(function(input, output, session){
       }
   })
   output$warningMessage15 <- renderUI({
-      maf <- isolate(varsLs$maf)
+      maf <- isolate(varsMaf$maf)
       if(is.null(maf)&input$submit_phylotree){
           tagList(
               tags$p("Please upload data in session 'Input Data'!",
