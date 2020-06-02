@@ -1,7 +1,3 @@
-suppressMessages(library(shiny))
-suppressMessages(library(ggplot2))
-
-
 
 # Define server logic required to plot various variables against mpg
 shinyServer(function(input, output, session){
