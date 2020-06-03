@@ -1,13 +1,13 @@
 options(spinner.type=4)
 
 #required packages
-suppressMessages(library(shiny))
-suppressMessages(library(DT))
-suppressMessages(library(shinydashboard))
-suppressMessages(library(shinyWidgets))
-suppressMessages(library(shinycssloaders))
+# suppressMessages(library(shiny))
+# suppressMessages(library(DT))
+# suppressMessages(library(shinydashboard))
+# suppressMessages(library(shinyWidgets))
+# suppressMessages(library(shinycssloaders))
 # suppressMessages(library(shinyjs))
-suppressMessages(library(shinyBS))
+# suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
 #suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 

@@ -7,10 +7,6 @@ shinyServer(function(input, output, session){
   observeEvent(input$contact, {
     updateTabItems(session, "sidername", "home")
   })
-  phylotree.type <- reactive({
-    return(input$phylotTreeType)
-  })
-
   
   
  
@@ -18,22 +14,6 @@ shinyServer(function(input, output, session){
   inputData <- eventReactive(input$submit1, {
     if(input$submit1){
       
-      # if (!is.null(input$mutNonSilent)){
-      #   ls.mutNonSilent <- strsplit(input$mutNonSilent, ",")
-      # } else {
-      #   ls.mutNonSilent <- "Default"
-      #   updateSelectInput(session, "mutNonSilent", 
-      #                     selected = c("Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", 
-      #                                  "Translation_Start_Site", "Nonsense_Mutation", 
-      #                                  "Nonstop_Mutation", "In_Frame_Del",
-      #                                  "In_Frame_Ins", "Missense_Mutation"))
-      # }
-      
-      # if (!is.null(input$chrSilent)){
-      #   ls.chrSilent <- strsplit(input$chrSilent, ",")
-      # } else {
-      #   ls.chrSilent <- NULL
-      # }
       
       if(is.null(input$mafFile)){
         mafFile <- system.file("extdata", "HCC6046.maf", package = "MesKit")
@@ -62,10 +42,6 @@ shinyServer(function(input, output, session){
       varsMaf[['maf']] <- inputData()
       incProgress(amount=1)
       
-      ## Rshiny: progress bar
-      # setProgress(message = 'Input data: Generating ', detail = paste("phyloTree from MAF ",sep="")) 
-      # varsMaf[['phyloTree']] <-  phyloTree <- getPhyloTree(isolate(varsMaf$maf),method = input$method)
-      # incProgress(amount=1)
       
       setProgress(message = paste("Input data: Maf/MafList Generation Done!", sep=""), detail = "") 
       Sys.sleep(1)
@@ -212,30 +188,6 @@ shinyServer(function(input, output, session){
       },
       contentType = 'text/csv'
   )
-  
-  # output$msdbtmb <- renderUI({
-  #   if(!is.null(ms2())){
-  #     fluidRow(
-  #       column(
-  #         width = 9
-  #       ),
-  #       column(
-  #         width = 3,
-  #         downloadBttn('DownloadTMB', 'Download')
-  #       )
-  #     )
-  #   }
-  # })
-  
-  sg <- eventReactive(input$useseg,{
-      if(!is.null(input$segFile)){
-          seg <- readSegment(segCN.file = input$segFile$datapath)
-      }
-      else{
-          seg <- NULL
-      }
-      return(seg)
-  })
   
   vafcluster <- eventReactive(input$submit3, {
       maf <- isolate(varsMaf$maf)
@@ -1998,29 +1950,6 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  
-  # output$treemutsig_table <- DT::renderDataTable({
-  #   if(!is.null(treemutsig())){
-  #       mutSig.summary <- treemutsig()$mutSig.summary
-  #       mutSig.summary <- mutSig.summary[!is.na(mutSig.summary)] 
-  #       for(patient in names(mutSig.summary)){
-  #           s <- mutSig.summary[[patient]]
-  #           s$Patient_ID <- patient
-  #           s$ID <- paste(s$Patient_ID, s[,1], sep = "_")
-  #           mutSig.summary[[patient]] <- s
-  #       }
-  #       mutSig.summary <- plyr::rbind.fill(mutSig.summary)
-  #       idx <- which(mutSig.summary$ID == getpatient.treemutsig())
-  #       data <- mutSig.summary[idx,] %>% 
-  #           dplyr::select(-ID,-Patient_ID)
-  #       datatable(data, options = list(searching = TRUE, pageLength = 10, 
-  #                                      lengthMenu = c(5, 10, 15, 18), 
-  #                                      scrollX = TRUE, dom = "t",
-  #                                      fixedHeader = TRUE),rownames = F)
-  #   }
-  # })
-  
-  
 
   
   muttrunkbranch <- eventReactive(input$submit_muttrunkbranch, {
