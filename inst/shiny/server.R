@@ -74,10 +74,10 @@ shinyServer(function(input, output, session){
               their annotations. The following fields are highly recommended to be contained in
               the MAF files.",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
-            p(strong("Mandatory fields"),": Hugo_Symbol,Chromosome,Start_Position,End_Position,
-                        Variant_Classification, Variant_Type,Reference_Allele,
-                        Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,
-                        VAF,Tumor_Sample_Barcode,Patient_ID,Tumor_ID",
+            p(strong("Mandatory fields"),": Hugo_Symbol, Chromosome, Start_Position, End_Position,
+                        Variant_Classification, Variant_Type, Reference_Allele, 
+                        Tumor_Seq_Allele2, Ref_allele_depth, Alt_allele_depth, 
+                        VAF, Tumor_Sample_Barcode, Patient_ID, Tumor_ID",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
             h3(strong("Example MAF file"))
           ),
@@ -110,7 +110,7 @@ shinyServer(function(input, output, session){
           h3(strong("The CCF file")),
           p("CCF files contain cancer cell fraction of each mutation.",
             style = "font-size:16px; font-weight:500;line-height:30px;"),
-          p(strong("Mandatory fields"),": Patient_ID,Tumor_Sample_Barcode,Chromosome,Start_Position,End_Position",
+          p(strong("Mandatory fields"),": Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, CCF, CCF_std/CCF_CI_High (required when identify clonal/subclonal mutations)",
             style = "font-size:16px; font-weight:500;line-height:30px;"),
           h3(strong("Example CCF file:")),
           DT::dataTableOutput("ied2"),
@@ -150,22 +150,46 @@ shinyServer(function(input, output, session){
         return(t)
     }
   })
+  
+  output$mathscore_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("mathscore_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "mathscore_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
 
   ms <- eventReactive(input$submit_mathscore, {
     maf <- isolate(varsMaf$maf)
     validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
     )
+    patientid <- input$mathscore_patientid
     progress <- Progress$new(session, min=1, max=15)
     on.exit(progress$close())
     progress$set(message = 'MATH Score: Calculation in progress',
                  detail = 'This may take a while...')
-    mathScore(maf, min.vaf = as.numeric(input$mathscore_minvaf),
+    mathScore(maf,
+              patient.id = patientid,
+              min.vaf = as.numeric(input$mathscore_minvaf),
               withinTumor = input$mathscore_withintumor)
   })
   output$mathScore <- DT::renderDataTable({
     ms()
   })
+  
   
   output$msdb <- renderUI({
     if(!is.null(ms())){
@@ -189,16 +213,37 @@ shinyServer(function(input, output, session){
       contentType = 'text/csv'
   )
   
+  output$vafcluster_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("vafcluster_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "vafcluster_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
+  
   vafcluster <- eventReactive(input$submit3, {
       maf <- isolate(varsMaf$maf)
       validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
-      
+      patientid <- input$vafcluster_patientid
       withProgress(min = 0, max = 1, value = 0,{
           setProgress(message = 'vafCluster: Calculation in progress',
                       detail = 'This may take a while...')
           vc <- vafCluster(maf, 
+                           patient.id = patientid,
                            withinTumor = input$vafcluster_withintumor,
                            segCN.file = input$vafcluster_segfile,
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
@@ -365,11 +410,34 @@ shinyServer(function(input, output, session){
       contentType = 'text/csv'
   )
   
+  
+  output$ccfauc_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("ccfauc_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "ccfauc_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
+  
   ccfauc <- eventReactive(input$submit_ccfauc,{
       maf <- varsMaf$maf
       validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
+      
+      patientid <- input$ccfauc_patientid
       
       withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = 'ccfAUC: Calculation in progress',
@@ -378,6 +446,7 @@ shinyServer(function(input, output, session){
               need(!(is.null(maf)), "")
           )
           cc <- ccfAUC(maf,
+                       patient.id = patientid,
                        min.ccf = as.numeric(input$ccfauc_minccf) ,
                        withinTumor = input$ccfauc_withintumor)
           incProgress(amount = 1)
@@ -522,6 +591,27 @@ shinyServer(function(input, output, session){
   )
   
   ## calfst sever
+  
+  output$calfst_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("calfst_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "calfst_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
+  
   calfst <- eventReactive(input$submit_calfst,{
       maf <- varsMaf$maf
       validate(
@@ -530,16 +620,17 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = 'calFst: Calculation in progress',
                       detail = 'This may take a while...')
-          if(input$calfst_title == ""){
-              title <- NULL
-          }else{
-              title <- input$calfst_title
-          }
+          # if(input$calfst_title == ""){
+          #     title <- NULL
+          # }else{
+          #     title <- input$calfst_title
+          # }
           fst <- calFst(maf,
+                        patient.id = input$calfst_patientid,
                         min.vaf = as.numeric(input$calfst_minvaf) ,
                         min.total.depth = as.numeric(input$calfst_mintotaldepth),
                         withinTumor =input$calfst_withinTumor,
-                        title = title,
+                        # title = title,
                         use.circle = input$calfst_usecircle,
                         number.cex = as.numeric(input$calfst_numbercex),
                         number.col = input$calfst_numbercol)
@@ -691,6 +782,27 @@ shinyServer(function(input, output, session){
   
   
   ## neidist sever
+  
+  output$calneidist_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("calneidist_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "calneidist_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
+  
   calneidist <- eventReactive(input$submit_calneidist,{
       maf <- varsMaf$maf
       validate(
@@ -699,14 +811,14 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = 'calNeiDist: Calculation in progress',
                       detail = 'This may take a while...')
-          if(input$calneidist_title==""){
-              title <- NULL
-          }else{
-              title <- input$calneidist_title
-          }
+          # if(input$calneidist_title==""){
+          #     title <- NULL
+          # }else{
+          #     title <- input$calneidist_title
+          # }
           cc <- calNeiDist(maf, 
+                           patient.id = input$calneidist_patientid,
                            min.ccf = as.numeric(input$calneidist_minccf) ,
-                           title = title,
                            withinTumor = input$calneidist_withintumor,
                            use.circle = input$calneidist_usecircle,
                            number.cex = as.numeric(input$calneidist_numbercex),
@@ -857,6 +969,26 @@ shinyServer(function(input, output, session){
   )
   
   ## mutheatmap
+  
+  output$mutheatmap_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("mutheatmap_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "mutheatmap_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
   mutheatmap <- eventReactive(input$submit_mutheatmap,{
       maf <- varsMaf$maf
       validate(
@@ -872,6 +1004,7 @@ shinyServer(function(input, output, session){
                       detail = 'This may take a while...')
           
           hm <- mutHeatmap(maf,
+                           patient.id = input$mutheatmap_patientid,
                            geneList = genelist,
                            min.vaf = as.numeric(input$mutheatmap_minvaf),
                            min.ccf = as.numeric(input$mutheatmap_minccf),
@@ -974,6 +1107,26 @@ shinyServer(function(input, output, session){
   )
    
   ## comparejsi sever
+  
+  output$comparejsi_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("comparejsi_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "comparejsi_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
   comparejsi <- eventReactive(input$submit_comparejsi,{
       maf <- varsMaf$maf
       validate(
@@ -983,15 +1136,16 @@ shinyServer(function(input, output, session){
           setProgress(message = 'compareJSI : Calculation in progress',
                       detail = 'This may take a while...')
 
-          if(input$comparejsi_title==""){
-              title <- NULL
-          }else{
-              title <- input$comparejsi_title
-          }
+          # if(input$comparejsi_title==""){
+          #     title <- NULL
+          # }else{
+          #     title <- input$comparejsi_title
+          # }
           cc <- compareJSI(maf, 
+                           patient.id = input$comparejsi_patientid,
                            min.vaf = as.numeric(input$comparejsi_minccf) ,
                            pairByTumor = input$comparejsi_pairbytumor,
-                           title = title,
+                           # title = title,
                            use.circle = input$comparejsi_usecircle,
                            number.cex = as.numeric(input$comparejsi_numbercex),
                            number.col = input$comparejsi_numbercol)
@@ -1236,6 +1390,7 @@ shinyServer(function(input, output, session){
                   selectizeInput("plotmutprofile_patientid",
                                  label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
                                  choices = patient.list,
+                                 select = patient.list,
                                  multiple = TRUE),
                   bsTooltip(id = "plotmutprofile_patientid",
                             title = 'Select the specific patients. Default: NULL, all patients are included',
@@ -1350,6 +1505,7 @@ shinyServer(function(input, output, session){
                   selectizeInput("plotcna_patientid",
                                  label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
                                  choices = patient.list,
+                                 select  = patient.list,
                                  multiple = TRUE),
                   bsTooltip(id = "plotcna_patientid",
                             title = 'Select the specific patients. Default: NULL, all patients are included',
@@ -1497,6 +1653,26 @@ shinyServer(function(input, output, session){
   )
   
   ## testneutral sever
+  
+  output$testneutral_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("testneutral_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "testneutral_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
   testneutral <- eventReactive(input$submit_testneutral,{
       maf <- varsMaf$maf
       validate(
@@ -1506,6 +1682,7 @@ shinyServer(function(input, output, session){
           setProgress(message = 'testNeutral : Calculation in progress',
                       detail = 'This may take a while...')
           t <- testNeutral(maf,
+                           patient.id = input$testneutral_patientid,
                             min.vaf = as.numeric(input$testneutral_minvaf),
                             max.vaf = as.numeric(input$testneutral_maxvaf),
                            min.total.depth = as.numeric(input$testneutral_mintotaldepth),
@@ -1686,6 +1863,26 @@ shinyServer(function(input, output, session){
   )
 
   ## compareccf sever
+  
+  output$compareccf_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("compareccf_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "compareccf_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
   compareccf <- eventReactive(input$submit_compareccf, {
       maf <- isolate(varsMaf$maf)
       validate(
@@ -1695,7 +1892,9 @@ shinyServer(function(input, output, session){
       on.exit(progress$close())
       progress$set(message = 'compareCCF: Calculation in progress',
                    detail = 'This may take a while...')
-      cc <- compareCCF(maf,min.ccf = input$compareccf_minccf,
+      cc <- compareCCF(maf,
+                       patient.id = input$compareccf_patientid,
+                       min.ccf = input$compareccf_minccf,
                        pairByTumor = input$compareccf_pairbytumor)
       progress$set(value = 1)
       return(cc)
@@ -1817,6 +2016,27 @@ shinyServer(function(input, output, session){
       })
   })
   
+  
+  output$plotphylotree_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("plotphylotree_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "plotphylotree_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
+  
   phylotree <- eventReactive(input$submit_plotphylotree, {
       
       maf <- isolate(varsMaf$maf)
@@ -1827,6 +2047,7 @@ shinyServer(function(input, output, session){
           
           setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
           phyloTree <- getPhyloTree(maf,
+                                    patient.id = input$plotphylotree_patientid,
                                     min.vaf = as.numeric(input$plotphylotree_getphylotree_minvaf),
                                     min.ccf = as.numeric(input$plotphylotree_getphylotree_minccf),
                                     method = input$plotphylotree_getphylotree_method,
@@ -1844,7 +2065,6 @@ shinyServer(function(input, output, session){
           plot.list <- plotPhyloTree(phyloTree,
                                      branchCol = branchCol,
                                      show.bootstrap = input$plotphylotree_showbootstrap,
-                                     use.box = input$plotphylotree_usebox,
                                      min.ratio = as.numeric(input$plotphylotree_minratio) ,
                                      signaturesRef = input$plotphylotree_signatureref,
                                      min.mut.count = as.numeric(input$plotphylotree_minmutcount) )
@@ -1950,20 +2170,19 @@ shinyServer(function(input, output, session){
           
           phylotree1 <- getPhyloTree(maf, patient.id = input$comparetree_patientid, 
                                      method = input$comparetree_getphylotree_method1,
-                                     min.ccf = as.numeric(input$comparetree_getphylotree_minccf1) ,
-                                     min.vaf = as.numeric(input$comparetree_getphylotree_minvaf1) ,
-                                     bootstrap.rep.num = as.numeric(input$comparetree_getphylotree_bootstraprepnum1))
+                                     min.ccf = as.numeric(input$comparetree_getphylotree_minccf) ,
+                                     min.vaf = as.numeric(input$comparetree_getphylotree_minvaf) ,
+                                     bootstrap.rep.num = as.numeric(input$comparetree_getphylotree_bootstraprepnum))
           phylotree2 <- getPhyloTree(maf, patient.id = input$comparetree_patientid, 
                                      method = input$comparetree_getphylotree_method2,
-                                     min.ccf = as.numeric(input$comparetree_getphylotree_minccf2) ,
-                                     min.vaf = as.numeric(input$comparetree_getphylotree_minvaf2) ,
-                                     bootstrap.rep.num = as.numeric(input$comparetree_getphylotree_bootstraprepnum2) )
+                                     min.ccf = as.numeric(input$comparetree_getphylotree_minccf) ,
+                                     min.vaf = as.numeric(input$comparetree_getphylotree_minvaf) ,
+                                     bootstrap.rep.num = as.numeric(input$comparetree_getphylotree_bootstraprepnum) )
           
           ct <- compareTree(phylotree1, phylotree2,
                             common.col = input$comparetree_commoncol,
                             min.ratio = input$comparetree_minratio,
                             show.bootstrap = input$comparetree_showbootstrap,
-                            use.box = input$comparetree_usebox,
                             plot = TRUE)
           
           incProgress(amount=1)
@@ -1985,7 +2204,7 @@ shinyServer(function(input, output, session){
           }
           tagList(
               selectInput("comparetree_patientid",
-                             label = div(style = "font-size:1.6em; font-weight:600;  ", strong("Select patients")),
+                             label = div(style = "font-size:1.6em; font-weight:600;  ", "Select patients"),
                              choices = patient.list),
               bsTooltip(id = "comparetree_patientid",
                         title = 'Select the specific patient',
@@ -2061,6 +2280,26 @@ shinyServer(function(input, output, session){
   )
   
   
+  output$treemutsig_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("treemutsig_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "treemutsig_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
+  
   treemutsig <- eventReactive(input$submit_treemutsig, {
       
       maf <- isolate(varsMaf$maf)
@@ -2071,6 +2310,7 @@ shinyServer(function(input, output, session){
           setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
           
           phyloTree <- getPhyloTree(maf,
+                                    patient.id = input$treemutsig_patientid,
                                     method = input$treemutsig_getphylotree_method,
                                     min.vaf = as.numeric(input$treemutsig_getphylotree_minvaf),
                                     min.ccf = as.numeric(input$treemutsig_getphylotree_minccf),
@@ -2212,6 +2452,27 @@ shinyServer(function(input, output, session){
       )
     }
   })
+  
+  
+  output$muttrunkbranch_patientid_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+              tagList(
+                  selectizeInput("muttrunkbranch_patientid",
+                                 label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                                 choices = patient.list,
+                                 select = patient.list[1],
+                                 multiple = TRUE),
+                  bsTooltip(id = "muttrunkbranch_patientid",
+                            title = 'Select the specific patients. Default: all patients are included',
+                            placement = "top",
+                            trigger = "hover"),
+              )
+          }
+      }
+  })
 
   
   muttrunkbranch <- eventReactive(input$submit_muttrunkbranch, {
@@ -2222,6 +2483,7 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 2, value = 0,{
           setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
           phyloTree <- getPhyloTree(maf,
+                                    patient.id = input$muttrunkbranch_patientid,
                                     method = input$muttrunkbranch_getphylotree_method,
                                     min.vaf = as.numeric(input$muttrunkbranch_getphylotree_minvaf),
                                     min.ccf = as.numeric(input$muttrunkbranch_getphylotree_minccf),

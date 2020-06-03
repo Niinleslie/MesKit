@@ -8,7 +8,6 @@
 #' @param min.ratio Double (Default: 1/20). If min.ratio is not NULL,
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
 #' @param show.bootstrap Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.
-#' @param use.box Logical. Whether to add box around bootstrap value on tree. Default is TRUE.
 #' @param common.col Color of common branches.
 #' 
 #' @return A vector containing the following tree distance methods by R package phangorn
@@ -29,7 +28,6 @@ compareTree <- function(phyloTree1,
                         plot = FALSE,
                         min.ratio = 1/20,
                         show.bootstrap = FALSE,
-                        use.box = FALSE,
                         common.col = "red"){
     
     if(min.ratio <= 0){
@@ -81,12 +79,10 @@ compareTree <- function(phyloTree1,
 	    
 	    p1 <- plotPhyloTree(phyloTree1,
 	                        show.bootstrap = show.bootstrap,
-	                        use.box = use.box,
 	                        min.ratio = min.ratio,
 	                        branchCol = NULL)
 	    p2 <- plotPhyloTree(phyloTree2,
 	                        show.bootstrap = show.bootstrap,
-	                        use.box = use.box,
 	                        min.ratio = min.ratio,
 	                        branchCol = NULL)
 	    ptree <- cowplot::plot_grid(p1,

@@ -4,7 +4,6 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param branchCol Specify the colors of branches (Default: mutType). Other options: "mutSig" for coloring branches by branch mutation signature;
 #' @param show.bootstrap Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.
-#' @param use.box Logical. Whether to add box around bootstrap value on tree. Default is TRUE.
 #' @param min.ratio Double (Default:1/20). If min.ratio is not NULL,
 #'  all edge length of a phylogenetic tree should be greater than
 #'  min.ratio*the longest edge length.
@@ -26,7 +25,6 @@ plotPhyloTree <- function(phyloTree,
                           patient.id = NULL,
                           branchCol = "mutType",
                           show.bootstrap = TRUE,
-                          use.box = TRUE,
                           min.ratio = 1/20,
                           signaturesRef = "cosmic_v2",
                           min.mut.count = 15){
@@ -228,20 +226,12 @@ plotPhyloTree <- function(phyloTree,
            }
        }
        if(show.bootstrap){
-           if(use.box){
-               p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
-                                         data = bootsData,
-                                         # nudge_y = textAdjust/6,
-                                         # fontface = 'bold', 
-                                         size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                         segment.colour = "grey50", segment.size = 0.25, force = 5)
-           }else{
-               p <- p + geom_text_repel(aes(x = x2, y = y2,label = boots),
-                                        data = bootsData,
-                                        # fontface = 'bold', 
-                                        size = bootTextSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                        segment.colour = "grey50", segment.size = 0.25, force = 5)
-           }
+           p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
+                                     data = bootsData,
+                                     # nudge_y = textAdjust/6,
+                                     # fontface = 'bold', 
+                                     size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+                                     segment.colour = "grey50", segment.size = 0.25, force = 5)
        }
        if(compare){
            p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2,label = is.match),
