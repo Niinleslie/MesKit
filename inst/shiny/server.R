@@ -855,6 +855,123 @@ shinyServer(function(input, output, session){
       },
       contentType = 'text/csv'
   )
+  
+  ## mutheatmap
+  mutheatmap <- eventReactive(input$submit_mutheatmap,{
+      maf <- varsMaf$maf
+      validate(
+          need(!(is.null(maf)), "Please upload data in 'Input Data'!")
+      )
+      if(!is.null(input$mutheatmap_genelist$datapath)){
+          genelist <- as.character(read.table(input$mutheatmap_genelist$datapath)$V1)
+      }else{
+          genelist <- NULL
+      }
+      withProgress(min = 0, max = 1, value = 0, {
+          setProgress(message = 'mutHeatmap: Calculation in progress',
+                      detail = 'This may take a while...')
+          
+          hm <- mutHeatmap(maf,
+                           geneList = genelist,
+                           min.vaf = as.numeric(input$mutheatmap_minvaf),
+                           min.ccf = as.numeric(input$mutheatmap_minccf),
+                           use.ccf = input$mutheatmap_useccf,
+                           plot.geneList = input$mutheatmap_plotgenelist,
+                           show.gene = input$mutheatmap_showgene,
+                           show.geneList = input$mutheatmap_showgenelist,
+                           mut.threshold = as.numeric(input$mutheatmap_mutthreshold),
+                           sample.text.size = as.numeric(input$mutheatmap_sampletextsize),
+                           legend.title.size = as.numeric(input$mutheatmap_legendtitlesize),
+                           gene.text.size = as.numeric(input$mutheatmap_genetextsize))
+          incProgress(amount = 1)
+          setProgress(message = 'mutHeatmap: Calculation done!')
+      })
+      return(hm)
+  })
+  
+  output$mutheatmap.patientlist <- renderUI({
+      if(!is.null(mutheatmap())){
+          if(!identical(c("gg","ggplot"),class(mutheatmap()))){
+              names <- names(mutheatmap())
+              tagList(
+                  selectInput("mutheatmap.pl", "Patient",
+                              choices = names, width = 600) 
+              )
+          }
+      }
+  })
+  
+  getpatient.mutheatmap <- eventReactive(input$mutheatmap.pl,{
+      return(input$mutheatmap.pl)
+  })
+  
+  mutheatmap_width <- reactive({
+      return(input$mutheatmap_width)
+  })
+  mutheatmap_height <- reactive({
+      return(input$mutheatmap_height)
+  })
+  
+  output$mutheatmap_plot <- renderPlot({
+      if(!is.null(mutheatmap())){
+          if(!identical(c("gg","ggplot"),class(mutheatmap()))){
+              return(mutheatmap()[[getpatient.mutheatmap()]]) 
+          }else{
+              return(mutheatmap())
+          }
+          
+      }
+  },  
+  width = mutheatmap_width,
+  height = mutheatmap_height,
+  res = 100)
+  
+  
+  output$mutheatmap_db_ui <- renderUI({
+      if(!is.null(mutheatmap())){
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons(inputId = 'Download_mutheatmap_plot_check', 
+                               label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), 
+                               inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_mutheatmap_plot', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$Download_mutheatmap_plot <- downloadHandler(
+      filename = function() {
+          paste("Rplot.",input$Download_mutheatmap_plot_check, sep='')
+      },
+      content = function(file) {
+          if (input$Download_mutheatmap_plot_check == "png"){
+              png(file,width = input$mutheatmap_width , height = input$mutheatmap_height,res = 100)
+          }
+          else if (input$Download_mutheatmap_plot_check == "pdf"){
+              pdf(file,width = input$mutheatmap_width/100 , height = input$mutheatmap_height/100)
+          }
+          if(!identical(c("gg","ggplot"),class(mutheatmap()))){
+              print(mutheatmap()[[getpatient.mutheatmap()]]) 
+          }else{
+              print(mutheatmap())
+          }
+          dev.off()
+      },
+      contentType = paste('image/',input$Download_mutheatmap_plot_check,sep="")
+  )
    
   ## comparejsi sever
   comparejsi <- eventReactive(input$submit_comparejsi,{
@@ -883,6 +1000,8 @@ shinyServer(function(input, output, session){
       })
       return(cc)
   })
+  
+  
   
   output$comparejsi.patientlist <- renderUI({
       if(!is.null(comparejsi())){
@@ -1700,11 +1819,20 @@ shinyServer(function(input, output, session){
   
   phylotree <- eventReactive(input$submit_plotphylotree, {
       
-      phyloTree <- isolate(varsphyloTree$phyloTree)
+      maf <- isolate(varsMaf$maf)
       validate(
-          need(!(is.null(phyloTree)), "Get phylotree in 'Get phylotree' first!")
+          need(!is.null(maf), "Upload maf file in the section 'Input Data'")
       )
-      withProgress(min = 0, max = 1, value = 0,{
+      withProgress(min = 0, max = 2, value = 0,{
+          
+          setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
+          phyloTree <- getPhyloTree(maf,
+                                    min.vaf = as.numeric(input$plotphylotree_getphylotree_minvaf),
+                                    min.ccf = as.numeric(input$plotphylotree_getphylotree_minccf),
+                                    method = input$plotphylotree_getphylotree_method,
+                                    bootstrap.rep.num = as.numeric(input$plotphylotree_getphylotree_bootstraprepnum))
+          
+          incProgress(amount=1)
           setProgress(message = 'Phylogenetic tree: Calculation in progress',
                       detail = 'This may take a while...')
           
@@ -1731,7 +1859,7 @@ shinyServer(function(input, output, session){
   
   output$phylotree.patientlist <- renderUI({
       if(!is.null(phylotree())){
-          if(class(phylotree()) == "list"){
+          if(!identical(c("gg","ggplot"),class(phylotree()))){
               names <- names(phylotree())
               selectInput("phylotree.pl", "Patient",
                           choices = names, width = 600)
@@ -1752,7 +1880,7 @@ shinyServer(function(input, output, session){
   
   output$phylotree_plot <- renderPlot({
       if(!is.null(phylotree())){
-          if(class(phylotree()) == "list"){
+          if(!identical(c("gg","ggplot"),class(phylotree()))){
               return(phylotree()[[getpatient.phylotree()]]) 
           }else{
               return(phylotree()) 
@@ -1799,7 +1927,7 @@ shinyServer(function(input, output, session){
           else if (input$Download_phylotree_check == "pdf"){
               pdf(file,width = input$plotphylotree_width/100 , height = input$plotphylotree_height/100)
           }
-          if(class(phylotree()[[1]]) == "list"){
+          if(!identical(c("gg","ggplot"),class(phylotree()))){
               print(phylotree()[[getpatient.phylotree()]]) 
           }else{
               print(phylotree()) 
@@ -1809,14 +1937,148 @@ shinyServer(function(input, output, session){
       contentType = paste('image/',input$Download_phylotree_check,sep="")
   )
 
-
+  comparetree <- eventReactive(input$submit_comparetree, {
+      
+      maf <- isolate(varsMaf$maf)
+      validate(
+          need(!is.null(maf), "Upload maf file in the section 'Input Data'")
+      )
+      
+      withProgress(min = 0, max = 1, value = 0,{
+          setProgress(message = 'Comparetree: Calculation in progress',
+                      detail = 'This may take a while...')
+          
+          phylotree1 <- getPhyloTree(maf, patient.id = input$comparetree_patientid, 
+                                     method = input$comparetree_getphylotree_method1,
+                                     min.ccf = as.numeric(input$comparetree_getphylotree_minccf1) ,
+                                     min.vaf = as.numeric(input$comparetree_getphylotree_minvaf1) ,
+                                     bootstrap.rep.num = as.numeric(input$comparetree_getphylotree_bootstraprepnum1))
+          phylotree2 <- getPhyloTree(maf, patient.id = input$comparetree_patientid, 
+                                     method = input$comparetree_getphylotree_method2,
+                                     min.ccf = as.numeric(input$comparetree_getphylotree_minccf2) ,
+                                     min.vaf = as.numeric(input$comparetree_getphylotree_minvaf2) ,
+                                     bootstrap.rep.num = as.numeric(input$comparetree_getphylotree_bootstraprepnum2) )
+          
+          ct <- compareTree(phylotree1, phylotree2,
+                            common.col = input$comparetree_commoncol,
+                            min.ratio = input$comparetree_minratio,
+                            show.bootstrap = input$comparetree_showbootstrap,
+                            use.box = input$comparetree_usebox,
+                            plot = TRUE)
+          
+          incProgress(amount=1)
+          setProgress(message = paste("Comparetree done!", sep=""), detail = "") 
+          
+          Sys.sleep(1)
+      })
+      
+      return(ct)
+  })
+  
+  output$comparetree.patientlist <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList"){
+              patient.list <- names(maf) 
+          }else{
+              patient.list <- unique(maf@data$Patient_ID)
+          }
+          tagList(
+              selectInput("comparetree_patientid",
+                             label = div(style = "font-size:1.6em; font-weight:600;  ", strong("Select patients")),
+                             choices = patient.list),
+              bsTooltip(id = "comparetree_patientid",
+                        title = 'Select the specific patient',
+                        placement = "top",
+                        trigger = "hover"),
+          )
+      }
+  })
+  
+  
+  
+  comparetree_width <- reactive({
+      return(input$comparetree_width)
+  })
+  comparetree_height <- reactive({
+      return(input$comparetree_height)
+  })
+  
+  output$comparetree_plot <- renderPlot({
+      if(!is.null(comparetree())){
+          return(comparetree()$compare.plot)
+      }  
+  },
+  width = comparetree_width,
+  height = comparetree_height,
+  res = 100
+  )
+  output$comparetree_dist <- renderPrint({
+      if(!is.null(comparetree())){
+          return(comparetree()$compare.dist)
+      } 
+  })
+  output$comparetree_db_ui<- renderUI({
+      if(!is.null(comparetree())){
+          br()
+          br()
+          fluidRow(
+              column(
+                  width = 7
+              ),
+              column(
+                  width = 2,
+                  radioButtons('Download_comparetree_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
+                               choiceNames = list(
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
+                                   tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
+                               ),
+                               choiceValues = c("png", "pdf"), inline = T)
+              ),
+              column(
+                  width = 3,
+                  downloadBttn('Download_comparetree', 'Download')
+              )
+          )
+      }
+  })
+  
+  output$Download_comparetree <- downloadHandler(
+      filename = function() {
+          paste("Rplot.",input$Download_comparetree_check, sep='')
+      },
+      content = function(file) {
+          if (input$Download_comparetree_check == "png"){
+              png(file,width = input$comparetree_width , height = input$comparetree_height,res = 100)
+          }
+          else if (input$Download_comparetree_check == "pdf"){
+              pdf(file,width = input$comparetree_width/100 , height = input$comparetree_height/100)
+          }
+          print(comparetree()$compare.plot)
+          dev.off()
+      },
+      contentType = paste('image/',input$Download_comparetree_check,sep="")
+  )
+  
+  
   treemutsig <- eventReactive(input$submit_treemutsig, {
       
-      phyloTree <- isolate(varsphyloTree$phyloTree)
+      maf <- isolate(varsMaf$maf)
       validate(
-          need(!(is.null(phyloTree)), "Get phylotree in 'Get phylotree' first!")
+          need(!is.null(maf), "Upload maf file in the section 'Input Data'")
       )
-      withProgress(min = 0, max = 3, value = 0,{
+      withProgress(min = 0, max = 4, value = 0,{
+          setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
+          
+          phyloTree <- getPhyloTree(maf,
+                                    method = input$treemutsig_getphylotree_method,
+                                    min.vaf = as.numeric(input$treemutsig_getphylotree_minvaf),
+                                    min.ccf = as.numeric(input$treemutsig_getphylotree_minccf),
+                                    bootstrap.rep.num = as.numeric(input$treemutsig_getphylotree_bootstraprepnum))
+          
+          incProgress(amount=1)
+          
+          
           setProgress(message = 'triMatrix: calculation in progress',
                       detail = 'This may take a while...')
           
@@ -1953,11 +2215,18 @@ shinyServer(function(input, output, session){
 
   
   muttrunkbranch <- eventReactive(input$submit_muttrunkbranch, {
-      phyloTree <- isolate(varsphyloTree$phyloTree)
+      maf <- isolate(varsMaf$maf)
       validate(
-          need(!(is.null(phyloTree)), "Get phylotree in 'Get phylotree' first!")
+          need(!is.null(maf), "Upload maf file in the section 'Input Data'")
       )
-      withProgress(min = 0, max = 1, value = 0,{
+      withProgress(min = 0, max = 2, value = 0,{
+          setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
+          phyloTree <- getPhyloTree(maf,
+                                    method = input$muttrunkbranch_getphylotree_method,
+                                    min.vaf = as.numeric(input$muttrunkbranch_getphylotree_minvaf),
+                                    min.ccf = as.numeric(input$muttrunkbranch_getphylotree_minccf),
+                                    bootstrap.rep.num = as.numeric(input$muttrunkbranch_getphylotree_bootstraprepnum))
+          incProgress(amount = 1)
           setProgress(message = 'mutTrunkBranch : Calculation in progress',
                       detail = 'This may take a while...')
           

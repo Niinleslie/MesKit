@@ -105,7 +105,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                      ggtitle(label = name)
                      
             
-             n <- paste0(patient,"_",branch)
+             n <- paste0(patient,":",branch)
              result[[n]] <- pic
             }
         }
@@ -260,7 +260,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                                 "; Cosine similarity = ", round(cos_sim,3),"\n",
                                 sig_title,
                                 sep = ""))
-                n <- paste0(patient,"_",branch)
+                n <- paste0(patient,":",branch)
                 result[[n]] <- pic
             }
             

@@ -1,15 +1,13 @@
-options(spinner.type=4)
 
 #required packages
-# suppressMessages(library(shiny))
-# suppressMessages(library(DT))
-# suppressMessages(library(shinydashboard))
-# suppressMessages(library(shinyWidgets))
-# suppressMessages(library(shinycssloaders))
-# suppressMessages(library(shinyjs))
-# suppressMessages(library(shinyBS))
+suppressMessages(library(shiny))
+suppressMessages(library(DT))
+suppressMessages(library(shinydashboard))
+suppressMessages(library(shinyWidgets))
+suppressMessages(library(shinycssloaders))
+suppressMessages(library(shinyBS))
 suppressMessages(library(MesKit))
-#suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg19))
 
 #sider bar----
 
@@ -21,9 +19,7 @@ sidebar <- dashboardSidebar(
               menuItem(strong("Alterational landscape"), tabName = "AL", icon = icon("bar-chart")),
               menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
               menuItem(strong("Metastatic routes inference"), tabName = "clone", icon = icon("bar-chart")),
-              # menuItem(strong("Functional exploration"), tabName = "function", icon = icon("bar-chart")),
-              menuItem(strong("Phylogenetic tree visualization"), tabName = "tree", icon = icon("tree")) 
-              # menuItem(strong("Phylogenetic tree visualization"), tabName = "Survival", icon = icon("tree"))
+              menuItem(strong("PhyloTree-based analysis"), tabName = "tree", icon = icon("tree")) 
   )
 )
 
@@ -49,20 +45,24 @@ bodyHome <- tabItem("home",
                         title = div(strong("Overview of MesKit package"),style = "font-size:2em; font-weight:500;"),
                         fluidRow(
                           column(
-                              width = 7,
+                              width = 6,
                                 div(img(src = "image/MesKit_workflow.png", width = "90%",height = "72%"),
                                     style="text-align: center;float:left;margin:0;padding:0")
                           ),
                           column(
                               width = 5,
                               div(
+                                  br(),
+                                  br(),
+                                  br(),
+                                  br(),
                                   h3(strong("With this MesKit Shiny APP:")),
                                   p("- Identify clonal/subclonal somatic mutations",br(),
                                     "- Quantify heterogeneity within or between tumors from the same patient",br(),
                                     "- Infer metastases clonal origin",br(),
                                     "- Perform mutational signature analysis",br(),
                                     "- Construct and visualize phylogenetic trees",
-                                    style = "font-size:18px; font-weight:500;line-height:50px"),
+                                    style = "font-size:18px; font-weight:500;line-height:50px;"),
                                   style = "text-align: left;float:left;padding-left:0px;margin:0px"
                               )
                           )
@@ -441,6 +441,134 @@ bodyITH <- tabItem("ITH",
                              )
                          ),
                          conditionalPanel(
+                             condition = "input.tith == 'ith_mutheatmap'",
+                             div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
+                                         tags$td(width = "70%", textInput(inputId = "mutheatmap_minvaf", value = 0.02, label = NULL)))
+                             ), 
+                             bsTooltip(id = "mutheatmap_minvaf",
+                                       title = "The minimum value of vaf",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
+                                         tags$td(width = "70%", textInput(inputId = "mutheatmap_minccf", value = 0, label = NULL)))
+                             ), 
+                             bsTooltip(id = "mutheatmap_minccf",
+                                       title = "The minimum value of ccf",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             checkboxInput('mutheatmap_useccf',
+                                           value = FALSE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Use ccf'),
+                                           width = 500),
+                             bsTooltip(id = "mutheatmap_useccf",
+                                       title = "Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             
+                             fileInput(inputId = 'mutheatmap_genelist', 
+                                       label = div(style = "font-size:1.5em; font-weight:600; ", 'Gene list file'),
+                                       width = 400),
+                             
+                             checkboxInput('mutheatmap_plotgenelist',
+                                           value = FALSE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Plot gene list'),
+                                           width = 500),
+                             bsTooltip(id = "mutheatmap_plotgenelist",
+                                       title = "If TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             
+                             checkboxInput('mutheatmap_showgene',
+                                           value = FALSE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show gene'),
+                                           width = 500),
+                             bsTooltip(id = "mutheatmap_showgene",
+                                       title = "Show the name of genes next to the heatmap.Default FALSE.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             
+                             checkboxInput('mutheatmap_showgenelist',
+                                           value = TRUE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show gene list'),
+                                           width = 500),
+                             bsTooltip(id = "mutheatmap_showgenelist",
+                                       title = "Show the names of gene on the geneList.Default TRUE.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "70%", div(style = "font-size:1.5em; font-weight:600; ", "Mutation threshold: ")),
+                                         tags$td(width = "30%", textInput(inputId = "mutheatmap_mutthreshold", value = 150, label = NULL)))
+                             ), 
+                             bsTooltip(id = "mutheatmap_mutthreshold",
+                                       title = "show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Sample text size: ")),
+                                         tags$td(width = "50%", textInput(inputId = "mutheatmap_sampletextsize", value = 9, label = NULL)))
+                             ), 
+                             bsTooltip(id = "mutheatmap_sampletextsize",
+                                       title = "Size of sample name.Default 9.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Legend title size: ")),
+                                         tags$td(width = "50%", textInput(inputId = "mutheatmap_legendtitlesize", value = 10, label = NULL)))
+                             ), 
+                             bsTooltip(id = "mutheatmap_legendtitlesize",
+                                       title = "Size of legend title.Default 9.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             tags$table(
+                                 tags$tr(id = "inline", 
+                                         width = "100%",
+                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Gene text size: ")),
+                                         tags$td(width = "50%", textInput(inputId = "mutheatmap_genetextsize", value = 9, label = NULL)))
+                             ), 
+                             bsTooltip(id = "mutheatmap_genetextsize",
+                                       title = "Size of gene name.Default 9.",
+                                       placement = "top",
+                                       trigger = "hover"),
+                             br(),
+                             sliderInput(inputId='mutheatmap_width',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 400,max = 1000, value = 700, width = 500),
+                             sliderInput(inputId='mutheatmap_height',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 560, width = 500), 
+                             
+                             br(),
+                             fluidRow(
+                                 column(
+                                     width = 9,
+                                     div(
+                                         tags$button(
+                                             id = "submit_mutheatmap", type = "button", class = "action-button bttn",
+                                             class = "bttn-unite", class = paste0("bttn-md"),
+                                             class = paste0("bttn-default"),
+                                             list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                             style = "margin-bottom:0px;margin-right:0px;"
+                                         )
+                                     )
+                                 )
+                             )
+                         ),
+                         conditionalPanel(
                              condition = "input.tith == 'caInput_calneidist'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
                              br(),
@@ -534,7 +662,7 @@ bodyITH <- tabItem("ITH",
                        box(
                          width = NULL,
                          div(strong("ITH evaluation"),style = "font-size:27px; font-weight:500;"),
-                         p("MesKit offers several functions to estimate intra-tumoral heterogeneity (ITH) with mutational data of bulk sequencing, including calculating MATH score, clustering variant allele frequencies (VAF), identifying shared mutations/private mutations and measuring similarity between samples by Jaccard similarity coefficients.",
+                         p("Understanding the origin and development of intra-tumor heterogeneity is clinically important, which has the potential to yield insights to guide therapeutic strategies. MesKit has integrated several metrics to estimate ITH within region or between regions borrowed from published research and population genetics.",
                            style = "font-size:20px; font-weight:500;line-height:40px;"),
                          tabBox(
                            id = 'tith',
@@ -587,6 +715,13 @@ bodyITH <- tabItem("ITH",
                                uiOutput("calneidist_db_ui"),
                                # uiOutput("calneidist_avg_table_ui"),
                                uiOutput("calneidist_pair_table_ui")
+                           ),
+                           tabPanel(
+                               title = div(icon("box"), "mutHeatmap"),
+                               value = "ith_mutheatmap",
+                               uiOutput('mutheatmap.patientlist'),
+                               div(plotOutput("mutheatmap_plot",height = "100%", width = "100%"),align = "center") ,
+                               uiOutput("mutheatmap_db_ui")
                            )
                          )
                        )
@@ -1026,8 +1161,8 @@ bodyclone <- tabItem('clone',
                          width = 9,
                          box(
                            width = NULL,
-                           div(strong("Clonal analysis"),style = "font-size:27px; font-weight:500;"),
-                           p("MesKit can decipher tumor clone distribution based on CCF (Cancer Cell Frequency) data generated by PyClone. Additionally, you can compare CCF of mutations identified across samples, which can be utilized to infer whether metastases are seeded in monoclonal manner or polyclonal manner from primary tumors.",
+                           div(strong("Metastatic routes inference"),style = "font-size:27px; font-weight:500;"),
+                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide two functions to help distinguish monoclonal versus polyclonal seeding. ",
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
@@ -1080,14 +1215,60 @@ bodytree <- tabItem('tree',
                              width = 3,
                              box(
                                width = NULL,
+                               # conditionalPanel(
+                               #     condition = "input.sgt == 'S_getphylotree'",
+                               #     div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                               #     br(),
+                               #     selectInput("getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
+                               #                 choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
+                               #                 selected = "NJ"),
+                               #     bsTooltip(id = "getphylotree_method",
+                               #               title = "Approach to construct phylogenetic trees",
+                               #               placement = "top",
+                               #               trigger = "hover"),
+                               #     tags$table(
+                               #         tags$tr(id = "inline", 
+                               #                 width = "100%",
+                               #                 tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
+                               #                 tags$td(width = "70%", textInput(inputId = "getphylotree_minvaf", value = 0.02, label = NULL)))
+                               #     ), 
+                               #     bsTooltip(id = "getphylotree_minvaf",
+                               #               title = "The minimum value of vaf",
+                               #               placement = "top",
+                               #               trigger = "hover"),
+                               #     br(),
+                               #     tags$table(
+                               #         tags$tr(id = "inline", 
+                               #                 width = "100%",
+                               #                 tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
+                               #                 tags$td(width = "70%", textInput(inputId = "getphylotree_minccf", value = 0, label = NULL)))
+                               #     ), 
+                               #     bsTooltip(id = "getphylotree_minccf",
+                               #               title = "The minimum value of ccf",
+                               #               placement = "top",
+                               #               trigger = "hover"),
+                               #     br(),
+                               #     tags$table(
+                               #         tags$tr(id = "inline", 
+                               #                 width = "100%",
+                               #                 tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Bootstrap rep num: ")),
+                               #                 tags$td(width = "40%", textInput(inputId = "getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                               #     ), 
+                               #     bsTooltip(id = "getphylotree_bootstraprepnum",
+                               #               title = "Bootstrap iterations. Default 100.",
+                               #               placement = "top",
+                               #               trigger = "hover"),
+                               #     br(),
+                               #     actionBttn('submit_getphylotree',div(
+                               #         strong("Get phylotree"),align = 'center'))
+                               # ), 
                                conditionalPanel(
-                                   condition = "input.sgt == 'S_getphylotree'",
-                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
-                                   br(),
-                                   selectInput("getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
+                                   condition = "input.sgt == 'S_plotphylotree'",
+                                   div(strong("Parameter(getPhyloTree)"),style = "font-size:1.6em; font-weight:600;"),
+                                   selectInput("plotphylotree_getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
                                                choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
                                                selected = "NJ"),
-                                   bsTooltip(id = "getphylotree_method",
+                                   bsTooltip(id = "plotphylotree_getphylotree_method",
                                              title = "Approach to construct phylogenetic trees",
                                              placement = "top",
                                              trigger = "hover"),
@@ -1095,9 +1276,9 @@ bodytree <- tabItem('tree',
                                        tags$tr(id = "inline", 
                                                width = "100%",
                                                tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                               tags$td(width = "70%", textInput(inputId = "getphylotree_minvaf", value = 0.02, label = NULL)))
+                                               tags$td(width = "70%", textInput(inputId = "plotphylotree_getphylotree_minvaf", value = 0.02, label = NULL)))
                                    ), 
-                                   bsTooltip(id = "getphylotree_minvaf",
+                                   bsTooltip(id = "plotphylotree_getphylotree_minvaf",
                                              title = "The minimum value of vaf",
                                              placement = "top",
                                              trigger = "hover"),
@@ -1106,9 +1287,9 @@ bodytree <- tabItem('tree',
                                        tags$tr(id = "inline", 
                                                width = "100%",
                                                tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                               tags$td(width = "70%", textInput(inputId = "getphylotree_minccf", value = 0, label = NULL)))
+                                               tags$td(width = "70%", textInput(inputId = "plotphylotree_getphylotree_minccf", value = 0, label = NULL)))
                                    ), 
-                                   bsTooltip(id = "getphylotree_minccf",
+                                   bsTooltip(id = "plotphylotree_getphylotree_minccf",
                                              title = "The minimum value of ccf",
                                              placement = "top",
                                              trigger = "hover"),
@@ -1116,20 +1297,15 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "70%", div(style = "font-size:1.5em; font-weight:600; ", "Bootstrap rep num: ")),
-                                               tags$td(width = "30%", textInput(inputId = "getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                               tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Bootstrap rep num: ")),
+                                               tags$td(width = "40%", textInput(inputId = "plotphylotree_getphylotree_bootstraprepnum", value = 100, label = NULL)))
                                    ), 
-                                   bsTooltip(id = "getphylotree_bootstraprepnum",
+                                   bsTooltip(id = "plotphylotree_getphylotree_bootstraprepnum",
                                              title = "Bootstrap iterations. Default 100.",
                                              placement = "top",
                                              trigger = "hover"),
                                    br(),
-                                   actionBttn('submit_getphylotree',div(
-                                       strong("Get phylotree"),align = 'center'))
-                               ), 
-                               conditionalPanel(
-                                   condition = "input.sgt == 'S_plotphylotree'",
-                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                   div(strong("Parameter(plotPhyloTree)"),style = "font-size:1.6em; font-weight:600;"),
                                    selectInput("plotphylotree_branchcol", label = div(style = "font-size:1.5em; font-weight:600;  ", "Branch color"),
                                                choices = c("mutType",
                                                            "mutSig",
@@ -1176,8 +1352,8 @@ bodytree <- tabItem('tree',
                                              title = "Double (Default:1/20). If min.ratio is not NULL,all edge length of a phylogenetic tree should be greater than min.ratio*the longest edge length.If not, the edge length will be reset as min.ratio*longest edge length.",
                                              placement = "top",
                                              trigger = "hover"),
-                                   sliderInput(inputId='plotphylotree_width',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 900,max = 1200, value = 1000, width = 500),
-                                   sliderInput(inputId='plotphylotree_height',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 700,max = 1000, value = 900, width = 500),
+                                   sliderInput(inputId='plotphylotree_width',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 500,max = 1200, value = 1000, width = 500),
+                                   sliderInput(inputId='plotphylotree_height',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 500,max = 1200, value = 900, width = 500),
                                    # 
                                    fluidRow(
                                        column(
@@ -1195,13 +1371,189 @@ bodytree <- tabItem('tree',
                                    )
                                ), 
                                conditionalPanel(
+                                   condition = "input.sgt == 'S_comparetree'",
+                                   uiOutput("comparetree.patientlist"),
+                                   div(strong("Parameter(phyloTree1)"),style = "font-size:1.6em; font-weight:600;"),
+                                   selectInput("comparetree_getphylotree_method1", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
+                                               choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
+                                               selected = "NJ"),
+                                   bsTooltip(id = "comparetree_getphylotree_method1",
+                                             title = "Approach to construct phylogenetic trees",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   tags$table(
+                                       tags$tr(id = "inline", 
+                                               width = "100%",
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
+                                               tags$td(width = "70%", textInput(inputId = "comparetree_getphylotree_minvaf1", value = 0.02, label = NULL)))
+                                   ), 
+                                   bsTooltip(id = "comparetree_getphylotree_minvaf1",
+                                             title = "The minimum value of vaf",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   br(),
+                                   tags$table(
+                                       tags$tr(id = "inline", 
+                                               width = "100%",
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
+                                               tags$td(width = "70%", textInput(inputId = "comparetree_getphylotree_minccf1", value = 0, label = NULL)))
+                                   ), 
+                                   bsTooltip(id = "comparetree_getphylotree_minccf1",
+                                             title = "The minimum value of ccf",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   br(),
+                                   tags$table(
+                                       tags$tr(id = "inline", 
+                                               width = "100%",
+                                               tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Bootstrap rep num: ")),
+                                               tags$td(width = "40%", textInput(inputId = "comparetree_getphylotree_bootstraprepnum1", value = 100, label = NULL)))
+                                   ), 
+                                   bsTooltip(id = "comparetree_getphylotree_bootstraprepnum1",
+                                             title = "Bootstrap iterations. Default 100.",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   br(),
+                                   div(strong("Parameter(phyloTree2)"),style = "font-size:1.6em; font-weight:600;"),
+                                   selectInput("comparetree_getphylotree_method2", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
+                                               choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
+                                               selected = "MP"),
+                                   bsTooltip(id = "comparetree_getphylotree_method2",
+                                             title = "Approach to construct phylogenetic trees",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   tags$table(
+                                       tags$tr(id = "inline", 
+                                               width = "100%",
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
+                                               tags$td(width = "70%", textInput(inputId = "comparetree_getphylotree_minvaf2", value = 0.02, label = NULL)))
+                                   ), 
+                                   bsTooltip(id = "comparetree_getphylotree_minvaf2",
+                                             title = "The minimum value of vaf",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   br(),
+                                   tags$table(
+                                       tags$tr(id = "inline", 
+                                               width = "100%",
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
+                                               tags$td(width = "70%", textInput(inputId = "comparetree_getphylotree_minccf2", value = 0, label = NULL)))
+                                   ), 
+                                   bsTooltip(id = "comparetree_getphylotree_minccf2",
+                                             title = "The minimum value of ccf",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   br(),
+                                   tags$table(
+                                       tags$tr(id = "inline", 
+                                               width = "100%",
+                                               tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Bootstrap rep num: ")),
+                                               tags$td(width = "40%", textInput(inputId = "comparetree_getphylotree_bootstraprepnum2", value = 100, label = NULL)))
+                                   ), 
+                                   bsTooltip(id = "comparetree_getphylotree_bootstraprepnum2",
+                                             title = "Bootstrap iterations. Default 100.",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   br(),
+                                   div(strong("Parameter(compareTree)"),style = "font-size:1.6em; font-weight:600;"),
+                                   checkboxInput('comparetree_showbootstrap',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Show bootstrap value'),value = FALSE),
+                                   bsTooltip(id = "comparetree_showbootstrap",
+                                             title = 'Whether to add bootstrap value on internal nodes.',
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   conditionalPanel(
+                                       condition = "input.comparetree_showbootstrap == true",
+                                       checkboxInput('comparetree_usebox2',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Use box'),value = TRUE),
+                                       bsTooltip(id = "comparetree_usebox2",
+                                                 title = 'Whether to add box arround bootstrap value on tree. ',
+                                                 placement = "top",
+                                                 trigger = "hover")
+                                   ), 
+                                   numericInput('comparetree_minratio', div(style = "font-size:1.5em; font-weight:600;  ", 'Min ratio'),
+                                                value = 0.05, min = 0.05, max = 1, step = 0.05),
+                                   bsTooltip(id = "comparetree_minratio",
+                                             title = "Double (Default:1/20). If min.ratio is not NULL,all edge length of a phylogenetic tree should be greater than min.ratio*the longest edge length.If not, the edge length will be reset as min.ratio*longest edge length.",
+                                             placement = "top",
+                                             trigger = "hover"),
+                                   
+                                   textInput(inputId = "comparetree_commoncol",
+                                             label = div(style = "font-size:1.5em; font-weight:600; ", 'Common color'),
+                                             value = "red"),
+                                   bsTooltip(id = "comparetree_commoncol",
+                                             title = "Color of common branches.",
+                                             placement = "right",
+                                             trigger = "hover"),
+                                   
+                                   sliderInput(inputId='comparetree_width',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 700,max = 1400, value = 1100, width = 500),
+                                   sliderInput(inputId='comparetree_height',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 400,max = 1000, value = 700, width = 500),
+                                   # 
+                                   fluidRow(
+                                       column(
+                                           width = 9,
+                                           div(
+                                               tags$button(
+                                                   id = "submit_comparetree", type = "button", class = "action-button bttn",
+                                                   class = "bttn-unite", class = paste0("bttn-md"),
+                                                   class = paste0("bttn-default"),
+                                                   list(strong("Start analysis"),icon("hand-right", lib = "glyphicon")),
+                                                   style = "margin-bottom:0px;margin-right:0px;"
+                                               )
+                                           )
+                                       )
+                                   )
+                               ), 
+                               conditionalPanel(
                                  condition = "input.sgt == 'S_treemutsig'",
-                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                 div(strong("Parameter(getPhyloTree)"),style = "font-size:1.6em; font-weight:600;"),
+                                 selectInput("treemutsig_getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
+                                             choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
+                                             selected = "NJ"),
+                                 bsTooltip(id = "treemutsig_getphylotree_method",
+                                           title = "Approach to construct phylogenetic trees",
+                                           placement = "top",
+                                           trigger = "hover"),
+                                 tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
+                                             tags$td(width = "70%", textInput(inputId = "treemutsig_getphylotree_minvaf", value = 0.02, label = NULL)))
+                                 ), 
+                                 bsTooltip(id = "treemutsig_getphylotree_minvaf",
+                                           title = "The minimum value of vaf",
+                                           placement = "top",
+                                           trigger = "hover"),
+                                 br(),
+                                 tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
+                                             tags$td(width = "70%", textInput(inputId = "treemutsig_getphylotree_minccf", value = 0, label = NULL)))
+                                 ), 
+                                 bsTooltip(id = "treemutsig_getphylotree_minccf",
+                                           title = "The minimum value of ccf",
+                                           placement = "top",
+                                           trigger = "hover"),
+                                 br(),
+                                 tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Bootstrap rep num: ")),
+                                             tags$td(width = "40%", textInput(inputId = "treemutsig_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                 ), 
+                                 bsTooltip(id = "treemutsig_getphylotree_bootstraprepnum",
+                                           title = "Bootstrap iterations. Default 100.",
+                                           placement = "top",
+                                           trigger = "hover"),
+                                 br(),
+                                 div(strong("Parameter(triMatrix)"),style = "font-size:1.6em; font-weight:600;"),
                                  checkboxInput('treemutsig_withintumor',label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Within tumor'),value = FALSE),
                                  bsTooltip(id = "treemutsig_withintumor",
                                            title = 'Exploring signatures within tumor. Default: FALSE.',
                                            placement = "top",
                                            trigger = "hover"),
+                                 br(),
+                                 div(strong("Parameter(fitSignatures)"),style = "font-size:1.6em; font-weight:600;"),
+                                 
                                  selectInput("treemutsig_signatureref", label = div(style = "font-size:1.5em; font-weight:600;  ", "Signautre reference"),
                                              choices = c("cosmic_v2",
                                                          "nature2013",
@@ -1222,6 +1574,8 @@ bodytree <- tabItem('tree',
                                            title = 'The threshold for the variants in a branch. Default 15.',
                                            placement = "top",
                                            trigger = "hover"),
+                                 br(),
+                                 div(strong("Parameter(plotMutSigProfile)"),style = "font-size:1.6em; font-weight:600;"),
                                  
                                  selectInput("treemutsig_mode", label = div(style = "font-size:1.5em; font-weight:600;  ", "Mode"),
                                              choices = c('NULL',
@@ -1255,8 +1609,48 @@ bodytree <- tabItem('tree',
                                ), 
                                conditionalPanel(
                                  condition = "input.sgt == 'S_muttrunkbranch'",
-                                 div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                 div(strong("Parameter(geyPhyloTree)"),style = "font-size:1.6em; font-weight:600;"),
+                                 selectInput("muttrunkbranch_getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
+                                             choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
+                                             selected = "NJ"),
+                                 bsTooltip(id = "muttrunkbranch_getphylotree_method",
+                                           title = "Approach to construct phylogenetic trees",
+                                           placement = "top",
+                                           trigger = "hover"),
+                                 tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
+                                             tags$td(width = "70%", textInput(inputId = "muttrunkbranch_getphylotree_minvaf", value = 0.02, label = NULL)))
+                                 ), 
+                                 bsTooltip(id = "muttrunkbranch_getphylotree_minvaf",
+                                           title = "The minimum value of vaf",
+                                           placement = "top",
+                                           trigger = "hover"),
                                  br(),
+                                 tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
+                                             tags$td(width = "70%", textInput(inputId = "muttrunkbranch_getphylotree_minccf", value = 0, label = NULL)))
+                                 ), 
+                                 bsTooltip(id = "muttrunkbranch_getphylotree_minccf",
+                                           title = "The minimum value of ccf",
+                                           placement = "top",
+                                           trigger = "hover"),
+                                 br(),
+                                 tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Bootstrap rep num: ")),
+                                             tags$td(width = "40%", textInput(inputId = "muttrunkbranch_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                 ), 
+                                 bsTooltip(id = "muttrunkbranch_getphylotree_bootstraprepnum",
+                                           title = "Bootstrap iterations. Default 100.",
+                                           placement = "top",
+                                           trigger = "hover"),
+                                 br(),
+                                 div(strong("Parameter(mutTrunkBranch)"),style = "font-size:1.6em; font-weight:600;"),
                                  checkboxInput('muttrunkbranch_ct',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'CT'),value = FALSE),
                                  bsTooltip(id = "muttrunkbranch_ct",
                                            title = 'Distinction between C>T at CpG and C>T at other sites, Default FALSE',
@@ -1295,22 +1689,15 @@ bodytree <- tabItem('tree',
                              width = 9,
                              box(
                                width = NULL,
-                               div(strong("Mutational signature analysis"),style = "font-size:27px; font-weight:500;"),
-                               p("MesKit integrates mutational signature analysis by implementing R package deconstructSig, identifying potential signatures which could be attributed to known mutational processes for each branch/trunk of the NJtree object.",
+                               div(strong("PhyloTree-based analysis"),style = "font-size:27px; font-weight:500;"),
+                               p("Systematic understanding of evolutionary relationship among regions plays a fundamental role in MRS study, where phylogenetic tree is a primary tool for describing these associations and interpreting ITH. MesKit is capable of constructing and comparing phylogenetic trees based on different methods, visualizing the rooted phylogenetic trees with annotation, as well as charactering mutational patterns based on phylogenetic trees.",
                                  style = "font-size:20px; font-weight:500;line-height:40px;"),
                                tabBox(
                                  id = 'sgt',
                                  side = 'left',
-                                 selected = 'S_getphylotree',
+                                 selected = 'S_plotphylotree',
                                  width = "100%",
                                  height = "100%",
-                                 tabPanel(
-                                     title = div(icon("newspaper"), "Get phyloTree"),
-                                     value = 'S_getphylotree',
-                                     # uiOutput("getphylotree.patientlist"),
-                                     # uiOutput("getphylotree.slotlist"),
-                                     # uiOutput("getphylotree.slotlist"),
-                                 ),
                                  tabPanel(
                                      title = div(icon("newspaper"), "Plot phylotree"),
                                      value = 'S_plotphylotree',
@@ -1320,7 +1707,17 @@ bodytree <- tabItem('tree',
                                      uiOutput("phylotree_downloadbutton_ui")
                                  ),
                                  tabPanel(
-                                     title = div(icon("microsoft"), "Signature plot"), 
+                                     title = div(icon("microsoft"), "Compare tree"), 
+                                     value = 'S_comparetree',
+                                     # uiOutput('warningMessage_treemutsig'),
+                                     div(plotOutput('comparetree_plot', height = "100%", width = "100%"),align = "center"),
+                                     uiOutput('comparetree_db_ui'),
+                                     verbatimTextOutput("comparetree_dist")
+                                     # br(),
+                                     # uiOutput('treemutsig_table_ui')
+                                 ),
+                                 tabPanel(
+                                     title = div(icon("microsoft"), "Fit signatrues"), 
                                      value = 'S_treemutsig',
                                      # uiOutput('warningMessage_treemutsig'),
                                      uiOutput("treemutsig.patientlist"),
@@ -1330,7 +1727,7 @@ bodytree <- tabItem('tree',
                                      # uiOutput('treemutsig_table_ui')
                                  ),
                                  tabPanel(
-                                     title = div(icon("image"), "Mutational trunkOrBranch plot"),
+                                     title = div(icon("image"), "MutTrunkBranch"),
                                      value = 'S_muttrunkbranch',
                                      # uiOutput('warningMessage_muttrunkbranch'),
                                      uiOutput("muttrunkbranch.patientlist"),
