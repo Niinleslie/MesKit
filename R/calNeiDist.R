@@ -83,7 +83,7 @@ calNeiDist <- function(maf,
             if(withinTumor){
                 if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
                     message(paste0("Warnings: Only one sample was found of ", id,
-                                   " in ", patient, ". It you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
+                                   " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
                     next
                 }
             }
