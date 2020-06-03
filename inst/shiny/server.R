@@ -265,7 +265,8 @@ shinyServer(function(input, output, session){
       if(!is.null(vafcluster())){
           if(!"cluster.plot" %in% names(vafcluster())){
               names <- names(vafcluster())
-              selectInput("vafcluster.patientlist", "Patient",
+              selectInput("vafcluster.patientlist", 
+                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                           choices = names, width = 600) 
           }
       }
@@ -283,12 +284,14 @@ shinyServer(function(input, output, session){
           }
           if(input$vafcluster_withintumor){
               tagList(
-                  selectInput("vafcluster.sl", "Tumor ID",
+                  selectInput("vafcluster.sl",
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Tumor ID'),
                               choices = names, width = 600) 
               )
           }else{
               tagList(
-                  selectInput("vafcluster.sl", "Tumor Sample Barcode",
+                  selectInput("vafcluster.sl",
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Tumor Sample Barcode'),
                               choices = names, width = 600) 
               )
           }
@@ -371,7 +374,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- vafcluster()[[getpatient.vafcluster()]]$cluster.data
           }
-          dt <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5) 
+          dt <- datatable(t, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5) 
           return(dt)
       }
   })
@@ -380,7 +383,8 @@ shinyServer(function(input, output, session){
   output$vafcluster_table_ui <- renderUI({
       if(!is.null(vafcluster())){
           tagList(
-              h4(strong('Cluster result')),
+              
+              div(style = "font-size:1.5em; font-weight:600; ", 'Cluster result'),
               br(),
               DT::dataTableOutput('vafcluster_table'),
               br(),
@@ -461,7 +465,8 @@ shinyServer(function(input, output, session){
               cc <- ccfauc()
               names <- names(cc)
               tagList(
-                  selectInput("auc.pl", "Patient",
+                  selectInput("auc.pl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               ) 
           }
@@ -560,7 +565,7 @@ shinyServer(function(input, output, session){
   output$ccfauc_table_ui <- renderUI({
       if(!is.null(ccfauc())){
           tagList(
-              h4(strong('AUC value')),
+              div(style = "font-size:1.5em; font-weight:600; ", 'AUC value'),
               br(),
               DT::dataTableOutput('ccfauc_table'),
               br(),
@@ -645,7 +650,8 @@ shinyServer(function(input, output, session){
           if(!"Fst.plot" %in% names(calfst())){
               names <- names(calfst())
               tagList(
-                  selectInput("calfst.pl", "Patient",
+                  selectInput("calfst.pl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               )
           }
@@ -747,7 +753,7 @@ shinyServer(function(input, output, session){
   output$calfst_pair_table_ui <- renderUI({
       if(!is.null(calfst())){
           tagList(
-              h4(strong('Fst pair')),
+              div(style = "font-size:1.5em; font-weight:600; ", 'Fst pair'),
               br(),
               DT::dataTableOutput('calfst_pair_table'),
               br(),
@@ -834,7 +840,8 @@ shinyServer(function(input, output, session){
           if(!"Nei.plot" %in% names(calneidist())){
               names <- names(calneidist())
               tagList(
-                  selectInput("calneidist.pl", "Patient",
+                  selectInput("calneidist.pl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               )
           }
@@ -935,7 +942,7 @@ shinyServer(function(input, output, session){
   output$calneidist_pair_table_ui <- renderUI({
       if(!is.null(calneidist())){
           tagList(
-              h4(strong("Nei's distance")),
+              div(style = "font-size:1.5em; font-weight:600; ", "Nei's distance"),
               br(),
               DT::dataTableOutput('calneidist_pair_table'),
               br(),
@@ -989,6 +996,51 @@ shinyServer(function(input, output, session){
           }
       }
   })
+  
+  output$mutheatmap_parameters_ui <- renderUI({
+      if(!is.null(input$mutheatmap_genelist$datapath)){
+              tagList(
+                  checkboxInput('mutheatmap_plotgenelist',
+                                value = FALSE,
+                                label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Plot gene list'),
+                                width = 500),
+                  bsTooltip(id = "mutheatmap_plotgenelist",
+                            title = "If TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.",
+                            placement = "top",
+                            trigger = "hover"),
+                  
+                  checkboxInput('mutheatmap_showgene',
+                                value = FALSE,
+                                label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show gene'),
+                                width = 500),
+                  bsTooltip(id = "mutheatmap_showgene",
+                            title = "Show the name of genes next to the heatmap.Default FALSE.",
+                            placement = "top",
+                            trigger = "hover"),
+                  
+                  checkboxInput('mutheatmap_showgenelist',
+                                value = TRUE,
+                                label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show gene list'),
+                                width = 500),
+                  bsTooltip(id = "mutheatmap_showgenelist",
+                            title = "Show the names of gene on the geneList.Default TRUE.",
+                            placement = "top",
+                            trigger = "hover"),
+                  tags$table(
+                      tags$tr(id = "inline", 
+                              width = "100%",
+                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Gene text size: ")),
+                              tags$td(width = "50%", textInput(inputId = "mutheatmap_genetextsize", value = 9, label = NULL)))
+                  ), 
+                  bsTooltip(id = "mutheatmap_genetextsize",
+                            title = "Size of gene name.Default 9.",
+                            placement = "top",
+                            trigger = "hover"),
+                  br()
+              )
+      }
+  })
+  
   mutheatmap <- eventReactive(input$submit_mutheatmap,{
       maf <- varsMaf$maf
       validate(
@@ -1002,20 +1054,30 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = 'mutHeatmap: Calculation in progress',
                       detail = 'This may take a while...')
-          
+          if(is.null(input$mutheatmap_plotgenelist)){
+              plot.geneList <- FALSE
+              show.gene <- FALSE
+              show.geneList <- FALSE
+              gene.text.size <- 9
+          }else{
+              plot.geneList <- input$mutheatmap_plotgenelist
+              show.gene <- input$mutheatmap_showgene
+              show.geneList <- input$mutheatmap_showgenelist
+              gene.text.size <- as.numeric(input$mutheatmap_genetextsize)
+          }
           hm <- mutHeatmap(maf,
                            patient.id = input$mutheatmap_patientid,
                            geneList = genelist,
                            min.vaf = as.numeric(input$mutheatmap_minvaf),
                            min.ccf = as.numeric(input$mutheatmap_minccf),
                            use.ccf = input$mutheatmap_useccf,
-                           plot.geneList = input$mutheatmap_plotgenelist,
-                           show.gene = input$mutheatmap_showgene,
-                           show.geneList = input$mutheatmap_showgenelist,
+                           plot.geneList = plot.geneList,
+                           show.gene = show.gene,
+                           show.geneList = show.geneList,
                            mut.threshold = as.numeric(input$mutheatmap_mutthreshold),
                            sample.text.size = as.numeric(input$mutheatmap_sampletextsize),
                            legend.title.size = as.numeric(input$mutheatmap_legendtitlesize),
-                           gene.text.size = as.numeric(input$mutheatmap_genetextsize))
+                           gene.text.size = gene.text.size)
           incProgress(amount = 1)
           setProgress(message = 'mutHeatmap: Calculation done!')
       })
@@ -1027,7 +1089,8 @@ shinyServer(function(input, output, session){
           if(!identical(c("gg","ggplot"),class(mutheatmap()))){
               names <- names(mutheatmap())
               tagList(
-                  selectInput("mutheatmap.pl", "Patient",
+                  selectInput("mutheatmap.pl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               )
           }
@@ -1127,6 +1190,36 @@ shinyServer(function(input, output, session){
           }
       }
   })
+  
+  output$comparejsi_pairbytumor_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList" & !is.null(input$comparejsi_patientid)){
+              if(length(input$comparejsi_patientid) == 1){
+                  x <- maf[[which(names(maf) == input$comparejsi_patientid) ]]@data
+                  if(length(unique(x$Tumor_ID)) <= 1){
+                      return(NULL)
+                  }
+              }
+          }else if(class(maf) == "Maf"){
+              x <- maf@data
+              if(length(unique(x$Tumor_ID)) <= 1){
+                  return(NULL)
+              }
+          }
+          tagList(
+              checkboxInput('comparejsi_pairbytumor',
+                            value = FALSE,
+                            label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Pair by tumor'),
+                            width = 500),
+              bsTooltip(id = "comparejsi_pairbytumor",
+                        title = "calculate JSI by tumor",
+                        placement = "top",
+                        trigger = "hover")
+          )
+      }
+  })
+  
   comparejsi <- eventReactive(input$submit_comparejsi,{
       maf <- varsMaf$maf
       validate(
@@ -1141,10 +1234,15 @@ shinyServer(function(input, output, session){
           # }else{
           #     title <- input$comparejsi_title
           # }
+          if(is.null(input$comparejsi_pairbytumor)){
+              pairbytumor <- FALSE
+          }else{
+              pairbytumor <- input$comparejsi_pairbytumor
+          }
           cc <- compareJSI(maf, 
                            patient.id = input$comparejsi_patientid,
                            min.vaf = as.numeric(input$comparejsi_minccf) ,
-                           pairByTumor = input$comparejsi_pairbytumor,
+                           pairByTumor = pairbytumor,
                            # title = title,
                            use.circle = input$comparejsi_usecircle,
                            number.cex = as.numeric(input$comparejsi_numbercex),
@@ -1162,7 +1260,8 @@ shinyServer(function(input, output, session){
           if(!"JSI.plot" %in% names(comparejsi())){
               names <- names(comparejsi())
               tagList(
-                  selectInput("comparejsi.pl", "Patient",
+                  selectInput("comparejsi.pl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               )
           }
@@ -1263,7 +1362,7 @@ shinyServer(function(input, output, session){
   output$comparejsi_pair_table_ui <- renderUI({
       if(!is.null(comparejsi())){
           tagList(
-              h4(strong("JSI pair")),
+              div(style = "font-size:1.5em; font-weight:600; ", "JSI pair"),
               br(),
               DT::dataTableOutput('comparejsi_pair_table'),
               br(),
@@ -1414,8 +1513,14 @@ shinyServer(function(input, output, session){
           }else{
               patientid <- input$plotmutprofile_patientid
           }
+          if(!is.null(input$plotmutprofile_genelist$datapath)){
+              genelist <- as.character(read.table(input$plotmutprofile_genelist$datapath)$V1)
+          }else{
+              genelist <- NULL
+          }
           cc <- plotMutProfile(maf,
                                patient.id = patientid,
+                               geneList = genelist,
                                classByTumor = input$plotmutprofile_classByTumor,
                                class = input$plotmutprofile_class,
                                topGenesCount = input$plotmutprofile_topGenesCount,
@@ -1492,14 +1597,15 @@ shinyServer(function(input, output, session){
   )
   
   ## plotCNA sever 
+  
   output$plotcna.patientlist <- renderUI({
       
       if(!is.null(input$plotcna_segfile$datapath)){
           seg <- readSegment(segCN.file = input$plotcna_segfile$datapath,
-                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile,
-                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile,
-                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile,
-                             gistic.qval = input$plotcna_gisticqval)
+                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
+                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
+                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile$datapath,
+                             gistic.qval = as.numeric(input$plotcna_gisticqval) )
           patient.list <- unique(seg$Patient_ID)
            tagList(
                   selectizeInput("plotcna_patientid",
@@ -1514,6 +1620,31 @@ shinyServer(function(input, output, session){
               )
       }
   })
+  
+  output$plotcna_gistic_parameters_ui <- renderUI({
+      if(any(!is.null(input$plotcna_gisticAllLesionsFile),
+             !is.null(input$plotcna_gisticAmpGenesFile),
+             !is.null(input$plotcna_gisticDelGenesFile))){
+          tagList(
+              checkboxInput('plotcna_showGISTICgene', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show GISTIC gene'),value = FALSE,width = 400),
+              bsTooltip(id = "plotcna_showGISTICgene",
+                        title = "Whether GISTIC gene in seg.Default FALSE.",
+                        placement = "top",
+                        trigger = "hover"),
+              tags$table(
+                  tags$tr(id = "inline", 
+                          width = "100%",
+                          tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Gistic qvalue: ")),
+                          tags$td(width = "50%", textInput(inputId = "plotcna_gisticqval", value = 0.25, label = NULL)))
+              ), 
+              bsTooltip(id = "plotcna_gisticqval",
+                        title = "The threshold of gistic Q value. Default is 0.25",
+                        placement = "top",
+                        trigger = "hover")
+          )
+      }
+  })
+  
   plotcna <- eventReactive(input$submit_plotcna,{
       
       validate(
@@ -1526,10 +1657,10 @@ shinyServer(function(input, output, session){
           setProgress(message = 'plotCNA : Calculation in progress',
                       detail = 'This may take a while...')
           seg <- readSegment(segCN.file = input$plotcna_segfile$datapath,
-                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile,
-                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile,
-                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile,
-                             gistic.qval = input$plotcna_gisticqval)
+                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
+                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
+                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile$datapath,
+                             gistic.qval = as.numeric(input$plotcna_gisticqval) )
           
           incProgress(amount = 1)
           setProgress(message = 'Complete reading seg file!')
@@ -1538,10 +1669,15 @@ shinyServer(function(input, output, session){
           }else{
               patientid <- input$plotcna_patientid
           }
+          if(is.null(input$plotcna_showGISTICgene)){
+              show.GISTIC.gene <- FALSE
+          }else{
+              show.GISTIC.gene <- input$plotcna_showGISTICgene
+          }
           cna.plot <- plotCNA(seg,
                               patient.id = patientid,
                               refBuild = input$plotcna_refBuild,
-                              show.GISTIC.gene = input$plotcna_showGISTICgene,
+                              show.GISTIC.gene = show.GISTIC.gene,
                               sample.text.size = as.numeric(input$plotcna_sampletextsize) ,
                               sample.bar.height = as.numeric(input$plotcna_samplebarheight) ,
                               legend.text.size = as.numeric(input$plotcna_legendtextsize) ,
@@ -1626,7 +1762,7 @@ shinyServer(function(input, output, session){
   output$plotcna_table_ui <- renderUI({
       if(!is.null(plotcna())){
           tagList(
-              h4(strong('Seg file ')),
+              div(style = "font-size:1.5em; font-weight:600; ", "Seg file"),
               br(),
               DT::dataTableOutput('plotcna_table'),
               br(),
@@ -1693,7 +1829,7 @@ shinyServer(function(input, output, session){
           setProgress(message = 'testNeutral: Calculation done!')
       })
       validate(
-          need(!(is.na(t)), "No result is generated")
+          need(!(is.na(t)), "No result is generated by testneutral.Try adjusting the parameters")
       )
       return(t)
   })
@@ -1704,7 +1840,8 @@ shinyServer(function(input, output, session){
               patient.list <- testneutral()
               names <- names(patient.list)
               tagList(
-                  selectInput("testneutral.pl", "Patient",
+                  selectInput("testneutral.pl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               )
           }
@@ -1722,14 +1859,16 @@ shinyServer(function(input, output, session){
               sample.list <- testneutral()[[patient]]$model.fitting.plot
               names <- names(sample.list)
               tagList(
-                  selectInput("testneutral.sl", "Tumor sample barcode",
+                  selectInput("testneutral.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Tumor sample barcode'),
                               choices = names, width = 600) 
               ) 
           }else{
               sample.list <- testneutral()$model.fitting.plot
               names <- names(sample.list)
               tagList(
-                  selectInput("testneutral.sl", "Tumor sample barcode",
+                  selectInput("testneutral.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Tumor sample barcode'),
                               choices = names, width = 600) 
               )
           }
@@ -1832,7 +1971,7 @@ shinyServer(function(input, output, session){
   output$testneutral_table_ui <- renderUI({
       if(!is.null(testneutral())){
           tagList(
-              h4(strong('Neutrality metrics')),
+              div(style = "font-size:1.5em; font-weight:600; ", "Neutrality metrics"),
               br(),
               DT::dataTableOutput('testneutral_table'),
               br(),
@@ -1883,6 +2022,36 @@ shinyServer(function(input, output, session){
           }
       }
   })
+  
+  output$compareccf_pairbytumor_ui <- renderUI({
+      maf <- varsMaf$maf
+      if(!is.null(maf)){
+          if(class(maf) == "MafList" & !is.null(input$compareccf_patientid)){
+              if(length(input$compareccf_patientid) == 1){
+                  x <- maf[[which(names(maf) == input$compareccf_patientid) ]]@data
+                  if(length(unique(x$Tumor_ID)) <= 1){
+                      return(NULL)
+                  }
+              }
+          }else if(class(maf) == "Maf"){
+              x <- maf@data
+              if(length(unique(x$Tumor_ID)) <= 1){
+                  return(NULL)
+              }
+          }
+          tagList(
+              checkboxInput('compareccf_pairbytumor',
+                            value = FALSE,
+                            label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Pair by tumor'),
+                            width = 500),
+              bsTooltip(id = "compareccf_pairbytumor",
+                        title = "Compare CCF by tumor",
+                        placement = "top",
+                        trigger = "hover")
+          )
+      }
+  })
+  
   compareccf <- eventReactive(input$submit_compareccf, {
       maf <- isolate(varsMaf$maf)
       validate(
@@ -1892,10 +2061,15 @@ shinyServer(function(input, output, session){
       on.exit(progress$close())
       progress$set(message = 'compareCCF: Calculation in progress',
                    detail = 'This may take a while...')
+      if(is.null(input$compareccf_pairbytumor)){
+          pairbytumor <- FALSE
+      }else{
+          pairbytumor <- input$compareccf_pairbytumor
+      }
       cc <- compareCCF(maf,
                        patient.id = input$compareccf_patientid,
                        min.ccf = input$compareccf_minccf,
-                       pairByTumor = input$compareccf_pairbytumor)
+                       pairByTumor = pairbytumor)
       progress$set(value = 1)
       return(cc)
   })
@@ -1906,7 +2080,8 @@ shinyServer(function(input, output, session){
               patient.list <- compareccf()
               names <- names(patient.list)
               tagList(
-                  selectInput("compareccf.pl", "Patient",
+                  selectInput("compareccf.pl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               )
           }
@@ -1920,19 +2095,30 @@ shinyServer(function(input, output, session){
   
   output$compareccf.samplelist <- renderUI({
       if(!is.null(compareccf())){
+          if(is.null(input$compareccf_pairbytumor)){
+             title <- "Sample pair"  
+          }else{
+              if(input$compareccf_pairbytumor){
+                  title <- "Tumor pair"
+              }else{
+                  title <- "Sample pair"   
+              }
+          }
           if(class(compareccf()[[1]]) != "data.frame"){
               patient <- input$compareccf.pl
               sample.list <- compareccf()[[patient]]
               names <- names(sample.list)
               tagList(
-                  selectInput("compareccf.sl", "pairwise",
+                  selectInput("compareccf.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", title),
                               choices = names, width = 600) 
               )
           }else{
               sample.list <- compareccf()
               names <- names(sample.list)
               tagList(
-                  selectInput("compareccf.sl", "pairwise",
+                  selectInput("compareccf.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", title),
                               choices = names, width = 600) 
               )
           }
@@ -2081,7 +2267,8 @@ shinyServer(function(input, output, session){
       if(!is.null(phylotree())){
           if(!identical(c("gg","ggplot"),class(phylotree()))){
               names <- names(phylotree())
-              selectInput("phylotree.pl", "Patient",
+              selectInput("phylotree.pl", 
+                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                           choices = names, width = 600)
           }
       }
@@ -2360,7 +2547,8 @@ shinyServer(function(input, output, session){
           if(class(treemutsig()) == "list"){
               plot.list <- treemutsig()
               names <- names(plot.list)
-              selectInput("treemutsig.pl", "Patient_branches",
+              selectInput("treemutsig.pl", 
+                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient:branches'),
                           choices = names, width = 600) 
           }
       }
@@ -2436,7 +2624,7 @@ shinyServer(function(input, output, session){
   output$treemutsig_table_ui <- renderUI({
     if(!is.null(treemutsig())){
       tagList(
-        h4(strong('Signature summary')),
+          div(style = "font-size:1.5em; font-weight:600; ", "Signature summary"),
         br(),
         DT::dataTableOutput('treemutsig_table'),
         br(),
@@ -2511,7 +2699,8 @@ shinyServer(function(input, output, session){
           if(!"mutTrunkBranch.plot" %in% names(muttrunkbranch()) ){
               x <- muttrunkbranch()
               patient.list <- names(x)
-              selectInput("muttrunkbranch.pl", "Patient",
+              selectInput("muttrunkbranch.pl", 
+                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                           choices = patient.list, width = 600)
           }
       }
@@ -2586,7 +2775,7 @@ shinyServer(function(input, output, session){
   output$muttrunkbranch_table_ui <- renderUI({
     if(!is.null(muttrunkbranch())){
         tagList(
-            h4(strong('Summary')),
+            div(style = "font-size:1.5em; font-weight:600; ", "Summary"),
             br(),
             DT::dataTableOutput('muttrunkbranch_table'),
             fluidRow(
