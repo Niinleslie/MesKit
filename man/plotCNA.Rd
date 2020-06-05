@@ -23,7 +23,7 @@ plotCNA(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{chrSilent}{Chromosomes excluded in the analysis. e.g, 1, 2, 3 . Default NULL.}
+\item{chrSilent}{Chromosomes excluded in the analysis. e.g, 1, 2, 3. Default NULL.}
 
 \item{refBuild}{Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".}
 

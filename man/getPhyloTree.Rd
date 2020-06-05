@@ -25,7 +25,7 @@ getPhyloTree(
 
 \item{min.ccf}{The minimum value of CCF. Default: 0}
 
-\item{bootstrap.rep.num}{Bootstrap iterations.. Default 100.}
+\item{bootstrap.rep.num}{Bootstrap iterations.Default 100.}
 
 \item{...}{Other options passed to \code{\link{subsetMaf}}}
 }

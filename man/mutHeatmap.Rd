@@ -26,7 +26,9 @@ mutHeatmap(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{min.vaf}{The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1.}
+\item{min.vaf}{The minimum value of VAF. Default: 0.02. Option: on the scale of 0 to 1.}
+
+\item{min.ccf}{The minimum value of CCF. Default: 0.02. Option: on the scale of 0 to 1.}
 
 \item{use.ccf}{Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.}
 
@@ -36,9 +38,9 @@ mutHeatmap(
 
 \item{show.gene}{Show the name of genes next to the heatmap.Default FALSE.}
 
-\item{show.geneList}{Show the names of gene on the geneList.Default FALSE.}
+\item{show.geneList}{Show the names of gene on the geneList.Default TRUE.}
 
-\item{mut.threshold}{Show.gene and show. geneList will be FALSE when patient have more mutations than threshold.Default is 150.}
+\item{mut.threshold}{show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.}
 
 \item{sample.text.size}{Size of sample name.Default 9.}
 

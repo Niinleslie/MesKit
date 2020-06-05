@@ -5,7 +5,7 @@
 #' @param method Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood),""FASTME.ols" or "FASTME.bal". 
 #' @param min.vaf The minimum value of vaf. Default 0.02.
 #' @param min.ccf The minimum value of CCF. Default: 0
-#' @param bootstrap.rep.num Bootstrap iterations.. Default 100.
+#' @param bootstrap.rep.num Bootstrap iterations.Default 100.
 #' @param ... Other options passed to \code{\link{subsetMaf}}
 #' 
 #' 

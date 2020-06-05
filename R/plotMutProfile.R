@@ -415,31 +415,76 @@ plotMutProfile <- function(maf,
     
     }
     
-    ht <- suppressMessages(
+    if (is.null(patient.split)) {
+    
+      ht <- suppressMessages(
+          ComplexHeatmap::oncoPrint(
+              mat,
+              alter_fun = alter_fun(class),
+              col = col_type(class),
+              column_title = "Mutational profile",
+              column_title_gp = grid::gpar(fontsize = 13.5, fontface = "bold", col = "black"),
+              row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
+              #heatmap_legend_param = heatmap_legend(class),
+              show_heatmap_legend = FALSE,
+              remove_empty_columns = remove_empty_columns,
+              remove_empty_rows = remove_empty_rows,
+              row_order = rowOrder,
+              row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
+              column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
+              pct_digits = 2,
+              pct_side = "right",
+              row_names_side = "left", 
+              #column_split = factor(patient.split,levels = unique(patient.split)),
+              column_order = colnames(mat),
+              column_labels = col_labels,
+              show_column_names = showColnames,
+              bottom_annotation = if(
+                  is.null(patient.split)) NULL else{
+                  ComplexHeatmap::HeatmapAnnotation(
+                  #df = data.frame(patient = colnames(mat)),
+                  df = data.frame(Patient = patient.split),
+                  show_annotation_name = FALSE,
+                  col = list(Patient = patientsCol),
+                  simple_anno_size = unit(0.2, "cm"),
+                  show_legend = FALSE,
+                  annotation_legend_param = list(title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
+                                                labels_gp = grid::gpar(fontsize = 10),
+                                                grid_width = unit(3.5, "mm"),
+                                                grid_height = unit(3.5, "mm")
+                                               #plot = FALSE
+                                                )
+                
+                  )}                
+          )
+      )
+
+    } else {
+      ht <- suppressMessages(
         ComplexHeatmap::oncoPrint(
-            mat,
-            alter_fun = alter_fun(class),
-            col = col_type(class),
-            column_title = "Mutational profile",
-            column_title_gp = grid::gpar(fontsize = 13.5, fontface = "bold", col = "black"),
-            row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
-            #heatmap_legend_param = heatmap_legend(class),
-            show_heatmap_legend = FALSE,
-            remove_empty_columns = remove_empty_columns,
-            remove_empty_rows = remove_empty_rows,
-            row_order = rowOrder,
-            row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
-            column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
-            pct_digits = 2,
-            pct_side = "right",
-            row_names_side = "left", 
-            column_split = factor(patient.split,levels = unique(patient.split)),
-            column_order = colnames(mat),
-            column_labels = col_labels,
-            show_column_names = showColnames,
-            bottom_annotation = if(
-                is.null(patient.split)) NULL else{
-                ComplexHeatmap::HeatmapAnnotation(
+          mat,
+          alter_fun = alter_fun(class),
+          col = col_type(class),
+          column_title = "Mutational profile",
+          column_title_gp = grid::gpar(fontsize = 13.5, fontface = "bold", col = "black"),
+          row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
+          #heatmap_legend_param = heatmap_legend(class),
+          show_heatmap_legend = FALSE,
+          remove_empty_columns = remove_empty_columns,
+          remove_empty_rows = remove_empty_rows,
+          row_order = rowOrder,
+          row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
+          column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
+          pct_digits = 2,
+          pct_side = "right",
+          row_names_side = "left", 
+          column_split = factor(patient.split,levels = unique(patient.split)),
+          column_order = colnames(mat),
+          column_labels = col_labels,
+          show_column_names = showColnames,
+          bottom_annotation = if(
+            is.null(patient.split)) NULL else{
+              ComplexHeatmap::HeatmapAnnotation(
                 #df = data.frame(patient = colnames(mat)),
                 df = data.frame(Patient = patient.split),
                 show_annotation_name = FALSE,
@@ -451,13 +496,12 @@ plotMutProfile <- function(maf,
                                                grid_width = unit(3.5, "mm"),
                                                grid_height = unit(3.5, "mm")
                                                #plot = FALSE
-                                               )
+                )
                 
-                )}                
+              )}                
         )
-    )
-
-
+      )
+    }
 
     if (multi_hit_exist) {
       ComplexHeatmap::draw(ht, heatmap_legend_list = hmp,

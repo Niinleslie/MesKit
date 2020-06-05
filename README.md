@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 
 <img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" /> 
+=======
+<img src="https://github.com/Niinleslie/MesKit/blob/master/vignettes/MesKit_overview.png" height="80" width="240" /> 
+>>>>>>> eb327da7b3bee517cbb44311d33d85de77b89095
 
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
@@ -31,7 +35,8 @@ A complete documentation of MesKit can be found [here.](http://meskit.renlab.org
 For GUI-based analysis, users can use the following code to launch Shiny app build with the package.
 
 ```R
-pkg.suggested <- c('shiny', 'shinyjs','shinyBS','shinydashboard', 'shinyWidgets', 'shinycssloaders', 'DT','org.Hs.eg.db','BSgenome.Hsapiens.UCSC.hg19')
+pkg.suggested <- c('shiny','shinyBS','shinydashboard', 'shinyWidgets', 'shinycssloaders', 'DT',
+	'BSgenome.Hsapiens.UCSC.hg19')
 ## if genomic reference version is hg38, change 'BSgenome.Hsapiens.UCSC.hg19' to 'BSgenome.Hsapiens.UCSC.hg38'
 
 # Install the required packages
