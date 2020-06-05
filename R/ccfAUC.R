@@ -30,6 +30,10 @@ ccfAUC <- function(
     
     result <- list()
     for(m in maf_list){
+        if(! "CCF" %in% colnames(getMafData(m)) ){
+            stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
+                        "No CCF data was found when generate Maf object."))
+        }
         maf_data <- subsetMaf(m,
                               min.ccf = min.ccf,...) %>% 
         dplyr::filter(!is.na(CCF))
@@ -40,11 +44,6 @@ ccfAUC <- function(
         if(nrow(maf_data) == 0){
             message("Warning :there was no mutation in ", patient, " after filter.")
             next
-        }
-        
-        if(! "CCF" %in% colnames(maf_data)){
-            stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
-                        "No CCF data was found when generate Maf object."))
         }
         
         if(plot.density){

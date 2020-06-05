@@ -9,7 +9,6 @@ plotPhyloTree(
   patient.id = NULL,
   branchCol = "mutType",
   show.bootstrap = TRUE,
-  use.box = TRUE,
   min.ratio = 1/20,
   signaturesRef = "cosmic_v2",
   min.mut.count = 15
@@ -20,11 +19,9 @@ plotPhyloTree(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{branchCol}{Specify the colors of branches (Default: mutType). Other options: "mutSig" for coloring branches by branch mutation signature; "mutSig" for coloring branches by mutation signature.}
+\item{branchCol}{Specify the colors of branches (Default: mutType). Other options: "mutSig" for coloring branches by branch mutation signature;}
 
 \item{show.bootstrap}{Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.}
-
-\item{use.box}{Logical. Whether to add box around bootstrap value on tree. Default is TRUE.}
 
 \item{min.ratio}{Double (Default:1/20). If min.ratio is not NULL,
 all edge length of a phylogenetic tree should be greater than
