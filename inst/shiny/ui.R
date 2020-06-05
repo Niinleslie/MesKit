@@ -16,7 +16,7 @@ sidebar <- dashboardSidebar(
   sidebarMenu(id="sidername",selected='home',
               menuItem(strong("Home"), tabName = "home", icon = icon("home")),              
               menuItem(strong("Input Data"), tabName = "input", icon = icon("gear")),
-              menuItem(strong("Alterational landscape"), tabName = "AL", icon = icon("bar-chart")),
+              menuItem(strong("Alternational landscape"), tabName = "AL", icon = icon("bar-chart")),
               menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
               menuItem(strong("Metastatic routes inference"), tabName = "clone", icon = icon("bar-chart")),
               menuItem(strong("PhyloTree-based analysis"), tabName = "tree", icon = icon("tree")) 
@@ -42,7 +42,7 @@ bodyHome <- tabItem("home",
                         width = 12,
                         status = "info",
                         solidHeader = TRUE,
-                        title = div(strong("Overview of MesKit package"),style = "font-size:2em; font-weight:500;"),
+                        title = div(strong("Overview of MesKit"),style = "font-size:2em; font-weight:500;"),
                         fluidRow(
                           column(
                               width = 6,
@@ -1154,7 +1154,7 @@ bodyclone <- tabItem('clone',
                          box(
                            width = NULL,
                            div(strong("Metastatic routes inference"),style = "font-size:27px; font-weight:500;"),
-                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide two functions to help distinguish monoclonal versus polyclonal seeding. ",
+                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide three functions to help distinguish monoclonal versus polyclonal seeding. ",
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
@@ -1684,7 +1684,7 @@ bodytree <- tabItem('tree',
                              box(
                                width = NULL,
                                div(strong("PhyloTree-based analysis"),style = "font-size:27px; font-weight:500;"),
-                               p("Systematic understanding of evolutionary relationship among regions plays a fundamental role in MRS study, where phylogenetic tree is a primary tool for describing these associations and interpreting ITH. MesKit is capable of constructing and comparing phylogenetic trees based on different methods, visualizing the rooted phylogenetic trees with annotation, as well as charactering mutational patterns based on phylogenetic trees.",
+                               p("Systematic understanding of evolutionary relationship among regions plays a fundamental role in MRS study, where phylogenetic tree the a primary tool for describing these associations and interpreting ITH. MesKit is capable of constructing and comparing phylogenetic trees based on different methods, visualizing the rooted phylogenetic trees with annotation, as well as charactering mutational patterns based on phylogenetic trees.",
                                  style = "font-size:20px; font-weight:500;line-height:40px;"),
                                tabBox(
                                  id = 'sgt',
@@ -1755,9 +1755,9 @@ dbHeader <- dashboardHeader(title = "MesKit", titleWidth = 300,
                                 badgeStatus = NULL,
                                 headerText = "",
                                 tags$li(p("Mengni Liu, liumn5@mail2.sysu.edu.cn")),
-                                tags$li(p("Chengwei Wang, wangchw8@outlook.com")),
                                 tags$li(p("Jianyu Chen, chenjy327@mail2.sysu.edu.cn")),
-                                tags$li(p("Xin Wang, wangx555@mail2.sysu.edu.cn"))
+                                tags$li(p("Xin Wang, wangx555@mail2.sysu.edu.cn")),
+                                tags$li(p("Chengwei Wang, wangchw8@outlook.com"))
                                 # notificationItem("Mengni Liu, liumn5@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "liumn5@mail2.sysu.edu.cn"),
                                 # notificationItem("Chengwei Wang, wangchw8@outlook.com, Sun Yat-sen university", icon = icon("user"),href = "wangchw8@outlook.com"),
                                 # notificationItem("Jianyu Chen, chenjy327@mail2.sysu.edu.cn, Sun Yat-sen university", icon = icon("user"),href = "chenjy327@mail2.sysu.edu.cn"),
@@ -1821,7 +1821,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: dissect cancer evolution from multi-region derived tumor biopsies</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: Dissect cancer evolution from multi-region derived tumor biopsies via somatic mutations.</span>\');
       })
      ')), 
       
