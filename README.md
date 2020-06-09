@@ -1,9 +1,16 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" /> 
 =======
 <img src="https://github.com/Niinleslie/MesKit/blob/master/vignettes/MesKit_overview.png" height="80" width="240" /> 
 >>>>>>> eb327da7b3bee517cbb44311d33d85de77b89095
+=======
+
+
+<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" /> 
+
+>>>>>>> 12d1d78bdf25a9cf06b1f6a98a66e2a73ea6aafd
 
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
