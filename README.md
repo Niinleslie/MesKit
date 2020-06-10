@@ -80,5 +80,5 @@ For more useful tools/applications, please go to [renlab.org](http://www.renlab.
 ## Citation
 Citation (from within R, enter `citation("MesKit")):`
 >
-_MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations_
+_MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations (Submitted)_
 
