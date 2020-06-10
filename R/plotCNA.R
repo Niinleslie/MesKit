@@ -51,6 +51,7 @@ plotCNA <- function(seg,
             }
             seg <- seg[Patient_ID %in% patient.id]
         }
+        patient_num <- length(unique(seg$Patient_ID)) 
         seg$patient <- seg$Patient_ID
         seg <- dplyr::select(seg, -Patient_ID)
         seg$Patient_ID <- "ALL"
@@ -59,6 +60,7 @@ plotCNA <- function(seg,
         if(length(patient.setdiff) > 0){
             stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
         }
+        patient_num <- 1
         seg <- seg[Patient_ID %in% patient.id]
     }
     
@@ -107,8 +109,10 @@ plotCNA <- function(seg,
         patient.seg <- dat.list[[patient]]
         updateStart <- apply(patient.seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
         updateEnd <- apply(patient.seg,1,updatePosition,"End_Position","Chromosome",chrLens)
+        updateCytoband.pos <- apply(patient.seg,1,updatePosition,"Cytoband.pos","Chromosome",chrLens)
         suppressWarnings(patient.seg[,Update_Start:= updateStart]) 
         suppressWarnings(patient.seg[,Update_End:= updateEnd])
+        suppressWarnings(patient.seg[,Cytoband.pos:= updateCytoband.pos])
         patient.seg[,hmin := 0]
         patient.seg[,hmax := 0]
         h <- chrom.bar.height
@@ -206,6 +210,12 @@ plotCNA <- function(seg,
             patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
             names(patient_colors) <- patient.rect.table$patient
         }
+        
+        ## cytoband table
+        # cytoband_table <- CNADat %>% 
+        #     distinct(Cytoband, .keep_all = TRUE)
+        
+        
         p <- ggplot()+
             ## background color
             geom_rect(data = backgroundTable, 
@@ -252,9 +262,6 @@ plotCNA <- function(seg,
                 # legend.title = element_text(size = legend.title.size),
                 # legend.text = element_text(size = legend.text.size,margin = margin(b = 3))
                 )+
-            # geom_text(
-            #     data = Y.text.table,
-            #     mapping = aes(x = text.add, y = Pos, label = Tumor_Sample_Barcode))+
             scale_x_continuous(expand = c(0,0))+
             scale_y_continuous(breaks = Y.text.table$Pos,
                                labels = Y.text.table$Tumor_Sample_Barcode)+

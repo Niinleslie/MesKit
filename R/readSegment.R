@@ -129,18 +129,17 @@ readSegment <- function(segCN.file = NULL,
       gisticCNVgenes[,Chromosome := gsub(pattern = 'chr', replacement = '', x = gisticCNVgenes$Chromosome, fixed = TRUE)]
       gisticCNVgenes[,Chromosome := gsub(pattern = 'X', replacement = '23', x = gisticCNVgenes$Chromosome, fixed = TRUE)]
       gisticCNVgenes[,Chromosome := gsub(pattern = 'Y', replacement = '24', x = gisticCNVgenes$Chromosome, fixed = TRUE)]
-      gisticCNVgenes <- dplyr::select(gisticCNVgenes,Cytoband,Gene, Gistic.type, Chromosome, Start_Position, End_Position)
+      gisticCNVgenes <- dplyr::select(gisticCNVgenes,Gene, Gistic.type, Chromosome, Start_Position, End_Position)
       gisticCNVgenes$Chromosome <- as.numeric(gisticCNVgenes$Chromosome)
       gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
       gisticCNVgenes$End_Position <- as.numeric(gisticCNVgenes$End_Position)
       data.table::setkey(x = gisticCNVgenes,Chromosome, Start_Position, End_Position)
       mapDat <- data.table::foverlaps(gisticCNVgenes,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
                 na.omit() %>% 
-                dplyr::select( Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID,  CopyNumber, Type, Gistic.type) %>% 
+                dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID,  CopyNumber, Type, Gistic.type) %>% 
                 dplyr::distinct(.)
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
-  }
-  else if(nrow(gisticLesions) != 0){
+  }else if(nrow(gisticLesions) != 0){
       gisticLesions[,Chromosome := sapply(strsplit(x = gisticLesions[,Wide_Peak_Boundaries], split = ':'), '[', 1)]
       gisticLesions[,loc := sapply(strsplit(x = gisticLesions[,Wide_Peak_Boundaries], split = ':'), '[', 2)]
       gisticLesions[,Start_Position := as.integer(sapply(strsplit(x = gisticLesions[,loc], split = '-'), '[', 1))]
@@ -148,7 +147,7 @@ readSegment <- function(segCN.file = NULL,
       gisticLesions[,Chromosome := gsub(pattern = 'chr', replacement = '', x = gisticLesions$Chromosome, fixed = TRUE)]
       gisticLesions[,Chromosome := gsub(pattern = 'X', replacement = '23', x = gisticLesions$Chromosome, fixed = TRUE)]
       gisticLesions[,Chromosome := gsub(pattern = 'Y', replacement = '24', x = gisticLesions$Chromosome, fixed = TRUE)]
-      gisticLesions <- dplyr::select(gisticLesions, Cytoband, Gistic.type, Chromosome, Start_Position, End_Position, Qvalue)
+      gisticLesions <- dplyr::select(gisticLesions,Gistic.type, Chromosome, Start_Position, End_Position, Qvalue)
       gisticLesions$Chromosome <- as.numeric(gisticLesions$Chromosome)
       gisticLesions$Start_Position <- as.numeric(gisticLesions$Start_Position)
       gisticLesions$End_Position <- as.numeric(gisticLesions$End_Position)
@@ -161,6 +160,27 @@ readSegment <- function(segCN.file = NULL,
           data.table::as.data.table()
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
   }
+  ## annotate seg with gene
+  # txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+  # allgenes <- as.data.table(genes(txdb))
+  # genelist <- suppressMessages(select(org.Hs.eg.db,keys=allgenes$gene_id,columns="SYMBOL",keytype="ENTREZID")$SYMBOL) 
+  # allgenes <- allgenes %>% 
+  #     dplyr::mutate(Hugo_Symbol = genelist) %>% 
+  #     dplyr::rename(Chromosome = seqnames, 
+  #            Start_Position = start,
+  #            End_Position = end) %>% 
+  #     dplyr::filter(Chromosome %in% paste("chr",c(1:22),sep = "")) %>% 
+  #     dplyr::mutate(Chromosome =  as.numeric(gsub("chr","",Chromosome)))
+  # data.table::setkey(x = allgenes,Chromosome, Start_Position, End_Position)
+  # ## map gene to seg
+  # anno_result <-  data.table::foverlaps(seg,allgenes,
+  #                                       by.x = c("Chromosome",
+  #                                                "Start_Position",
+  #                                                "End_Position"))
+  # 
+  # t <- anno_result[Patient_ID == "HCC5647"&Tumor_Sample_Barcode == "T1"]
+  
+  
   data.table::setkey(x = seg, Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position)
   return(seg)
 }

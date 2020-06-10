@@ -73,29 +73,29 @@ plotPhyloTree <- function(phyloTree,
        rootLabel <- "NORMAL"
        ## plot phylotree
        samplePointsSize <- 3
-       sampleTextSize <- 3
+       sampleTextSize <- 3.5
        nodePointsSize <- 1.7
        segmentSize <- 1.5
-       # nodeStrokeSize <- 0.5
-       # sampleStrokeSize <- 1
        nodeStrokeSize <- 0.25
        sampleStrokeSize <- 1.5
        bootLabelSize <- 3
-       bootTextSize <- 2.5
        bootPaddingSize <- 0.35
+       bootLabelPaddingSize <- 0.15
+       legend.text.size <- 10
+       legend.title.size <- legend.text.size + 0.5
        samplesLength <- nrow(treeData[sample != "internal node",]) 
        if(samplesLength > 7){
            samplePointsSize <- 1.5 
            sampleTextSize <- 3
            segmentSize <- 0.8
            nodePointsSize <- 0.8
-           # nodeStrokeSize <- 0.25
-           # sampleStrokeSize <- 0.5
            nodeStrokeSize <- 0.15
            sampleStrokeSize <- 0.8
            bootLabelSize <- 2.5
-           bootTextSize <- 2.5
            bootPaddingSize <- 0.1
+           bootLabelPaddingSize <- 0.1
+           legend.text.size <- 9
+           legend.title.size <- legend.text.size + 0.5
        }
        rootNode <- treeData[sample == rootLabel,]$node
        if(length(boot_value) == 1){
@@ -130,7 +130,7 @@ plotPhyloTree <- function(phyloTree,
                    sig_level <- levels(treeData$Signature)
                    p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
                    p <- p + scale_color_manual(breaks = sig_level ,values = color_scale) + 
-                       theme(legend.title = element_text())
+                       theme(legend.title = element_text(size = legend.title.size))
            }
            else{
                ## sort branch tumor type 
@@ -186,6 +186,7 @@ plotPhyloTree <- function(phyloTree,
                       panel.grid.major = element_blank(),
                       panel.grid.minor = element_blank(), panel.background = element_blank(),
                       panel.border = element_blank(),
+                      legend.text = element_text(size = legend.text.size),
                       legend.position = 'right') + 
            scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
            coord_fixed(ratio= 1)
@@ -230,8 +231,12 @@ plotPhyloTree <- function(phyloTree,
                                      data = bootsData,
                                      # nudge_y = textAdjust/6,
                                      # fontface = 'bold', 
-                                     size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                     segment.colour = "grey50", segment.size = 0.25, force = 5)
+                                     size = bootLabelSize, 
+                                     box.padding = unit(bootPaddingSize, "lines"),
+                                     label.padding = bootLabelPaddingSize,
+                                     segment.colour = "grey50", 
+                                     segment.size = 0.25, 
+                                     force = 5)
        }
        if(compare){
            p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2,label = is.match),
