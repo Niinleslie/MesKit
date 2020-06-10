@@ -51,7 +51,7 @@ testPowerLaw <- function(
          ## get cumulative distribution 
          
          # breaks = ceiling((max.vaf - min.vaf)/0.005)
-         # vafCount =  hist(1/sample.df$VAF_adj, breaks = breaks, plot = F)
+         # vafCount =  hist(1/sample.df$VAF_adj, breaks = breaks, plot = FALSE)
          # vafCumsum <- data.frame(inv_f = vafCount$breaks, count = c(0,cumsum(vafCount$counts)))
          
          breaks <- seq(max.vaf, min.vaf, -0.005)
@@ -64,11 +64,11 @@ testPowerLaw <- function(
          ## area of theoretical curve
          theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$t_count),
                               min(vafCumsum$inv_f),
-                              max(vafCumsum$inv_f),stop.on.error = F)$value
+                              max(vafCumsum$inv_f),stop.on.error = FALSE)$value
          # area of emprical curve
          dataA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
                             min(vafCumsum$inv_f),
-                            max(vafCumsum$inv_f),stop.on.error = F)$value
+                            max(vafCumsum$inv_f),stop.on.error = FALSE)$value
          # Take absolute difference between the two
          area <- abs(theoryA - dataA)
          # Normalize so that metric is invariant to chosen limits
@@ -81,7 +81,7 @@ testPowerLaw <- function(
          ## calculate kolmogorovdist 
          n = length(vaf)
          cdfs <- 1 - ((1/sort(vaf) - 1/max.vaf) /(1/min.vaf - 1/max.vaf))
-         dp <- max((1:n) / n - cdfs)
+         dp <- max((seq_len(n)) / n - cdfs)
          dn <- - min((0:(n-1)) / n - cdfs)
          kolmogorovdist  <- max(c(dn, dp))
          

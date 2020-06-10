@@ -102,7 +102,7 @@ plotMutProfile <- function(maf,
                   'You want the top ', topGenesCount, ' genes,', ' but there are only ', nrow(mat), ' genes in the result.'))
     } else{
       
-      mat <- mat %>% dplyr::slice(1:topGenesCount) %>%
+      mat <- mat %>% dplyr::slice(seq_len(topGenesCount)) %>%
         
                      tibble::column_to_rownames(., "Hugo_Symbol") %>% 
                      dplyr::select(-total_barcode_count) %>%
@@ -117,7 +117,7 @@ plotMutProfile <- function(maf,
 
     # get the order of rows
     stat <- rep(0, topGenesCount)
-    for(i in 1:nrow(mat)){
+    for(i in seq_len(nrow(mat))){
       stat[i] <- sum(!is.na(mat[i, ])) / ncol(mat)
     }
     
@@ -140,8 +140,8 @@ plotMutProfile <- function(maf,
 
 
     multi_hit_exist = FALSE
-    for (i in 1:nrow(mat)) {
-        for (j in 1:ncol(mat)) {
+    for (i in seq_len(nrow(mat))) {
+        for (j in seq_len(nrow(mat))) {
             if (length(temp <- grep("Multi_hits", mat[i, j]))) {
                 multi_hit_exist = TRUE
                 break
@@ -274,7 +274,7 @@ plotMutProfile <- function(maf,
       
       # filter mutation types
       filteredTypes <- c()
-      for (i in 1:length(mutationTypes)){
+      for (i in seq_len(length(mutationTypes))){
           if (length(grep(mutationTypes[i], mat)) != 0) {
               filteredTypes <- c(filteredTypes, mutationTypes[i])
           }
@@ -295,7 +295,7 @@ plotMutProfile <- function(maf,
       }
       
       col_type <- function(class) {
-        set.seed(123)
+        # set.seed(123)
         cols <- sample(colorScale, size = length(mutationTypes), replace = FALSE)
         names(cols) <- mutationTypes
         return(cols)
@@ -304,7 +304,7 @@ plotMutProfile <- function(maf,
       
       # prepare functions for assignment
       alter_fun_functions <- list()
-      for (type_num in 1:length(mutationTypes)){
+      for (type_num in seq_len(length(mutationTypes))){
         alter_fun_function <- paste0("function(x, y, w, h) grid::grid.rect(x, y, w * 0.9, h * 0.9,
                               gp = grid::gpar(fill = col_type(\'",class,"\')[\'",mutationTypes[type_num], "\'],col = NA))")
         alter_fun_functions <- c(alter_fun_functions, eval(parse(text = alter_fun_function)))
@@ -339,7 +339,7 @@ plotMutProfile <- function(maf,
       patient.id <- NULL
     } else {
       excluded_sample_index <- c()
-      for (i in 1:ncol(mat)) {
+      for (i in seq_len(ncol(mat))) {
         if (all(is.na(mat[,i]))) {
           excluded_sample_index <- c(excluded_sample_index, i)
         }
@@ -382,7 +382,7 @@ plotMutProfile <- function(maf,
         
     }else {
     
-        set.seed(1234)
+        # set.seed(1234)
         if (is.null(patientsCol)) {
           patientsCol <- sample(colors(), length(patient.id), replace = FALSE)    
           names(patientsCol) <- patient.id

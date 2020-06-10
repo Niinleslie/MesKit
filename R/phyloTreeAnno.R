@@ -83,7 +83,7 @@ getTreeData <- function(phyloTree = NULL,
    treeData[1,]$y2 <- -rootEdge
    treeData[1,]$distance <- rootEdge
    treeData[,sample := ""]
-   for(i in 1:nrow(treeData)){
+   for(i in seq_len(nrow(treeData))){
       if(treeData$end_num[i] > length(tree$tip.label)){
          treeData$sample[i] <- "internal node"
       }
@@ -120,7 +120,7 @@ getTreeData <- function(phyloTree = NULL,
    
    ## label represents the common evolution path of samples
    treeData$label <- ""
-   for(i in 1:nrow(treeData)){
+   for(i in seq_len(nrow(treeData))){
        if(treeData$sample[i] == "NORMAL"){
            treeData$label[i] <- branchLabel[[rootNode]]
        }else{
@@ -196,7 +196,7 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacent
       }
    }
    if(length(adjacentPoints) > 0){
-      for(i in 1:length(adjacentPoints)){
+      for(i in seq_len(length(adjacentPoints))){
          point <- adjacentPoints[i]
          startnode <- treeEdge[endNum == point, ]$node
          x1 <- treeData[end_num == startnode,]$x2
@@ -221,7 +221,7 @@ calMainTrunk <- function(tree, treeEdge, rootNode, rootLabel = "NORMAL"){
    Ntips <- Ntip(tree)
    subtips <- treeEdge[!endNum > Ntips,]$endNum
    distanceTable <- data.frame(x = 0)
-   for(i in 1:length(subtips)){
+   for(i in seq_len(length(subtips))){
       distanceTable <- cbind(distanceTable, -1)
    }
    distanceTable <- distanceTable[,(-1)]
@@ -301,7 +301,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
       wrt <- W/2
       totalR <- sum(right)
       
-      for(i in 1:length(rightList)){
+      for(i in seq_len(length(rightList))){
          if(rightList[i] <=  length(tree$tip.label)){
             n <- 1
          }else{
@@ -337,7 +337,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
       wlt <- W/2
       startl <- horizon + wlt
       totalL <- sum(left)
-      for(i in 1:length(leftList)){
+      for(i in seq_len(length(leftList))){
          if(leftList[i] <=  length(tree$tip.label)){
             n <- 1
          }
@@ -381,11 +381,11 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
    pointsList <- sort(unique(c(treeEdge$node,treeEdge$endNum))) 
    numList <- c()
    lrnumList <- c()
-   for(i in 1:length(pointsList)){
+   for(i in seq_len(length(pointsList))){
       numList[i] <- 1
       lrnumList[i] <- 0
    }
-   for(i in 1:length(pointsList)){
+   for(i in seq_len(length(pointsList))){
       if(pointsList[i] == rootNode){
          next
       }
@@ -448,7 +448,7 @@ labelBranch <- function(tree){
    internalNodes <- sort(unique(tree$edge[,1]))
    result <- list()
    subnumList <- list()
-   for(i in 1:(length(tree$edge.length)+1)){
+   for(i in seq_len(length(tree$edge.length)+1)){
       result[[i]] <- NA
       if(i > Ntip(tree)){
          subnumList[[i]] <- i 
@@ -458,7 +458,7 @@ labelBranch <- function(tree){
       }
    }
    end <- tree$edge[which(tree$edge[,2] == Root),1]
-   for(i in 1:length(tree$tip.label)){
+   for(i in seq_len(length(tree$tip.label))){
       row <- tree$edge[which(tree$edge[,2] == i), ]
       if(i == Root){
          next
@@ -493,6 +493,6 @@ labelBranch <- function(tree){
          }
       }
    }
-   g <- lapply(result, function(x){return(paste(sort(tree$tip.label[x[-1]], decreasing = T),collapse = "∩"))})
+   g <- lapply(result, function(x){return(paste(sort(tree$tip.label[x[-1]], decreasing = TRUE),collapse = "∩"))})
    return(list(g,subnumList))
 }

@@ -6,7 +6,7 @@ preprocess_HugoSymbol <- function(mafData){
       dplyr::filter(!all(strsplit(Hugo_Symbol,",|;")[[1]] == "NONE")) %>% 
       as.data.table()
       
-   h <- lapply(remove.all_none.dat$Hugo_Symbol,function(x){
+   h <- lapply(remove.all_none.dat$Hugo_Symbol, function(x){
       s <- strsplit(x,",|;")[[1]]
       s <- s[s!= "NONE"]
       if(length(s) == 1){

@@ -68,7 +68,7 @@ readSegment <- function(segCN.file = NULL,
           return("Amplification")
       }
   }))) %>%
-      dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size) %>%
+      dplyr::filter(Chromosome %in% seq_len(22)& Width > min.seg.size) %>%
       dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID, CopyNumber, Type) %>% 
        as.data.table()
   seg$Chromosome <- as.numeric(seg$Chromosome)
@@ -160,25 +160,6 @@ readSegment <- function(segCN.file = NULL,
           data.table::as.data.table()
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
   }
-  ## annotate seg with gene
-  # txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-  # allgenes <- as.data.table(genes(txdb))
-  # genelist <- suppressMessages(select(org.Hs.eg.db,keys=allgenes$gene_id,columns="SYMBOL",keytype="ENTREZID")$SYMBOL) 
-  # allgenes <- allgenes %>% 
-  #     dplyr::mutate(Hugo_Symbol = genelist) %>% 
-  #     dplyr::rename(Chromosome = seqnames, 
-  #            Start_Position = start,
-  #            End_Position = end) %>% 
-  #     dplyr::filter(Chromosome %in% paste("chr",c(1:22),sep = "")) %>% 
-  #     dplyr::mutate(Chromosome =  as.numeric(gsub("chr","",Chromosome)))
-  # data.table::setkey(x = allgenes,Chromosome, Start_Position, End_Position)
-  # ## map gene to seg
-  # anno_result <-  data.table::foverlaps(seg,allgenes,
-  #                                       by.x = c("Chromosome",
-  #                                                "Start_Position",
-  #                                                "End_Position"))
-  # 
-  # t <- anno_result[Patient_ID == "HCC5647"&Tumor_Sample_Barcode == "T1"]
   
   
   data.table::setkey(x = seg, Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position)
