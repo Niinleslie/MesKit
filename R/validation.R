@@ -20,7 +20,7 @@ validMaf <- function(maf_data){
    maf_data <- maf_data[VAF!=0]
    
    ## remove mutation in chromosome M and chromosome MT
-   maf_data <- maf_data[!Chromosome %in% c("M","MT")]
+   maf_data <- maf_data[!Chromosome %in% c("M", "MT")]
    
    ## sort HugoSymbol
    # maf_data <- preprocess_HugoSymbol(maf_data)

@@ -23,7 +23,7 @@ classifyMut <- function(
      ...) {
     
     ## check input data
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
+    maf_list <- checkMafInput(maf, patient.id=patient.id)
     
     result <- list()
     for(m in maf_list){

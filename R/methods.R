@@ -23,7 +23,7 @@ setGeneric(name = "getSampleInfo", function(object) standardGeneric("getSampleIn
 
 #' @rdname getSampleInfo
 #' @aliases getSampleInfo
-setMethod(f = "getSampleInfo",signature = "Maf", function(object)object@sample.info)
+setMethod(f = "getSampleInfo", signature = "Maf", function(object)object@sample.info)
 
 #' @title getNonSyn_vc
 #' @rdname getNonSyn_vc
@@ -36,7 +36,7 @@ setGeneric(name = "getNonSyn_vc", function(object) standardGeneric("getNonSyn_vc
 
 #' @rdname getNonSyn_vc
 #' @aliases getNonSyn_vc
-setMethod(f = "getNonSyn_vc",signature = "Maf", function(object)object@nonSyn.vc)
+setMethod(f = "getNonSyn_vc", signature = "Maf", function(object)object@nonSyn.vc)
 
 #' @title getMafRef
 #' @rdname getMafRef
@@ -63,7 +63,7 @@ setGeneric(name = "getMafPatient", function(object) standardGeneric("getMafPatie
 
 #' @rdname getMafPatient
 #' @aliases getMafPatient
-setMethod(f = "getMafPatient",signature = "Maf", function(object)unique(getMafData(object)$Patient_ID))
+setMethod(f = "getMafPatient", signature = "Maf", function(object)unique(getMafData(object)$Patient_ID))
 
 
 #' @title getTree
@@ -77,7 +77,7 @@ setGeneric(name = "getTree", function(object) standardGeneric("getTree"))
 
 #' @rdname getTree
 #' @aliases getTree
-setMethod(f = "getTree",signature = "phyloTree", function(object)object@tree)
+setMethod(f = "getTree", signature = "phyloTree", function(object)object@tree)
 
 
 #' @title getBinaryMatrix
@@ -91,7 +91,7 @@ setGeneric(name = "getBinaryMatrix", function(object) standardGeneric("getBinary
 
 #' @rdname getBinaryMatrix
 #' @aliases getBinaryMatrix
-setMethod(f = "getBinaryMatrix",signature = "phyloTree", function(object)object@binary.matrix)
+setMethod(f = "getBinaryMatrix", signature = "phyloTree", function(object)object@binary.matrix)
 
 #' @title getPhyloTreePatient
 #' @rdname getPhyloTreePatient
@@ -104,7 +104,7 @@ setGeneric(name = "getPhyloTreePatient", function(object) standardGeneric("getPh
 
 #' @rdname getPhyloTreePatient
 #' @aliases getPhyloTreePatient
-setMethod(f = "getPhyloTreePatient",signature = "phyloTree", function(object)object@patientID)
+setMethod(f = "getPhyloTreePatient", signature = "phyloTree", function(object)object@patientID)
 
 #' @title getBootstrapValue
 #' @rdname getBootstrapValue

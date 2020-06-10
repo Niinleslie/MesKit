@@ -118,7 +118,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             }
         }
         
-        for(i in 1:length(sig_input)){
+        for(i in seq_len(length(sig_input))){
             fit <- sig_input[[i]]
             patient <- names(sig_input)[[i]]
             RSS <- fit$RSS
@@ -192,7 +192,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                 ## sort by contribution
                 sig_con <- sort(sig_con, decreasing = TRUE)
                 sig_title <- ''
-                for(i in 1:length(sig_con)){
+                for(i in seq_len(length(sig_con))){
                     c <- round(sig_con[i], 2)
                     n <- names(sig_con)[i]
                     if(i == 1){

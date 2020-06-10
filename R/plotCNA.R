@@ -96,8 +96,8 @@ plotCNA <- function(seg,
         return(as.numeric(x[pos]) + as.numeric(chrLens[as.numeric(x[chrname]) ]) )
     }
     chrLens =  append(cumsum(chrLens),1,after = 0)
-    chrLabels = c(1:22)
-    chrTable = data.table::data.table(chr = chrLabels, start = chrLens[1:(length(chrLens)-3)], end = chrLens[2:(length(chrLens)-2)])
+    chrLabels = seq_len(22)
+    chrTable = data.table::data.table(chr = chrLabels, start = chrLens[seq_len(length(chrLens)-3)], end = chrLens[2:(length(chrLens)-2)])
     chrTable$color = rep(c('black','white'), length = nrow(chrTable))
     patients <- as.character(unique(seg$Patient_ID))
     dat.list <- split(seg, seg$Patient_ID)
@@ -202,7 +202,7 @@ plotCNA <- function(seg,
         names(allScales) <- type.level
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){
-            set.seed(1234)
+            #set.seed(1234)
             patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
             names(patient_colors) <- patient.rect.table$patient
         }
@@ -227,8 +227,8 @@ plotCNA <- function(seg,
                 color = rep(c("white","black"), 11))+
             
             ## vertical line 
-            geom_segment(aes(x = chrTable$end[1:(nrow(chrTable)-1)],
-                             xend = chrTable$end[1:(nrow(chrTable)-1)],
+            geom_segment(aes(x = chrTable$end[seq_len(nrow(chrTable)-1)],
+                             xend = chrTable$end[seq_len(nrow(chrTable)-1)],
                              y = chrom.bar.height,
                              yend = max(backgroundTable$ymax)),
                          linetype = "dotted",

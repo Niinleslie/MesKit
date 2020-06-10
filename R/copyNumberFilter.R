@@ -18,8 +18,8 @@ copyNumberFilter <- function(maf, seg){
                                           Reference_Allele, Tumor_Seq_Allele2,Tumor_Sample_Barcode, 
                                           sep=":"), ID)
   seg$Chromosome <- as.character(seg$Chromosome)
-  data.table::setkey(x = seg,Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position)
-  sampleNames <- unique(seg[,Tumor_Sample_Barcode])
+  data.table::setkey(x = seg, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position)
+  sampleNames <- unique(seg[, Tumor_Sample_Barcode])
   sampleDat <- maf_data[Tumor_Sample_Barcode %in% sampleNames,]
   resID <- maf_data[!ID %in% sampleDat$ID]$ID
   overlapsDat <- data.table::foverlaps(x = sampleDat, y = seg, 

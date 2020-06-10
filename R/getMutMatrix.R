@@ -35,7 +35,7 @@ getMutMatrix <- function(mafData, use.ccf = FALSE){
     sampleOrder <- sort(rowSums(mutBinary.trans), decreasing=TRUE, index.return=TRUE)$ix
     scoreCol <- function(x) {
       score <- 0;
-      for(i in 1:length(x)) {
+      for(i in seq_len(length(x))) {
         if(x[i]) {
           score <- score + 2^(length(x)-i)
         }

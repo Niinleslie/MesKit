@@ -56,15 +56,15 @@ compareTree <- function(phyloTree1,
 	        treedat1$is.match <- 'NO'
 	        treedat2$is.match <- 'NO'
 	        x <- 1
-	        for(i in 1:length(m12)){
+	        for(i in seq_len(length(m12))){
 	            if(is.na(m12[i])){
 	                next
 	            }
 	            else{
 	                pos1 <- which(treedat1$end_num == treedat1[sample == "internal node",]$end_num[i])
 	                pos2 <- which(treedat2$end_num == treedat2[sample == "internal node",]$end_num[m12[i]])
-	                treedat1$is.match[pos1] <- paste0("com",x)
-	                treedat2$is.match[pos2] <- paste0("com",x)
+	                treedat1$is.match[pos1] <- paste0("com", x)
+	                treedat2$is.match[pos2] <- paste0("com", x)
 	                x <- x + 1
 	            }
 	        }

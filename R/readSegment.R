@@ -68,7 +68,7 @@ readSegment <- function(segCN.file = NULL,
           return("Amplification")
       }
   }))) %>%
-      dplyr::filter(Chromosome %in% seq(1:22)& Width > min.seg.size) %>%
+      dplyr::filter(Chromosome %in% seq_len(22)& Width > min.seg.size) %>%
       dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID, CopyNumber, Type) %>% 
        as.data.table()
   seg$Chromosome <- as.numeric(seg$Chromosome)

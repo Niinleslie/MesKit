@@ -109,7 +109,7 @@ compareJSI <- function(
         for (pair in pairs){
             
             if(pairByTumor){
-                name <- paste(tumors[pair[1]],tumors[pair[2]], sep = "_")
+                name <- paste(tumors[pair[1]], tumors[pair[2]], sep = "_")
                 vaf.pair <- subset(JSI_input, Tumor_ID %in% c(tumors[pair[1]],tumors[pair[2]])) %>%
                     tidyr::unite("Mut_ID2",
                                  c("Mut_ID",
@@ -129,7 +129,7 @@ compareJSI <- function(
             }
             else{
                 name <- paste(samples[pair[1]],samples[pair[2]], sep = "_")
-                vaf.pair <- subset(JSI_input, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>% 
+                vaf.pair <- subset(JSI_input, Tumor_Sample_Barcode %in% c(samples[pair[1]], samples[pair[2]])) %>% 
                     dplyr::select(Mut_ID, Tumor_Sample_Barcode, Clonal_Status, VAF_adj) %>% 
                     tidyr::pivot_wider(
                         names_from = Tumor_Sample_Barcode,       
@@ -143,11 +143,11 @@ compareJSI <- function(
             vaf.pair <- vaf.pair %>% 
                 dplyr::filter(vaf1 + vaf2 !=0) %>% 
                 data.table::setDT()
-            PC_1 <- nrow(vaf.pair[status1 == "Clonal" & vaf1>0 & vaf2==0])
+            PC_1 <- nrow(vaf.pair[status1 == "Clonal" & vaf1 > 0 & vaf2 == 0])
             PC_1.list <- c(PC_1.list, PC_1)
-            PC_2 <- nrow(vaf.pair[status2 == "Clonal" & vaf1==0 & vaf2>0])
+            PC_2 <- nrow(vaf.pair[status2 == "Clonal" & vaf1 == 0 & vaf2 > 0])
             PC_2.list <- c(PC_2.list, PC_2)
-            SS_12 = nrow(vaf.pair[status2=="Subclonal" & status1 == "Subclonal" & vaf1>0 & vaf2>0 ])
+            SS_12 = nrow(vaf.pair[status2 == "Subclonal" & status1 == "Subclonal" & vaf1>0 & vaf2>0 ])
             SS_12.list <- c(SS_12.list, SS_12)
             jsi <- SS_12/(PC_1+PC_2+SS_12)
             if(is.nan(jsi)){
@@ -160,7 +160,7 @@ compareJSI <- function(
         }
         
         multi <- mean(SS_12.list)/(mean(PC_1.list) + mean(PC_2.list) + mean(SS_12.list))
-        multi <- ifelse(is.nan(multi),0,multi)
+        multi <- ifelse(is.nan(multi), 0, multi)
         
         JSI.multi <- multi
         JSI.pair <- dist_mat
@@ -173,9 +173,9 @@ compareJSI <- function(
             }
             if(is.null(title)){
                 min_value <- min(dist_mat[dist_mat!=1 & dist_mat!=0])
-                significant_digit <- gsub(pattern =  "0\\.0*","",as.character(min_value))
+                significant_digit <- gsub(pattern =  "0\\.0*", "", as.character(min_value))
                 digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
-                title_id <- paste0("JSI of patient ", patient, ": ",round(multi,digits))
+                title_id <- paste0("JSI of patient ", patient, ": ", round(multi,digits))
             }else{
                 title_id <- title
             }

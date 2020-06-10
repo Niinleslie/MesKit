@@ -68,7 +68,7 @@ mutHeatmap <- function(maf,
         
         ## classify mutation
         maf_data <- maf_data %>% 
-            do.classify(class = "SP",classByTumor = T) %>% 
+            do.classify(class = "SP",classByTumor = TRUE) %>% 
             tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE)
             
         patient <- unique(maf_data$Patient_ID)
@@ -135,7 +135,7 @@ mutHeatmap <- function(maf,
         ## sort mutation
         mut.num <- nrow(mat)        
         mat <- dplyr::arrange(mat,  mutation_type)
-        mat$mutation <- 1:nrow(mat)
+        mat$mutation <- seq_len(nrow(mat))
         
         
         ## cumsum postion of axis y
@@ -209,7 +209,7 @@ mutHeatmap <- function(maf,
                                   replace = FALSE)
             mutation_type_colors <- append(mutation_type_colors, left_colors)
         }else{
-            mutation_type_colors <- mutation_type_colors[1:length(mutation_type_level)] 
+            mutation_type_colors <- mutation_type_colors[seq_len(length(mutation_type_level))] 
         }
         names(mutation_type_colors) <- mutation_type_level
         

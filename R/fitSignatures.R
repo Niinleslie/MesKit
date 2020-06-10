@@ -69,7 +69,7 @@ fitSignatures <- function(tri_matrix = NULL,
   
   result <- list()
   tri_matrix_list <- tri_matrix
-  for(i in 1:length(tri_matrix_list)){
+  for(i in seq_len(length(tri_matrix_list))){
     tri_matrix <- tri_matrix_list[[i]]
     patient <- names(tri_matrix_list)[i]
     
@@ -103,9 +103,9 @@ fitSignatures <- function(tri_matrix = NULL,
     rownames(cos_sim_matrix) <- rownames(origin_matrix)
     colnames(cos_sim_matrix) <- rownames(sigsRef)
     
-    for(i in 1:branch_num){
+    for(i in seq_len(branch_num)){
       x <- as.numeric(origin_matrix[i,])  
-      for( j in 1:refsig_num){
+      for( j in seq_len(refsig_num)){
         y <- as.numeric(sigsRef[j,])  
         s <- as.numeric(x %*% y / (sqrt(x %*% x) * sqrt(y %*% y)))
         cos_sim_matrix[i,j] <- s
@@ -122,7 +122,7 @@ fitSignatures <- function(tri_matrix = NULL,
     recon_matrix <- matrix(1, nrow = branch_num, ncol = type_num)
     
     ## solve nonnegative least-squares constraints.
-    for(i in 1:branch_num){
+    for(i in seq_len(branch_num)){
       m <- as.numeric(origin_matrix[i,]) 
       lsq <- pracma::lsqnonneg(sigsRef_t, m)
       con_matrix[i,] <- lsq$x
@@ -137,7 +137,7 @@ fitSignatures <- function(tri_matrix = NULL,
     
     ## calculate RSS of reconstructed matrix and origin matrix
     RSS <- c()
-    for(i in 1:branch_num){
+    for(i in seq_len(branch_num)){
       r <- recon_matrix[i,]
       o <- origin_matrix[i,]
       rss <- sum((r-o)^2) 
@@ -153,7 +153,7 @@ fitSignatures <- function(tri_matrix = NULL,
     aetiology_ref <- as.character(df.aetiology$aeti)  
     names(aetiology_ref) <-  as.character(df.aetiology$sig)
     signatures_aetiology <- data.frame()
-    for(i in 1:branch_num){
+    for(i in seq_len(branch_num)){
       branch_name <- rownames(tri_matrix)[i]
       contribution <- con_matrix[i,]
       sig_cut <- names(contribution[contribution > signature.cutoff])

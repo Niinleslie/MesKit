@@ -10,7 +10,7 @@ plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel, patient){
  
  x.min <- min(vafCumsum$f)
  x.max <- max(vafCumsum$f)
- x.breaks <- seq(x.min,x.max,(x.max-x.min)/2)
+ x.breaks <- seq(x.min, x.max, (x.max-x.min)/2)
  x.breaks.pos <- 1/x.breaks - 1/max.vaf
  x.breaks.label <- paste("1/", round(x.breaks,2),sep="")
  y.min <-  0

@@ -79,7 +79,7 @@ drawVAFCompare <- function(maf_data,withinTumor){
     names(color_scale) <- c(1:9, "outlier")
     pic <- ggplot(maf_data,aes(x=VAF, y=ID)) +
            theme_bw() + 
-            theme(plot.title=element_text(size=16, hjust=0.5,vjust=0.5, face='bold'), 
+            theme(plot.title=element_text(size=16, hjust=0.5, vjust=0.5, face='bold'), 
                   panel.grid=element_blank(), 
                   panel.border=element_blank(),
                   axis.title=element_text(size=13), 
