@@ -16,7 +16,7 @@ triMatrix <- function(phyloTree,
                       patient.id = NULL,
                       withinTumor = FALSE){
   ## check input data
-  phyloTree_list <- checkPhyloTreeInput(phyloTree,patient.id = patient.id)
+  phyloTree_list <- checkPhyloTreeInput(phyloTree, patient.id = patient.id)
   
   ## inner parameter for mutTrunkBranch
   if("CT" %in% getTreeMethod(phyloTree_list[[1]])){

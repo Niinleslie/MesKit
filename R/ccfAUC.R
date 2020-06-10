@@ -65,14 +65,14 @@ ccfAUC <- function(
                 subdata <- subset(maf_data, Tumor_Sample_Barcode == id)
                 ccf <- subdata$CCF
             }
-            df_ccf <- data.frame(CCF = as.vector(sort(ccf)), prop = c(1:length(ccf))/length(ccf))
+            df_ccf <- data.frame(CCF = as.vector(sort(ccf)), prop = seq_len(length(ccf))/length(ccf))
             auc <- suppressWarnings(stats::integrate(approxfun(df_ccf$CCF,df_ccf$prop),
                                                      min(df_ccf$CCF),
                                                      max(df_ccf$CCF),
                                                      # subdivisions = length(df_ccf),
-                                                     stop.on.error = F)$value)
+                                                     stop.on.error = FALSE)$value)
             # auc <- 0
-            # for(i in 1:(nrow(df_ccf)-1)){
+            # for(i in seq_len(nrow(df_ccf)-1)){
             #     mutArea <- (df_ccf[i, "prop"] + df_ccf[i+1, "prop"])*(df_ccf[i+1, "CCF"] - df_ccf[i, "CCF"])/2
             #     auc <- mutArea + auc
             # }
@@ -86,17 +86,17 @@ ccfAUC <- function(
             if(withinTumor){
                 c <-  subdata %>%         
                     dplyr::arrange(Tumor_Average_CCF) %>%
-                    dplyr::mutate(prop = c(1:nrow(.)/nrow(.))) %>% 
-                    dplyr::mutate(Tumor_ID = paste0(Tumor_ID," (",round(auc,3),")"))
+                    dplyr::mutate(prop = seq_len(nrow(.)/nrow(.))) %>% 
+                    dplyr::mutate(Tumor_ID = paste0(Tumor_ID," (", round(auc,3), ")"))
                 
             }else{
                 c <-  subdata %>%         
                     dplyr::arrange(CCF) %>%
-                    dplyr::mutate(prop = c(1:nrow(.)/nrow(.))) %>% 
+                    dplyr::mutate(prop = seq_len(nrow(.)/nrow(.))) %>% 
                     dplyr::mutate(Tumor_Sample_Barcode = paste0(Tumor_Sample_Barcode," (",round(auc,3),")"))
                 
             }
-            CCF.sort <- rbind(CCF.sort,c)
+            CCF.sort <- rbind(CCF.sort, c)
             
         }
         
@@ -112,12 +112,12 @@ ccfAUC <- function(
                 #geom_smooth(na.rm = TRUE, se = FALSE, size = 1.2, formula = y ~ s(x, bs = "cs"), method = "gam") +
                 theme_bw() + 
                 geom_line(size=1.2) +
-                xlim(0,1) + ylim(0,1) +     
+                xlim(0, 1) + ylim(0, 1) +     
                 coord_fixed() +
                 theme(
                     #legend.position='none', 
                     legend.title = element_blank(),
-                    plot.title =  element_text(size=13.5,face = "bold"), 
+                    plot.title =  element_text(size=13.5, face = "bold"), 
                     axis.title = element_text(size=13),
                     panel.grid=element_blank(), 
                     panel.border=element_blank(), 

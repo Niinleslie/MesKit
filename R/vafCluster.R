@@ -72,7 +72,7 @@ vafCluster <-function(maf,
           
           ## infer possible cluster from maf_data
           message(paste("Processing ", id," of ", patient, sep = ""))
-          cluster_result <- mclust::densityMclust(subdata$VAF, G=1:7, verbose=FALSE)
+          cluster_result <- mclust::densityMclust(subdata$VAF, G=seq_len(7), verbose=FALSE)
           subdata$cluster <- as.character(cluster_result$classification)
           
           ## define outfilter

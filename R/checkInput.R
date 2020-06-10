@@ -6,7 +6,7 @@
 #' checkPhyloTreeInput(phyloTree)
 #' 
 
-checkPhyloTreeInput <- function(object,patient.id = NULL){
+checkPhyloTreeInput <- function(object, patient.id = NULL){
   if(class(object) == "phyloTree"){
     return(list(object)) 
   }else if(class(object) == "phyloTreeList"){
@@ -41,7 +41,7 @@ checkMafInput <- function(object,patient.id = NULL){
       if(length(patient.setdiff) > 0){
         stop(paste0("Patient ", patient.setdiff, " can not be found in MafList"))
       }
-      object <- object[names(object)  %in% patient.id]
+      object <- object[names(object) %in% patient.id]
     }
     return(object)
   }else{

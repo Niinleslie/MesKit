@@ -68,7 +68,7 @@ plotPhyloTree <- function(phyloTree,
        }
 
        ## get title 
-       set.seed(1234)
+       # set.seed(1234)
        boot_value <- getBootstrapValue(phyloTree)
        rootLabel <- "NORMAL"
        ## plot phylotree
@@ -105,9 +105,9 @@ plotPhyloTree <- function(phyloTree,
            bootsData <- rbind(treeData[sample == 'internal node',][,.(x2,y2,node,end_num)],sub)
            boots <- c()
            LN <- min(bootsData$node)-1
-           for(i in 1:nrow(bootsData)){      
+           for(i in seq_len(nrow(bootsData))){      
                if(i == nrow(bootsData)){
-                   boots <- append(boots,  boot_value[rootNode - LN])
+                   boots <- append(boots, boot_value[rootNode - LN])
                    next
                }
                boots <- append(boots, boot_value[bootsData$end_num[i] - LN])
@@ -172,7 +172,7 @@ plotPhyloTree <- function(phyloTree,
            }else{
                p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = "black",
                                      data = treeData, 
-                                     size=segmentSize, show.legend = F)
+                                     size=segmentSize, show.legend = FALSE)
                
            }
        }
@@ -267,5 +267,4 @@ plotPhyloTree <- function(phyloTree,
    }else{
        return(tree_list)
    }
-
 }

@@ -99,7 +99,7 @@ calNeiDist <- function(maf,
                                           values_fill = list(CCF = 0)) %>%
                 dplyr::select(-Mut_ID, -Tumor_ID)
             dist_mat <- diag(1, nrow = ncol(subdata), ncol = ncol(subdata))
-            for (i in 1:(ncol(subdata) - 1)) {
+            for (i in seq_len(subdata -1)) {
                 s1 <- colnames(subdata)[i]
                 for (j in (i + 1):ncol(subdata)) {
                     s2 <- colnames(subdata)[j]
@@ -118,10 +118,10 @@ calNeiDist <- function(maf,
             rownames(dist_mat) <- colnames(subdata)
             colnames(dist_mat) <- colnames(subdata)
             
-            Nei.dist.avg <- mean(dist_mat[upper.tri(dist_mat, diag = F)])
+            Nei.dist.avg <- mean(dist_mat[upper.tri(dist_mat, diag = FALSE)])
             Nei.dist <- dist_mat
             if(withinTumor){
-                name <- paste(patient,id,sep = "_")
+                name <- paste(patient, id, sep = "_")
             }else{
                 name <- patient
             }
@@ -130,10 +130,10 @@ calNeiDist <- function(maf,
                 if(is.null(title)){
                     ## get significant number
                     min_value <- min(dist_mat[dist_mat!=1 & dist_mat!=0])
-                    significant_digit <- gsub(pattern =  "0\\.0*","",as.character(min_value))
+                    significant_digit <- gsub(pattern =  "0\\.0*","", as.character(min_value))
                     digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
                     if(withinTumor){
-                        title_id <- paste0("Nei's distance of ",id," in ", patient, ": ",round(Nei.dist.avg,digits))
+                        title_id <- paste0("Nei's distance of ", id," in ", patient, ": ",round(Nei.dist.avg,digits))
                     }else{
                         title_id <- paste0("Nei's distance of patient ", patient, ": ",round(Nei.dist.avg,digits))
                     }
@@ -150,7 +150,7 @@ calNeiDist <- function(maf,
             }
             
             if(withinTumor){
-                name <- paste(patient,id,sep = "_")
+                name <- paste(patient, id, sep = "_")
             }else{
                 name <- patient
             }

@@ -7,11 +7,11 @@ readPhyloTree <- function(tree){
   Root <- which(tree$tip.label == "NORMAL")
   tree <- root(tree, Root)
   result <- list()
-  for(i in 1:(length(tree$edge.length)+1)){
+  for(i in seq_len(length(tree$edge.length)+1)){
       result[[i]] <- NA
   }
   end <- tree$edge[which(tree$edge[,2] == Root),1]
-  for(i in 1:length(tree$tip.label)){
+  for(i in seq_len(length(tree$tip.label))){
       row <- tree$edge[which(tree$edge[,2] == i), ]
       if(i == Root){
           next
@@ -30,7 +30,7 @@ readPhyloTree <- function(tree){
       }
   }
   g <- lapply(result, function(x){
-    return(paste(sort(tree$tip.label[x[-1]], decreasing = T),collapse = "∩"))
+    return(paste(sort(tree$tip.label[x[-1]], decreasing = TRUE),collapse = "∩"))
     })
   edges_label <- unlist(g)[-Root]
   nodes.num <- seq_along(tree$tip.label) - 1

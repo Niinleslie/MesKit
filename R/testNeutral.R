@@ -30,150 +30,150 @@ testNeutral <- function(maf,
                         min.mut.count = 20,
                         plot = TRUE,...){
   
-    if(min.vaf <= 0){
-        stop("Error: min.vaf must be greater than 0")
+  if(min.vaf <= 0){
+    stop("Error: min.vaf must be greater than 0")
+  }
+  if(max.vaf < min.vaf){
+    stop("Error: max.vaf must be greater than min.vaf")
+  }
+  
+  ## check input data
+  maf_list <- checkMafInput(maf, patient.id = patient.id)
+  
+  result <- list()
+  for(m in maf_list){
+    maf_data <- subsetMaf(m,
+                          min.vaf = min.vaf,
+                          max.vaf = max.vaf,
+                          min.total.depth = min.total.depth,
+                          clonalStatus = "Subclonal",
+                          ...)
+    patient <- getMafPatient(m)
+    if(nrow(maf_data) == 0){
+      message("Warning :there was no mutation in ", patient, " after filter.")
+      next
     }
-    if(max.vaf < min.vaf){
-        stop("Error: max.vaf must be greater than min.vaf")
+    patient <- unique(maf_data$Patient_ID)
+    if(! "CCF" %in% colnames(maf_data)){
+      stop(paste0("Error: inferring whether a tumor follows neutral evolution requires CCF data.",
+                  "No CCF data was found when generate Maf object."))
     }
     
-    ## check input data
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
-    
-    result <- list()
-    for(m in maf_list){
-        maf_data <- subsetMaf(m,
-                         min.vaf = min.vaf,
-                         max.vaf = max.vaf,
-                         min.total.depth = min.total.depth,
-                         clonalStatus = "Subclonal",
-                         ...)
-        patient <- getMafPatient(m)
-        if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filter.")
-            next
-        }
-        patient <- unique(maf_data$Patient_ID)
-        if(! "CCF" %in% colnames(maf_data)){
-            stop(paste0("Error: inferring whether a tumor follows neutral evolution requires CCF data.",
-                        "No CCF data was found when generate Maf object."))
-        }
-        
-        neutrality.metrics <- data.frame()
-        if(plot){
-            model.fitting.plot <- list()
-        }
-        
-        if(withinTumor){
-            ids <- unique(maf_data$Tumor_ID)
-        }else{
-            ids <- unique(maf_data$Tumor_Sample_Barcode)
-        }
-        
-        for(id in ids){
-            if(withinTumor){
-                subdata <- subset(maf_data, Tumor_ID == id&!is.na(Tumor_Average_VAF_adj))
-                subdata$VAF_adj <- subdata$Tumor_Average_VAF_adj
-            }else{
-                subdata <- subset(maf_data, Tumor_Sample_Barcode == id&!is.na(VAF_adj))
-            }
-            ## warning
-            if(nrow(subdata) < min.mut.count){
-                warning(paste0("Eligible mutations of sample ", id, " from ", patient, " is not enough for testing neutral evolution."))
-                next
-            }
-            
-            vaf <- subdata$VAF_adj
-            breaks <- seq(max.vaf, min.vaf, -0.005)
-            mut.count <- sapply(breaks,function(x,vaf){sum(vaf > x)},vaf = vaf)
-            vafCumsum <- data.frame(count = mut.count, f = breaks)
-            vafCumsum$inv_f <- 1/vafCumsum$f - 1/max.vaf
-            vafCumsum$n_count <- vafCumsum$count/max(vafCumsum)
-            vafCumsum$t_count <- vafCumsum$inv_f/(1/min.vaf - 1/max.vaf)
-            ## area of theoretical curve
-            theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$t_count),
-                                 min(vafCumsum$inv_f),
-                                 max(vafCumsum$inv_f),stop.on.error = F)$value
-            # area of emprical curve
-            dataA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
-                               min(vafCumsum$inv_f),
-                               max(vafCumsum$inv_f),stop.on.error = F)$value
-            # Take absolute difference between the two
-            area <- abs(theoryA - dataA)
-            # Normalize so that metric is invariant to chosen limits
-            area<- area / (1 / min.vaf - 1 / max.vaf)
-            
-            
-            ## calculate mean distance
-            meandist <- mean(abs(vafCumsum$n_count - vafCumsum$t_count))
-            
-            ## calculate kolmogorovdist 
-            n = length(vaf)
-            cdfs <- 1 - ((1/sort(vaf) - 1/max.vaf) /(1/min.vaf - 1/max.vaf))
-            dp <- max((1:n) / n - cdfs)
-            dn <- - min((0:(n-1)) / n - cdfs)
-            kolmogorovdist  <- max(c(dn, dp))
-            
-            ## R squared
-            lmModel <- lm(vafCumsum$count ~ vafCumsum$inv_f + 0)
-            lmLine = summary(lmModel)
-            R2 = lmLine$adj.r.squared
-            
-            if(withinTumor){
-                test.df <- data.frame(
-                    Patient_ID = patient,
-                    Tumor_ID = id,
-                    Eligible_Mut_Count = nrow(subdata),
-                    Area = area,
-                    Kolmogorov_Distance = kolmogorovdist,
-                    Mean_Distance = meandist,
-                    R2 = R2, 
-                    Type = dplyr::if_else(
-                        R2 >= R2.threshold,
-                        "neutral",
-                        "non-neutral") 
-                )
-            }else{
-                test.df <- data.frame(
-                    Patient_ID = patient,
-                    Tumor_Sample_Barcode = id,
-                    Eligible_Mut_Count = nrow(subdata),
-                    Area = area,
-                    Kolmogorov_Distance = kolmogorovdist,
-                    Mean_Distance = meandist,
-                    R2 = R2, 
-                    Type = dplyr::if_else(
-                        R2 >= R2.threshold,
-                        "neutral",
-                        "non-neutral") 
-                ) 
-            }
-            if(plot){
-                p <- plotPowerLaw(vafCumsum = vafCumsum, test.df =  test.df, id = id,
-                                  max.vaf = max.vaf, lmModel = lmModel, patient = patient)
-                model.fitting.plot[[id]] <- p
-            }
-            neutrality.metrics <- rbind(neutrality.metrics, test.df)
-        }
-        if(nrow(neutrality.metrics) == 0){
-            next
-        }
-        if(plot){
-            result[[patient]] <- list(
-                neutrality.metrics = neutrality.metrics,
-                model.fitting.plot = model.fitting.plot
-            )
-        }else{
-            result[[patient]] <- neutrality.metrics
-        }
+    neutrality.metrics <- data.frame()
+    if(plot){
+      model.fitting.plot <- list()
     }
-    if(length(result) > 1){
-        return(result)
-    }else if(length(result) == 0){
-        return(NA)
+    
+    if(withinTumor){
+      ids <- unique(maf_data$Tumor_ID)
     }else{
-        return(result[[1]])
+      ids <- unique(maf_data$Tumor_Sample_Barcode)
     }
+    
+    for(id in ids){
+      if(withinTumor){
+        subdata <- subset(maf_data, Tumor_ID == id&!is.na(Tumor_Average_VAF_adj))
+        subdata$VAF_adj <- subdata$Tumor_Average_VAF_adj
+      }else{
+        subdata <- subset(maf_data, Tumor_Sample_Barcode == id&!is.na(VAF_adj))
+      }
+      ## warning
+      if(nrow(subdata) < min.mut.count){
+        warning(paste0("Eligible mutations of sample ", id, " from ", patient, " is not enough for testing neutral evolution."))
+        next
+      }
+      
+      vaf <- subdata$VAF_adj
+      breaks <- seq(max.vaf, min.vaf, -0.005)
+      mut.count <- sapply(breaks,function(x,vaf){sum(vaf > x)},vaf = vaf)
+      vafCumsum <- data.frame(count = mut.count, f = breaks)
+      vafCumsum$inv_f <- 1/vafCumsum$f - 1/max.vaf
+      vafCumsum$n_count <- vafCumsum$count/max(vafCumsum)
+      vafCumsum$t_count <- vafCumsum$inv_f/(1/min.vaf - 1/max.vaf)
+      ## area of theoretical curve
+      theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$t_count),
+                           min(vafCumsum$inv_f),
+                           max(vafCumsum$inv_f),stop.on.error = FALSE)$value
+      # area of emprical curve
+      dataA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
+                         min(vafCumsum$inv_f),
+                         max(vafCumsum$inv_f),stop.on.error = FALSE)$value
+      # Take absolute difference between the two
+      area <- abs(theoryA - dataA)
+      # Normalize so that metric is invariant to chosen limits
+      area<- area / (1 / min.vaf - 1 / max.vaf)
+      
+      
+      ## calculate mean distance
+      meandist <- mean(abs(vafCumsum$n_count - vafCumsum$t_count))
+      
+      ## calculate kolmogorovdist 
+      n = length(vaf)
+      cdfs <- 1 - ((1/sort(vaf) - 1/max.vaf) /(1/min.vaf - 1/max.vaf))
+      dp <- max((seq_len(n)) / n - cdfs)
+      dn <- - min((0:(n-1)) / n - cdfs)
+      kolmogorovdist  <- max(c(dn, dp))
+      
+      ## R squared
+      lmModel <- lm(vafCumsum$count ~ vafCumsum$inv_f + 0)
+      lmLine = summary(lmModel)
+      R2 = lmLine$adj.r.squared
+      
+      if(withinTumor){
+        test.df <- data.frame(
+          Patient_ID = patient,
+          Tumor_ID = id,
+          Eligible_Mut_Count = nrow(subdata),
+          Area = area,
+          Kolmogorov_Distance = kolmogorovdist,
+          Mean_Distance = meandist,
+          R2 = R2, 
+          Type = dplyr::if_else(
+            R2 >= R2.threshold,
+            "neutral",
+            "non-neutral") 
+        )
+      }else{
+        test.df <- data.frame(
+          Patient_ID = patient,
+          Tumor_Sample_Barcode = id,
+          Eligible_Mut_Count = nrow(subdata),
+          Area = area,
+          Kolmogorov_Distance = kolmogorovdist,
+          Mean_Distance = meandist,
+          R2 = R2, 
+          Type = dplyr::if_else(
+            R2 >= R2.threshold,
+            "neutral",
+            "non-neutral") 
+        ) 
+      }
+      if(plot){
+        p <- plotPowerLaw(vafCumsum = vafCumsum, test.df =  test.df, id = id,
+                          max.vaf = max.vaf, lmModel = lmModel, patient = patient)
+        model.fitting.plot[[id]] <- p
+      }
+      neutrality.metrics <- rbind(neutrality.metrics, test.df)
+    }
+    if(nrow(neutrality.metrics) == 0){
+      next
+    }
+    if(plot){
+      result[[patient]] <- list(
+        neutrality.metrics = neutrality.metrics,
+        model.fitting.plot = model.fitting.plot
+      )
+    }else{
+      result[[patient]] <- neutrality.metrics
+    }
+  }
+  if(length(result) > 1){
+    return(result)
+  }else if(length(result) == 0){
+    return(NA)
+  }else{
+    return(result[[1]])
+  }
 }
 
 

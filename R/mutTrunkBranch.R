@@ -21,7 +21,7 @@ mutTrunkBranch <- function(phyloTree,
                            plot = TRUE){
     
     ## check input data
-    phyloTree_list <- checkPhyloTreeInput(phyloTree,patient.id = patient.id)
+    phyloTree_list <- checkPhyloTreeInput(phyloTree, patient.id = patient.id)
     
     result <- list()
     for(phyloTree in phyloTree_list){
@@ -293,5 +293,4 @@ mutTrunkBranch <- function(phyloTree,
     }else{
         return(result)
     }
-    return(result)
 }

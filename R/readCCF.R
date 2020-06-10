@@ -45,7 +45,7 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
       ## classify clonal status by tumor type
       ## condition1:if any region CCFm < 0.5
       mafData_merge_ccf <- mafData_merge_ccf %>%
-         dplyr::group_by(Patient_ID,Tumor_ID,Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2)%>%
+         dplyr::group_by(Patient_ID,Tumor_ID, Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2)%>%
          dplyr::mutate(condition1 = dplyr::if_else(
             any(CCF< 0.5)  |length(CCF) == 1,
             "yes",
