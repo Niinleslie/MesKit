@@ -8,7 +8,6 @@
 #' @param use.ccf Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.
 #' @param geneList List of genes to restrict the analysis. Default NULL.
 #' @param plot.geneList If TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.
-#' @param show.gene Show the name of genes next to the heatmap.Default FALSE.
 #' @param show.geneList Show the names of gene on the geneList.Default TRUE.
 #' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.
 #' @param sample.text.size Size of sample name.Default 9.
@@ -28,7 +27,6 @@ mutHeatmap <- function(maf,
                        use.ccf = FALSE,
                        geneList = NULL,
                        plot.geneList = FALSE,
-                       show.gene = FALSE,
                        show.geneList = TRUE,
                        mut.threshold = 50,
                        sample.text.size = 9,
@@ -158,14 +156,14 @@ mutHeatmap <- function(maf,
         }
         
         ## Do not gene names if the number of mutations is greater than mut.threshold
-        if(show.gene){
-            if(mut.num >= mut.threshold){
-                message("Warning: the number of mutations is ", mut.num,
-                        " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
-                show.gene = FALSE
-                # show.geneList = FALSE 
-            }
-        }
+        # if(show.gene){
+        #     if(mut.num >= mut.threshold){
+        #         message("Warning: the number of mutations is ", mut.num,
+        #                 " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
+        #         show.gene = FALSE
+        #         # show.geneList = FALSE 
+        #     }
+        # }
         
         if(!is.null(geneList) & show.geneList){
             if(plot.geneList){
@@ -282,17 +280,17 @@ mutHeatmap <- function(maf,
             ggplotGrob %>%
             {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
         
-        if(is.null(geneList) & show.gene){
-            breaks.gene <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
-            p <- p + scale_y_continuous(breaks = breaks.gene,
-                                        labels = mut_dat[mut_dat$sample==unique(mut_dat$sample)[1],]$Gene,
-                                        position = "right")+
-                theme(axis.text.y.right = element_text(size = gene.text.size,
-                                                       colour = "black",
-                                                       face = "italic",
-                                                       margin = margin(l = -15),
-                                                       hjust = 0))
-        }else if(!is.null(geneList)){
+        # if(is.null(geneList) & show.gene){
+        #     breaks.gene <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
+        #     p <- p + scale_y_continuous(breaks = breaks.gene,
+        #                                 labels = mut_dat[mut_dat$sample==unique(mut_dat$sample)[1],]$Gene,
+        #                                 position = "right")+
+        #         theme(axis.text.y.right = element_text(size = gene.text.size,
+        #                                                colour = "black",
+        #                                                face = "italic",
+        #                                                margin = margin(l = -15),
+        #                                                hjust = 0))
+        if(!is.null(geneList)){
             if(plot.geneList & show.geneList){
                 y.dat <- mut_dat %>% 
                     dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
@@ -317,12 +315,7 @@ mutHeatmap <- function(maf,
                     dplyr::distinct(mutation_type, Gene, .keep_all = TRUE)
                 y.breaks <- y.dat$y.breaks
                 y.labels <- y.dat$Gene
-                # names(y.labels) <- y.breaks
-                # y.labels <- unique(y.labels)
-                # y.breaks <- as.numeric(names(y.labels))
-                # print(y.breaks)
-                # print(y.labels)
-                p <- p + 
+                p <- p +
                     scale_y_continuous(breaks = y.breaks,
                                        labels = y.labels,
                                        position = "right") +
@@ -331,6 +324,7 @@ mutHeatmap <- function(maf,
                                                            face = "italic",
                                                            margin = margin(l = -15),
                                                            hjust = 0))
+            
             }
         }
         

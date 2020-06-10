@@ -27,7 +27,7 @@ mutTrunkBranch(
 a list of box plots based on mutational categories
 }
 \description{
-Summarize and conduct paired Wilcoxon test of mutations of trunk/branches in a phylogenetic tree.
+Summarize and conduct paired Fisher test of mutations of trunk/branches in a phylogenetic tree.
 }
 \examples{
 mutTrunkBranch(phyloTree)

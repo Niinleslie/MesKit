@@ -30,7 +30,7 @@ bodyHome <- tabItem("home",
                         width = 12,
                         status = "info",
                         solidHeader = TRUE,
-                        title = div(strong("Introduction"),style = "font-size:27px; font-weight:500;"),
+                        title = div(strong("Introduction"),style = "font-size:2em; font-weight:500;"),
                         p("Cancer develops as a result of the accumulation of genetic aberrations, which promotes the generation of distinct subpopulations of tumor cells and shapes intra-tumor heterogeneity (ITH). ITH is involved in tumor growth, progression, invasion, and metastasis, presenting one of the most significant barriers to accurate diagnoses and effective treatments of cancers. Therefore, dissecting and interpreting ITH of tumor dynamics is one of the major tasks in cancer research. Here, we present MesKit, an R-based package, to provide commonly used analysis and visualization modules in MRS study.",
                           style = "font-size:18px; font-weight:500;line-height:40px;"),
                         br()
@@ -474,11 +474,18 @@ bodyITH <- tabItem("ITH",
                                        title = "Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.",
                                        placement = "top",
                                        trigger = "hover"),
-                             
-                             fileInput(inputId = 'mutheatmap_genelist', 
-                                       label = div(style = "font-size:1.5em; font-weight:600; ", 'Gene list file'),
-                                       placeholder = "Default: IntOGen-DriverGenes_HC.tsv",
-                                       width = 400),
+                             checkboxInput('mutheatmap_useccf',
+                                           value = FALSE,
+                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Use ccf'),
+                                           width = 500),
+                             # bsTooltip(id = "mutheatmap_useccf",
+                             #           title = "Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.",
+                             #           placement = "top",
+                             #           trigger = "hover"),
+                             # fileInput(inputId = 'mutheatmap_genelist', 
+                             #           label = div(style = "font-size:1.5em; font-weight:600; ", 'Gene list file'),
+                             #           placeholder = "Default: IntOGen-DriverGenes_HC.tsv",
+                             #           width = 400),
                              uiOutput("mutheatmap_parameters_ui"),
                              # checkboxInput('mutheatmap_plotgenelist',
                              #               value = FALSE,
@@ -662,7 +669,7 @@ bodyITH <- tabItem("ITH",
                            selected = "ith_mathscore",
                            side = "left",
                            tabPanel(
-                             title = div(icon("chart-bar"), "MATH score"),
+                             title = div(icon("chart-bar"), strong("MATH score")),
                              value = "ith_mathscore",
                              DT::dataTableOutput('mathScore'),
                              br(),
@@ -670,47 +677,47 @@ bodyITH <- tabItem("ITH",
                              uiOutput("msdb")
                            ),
                            tabPanel(
-                             title = div(icon("image"), "VAF clustering"),
+                             title = div(icon("image"), strong("VAF clustering")),
                              value = "ith_vafcluster",
                              uiOutput("vafcluster.patientlist"),
                              uiOutput("vafcluster_table_ui"),
                              uiOutput("vafcluster.samplelist"),
-                             div(plotOutput("vaf",height = "100%", width = "100%"),align = "center"),
+                             div(plotOutput("vaf",height = "100%", width = "100%"),align = "left"),
                              uiOutput("vcdb")
                            ),
                            tabPanel(
-                               title = div(icon("box"), "ccfAUC"),
+                               title = div(icon("image"), strong("ccfAUC")),
                                value = "ith_ccfauc",
                                uiOutput('ccfauc.patientlist'),
                                uiOutput("ccfauc_table_ui"),
-                               div(plotOutput("ccfauc_plot",height = "100%", width = "100%"),align = "center") ,
+                               div(plotOutput("ccfauc_plot",height = "100%", width = "100%"),align = "left") ,
                                uiOutput("ccfauc_db_ui")
                            ),
                            tabPanel(
-                               title = div(icon("box"), "calFst"),
+                               title = div(icon("image"), strong("calFst")),
                                value = "ith_calfst",
                                uiOutput('calfst.patientlist'),
                                uiOutput("calfst_pair_table_ui"),
-                               div(plotOutput("calfst_plot",height = "100%", width = "100%"),align = "center") ,
+                               div(plotOutput("calfst_plot",height = "100%", width = "100%"),align = "left") ,
                                uiOutput("calfst_db_ui")
                                # uiOutput("calfst_avg_table_ui"),
                            ),
                            tabPanel(
-                               title = div(icon("box"), "calNeiDist"),
+                               title = div(icon("image"), strong("calNeiDist")),
                                value = "caInput_calneidist",
                                uiOutput('calneidist.patientlist'),
                                
                                uiOutput("calneidist_pair_table_ui"),
                                
-                               div(plotOutput("calneidist_plot",height = "100%", width = "100%"),align = "center") ,
+                               div(plotOutput("calneidist_plot",height = "100%", width = "100%"),align = "left") ,
                                uiOutput("calneidist_db_ui")
                                # uiOutput("calneidist_avg_table_ui"),
                            ),
                            tabPanel(
-                               title = div(icon("box"), "mutHeatmap"),
+                               title = div(icon("image"), strong("mutHeatmap")),
                                value = "ith_mutheatmap",
                                uiOutput('mutheatmap.patientlist'),
-                               div(plotOutput("mutheatmap_plot",height = "100%", width = "100%"),align = "center") ,
+                               div(plotOutput("mutheatmap_plot",height = "100%", width = "100%"),align = "left") ,
                                uiOutput("mutheatmap_db_ui")
                            )
                          )
@@ -912,17 +919,17 @@ bodyAL <- tabItem("AL",
                                   width = "100%",
                                   tabPanel(
                                       value = 'pannel_plotmutprofile',
-                                      title = div(icon("newspaper"), "Plot Mutation profile"), 
-                                      div(plotOutput('plotmutprofile_plot', height = "100%", width = "100%"), align = "center"),
+                                      title = div(icon("image"), strong("Plot Mutation profile")), 
+                                      div(plotOutput('plotmutprofile_plot', height = "100%", width = "100%"), align = "left"),
                                       br(),
                                       uiOutput("plotmutprofile_download_button_ui")
                                   ),
                                   tabPanel(
                                       value = 'pannel_plotcna',
-                                      title = div(icon("newspaper"), "CNA profile"), 
+                                      title = div(icon("image"), strong("CNA profile")), 
                                       
                                       uiOutput("plotcna_table_ui"),
-                                      div(plotOutput('plotcna_plot', height = "100%", width = "100%"), align = "center"),
+                                      div(plotOutput('plotcna_plot', height = "100%", width = "100%"), align = "left"),
                                       br(),
                                       uiOutput("plotcna_download_button_ui")
                                   )
@@ -1154,7 +1161,7 @@ bodyclone <- tabItem('clone',
                          box(
                            width = NULL,
                            div(strong("Metastatic routes inference"),style = "font-size:27px; font-weight:500;"),
-                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide three functions to help distinguish monoclonal versus polyclonal seeding. ",
+                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide two functions to help distinguish monoclonal versus polyclonal seeding. ",
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
@@ -1164,32 +1171,32 @@ bodyclone <- tabItem('clone',
                              width = "100%",
                              tabPanel(
                                value = 'clone_compareccf',
-                               title = div(icon("newspaper"), "compareCCF"), 
+                               title = div(icon("chart-bar"), strong("compareCCF")), 
                                uiOutput('compareccf.patientlist'),
                                uiOutput('compareccf.samplelist'), 
                                br(),
                                uiOutput("compareccf_table_ui")
                              ),
                              tabPanel(
-                                 title = div(icon("box"), "compareJSI"),
+                                 title = div(icon("image"), strong("compareJSI")),
                                  value = "clone_comparejsi",
                                  uiOutput('comparejsi.patientlist'),
                                  uiOutput("comparejsi_pair_table_ui"),
                                  br(),
-                                 div(plotOutput("comparejsi_plot",height = "100%", width = "100%"),align = "center") ,
+                                 div(plotOutput("comparejsi_plot",height = "100%", width = "100%"),align = "left") ,
                                  uiOutput("comparejsi_db_ui")
-                             ),
-                             tabPanel(
-                                 title = div(icon("box"), "testNeutral"),
-                                 value = "clone_testneutral",
-                                 uiOutput('testneutral.patientlist'),
-                                 uiOutput("testneutral_table_ui"),
-                                 br(),
-                                 uiOutput('testneutral.samplelist'),
-                                 uiOutput('warningMessage_testneutral'),
-                                 div(plotOutput("testneutral_plot",height = "100%", width = "100%"),align = "center") ,
-                                 uiOutput("testneutral_db_ui")
                              )
+                             # tabPanel(
+                             #     title = div(icon("box"), "testNeutral"),
+                             #     value = "clone_testneutral",
+                             #     uiOutput('testneutral.patientlist'),
+                             #     uiOutput("testneutral_table_ui"),
+                             #     br(),
+                             #     uiOutput('testneutral.samplelist'),
+                             #     uiOutput('warningMessage_testneutral'),
+                             #     div(plotOutput("testneutral_plot",height = "100%", width = "100%"),align = "center") ,
+                             #     uiOutput("testneutral_db_ui")
+                             # )
                            )
                          )
                        )
@@ -1693,39 +1700,40 @@ bodytree <- tabItem('tree',
                                  width = "100%",
                                  height = "100%",
                                  tabPanel(
-                                     title = div(icon("newspaper"), "Plot phylotree"),
+                                     title = div(icon("tree"), strong("Plot phylotree")),
                                      value = 'S_plotphylotree',
                                      uiOutput("phylotree.patientlist"),
-                                     div(plotOutput("phylotree_plot",height = "100%",width = "100%"),align = "center"),
+                                     div(plotOutput("phylotree_plot",height = "100%",width = "100%"),align = "left"),
                                      br(),
                                      uiOutput("phylotree_downloadbutton_ui")
                                  ),
                                  tabPanel(
-                                     title = div(icon("microsoft"), "Compare tree"), 
+                                     title = div(icon("tree"), strong("Compare tree")), 
                                      value = 'S_comparetree',
                                      verbatimTextOutput("comparetree_dist"),
                                      br(),
-                                     div(plotOutput('comparetree_plot', height = "100%", width = "100%"),align = "center"),
+                                     div(plotOutput('comparetree_plot', height = "100%", width = "100%"),align = "left"),
                                      uiOutput('comparetree_db_ui')
                                      # br(),
                                      # uiOutput('treemutsig_table_ui')
                                  ),
                                  tabPanel(
-                                     title = div(icon("microsoft"), "Fit signatrues"), 
+                                     title = div(icon("image"), strong("Fit signatrues")), 
                                      value = 'S_treemutsig',
                                      # uiOutput('warningMessage_treemutsig'),
                                      uiOutput("treemutsig.patientlist"),
-                                     div(plotOutput('treemutsig_plot', height = "100%", width = "100%"),align = "center"),
+                                     div(plotOutput('treemutsig_plot', height = "100%", width = "100%"),align = "left"),
                                      uiOutput("treemutsig_download_button_ui"),
                                      # br(),
                                      # uiOutput('treemutsig_table_ui')
                                  ),
                                  tabPanel(
-                                     title = div(icon("image"), "MutTrunkBranch"),
+                                     title = div(icon("image"), strong("MutTrunkBranch")),
                                      value = 'S_muttrunkbranch',
                                      uiOutput("muttrunkbranch.patientlist"),
+                                     br(),
                                      uiOutput('muttrunkbranch_table_ui'),
-                                     div(plotOutput('muttrunkbranch_plot', height = "100%", width = "100%"),align = "center"),
+                                     div(plotOutput('muttrunkbranch_plot', height = "100%", width = "100%"),align = "left"),
                                      uiOutput("muttrunkbranch_download_button_ui")
                                  )
                                )
@@ -1821,7 +1829,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: Dissect cancer evolution from multi-region derived tumor biopsies via somatic mutations.</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit:a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations.</span>\');
       })
      ')), 
       
@@ -1849,7 +1857,7 @@ shinyUI(
                             font-size:27px; 
                             font-weight:500;
                          }
-                         .main-sidebar { font-size: 16px; }
+                         .main-sidebar { font-size: 20px; }
 
 
 table.dataTable tbody th, table.dataTable tbody td {

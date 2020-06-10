@@ -21,7 +21,6 @@
 #' ## Maf
 #' maf_data <- subsetMaf(maf)
 #' @return Maf data.
-#' @export subsetMaf
 
 subsetMaf <- function(maf,
                       geneList = NULL,
