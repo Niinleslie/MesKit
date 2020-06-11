@@ -36,7 +36,7 @@ getPhyloTree <- function(maf,
       maf_data <- subsetMaf(m,min.vaf = min.vaf, min.ccf = min.ccf, ...)
       patient <- getMafPatient(m)
       if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filter.")
+            message("Warning :there was no mutation in ", patient, " after filtering.")
             next
       }
       # print(nrow(maf_data))

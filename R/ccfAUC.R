@@ -42,7 +42,7 @@ ccfAUC <- function(
         }
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filter.")
+            message("Warning :there was no mutation in ", patient, " after filtering.")
             next
         }
         
@@ -65,7 +65,8 @@ ccfAUC <- function(
                 subdata <- subset(maf_data, Tumor_Sample_Barcode == id)
                 ccf <- subdata$CCF
             }
-            df_ccf <- data.frame(CCF = as.vector(sort(ccf)), prop = seq_len(length(ccf))/length(ccf))
+            df_ccf <- data.frame(CCF = as.vector(sort(ccf)), 
+                                 prop = seq_len(length(ccf))/length(ccf))
             auc <- suppressWarnings(stats::integrate(approxfun(df_ccf$CCF,df_ccf$prop),
                                                      min(df_ccf$CCF),
                                                      max(df_ccf$CCF),
@@ -86,20 +87,19 @@ ccfAUC <- function(
             if(withinTumor){
                 c <-  subdata %>%         
                     dplyr::arrange(Tumor_Average_CCF) %>%
-                    dplyr::mutate(prop = seq_len(nrow(.)/nrow(.))) %>% 
+                    dplyr::mutate(prop = seq_len(nrow(.))/nrow(.)) %>% 
                     dplyr::mutate(Tumor_ID = paste0(Tumor_ID," (", round(auc,3), ")"))
                 
             }else{
                 c <-  subdata %>%         
                     dplyr::arrange(CCF) %>%
-                    dplyr::mutate(prop = seq_len(nrow(.)/nrow(.))) %>% 
+                    dplyr::mutate(prop = seq_len(nrow(.))/nrow(.)) %>% 
                     dplyr::mutate(Tumor_Sample_Barcode = paste0(Tumor_Sample_Barcode," (",round(auc,3),")"))
                 
             }
             CCF.sort <- rbind(CCF.sort, c)
             
         }
-        
         if(plot.density){
             if(withinTumor){
                 p <- ggplot2::ggplot(CCF.sort, 

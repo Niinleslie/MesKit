@@ -39,7 +39,7 @@ plotCNA <- function(seg,
         if(length(chr.setdiff) > 0){
             stop(paste0("Chromosome ", chr.setdiff, " can not be found in your data"))
         }
-        seg <- seg[Chromosome %in% chrSilent]
+        seg <- seg[!Chromosome %in% chrSilent]
     }
     
     ## select patients in patient.id 

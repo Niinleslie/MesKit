@@ -47,7 +47,7 @@ calNeiDist <- function(maf,
                          clonalStatus = clonalStatus,...)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filter.")
+            message("Warning :there was no mutation in ", patient, " after filtering.")
             next
         }
         
@@ -99,7 +99,7 @@ calNeiDist <- function(maf,
                                           values_fill = list(CCF = 0)) %>%
                 dplyr::select(-Mut_ID, -Tumor_ID)
             dist_mat <- diag(1, nrow = ncol(subdata), ncol = ncol(subdata))
-            for (i in seq_len(subdata -1)) {
+            for (i in seq_len(ncol(subdata)-1)) {
                 s1 <- colnames(subdata)[i]
                 for (j in (i + 1):ncol(subdata)) {
                     s2 <- colnames(subdata)[j]

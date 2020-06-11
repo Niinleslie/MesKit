@@ -47,7 +47,7 @@ compareJSI <- function(
             dplyr::filter(!is.na(Clonal_Status))
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filter.")
+            message("Warning :there was no mutation in ", patient, " after filtering.")
             next
         }
         

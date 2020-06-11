@@ -71,7 +71,7 @@ subsetMaf <- function(maf,
       if(length(chr.setdiff) > 0){
          stop(paste0("Chromosome ", chr.setdiff, " can not be found in your data"))
       }
-      maf_data <- maf_data[Chromosome %in% chrSilent]
+      maf_data <- maf_data[!Chromosome %in% chrSilent]
    }
    
    ## filter variant classification
