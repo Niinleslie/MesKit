@@ -32,7 +32,7 @@ fitSignatures <- function(tri_matrix = NULL,
   
   ## get signatrue reference
   df.aetiology <- NULL
-  if(class(signaturesRef) == 'character'){
+  if(is(signaturesRef,'character')){
     signaturesRef <- match.arg(signaturesRef,
                                choices = c("cosmic_v2","nature2013","exome_cosmic_v3"),
                                several.ok = FALSE)
@@ -53,7 +53,7 @@ fitSignatures <- function(tri_matrix = NULL,
       df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
                                  sig = rownames(signatures.aetiology$cosmic_v3))
     }
-  }else if(class(signaturesRef)!= 'data.frame'){
+  }else if(!is(signaturesRef, 'data.frame')){
     stop('Input signature reference needs to be a data frame')
   }else{
     sigsRef <- signaturesRef 
@@ -84,7 +84,7 @@ fitSignatures <- function(tri_matrix = NULL,
       
       tri_matrix <- tri_matrix[branch_left,]
       ## rebuild matrix if there is only one branch left
-      if(class(tri_matrix) == "numeric"){
+      if(is(tri_matrix, "numeric")){
         type_name <- names(tri_matrix)
         tri_matrix <- matrix(tri_matrix, ncol = length(tri_matrix))
         rownames(tri_matrix) <- branch_left
