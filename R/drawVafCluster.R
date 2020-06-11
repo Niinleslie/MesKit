@@ -12,7 +12,7 @@ drawVAFCombine <- function(subdata){
                     "#008280FF", "#BB0021FF", "#5F559BFF", "#A20056FF", 
                     "#808180FF", "#1B1919FF")
    
-   names(color_scale) <- c(1:9, "outlier")
+   names(color_scale) <- c(seq_len(9), "outlier")
    
      ## generate  plot and specific titles for minifigures
    p <- ggplot(subdata, aes(x = VAF)) + 
@@ -76,7 +76,7 @@ drawVAFCompare <- function(maf_data,withinTumor){
     color_scale <- c("#3B4992FF", "#EE0000FF", "#008B45FF", "#631879FF", 
                      "#008280FF", "#BB0021FF", "#5F559BFF", "#A20056FF", 
                      "#808180FF", "#1B1919FF")
-    names(color_scale) <- c(1:9, "outlier")
+    names(color_scale) <- c(seq_len(9), "outlier")
     pic <- ggplot(maf_data,aes(x=VAF, y=ID)) +
            theme_bw() + 
             theme(plot.title=element_text(size=16, hjust=0.5, vjust=0.5, face='bold'), 

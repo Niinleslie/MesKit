@@ -72,19 +72,19 @@ compareTree <- function(phyloTree1,
 	        cat("Both tree have not same branches")
 	        return(dist)
 	    }
-	    phyloTree1@tree$data <- treedat1
-	    phyloTree1@tree$common.col <- common.col
-	    phyloTree2@tree$data <- treedat2
-	    phyloTree2@tree$common.col <- common.col
 	    
-	    p1 <- plotPhyloTree(phyloTree1,
-	                        show.bootstrap = show.bootstrap,
-	                        min.ratio = min.ratio,
-	                        branchCol = NULL)
-	    p2 <- plotPhyloTree(phyloTree2,
-	                        show.bootstrap = show.bootstrap,
-	                        min.ratio = min.ratio,
-	                        branchCol = NULL)
+	    p1 <- plotTree(phyloTree1,
+	                   treeData = treedat1,
+	                   show.bootstrap = show.bootstrap,
+	                   min.ratio = min.ratio,
+	                   common.col = common.col,
+	                   branchCol = NULL)
+	    p2 <- plotTree(phyloTree2,
+	                   treeData = treedat2,
+	                   show.bootstrap = show.bootstrap,
+	                   min.ratio = min.ratio,
+	                   common.col = common.col,
+	                  branchCol = NULL)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
 	                                labels = c(getTreeMethod(phyloTree1),getTreeMethod(phyloTree2))

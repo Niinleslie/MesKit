@@ -7,9 +7,9 @@
 #' 
 
 checkPhyloTreeInput <- function(object, patient.id = NULL){
-  if(class(object) == "phyloTree"){
+  if(is(object, "phyloTree")){
     return(list(object)) 
-  }else if(class(object) == "phyloTreeList"){
+  }else if(is(object, "phyloTreeList")){
     if(!is.null(patient.id)){
       patient.setdiff <- setdiff(patient.id, names(object))
       if(length(patient.setdiff) > 0){
@@ -32,9 +32,9 @@ checkPhyloTreeInput <- function(object, patient.id = NULL){
 #' checkMafInput(maf)
 
 checkMafInput <- function(object,patient.id = NULL){
-  if(class(object) == "Maf"){
+  if(is(object, "Maf")){
     return(list(object))
-  }else if(class(object) == "MafList"){
+  }else if(is(object, "MafList")){
     ## patient filter
     if(!is.null(patient.id)){
       patient.setdiff <- setdiff(patient.id, names(object))

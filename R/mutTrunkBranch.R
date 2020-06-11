@@ -22,18 +22,16 @@ mutTrunkBranch <- function(phyloTree,
     
     ## check input data
     phyloTree_list <- checkPhyloTreeInput(phyloTree, patient.id = patient.id)
-    
+    ## get trinucleotide matrix
+    tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_list, CT = CT)
     result <- list()
     for(phyloTree in phyloTree_list){
         
         patient <- getPhyloTreePatient(phyloTree)
         mut_branches <- getMutBranches(phyloTree)
-        if(CT){
-            phyloTree@method <- c(getTreeMethod(phyloTree),"CT")
-        }
         
         ## get trinucleotide matrix
-        tri_matrix <- triMatrix(phyloTree = phyloTree)[[1]]
+        tri_matrix <- tri_matrix_list[[patient]]
         
         ## define Trunk
         branch_names <- unique(mut_branches$Branch_ID)
