@@ -2494,12 +2494,12 @@ shinyServer(function(input, output, session){
           incProgress(amount=1)
           
           
-          setProgress(message = 'triMatrix: calculation in progress')
+          setProgress(message = 'Processing: triMatrix')
           
           tm <- triMatrix(phyloTree, withinTumor = input$treemutsig_withintumor)
           incProgress(amount = 1)
           
-          setProgress(message = 'fitSignature: calculation in progress')
+          setProgress(message = 'Processing: fitSignatrues')
           fs <- fitSignatures(tm, signaturesRef = input$treemutsig_signatureref,
                               min.mut.count = as.numeric(input$treemutsig_minmutcount) ,
                               signature.cutoff = as.numeric(input$treemutsig_signaturecutoff))
@@ -2523,20 +2523,49 @@ shinyServer(function(input, output, session){
       })
   })
   
+
+  
+  output$treemutsig.patientlist <- renderUI({
+      if(!is.null(treemutsig())){
+          if(is(treemutsig()[[1]],"list")){
+              plot.list <- treemutsig()
+              names <- names(plot.list)
+              selectInput("treemutsig.pl", 
+                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
+                          choices = names, width = 600) 
+          }
+      }
+  })  
+  
   getpatient.treemutsig <- eventReactive(input$treemutsig.pl,{
       return(input$treemutsig.pl)
   })
   
-  output$treemutsig.patientlist <- renderUI({
+  output$treemutsig.samplelist <- renderUI({
       if(!is.null(treemutsig())){
-          if(class(treemutsig()) == "list"){
-              plot.list <- treemutsig()
-              names <- names(plot.list)
-              selectInput("treemutsig.pl", 
-                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient:branches'),
-                          choices = names, width = 600) 
+          if(is(treemutsig()[[1]],"list")){
+              patient <- input$treemutsig.pl
+              sample.list <- treemutsig()[[patient]]
+              names <- names(sample.list)
+              tagList(
+                  selectInput("treemutsig.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              choices = names, width = 600) 
+              ) 
+          }else{
+              sample.list <- treemutsig()
+              names <- names(sample.list)
+              tagList(
+                  selectInput("treemutsig.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              choices = names, width = 600) 
+              )
           }
       }
+  })
+  
+  getsample.treemutsig <- eventReactive(input$treemutsig.sl,{
+      return(input$treemutsig.sl)
   })
   
   treemutsig_width <- reactive({
@@ -2548,10 +2577,10 @@ shinyServer(function(input, output, session){
   
   output$treemutsig_plot <- renderPlot({
       if(!is.null(treemutsig())){
-          if(class(treemutsig()) == "list"){
-              return(treemutsig()[[getpatient.treemutsig()]])
+          if(is(treemutsig()[[1]],"list")){
+              return(treemutsig()[[getpatient.treemutsig()]][[getsample.treemutsig()]])
           }else{
-              return(treemutsig())
+              return(treemutsig()[[getsample.treemutsig()]])
           }
       }
   },
