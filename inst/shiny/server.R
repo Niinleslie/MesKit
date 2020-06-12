@@ -38,12 +38,12 @@ shinyServer(function(input, output, session){
   observeEvent(input$submit1,{
     withProgress(min = 0, max = 1, value = 0, {
       ## Rshiny: progress bar
-      setProgress(message = 'Input data: Generating ', detail = paste("Maf/MafList Class", sep="")) 
+      setProgress(message = 'Processing: generating Maf/MafList Class') 
       varsMaf[['maf']] <- inputData()
       incProgress(amount=1)
       
       
-      setProgress(message = paste("Input data: Maf/MafList Generation Done!", sep=""), detail = "") 
+      setProgress(message = "Maf/MafList Generation Done!") 
       Sys.sleep(1)
       
     })
@@ -179,8 +179,7 @@ shinyServer(function(input, output, session){
     patientid <- input$mathscore_patientid
     progress <- Progress$new(session, min=1, max=15)
     on.exit(progress$close())
-    progress$set(message = 'MATH Score: Calculation in progress',
-                 detail = 'This may take a while...')
+    progress$set(message = 'Processing: calculating MATH score...')
     mathScore(maf,
               patient.id = patientid,
               min.vaf = as.numeric(input$mathscore_minvaf),
@@ -240,8 +239,7 @@ shinyServer(function(input, output, session){
       )
       patientid <- input$vafcluster_patientid
       withProgress(min = 0, max = 1, value = 0,{
-          setProgress(message = 'vafCluster: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: generating VAF distribution curve')
           vc <- vafCluster(maf, 
                            patient.id = patientid,
                            withinTumor = input$vafcluster_withintumor,
@@ -249,7 +247,7 @@ shinyServer(function(input, output, session){
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
                            max.vaf = as.numeric(input$vafcluster_maxvaf))        
           incProgress(amount = 1)
-          setProgress(message = 'vafCluster: Calculation done!')
+          setProgress(message = 'vafCluster done!')
       })
           
         return(vc)
@@ -444,8 +442,7 @@ shinyServer(function(input, output, session){
       patientid <- input$ccfauc_patientid
       
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'ccfAUC: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: calculating AUC...')
           validate(
               need(!(is.null(maf)), "")
           )
@@ -454,7 +451,7 @@ shinyServer(function(input, output, session){
                        min.ccf = as.numeric(input$ccfauc_minccf) ,
                        withinTumor = input$ccfauc_withintumor)
           incProgress(amount = 1)
-          setProgress(message = 'ccfAUC: Calculation done!')
+          setProgress(message = 'ccfAUC done!')
       })
       return(cc)
   })
@@ -623,8 +620,7 @@ shinyServer(function(input, output, session){
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'calFst: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: calculating Fst..')
           # if(input$calfst_title == ""){
           #     title <- NULL
           # }else{
@@ -640,7 +636,7 @@ shinyServer(function(input, output, session){
                         number.cex = as.numeric(input$calfst_numbercex),
                         number.col = input$calfst_numbercol)
           incProgress(amount = 1)
-          setProgress(message = 'calFst: Calculation done!')
+          setProgress(message = 'calFst done!')
       })
       return(fst)
   })
@@ -815,8 +811,7 @@ shinyServer(function(input, output, session){
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'calNeiDist: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = "Processing: calculating Nei's distance")
           # if(input$calneidist_title==""){
           #     title <- NULL
           # }else{
@@ -830,7 +825,7 @@ shinyServer(function(input, output, session){
                            number.cex = as.numeric(input$calneidist_numbercex),
                            number.col = input$calneidist_numbercol)
           incProgress(amount = 1)
-          setProgress(message = 'calNeiDist: Calculation done!')
+          setProgress(message = 'calNeiDist done!')
       })
       return(cc)
   })
@@ -1009,14 +1004,14 @@ shinyServer(function(input, output, session){
                             placement = "top",
                             trigger = "hover"),
                   
-                  checkboxInput('mutheatmap_showgene',
-                                value = FALSE,
-                                label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show gene'),
-                                width = 500),
-                  bsTooltip(id = "mutheatmap_showgene",
-                            title = "Show the name of genes next to the heatmap.Default FALSE.",
-                            placement = "top",
-                            trigger = "hover"),
+                  # checkboxInput('mutheatmap_showgene',
+                  #               value = FALSE,
+                  #               label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Show gene'),
+                  #               width = 500),
+                  # bsTooltip(id = "mutheatmap_showgene",
+                  #           title = "Show the name of genes next to the heatmap.Default FALSE.",
+                  #           placement = "top",
+                  #           trigger = "hover"),
                   
                   checkboxInput('mutheatmap_showgenelist',
                                 value = TRUE,
@@ -1052,16 +1047,15 @@ shinyServer(function(input, output, session){
           genelist <- NULL
       }
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'mutHeatmap: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: ploting heatmap of somatic mutations.')
           if(is.null(input$mutheatmap_plotgenelist)){
               plot.geneList <- FALSE
-              show.gene <- FALSE
+              # show.gene <- FALSE
               show.geneList <- FALSE
               gene.text.size <- 9
           }else{
               plot.geneList <- input$mutheatmap_plotgenelist
-              show.gene <- input$mutheatmap_showgene
+              # show.gene <- input$mutheatmap_showgene
               show.geneList <- input$mutheatmap_showgenelist
               gene.text.size <- as.numeric(input$mutheatmap_genetextsize)
           }
@@ -1072,14 +1066,14 @@ shinyServer(function(input, output, session){
                            min.ccf = as.numeric(input$mutheatmap_minccf),
                            use.ccf = input$mutheatmap_useccf,
                            plot.geneList = plot.geneList,
-                           show.gene = show.gene,
+                           # show.gene = show.gene,
                            show.geneList = show.geneList,
                            mut.threshold = as.numeric(input$mutheatmap_mutthreshold),
                            sample.text.size = as.numeric(input$mutheatmap_sampletextsize),
                            legend.title.size = as.numeric(input$mutheatmap_legendtitlesize),
                            gene.text.size = gene.text.size)
           incProgress(amount = 1)
-          setProgress(message = 'mutHeatmap: Calculation done!')
+          setProgress(message = 'mutHeatmap done!')
       })
       return(hm)
   })
@@ -1226,8 +1220,7 @@ shinyServer(function(input, output, session){
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'compareJSI : Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: calculating Jaccard similarity index')
 
           # if(input$comparejsi_title==""){
           #     title <- NULL
@@ -1248,7 +1241,7 @@ shinyServer(function(input, output, session){
                            number.cex = as.numeric(input$comparejsi_numbercex),
                            number.col = input$comparejsi_numbercol)
           incProgress(amount = 1)
-          setProgress(message = 'compareJSI: Calculation done!')
+          setProgress(message = 'compareJSI done!')
       })
       return(cc)
   })
@@ -1506,8 +1499,7 @@ shinyServer(function(input, output, session){
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'plotMutProfile: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: drawing mutation profile')
           if(is.null(input$plotmutprofile_patientid)){
               patientid <- NULL
           }else{
@@ -1527,7 +1519,7 @@ shinyServer(function(input, output, session){
                                remove_empty_columns = input$plotmutprofile_remove_empty_columns,
                                remove_empty_rows = input$plotmutprofile_remove_empty_rows)
           incProgress(amount = 1)
-          setProgress(message = 'plotMutProfile: Calculation done!')
+          setProgress(message = 'plotMutProfile done!')
       })
       return(cc)
   })
@@ -1654,8 +1646,7 @@ shinyServer(function(input, output, session){
           )
       
       withProgress(min = 0, max = 2, value = 0, {
-          setProgress(message = 'plotCNA : Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: drawing CNA profile')
           seg <- readSegment(segCN.file = input$plotcna_segfile$datapath,
                              gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
                              gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
@@ -2059,8 +2050,7 @@ shinyServer(function(input, output, session){
       )
       progress <- Progress$new(session, min=0, max=1)
       on.exit(progress$close())
-      progress$set(message = 'compareCCF: Calculation in progress',
-                   detail = 'This may take a while...')
+      progress$set(message = 'Processing: comparing CCFs in paired samples')
       if(is.null(input$compareccf_pairbytumor)){
           pairbytumor <- FALSE
       }else{
@@ -2231,7 +2221,7 @@ shinyServer(function(input, output, session){
       )
       withProgress(min = 0, max = 2, value = 0,{
           
-          setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
+          setProgress(message = "Generating phyloTree/phyloTreeList Class")
           phyloTree <- getPhyloTree(maf,
                                     patient.id = input$plotphylotree_patientid,
                                     min.vaf = as.numeric(input$plotphylotree_getphylotree_minvaf),
@@ -2240,8 +2230,7 @@ shinyServer(function(input, output, session){
                                     bootstrap.rep.num = as.numeric(input$plotphylotree_getphylotree_bootstraprepnum))
           
           incProgress(amount=1)
-          setProgress(message = 'Phylogenetic tree: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: plot phylogenetic tree')
           
           if(input$plotphylotree_branchcol == "NULL"){
               branchCol <- NULL
@@ -2352,8 +2341,7 @@ shinyServer(function(input, output, session){
       )
       
       withProgress(min = 0, max = 1, value = 0,{
-          setProgress(message = 'Comparetree: Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: compare phylogenetic tree')
           
           phylotree1 <- getPhyloTree(maf, patient.id = input$comparetree_patientid, 
                                      method = input$comparetree_getphylotree_method1,
@@ -2494,7 +2482,7 @@ shinyServer(function(input, output, session){
           need(!is.null(maf), "Upload maf file in the section 'Input Data'")
       )
       withProgress(min = 0, max = 4, value = 0,{
-          setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
+          setProgress(message = 'Generating phyloTree/phyloTreeList Class') 
           
           phyloTree <- getPhyloTree(maf,
                                     patient.id = input$treemutsig_patientid,
@@ -2506,21 +2494,18 @@ shinyServer(function(input, output, session){
           incProgress(amount=1)
           
           
-          setProgress(message = 'triMatrix: calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: triMatrix')
           
           tm <- triMatrix(phyloTree, withinTumor = input$treemutsig_withintumor)
           incProgress(amount = 1)
           
-          setProgress(message = 'fitSignature: calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: fitSignatrues')
           fs <- fitSignatures(tm, signaturesRef = input$treemutsig_signatureref,
                               min.mut.count = as.numeric(input$treemutsig_minmutcount) ,
                               signature.cutoff = as.numeric(input$treemutsig_signaturecutoff))
           incProgress(amount = 1)
           
-          setProgress(message = 'plotMutSigProfile: drawing in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'Processing: drawing mutation signature profile')
           
           if(input$treemutsig_mode == 'NULL'){
               mode <- NULL
@@ -2538,20 +2523,49 @@ shinyServer(function(input, output, session){
       })
   })
   
+
+  
+  output$treemutsig.patientlist <- renderUI({
+      if(!is.null(treemutsig())){
+          if(is(treemutsig()[[1]],"list")){
+              plot.list <- treemutsig()
+              names <- names(plot.list)
+              selectInput("treemutsig.pl", 
+                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
+                          choices = names, width = 600) 
+          }
+      }
+  })  
+  
   getpatient.treemutsig <- eventReactive(input$treemutsig.pl,{
       return(input$treemutsig.pl)
   })
   
-  output$treemutsig.patientlist <- renderUI({
+  output$treemutsig.samplelist <- renderUI({
       if(!is.null(treemutsig())){
-          if(class(treemutsig()) == "list"){
-              plot.list <- treemutsig()
-              names <- names(plot.list)
-              selectInput("treemutsig.pl", 
-                          div(style = "font-size:1.5em; font-weight:600; ", 'Patient:branches'),
-                          choices = names, width = 600) 
+          if(is(treemutsig()[[1]],"list")){
+              patient <- input$treemutsig.pl
+              sample.list <- treemutsig()[[patient]]
+              names <- names(sample.list)
+              tagList(
+                  selectInput("treemutsig.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              choices = names, width = 600) 
+              ) 
+          }else{
+              sample.list <- treemutsig()
+              names <- names(sample.list)
+              tagList(
+                  selectInput("treemutsig.sl", 
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              choices = names, width = 600) 
+              )
           }
       }
+  })
+  
+  getsample.treemutsig <- eventReactive(input$treemutsig.sl,{
+      return(input$treemutsig.sl)
   })
   
   treemutsig_width <- reactive({
@@ -2563,10 +2577,10 @@ shinyServer(function(input, output, session){
   
   output$treemutsig_plot <- renderPlot({
       if(!is.null(treemutsig())){
-          if(class(treemutsig()) == "list"){
-              return(treemutsig()[[getpatient.treemutsig()]])
+          if(is(treemutsig()[[1]],"list")){
+              return(treemutsig()[[getpatient.treemutsig()]][[getsample.treemutsig()]])
           }else{
-              return(treemutsig())
+              return(treemutsig()[[getsample.treemutsig()]])
           }
       }
   },
@@ -2669,7 +2683,7 @@ shinyServer(function(input, output, session){
           need(!is.null(maf), "Upload maf file in the section 'Input Data'")
       )
       withProgress(min = 0, max = 2, value = 0,{
-          setProgress(message = 'Generating ', detail = paste("phyloTree/phyloTreeList Class", sep="")) 
+          setProgress(message = 'Generating phyloTree/phyloTreeList Class') 
           phyloTree <- getPhyloTree(maf,
                                     patient.id = input$muttrunkbranch_patientid,
                                     method = input$muttrunkbranch_getphylotree_method,
@@ -2677,8 +2691,7 @@ shinyServer(function(input, output, session){
                                     min.ccf = as.numeric(input$muttrunkbranch_getphylotree_minccf),
                                     bootstrap.rep.num = as.numeric(input$muttrunkbranch_getphylotree_bootstraprepnum))
           incProgress(amount = 1)
-          setProgress(message = 'mutTrunkBranch : Calculation in progress',
-                      detail = 'This may take a while...')
+          setProgress(message = 'mutTrunkBranch : Calculation in progress')
           
           mtb <- mutTrunkBranch(phyloTree, CT = input$muttrunkbranch_ct,
                                 pvalue = as.numeric(input$muttrunkbranch_pvalue))

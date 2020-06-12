@@ -13,7 +13,7 @@ getBranchType(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-branch type of phyloTree
+Branch type of phyloTree
 }
 \description{
 getBranchType

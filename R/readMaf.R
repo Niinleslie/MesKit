@@ -90,7 +90,8 @@ readMaf <- function(
     ## calculate average adjust VAF
     if("VAF_adj" %in% colnames(maf_data)){
         maf_data <- maf_data %>%
-            dplyr::group_by(Patient_ID,Tumor_ID,Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2) %>%
+            dplyr::group_by(Patient_ID, Tumor_ID, Chromosome, 
+                            Start_Position, Reference_Allele,Tumor_Seq_Allele2) %>%
             dplyr::mutate(Tumor_Average_VAF_adj = round(sum(VAF_adj * Total_allele_depth)/sum(Total_allele_depth),3))
     }
     

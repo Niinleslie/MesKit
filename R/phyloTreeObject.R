@@ -1,7 +1,7 @@
 byMP <- function(mut_dat){
    matTree <- nj(dist.gene(mut_dat))
    tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
-   tree_pars <- suppressMessages(phangorn::optim.parsimony(matTree, tree_dat,method = "sankoff",trace = F)) 
+   tree_pars <- suppressMessages(phangorn::optim.parsimony(matTree, tree_dat,method = "sankoff",trace = FALSE)) 
    matTree <- phangorn::acctran(tree_pars, tree_dat)
    return(matTree)
 }
@@ -10,7 +10,7 @@ byML <- function(mut_dat){
    matTree <- nj(dist.gene(mut_dat))
    tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
    fitJC <- phangorn::pml(matTree, tree_dat)
-   fitJC <- try(phangorn::optim.pml(fitJC,control = phangorn::pml.control(trace = F))) 
+   fitJC <- try(phangorn::optim.pml(fitJC,control = phangorn::pml.control(trace = FALSE))) 
    matTree <- fitJC$tree
    return(matTree)
 }
@@ -61,7 +61,7 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
          if(length(unique(maf_data$Tumor_ID)) == 1){
              Mutation_Type <- "Shared"
          }else{
-             Mutation_Type <- paste0("Shared_",paste(types,collapse = "_"))
+             Mutation_Type <- paste0("Shared_", paste(types,collapse = "_"))
          }
       }else if(length(types) == 1 & length(branch) > 1){
           if(length(unique(maf_data$Tumor_ID)) == 1){

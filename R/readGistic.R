@@ -43,7 +43,7 @@ readGisticAllLesions <- function(gisticAllLesionsFile = NULL, verbose = TRUE){
    }
    
    gisticLesions <- gisticLesions %>%
-      dplyr::select(1,2,3,6) %>%
+      dplyr::select(1, 2, 3, 6) %>%
       `colnames<-` (c("PeakID", "Cytoband", "WPB", "Qvalue")) %>%
       dplyr::filter(!grepl("values", PeakID)) %>%
       dplyr::mutate(WPB = sapply(strsplit(.[, "WPB"], split = "(", fixed =  TRUE), '[', 1)) %>%

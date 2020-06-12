@@ -15,7 +15,7 @@ setMethod(f = "getMafData",signature = "Maf", function(object)object@data)
 #' @title getSampleInfo
 #' @rdname getSampleInfo
 #' @param object An object of Maf
-#' @return sample information
+#' @return Sample information
 #' @exportMethod getSampleInfo
 #' @examples 
 #' getSampleInfo(maf)
@@ -23,12 +23,12 @@ setGeneric(name = "getSampleInfo", function(object) standardGeneric("getSampleIn
 
 #' @rdname getSampleInfo
 #' @aliases getSampleInfo
-setMethod(f = "getSampleInfo",signature = "Maf", function(object)object@sample.info)
+setMethod(f = "getSampleInfo", signature = "Maf", function(object)object@sample.info)
 
 #' @title getNonSyn_vc
 #' @rdname getNonSyn_vc
 #' @param object An object of Maf
-#' @return a list of Variant classifications which are considered as non-silent.
+#' @return A list of Variant classifications which are considered as non-silent.
 #' @exportMethod getNonSyn_vc
 #' @examples 
 #' getNonSyn_vc(maf)
@@ -36,7 +36,7 @@ setGeneric(name = "getNonSyn_vc", function(object) standardGeneric("getNonSyn_vc
 
 #' @rdname getNonSyn_vc
 #' @aliases getNonSyn_vc
-setMethod(f = "getNonSyn_vc",signature = "Maf", function(object)object@nonSyn.vc)
+setMethod(f = "getNonSyn_vc", signature = "Maf", function(object)object@nonSyn.vc)
 
 #' @title getMafRef
 #' @rdname getMafRef
@@ -63,13 +63,13 @@ setGeneric(name = "getMafPatient", function(object) standardGeneric("getMafPatie
 
 #' @rdname getMafPatient
 #' @aliases getMafPatient
-setMethod(f = "getMafPatient",signature = "Maf", function(object)unique(getMafData(object)$Patient_ID))
+setMethod(f = "getMafPatient", signature = "Maf", function(object)unique(getMafData(object)$Patient_ID))
 
 
 #' @title getTree
 #' @rdname getTree
 #' @param object An object of phyloTree
-#' @return tree object of phyloTree
+#' @return Tree object of phyloTree
 #' @exportMethod getTree
 #' @examples 
 #' getTree(phyloTree)
@@ -77,13 +77,13 @@ setGeneric(name = "getTree", function(object) standardGeneric("getTree"))
 
 #' @rdname getTree
 #' @aliases getTree
-setMethod(f = "getTree",signature = "phyloTree", function(object)object@tree)
+setMethod(f = "getTree", signature = "phyloTree", function(object)object@tree)
 
 
 #' @title getBinaryMatrix
 #' @rdname getBinaryMatrix
 #' @param object An object of phyloTree
-#' @return binary matrix of phyloTree
+#' @return Binary matrix of phyloTree
 #' @exportMethod getBinaryMatrix
 #' @examples 
 #' getBinaryMatrix(phyloTree)
@@ -91,7 +91,7 @@ setGeneric(name = "getBinaryMatrix", function(object) standardGeneric("getBinary
 
 #' @rdname getBinaryMatrix
 #' @aliases getBinaryMatrix
-setMethod(f = "getBinaryMatrix",signature = "phyloTree", function(object)object@binary.matrix)
+setMethod(f = "getBinaryMatrix", signature = "phyloTree", function(object)object@binary.matrix)
 
 #' @title getPhyloTreePatient
 #' @rdname getPhyloTreePatient
@@ -104,12 +104,12 @@ setGeneric(name = "getPhyloTreePatient", function(object) standardGeneric("getPh
 
 #' @rdname getPhyloTreePatient
 #' @aliases getPhyloTreePatient
-setMethod(f = "getPhyloTreePatient",signature = "phyloTree", function(object)object@patientID)
+setMethod(f = "getPhyloTreePatient", signature = "phyloTree", function(object)object@patientID)
 
 #' @title getBootstrapValue
 #' @rdname getBootstrapValue
 #' @param object An object of phyloTree
-#' @return bootstrap value of phyloTree
+#' @return Bootstrap value of phyloTree
 #' @exportMethod getBootstrapValue
 #' @examples 
 #' getBootstrapValue(phyloTree)
@@ -122,7 +122,7 @@ setMethod(f = "getBootstrapValue",signature = "phyloTree", function(object)objec
 #' @title getTreeMethod
 #' @rdname getTreeMethod
 #' @param object An object of phyloTree
-#' @return tree construction method of phyloTree
+#' @return Tree construction method of phyloTree
 #' @exportMethod getTreeMethod
 #' @examples 
 #' getTreeMethod(phyloTree)
@@ -135,7 +135,7 @@ setMethod(f = "getTreeMethod",signature = "phyloTree", function(object)object@me
 #' @title getCCFMatrix
 #' @rdname getCCFMatrix
 #' @param object An object of phyloTree
-#' @return ccf matrix of phyloTree
+#' @return CCF matrix of phyloTree
 #' @exportMethod getCCFMatrix
 #' @examples 
 #' getCCFMatrix(phyloTree)
@@ -148,7 +148,7 @@ setMethod(f = "getCCFMatrix",signature = "phyloTree", function(object)object@ccf
 #' @title getMutBranches
 #' @rdname getMutBranches
 #' @param object An object of phyloTree
-#' @return branches mutation of phyloTree
+#' @return Branches mutation of phyloTree
 #' @exportMethod getMutBranches
 #' @examples 
 #' getMutBranches(phyloTree)
@@ -161,7 +161,7 @@ setMethod(f = "getMutBranches",signature = "phyloTree", function(object)object@m
 #' @title getBranchType
 #' @rdname getBranchType
 #' @param object An object of phyloTree
-#' @return branch type of phyloTree
+#' @return Branch type of phyloTree
 #' @exportMethod getBranchType
 #' @examples 
 #' getBranchType(phyloTree)
@@ -174,7 +174,7 @@ setMethod(f = "getBranchType",signature = "phyloTree", function(object)object@br
 #' @title getPhyloTreeRef
 #' @rdname getPhyloTreeRef
 #' @param object An object of phyloTree
-#' @return reference genome versions of phyloTree
+#' @return Reference genome versions of phyloTree
 #' @exportMethod getPhyloTreeRef
 #' @examples 
 #' getPhyloTreeRef(phyloTree)
