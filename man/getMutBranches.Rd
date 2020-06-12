@@ -13,7 +13,7 @@ getMutBranches(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-branches mutation of phyloTree
+Branches mutation of phyloTree
 }
 \description{
 getMutBranches

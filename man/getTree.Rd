@@ -13,7 +13,7 @@ getTree(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-tree object of phyloTree
+Tree object of phyloTree
 }
 \description{
 getTree

@@ -13,7 +13,7 @@ getBinaryMatrix(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-binary matrix of phyloTree
+Binary matrix of phyloTree
 }
 \description{
 getBinaryMatrix

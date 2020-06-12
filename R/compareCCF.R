@@ -53,7 +53,8 @@ compareCCF <- function(maf,
     if(pairByTumor){
       types <- unique(maf_data$Tumor_ID)
       if(length(types) < 2){
-        message(paste0("Warnings: Only one tumor type was found in  ",patient,". If you want to compare CCF between regions, pairByTumor should be set as FALSE"))
+        message(paste0("Warnings: Only one tumor was found in ",patient," according to Tumor_ID. 
+          If you want to compare CCF between regions, pairByTumor should be set as FALSE"))
         next
       }
       

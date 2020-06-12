@@ -13,7 +13,7 @@ getPhyloTreeRef(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-reference genome versions of phyloTree
+Reference genome versions of phyloTree
 }
 \description{
 getPhyloTreeRef

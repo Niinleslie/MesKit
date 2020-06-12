@@ -8,7 +8,7 @@
 #' @param withinTumor Calculate AUC within types in each patients. Default :FALSE.
 #' @param min.vaf The minimum VAF for filtering variants. Default: 0.02 
 #' @param ... Other options passed to \code{\link{subsetMaf}}
-#' @return a data.frame of MATH scores
+#' @return A data.frame of MATH scores
 #' 
 #' @examples
 #' mathScore(maf)

@@ -13,7 +13,7 @@ getNonSyn_vc(object)
 \item{object}{An object of Maf}
 }
 \value{
-a list of Variant classifications which are considered as non-silent.
+A list of Variant classifications which are considered as non-silent.
 }
 \description{
 getNonSyn_vc

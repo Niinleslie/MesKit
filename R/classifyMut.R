@@ -8,7 +8,7 @@
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
 #' @param classByTumor  FALSE(Default). Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subsetMaf}}
-#' @return a data.frame with classification of mutations 
+#' @return A data.frame with classification of mutations 
 #' 
 #' @examples
 #' classifyMut(maf, class = "SP")

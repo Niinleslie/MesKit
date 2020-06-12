@@ -16,7 +16,7 @@
 #' segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
 #' seg <- readSegment(segCN.file = segCN.file)
 #' plotCNA(seg)
-#' @import cowplot
+#' @import cowplot RColorBrewer
 #' @export plotCNA
 #'
 
@@ -209,7 +209,13 @@ plotCNA <- function(seg,
         if("patient" %in% colnames(patient.seg)&
            length(unique(patient.seg$patient)) > 1){
             # set.seed(1234)
-            patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
+            # patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
+            # names(patient_colors) <- patient.rect.table$patient
+            
+            qual_col_pals <- RColorBrewer::brewer.pal.info[brewer.pal.info$category == 'qual',]
+            col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+            
+            patient_colors <- col_vector[seq_len(length(patient.rect.table$patient))]
             names(patient_colors) <- patient.rect.table$patient
         }
         

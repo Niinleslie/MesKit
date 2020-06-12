@@ -15,7 +15,7 @@
 #'
 #' @examples
 #' compareJSI(maf)
-#' @return correlation matrix and heatmap via Jaccard similarity coefficient method
+#' @return Correlation matrix and heatmap via Jaccard similarity coefficient method
 #' @export compareJSI
 
 compareJSI <- function(
@@ -78,7 +78,9 @@ compareJSI <- function(
         
         if(pairByTumor){
             if(length(unique(JSI_input$Tumor_ID))  < 2 ){
-                message(paste0("Warnings: Only one tumor was found in ",patient, ". If you want to compare CCF between regions, pairByTumor should be set as FALSE"))
+                message(paste0("Warnings: Only one tumor was found in ",patient,
+                               " according to Tumor_ID. If you want to compare CCF 
+                               between tumors, pairByTumor should be set as FALSE"))
                 next
             }
         }else{

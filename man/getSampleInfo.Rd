@@ -13,7 +13,7 @@ getSampleInfo(object)
 \item{object}{An object of Maf}
 }
 \value{
-sample information
+Sample information
 }
 \description{
 getSampleInfo
