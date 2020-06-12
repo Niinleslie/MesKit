@@ -1,5 +1,4 @@
 FROM debian:latest
-Maintainer: Mengni Liu <niinleslie@gmail.com>
 
 #FROM debian:latest
 RUN apt-get clean
