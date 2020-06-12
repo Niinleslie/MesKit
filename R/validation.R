@@ -40,7 +40,7 @@ validCCF <- function(ccf_data){
     if(!all(ccf_standardcol %in% colnames(ccf_data))){
         missing_fileds_ccf <- ccf_standardcol[!ccf_standardcol %in% colnames(ccf_data)]
         info <- paste(missing_fileds_ccf, collapse = ",")
-        stop(paste0("Missing fields from CCF data :",info) )
+        stop(paste0("Missing fields from CCF data : ",info) )
     }
     
     ccf_data$Chromosome <- as.character(ccf_data$Chromosome)
@@ -59,7 +59,7 @@ validSeg <- function(seg){
     if(!all(seg_standardcol %in% colnames(seg))){
         missing_fileds_seg <- seg_standardcol[!seg_standardcol %in% colnames(seg)]
         info <- paste(missing_fileds_seg, collapse = ",")
-        stop(paste0("Missing fields from CCF data :",info) )
+        stop(paste0("Missing fields from CCF data : ",info) )
     }
     seg$Chromosome = gsub(pattern = 'chr', replacement = '', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)

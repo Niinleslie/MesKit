@@ -25,7 +25,7 @@ fitSignatures <- function(tri_matrix = NULL,
     if(!is.null(patient.id)){
          patient.setdiff <- setdiff(patient.id, names(tri_matrix))
          if(length(patient.setdiff) > 0){
-            stop(paste0("Error: Patient ", patient.setdiff, " can not be found in your data"))
+            stop(paste0("Error: patient ", patient.setdiff, " can not be found in your data"))
          }
          tri_matrix <- tri_matrix[names(tri_matrix) %in% patient.id]
     }
@@ -54,7 +54,7 @@ fitSignatures <- function(tri_matrix = NULL,
                                  sig = rownames(signatures.aetiology$cosmic_v3))
     }
   }else if(!is(signaturesRef, 'data.frame')){
-    stop('Input signature reference needs to be a data frame')
+    stop('Input signature reference should be a data frame')
   }else{
     sigsRef <- signaturesRef 
   }
@@ -76,7 +76,7 @@ fitSignatures <- function(tri_matrix = NULL,
     ## Remove branches whose mutation number is less than min.mut.count
     branch_remove <- rownames(tri_matrix[rowSums(tri_matrix) <= min.mut.count,])
     if(length(branch_remove) > 0){
-      message("Warning: mutation number of ", paste(branch_remove, collapse = ", ")," in ",patient, " are less than min.mut.count")
+      message("Warning: mutation number of ", paste(branch_remove, collapse = ", ")," in ",patient, " is less than min.mut.count")
       branch_left <- setdiff(rownames(tri_matrix),branch_remove)
       if(length(branch_left) == 0){
         next

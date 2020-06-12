@@ -35,7 +35,7 @@ For GUI-based analysis, users can use the following code to launch Shiny app bui
 ```R
 pkg.suggested <- c('shiny','shinyBS','shinydashboard', 'shinyWidgets', 'shinycssloaders', 'DT',
 	'BSgenome.Hsapiens.UCSC.hg19')
-## if genomic reference version is hg38, change 'BSgenome.Hsapiens.UCSC.hg19' to 'BSgenome.Hsapiens.UCSC.hg38'
+## if genomic reference version is hg18/hg38, change 'BSgenome.Hsapiens.UCSC.hg19' to 'BSgenome.Hsapiens.UCSC.hg18' or 'BSgenome.Hsapiens.UCSC.hg38'
 
 # Install the required packages
 checkPackages <- function(pkg){

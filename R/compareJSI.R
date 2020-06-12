@@ -37,7 +37,7 @@ compareJSI <- function(
     for(m in maf_list){
         if(! "CCF" %in% colnames(getMafData(m))){
             stop(paste0("Error: calculation of Jaccard similarity requires CCF data." ,
-                        "No CCF data was found when generate Maf object."))
+                        "No CCF data was found when generate Maf/MafList object."))
         }
         maf_data <- subsetMaf(m,
                             min.ccf = min.ccf,
@@ -47,7 +47,7 @@ compareJSI <- function(
             dplyr::filter(!is.na(Clonal_Status))
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filtering.")
+            message("Warnings :there was no mutation in ", patient, " after filtering.")
             next
         }
         
@@ -78,7 +78,7 @@ compareJSI <- function(
         
         if(pairByTumor){
             if(length(unique(JSI_input$Tumor_ID))  < 2 ){
-                message(paste0("Warnings: Only one tumor was found in ",patient,
+                message(paste0("Warnings: only one tumor was found in ",patient,
                                " according to Tumor_ID. If you want to compare CCF 
                                between tumors, pairByTumor should be set as FALSE"))
                 next

@@ -19,7 +19,7 @@ getPhyloTree(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{method}{Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood),""FASTME.ols" or "FASTME.bal".}
+\item{method}{Approach to construct phylogenetic trees.Choose one of "NJ"(Neibor-Joining),"MP"(maximum parsimony),"ML"(maximum likelihood),"FASTME.ols" or "FASTME.bal".}
 
 \item{min.vaf}{The minimum value of vaf. Default 0.02.}
 

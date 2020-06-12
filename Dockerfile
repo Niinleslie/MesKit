@@ -1,5 +1,5 @@
 FROM debian:latest
-COPY sources.list   /etc/apt/sources.list
+#COPY sources.list   /etc/apt/sources.list
 
 #FROM debian:latest
 RUN apt-get clean
@@ -31,21 +31,20 @@ RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.92
 
 
 # MesKit part:
-#RUN R -e "BiocManager::install(c('org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))"
-RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19', 'BSgenome.Hsapiens.UCSC.hg38'))" 
+RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19'))" 
 
 #RUN R -e "options(BioC_mirror='https://mirrors.tuna.tsinghua.edu.cn/bioconductor')"
 RUN R -e "devtools::install_github('Niinleslie/MesKit', ref = 'master')"
 
 
 # shiny server application & configuration
-COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
+#COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
 COPY inst/shiny /srv/shiny-server/
 
 EXPOSE 3838
 
 # Copy further configuration files into the Docker image
-COPY shiny-server.sh /usr/bin/shiny-server.sh
+#COPY shiny-server.sh /usr/bin/shiny-server.sh
 
-#CMD ["/bin/bash"]
-CMD ["/usr/bin/shiny-server.sh"]
+CMD ["/bin/bash"]
+#CMD ["/usr/bin/shiny-server.sh"]

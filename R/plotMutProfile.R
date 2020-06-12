@@ -98,8 +98,7 @@ plotMutProfile <- function(maf,
         #dplyr::select_if(function(x) {!all(is.na(x))}) %>%
       
     if (nrow(mat) < topGenesCount) {
-      stop(paste0('The number of gene you are asking for exceeds the total of genes. ', 
-                  'You want the top ', topGenesCount, ' genes,', ' but there are only ', nrow(mat), ' genes in the result.'))
+      message(paste0("Warnings: only ", nrow(mat), ' genes was found in this analysis.'))
     } else{
       
       mat <- mat %>% dplyr::slice(seq_len(topGenesCount)) %>%
@@ -401,7 +400,7 @@ plotMutProfile <- function(maf,
           if (length(patientsCol) == length(patient.id)) {
             names(patientsCol) <- patient.id
           } else {
-            stop("Error:The number of color you set for patients and the number of patients are not equal.")
+            stop("Error: the number of provided colors does not equal to number of patients.")
           }
         }
             
