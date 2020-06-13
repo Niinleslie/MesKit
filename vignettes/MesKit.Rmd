@@ -70,7 +70,7 @@ Intra-tumor heterogeneity (ITH) is now thought to be a key factor that results i
 
 In R console, enter ```citation("MesKit")```.  
   
-_**MesKit: Dissect cancer evolution from multi-region derived tumor biopsies via somatic mutations.**_
+_**MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations (Submitted)**_
    
    
 ### 2. Prepare input Data  
@@ -82,34 +82,34 @@ To analyze with MesKit, you need to provide:
 * A segmentation file. **Optional**
 * The GISTIC outputs.  **Optional**
 
-**Note:** ```Tumor_Sample_Barcode``` and ```Patient_ID``` should be consistant respectively in all input files.
+**Note:** ```Patient_ID``` and ```Tumor_Sample_Barcode``` should be consistant in all input files, respectively.
   
 #### 2.1 MAF file  
   
-Mutation Annotation Format (MAF) files are tab-delimited text files with aggregated mutation information from VCF Files. The input MAF file (or "*.maf.gz") of MesKit should have additional columns named ```Patient_ID``` and ```Tumor_Type``` on the basis of standard MAF files. Besides, as for the ```Variant_Classification```column, allowed values can be found at [Mutation Annotation Format Page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).   
+Mutation Annotation Format (MAF) files are tab-delimited text files with aggregated mutations information from VCF Files. The input MAF file (or "*.maf.gz") of MesKit should have additional columns named ```Patient_ID``` and ```Tumor_ID``` on the basis of standard MAF files. Besides, as for the ```Variant_Classification```column, allowed values can be found at [Mutation Annotation Format Page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).   
 The following fields are required to be contained in the MAF files with MesKit. 
    
    
 **Mandatory fields:**  
   
-```Hugo_Symbol```, ```Chromosome```, ```Start_Position```, ```End_Position```, ```Variant_Classification```, ```Variant_Type```, ```Reference_Allele```, ```Tumor_Seq_Allele2```, ```Ref_allele_depth```, ```Alt_allele_depth```, ```VAF```, ```Tumor_Sample_Barcode```, ```Patient_ID```, ```Tumor_Type``` 
+```Hugo_Symbol```, ```Chromosome```, ```Start_Position```, ```End_Position```, ```Variant_Classification```, ```Variant_Type```, ```Reference_Allele```, ```Tumor_Seq_Allele2```, ```Ref_allele_depth```, ```Alt_allele_depth```, ```VAF```, ```Tumor_Sample_Barcode```, ```Patient_ID```, ```Tumor_ID``` 
    
    
-**Note:** Samples with the same ```Tumor_Type``` are used to reveal sample type (such as "primary", "metastasis" and "lymph"), treatment (pre-treatment/post-treatment) or clinical information (alive/dead), et al. In addition, values in the ```Hugo_Symbol``` field are not necessarily needed to come from the HUGO database.
+**Note:** Multi-region samples from the a single tumor are indicated with the same ```Tumor_ID```, such as "primary", "metastasis" and "lymph". In addition, values in the ```Hugo_Symbol``` field are not necessarily from the HUGO database.
 
 **Example MAF file**  
   
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
 MAFtable <- read.table(system.file("extdata", "HCC6046.maf", package = "MesKit"), header=TRUE)
-extractLines <- rbind(MAFtable[1, ],MAFtable[383, ])
-extractLines <- rbind(extractLines,MAFtable[739, ])
+extractLines <- rbind(MAFtable[1, ], MAFtable[383, ])
+extractLines <- rbind(extractLines, MAFtable[739, ])
 data.frame(extractLines, row.names = NULL)
 ```  
   
   
 #### 2.2 CCF files  
   
-By default, there are 6 mandatory fields in CCF input file: ```Patient_ID```,	```Tumor_Sample_Barcode```, ```Chromosome```, ```Start_Position```, ```CCF``` and  ```CCF_std```/```CCF_CI_High``` (required when identifying clonal/subclonal mutations), and the format used in ```Chromosome``` field should be corresponding with the ```Chromosome``` field in the MAF file (both in number or both start with "chr"). However, if not all mutations in CCF files are SNV, two additional columns, ```Reference_Allele``` and ```Tumor_Seq_Allele2```, should also be included in the input CCF file.
+By default, there are six mandatory fields in input CCF file: ```Patient_ID```,	```Tumor_Sample_Barcode```, ```Chromosome```, ```Start_Position```, ```CCF``` and  ```CCF_std```/```CCF_CI_High``` (required when identifying clonal/subclonal mutations). ```Chromosome``` field of mafFile and ccfFile should be in format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, ```Reference_Allele``` and ```Tumor_Seq_Allele2``` should also be included in the input CCF files.
 
 
 **Example CCF file**
@@ -129,9 +129,9 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 * ```Chromosome``` - chromosome name or ID
 * ```Start_Position``` - genomic start position of segments (1-indexed)
 * ```End_Position``` - genomic end position of segments (1-indexed)
-* ```CopyNumber``` - absolute integer copy number (or Segment_Mean)
+* ```Segment_Mean/CopyNumber``` - segment mean value or absolute integer copy number
 
-Positions are in base pair units.
+**Note:** Positions are in base pair units.
     
    
 **Example Segmentation file**
@@ -145,6 +145,7 @@ segInfo[1:5, ]
   
   
 #### Via GitHub 
+
 Install the latest version of this package by typing the commands below in R console:  
   
 ```{r eval=FALSE}
@@ -154,9 +155,11 @@ remotes::install_github("Niinleslie/MesKit")
   
   
 ### 4. Start with the Maf object  
-  
-```readMaf``` function creates a Maf object by reading MAF files and cancer cell fraction (CCF) data (opitional but recommended). Parameter ```refBuild``` is used to set particular full genome sequences for Homo sapiens reference (```"hg18"```, ```"hg19"``` or ```"hg38"```). Besides, you can select the type of variant you are interested in by controlling the parameter ```nonSyn.vc```.
-  
+   
+   
+```readMaf``` function creates Maf/MafList objects by reading MAF files and cancer cell fraction (CCF) data (opitional but recommended). Parameter ```refBuild``` is used to set reference genome version for Homo sapiens reference (```"hg18"```, ```"hg19"``` or ```"hg38"```).
+   
+   
 ```{r message=FALSE}
 library(MesKit)
 ```  
@@ -173,41 +176,43 @@ maf <- readMaf(mafFile = maf.File,
                ccfFile = ccf.File,
                refBuild = "hg19")  
 ```  
-   
-   
+
 ### 5. Mutational landscape
-   
+
 #### 5.1 Mutational profile   
 
-SSNVs from MRS are divided into public (shared by all samples), shared (observed in a subset of samples) and private (owned by a unique sample). Additionally, ```classifyMut``` function can distinguish clonal and subclonal SSNVs in each sample if CCF data is available (Criterion: clonal – 95% CI overlaps with 1; subclonal – the upper bound of 95% CI is smaller than 1 [1](#refer)). Option ```class``` is provided to select certain categories of variants, and parameter ```classByType``` can be used to reveal the mutational profile within each tumor type.  
-  
-```plotMutProfile``` function can visualize the mutational profile of tumor samples. 
+In order to explore the genomic alterations during cancer progression with multi-region sequencing approach, we provided ```classifyMut``` function to categorize mutations. The classification is based on shared pattern or clonal status (CCF data is required) of mutations, which can be specified by ```class``` option. Additionally, ```classByTumor``` can be used to reveal the mutational profile within tumors.  
 
 ```{r message=FALSE, fig.align='left', fig.width=11, fig.height=6.5}
 # Driver genes of CRC collected from [IntOGen](https://www.intogen.org/search) (v.2020.2）
 driverGene.file <- system.file("extdata/", "IntOGen-DriverGenes_HC.tsv", package = "MesKit")
 driverGene <- as.character(read.table(driverGene.file)$V1)
-classifyMut(maf, class =  "SP", patient.id = 'HCC8257')
+mut.class <- classifyMut(maf, class =  "SP", patient.id = 'HCC8257')
+head(mut.class)
+```
+  
+```plotMutProfile``` function can visualize the mutational profile of tumor samples. 
+
+```{r message=FALSE, fig.align='left', fig.width=11, fig.height=6.5}
 plotMutProfile(maf, class =  "SP", geneList = driverGene)
 ```
  
 
 #### 5.2 CNA profile
 
-The ```plotCNA``` function can accept copy number information generated from segmentation programmers and plot the CNA profile. Besides, MesKit provides options to integrate GISTIC results, which can be obtained from [http://gdac.broadinstitute.org](http://gdac.broadinstitute.org). Please make sure the genome version based on these results is consistent with parameter ```refBuild```.
-   
-   
+The ```plotCNA``` function can characterizes the CNA landscape across samples based on copy number data from segmentation algorithms. Besides, MesKit provides options to integrate GISTIC2 results, which can be obtained from [http://gdac.broadinstitute.org](http://gdac.broadinstitute.org). Please make sure the genome version based on these results is consistent with ```refBuild``` of the Maf/MafList object .
+
 
 ```{r message=FALSE}
 # Read segment file
 segCN <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
 
 # Reading gistic output files
-all.lesions <- system.file("extdata", "LICH_all_lesions.conf_99.txt", package = "MesKit")
+all.lesions <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
 amp.genes <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
 del.genes <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 
-seg <- readSegment(segCN.file = segCN, gisticAllLesionsFile = all.lesions,
+seg <- readSegment(segFile = segCN, gisticAllLesionsFile = all.lesions,
                    gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes)
 seg[1:5, ]
 ```
@@ -224,7 +229,7 @@ plotCNA(seg, patient.id = c("HCC5647", "HCC8257", "HCC6690"))
 
 ##### 6.1.1 MATH score calculation
 
-The ```mathScore``` function estimates ITH of each sample from every single patient using mutant-allele tumor heterogeneity (MATH) approach [2](#refer). Typically, the higher the MATH score is, more heterogeneous a tumor sample is [3](#refer) [4](#refer). For MRS, this function can estimate the MATH score of each ```Tumor_Type``` based on the merged VAF when ```withTumor = TRUE```. 
+The ```mathScore``` function estimates ITH per sample using mutant-allele tumor heterogeneity (MATH) approach [1](#refer). Typically, the higher the MATH score is, more heterogeneous a tumor sample is [2](#refer) [3](#refer). For MRS, this function can estimate the MATH score within tumor based on the merged VAF when ```withTumor = TRUE```. 
   
 
 ```{r warning=FALSE, fig.width=8, fig.height=5}
@@ -237,20 +242,19 @@ MATH.sample
 ##### 6.1.2 AUC of CCF
    
    
-The ```ccfAUC``` function estimates the tumor heterogeneity via the area under the curve (AUC) of the cumulative density from all cancer cell fractions per tumor. Tumors with higher AUC values are considered to be more heterogeneous [5](#refer). If the MAF data contains information from more than one patient, you can subset by specifying the corresponding Patient ID.     
+The ```ccfAUC``` function estimates the tumor heterogeneity via the area under the curve (AUC) of the cumulative density from all cancer cell fractions per tumor. Tumors with higher AUC values are considered to be more heterogeneous [4](#refer). If the MAF data contains information from more than one patient, you can subset by specifying the corresponding Patient ID.     
    
 
 ```{r fig.height=5, fig.width=6, message=FALSE}
 AUC <- ccfAUC(maf, patient.id = 'HCC8257')
 names(AUC)
 ``` 
-   
-   
+
 ```{r fig.height=5, fig.width=6, message=FALSE}
 AUC$AUC.value
 ```  
-   
-   
+
+
 ```{r fig.height=5, fig.width=5.5, message=FALSE, fig.align='left'}
 # show cumulative density plot of CCF
 AUC$CCF.density.plot
@@ -259,8 +263,8 @@ AUC$CCF.density.plot
    
 ##### 6.1.3 VAF clustering
    
-```vafCluster``` function clusters variant allele frequencies (VAFs) based on a Gaussian finite mixture model. This function produces a density distribution plot, depicting clusters of mutations with different VAFs in all/selected samples. We consider the number of clusters as a simple indicator of ITH. Parameters ```min.vaf``` and ```max.vaf``` can be set to filter mutations. In addition, this function can read segmentation file to adjust CNA and LOH.
-   
+```vafCluster``` function clusters variant allele frequencies (VAFs) based on a Gaussian finite mixture model. This function produces a density distribution plot, depicting clusters of mutations with different VAFs. We consider the number of clusters as a simple indicator of ITH. In addition, this function can read segmentation file to adjust CNA and LOH.
+  
 ```{r message=FALSE, fig.height=5.5, fig.width=9.5}
 clusterVaf <- vafCluster(maf, patient.id = 'HCC8257')
 head(clusterVaf$cluster.data[, -1])
@@ -274,18 +278,17 @@ cowplot::plot_grid(plotlist = clusterPlots)
 
 ##### 6.2.1 Fixation index
 
-Fixation Index (Fst) is a classical metric of population genetics, which can be used to measure the genetic divergence between regions [6](#refer) [7](#refer) [8](#refer). ```calFst``` function calculates the proportion of the total variance in allele frequency caused by frequency differences between populations.
+Fixation Index (Fst) is a classical metric of population genetics, which can be used to measure the genetic divergence between regions [5](#refer) [6](#refer) [7](#refer). ```calFst``` function calculates the proportion of the total variance in allele frequency caused by frequency differences between populations.
    
    
 ```{r fig.align='left', fig.width=5.5, fig.height=5, fig.asp=1.0}
 calFst(maf, patient.id = 'HCC8257', plot = TRUE, number.cex = 10)
 ```  
-   
+
 
 #### 6.2.2 Nei’s genetic distance
    
-Nei’s genetic distance is used in population genetics to assess the similarity between populations, taking heterogeneity within populations into account. The function ```calNeiDist``` calculates Nei's distance of CCF among multi-region samples from the same patient for each sample-pair [9](#refer).   
-   
+Nei’s genetic distance is used in population genetics to assess the similarity between populations, taking heterogeneity within populations into account. The function ```calNeiDist``` calculates Nei's distance of CCF among multi-region samples from the same patient for each sample-pair [8](#refer).   
    
 ```{r fig.align='left', fig.width=5.5, fig.height=5, fig.asp=1.0}
 calNeiDist(maf, patient.id = 'HCC8257', number.cex = 10)
@@ -299,7 +302,7 @@ Metastasis remains poorly understood despite its critical clinical significance,
    
 #### 7.1 Pairwise CCF comparison
 
-Distinct patterns of monoclonal versus polyclonal seeding based on the cancer cell fraction (CCF) of SSNVs between sample pairs. ```compareCCF``` function prints pairwise CCF plots of mutations,  which are identified across samples from a single patient. Recent studies have used this method to deduce the potential metastatic route between different paired tumor lesions [10](#refer) [11](#refer).  
+Distinct patterns of monoclonal versus polyclonal seeding based on the cancer cell fraction (CCF) of somatic mutations between sample/tumor pairs. ```compareCCF``` function prints pairwise CCF plots of mutations,  which are identified across samples from a single patient. Recently, this method has been widely used to deduce the potential metastatic route between different paired tumor lesions [9](#refer) [10](#refer).  
    
    
 ```{r fig.align='left', fig.width=5, fig.height=5, message=FALSE, warning=FALSE}
@@ -322,7 +325,7 @@ title('HCC8257', cex.main = 1.2)
    
 #### 7.2 Jaccard similarity index
    
-The Jaccard similarity index (JSI) can be used to calculate mutational similarity between lesions, which is defined as the ratio of shared variants to all variants for sample pairs [12](#refer). Users can distinguish monoclonal versus polyclonal seeding in metastases (including lymph node metastases and distant metastases) via ```compareJSI``` function, and higher JSI values indicate the higher possibility of polyclonal seeding [13](#refer). 
+The Jaccard similarity index (JSI) can be used to calculate mutational similarity between regions, which is defined as the ratio of shared variants to all variants for sample pairs [11](#refer). Users can distinguish monoclonal versus polyclonal seeding in metastases (including lymph node metastases and distant metastases) via ```compareJSI``` function, and higher JSI values indicate the higher possibility of polyclonal seeding [12](#refer). 
    
    
 ```{r fig.align='left', fig.width=7, fig.height=7, fig.asp=1.0}
@@ -339,7 +342,7 @@ JSI.res$JSI.pair
    
 #### 7.3 Neutral evolution
    
-The subclonal mutant allele frequencies of a tumor follow a simple power-law distribution predicted by neutral growth [14](#refer). Users can evaluate whether a tumor follows neutral evolution or not under strong selection via the ```testNeutral``` function. Tumors with R2 >= ```R2.threshold``` (Default: 0.98) are considered to follow neutral evolution. Besides, this function can also generate the model fitting plot of each sample if the argument ```plot``` is set to```TRUE```.
+The subclonal mutant allele frequencies of a tumor follow a simple power-law distribution predicted by neutral growth [13](#refer). Users can evaluate whether a tumor follows neutral evolution or not under strong selection via the ```testNeutral``` function. Tumors with R2 >= ```R2.threshold``` (Default: 0.98) are considered to follow neutral evolution. Besides, this function can also generate the model fitting plot of each sample if the argument ```plot``` is set to```TRUE```.
    
    
 ```{r message=FALSE, warning=FALSE, fig.height=4.5, fig.width=4.5}
@@ -351,11 +354,12 @@ neutralResult$model.fitting.plot$T3
    
    
 ### 8. Phylogenetic tree analysis
-
+   
+   
 #### 8.1 Phylogenetic tree construction  
    
-   
-Based on the Maf object, ```getPhyloTree``` function reconstructs phylogenetic tree in different methods, including "NJ" (Neibor-Joining) , "MP" (maximum parsimony),  "ML" (maximum likelihood), "FASTME.ols" and "FASTME.bal", which can be set by controlling the ```method``` parameter. The phylogenetic tree would be stored in a ```phyloTree``` object, which can later be utilized for functional exploration, mutational signature analysis and tree visualization.  
+With MesKit, phylogenetic tree construction for each individual is based on the binary present/absence matrix of mutations across all tumor regions.  
+Based on the Maf object, ```getPhyloTree``` function reconstructs phylogenetic tree in different methods, including "NJ" (Neibor-Joining) , "MP" (maximum parsimony),  "ML" (maximum likelihood), "FASTME.ols" and "FASTME.bal", which can be set by controlling the ```method``` parameter. The phylogenetic tree would be stored in a ```phyloTree/phyloTreeList``` object, and it can later be utilized for functional exploration, mutational signature analysis and tree visualization.  
    
    
 ```{r}
@@ -412,7 +416,7 @@ dotplot(KEGG_HCC8257_Public)
 
 The sequence context of the base substitutions can be retrieved from the corresponding reference genome to construct a mutation matrix with counts for all 96 trinucleotide changes using “mut_matrix”. Subsequently, the 6 base substitution type spectrum can be plotted with “plot_spectrum” , which can be divided into several sample groups.
 
-```mutTrunkBranch``` function calculates the fraction of branch/trunk mutations occurring in each of the six types of base substitution types (C>A, C>G, C>T, T>A, T>C, T>G) and conducts two-sided Fisher’s exact tests. For C>T mutations, it can be further classified as C>T at CpG sites and other sites by setting ```CT = TRUE```. This function provides option ```plot``` to print the distribution of branch/trunk mutations. Substitutions types with significant difference between trunk and branch mutations are marked with Asterisks. 
+```mutTrunkBranch``` function calculates the fraction of branch/trunk mutations occurring in each of the six types of base substitution types (C>A, C>G, C>T, T>A, T>C, T>G) and conducts two-sided Fisher’s exact tests. For C>T mutations, it can be further classified into C>T at CpG sites and other sites by setting ```CT = TRUE```. This function provides option ```plot``` to print the distribution of branch/trunk mutations. Substitutions types with significant difference between trunk and branch mutations are marked with Asterisks. 
 
    
 ```{r message=FALSE}
@@ -433,25 +437,31 @@ mutClass$mutTrunkBranch.plot
 ```
    
    
-```triMatrix``` function calculates the frequency of 96 trinucleotide mutations based on somatic SNVs in selected patient(s). Then the ```fitSignatures``` function takes the matrix as an input and finds the nonnegative linear combination of mutation signatures to reconstruct matrix and calculate cosine similarity based on somatic SNVs. Besides, users can set signatures matrix via ```signaturesRef``` (```"cosmic_v2"```, ```"nature2013"```, ```"exome_cosmic_v3"``` or ```"genome_cosmic_v3"```). Parameter ```min.mut.count``` specifies the minimum number of mutations (Default: 15) required to perform mutational signature analysis.  
-   
-For visualization of mutational signature, please running ```plotMutSigProfile``` function.
-   
+```triMatrix``` function returns a mutation count matrix of 96 trinucleotides based on somatic SNVs per sample. The ```fitSignatures``` function takes the matrix and known signature matrix as input to find the optimal nonnegative linear combination of mutation signatures to reconstruct matrix and calculate cosine similarity based on somatic SNVs. Besides, the signature matrix can be specified (```"cosmic_v2"```, ```"exome_cosmic_v3"``` or ```"nature2013"```) or provided by users via ```signaturesRef```. 
+
    
 ```{r, warning = FALSE, message=FALSE, fig.height=7, fig.width=10}
-trimatrix_HCC8257 <- triMatrix(phyloTree)
+trimatrix_HCC8257 <- triMatrix(phyloTree, withinTumor = TRUE)
 fit_HCC8257 <- fitSignatures(trimatrix_HCC8257)
 ```   
+
    
+```plotMutSigProfile``` function can be utilized to visualize 96 trinucleodide mutational profile or reconstructed mutational profile.  
    
-```{r, warning = FALSE, message=FALSE, fig.height=6, fig.width=10}
+```{r, warning = FALSE, message=FALSE, fig.height=3, fig.width=10}
+# Visualize the 96 trinucleodide mutational profile
+plotMutSigProfile(trimatrix_HCC8257)[[1]]
+```
+  
+   
+```{r, fig.height=6, fig.width=10}
+# Compare the reconstructed mutational profile with the original mutational profile
 plotMutSigProfile(fit_HCC8257)[[1]]
 ```  
 
 
 ```{r, warning = FALSE, message=FALSE, fig.height=5, fig.width=8}
-# Below plot shows cosine similarities between the mutational profile of 
-# each group and COSMIC signatures
+# Below plot shows cosine similarities between the mutational profile of each group and COSMIC signatures
 
 library(ComplexHeatmap)
 ComplexHeatmap::Heatmap(fit_HCC8257$HCC8257$cosine.similarity, name = "Cosine similarity")
@@ -460,16 +470,10 @@ ComplexHeatmap::Heatmap(fit_HCC8257$HCC8257$cosine.similarity, name = "Cosine si
    
 ### 9. Phylogenetic tree visualization  
    
-Users can visualize phylogenetic trees with annotations through ```plotPhyloTree``` function. The trunks/branches will be colored according to corresponding mutational signatures by specifying ```branchCol``` parameter. Argument  ```show.bootstrap``` is provided to show the support values of internal nodes.  
-Either binary mutation heatmap (indicates the presence or absence of mutations) or CCF heatmap can be displayed by running ```mutHeatmap``` function.
+   
+Users can visualize phylogenetic trees with annotations through ```plotPhyloTree``` function. By specifying ```branchCol``` parameter, the branches can be either colored according to classification of mutations or putative known signatures. Argument  ```show.bootstrap``` is provided to show the support values of internal nodes. Additionally, via ```mutHeatmap``` function, users can get a better depiction of mutational patterns mutations in tumor phylogeny based on MRS. Either binary mutation heatmap (indicates the presence or absence of mutations) or CCF heatmap can be displayed by running ```mutHeatmap``` function.
 
 
-Numbers above branches are bootstrap values.   
-Note that some nodes receive bootstrap values of 100%, indicating
-the higher support values these nodes have, whereas other nodes may have much
-lower support values.
-  
-  
 ```{r, fig.align='left', fig.width=12, fig.height=5, message=FALSE, warning=FALSE}
 # A phylogenetic tree along with binary and CCF heatmap of mutations 
 phylotree_HCC8257 <- plotPhyloTree(phyloTree)
@@ -478,7 +482,7 @@ heatmapbinary_HCC8257 <- mutHeatmap(maf, use.ccf = FALSE,
 heatmapCCF_HCC8257 <- mutHeatmap(maf, use.ccf = TRUE, 
                                  patient.id = "HCC8257", min.vaf = 0.06)
 cowplot::plot_grid(phylotree_HCC8257, heatmapbinary_HCC8257, 
-                   heatmapCCF_HCC8257, nrow = 1, rel_widths = c(1.3,1,1))
+                   heatmapCCF_HCC8257, nrow = 1, rel_widths = c(1.3, 1, 1))
 ```
     
     
@@ -486,33 +490,32 @@ cowplot::plot_grid(phylotree_HCC8257, heatmapbinary_HCC8257,
      
 ### 10. References {#refer}
 
-1. Mcgranahan N , Favero F , De Bruin E C , et al. Clonal status of actionable driver events and the timing of mutational processes in cancer evolution[J]. Science Translational Medicine, 2015, 7(283):283ra54-283ra54.
 
-2. Mroz, Edmund A, and James W Rocco. MATH, a novel measure of intratumor genetic heterogeneity, is high in poor-outcome classes of head and neck squamous cell carcinoma. Oral oncology vol. 49,3 (2013): 211-5.
+1. Mroz, Edmund A, and James W Rocco. MATH, a novel measure of intratumor genetic heterogeneity, is high in poor-outcome classes of head and neck squamous cell carcinoma. Oral oncology vol. 49,3 (2013): 211-5.
 
-3. Mroz EA , Tward AD , Pickering CR , et al. High intratumor genetic heterogeneity is related to worse outcome in patients with head and neck squamous cell carcinoma[J]. Cancer, 2013, 119(16):3034-3042. [https://doi.org/10.1002/cncr.28150](https://doi.org/10.1002/cncr.28150)
+2. Mroz EA , Tward AD , Pickering CR , et al. High intratumor genetic heterogeneity is related to worse outcome in patients with head and neck squamous cell carcinoma[J]. Cancer, 2013, 119(16):3034-3042. [https://doi.org/10.1002/cncr.28150](https://doi.org/10.1002/cncr.28150)
 
-4. Mroz EA, Tward AM, Hammon RJ, Ren Y, Rocco JW (2015) Intra-tumor Genetic Heterogeneity and Mortality in Head and Neck Cancer: Analysis of Data from The Cancer Genome Atlas. PLoS Med 12(2): e1001786. [https://doi.org/10.1371/journal.pmed.1001786](https://doi.org/10.1371/journal.pmed.1001786)
+3. Mroz EA, Tward AM, Hammon RJ, Ren Y, Rocco JW (2015) Intra-tumor Genetic Heterogeneity and Mortality in Head and Neck Cancer: Analysis of Data from The Cancer Genome Atlas. PLoS Med 12(2): e1001786. [https://doi.org/10.1371/journal.pmed.1001786](https://doi.org/10.1371/journal.pmed.1001786)
 
-5. Charoentong, P. et al. Pan-cancer immunogenomic analyses reveal genotypeimmunophenotype relationships and predictors of response to checkpoint blockade. Cell Rep. 18, 248–262 (2017)
+4. Charoentong, P. et al. Pan-cancer immunogenomic analyses reveal genotypeimmunophenotype relationships and predictors of response to checkpoint blockade. Cell Rep. 18, 248–262 (2017)
 
-6. Weir, B.S. and Cockerham, C.C. Estimating F-Statistics for the Analysis of Population Structure. Evolution, 1984, 38, 1358-1370. [http://dx.doi.org/10.2307/2408641](http://dx.doi.org/10.2307/2408641)
+5. Weir, B.S. and Cockerham, C.C. Estimating F-Statistics for the Analysis of Population Structure. Evolution, 1984, 38, 1358-1370. [http://dx.doi.org/10.2307/2408641](http://dx.doi.org/10.2307/2408641)
 
-7. Bhatia G , Patterson N , Sankararaman S , et al. Estimating and interpreting FST: The impact of rare variants[J]. Genome Research, 2013, 23(9):1514-1521.
+6. Bhatia G , Patterson N , Sankararaman S , et al. Estimating and interpreting FST: The impact of rare variants[J]. Genome Research, 2013, 23(9):1514-1521.
 
-8. Holsinger K E , Weir B S . Genetics in geographically structured populations: defining, estimating and interpreting FST[J]. Nature Reviews Genetics, 2009, 10(9):639-650.
+7. Holsinger K E , Weir B S . Genetics in geographically structured populations: defining, estimating and interpreting FST[J]. Nature Reviews Genetics, 2009, 10(9):639-650.
 
-9. Puente X S, Pinyol M, Quesada V, et al. Whole-genome sequencing identifies recurrent mutations in chronic lymphocytic leukaemia[J]. Nature, 2011, 475(7354):101-105.
+8. Puente X S, Pinyol M, Quesada V, et al. Whole-genome sequencing identifies recurrent mutations in chronic lymphocytic leukaemia[J]. Nature, 2011, 475(7354):101-105.
 
-10. Christina Curtis et al. Quantitative evidence for early metastatic seeding in colorectal cancer, Nature Genetics (2019). [http://dx.doi.org/10.1038/s41588-019-0423-x](http://dx.doi.org/10.1038/s41588-019-0423-x)
+9. Christina Curtis et al. Quantitative evidence for early metastatic seeding in colorectal cancer, Nature Genetics (2019). [http://dx.doi.org/10.1038/s41588-019-0423-x](http://dx.doi.org/10.1038/s41588-019-0423-x)
 
-11. Ruidong Xue et al. Genomic and Transcriptomic Profiling of Combined Hepatocellular and Intrahepatic Cholangiocarcinoma Reveals Distinct Molecular Subtypes. Cancer Cell, 2019, 35(6):932-947.
+10. Ruidong Xue et al. Genomic and Transcriptomic Profiling of Combined Hepatocellular and Intrahepatic Cholangiocarcinoma Reveals Distinct Molecular Subtypes. Cancer Cell, 2019, 35(6):932-947.
 
-12. Makohon-Moore, A., Zhang, M., Reiter, J. et al. Limited heterogeneity of known driver gene mutations among the metastases of individual patients with pancreatic cancer. Nat Genet 49, 358–366 (2017). [https://doi.org/10.1038/ng.3764](https://doi.org/10.1038/ng.3764)
+11. Makohon-Moore, A., Zhang, M., Reiter, J. et al. Limited heterogeneity of known driver gene mutations among the metastases of individual patients with pancreatic cancer. Nat Genet 49, 358–366 (2017). [https://doi.org/10.1038/ng.3764](https://doi.org/10.1038/ng.3764)
 
-13. Hu Z, Li Z, Ma Z & Curtis C. Pan-cancer analysis of clonality and the timing of systemic spread in paired primary tumors and metastases. bioRXiv (2019). [http://dx.doi.org/10.1101/825240](http://dx.doi.org/10.1101/825240)
+12. Hu Z, Li Z, Ma Z & Curtis C. Pan-cancer analysis of clonality and the timing of systemic spread in paired primary tumors and metastases. bioRXiv (2019). [http://dx.doi.org/10.1101/825240](http://dx.doi.org/10.1101/825240)
 
-14. Williams, M., Werner, B., Barnes, C. et al. Identification of neutral tumor evolution across cancer types. Nat Genet 48, 238–244 (2016). [https://doi.org/10.1038/ng.3489](https://doi.org/10.1038/ng.3489)
+13. Williams, M., Werner, B., Barnes, C. et al. Identification of neutral tumor evolution across cancer types. Nat Genet 48, 238–244 (2016). [https://doi.org/10.1038/ng.3489](https://doi.org/10.1038/ng.3489)
   
   
   
