@@ -1,10 +1,18 @@
+<<<<<<< HEAD
 
 <img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" /> 
 
 
+=======
+
+
+<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" /> 
+
+
+>>>>>>> 42522f0fc77947433280bd3f8ea1da5cefcbbb6b
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
-Intra-tumor heterogeneity (ITH) is now thought to be a key factor contributing to the therapeutic failures and drug resistance, which have attracted increasing attention in the cancer research field. Here, we present an R package, MesKit, for characterizing cancer genomic ITH and inferring the history of tumor evolution. MesKit provides a wide range of analysis including ITH evaluation, enrichment, signature, clone evolution analysis via implementation of well-established computational and statistical methods. 
+Intra-tumor heterogeneity (ITH) is now thought to be a key factor contributing to the therapeutic failures and drug resistance, which have attracted increasing attention in the cancer research field. Here, we present an R package, MesKit, for characterizing cancer genomic ITH and inferring the history of tumor evolution via implementation of well-established computational and statistical methods. 
 The source code and documents are freely available through Github (https://github.com/Niinleslie/MesKit). We also developed a shiny application to provide easier analysis and visualization.
 
 
@@ -34,7 +42,7 @@ For GUI-based analysis, users can use the following code to launch Shiny app bui
 ```R
 pkg.suggested <- c('shiny','shinyBS','shinydashboard', 'shinyWidgets', 'shinycssloaders', 'DT',
 	'BSgenome.Hsapiens.UCSC.hg19')
-## if genomic reference version is hg38, change 'BSgenome.Hsapiens.UCSC.hg19' to 'BSgenome.Hsapiens.UCSC.hg38'
+## if genomic reference version is hg18/hg38, change 'BSgenome.Hsapiens.UCSC.hg19' to 'BSgenome.Hsapiens.UCSC.hg18' or 'BSgenome.Hsapiens.UCSC.hg38'
 
 # Install the required packages
 checkPackages <- function(pkg){
@@ -77,7 +85,6 @@ Copyright © 2014-2019. RenLab from SYSUCC. All Rights Reserved<br/>
 For more useful tools/applications, please go to [renlab.org](http://www.renlab.org)
 
 ## Citation
-Citation (from within R, enter `citation("MesKit")):`
->
-_MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations_
+
+_MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations(Submitted)_
 

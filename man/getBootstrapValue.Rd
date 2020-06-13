@@ -13,7 +13,7 @@ getBootstrapValue(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-bootstrap value of phyloTree
+Bootstrap value of phyloTree
 }
 \description{
 getBootstrapValue

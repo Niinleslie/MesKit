@@ -19,4 +19,4 @@ VignetteBuilder: knitr
 biocViews: DNASeq, SomaticMutation, GenomicVariantsWorkflow, VariantAnnotation, DataRepresentation, Visualization
 NeedsCompilation: no
 git_url: https://github.com/Niinleslie/MesKit
-git_last_commit_date: 2019-6-1
+git_last_commit_date: 2020-6-1

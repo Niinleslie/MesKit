@@ -13,7 +13,7 @@ getTreeMethod(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-tree construction method of phyloTree
+Tree construction method of phyloTree
 }
 \description{
 getTreeMethod

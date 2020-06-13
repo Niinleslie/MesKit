@@ -13,7 +13,7 @@ getCCFMatrix(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-ccf matrix of phyloTree
+CCF matrix of phyloTree
 }
 \description{
 getCCFMatrix

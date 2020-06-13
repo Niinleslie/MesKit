@@ -27,15 +27,3 @@ preprocess_HugoSymbol <- function(mafData){
    return(mafData)
 }
 
-# mafData <- data.table::fread(
-#    file = mafFile,
-#    quote = "",
-#    header = TRUE,
-#    data.table = TRUE,
-#    fill = TRUE,
-#    sep = '\t',
-#    skip = "Hugo_Symbol",
-#    stringsAsFactors = FALSE
-# )
-# sort.maf <- sortHugo_Symbol(mafData)
-# write.table(sort.maf, file = "HCC6046.maf", sep = "\t",quote = F,row.names = F)
