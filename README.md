@@ -1,12 +1,11 @@
 
 
-<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" /> 
-
+![GitHub Logo](/vignettes/logo.png)
 
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
 Intra-tumor heterogeneity (ITH) is now thought to be a key factor contributing to the therapeutic failures and drug resistance, which have attracted increasing attention in the cancer research field. Here, we present an R package, MesKit, for characterizing cancer genomic ITH and inferring the history of tumor evolution via implementation of well-established computational and statistical methods. 
-The source code and documents are freely available through Github (https://github.com/Niinleslie/MesKit). We also developed a shiny application to provide easier analysis and visualization.
+The source code and documents are freely available through Github (https://github.com/Niinleslie/MesKit). A shiny application was developed to provide easier analysis and visualization.
 
 
 ## Installation
@@ -17,16 +16,8 @@ remotes::install_github("Niinleslie/MesKit")
 ```
 
 ## Usage
-A complete documentation of MesKit can be found [here.](http://meskit.renlab.org/)
-
-
-<div  align="left">   
-
-<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/MesKit_overview.png" height="500" width="600" />
-
-</div>
-   
-
+The structured documentation of MesKit can be found [http://meskit.renlab.org/](http://meskit.renlab.org/)   
+![GitHub Logo](/vignettes/MesKit_overview.png)
 
 ## Shiny APP
 
@@ -48,7 +39,7 @@ lapply(pkg.suggested, checkPackages)
 shiny::runApp(system.file("shiny", package = "MesKit"))
 ```
 
-Also you can run shiny with:
+Also, you can run the shiny interface by:
 
 ```R
 runMesKit()
@@ -74,7 +65,7 @@ This software was mainly developed by:
 
 ## Copyright
 
-Copyright © 2014-2019. RenLab from SYSUCC. All Rights Reserved<br/>
+Copyright © 2014-2020. RenLab from SYSUCC. All Rights Reserved<br/>
 For more useful tools/applications, please go to [renlab.org](http://www.renlab.org)
 
 ## Citation
