@@ -1,6 +1,6 @@
 
+<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" alt = "Github logo" /> 
 
-![GitHub Logo](/vignettes/logo.png)
 
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
@@ -11,13 +11,18 @@ The source code and documents are freely available through Github (https://githu
 ## Installation
 
 ```R
-install.packages("remotes")
-remotes::install_github("Niinleslie/MesKit")
+#  install the latest version from GitHub
+if(!require(devtools)) install.packages("devtools")
+devtools::install_github("Niinleslie/MesKit")
 ```
 
 ## Usage
-The structured documentation of MesKit can be found [http://meskit.renlab.org/](http://meskit.renlab.org/)   
-![GitHub Logo](/vignettes/MesKit_overview.png)
+The structured documentation of MesKit can be found at [http://meskit.renlab.org/](http://meskit.renlab.org/)   
+<div  align="left">   
+
+<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/MesKit_overview.png" height="500" width="600" alt = "MesKit Workflow"/>
+
+</div>
 
 ## Shiny APP
 
