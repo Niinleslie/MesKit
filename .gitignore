@@ -1,0 +1,15 @@
+.Rproj.user 
+.RData 
+.Rhistory
+.Ruserdata
+.rapp.history 
+inst/doc 
+*.Rproj 
+.rhistory
+vignettes/.gitignore
+.renviron
+.gitattributes
+.gitmodules
+.seed
+.settings
+.tm_properties
