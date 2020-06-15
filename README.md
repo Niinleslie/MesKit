@@ -1,11 +1,6 @@
 
-<<<<<<< HEAD
-<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" /> 
+<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" alt = "Github logo" /> 
 
-=======
-
-![GitHub Logo](/vignettes/logo.png)
->>>>>>> ea207697674746094b0d1cd8f704cd83e01ed8c8
 
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
@@ -21,8 +16,12 @@ remotes::install_github("Niinleslie/MesKit")
 ```
 
 ## Usage
-The structured documentation of MesKit can be found [http://meskit.renlab.org/](http://meskit.renlab.org/)   
-![GitHub Logo](/vignettes/MesKit_overview.png)
+The structured documentation of MesKit can be found at [http://meskit.renlab.org/](http://meskit.renlab.org/)   
+<div  align="left">   
+
+<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/MesKit_overview.png" height="500" width="600" alt = "MesKit Workflow"/>
+
+</div>
 
 ## Shiny APP
 
