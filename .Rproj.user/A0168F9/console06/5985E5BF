@@ -1,277 +1,0 @@
-[0m[0K]0;:/e/Github/projects/MesKit[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l[2A                                                                                [0;32m刘妞[0K妞
-@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m                       $[0K
-[0K[1A[77G[?25h[?25l$[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git b[0K[?25hr[0Ka[0Kc[0K[?25ln[0K[11G[?25h[12G[?25l$ git brac[0K[?25h[?25l$ git bra[0K[?25h[?25l$ git br[0K[?25h[?25l$ git b[0K[?25h[?25l$ git[0K[7G[?25h[?25l$ git c[0K[?25hh[0Ke[0Kc[0Kk[0Ko[0Ku[0Kt[0K[16G[?25l$ git checkout b[0K[?25hr[0Ka[0Kn[0Kc[0Kh[0K[?25l
-[0K[?25herror: pathspec 'branch' did not match any file(s) known to git[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout branch[0K[3G[?25h[22G[?25l$ git checkout branc[0K[?25h[?25l$ git checkout bran[0K[?25h[?25l$ git checkout bra[0K[?25h[?25l$ git checkout br[0K[?25h[?25l$ git checkout b[0K[?25h[?25l$ git checkout[0K[16G[?25h[?25l$ git checkout m[0K[?25ha[0Kt[0Ke[0Kr[0K[?25l
-[0K[?25herror: pathspec 'mater' did not match any file(s) known to git[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout mater[0K[?25h[20G[19G[18G[?25l$ git checkout master[0K[19G[?25h[?25l
-[0K[?25herror: Your local changes to the following files would be overwritten by checkout:[0K[?25l
-        .gitignore[0K
-Please commit your changes or stash them before you switch branches.[0K
-error: The following untracked working tree files would be overwritten by checkout:[0K
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git s[0K[?25ht[0Ka[0Kt[0Ku[0Ks[0K[?25l
-[0K[?25hOn branch mnliu[0K[?25l
-Your branch is up to date with 'origin/mnliu'.[0K
-[0K
-Changes not staged for commit:[0K
-  (use "git add/rm <file>..." to update what will be committed)[0K
-  (use "git checkout -- <file>..." to discard changes in working directory)[0K
-[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/console06/INDEX001[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B-contents[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9-contents[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/59464266[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/INDEX[0m[0K
-        [0;31mmodified:   .gitignore[0m[0K
-[0K
-Untracked files:[0K
-  (use "git add <file>..." to include in what will be committed)[0K
-[0K
-        [0;31mMesKit.Rproj[0m[0K
-[0K
-no changes added to commit (use "git add" and/or "git commit -a")[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git p[0K[?25hu[0K[?25ll[0K[9G[?25h[10G[?25l$ git pull[0K[?25h[?25l
-[0K[?25hAlready up to date.[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git pull[0K[3G[?25h[11G[?25l$ git status[0K[?25h[?25l
-[0K[?25hOn branch mnliu[0K[?25l
-Your branch is up to date with 'origin/mnliu'.[0K
-[0K
-Changes not staged for commit:[0K
-  (use "git add/rm <file>..." to update what will be committed)[0K
-  (use "git checkout -- <file>..." to discard changes in working directory)[0K
-[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/console06/INDEX001[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B-contents[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9-contents[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/59464266[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/INDEX[0m[0K
-        [0;31mmodified:   .gitignore[0m[0K
-[0K
-Untracked files:[0K
-  (use "git add <file>..." to include in what will be committed)[0K
-[0K
-        [0;31mMesKit.Rproj[0m[0K
-[0K
-no changes added to commit (use "git add" and/or "git commit -a")[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git status[0K[?25h[?25l
-[0K[?25hOn branch mnliu[0K[?25l
-Your branch is up to date with 'origin/mnliu'.[0K
-[0K
-Changes not staged for commit:[0K
-  (use "git add/rm <file>..." to update what will be committed)[0K
-  (use "git checkout -- <file>..." to discard changes in working directory)[0K
-[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/console06/INDEX001[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B-contents[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9-contents[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/59464266[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/INDEX[0m[0K
-        [0;31mmodified:   .gitignore[0m[0K
-[0K
-Untracked files:[0K
-  (use "git add <file>..." to include in what will be committed)[0K
-[0K
-        [0;31mMesKit.Rproj[0m[0K
-[0K
-no changes added to commit (use "git add" and/or "git commit -a")[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git c[0K[?25hh[0Ke[0Kc[0Kk[0Ko[0Ku[0Kt[0K[16G[?25l$ git checkout m[0K[?25hn[0Kl[0Ki[0Ku[0K[?25l$ git checkout mnli[0K[?25h[?25l$ git checkout mnl[0K[?25h[?25l$ git checkout mn[0K[?25h[?25l$ git checkout m[0K[18G[?25h[17G[?25l$ git checkout[0K[16G[?25h[?25l$ git checkout m[0K[16G[?25h[17G[?25l$ git checkout ma[0K[?25hs[0Kt[0Ke[0Kr[0K[?25l
-[0K[?25herror: Your local changes to the following files would be overwritten by checkout:[0K[?25l
-        .gitignore[0K
-Please commit your changes or stash them before you switch branches.[0K
-error: The following untracked working tree files would be overwritten by checkout:[0K
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout master[0K[?25h[?25l
-[0K[?25herror: Your local changes to the following files would be overwritten by checkout:[0K[?25l
-        .gitignore[0K
-Please commit your changes or stash them before you switch branches.[0K
-error: The following untracked working tree files would be overwritten by checkout:[0K
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout master[0K[?25h[?25l
-[0K[?25herror: Your local changes to the following files would be overwritten by checkout:[0K[?25l
-        .gitignore[0K
-Please commit your changes or stash them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout master[0K[?25h[?25l
-[0K[?25herror: Your local changes to the following files would be overwritten by checkout:[0K[?25l
-        .gitignore[0K
-Please commit your changes or stash them before you switch branches.[0K
-error: The following untracked working tree files would be overwritten by checkout:[0K
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout master[0K[?25h[?25l
-[0K[?25herror: Your local changes to the following files would be overwritten by checkout:[0K[?25l
-        .gitignore[0K
-Please commit your changes or stash them before you switch branches.[0K
-error: The following untracked working tree files would be overwritten by checkout:[0K
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[3G[?25h[4G[?25l$ gi[0K[?25ht[0K[7G[?25l$ git s[0K[?25ht[0Ka[0Ks[0Kh[0K[?25l
-[0K[?25hwarning: LF will be replaced by CRLF in .Rproj.user/A0168F9/sources/prop/INDEX.[0K[?25l
-The file will have its original line endings in your working directory[0K
-[0K[?25hSaved working directory and index state WIP on mnliu: 1b087e5 Update Dockerfile[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git pull[0K
-[0K[?25hAlready up to date.[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$ git stash po[0K[?25hp[0K[?25l
-[0K[?25hRemoving .Rproj.user/A0168F9/sources/per/t/EBD76F9-contents[0K[?25l
-Removing .Rproj.user/A0168F9/sources/per/t/EBD76F9[0K
-Removing .Rproj.user/A0168F9/sources/per/t/9704E14B-contents[0K
-Removing .Rproj.user/A0168F9/sources/per/t/9704E14B[0K
-[0K[?25hOn branch mnliu[0K[?25l
-Your branch is up to date with 'origin/mnliu'.[0K
-[0K
-Changes not staged for commit:[0K
-  (use "git add/rm <file>..." to update what will be committed)[0K
-  (use "git checkout -- <file>..." to discard changes in working directory)[0K
-[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/console06/INDEX001[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B-contents[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9-contents[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/INDEX[0m[0K
-        [0;31mmodified:   .gitignore[0m[0K
-[0K
-Untracked files:[0K
-  (use "git add <file>..." to include in what will be committed)[0K
-[0K
-        [0;31mMesKit.Rproj[0m[0K
-[0K
-no changes added to commit (use "git add" and/or "git commit -a")[0K
-[0K[?25hDropped refs/stash@{0} (2d9993d21fda2bc9a3c5639b86c07ecd904dbe98)[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git s[0K[7G[?25h[8G[?25l$ git st[0K[8G[?25h[9G[?25l$ git sta[0K[?25ht[0Ku[0K[?25ls[0K[12G[?25h[13G[?25l
-[0K[?25hOn branch mnliu[0K[?25l
-Your branch is up to date with 'origin/mnliu'.[0K
-[0K
-Changes not staged for commit:[0K
-  (use "git add/rm <file>..." to update what will be committed)[0K
-  (use "git checkout -- <file>..." to discard changes in working directory)[0K
-[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/console06/INDEX001[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/9704E14B-contents[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9[0m[0K
-        [0;31mdeleted:    .Rproj.user/A0168F9/sources/per/t/EBD76F9-contents[0m[0K
-        [0;31mmodified:   .Rproj.user/A0168F9/sources/prop/INDEX[0m[0K
-        [0;31mmodified:   .gitignore[0m[0K
-[0K
-Untracked files:[0K
-  (use "git add <file>..." to include in what will be committed)[0K
-[0K
-        [0;31mMesKit.Rproj[0m[0K
-[0K
-no changes added to commit (use "git add" and/or "git commit -a")[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git status[0K[?25h[?25l$ git stash pop[0K[?25h[?25l$ git pull[0K[?25h[?25l$ git stash[0K[?25h[?25l$ git checkout master[0K[?25h[?25l
-[0K[?25herror: Your local changes to the following files would be overwritten by checkout:[0K[?25l
-        .gitignore[0K
-Please commit your changes or stash them before you switch branches.[0K
-error: The following untracked working tree files would be overwritten by checkout:[0K
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git reset --hard[0K
-[0K[?25hHEAD is now at 1b087e5 Update Dockerfile[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$ git pull[0K[?25h[?25l
-[0K[?25hAlready up to date.[0K[?25l
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git c[0K[?25hh[0Ke[0Kc[0Kk[0Ko[0Ku[0Kt[0K[16G[?25l$ git checkout b[0K[?25h[?25lr[0K[17G[?25h[18G[?25l$ git checkout bra[0K[?25hn[0Kc[0Kh[0K[?25l$ git checkout branc[0K[22G[?25h[21G[?25l$ git checkout bran[0K[?25h[?25l$ git checkout bra[0K[?25h[?25l$ git checkout br[0K[?25h[?25l$ git checkout b[0K[?25h[?25l$ git checkout[0K[16G[?25h[?25l$ git checkout b[0K[?25hr[0Ka[0Kc[0Kn[0K[?25l$ git checkout brac[0K[?25h[?25l$ git checkout bra[0K[?25hn[0Kc[0Kh[0K[?25l$ git checkout branc[0K[?25h[?25l$ git checkout bran[0K[?25h[?25l$ git checkout bra[0K[?25h[?25l$ git checkout br[0K[?25h[?25l$ git checkout b[0K[?25h[?25l$ git checkout[0K[16G[?25h[?25l$ git checkout m[0K[?25ha[0Ks[0Kt[0Ke[0Kr[0K[?25l
-[0K[?25herror: The following untracked working tree files would be overwritten by checkout:[0K[?25l
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout master[0K[?25h[?25l
-[0K[?25herror: The following untracked working tree files would be overwritten by checkout:[0K[?25l
-        MesKit.Rproj[0K
-Please move or remove them before you switch branches.[0K
-Aborting[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h[?25l$ git checkout master[0K[?25h[?25l$ git pull[0K[?25h[?25l$ git pul[0K[?25h[?25l$ git pu[0K[?25h[?25l$ git p[0K[?25h[?25l$ git[0K[7G[?25h[6G[?25l$ gi[0K[?25h[?25l$ g[0K[?25h[?25l$[0K[3G[?25h[?25l$ git reset --hard[0K[?25h[?25l$ git checkout master[0K[?25h[?25l$ git status[0K[?25h[?25l$ git stash pop[0K[?25h[?25l$ git pull[0K[?25h[?25l$ git stash[0K[?25h[?25l$ git checkout master[0K[?25h[?25l
-[0K[?25hSwitched to branch 'master'[0K[?25l
-A       .Rproj.user/A0168F9/console06/5985E5BF[0K
-M       .Rproj.user/A0168F9/console06/INDEX001[0K
-A       .Rproj.user/A0168F9/sources/prop/1695D9E0[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/9704E14B[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/9704E14B-contents[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/EBD76F9[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/EBD76F9-contents[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/lock_file[0K
-Your branch is up to date with 'origin/master'.[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (master)[0m[0K
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git c[0K[?25hh[0Ke[0Kc[0Kk[0Ko[0Ku[0Kt[0K[16G[?25l$ git checkout m[0K[?25hn[0Kl[0Ki[0Ku[0K[?25l
-[0K[?25hSwitched to branch 'mnliu'[0K[?25l
-A       .Rproj.user/A0168F9/console06/5985E5BF[0K
-M       .Rproj.user/A0168F9/console06/INDEX001[0K
-A       .Rproj.user/A0168F9/sources/prop/1695D9E0[0K
-M       .Rproj.user/A0168F9/sources/prop/INDEX[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/9704E14B[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/9704E14B-contents[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/EBD76F9[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/EBD76F9-contents[0K
-A       .Rproj.user/A0168F9/sources/s-BF55E333/lock_file[0K
-Your branch is up to date with 'origin/mnliu'.[0K
-[0K[?25h[?25l
-[0;32m刘妞妞@WIN-N8R4U4S9RUR [0;35m [0;33m/e/Github/projects/MesKit[0;36m (mnliu)[0m[0K
-$[0K[3G[?25h
