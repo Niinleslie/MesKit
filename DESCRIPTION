@@ -1,7 +1,7 @@
 Package: MesKit
 Type: Package
 Title: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations.
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: c(person("Mengni", "Liu", 
 					email = "niinleslie@gmail.com", 
 					role = c("aut", "cre")))
