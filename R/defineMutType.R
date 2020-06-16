@@ -88,7 +88,7 @@ do.classify <- function(
     
     class.options = c('SP', 'CS', 'SPCS')
     if(!class %in% class.options){
-        stop("Error:class can only be either 'SP', 'CS' or 'SPCS'")
+        stop("Error: class can only be either 'SP', 'CS' or 'SPCS'")
     }
     
     maf_data <- maf_data %>%
@@ -156,7 +156,7 @@ do.classify <- function(
             )
     }else{
         if(! "Clonal_Status" %in% colnames(maf_data)){
-            stop(paste0("Clonal status could not be identified without CCF data!"))
+            stop(paste0("Error: clonal status could not be identified without CCF and CCF_Std data!"))
         }
         else{
             if(class == "CS"){
