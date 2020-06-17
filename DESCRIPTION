@@ -1,7 +1,7 @@
 Package: MesKit
 Type: Package
 Title: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations.
-Version: 0.99.0
+Version: 0.99.2
 Authors@R: c(person("Mengni", "Liu", 
 					email = "niinleslie@gmail.com", 
 					role = c("aut", "cre")))
@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
 Depends: R (>= 3.6.0)
-Imports: dplyr, tidyr (>= 1.0.0), ape, ggrepel, 
+Imports: Biostrings, dplyr, tidyr (>= 1.0.0), ape, ggrepel, pracma, 
         ggridges, cowplot, mclust, phangorn, ComplexHeatmap (>= 1.9.3)
 RoxygenNote: 7.1.0
 Suggests: Shiny, plolty, knitr, rmarkdown
