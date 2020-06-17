@@ -15,6 +15,7 @@
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
 #' @return an object of Maf or MafList.
+#' @importFrom data.table fread setkey 
 #' @export readMaf
 
 

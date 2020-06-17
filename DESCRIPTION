@@ -4,7 +4,7 @@ Title: A tool kit for dissecting cancer evolution from multi-region derived tumo
 Version: 0.99.2
 Authors@R: c(person("Mengni", "Liu", 
 					email = "niinleslie@gmail.com", 
-					role = c("aut", "cre")))
+					role = c("cre", "aut")))
 Maintainer: Mengni Liu <niinleslie@gmail.com>
 Description: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations
 License: MIT + file LICENSE

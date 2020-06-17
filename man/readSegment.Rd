@@ -41,5 +41,4 @@ seg <- readSegment(segFile = segFile,
                    gisticAmpGenesFile = gisticAmpGenesFile,
                     gisticDelGenesFile = gisticDelGenesFile, 
                    gisticAllLesionsFile = gisticAllLesionsFile )
-
 }
