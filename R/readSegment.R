@@ -17,7 +17,7 @@
 #'                    gisticAmpGenesFile = gisticAmpGenesFile,
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile )
-#' @importFrom data.table forOverlaps as.data.table 
+#' @importFrom data.table foverlaps as.data.table 
 #' @export readSegment
 #'
 
