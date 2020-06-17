@@ -12,6 +12,7 @@
 #' mutTrunkBranch(phyloTree,plot = T)
 #' 
 #' @return  a list of box plots based on mutational categories
+#' @importFrom data.table data.table
 #' @export mutTrunkBranch
 
 mutTrunkBranch <- function(phyloTree,
