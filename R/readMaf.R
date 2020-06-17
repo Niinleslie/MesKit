@@ -11,10 +11,11 @@
 #'
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC6046.CCF.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC6046.CCF.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
 #' @return an object of Maf or MafList.
+#' @importFrom data.table fread setkey 
 #' @export readMaf
 
 

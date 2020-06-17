@@ -16,6 +16,7 @@ plotMutProfile(
   remove_empty_columns = TRUE,
   remove_empty_rows = TRUE,
   showColnames = TRUE,
+  sampleOrder = NULL,
   ...
 )
 }
@@ -44,6 +45,8 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 \item{remove_empty_rows}{Whether remove the genes without alterations. Only works when plot is TRUE}
 
 \item{showColnames}{TRUE(Default). Show sample names of columns.}
+
+\item{sampleOrder}{A named list which contains the sample order used in plotting the final profile. Default: NULL}
 
 \item{...}{Other options passed to \code{\link{subsetMaf}}}
 }

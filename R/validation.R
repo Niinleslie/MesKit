@@ -6,9 +6,9 @@ validMaf <- function(maf_data){
                         "VAF", "Tumor_Sample_Barcode","Patient_ID","Tumor_ID")
    
    if(!all(maf_standardcol %in% colnames(maf_data))){
-      missing_fileds_maf <- maf_standardcol[!maf_standardcol %in% colnames(maf_data)]
-      info <- paste(missing_fileds_maf, collapse = ",")
-      stop(paste0("missing fileds from MAF :", info))
+       missing_fileds_maf <- maf_standardcol[!maf_standardcol %in% colnames(maf_data)]
+       info <- paste(missing_fileds_maf, collapse = ",")
+       stop(paste0("Error: missing ", info, " from mafFile"))
    }
    
    
@@ -40,9 +40,11 @@ validCCF <- function(ccf_data){
     if(!all(ccf_standardcol %in% colnames(ccf_data))){
         missing_fileds_ccf <- ccf_standardcol[!ccf_standardcol %in% colnames(ccf_data)]
         info <- paste(missing_fileds_ccf, collapse = ",")
-        stop(paste0("Missing fields from CCF data : ",info) )
+        stop(paste0("Error: missing ", info, " from ccfFile"))
     }
     
+    ccf_data$Patient_ID <- as.character(ccf_data$Patient_ID)
+    ccf_data$Tumor_Sample_Barcode <- as.character(ccf_data$Tumor_Sample_Barcode)
     ccf_data$Chromosome <- as.character(ccf_data$Chromosome)
     ccf_data$CCF <- as.numeric(ccf_data$CCF)
     if("CCF_Std" %in% colnames(ccf_data)){
@@ -59,17 +61,18 @@ validSeg <- function(seg){
     if(!all(seg_standardcol %in% colnames(seg))){
         missing_fileds_seg <- seg_standardcol[!seg_standardcol %in% colnames(seg)]
         info <- paste(missing_fileds_seg, collapse = ",")
-        stop(paste0("Missing fields from CCF data : ",info) )
+        stop(paste0("Error: missing ", info, " from segFile"))
     }
     seg$Chromosome = gsub(pattern = 'chr', replacement = '', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE) 
     
+    seg$Patient_ID <- as.character(seg$Patient_ID)
+    seg$Tumor_Sample_Barcode <- as.character(seg$Tumor_Sample_Barcode)
     seg$Start_Position <- as.numeric(seg$Start_Position)
     seg$End_Position <- as.numeric(seg$End_Position)
     
     return(seg)
 }
-
 
 
