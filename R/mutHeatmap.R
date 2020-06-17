@@ -44,6 +44,7 @@ mutHeatmap <- function(maf,
             message("Warning :there was no mutation in ", patient, " after filtering.")
             next
         }
+        
         ## get mutation matrix
         binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
         
@@ -57,9 +58,20 @@ mutHeatmap <- function(maf,
         
         ## delete "NORMAL"
         if(!1 %in% binary.matrix[,"NORMAL"]){
-            binary.matrix <- binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")]
-            if(use.ccf){
-                ccf.matrix <- ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")]
+            if(nrow(binary.matrix) == 1){
+                name <- rownames(binary.matrix)
+                binary.matrix <- t(binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")])
+                rownames(binary.matrix) <- name
+                if(use.ccf){
+                    name <- rownames(ccf.matrix)
+                    ccf.matrix <- t(ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")])
+                    rownames(ccf.matrix) <- name
+                }
+            }else{
+                binary.matrix <- binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")]
+                if(use.ccf){
+                    ccf.matrix <- ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")]
+                }
             }
         }
         

@@ -6,7 +6,7 @@
 #' @param withinTumor Exploring signatures within tumor. Default: FALSE.
 #' @return The frequency of 96 trinucleotide mutation.
 #' 
-#' @importFrom Biostrings getSeq
+#' @import Biostrings 
 #' @examples
 #' triMatrix(phyloTree)
 #' @export  triMatrix

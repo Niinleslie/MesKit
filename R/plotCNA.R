@@ -13,8 +13,8 @@
 #' 
 #' 
 #' @examples
-#' segCN.file <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
-#' seg <- readSegment(segCN.file = segCN.file)
+#' segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
+#' seg <- readSegment(segFile = segFile)
 #' plotCNA(seg)
 #' @import cowplot RColorBrewer
 #' @export plotCNA
@@ -23,6 +23,7 @@
 
 plotCNA <- function(seg,
                     patient.id = NULL,
+                    sampleOrder = NULL,
                     chrSilent = NULL,
                     refBuild = "hg19",
                     show.GISTIC.gene = FALSE,
@@ -38,6 +39,7 @@ plotCNA <- function(seg,
         seg <- seg[!Chromosome %in% chrSilent]
     }
     
+    
     ## select patients in patient.id 
     if(is.null(patient.id)|length(patient.id) > 1){
         if(length(patient.id) > 1){
@@ -46,9 +48,11 @@ plotCNA <- function(seg,
                 stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
             }
             seg <- seg[Patient_ID %in% patient.id]
+            seg$patient <- factor(seg$Patient_ID, levels = rev(patient.id))
+        }else{
+            seg$patient <- seg$Patient_ID
         }
         patient_num <- length(unique(seg$Patient_ID)) 
-        seg$patient <- seg$Patient_ID
         seg <- dplyr::select(seg, -Patient_ID)
         seg$Patient_ID <- "ALL"
     }else if(length(patient.id) == 1){
@@ -60,10 +64,12 @@ plotCNA <- function(seg,
         seg <- seg[Patient_ID %in% patient.id]
     }
     
+    
+    
     if(show.GISTIC.gene){
-      if(!"Gistic.type" %in% colnames(seg)){
-        stop("Error: GISTIC genes information were not found. Please check readSegment")
-      }
+        if(!"Gistic.type" %in% colnames(seg)){
+            stop("Error: GISTIC genes information were not found. Please check readSegment")
+        }
     }
     # if("Start" %in% colnames(seg)){
     #   seg <- dplyr::rename(seg,Start_Position = Start, End_Position = End)
@@ -74,259 +80,316 @@ plotCNA <- function(seg,
     }
     if(refBuild == 'hg19'){
         chrLens = c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663,
-                     146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540,
-                     102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566,
-                     155270560, 59373566)
+                    146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540,
+                    102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566,
+                    155270560, 59373566)
     } else if(refBuild == 'hg18'){
         chrLens = c(247249719, 242951149, 199501827, 191273063, 180857866, 170899992,
-                     158821424, 146274826, 140273252, 135374737, 134452384, 132349534,
-                     114142980, 106368585, 100338915, 88827254, 78774742, 76117153,
-                     63811651, 62435964, 46944323, 49691432, 154913754, 57772954)
+                    158821424, 146274826, 140273252, 135374737, 134452384, 132349534,
+                    114142980, 106368585, 100338915, 88827254, 78774742, 76117153,
+                    63811651, 62435964, 46944323, 49691432, 154913754, 57772954)
     } else if(refBuild == 'hg38'){ #hg38
         chrLens = c(248956422, 242193529, 198295559, 190214555, 181538259, 170805979,
-                     159345973, 145138636, 138394717, 133797422, 135086622, 133275309,
-                     114364328, 107043718, 101991189, 90338345, 83257441, 80373285,
-                     58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
+                    159345973, 145138636, 138394717, 133797422, 135086622, 133275309,
+                    114364328, 107043718, 101991189, 90338345, 83257441, 80373285,
+                    58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
     }
     
     updatePosition <- function(x,pos,chrname,chrLens){
         return(as.numeric(x[pos]) + as.numeric(chrLens[as.numeric(x[chrname]) ]) )
     }
+    
     chrLens =  append(cumsum(chrLens),1,after = 0)
     chrLabels = seq_len(22)
     chrTable = data.table::data.table(chr = chrLabels,
                                       start = chrLens[seq_len(length(chrLens)-3)],
                                       end = chrLens[2:(length(chrLens)-2)])
     chrTable$color = rep(c('black','white'), length = nrow(chrTable))
-    patients <- as.character(unique(seg$Patient_ID))
-    dat.list <- split(seg, seg$Patient_ID)
-    CNAplot.list <- list()
     
-    for(patient in patients){
-        patient.seg <- dat.list[[patient]]
-        updateStart <- apply(patient.seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
-        updateEnd <- apply(patient.seg,1,updatePosition,"End_Position","Chromosome",chrLens)
-        updateCytoband.pos <- apply(patient.seg,1,updatePosition,"Cytoband.pos","Chromosome",chrLens)
-        suppressWarnings(patient.seg[,Update_Start:= updateStart]) 
-        suppressWarnings(patient.seg[,Update_End:= updateEnd])
-        suppressWarnings(patient.seg[,Cytoband.pos:= updateCytoband.pos])
-        patient.seg[,hmin := 0]
-        patient.seg[,hmax := 0]
-        h <- chrom.bar.height
+    # for(patient in patients){
+    #     seg <- dat.list[[patient]]
+    updateStart <- apply(seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
+    updateEnd <- apply(seg,1,updatePosition,"End_Position","Chromosome",chrLens)
+    updateCytoband.pos <- apply(seg,1,updatePosition,"Cytoband.pos","Chromosome",chrLens)
+    suppressWarnings(seg[,Update_Start:= updateStart]) 
+    suppressWarnings(seg[,Update_End:= updateEnd])
+    suppressWarnings(seg[,Cytoband.pos:= updateCytoband.pos])
+    seg[,hmin := 0]
+    seg[,hmax := 0]
+    h <- chrom.bar.height
+    
+    if("patient" %in% colnames(seg)& length(unique(seg$patient)) > 1){
         
-        if("patient" %in% colnames(patient.seg)& length(unique(patient.seg$patient)) > 1){
-            
-            ## sort sampleid 
-            patient.seg <- patient.seg %>% 
-                dplyr::arrange(patient,
-                               plyr::desc(Tumor_Sample_Barcode),
-                               Chromosome,
-                               Start_Position) %>%
-                as.data.table()
-            
-            patient.seg[,Sample_ID := paste(patient,Tumor_Sample_Barcode,sep = "&")]
-            sampleids <- unique(patient.seg$Sample_ID)
-            patient.rect.hmin <- c(h)
-            patient.rect.hmax <- c()
-            patient1 <- unique(patient.seg[Sample_ID == sampleids[1],]$patient)
-            for(sampleid in sampleids){
-                patient2 <- unique(patient.seg[Sample_ID == sampleid,]$patient)
-                if(patient1 != patient2){
-                    patient.rect.hmin <- append(patient.rect.hmin,h+ sample.bar.height*2/5)
-                    patient.rect.hmax <- append(patient.rect.hmax,h)
-                    h <- h + sample.bar.height*2/5
+        ## sort sampleid 
+        seg <- seg %>% 
+            dplyr::arrange(plyr::desc(patient) ,
+                           plyr::desc(Tumor_Sample_Barcode),
+                           Chromosome,
+                           Start_Position) %>%
+            as.data.table()
+        
+        seg[,Sample_ID := paste(patient,Tumor_Sample_Barcode,sep = "&")]
+        sampleids <- unique(seg$Sample_ID)
+        
+        ## reorder sample by sampleOrder
+        if(!is.null(sampleOrder)){
+            patient.setdiff <- setdiff(names(sampleOrder), unique(seg$patient))
+            if(length(patient.setdiff) > 0){
+                stop(paste0("Error: ", patient.setdiff,
+                            " can not be found in your data.Please check sampleOrder!"))
+            }
+            for(p in names(sampleOrder)){
+                o1 <- sampleOrder[[p]]
+                o2 <- unique(seg[patient == p]$Tumor_Sample_Barcode)
+                s1 <- paste(p, sampleOrder[[p]], sep = "&") 
+                s2 <- paste(p, unique(seg[patient == p]$Tumor_Sample_Barcode), sep = "&") 
+                sample.setdiff <- setdiff(o1, o2)
+                if(length(sample.setdiff) > 0){
+                    stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
+                                " can not be found in ", p, ".Please check sampleOrder!"))
+                }else if(length(sample.setdiff) == 0 & length(s1)< length(s2)){
+                    s3 <- setdiff(s2, s1)
+                    sampleids <-  sampleids[!sampleids %in% s3]
+                    sampleids[grepl(p, sampleids)] <- s1
+                }else{
+                    sampleids[grepl(p, sampleids)] <- s1
                 }
-                patient1 <- patient2
-                patient.seg[Sample_ID == sampleid,]$hmin <- h
-                patient.seg[Sample_ID == sampleid,]$hmax <- h + sample.bar.height
-                h <- h + sample.bar.height + sample.bar.height/10
-            }
-            patient.rect.hmax <- append(patient.rect.hmax,max(patient.seg$hmax))
-            patient.rect.table <- data.frame(hmin = patient.rect.hmin,
-                                             hmax = patient.rect.hmax,
-                                             patient = as.character(unique(patient.seg$patient)))
-            patient.seg$patient <- factor(patient.seg$patient,levels = as.character(unique(patient.seg$patient)))
-            
-        }else{
-            ## sort sampleid 
-            patient.seg <- patient.seg %>% 
-                dplyr::arrange(Patient_ID,
-                               Tumor_Sample_Barcode,
-                               Chromosome,
-                               Start_Position) %>%
-                as.data.table()
-            patient.seg[,Sample_ID := paste(Patient_ID,Tumor_Sample_Barcode,sep = "&")]
-            sampleids <- sort(unique(patient.seg$Sample_ID))
-            for(sampleid in sampleids){
-                patient.seg[Sample_ID == sampleid,]$hmin <- h
-                patient.seg[Sample_ID == sampleid,]$hmax <- h + sample.bar.height
-                h <- h + sample.bar.height + sample.bar.height/10
             }
         }
         
-        min <- sort(unique(patient.seg$hmin))
-        max <- sort(unique(patient.seg$hmax))
-        CNADat <- patient.seg[Type != "Neutral",]
-        patient.type <- unique(CNADat$Type)
         
-        ## set color for CNA type
-        type.all.levels <- c("Loss", "Deletion",  "Gain",  "Amplification")
-        type.all.colors <- c("#6baed6", "#084594", "#f4a582", "#d73027")
-        type.level <- type.all.levels[type.all.levels %in% patient.type]
-        type.color <- type.all.colors[type.all.levels %in% patient.type]
+        patient.rect.hmin <- c(h)
+        patient.rect.hmax <- c()
+        patient1 <- unique(seg[Sample_ID == sampleids[1],]$patient)
+        for(sampleid in sampleids){
+            patient2 <- unique(seg[Sample_ID == sampleid,]$patient)
+            if(patient1 != patient2){
+                patient.rect.hmin <- append(patient.rect.hmin, h+ sample.bar.height*2/5)
+                patient.rect.hmax <- append(patient.rect.hmax, h)
+                h <- h + sample.bar.height*2/5
+            }
+            patient1 <- patient2
+            seg[Sample_ID == sampleid,]$hmin <- h
+            seg[Sample_ID == sampleid,]$hmax <- h + sample.bar.height
+            h <- h + sample.bar.height + sample.bar.height/10
+        }
+        patient.rect.hmax <- append(patient.rect.hmax,max(seg$hmax))
+        patient.rect.table <- data.frame(hmin = patient.rect.hmin,
+                                         hmax = patient.rect.hmax,
+                                         patient = as.character(unique(seg$patient)))
+
+    }else{
+        seg <- seg %>% 
+            dplyr::arrange(Patient_ID,
+                           Tumor_Sample_Barcode,
+                           Chromosome,
+                           Start_Position) %>%
+            as.data.table()
         
-        CNADat$Type <- factor(CNADat$Type, levels = type.level)
-        segmentTable <- data.table::data.table(y = c(min(min),max(max)), yend = c(min(min),max(max)))
-        seg.add <- 20000000
-        text.add <- -200000000
-        segmentTable$x <- -seg.add
-        segmentTable$xend <- max(chrTable$end)+seg.add
-        segmentTable <- rbind(segmentTable, list(min(min), max(max), -seg.add,-seg.add))
-        segmentTable <- rbind(segmentTable, list(min(min), max(max), max(chrTable$end)+seg.add,max(chrTable$end)+seg.add))
+        seg[,Sample_ID := paste(Patient_ID,Tumor_Sample_Barcode,sep = "&")]
         
-       ## get tumor sample barcode of patient
-        patient.tsbs <- unlist(lapply(unique(patient.seg$Sample_ID),
-                                      function(x){return(strsplit(x,"&")[[1]][2])}))
+        sampleids <- sort(unique(seg$Sample_ID))
         
-        ## label on axis Y
-        Y.text.table <- data.table::data.table(Pos = min + (max-min)/2, Tumor_Sample_Barcode = patient.tsbs)
-        
-        ## set background for the graph
-        backgroundTable <- data.table::data.table(
-            xmin = min(chrTable$start), 
-            xmax = max(chrTable$end), 
-            ymin = min, 
-            ymax = max)
-        
-        ## set color for patient bar
-        allScales <- type.color
-        names(allScales) <- type.level
-        if("patient" %in% colnames(patient.seg)&
-           length(unique(patient.seg$patient)) > 1){
-            # set.seed(1234)
-            # patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
-            # names(patient_colors) <- patient.rect.table$patient
+        ## sort sampleid 
+        p <- unique(seg$Patient_ID)
+        if(!is.null(sampleOrder)){
+            patient.setdiff <- setdiff(names(sampleOrder), p)
+            if(length(patient.setdiff) > 0){
+                stop(paste0("Error: ", patient.setdiff,
+                            " can not be found in your data.Please check sampleOrder!"))
+            }
+            o1 <- sampleOrder[[p]]
+            o2 <- unique(seg[Patient_ID == p]$Tumor_Sample_Barcode)
+            s1 <- paste(p, sampleOrder[[p]], sep = "&") 
+            s2 <- paste(p, unique(seg[Patient_ID == p]$Tumor_Sample_Barcode), sep = "&") 
+            sample.setdiff <- setdiff(o1, o2)
+            if(length(sample.setdiff) > 0){
+                stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
+                            " can not be found in ", p, ".Please check sampleOrder!"))
+            }else if(length(sample.setdiff) == 0 & length(s1)< length(s2)){
+                s3 <- setdiff(s2, s1)
+                sampleids <-  sampleids[!sampleids %in% s3]
+                sampleids[grepl(p, sampleids)] <- s1
+            }else if(length(sample.setdiff) > 0){
+                sampleids[grepl(p, sampleids)] <- s1
+            }
             
-            qual_col_pals <- RColorBrewer::brewer.pal.info[brewer.pal.info$category == 'qual',]
-            col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-            
-            patient_colors <- col_vector[seq_len(length(patient.rect.table$patient))]
-            names(patient_colors) <- patient.rect.table$patient
         }
         
-        ## cytoband table
-        # cytoband_table <- CNADat %>% 
-        #     distinct(Cytoband, .keep_all = TRUE)
+        for(sampleid in sampleids){
+            seg[Sample_ID == sampleid,]$hmin <- h
+            seg[Sample_ID == sampleid,]$hmax <- h + sample.bar.height
+            h <- h + sample.bar.height + sample.bar.height/10
+        }
+    }
+    
+    seg <- seg[Sample_ID %in% sampleids]
+    
+    min <- sort(unique(seg$hmin))
+    max <- sort(unique(seg$hmax))
+    CNADat <- seg[Type != "Neutral",]
+    patient.type <- unique(CNADat$Type)
+    
+    ## set color for CNA type
+    type.all.levels <- c("Loss", "Deletion",  "Gain",  "Amplification")
+    type.all.colors <- c("#6baed6", "#084594", "#f4a582", "#d73027")
+    type.level <- type.all.levels[type.all.levels %in% patient.type]
+    type.color <- type.all.colors[type.all.levels %in% patient.type]
+    
+    CNADat$Type <- factor(CNADat$Type, levels = type.level)
+    segmentTable <- data.table::data.table(y = c(min(min),max(max)), yend = c(min(min),max(max)))
+    seg.add <- 20000000
+    text.add <- -200000000
+    segmentTable$x <- -seg.add
+    segmentTable$xend <- max(chrTable$end)+seg.add
+    segmentTable <- rbind(segmentTable, list(min(min), max(max), -seg.add,-seg.add))
+    segmentTable <- rbind(segmentTable, list(min(min), max(max), max(chrTable$end)+seg.add,max(chrTable$end)+seg.add))
+    
+    ## get tumor sample barcode of patient
+    patient.tsbs <- unlist(lapply(sampleids,
+                                  function(x){return(strsplit(x,"&")[[1]][2])}))
+
+    ## label on axis Y
+    Y.text.table <- data.table::data.table(Pos = min + (max-min)/2, 
+                                           Tumor_Sample_Barcode = patient.tsbs)
+    
+    ## set background for the graph
+    backgroundTable <- data.table::data.table(
+        xmin = min(chrTable$start), 
+        xmax = max(chrTable$end), 
+        ymin = min, 
+        ymax = max)
+    
+    ## set color for patient bar
+    allScales <- type.color
+    names(allScales) <- type.level
+    if("patient" %in% colnames(seg)&
+       length(unique(seg$patient)) > 1){
+        # set.seed(1234)
+        # patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
+        # names(patient_colors) <- patient.rect.table$patient
         
+        qual_col_pals <- RColorBrewer::brewer.pal.info[brewer.pal.info$category == 'qual',]
+        col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
         
-        p <- ggplot()+
-            ## background color
-            geom_rect(data = backgroundTable, 
-                      mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), 
-                      fill = "#f0f0f0")+
-            
-            ## CNA regions
-            geom_rect(data = CNADat,
-                      mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
-            scale_fill_manual(values = type.color, name = "Type")+
-            
-            ## chr bar
-            geom_rect(data = chrTable,
-                mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),
-                fill = rep(c("black","white"), 11), color = "black")+
-            geom_text(data = chrTable,
-                mapping = aes(x = start + (end - start)/2, y = chrom.bar.height/2, label = chr), 
-                size = chrom.text.size,
-                color = rep(c("white","black"), 11))+
-            
-            ## vertical line 
-            geom_segment(aes(x = chrTable$end[seq_len(nrow(chrTable)-1)],
-                             xend = chrTable$end[seq_len(nrow(chrTable)-1)],
-                             y = chrom.bar.height,
-                             yend = max(backgroundTable$ymax)),
-                         linetype = "dotted",
-                         color = "#252525",
-                         size = 0.7) +
-            
-            theme(
-                axis.text.x = element_blank(),
-                axis.text.y.left =  element_text(size = sample.text.size,
-                                           margin = margin(l = 0),
-                                           colour = "black"),
-                axis.ticks = element_blank(),
-                # axis.line.y = element_line(colour = "darkblue", size = 1, linetype = "solid"),
-                panel.grid =element_blank(),
-                panel.border = element_blank(),
-                panel.background = element_blank(),
-                axis.title.x = element_blank(),
-                axis.title.y = element_blank(),
-                # legend.key.width  = unit(1.1,'lines'),
-                # legend.box.margin = margin(l = 0),
-                # legend.title = element_text(size = legend.title.size),
-                # legend.text = element_text(size = legend.text.size,margin = margin(b = 3))
-                )+
-            scale_x_continuous(expand = c(0,0))+
-            scale_y_continuous(breaks = Y.text.table$Pos,
-                               labels = Y.text.table$Tumor_Sample_Barcode)+
-            ggtitle("Copy number variant profile")+
-            theme(plot.title = element_text(size = 13.5, face = "bold", hjust = 0.5, vjust = -2))
-        ## patient bar
-        if("patient" %in% colnames(patient.seg)&
-           length(unique(patient.seg$patient)) > 1){
-            p <- p + 
+        patient_colors <- col_vector[seq_len(length(patient.rect.table$patient))]
+        names(patient_colors) <- patient.rect.table$patient
+    }
+    
+    ## cytoband table
+    # cytoband_table <- CNADat %>% 
+    #     distinct(Cytoband, .keep_all = TRUE)
+    
+    
+    p <- ggplot()+
+        ## background color
+        geom_rect(data = backgroundTable, 
+                  mapping = aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), 
+                  fill = "#f0f0f0")+
+        
+        ## CNA regions
+        geom_rect(data = CNADat,
+                  mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
+        scale_fill_manual(values = type.color, name = "Type")+
+        
+        ## chr bar
+        geom_rect(data = chrTable,
+                  mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),
+                  fill = rep(c("black","white"), 11), color = "black")+
+        geom_text(data = chrTable,
+                  mapping = aes(x = start + (end - start)/2, y = chrom.bar.height/2, label = chr), 
+                  size = chrom.text.size,
+                  color = rep(c("white","black"), 11))+
+        
+        ## vertical line 
+        geom_segment(aes(x = chrTable$end[seq_len(nrow(chrTable)-1)],
+                         xend = chrTable$end[seq_len(nrow(chrTable)-1)],
+                         y = chrom.bar.height,
+                         yend = max(backgroundTable$ymax)),
+                     linetype = "dotted",
+                     color = "#252525",
+                     size = 0.7) +
+        
+        theme(
+            axis.text.x = element_blank(),
+            axis.text.y.left =  element_text(size = sample.text.size,
+                                             margin = margin(l = 0),
+                                             colour = "black"),
+            axis.ticks = element_blank(),
+            # axis.line.y = element_line(colour = "darkblue", size = 1, linetype = "solid"),
+            panel.grid =element_blank(),
+            panel.border = element_blank(),
+            panel.background = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            # legend.key.width  = unit(1.1,'lines'),
+            # legend.box.margin = margin(l = 0),
+            # legend.title = element_text(size = legend.title.size),
+            # legend.text = element_text(size = legend.text.size,margin = margin(b = 3))
+        )+
+        scale_x_continuous(expand = c(0,0))+
+        scale_y_continuous(breaks = Y.text.table$Pos,
+                           labels = Y.text.table$Tumor_Sample_Barcode)+
+        ggtitle("Copy number variant profile")+
+        theme(plot.title = element_text(size = 13.5, face = "bold", hjust = 0.5, vjust = -2))
+    ## patient bar
+    if("patient" %in% colnames(seg)&
+       length(unique(seg$patient)) > 1){
+        p <- p + 
+            geom_rect(data = patient.rect.table,
+                      mapping = aes(xmax = -20000000, xmin = -40000000,ymin = hmin, ymax = hmax),
+                      fill =  patient_colors)
+        # print(CNADat)
+        ## multi legend
+        patients <- unique(seg$patient)
+        patient_legend <- (
+            ggplot()+
                 geom_rect(data = patient.rect.table,
-                          mapping = aes(xmax = -20000000, xmin = -40000000,ymin = hmin, ymax = hmax),
-                          fill =  patient_colors)
-            # print(CNADat)
-            ## multi legend
-            patient_legend <- (
-                    ggplot()+
-                    geom_rect(data = patient.rect.table,
-                              mapping = aes(xmax = -20000000, xmin = -40000000,
-                                            ymin = hmin, ymax = hmax,fill = patient)) +  
-                    scale_fill_manual(values = patient_colors,name = "Patient") + 
-                    theme(legend.background = element_blank(),
-                          legend.title = element_text(size = legend.title.size),
-                          legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
-            )%>%
-                ggplotGrob %>%
-                {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
-            
-            type_legend <- (
-                    ggplot()+
-                   geom_rect(data = CNADat,mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
-                   scale_fill_manual(values = type.color, name = "Type")+
-                   theme(legend.background = element_blank(),
-                         legend.title = element_text(size = legend.title.size),
-                         legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
-            ) %>% 
-                ggplotGrob %>%
-                {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
-            
-            legends_column <-
-                plot_grid(
-                    patient_legend + theme(legend.position = "none"),
-                    type_legend,
-                    patient_legend + theme(legend.position = "none"),
-                    patient_legend,
-                    patient_legend + theme(legend.position = "none"),
-                    ncol = 1,
-                    rel_heights = c(1,1,.1,1,1),
-                    align = "v")
-            
-            p <- plot_grid(p + theme(legend.position = "none"),
-                           legends_column + theme(plot.margin = margin(r = 15)),
-                           nrow = 1,
-                           rel_widths = c(1,.2))
-            
-        }
+                          mapping = aes(xmax = -20000000, xmin = -40000000,
+                                        ymin = hmin, ymax = hmax,fill = patient)) +  
+                scale_fill_manual(breaks = rev(patients),
+                                  values = patient_colors,
+                                  name = "Patient") + 
+                theme(legend.background = element_blank(),
+                      legend.title = element_text(size = legend.title.size),
+                      legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
+        )%>%
+            ggplotGrob %>%
+            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
         
-        CNAplot.list[[patient]] <- p
+        type_legend <- (
+            ggplot()+
+                geom_rect(data = CNADat,mapping = aes(xmin = Update_Start, xmax = Update_End, ymin = hmin, ymax = hmax, fill = Type))+
+                scale_fill_manual(values = type.color, name = "Type")+
+                theme(legend.background = element_blank(),
+                      legend.title = element_text(size = legend.title.size),
+                      legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
+        ) %>% 
+            ggplotGrob %>%
+            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+        
+        legends_column <-
+            plot_grid(
+                patient_legend + theme(legend.position = "none"),
+                type_legend,
+                patient_legend + theme(legend.position = "none"),
+                patient_legend,
+                patient_legend + theme(legend.position = "none"),
+                ncol = 1,
+                rel_heights = c(1,1,.1,1,1),
+                align = "v")
+        
+        p <- plot_grid(p + theme(legend.position = "none"),
+                       legends_column + theme(plot.margin = margin(r = 15)),
+                       nrow = 1,
+                       rel_widths = c(1,.2))
+        
     }
+        
     
-    if(length(CNAplot.list) == 1){
-        return(CNAplot.list[[1]])
-    }
+    # if(length(CNAplot.list) == 1){
+    #     return(CNAplot.list[[1]])
+    # }
     
-    return(CNAplot.list)
+    return(p)
 }

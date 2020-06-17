@@ -26,7 +26,6 @@ mutTrunkBranch <- function(phyloTree,
     tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_list, CT = CT)
     result <- list()
     for(phyloTree in phyloTree_list){
-        
         patient <- getPhyloTreePatient(phyloTree)
         mut_branches <- getMutBranches(phyloTree)
         
@@ -57,7 +56,11 @@ mutTrunkBranch <- function(phyloTree,
         ## separate trunk and branch data
         tri_matrix_trunk <- tri_matrix[trunk_name, ]
         tri_matrix_branch <- tri_matrix[rownames(tri_matrix) != trunk_name, ]
-        tri_matrix_branch <- colSums(tri_matrix_branch)
+        
+        if(is(tri_matrix_branch, "matrix")){
+            tri_matrix_branch <- colSums(tri_matrix_branch)
+        }
+        
         tri_matrixBT <- rbind(Trunk=tri_matrix_trunk, Branch=tri_matrix_branch)
         
         ## mutation spectrum

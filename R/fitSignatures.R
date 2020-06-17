@@ -81,7 +81,6 @@ fitSignatures <- function(tri_matrix = NULL,
       if(length(branch_left) == 0){
         next
       }
-      
       tri_matrix <- tri_matrix[branch_left,]
       ## rebuild matrix if there is only one branch left
       if(is(tri_matrix, "numeric")){

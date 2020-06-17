@@ -40,9 +40,11 @@ validCCF <- function(ccf_data){
     if(!all(ccf_standardcol %in% colnames(ccf_data))){
         missing_fileds_ccf <- ccf_standardcol[!ccf_standardcol %in% colnames(ccf_data)]
         info <- paste(missing_fileds_ccf, collapse = ",")
-        stop(paste0("Missing fields from CCF data : ",info) )
+        stop(paste0("Missing fields from CCF data : ",info))
     }
     
+    ccf_data$Patient_ID <- as.character(ccf_data$Patient_ID)
+    ccf_data$Tumor_Sample_Barcode <- as.character(ccf_data$Tumor_Sample_Barcode)
     ccf_data$Chromosome <- as.character(ccf_data$Chromosome)
     ccf_data$CCF <- as.numeric(ccf_data$CCF)
     if("CCF_Std" %in% colnames(ccf_data)){
@@ -65,6 +67,8 @@ validSeg <- function(seg){
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE) 
     
+    seg$Patient_ID <- as.character(seg$Patient_ID)
+    seg$Tumor_Sample_Barcode <- as.character(seg$Tumor_Sample_Barcode)
     seg$Start_Position <- as.numeric(seg$Start_Position)
     seg$End_Position <- as.numeric(seg$End_Position)
     
