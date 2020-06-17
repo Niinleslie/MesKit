@@ -18,7 +18,7 @@
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile )
 #'
-#' @importFrom data.table
+#' @import data.table
 #' @export readSegment
 #'
 
