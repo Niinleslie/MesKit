@@ -18,7 +18,7 @@
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile )
 #'
-#' @importFrom data.table
+#' @import data.table
 #' @export readSegment
 #'
 
@@ -42,7 +42,7 @@ readSegment <- function(segFile = NULL,
         seg <- dplyr::select(seg, Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position, CopyNumber)
     }
     else{
-        stop("Error: segFile does not contain Copynumber or SegmentMean information")  
+        stop("Error: segFile does not contain CopyNumber or SegmentMean information")  
     }
   }
   seg$CopyNumber <- as.numeric(seg$CopyNumber)
