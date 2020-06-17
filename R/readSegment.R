@@ -18,7 +18,7 @@
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile )
 #'
-#' @import data.table
+#' @importFrom data.table foverlaps as.data.table setkey
 #' @export readSegment
 #'
 
@@ -205,5 +205,4 @@ readGisticAllLesions <- function(gisticAllLesionsFile = NULL, verbose = TRUE){
         dplyr::mutate(Gistic.type = substr(PeakID, start = 1, stop = 3), PeakID = NULL) %>% as.data.table()
     
     return(gisticLesions)
-    
 }
