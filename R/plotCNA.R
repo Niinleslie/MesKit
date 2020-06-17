@@ -269,7 +269,6 @@ plotCNA <- function(seg,
         # set.seed(1234)
         # patient_colors <- sample(colors(),length(patient.rect.table$patient),replace = FALSE)
         # names(patient_colors) <- patient.rect.table$patient
-        
         qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
         col_vector <- unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
         
