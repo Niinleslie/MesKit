@@ -12,16 +12,13 @@
 #' segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
 #' gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
 #' gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-#' gisticAllLesionsFile <- system.file("extdata", "LICH_all_lesions.conf_99.txt", package = "MesKit")
+#' gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
 #' seg <- readSegment(segFile = segFile,
 #'                    gisticAmpGenesFile = gisticAmpGenesFile,
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile )
 #'
-#' @importFrom data.table setkey
-#' @importFrom data.table as.data.table
-#' @importFrom data.table data.table
-#' @importFrom data.table foverlaps
+#' @importFrom data.table foverlaps as.data.table setkey
 #' @export readSegment
 #'
 
@@ -69,24 +66,13 @@ readSegment <- function(segFile = NULL,
       }
   }))) %>%
       dplyr::filter(Chromosome %in% seq_len(22)& Width > min.seg.size) %>%
-      dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID, CopyNumber, Type) %>% 
+      dplyr::select(Patient_ID, Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position, CopyNumber, Type) %>% 
        as.data.table()
   seg$Chromosome <- as.numeric(seg$Chromosome)
   seg$Start_Position <- as.numeric(seg$Start_Position)
   seg$End_Position <- as.numeric(seg$End_Position)
   data.table::setkey(x = seg, Chromosome, Start_Position, End_Position)
-      # load(system.file("extdata", "Homo_sapiens.GRCh37.75.RData", package = "MesKit"))
-      # segDat <- dplyr::rename(seg, seqnames = Chromosome, start = Start, end = End)
-      # genesDat <- ref.dat[seqnames %in% c(1:22),]
-      # 
-      # data.table::setkey(x = genesDat, seqnames, start, end)
-      # data.table::setkey(x = segDat, seqnames, start, end)
-      # overlapsDat <- foverlaps(x = genesDat, y = segDat, by.x = c("seqnames", "start", "end"))
-      # overlapsDat <- na.omit(overlapsDat)
-      # overlapsDat <- overlapsDat[,.(gene_name,Tumor_Sample_Barcode,CopyNumber, Type,seqnames, i.start, i.end)]
-      # colnames(overlapsDat) <- c( "Gene","Tumor_Sample_Barcode","CopyNumber", "Type","Chromosome", "Start_Position", "End_Position")
-      # seg <- overlapsDat
-      # read gistic results
+  
   gisticCNVgenes <- data.table::data.table()
   if(!is.null(gisticAmpGenesFile)){
       if(verbose){
@@ -136,7 +122,7 @@ readSegment <- function(segFile = NULL,
       data.table::setkey(x = gisticCNVgenes,Chromosome, Start_Position, End_Position)
       mapDat <- data.table::foverlaps(gisticCNVgenes,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
                 na.omit() %>% 
-                dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position,Patient_ID,  CopyNumber, Type, Gistic.type) %>% 
+                dplyr::select(Patient_ID, Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position, CopyNumber, Type, Gistic.type) %>% 
                 dplyr::distinct(.)
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
   }else if(nrow(gisticLesions) != 0){
@@ -155,7 +141,7 @@ readSegment <- function(segFile = NULL,
       mapDat <- data.table::foverlaps(gisticLesions,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
           na.omit() %>% 
           dplyr::filter(Qvalue < gistic.qval) %>% 
-          dplyr::select(Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position, Patient_ID,  CopyNumber, Type, Gistic.type) %>%
+          dplyr::select(Patient_ID, Tumor_Sample_Barcode,Chromosome, Start_Position, End_Position, CopyNumber, Type, Gistic.type) %>%
           dplyr::distinct(.) %>% 
           data.table::as.data.table()
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
@@ -219,5 +205,4 @@ readGisticAllLesions <- function(gisticAllLesionsFile = NULL, verbose = TRUE){
         dplyr::mutate(Gistic.type = substr(PeakID, start = 1, stop = 3), PeakID = NULL) %>% as.data.table()
     
     return(gisticLesions)
-    
 }

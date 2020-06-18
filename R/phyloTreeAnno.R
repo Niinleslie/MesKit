@@ -23,6 +23,9 @@ plotTree <- function(phyloTree,
                                 branchCol = branchCol,
                                 signaturesRef = signaturesRef,
                                 min.mut.count = min.mut.count)
+        if(identical(treeData, NA)){
+            return(NA)
+        }
         compare <- FALSE
     }else{
         compare <- TRUE
@@ -357,8 +360,13 @@ getTreeData <- function(phyloTree = NULL,
       if(branchCol == "mutSig"){
           tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
           fit_out <- fitSignatures(tri_matrix,
-                                          signaturesRef = signaturesRef,
-                                          min.mut.count = min.mut.count)
+                                   signaturesRef = signaturesRef,
+                                   min.mut.count = min.mut.count)
+          if(is.na(fit_out)){
+              message("The number of mutations in all branches are less than min.mut.count in patient ",
+                      phyloTree@patientID)
+              return(NA)
+          }
           cos_sim_matrix <- fit_out[[1]]$cosine.similarity
           sig_level <- colnames(cos_sim_matrix)
           signatures <- apply(cos_sim_matrix,1,function(x)names(which.max(x)))

@@ -14,6 +14,7 @@
 #' @param remove_empty_columns  Whether remove the samples without alterations. Only works when plot is TRUE
 #' @param remove_empty_rows  Whether remove the genes without alterations. Only works when plot is TRUE
 #' @param showColnames  TRUE(Default). Show sample names of columns.
+#' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
 #' @param ... Other options passed to \code{\link{subsetMaf}}
 #' @return Mutation profile
 #' 
@@ -34,10 +35,20 @@ plotMutProfile <- function(maf,
                            remove_empty_columns = TRUE,
                            remove_empty_rows = TRUE, 
                            showColnames = TRUE,
+                           sampleOrder = NULL,
                            ...) {
     
-    ## check maf
+    ## check maf and order patient
     maf_list <- checkMafInput(maf, patient.id = patient.id)
+    if (any(names(maf_list) != patient.id)) {
+      mafTemp <- list()
+      for (i in seq_len(length(maf_list))) {
+        mafTemp[i] <- maf_list[which(names(maf_list) == patient.id[i])]
+      }
+      names(mafTemp) <- patient.id
+      maf_list <- mafTemp
+    }
+    
     
     ## merge maf data
     maf_data_list <- list()
@@ -46,11 +57,40 @@ plotMutProfile <- function(maf,
         maf_data_list[[i]] <- subsetMaf(m,...)
         i <- i + 1
     }
+    names(maf_data_list) <- patient.id
+    
+    
+    # order samples
+    if (!(is.null(sampleOrder))) {
+      for (i in seq_len(length(sampleOrder))) {
+        if (names(sampleOrder)[i] %in% patient.id) {
+          
+          # select related maf data 
+          mafRelated <- maf_data_list[names(sampleOrder)[i]]
+          if (all(sampleOrder[[i]] %in% unique(mafRelated[[1]]$Tumor_Sample_Barcode))) {
+            
+            # filter samples based on sampleOrder
+            mafFiltered <- mafRelated[[1]][which(mafRelated[[1]]$Tumor_Sample_Barcode %in% sampleOrder[[i]]), ]
+            
+            # order samples 
+            mafFiltered$Tumor_Sample_Barcode <- factor(mafFiltered$Tumor_Sample_Barcode, levels = sampleOrder[[i]])
+            mafOrdered <- mafFiltered[with(mafFiltered, order(mafFiltered$Tumor_Sample_Barcode)), ]
+            mafOrdered$Tumor_Sample_Barcode <- as.character(mafOrdered$Tumor_Sample_Barcode)
+            
+          } else {
+            stop(paste0("There exist(s) wrong sample name(s) of patient ", names(sampleOrder)[i], 
+                        " you input in sampleOrder parameter"))
+          }
+        }
+        maf_data_list[names(sampleOrder)[i]][[1]] <- as.data.table(mafOrdered)
+      }
+    }
+    
     maf_data <- plyr::rbind.fill(maf_data_list)
     
-   maf_data <- do.classify(maf_data, classByTumor = classByTumor, class = class)
+    maf_data <- do.classify(maf_data, classByTumor = classByTumor, class = class)
   
-  if (!is.null(geneList)) {  
+   if (!is.null(geneList)) {  
   
       maf_data <- maf_data %>%
         dplyr::rowwise() %>%
@@ -344,7 +384,7 @@ plotMutProfile <- function(maf,
     
     if (is.null(patient.split)) {
       patient.id <- NULL
-    } else {
+    } else if (remove_empty_columns ){
       excluded_sample_index <- c()
       for (i in seq_len(ncol(mat))) {
         if (all(is.na(mat[,i]))) {
@@ -362,6 +402,12 @@ plotMutProfile <- function(maf,
         patientID <- c(patientID, strsplit(i, "_")[[1]][1])
       }
       patient.id <- unique(patientID)
+    } else {
+      included_patients <- colnames(mat)
+      patient.id <- c()
+      for (i in included_patients) {
+        patient.id <- unique(c(patient.id, strsplit(i, "_")[[1]][1]))
+      }
     }
     
     

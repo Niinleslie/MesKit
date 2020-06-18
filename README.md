@@ -11,8 +11,9 @@ The source code and documents are freely available through Github (https://githu
 ## Installation
 
 ```R
-install.packages("remotes")
-remotes::install_github("Niinleslie/MesKit")
+#  install the latest version from GitHub
+if(!require(devtools)) install.packages("devtools")
+devtools::install_github("Niinleslie/MesKit")
 ```
 
 ## Usage

@@ -54,7 +54,7 @@ fitSignatures <- function(tri_matrix = NULL,
                                  sig = rownames(signatures.aetiology$cosmic_v3))
     }
   }else if(!is(signaturesRef, 'data.frame')){
-    stop('Input signature reference should be a data frame')
+    stop('Error: input signature reference should be a data frame')
   }else{
     sigsRef <- signaturesRef 
   }
@@ -62,7 +62,7 @@ fitSignatures <- function(tri_matrix = NULL,
   if(!is.null(associated)){
     signature.setdiff <- setdiff(associated, rownames(sigsRef))
     if(length(signature.setdiff) > 0){
-      stop(paste0(signature.setdiff, " can not be found in signature reference"))
+      stop(paste0("Error: ", signature.setdiff, " can not be found in signature reference"))
     }
     sigsRef <- sigsRef[rownames(sigsRef) %in% associated, ]
   }
@@ -76,12 +76,13 @@ fitSignatures <- function(tri_matrix = NULL,
     ## Remove branches whose mutation number is less than min.mut.count
     branch_remove <- rownames(tri_matrix[rowSums(tri_matrix) <= min.mut.count,])
     if(length(branch_remove) > 0){
-      message("Warning: mutation number of ", paste(branch_remove, collapse = ", ")," in ",patient, " is less than min.mut.count")
+      message("Warning: mutation number of ",
+              paste(branch_remove, collapse = ", "),
+              " in ",patient, " is less than min.mut.count")
       branch_left <- setdiff(rownames(tri_matrix),branch_remove)
       if(length(branch_left) == 0){
         next
       }
-      
       tri_matrix <- tri_matrix[branch_left,]
       ## rebuild matrix if there is only one branch left
       if(is(tri_matrix, "numeric")){

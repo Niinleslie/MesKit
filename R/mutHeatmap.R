@@ -9,7 +9,7 @@
 #' @param geneList List of genes to restrict the analysis. Default NULL.
 #' @param plot.geneList If TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.
 #' @param show.geneList Show the names of gene on the geneList.Default TRUE.
-#' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.
+#' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold. Default is 150.
 #' @param sample.text.size Size of sample name.Default 9.
 #' @param legend.title.size Size of legend title.Default 10.
 #' @param gene.text.size Size of gene text. Default 9.
@@ -41,9 +41,10 @@ mutHeatmap <- function(maf,
         maf_data <- subsetMaf(m, min.vaf = min.vaf, min.ccf = min.ccf, ...)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filtering.")
+            message("Warning: there was no mutations in ", patient, " after filtering.")
             next
         }
+        
         ## get mutation matrix
         binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
         
@@ -57,9 +58,20 @@ mutHeatmap <- function(maf,
         
         ## delete "NORMAL"
         if(!1 %in% binary.matrix[,"NORMAL"]){
-            binary.matrix <- binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")]
-            if(use.ccf){
-                ccf.matrix <- ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")]
+            if(nrow(binary.matrix) == 1){
+                name <- rownames(binary.matrix)
+                binary.matrix <- t(binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")])
+                rownames(binary.matrix) <- name
+                if(use.ccf){
+                    name <- rownames(ccf.matrix)
+                    ccf.matrix <- t(ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")])
+                    rownames(ccf.matrix) <- name
+                }
+            }else{
+                binary.matrix <- binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")]
+                if(use.ccf){
+                    ccf.matrix <- ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")]
+                }
             }
         }
         
@@ -111,7 +123,7 @@ mutHeatmap <- function(maf,
                     as.data.frame() %>% 
                     dplyr::distinct(mutation_type, Gene, .keep_all = TRUE)
                 if(nrow(mat) == 0){
-                    message("Warning: None genes map to data")
+                    message("Warning: none of mutated genes map to genelist")
                     next
                 }
             }else{
@@ -167,15 +179,13 @@ mutHeatmap <- function(maf,
         if(!is.null(geneList) & show.geneList){
             if(plot.geneList){
                 if(mut.num >= mut.threshold){
-                    message("Warning: the number of mutations on geneList is ", mut.num,
-                            " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.num," if you want to show gene")
+                    message("Warning: the number of mutations is bigger than mut.threshold.")
                     show.geneList = FALSE
                 }
             }
             else{
                 if(mut.genelist.num >= mut.threshold){
-                    message("Warning: the number of mutations on geneList is ", mut.genelist.num,
-                            " which is greater than mut.threthold. Let mut.threshold be larger than ", mut.genelist.num," if you want to show gene")
+                    message("Warning: the number of mutations is bigger than mut.threshold.")
                     show.geneList = FALSE
                 }
             }

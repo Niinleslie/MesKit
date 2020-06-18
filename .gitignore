@@ -7,10 +7,10 @@ inst/doc
 *.Rproj 
 .rhistory
 vignettes/.gitignore
-.gitignore
 .renviron
 .gitattributes
 .gitmodules
 .seed
 .settings
 .tm_properties
+Dockerfile

@@ -49,9 +49,10 @@ plotPhyloTree <- function(phyloTree,
                      show.bootstrap = show.bootstrap,
                      signaturesRef = signaturesRef,
                      min.mut.count = min.mut.count)
-       
        tree_list[[patient]] <- p
    }
+   
+   tree_list <- tree_list[!is.na(tree_list)]
    
    if(length(tree_list)==1){
        return(tree_list[[1]])

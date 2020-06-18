@@ -7,7 +7,7 @@
 vafCluster(
   maf,
   patient.id = NULL,
-  segCN.file = NULL,
+  segFile = NULL,
   min.vaf = 0.02,
   max.vaf = 1,
   withinTumor = FALSE,
@@ -19,7 +19,7 @@ vafCluster(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{segCN.file}{The segment file.}
+\item{segFile}{The segment file.}
 
 \item{min.vaf}{The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1}
 
