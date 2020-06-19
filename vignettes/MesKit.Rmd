@@ -13,6 +13,12 @@ output:
     toc: yes
     toc_depth: '5'
 date: "`r Sys.Date()`"
+
+vignette: >
+  %\VignetteIndexEntry{Analyze and Visualize Multi-region Whole-exome Sequencing Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
 ---
 
 <style type="text/css">
