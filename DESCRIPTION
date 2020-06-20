@@ -1,10 +1,8 @@
 Package: MesKit
 Type: Package
 Title: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations.
-Version: 0.99.2
-Authors@R: c(person("Mengni", "Liu", 
-					email = "niinleslie@gmail.com", 
-					role = c("cre", "aut")))
+Version: 0.99.4
+Author: Mengni Liu
 Maintainer: Mengni Liu <niinleslie@gmail.com>
 Description: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations
 License: MIT + file LICENSE
@@ -12,9 +10,9 @@ Encoding: UTF-8
 LazyData: TRUE
 Depends: R (>= 3.6.0)
 Imports: data.table, Biostrings, dplyr, tidyr (>= 1.0.0), ape, ggrepel, pracma, 
-        cowplot, mclust, phangorn, ComplexHeatmap (>= 1.9.3)
+        cowplot, mclust, phangorn, ComplexHeatmap (>= 1.9.3), ggplot2, RColorBrewer
 RoxygenNote: 7.1.0
-Suggests: Shiny, plolty, knitr, rmarkdown
+Suggests: shiny, knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: DNASeq, SomaticMutation, GenomicVariantsWorkflow, VariantAnnotation, DataRepresentation, Visualization
 NeedsCompilation: no

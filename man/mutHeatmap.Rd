@@ -37,7 +37,7 @@ mutHeatmap(
 
 \item{show.geneList}{Show the names of gene on the geneList.Default TRUE.}
 
-\item{mut.threshold}{show.gene and show.geneList will be FALSE when patient have more mutations than threshold.Default is 150.}
+\item{mut.threshold}{show.gene and show.geneList will be FALSE when patient have more mutations than threshold. Default is 150.}
 
 \item{sample.text.size}{Size of sample name.Default 9.}
 
