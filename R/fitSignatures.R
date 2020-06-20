@@ -72,9 +72,9 @@ fitSignatures <- function(tri_matrix = NULL,
   for(i in seq_len(length(tri_matrix_list))){
     tri_matrix <- tri_matrix_list[[i]]
     patient <- names(tri_matrix_list)[i]
-    
     ## Remove branches whose mutation number is less than min.mut.count
-    branch_remove <- rownames(tri_matrix[rowSums(tri_matrix) <= min.mut.count,])
+    branch_remove_idx <- which(rowSums(tri_matrix) <= min.mut.count)
+    branch_remove <- rownames(tri_matrix)[branch_remove_idx]
     if(length(branch_remove) > 0){
       message("Warning: mutation number of ",
               paste(branch_remove, collapse = ", "),
@@ -194,5 +194,5 @@ fitSignatures <- function(tri_matrix = NULL,
   }else{
     return(result)
   }
-  
+ 
 }
