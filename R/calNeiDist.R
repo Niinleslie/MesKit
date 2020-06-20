@@ -11,7 +11,7 @@
 #' @param title The title of the plot. Default is "Nei's distance"
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
 #'
@@ -42,7 +42,7 @@ calNeiDist <- function(maf,
     
     result <- list()
     for( m in maf_list){
-        maf_data <- subsetMaf(m,
+        maf_data <- subMaf(m,
                          min.ccf = min.ccf,
                          clonalStatus = clonalStatus,...)
         patient <- getMafPatient(m)

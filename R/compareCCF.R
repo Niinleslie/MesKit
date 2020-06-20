@@ -5,7 +5,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param min.ccf The minimum value of CCF. Default: 0
 #' @param pairByTumor Pair by tumor types in each patients,default is FALSE.
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' 
 #' @return
@@ -25,7 +25,7 @@ compareCCF <- function(maf,
   
   ccf.pair.list <- list()
   for(m in maf_list){
-    maf_data <- subsetMaf(m, min.ccf = min.ccf, ...) %>% 
+    maf_data <- subMaf(m, min.ccf = min.ccf, ...) %>% 
       tidyr::unite(
         "Mut_ID",
         c(

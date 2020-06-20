@@ -104,6 +104,13 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
     }
     
     if(withinTumor){
+      ## sort mutation type by Public Shared Private
+      mutation_type <- unique(mut_branches$Mutation_Type)
+      public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
+      shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
+      private <- sort(unique(mutation_type)[grep("Private", unique(mutation_type))])
+      mutation_type_level <- c(public, shared, private)
+      mut_branches$Mutation_Type <- factor(mut_branches$Mutation_Type, levels = mutation_type_level)
       branch_data_list <- split(mut_branches, mut_branches$Mutation_Type)
     }else{
       branch_data_list <- split(mut_branches, mut_branches$Branch_ID)

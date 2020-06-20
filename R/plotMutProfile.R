@@ -15,7 +15,7 @@
 #' @param remove_empty_rows  Whether remove the genes without alterations. Only works when plot is TRUE
 #' @param showColnames  TRUE(Default). Show sample names of columns.
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' @return Mutation profile
 #' 
 #' @examples
@@ -54,7 +54,7 @@ plotMutProfile <- function(maf,
     maf_data_list <- list()
     i <- 1
     for(m in maf_list){
-        maf_data_list[[i]] <- subsetMaf(m,...)
+        maf_data_list[[i]] <- subMaf(m,...)
         i <- i + 1
     }
     names(maf_data_list) <- patient.id
