@@ -8,7 +8,7 @@
 #' @param min.vaf The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1
 #' @param max.vaf The maximum value of VAF. Default: 0. Option: on the scale of 0 to 1
 #' @param withinTumor Cluster VAF within tumors in each patients,default is FALSE.
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
 #' vafCluster(maf, plotOption="compare")
@@ -38,7 +38,7 @@ vafCluster <-function(maf,
           m <- copyNumberFilter(m,seg)
       }
       
-      maf_data <- subsetMaf(m,
+      maf_data <- subMaf(m,
                             min.vaf = min.vaf,
                             max.vaf = max.vaf,
                             ...)
@@ -90,6 +90,10 @@ vafCluster <-function(maf,
           #               plot.subtitle = element_text(size = 16,hjust = 1,vjust = -5))
           # }
           plot_list[[id]] <- p
+      }
+      
+      if(nrow(rebuild_data) == 0){
+        next
       }
       
       rebuild_data <-  rebuild_data %>% 

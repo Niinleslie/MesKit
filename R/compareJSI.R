@@ -11,7 +11,7 @@
 #' @param title Title of the plot, default is "Jaccard similarity".
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #'
 #' @examples
 #' compareJSI(maf)
@@ -39,7 +39,7 @@ compareJSI <- function(
             stop(paste0("Error: calculation of Jaccard similarity requires CCF data." ,
                         "No CCF data was found when generate Maf/MafList object."))
         }
-        maf_data <- subsetMaf(m,
+        maf_data <- subMaf(m,
                             min.ccf = min.ccf,
                             use.adjVAF = TRUE,
                             ...) %>% 

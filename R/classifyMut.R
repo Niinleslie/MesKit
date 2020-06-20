@@ -7,7 +7,7 @@
 #' @param class  The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
 #' @param classByTumor  FALSE(Default). Classify mutations based on "Tumor_ID".
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' @return A data.frame with classification of mutations 
 #' 
 #' @examples
@@ -27,7 +27,7 @@ classifyMut <- function(
     
     result <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m, ...)
+        maf_data <- subMaf(m, ...)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
             message("Warning : there was no mutation in ", patient, " after filtering.")

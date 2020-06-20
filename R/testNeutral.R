@@ -13,7 +13,7 @@
 #' @param R2.threshold The threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
 #' @param min.mut.count The minimun number of subclonal mutations used to fit model. Default: 20
 #' @param plot Logical, whether to print model fitting plot of each sample. Default: TRUE
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' 
 #' @examples
@@ -42,7 +42,7 @@ testNeutral <- function(maf,
   
   result <- list()
   for(m in maf_list){
-    maf_data <- subsetMaf(m,
+    maf_data <- subMaf(m,
                           min.vaf = min.vaf,
                           max.vaf = max.vaf,
                           min.total.depth = min.total.depth,

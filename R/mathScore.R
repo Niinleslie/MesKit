@@ -7,7 +7,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param withinTumor Calculate AUC within types in each patients. Default :FALSE.
 #' @param min.vaf The minimum VAF for filtering variants. Default: 0.02 
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' @return A data.frame of MATH scores
 #' 
 #' @examples
@@ -34,7 +34,7 @@ mathScore <- function(maf,
     
     MATH_list <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m,min.vaf = min.vaf,clonalStatus = clonalStatus,...)
+        maf_data <- subMaf(m,min.vaf = min.vaf,clonalStatus = clonalStatus,...)
         
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){

@@ -14,7 +14,7 @@
 #' @param title The title of the plot. Default is "Nei's distance"
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #'  
 #' @return A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
 #'
@@ -50,7 +50,7 @@ calFst <- function(
   
   result <- list()
   for(m in maf_list){
-    maf_data <- subsetMaf(m,
+    maf_data <- subMaf(m,
                           min.vaf=min.vaf,
                           min.total.depth=min.total.depth,
                           clonalStatus=clonalStatus,
