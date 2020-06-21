@@ -252,7 +252,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                         axis.ticks.x=element_line(color = "black"),
                         axis.ticks.length.y = unit(0.2, "cm"),
                         axis.text.y=element_text(size=6, color = "black"))+
-                    facet_grid(factor(spectrum_type)  ~ Group,scales =  "free") + 
+                    facet_grid(factor(spectrum_type)  ~ Group,scales =  "free_x") + 
                     ## color setting
                     scale_fill_manual(values= all_color) +
                     scale_y_continuous(expand = c(0,0)) + 
