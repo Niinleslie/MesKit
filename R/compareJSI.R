@@ -119,7 +119,7 @@ compareJSI <- function(
                                  sep = ":",
                                  remove = FALSE
                     ) %>%
-                    dplyr::distinct(Mut_ID2, .keep_all = T) %>%
+                    dplyr::distinct(Mut_ID2, .keep_all = TRUE) %>%
                     dplyr::select(Mut_ID, Tumor_ID, Clonal_Status, VAF_adj) %>% 
                     tidyr::pivot_wider(
                         names_from = Tumor_ID,       

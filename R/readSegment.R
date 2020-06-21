@@ -18,6 +18,7 @@
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile )
 #'
+#' @return a combined segmentation data frame
 #' @importFrom data.table foverlaps as.data.table setkey
 #' @export readSegment
 #'

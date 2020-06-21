@@ -99,7 +99,7 @@ shinyServer(function(input, output, session){
           skip = "Hugo_Symbol",
           stringsAsFactors = FALSE
       )
-      d <- datatable(maf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      d <- datatable(maf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
       return(d)
     }
   })
@@ -129,7 +129,7 @@ shinyServer(function(input, output, session){
          sep = '\t',
          stringsAsFactors = FALSE
      ))
-      d <- datatable(ccf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      d <- datatable(ccf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
       return(d)
     }
   })
@@ -2825,7 +2825,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- muttrunkbranch()$mutTrunkBranch.res
           }
-          write.csv(t,file,row.names = F)
+          write.csv(t, file, row.names = F)
       },
       contentType = 'text/csv'
   )
@@ -2837,4 +2837,5 @@ shinyServer(function(input, output, session){
    
 })  
   
-  ## Download control  
+## Download control  
+

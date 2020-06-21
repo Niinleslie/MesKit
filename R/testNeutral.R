@@ -15,6 +15,7 @@
 #' @param plot Logical, whether to print model fitting plot of each sample. Default: TRUE
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
+#' @return the neutrality metrics and model fitting plots
 #' 
 #' @examples
 #' testNeutral(maf)
