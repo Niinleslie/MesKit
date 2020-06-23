@@ -15,6 +15,7 @@
 #' @param plot Logical, whether to print model fitting plot of each sample. Default: TRUE
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
+#' @return the neutrality metrics and model fitting plots
 #' 
 #' @examples
 #' testNeutral(maf)
@@ -85,7 +86,7 @@ testNeutral <- function(maf,
       
       vaf <- subdata$VAF_adj
       breaks <- seq(max.vaf, min.vaf, -0.005)
-      mut.count <- sapply(breaks,function(x,vaf){sum(vaf > x)},vaf = vaf)
+      mut.count <- unlist(lapply(breaks,function(x,vaf){length(which(vaf > x))},vaf = vaf))  
       vafCumsum <- data.frame(count = mut.count, f = breaks)
       vafCumsum$inv_f <- 1/vafCumsum$f - 1/max.vaf
       vafCumsum$n_count <- vafCumsum$count/max(vafCumsum)

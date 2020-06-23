@@ -87,7 +87,7 @@ drawVAFCompare <- function(maf_data,withinTumor){
                   axis.line=element_line(size=0.7)) +  
             ggtitle(paste0("VAF clustering of ", patient)) +  
             ggridges::geom_density_ridges(fill="whitesmoke",calc_ecdf=TRUE, alpha=0.5) + 
-            geom_point(aes(x=VAF, y=ID, color=cluster),alpha=0.5, show.legend=T) +  
+            geom_point(aes(x=VAF, y=ID, color=cluster),alpha=0.5, show.legend=TRUE) +  
             ggridges::geom_density_ridges(color="#00C0EB",fill=NA, calc_ecdf=TRUE, alpha=0.5, size=1)+
             drawVAFCompareVline(maf_data)+ 
             scale_colour_manual(values=color_scale) +  

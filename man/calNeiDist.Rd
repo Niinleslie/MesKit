@@ -36,7 +36,7 @@ calNeiDist(
 
 \item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 Nei's genetic distance matrix and heatmap of sample-pairs from the same patient

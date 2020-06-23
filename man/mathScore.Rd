@@ -15,7 +15,7 @@ mathScore(maf, patient.id = NULL, withinTumor = FALSE, min.vaf = 0.02, ...)
 
 \item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 A data.frame of MATH scores

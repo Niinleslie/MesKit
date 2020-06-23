@@ -287,7 +287,7 @@ mutHeatmap <- function(maf,
         
         mutation_legend <- (p+ theme(legend.background = element_blank()))%>%    
             ggplotGrob %>%
-            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
         
         # if(is.null(geneList) & show.gene){
         #     breaks.gene <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
@@ -354,7 +354,7 @@ mutHeatmap <- function(maf,
                       legend.title = element_text(size = legend.title.size))
             )%>%
             ggplotGrob %>%
-            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
         
         legends_column <-
             plot_grid(

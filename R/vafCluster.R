@@ -15,6 +15,7 @@
 #' vafCluster(maf, plotOption="combine")
 #' 
 #'
+#' @return clustering plots of vaf
 #' @export vafCluster
 
 ## Main function for VAF plot

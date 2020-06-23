@@ -7,6 +7,7 @@
 #' @param refBuild Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".
 #' @param show.GISTIC.gene Whether GISTIC gene in seg.Default FALSE.
 #' @param sample.text.size Size of sample name.Default 11.
+#' @param chrom.text.size Size of chromosome text.Default 3.
 #' @param legend.text.size Size of legend text. Default 9.
 #' @param legend.title.size Size of legend title.Default 11.
 #' @param sample.bar.height Bar height of each sample .Default 0.5.
@@ -17,7 +18,10 @@
 #' segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
 #' seg <- readSegment(segFile = segFile)
 #' plotCNA(seg)
+#' 
+#' @return a heatmap plot of CNA profile
 #' @import cowplot RColorBrewer
+#' @importFrom Biostrings start end
 #' @export plotCNA
 #'
 
@@ -112,11 +116,11 @@ plotCNA <- function(seg,
     updateStart <- apply(seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
     updateEnd <- apply(seg,1,updatePosition,"End_Position","Chromosome",chrLens)
     updateCytoband.pos <- apply(seg,1,updatePosition,"Cytoband.pos","Chromosome",chrLens)
-    suppressWarnings(seg[,Update_Start:= updateStart]) 
-    suppressWarnings(seg[,Update_End:= updateEnd])
-    suppressWarnings(seg[,Cytoband.pos:= updateCytoband.pos])
-    seg[,hmin := 0]
-    seg[,hmax := 0]
+    seg$Update_Start <- updateStart
+    seg$Update_End <- updateEnd
+    seg$Cytoband.pos <- updateCytoband.pos
+    seg$hmin <- 0
+    seg$hmax <- 0
     h <- chrom.bar.height
     
     if("patient" %in% colnames(seg)& length(unique(seg$patient)) > 1){
@@ -129,9 +133,8 @@ plotCNA <- function(seg,
                            Start_Position) %>%
             as.data.table()
         
-        seg[,Sample_ID := paste(patient,Tumor_Sample_Barcode,sep = "&")]
+        seg$Sample_ID <- paste(seg$patient,seg$Tumor_Sample_Barcode,sep = "&")
         sampleids <- unique(seg$Sample_ID)
-        
         ## reorder sample by sampleOrder
         if(!is.null(sampleOrder)){
             patient.setdiff <- setdiff(names(sampleOrder), unique(seg$patient))
@@ -187,7 +190,7 @@ plotCNA <- function(seg,
                            Start_Position) %>%
             as.data.table()
         
-        seg[,Sample_ID := paste(Patient_ID,Tumor_Sample_Barcode,sep = "&")]
+        seg$Sample_ID <- paste(seg$Patient_ID,seg$Tumor_Sample_Barcode,sep = "&")
         
         sampleids <- sort(unique(seg$Sample_ID))
         
@@ -355,7 +358,7 @@ plotCNA <- function(seg,
                       legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
         )%>%
             ggplotGrob %>%
-            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
         
         type_legend <- (
             ggplot()+
@@ -366,7 +369,7 @@ plotCNA <- function(seg,
                       legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
         ) %>% 
             ggplotGrob %>%
-            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
         
         legends_column <-
             plot_grid(

@@ -305,7 +305,7 @@ getTreeData <- function(phyloTree = NULL,
    treeData[1,]$end_num <- which(tree$tip.label == "NORMAL")
    treeData[1,]$y2 <- -rootEdge
    treeData[1,]$distance <- rootEdge
-   treeData[,sample := ""]
+   treeData$sample <- ""
    for(i in seq_len(nrow(treeData))){
       if(treeData$end_num[i] > length(tree$tip.label)){
          treeData$sample[i] <- "internal node"
@@ -377,7 +377,7 @@ getTreeData <- function(phyloTree = NULL,
               signatures <- gsub('SBS', '', signatures)
               sig_level <- gsub('SBS', '', sig_level)
           }
-          treeData <- treeData[, Signature:= signatures[label]]
+          treeData$Signature <- signatures[treeData$label]
           treeData[Signature == ''|is.na(Signature)]$Signature <- "Unknown"
           if("Unknown" %in% treeData$Signature){
               sig_level <- c(sig_level,"Unknown")
@@ -388,7 +388,7 @@ getTreeData <- function(phyloTree = NULL,
           branch_type <- getBranchType(phyloTree)
           types <- as.character(branch_type$Mutation_Type)
           names(types) <- as.character(branch_type$Branch_ID)
-          treeData <- treeData[, Mutation_Type:= types[label]] 
+          treeData$Mutation_Type <- types[treeData$label]
               # dplyr::mutate(Mutation_Type = types[label]) %>% 
               # as.data.table()
       }

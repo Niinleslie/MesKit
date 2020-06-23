@@ -48,7 +48,7 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{sampleOrder}{A named list which contains the sample order used in plotting the final profile. Default: NULL}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 Mutation profile

@@ -7,6 +7,7 @@
 #' @examples
 #' copyNumberFiler(maf, seg)
 #'
+#' @return a filtered Maf object
 #' @export copyNumberFilter
 #' 
 
