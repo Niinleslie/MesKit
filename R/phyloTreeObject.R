@@ -38,7 +38,7 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    ## get branch infomation
    branchChar <- as.character(branch.id$Branch_ID)
    ls.branch <- branchChar[order(nchar(branchChar), branchChar)]
-   branches <- strsplit(ls.branch, split='∩')
+   branches <- strsplit(ls.branch, split='&')
    
    ## generate mutational intersections for each branch
    mutBranchesOutput <- list()
@@ -46,7 +46,7 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       ## generate intersection's mut_id and get the mutation information in mutSigRef
       branch <- unlist(branch)
       ## generate the branch name
-      branchName <- paste(branch, collapse="∩")
+      branchName <- paste(branch, collapse="&")
       # branch.id <- append(branch, "mut_id")
       unbranch <- names(binary.matrix)[!names(binary.matrix) %in% branch]
       unbranch <- unbranch[unbranch!="mut_id"]

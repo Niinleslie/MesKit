@@ -36,6 +36,7 @@ vafCluster <-function(maf,
       ## remove mutation in CNA regions
       if(!is.null(segFile)){
           seg <- readSegment(segFile = segFile)
+          seg <- seg[!Chromosome %in% c("X","Y")]
           m <- copyNumberFilter(m,seg)
       }
       

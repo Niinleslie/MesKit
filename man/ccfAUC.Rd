@@ -33,6 +33,9 @@ A list containing AUC of CCF and a graph
 The tumor heterogeneity was estimated as the area under the curve (AUC) of the cumulative density function from all cancer cell fractions per tumor
 }
 \examples{
+maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 ccfAUC(maf)
 
 }
