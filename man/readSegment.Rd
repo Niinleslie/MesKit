@@ -43,6 +43,6 @@ gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", p
 seg <- readSegment(segFile = segFile,
                    gisticAmpGenesFile = gisticAmpGenesFile,
                     gisticDelGenesFile = gisticDelGenesFile, 
-                   gisticAllLesionsFile = gisticAllLesionsFile )
+                   gisticAllLesionsFile = gisticAllLesionsFile)
 
 }

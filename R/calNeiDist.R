@@ -16,6 +16,9 @@
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
 #'
 #' @examples
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' calNeiDist(maf)
 #' @export calNeiDist
 

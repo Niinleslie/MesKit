@@ -18,6 +18,17 @@ a filtered Maf object
 Ignoring variants in copy number altered regions
 }
 \examples{
+maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
+gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
+gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+seg <- readSegment(segFile = segFile,
+                   gisticAmpGenesFile = gisticAmpGenesFile,
+                    gisticDelGenesFile = gisticDelGenesFile, 
+                   gisticAllLesionsFile = gisticAllLesionsFile)
 copyNumberFiler(maf, seg)
 
 }

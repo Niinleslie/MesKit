@@ -14,6 +14,9 @@
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'
 #' @examples
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' compareJSI(maf)
 #' @return Correlation matrix and heatmap via Jaccard similarity coefficient method
 #' @export compareJSI

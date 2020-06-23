@@ -34,7 +34,7 @@ Read tab delimited MAF (can be plain text or *.gz compressed) file along with sa
 }
 \examples{
 maf.File <- system.file("extdata/", "HCC6046.maf", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC6046.CCF.tsv", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC6046.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
 }

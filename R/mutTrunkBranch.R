@@ -36,7 +36,7 @@ mutTrunkBranch <- function(phyloTree,
         ## define Trunk
         branch_names <- unique(mut_branches$Branch_ID)
         branch_sample_num <- lapply(branch_names,function(x){
-            s <- strsplit(x,"∩")[[1]]
+            s <- strsplit(x,"&")[[1]]
             num <- length(s)
         })
         trunk_name <- branch_names[which.max(branch_sample_num)]
