@@ -13,6 +13,12 @@ output:
     toc: yes
     toc_depth: '5'
 date: "`r Sys.Date()`"
+
+vignette: >
+  %\VignetteIndexEntry{Analyze and Visualize Multi-region Whole-exome Sequencing Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
 ---
 
 <style type="text/css">
@@ -137,7 +143,7 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 **Example Segmentation file**
 
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
-segInfo <- read.table(system.file("extdata", "HCC6046.seg.tsv", package = "MesKit"), header = TRUE)
+segInfo <- read.table(system.file("extdata", "HCC6046.seg.txt", package = "MesKit"), header = TRUE)
 segInfo[1:5, ]
 ```  
  
@@ -302,7 +308,7 @@ Metastasis remains poorly understood despite its critical clinical significance,
    
 #### 7.1 Pairwise CCF comparison
 
-Distinct patterns of monoclonal versus polyclonal seeding based on the cancer cell fraction (CCF) of somatic mutations between sample/tumor pairs. ```compareCCF``` function prints pairwise CCF plots of mutations,  which are identified across samples from a single patient. Recently, this method has been widely used to deduce the potential metastatic route between different paired tumor lesions [9](#refer) [10](#refer).  
+Distinct patterns of monoclonal versus polyclonal seeding based on the cancer cell fraction (CCF) of somatic mutations between sample/tumor pairs. ```compareCCF``` function returns a result list of pairwise CCF of mutations,  which are identified across samples from a single patient. Recently, this method has been widely used to deduce the potential metastatic route between different paired tumor lesions [9](#refer) [10](#refer).  
    
    
 ```{r fig.align='left', fig.width=5, fig.height=5, message=FALSE, warning=FALSE}
