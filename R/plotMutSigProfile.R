@@ -210,38 +210,74 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                 #     branch_spectrum <- branch_spectrum[branch_spectrum$spectrum_type == mode, ]
                 # }
                 name <- paste0(patient,": ",branch)
-                
+                ## adjust Y axis
+                adjY_table <- data.frame()
                 pic <- ggplot(branch_spectrum, aes(x=Type, y=Proportion, group=Group, fill=Group))
                 if("Original" %in% branch_spectrum$spectrum_type){
                     pic <- pic + geom_rect(data = odata,
                                            aes(fill = group_background),
                                            xmin = -Inf,
                                            xmax = Inf,
-                                           ymin = min(odata$Proportion),
-                                           ymax = max(odata$Proportion))
+                                           ymin = -Inf,
+                                           ymax = Inf)
+                    odata$Proportion[which.max(odata$Proportion)] <- odata$Proportion[which.max(odata$Proportion)]+0.02
+                    adjY_table <- rbind(adjY_table, odata)
                 }
                 if("Reconstructed" %in% branch_spectrum$spectrum_type){
                     pic <- pic + geom_rect(data = rdata,
                                            aes(fill = group_background),
                                            xmin = -Inf,
                                            xmax = Inf,
-                                           ymin = min(rdata$Proportion),
-                                           ymax = max(rdata$Proportion))
+                                           ymin = -Inf,
+                                           ymax = Inf)
+                    rdata$Proportion[which.max(rdata$Proportion)] <- rdata$Proportion[which.max(rdata$Proportion)]+0.02
+                    adjY_table <- rbind(adjY_table, rdata)
                 }
                 if("Difference" %in% branch_spectrum$spectrum_type){
                     pic <- pic + geom_rect(data = ddata,
                                            aes(fill = group_background),
                                            xmin = -Inf,
                                            xmax = Inf,
-                                           ymin = min(ddata$Proportion),
-                                           ymax = max(ddata$Proportion))
+                                           ymin = -Inf,
+                                           ymax = Inf)
+                    ddata$Proportion[which.max(ddata$Proportion)] <- ddata$Proportion[which.max(ddata$Proportion)]+0.02
+                    ddata$Proportion[which.min(ddata$Proportion)] <- ddata$Proportion[which.min(ddata$Proportion)]-0.02
+                    adjY_table <- rbind(adjY_table, ddata)
+                    
                 }
+                
+                # if("Original" %in% branch_spectrum$spectrum_type){
+                #     pic <- pic + geom_rect(data = odata,
+                #                            aes(fill = group_background),
+                #                            xmin = -Inf,
+                #                            xmax = Inf,
+                #                            ymin = min(odata$Proportion),
+                #                            ymax = max(odata$Proportion))
+                # }
+                # if("Reconstructed" %in% branch_spectrum$spectrum_type){
+                #     pic <- pic + geom_rect(data = rdata,
+                #                            aes(fill = group_background),
+                #                            xmin = -Inf,
+                #                            xmax = Inf,
+                #                            ymin = min(rdata$Proportion),
+                #                            ymax = max(rdata$Proportion))
+                # }
+                # if("Difference" %in% branch_spectrum$spectrum_type){
+                #     pic <- pic + geom_rect(data = ddata,
+                #                            aes(fill = group_background),
+                #                            xmin = -Inf,
+                #                            xmax = Inf,
+                #                            ymin = min(ddata$Proportion),
+                #                            ymax = max(ddata$Proportion))
+                # }
                 pic <- pic + 
-                    geom_bar(stat="identity") +
+                    geom_bar(stat="identity",color = "#252525",width = 1) +
+                    ## adjust ylab
+                    geom_point(data = adjY_table,alpha = 0) +
                     # geom_hline(yintercept = 0)+
                     theme(
-                        legend.position='none', 
-                        strip.background = element_rect(colour = "black", fill = "grey"),
+                        legend.position='none',
+                        strip.background = element_rect(colour = "black"),
                         strip.text.x=element_text(size=13),
                         strip.text.y=element_text(size=13),
                         panel.spacing.y = unit(0.5, "lines"),
@@ -252,7 +288,8 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                         axis.ticks.x=element_line(color = "black"),
                         axis.ticks.length.y = unit(0.2, "cm"),
                         axis.text.y=element_text(size=6, color = "black"))+
-                    facet_grid(factor(spectrum_type)  ~ Group,scales =  "free_x") + 
+                    facet_grid(factor(spectrum_type)  ~ Group,scales =  "free") +
+                    # facet_grid(factor(spectrum_type)  ~ Group,scales =  "free") + 
                     ## color setting
                     scale_fill_manual(values= all_color) +
                     scale_y_continuous(expand = c(0,0)) + 

@@ -15,13 +15,13 @@ compareCCF(maf, patient.id = NULL, min.ccf = 0, pairByTumor = FALSE, ...)
 
 \item{pairByTumor}{Pair by tumor types in each patients,default is FALSE.}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
-
+a result list of CCF comparing between samples/tumor pairs
 }
 \description{
-Density plot of CCFs in paired samples of the patient
+Compare the CCF between samples/tumor pairs
 This function requires CCF for clustering
 }
 \examples{

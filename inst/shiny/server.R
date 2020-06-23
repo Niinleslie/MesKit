@@ -99,7 +99,7 @@ shinyServer(function(input, output, session){
           skip = "Hugo_Symbol",
           stringsAsFactors = FALSE
       )
-      d <- datatable(maf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      d <- datatable(maf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
       return(d)
     }
   })
@@ -129,7 +129,7 @@ shinyServer(function(input, output, session){
          sep = '\t',
          stringsAsFactors = FALSE
      ))
-      d <- datatable(ccf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      d <- datatable(ccf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
       return(d)
     }
   })
@@ -143,9 +143,9 @@ shinyServer(function(input, output, session){
     if(input$submit1){
         maf <- inputData()
         if(class(maf) == "Maf"){
-            t <- datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
+            t <- datatable(inputData()@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
         }else{
-            t <- datatable(inputData()[[1]]@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
+            t <- datatable(inputData()[[1]]@data, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
         }
         return(t)
     }
@@ -207,7 +207,7 @@ shinyServer(function(input, output, session){
       filename = "Rtable.csv",
       content = function(file){
           data <- ms()
-          write.csv(data,file,row.names = F)
+          write.csv(data,file,row.names = FALSE)
       },
       contentType = 'text/csv'
   )
@@ -334,7 +334,7 @@ shinyServer(function(input, output, session){
                          tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                        ),
                        choiceValues = c("png", "pdf"), 
-                       inline = T)
+                       inline = TRUE)
         ),
         column(
           width = 3,
@@ -372,7 +372,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- vafcluster()[[getpatient.vafcluster()]]$cluster.data
           }
-          dt <- datatable(t, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5) 
+          dt <- datatable(t, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5) 
           return(dt)
       }
   })
@@ -407,7 +407,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- vafcluster()[[getpatient.vafcluster()]]$cluster.data
           }
-          write.csv(t,file,row.names = F)
+          write.csv(t,file,row.names = FALSE)
       },
       contentType = 'text/csv'
   )
@@ -509,7 +509,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -553,7 +553,7 @@ shinyServer(function(input, output, session){
                                           scrollX = TRUE,
                                           dom = "t",
                                           fixedHeader = TRUE),
-                           rownames = F) 
+                           rownames = FALSE) 
           return(dt)
       }
   })
@@ -587,7 +587,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- ccfauc()[[getpatient.ccfauc()]]$AUC.value
           }
-          write.csv(t,file,row.names = F)
+          write.csv(t,file,row.names = FALSE)
       },
       contentType = 'text/csv'
   )
@@ -693,7 +693,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -740,7 +740,7 @@ shinyServer(function(input, output, session){
                                          scrollX = TRUE,
                                          dom = "t",
                                          fixedHeader = TRUE),
-                          rownames = T) 
+                          rownames = TRUE) 
           return(dt)
       }
   })
@@ -882,7 +882,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -928,7 +928,7 @@ shinyServer(function(input, output, session){
                                            scrollX = TRUE,
                                            dom = "t",
                                            fixedHeader = TRUE),
-                          rownames = T) 
+                          rownames = TRUE) 
           return(dt)
       }
   })
@@ -1132,7 +1132,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -1300,7 +1300,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -1346,7 +1346,7 @@ shinyServer(function(input, output, session){
                                            scrollX = TRUE,
                                            dom = "t",
                                            fixedHeader = TRUE),
-                          rownames = T) 
+                          rownames = TRUE) 
           return(dt)
       }
   })
@@ -1428,7 +1428,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -1447,7 +1447,7 @@ shinyServer(function(input, output, session){
                                          scrollX = TRUE,
                                          dom = "t",
                                          fixedHeader = TRUE),
-                          rownames = F) 
+                          rownames = FALSE) 
           return(dt)
       }
   })
@@ -1561,7 +1561,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -1714,7 +1714,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -1744,7 +1744,7 @@ shinyServer(function(input, output, session){
   output$plotcna_table <- DT::renderDataTable({
       if(!is.null(plotcna())){
           t <- plotcna()$seg
-          d <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
+          d <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
           return(d)
       }
   })
@@ -1774,7 +1774,7 @@ shinyServer(function(input, output, session){
       filename = "Rtable.csv",
       content = function(file){
           data <- plotcna()$seg
-          write.csv(data,file,row.names = F)
+          write.csv(data,file,row.names = FALSE)
       },
       contentType = 'text/csv'
   )
@@ -1907,7 +1907,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -1953,7 +1953,7 @@ shinyServer(function(input, output, session){
                                          scrollX = TRUE,
                                          dom = "t",
                                          fixedHeader = TRUE),
-                          rownames = F) 
+                          rownames = FALSE) 
           return(dt)
       }
   })
@@ -1987,7 +1987,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- testneutral()$neutrality.metrics 
           }
-          write.csv(t,file,row.names = F)
+          write.csv(t,file,row.names = FALSE)
       },
       contentType = 'text/csv'
   )
@@ -2146,7 +2146,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- compareccf()[[getsample.compareccf()]]
           }
-          dt <- datatable(t,rownames = F) 
+          dt <- datatable(t,rownames = FALSE) 
           return(dt)
       }
   })
@@ -2159,7 +2159,7 @@ shinyServer(function(input, output, session){
           }else{
               t <- compareccf()[[getsample.compareccf()]]
           }
-          write.csv(t,file,row.names = F)
+          write.csv(t,file,row.names = FALSE)
       },
       contentType = 'text/csv'
   )
@@ -2302,7 +2302,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
-                               choiceValues = c("png", "pdf"), inline = T)
+                               choiceValues = c("png", "pdf"), inline = TRUE)
               ),
               column(
                   width = 3,
@@ -2427,7 +2427,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
-                               choiceValues = c("png", "pdf"), inline = T)
+                               choiceValues = c("png", "pdf"), inline = TRUE)
               ),
               column(
                   width = 3,
@@ -2604,7 +2604,7 @@ shinyServer(function(input, output, session){
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
                                ),
                                choiceValues = c("png", "pdf"), 
-                               inline = T)
+                               inline = TRUE)
               ),
               column(
                   width = 3,
@@ -2753,7 +2753,7 @@ shinyServer(function(input, output, session){
                                choiceNames = list(
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "pdf")
-                               ),choiceValues = c("png", "pdf"), inline = T)
+                               ),choiceValues = c("png", "pdf"), inline = TRUE)
               ),
               column(
                   width = 3,
@@ -2811,7 +2811,7 @@ shinyServer(function(input, output, session){
         }else{
             t <- muttrunkbranch()$mutTrunkBranch.res
         }
-        dt <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = T, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5) 
+        dt <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5) 
         return(dt)
     }
   })
@@ -2825,16 +2825,10 @@ shinyServer(function(input, output, session){
           }else{
               t <- muttrunkbranch()$mutTrunkBranch.res
           }
-          write.csv(t,file,row.names = F)
+          write.csv(t, file, row.names = FALSE)
       },
       contentType = 'text/csv'
   )
-
-  
-  
-  
-  
    
 })  
   
-  ## Download control  

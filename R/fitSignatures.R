@@ -194,5 +194,5 @@ fitSignatures <- function(tri_matrix = NULL,
   }else{
     return(result)
   }
-  
+ 
 }

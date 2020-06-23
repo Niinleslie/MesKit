@@ -34,6 +34,8 @@ plotCNA(
 
 \item{sample.text.size}{Size of sample name.Default 11.}
 
+\item{chrom.text.size}{Size of chromosome text.Default 3.}
+
 \item{legend.text.size}{Size of legend text. Default 9.}
 
 \item{legend.title.size}{Size of legend title.Default 11.}
@@ -42,6 +44,9 @@ plotCNA(
 
 \item{chrom.bar.height}{Bar height of each chromosome .Default 0.5.}
 }
+\value{
+a heatmap plot of CNA profile
+}
 \description{
 plotCNA
 }
@@ -49,4 +54,5 @@ plotCNA
 segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
 seg <- readSegment(segFile = segFile)
 plotCNA(seg)
+
 }
