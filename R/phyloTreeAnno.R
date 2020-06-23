@@ -721,6 +721,6 @@ labelBranch <- function(tree){
          }
       }
    }
-   g <- lapply(result, function(x){return(paste(sort(tree$tip.label[x[-1]], decreasing = TRUE),collapse = "∩"))})
+   g <- lapply(result, function(x){return(paste(sort(tree$tip.label[x[-1]], decreasing = TRUE),collapse = "&"))})
    return(list(g,subnumList))
 }

@@ -45,6 +45,8 @@ plotCNA <- function(seg,
     }
     
     
+    seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
+    seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE)
     ## select patients in patient.id 
     if(is.null(patient.id)|length(patient.id) > 1){
         if(length(patient.id) > 1){
@@ -93,7 +95,7 @@ plotCNA <- function(seg,
                     158821424, 146274826, 140273252, 135374737, 134452384, 132349534,
                     114142980, 106368585, 100338915, 88827254, 78774742, 76117153,
                     63811651, 62435964, 46944323, 49691432, 154913754, 57772954)
-    } else if(refBuild == 'hg38'){ #hg38
+    } else if(refBuild == 'hg38'){ 
         chrLens = c(248956422, 242193529, 198295559, 190214555, 181538259, 170805979,
                     159345973, 145138636, 138394717, 133797422, 135086622, 133275309,
                     114364328, 107043718, 101991189, 90338345, 83257441, 80373285,
@@ -105,10 +107,10 @@ plotCNA <- function(seg,
     }
     
     chrLens =  append(cumsum(chrLens),1,after = 0)
-    chrLabels = seq_len(22)
+    chrLabels = seq_len(24)
     chrTable = data.table::data.table(chr = chrLabels,
-                                      start = chrLens[seq_len(length(chrLens)-3)],
-                                      end = chrLens[2:(length(chrLens)-2)])
+                                      start = chrLens[seq_len(length(chrLens)-1)],
+                                      end = chrLens[2:length(chrLens)])
     chrTable$color = rep(c('black','white'), length = nrow(chrTable))
     
     # for(patient in patients){
@@ -283,6 +285,9 @@ plotCNA <- function(seg,
     # cytoband_table <- CNADat %>% 
     #     distinct(Cytoband, .keep_all = TRUE)
     
+    ## convert chromosome name
+    chrTable$chr = gsub(pattern = '23', replacement = 'X', x = chrTable$chr, fixed = TRUE)
+    chrTable$chr = gsub(pattern = '24', replacement = 'Y', x = chrTable$chr, fixed = TRUE)
     
     p <- ggplot()+
         ## background color
@@ -298,11 +303,11 @@ plotCNA <- function(seg,
         ## chr bar
         geom_rect(data = chrTable,
                   mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),
-                  fill = rep(c("black","white"), 11), color = "black")+
+                  fill = rep(c("black","white"), 12), color = "black")+
         geom_text(data = chrTable,
                   mapping = aes(x = start + (end - start)/2, y = chrom.bar.height/2, label = chr), 
                   size = chrom.text.size,
-                  color = rep(c("white","black"), 11))+
+                  color = rep(c("white","black"), 12))+
         
         ## vertical line 
         geom_segment(aes(x = chrTable$end[seq_len(nrow(chrTable)-1)],
