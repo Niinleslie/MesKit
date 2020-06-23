@@ -13,7 +13,7 @@
 #' @param sample.text.size Size of sample name.Default 9.
 #' @param legend.title.size Size of legend title.Default 10.
 #' @param gene.text.size Size of gene text. Default 9.
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return heatmap of somatic mutations
 #'
@@ -38,7 +38,7 @@ mutHeatmap <- function(maf,
     
     heatmap_list <- list()
     for(m in maf_list){
-        maf_data <- subsetMaf(m, min.vaf = min.vaf, min.ccf = min.ccf, ...)
+        maf_data <- subMaf(m, min.vaf = min.vaf, min.ccf = min.ccf, ...)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
             message("Warning: there was no mutations in ", patient, " after filtering.")
@@ -287,7 +287,7 @@ mutHeatmap <- function(maf,
         
         mutation_legend <- (p+ theme(legend.background = element_blank()))%>%    
             ggplotGrob %>%
-            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
         
         # if(is.null(geneList) & show.gene){
         #     breaks.gene <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
@@ -354,7 +354,7 @@ mutHeatmap <- function(maf,
                       legend.title = element_text(size = legend.title.size))
             )%>%
             ggplotGrob %>%
-            {.$grobs[[which(sapply(.$grobs, function(x) {x$name}) == "guide-box")]]}
+            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
         
         legends_column <-
             plot_grid(
@@ -382,3 +382,4 @@ mutHeatmap <- function(maf,
     
     return(heatmap_list)
 }
+

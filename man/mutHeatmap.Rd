@@ -45,7 +45,7 @@ mutHeatmap(
 
 \item{gene.text.size}{Size of gene text. Default 9.}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 heatmap of somatic mutations

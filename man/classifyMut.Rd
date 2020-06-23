@@ -18,7 +18,7 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{classByTumor}{FALSE(Default). Classify mutations based on "Tumor_ID".}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 A data.frame with classification of mutations

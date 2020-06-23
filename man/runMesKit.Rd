@@ -6,6 +6,9 @@
 \usage{
 runMesKit()
 }
+\value{
+a shiny app window
+}
 \description{
 \code{runMesKit} run MesKit locally
 }

@@ -18,6 +18,7 @@
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile )
 #'
+#' @return a combined segmentation data frame
 #' @importFrom data.table foverlaps as.data.table setkey
 #' @export readSegment
 #'
@@ -38,7 +39,7 @@ readSegment <- function(segFile = NULL,
   if(!"CopyNumber" %in% colnames(seg)){
     if("SegmentMean" %in% colnames(seg)){
         seg$SegmentMean <- as.numeric(seg$SegmentMean)
-        suppressWarnings(seg[,CopyNumber := round(2^(SegmentMean)*2) ])
+        seg$CopyNumber <- round(2^(seg$SegmentMean)*2)
         seg <- dplyr::select(seg, Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position, CopyNumber)
     }
     else{
@@ -47,7 +48,7 @@ readSegment <- function(segFile = NULL,
   }
   seg$CopyNumber <- as.numeric(seg$CopyNumber)
   
-  seg[ ,Width := End_Position - Start_Position]
+  seg$Width <- seg$End_Position - seg$Start_Position
   seg <- dplyr::mutate(seg, Type = unlist(lapply(seg$CopyNumber, function(x){
       if(x == 0){
           return("Deletion")
@@ -108,13 +109,15 @@ readSegment <- function(segFile = NULL,
           
       }
       ## combine segment file and gistic results
-      gisticCNVgenes[,Chromosome := sapply(strsplit(x = gisticCNVgenes[,Wide_Peak_Boundaries], split = ':'), '[', 1)]
-      gisticCNVgenes[,loc := sapply(strsplit(x = gisticCNVgenes[,Wide_Peak_Boundaries], split = ':'), '[', 2)]
-      gisticCNVgenes[,Start_Position := as.integer(sapply(strsplit(x = gisticCNVgenes[,loc], split = '-'), '[', 1))]
-      gisticCNVgenes[,End_Position := as.integer(sapply(strsplit(x = gisticCNVgenes[,loc], split = '-'), '[', 2))]
-      gisticCNVgenes[,Chromosome := gsub(pattern = 'chr', replacement = '', x = gisticCNVgenes$Chromosome, fixed = TRUE)]
-      gisticCNVgenes[,Chromosome := gsub(pattern = 'X', replacement = '23', x = gisticCNVgenes$Chromosome, fixed = TRUE)]
-      gisticCNVgenes[,Chromosome := gsub(pattern = 'Y', replacement = '24', x = gisticCNVgenes$Chromosome, fixed = TRUE)]
+      gisticCNVgenes$Chromosome <-  unlist(lapply(gisticCNVgenes$Wide_Peak_Boundaries,function(x)strsplit(x, ":")[[1]][1]))  
+      gisticCNVgenes$loc <-  unlist(lapply(gisticCNVgenes$Wide_Peak_Boundaries,function(x)strsplit(x, ":")[[1]][2]))  
+      gisticCNVgenes$Start_Position <- unlist(lapply(gisticCNVgenes$loc,function(x)strsplit(x, "-")[[1]][1]))
+      gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
+      gisticCNVgenes$End_Position <- unlist(lapply(gisticCNVgenes$loc,function(x)strsplit(x, "-")[[1]][2]))
+      gisticCNVgenes$End_Position <- as.numeric(gisticCNVgenes$End_Position)
+      gisticCNVgenes$Chromosome <- gsub(pattern = 'chr', replacement = '', x = gisticCNVgenes$Chromosome, fixed = TRUE)
+      gisticCNVgenes$Chromosome <- gsub(pattern = 'X', replacement = '23', x = gisticCNVgenes$Chromosome, fixed = TRUE)
+      gisticCNVgenes$Chromosome <- gsub(pattern = 'Y', replacement = '24', x = gisticCNVgenes$Chromosome, fixed = TRUE)
       gisticCNVgenes <- dplyr::select(gisticCNVgenes,Gene, Gistic.type, Chromosome, Start_Position, End_Position)
       gisticCNVgenes$Chromosome <- as.numeric(gisticCNVgenes$Chromosome)
       gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
@@ -126,13 +129,15 @@ readSegment <- function(segFile = NULL,
                 dplyr::distinct(.)
       seg <- mapDat[(Type %in% c("Loss", "Deletion") & Gistic.type  == "Del")|(Type %in% c("Gain", "Amplification") & Gistic.type  == "AMP"),]
   }else if(nrow(gisticLesions) != 0){
-      gisticLesions[,Chromosome := sapply(strsplit(x = gisticLesions[,Wide_Peak_Boundaries], split = ':'), '[', 1)]
-      gisticLesions[,loc := sapply(strsplit(x = gisticLesions[,Wide_Peak_Boundaries], split = ':'), '[', 2)]
-      gisticLesions[,Start_Position := as.integer(sapply(strsplit(x = gisticLesions[,loc], split = '-'), '[', 1))]
-      gisticLesions[,End_Position := as.integer(sapply(strsplit(x = gisticLesions[,loc], split = '-'), '[', 2))]
-      gisticLesions[,Chromosome := gsub(pattern = 'chr', replacement = '', x = gisticLesions$Chromosome, fixed = TRUE)]
-      gisticLesions[,Chromosome := gsub(pattern = 'X', replacement = '23', x = gisticLesions$Chromosome, fixed = TRUE)]
-      gisticLesions[,Chromosome := gsub(pattern = 'Y', replacement = '24', x = gisticLesions$Chromosome, fixed = TRUE)]
+    gisticLesions$Chromosome <-  unlist(lapply(gisticLesions$Wide_Peak_Boundaries,function(x)strsplit(x, ":")[[1]][1]))  
+    gisticLesions$loc <-  unlist(lapply(gisticLesions$Wide_Peak_Boundaries,function(x)strsplit(x, ":")[[1]][2]))  
+    gisticLesions$Start_Position <- unlist(lapply(gisticLesions$loc,function(x)strsplit(x, "-")[[1]][1]))
+    gisticLesions$Start_Position <- as.numeric(gisticLesions$Start_Position)
+    gisticLesions$End_Position <- unlist(lapply(gisticLesions$loc,function(x)strsplit(x, "-")[[1]][2]))
+    gisticLesions$End_Position <- as.numeric(gisticLesions$End_Position)
+      gisticLesions$Chromosome <- gsub(pattern = 'chr', replacement = '', x = gisticLesions$Chromosome, fixed = TRUE)
+      gisticLesions$Chromosome <- gsub(pattern = 'X', replacement = '23', x = gisticLesions$Chromosome, fixed = TRUE)
+      gisticLesions$Chromosome <- gsub(pattern = 'Y', replacement = '24', x = gisticLesions$Chromosome, fixed = TRUE)
       gisticLesions <- dplyr::select(gisticLesions,Gistic.type, Chromosome, Start_Position, End_Position, Qvalue)
       gisticLesions$Chromosome <- as.numeric(gisticLesions$Chromosome)
       gisticLesions$Start_Position <- as.numeric(gisticLesions$Start_Position)

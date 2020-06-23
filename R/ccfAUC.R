@@ -8,7 +8,7 @@
 #' @param min.ccf The minimum value of CCF. Default: 0
 #' @param withinTumor Calculate AUC within types in each patients,default is FALSE.
 #' @param plot.density Whether to show the density plot. Default: TRUE
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return A list containing AUC of CCF and a graph
 #' 
@@ -34,7 +34,7 @@ ccfAUC <- function(
             stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
                         "No CCF data was found when generate Maf object."))
         }
-        maf_data <- subsetMaf(m,
+        maf_data <- subMaf(m,
                               min.ccf = min.ccf,...) %>% 
         dplyr::filter(!is.na(CCF))
         if(withinTumor) {
