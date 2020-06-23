@@ -6,7 +6,7 @@
 #' @param min.vaf The minimum value of vaf. Default 0.02.
 #' @param min.ccf The minimum value of CCF. Default: 0
 #' @param bootstrap.rep.num Bootstrap iterations.Default 100.
-#' @param ... Other options passed to \code{\link{subsetMaf}}
+#' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' 
 #' @examples
@@ -33,7 +33,7 @@ getPhyloTree <- function(maf,
   
   phyloTree_patient_list <- list()
   for(m in maf_list){
-      maf_data <- subsetMaf(m,min.vaf = min.vaf, min.ccf = min.ccf, ...)
+      maf_data <- subMaf(m,min.vaf = min.vaf, min.ccf = min.ccf, ...)
       patient <- getMafPatient(m)
       if(nrow(maf_data) == 0){
             message("Warning :there was no mutation in ", patient, " after filtering.")

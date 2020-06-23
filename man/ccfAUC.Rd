@@ -24,7 +24,7 @@ ccfAUC(
 
 \item{plot.density}{Whether to show the density plot. Default: TRUE}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 A list containing AUC of CCF and a graph

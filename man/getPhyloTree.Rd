@@ -27,7 +27,7 @@ getPhyloTree(
 
 \item{bootstrap.rep.num}{Bootstrap iterations.Default 100.}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 PhyloTree or phyloTreeList object

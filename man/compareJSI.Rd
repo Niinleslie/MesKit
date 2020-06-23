@@ -36,7 +36,7 @@ compareJSI(
 
 \item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 Correlation matrix and heatmap via Jaccard similarity coefficient method

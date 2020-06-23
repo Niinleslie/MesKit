@@ -31,6 +31,6 @@ Summarize and conduct paired Fisher test of mutations of trunk/branches in a phy
 }
 \examples{
 mutTrunkBranch(phyloTree)
-mutTrunkBranch(phyloTree,plot = T)
+mutTrunkBranch(phyloTree,plot = TRUE)
 
 }

@@ -36,7 +36,10 @@ testNeutral(
 
 \item{plot}{Logical, whether to print model fitting plot of each sample. Default: TRUE}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
+}
+\value{
+the neutrality metrics and model fitting plots
 }
 \description{
 Evaluate whether a tumor follows neutral evolution or under strong selection during the growth based on variant frequency distribution (VAF) of subclonal mutations.

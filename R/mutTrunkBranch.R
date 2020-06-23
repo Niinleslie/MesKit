@@ -9,7 +9,7 @@
 #' 
 #' @examples
 #' mutTrunkBranch(phyloTree)
-#' mutTrunkBranch(phyloTree,plot = T)
+#' mutTrunkBranch(phyloTree,plot = TRUE)
 #' 
 #' @return  a list of box plots based on mutational categories
 #' @importFrom data.table data.table

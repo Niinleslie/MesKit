@@ -27,7 +27,10 @@ vafCluster(
 
 \item{withinTumor}{Cluster VAF within tumors in each patients,default is FALSE.}
 
-\item{...}{Other options passed to \code{\link{subsetMaf}}}
+\item{...}{Other options passed to \code{\link{subMaf}}}
+}
+\value{
+clustering plots of vaf
 }
 \description{
 Generate variant allele frequency(VAF) frequency distribution
