@@ -17,8 +17,11 @@
 #' Weighted.path.difference	 difference in the path length, counted using branches lengths
 #' 
 #' @examples
-#' phyloTree1 <- getPhyloTree(maf, method = "NJ", patient.id = 'patientID')
-#' phyloTree2 <- getPhyloTree(maf, method = "MP", patient.id = 'patientID')
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree1 <- getPhyloTree(maf, method = "NJ")
+#' phyloTree2 <- getPhyloTree(maf, method = "MP")
 #' compareTree(phyloTree1, phyloTree2)
 #' compareTree(phyloTree1, phyloTree2, plot = TRUE)
 #' @export compareTree

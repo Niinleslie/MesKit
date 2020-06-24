@@ -11,13 +11,6 @@ checkPhyloTreeInput(object, patient.id = NULL)
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 }
-\value{
-a list of phyloTree
-}
 \description{
 Check phyloTree or phyloTreeList input
-}
-\examples{
-checkPhyloTreeInput(phyloTree)
-
 }

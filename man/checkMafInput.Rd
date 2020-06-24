@@ -11,12 +11,6 @@ checkMafInput(object, patient.id = NULL)
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 }
-\value{
-A list of Maf
-}
 \description{
 Check Maf or MafList input
-}
-\examples{
-checkMafInput(maf)
 }
