@@ -1,7 +1,7 @@
 Package: MesKit
 Type: Package
 Title: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations
-Version: 0.99.5
+Version: 0.99.6
 Authors@R: c(
   person('Mengni', 'Liu',   email = "niinleslie@gmail.com", role = c('aut', 'cre'), comment = c(ORCID = '0000-0001-9938-9973')),
   person('Jianyu', 'Chen', email = 'chenjy327@mail2.sysu.edu.cn', role = c('aut', 'ctb'), comment = c(ORCID = '0000-0003-4491-9265')),
@@ -18,7 +18,7 @@ RoxygenNote: 7.1.0
 Suggests: shiny, knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: Software, SomaticMutation, GeneticVariability, Genetics, Classification,
-			GenomicVariantsWorkflow, VariantAnnotation, DataRepresentation, Visualization
+			VariantAnnotation, DataRepresentation, Visualization
 NeedsCompilation: no
 git_url: https://github.com/Niinleslie/MesKit
 git_last_commit_date: 2020-6-1
