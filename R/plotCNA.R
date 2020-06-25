@@ -57,7 +57,7 @@ plotCNA <- function(seg,
             if(length(patient.setdiff) > 0){
                 stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
             }
-            seg <- seg[Patient_ID %in% patient.id]
+            seg <- seg[seg$Patient_ID %in% patient.id, ]
             seg$patient <- factor(seg$Patient_ID, levels = rev(patient.id))
         }else{
             seg$patient <- seg$Patient_ID
@@ -71,7 +71,7 @@ plotCNA <- function(seg,
             stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
         }
         patient_num <- 1
-        seg <- seg[Patient_ID %in% patient.id]
+        seg <- seg[seg$Patient_ID %in% patient.id, ]
     }
     
     
