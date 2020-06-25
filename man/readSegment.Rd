@@ -30,7 +30,7 @@ readSegment(
 \item{verbose}{whether to display details in the console. Default True.}
 }
 \value{
-a combined segmentation data frame
+a list of segmentation data frame
 }
 \description{
 readSegment

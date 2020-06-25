@@ -8,9 +8,12 @@
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
 #' @param classByTumor  FALSE(Default). Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subMaf}}
-#' @return A data.frame with classification of mutations 
+#' @return A data.frame with classification of mutations for each patient 
 #' 
 #' @examples
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' classifyMut(maf, class = "SP")
 #' @export classifyMut
 
