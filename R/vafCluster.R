@@ -17,7 +17,7 @@
 #' vafCluster(maf, plotOption="compare")
 #' vafCluster(maf, plotOption="combine")
 #' 
-#'
+#' @import ggridges purrr
 #' @return clustering plots of vaf
 #' @export vafCluster
 

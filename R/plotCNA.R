@@ -19,7 +19,7 @@
 #' plotCNA(seg)
 #' 
 #' @return a heatmap plot of CNA profile
-#' @import cowplot RColorBrewer
+#' @import cowplot RColorBrewer plyr
 #' @importFrom Biostrings start end
 #' @export plotCNA
 #'
@@ -40,7 +40,7 @@ plotCNA <- function(seg,
     
     ## combine data frame
     if(is(seg, "list")){
-        seg <- plyr::rbind.fill(seg)
+        seg <- plyr::rbind.fill(seg) %>% as.data.table()
     }
     
     if(!is.null(chrSilent)){
