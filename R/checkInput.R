@@ -20,6 +20,7 @@ checkPhyloTreeInput <- function(object, patient.id = NULL){
 
 #--- Check Maf or MafList input
 
+
 checkMafInput <- function(object,patient.id = NULL){
   if(is(object, "Maf")){
     return(list(object))

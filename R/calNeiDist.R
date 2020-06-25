@@ -88,6 +88,7 @@ calNeiDist <- function(maf,
           message(paste0("Warnings: only one sample was found of ", id,
                          " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
           next
+
         }
       }
       
