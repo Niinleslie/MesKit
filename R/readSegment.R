@@ -18,7 +18,7 @@
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile)
 #'
-#' @return a combined segmentation data frame
+#' @return a list of segmentation data frame
 #' @importFrom data.table foverlaps as.data.table setkey
 #' @export readSegment
 #'
@@ -157,7 +157,14 @@ readSegment <- function(segFile = NULL,
   seg$Chromosome = gsub(pattern = '23', replacement = 'X', x = seg$Chromosome, fixed = TRUE)
   seg$Chromosome = gsub(pattern = '24', replacement = 'Y', x = seg$Chromosome, fixed = TRUE)
   
-  return(seg)
+  result <- split(seg, seg$Patient_ID)
+  
+  if(length(result) == 1){
+    return(result[[1]])
+  }else{
+    return(result)
+  }
+
 }
 
 

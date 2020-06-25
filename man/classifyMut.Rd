@@ -21,11 +21,14 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
-A data.frame with classification of mutations
+A data.frame with classification of mutations for each patient
 }
 \description{
 classifyMut
 }
 \examples{
+maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 classifyMut(maf, class = "SP")
 }

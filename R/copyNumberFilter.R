@@ -1,6 +1,11 @@
 #--- filter mutations in CNV regions 
 
 copyNumberFilter <- function(maf, seg){
+  ## combine data frame
+  if(is(seg, "list")){
+    seg <- plyr::rbind.fill(seg)
+  }
+  seg <- seg[!Chromosome %in% c("X","Y")]
   maf_data <- getMafData(maf)
   maf_data$ID <-  dplyr::select(tidyr::unite(maf_data, "ID", 
                                           Hugo_Symbol, Chromosome, 
