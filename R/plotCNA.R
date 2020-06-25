@@ -5,7 +5,6 @@
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
 #' @param chrSilent Chromosomes excluded in the analysis. e.g, 1, 2, 3. Default NULL.
 #' @param refBuild Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".
-#' @param show.GISTIC.gene Whether GISTIC gene in seg.Default FALSE.
 #' @param sample.text.size Size of sample name.Default 11.
 #' @param chrom.text.size Size of chromosome text.Default 3.
 #' @param legend.text.size Size of legend text. Default 9.
@@ -31,7 +30,6 @@ plotCNA <- function(seg,
                     sampleOrder = NULL,
                     chrSilent = NULL,
                     refBuild = "hg19",
-                    show.GISTIC.gene = FALSE,
                     sample.text.size = 11,
                     chrom.text.size = 3,
                     legend.text.size = 9,
@@ -39,6 +37,11 @@ plotCNA <- function(seg,
                     sample.bar.height = 0.5,
                     chrom.bar.height = 0.5
 ){
+    
+    ## combine data frame
+    if(is(seg, "list")){
+        seg <- plyr::rbind.fill(seg)
+    }
     
     if(!is.null(chrSilent)){
         seg <- seg[!Chromosome %in% chrSilent]
@@ -54,7 +57,7 @@ plotCNA <- function(seg,
             if(length(patient.setdiff) > 0){
                 stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
             }
-            seg <- seg[Patient_ID %in% patient.id]
+            seg <- seg[seg$Patient_ID %in% patient.id, ]
             seg$patient <- factor(seg$Patient_ID, levels = rev(patient.id))
         }else{
             seg$patient <- seg$Patient_ID
@@ -68,16 +71,16 @@ plotCNA <- function(seg,
             stop(paste0("Error: ", patient.setdiff, " can not be found in your data"))
         }
         patient_num <- 1
-        seg <- seg[Patient_ID %in% patient.id]
+        seg <- seg[seg$Patient_ID %in% patient.id, ]
     }
     
     
     
-    if(show.GISTIC.gene){
-        if(!"Gistic.type" %in% colnames(seg)){
-            stop("Error: GISTIC genes information were not found. Please check readSegment")
-        }
-    }
+    # if(show.GISTIC.gene){
+    #     if(!"Gistic.type" %in% colnames(seg)){
+    #         stop("Error: GISTIC genes information were not found. Please check readSegment")
+    #     }
+    # }
     # if("Start" %in% colnames(seg)){
     #   seg <- dplyr::rename(seg,Start_Position = Start, End_Position = End)
     # }

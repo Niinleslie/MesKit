@@ -10,7 +10,6 @@ plotCNA(
   sampleOrder = NULL,
   chrSilent = NULL,
   refBuild = "hg19",
-  show.GISTIC.gene = FALSE,
   sample.text.size = 11,
   chrom.text.size = 3,
   legend.text.size = 9,
@@ -29,8 +28,6 @@ plotCNA(
 \item{chrSilent}{Chromosomes excluded in the analysis. e.g, 1, 2, 3. Default NULL.}
 
 \item{refBuild}{Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".}
-
-\item{show.GISTIC.gene}{Whether GISTIC gene in seg.Default FALSE.}
 
 \item{sample.text.size}{Size of sample name.Default 11.}
 

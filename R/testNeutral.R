@@ -18,6 +18,9 @@
 #' @return the neutrality metrics and model fitting plots
 #' 
 #' @examples
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' testNeutral(maf)
 #' @export testNeutral
 
