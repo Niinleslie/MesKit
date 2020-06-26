@@ -14,10 +14,10 @@
 #' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' vafCluster(maf, plotOption="compare")
-#' vafCluster(maf, plotOption="combine")
+#' vafCluster(maf)
 #' 
-#'
+#' @import ggridges 
+#' @importFrom purrr pluck
 #' @return clustering plots of vaf
 #' @export vafCluster
 

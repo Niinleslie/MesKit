@@ -37,8 +37,7 @@ ccfAUC <- function(
             stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
                         "No CCF data was found when generate Maf object."))
         }
-        maf_data <- subMaf(m,
-                              min.ccf = min.ccf,...) %>% 
+        maf_data <- subMaf(m, min.ccf = min.ccf, ...) %>% 
         dplyr::filter(!is.na(CCF))
         if(withinTumor) {
             maf_data <- dplyr::filter(maf_data, !is.na(Tumor_Average_CCF))

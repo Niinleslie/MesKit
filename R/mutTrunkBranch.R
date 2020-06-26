@@ -147,7 +147,7 @@ mutTrunkBranch <- function(phyloTree,
                                     values_to = "fraction") %>%
                 as.data.frame() 
             dat$Group <- factor(dat$Group, levels = unique(group_level))
-            dat <- dplyr::arrange(dat,plyr::desc(Group))
+            dat <- dplyr::arrange(dat,dplyr::desc(Group))
             
             ## get position
             dat <- as.data.table(dat)

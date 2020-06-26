@@ -15,6 +15,10 @@
 #' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' 
+#' ## Load a reference genome.
+#' library(BSgenome.Hsapiens.UCSC.hg19)
+#' 
 #' phyloTree <- getPhyloTree(maf)
 #' tri_matrix <- triMatrix(phyloTree)
 #' fitSignatures(tri_matrix)
@@ -181,8 +185,8 @@ fitSignatures <- function(tri_matrix = NULL,
     }
     ## order data frame by contribution of each branch
     signatures_aetiology <- dplyr::arrange(signatures_aetiology,
-                                           plyr::desc(Branch),
-                                           plyr::desc(Contribution))
+                                           dplyr::desc(Branch),
+                                           dplyr::desc(Contribution))
     
     result[[patient]] <- list(
       reconstructed.mat = recon_matrix,

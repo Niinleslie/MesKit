@@ -40,7 +40,7 @@ plotCNA <- function(seg,
     
     ## combine data frame
     if(is(seg, "list")){
-        seg <- plyr::rbind.fill(seg)
+        seg <- plyr::rbind.fill(seg) %>% as.data.table()
     }
     
     if(!is.null(chrSilent)){
@@ -132,8 +132,8 @@ plotCNA <- function(seg,
         
         ## sort sampleid 
         seg <- seg %>% 
-            dplyr::arrange(plyr::desc(patient) ,
-                           plyr::desc(Tumor_Sample_Barcode),
+            dplyr::arrange(dplyr::desc(patient) ,
+                           dplyr::desc(Tumor_Sample_Barcode),
                            Chromosome,
                            Start_Position) %>%
             as.data.table()
