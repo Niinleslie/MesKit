@@ -64,11 +64,10 @@ calFst <- function(
   result <- list()
   for(m in maf_list){
     maf_data <- subMaf(m,
-                          min.vaf=min.vaf,
-                          min.total.depth=min.total.depth,
-                          clonalStatus=clonalStatus,
-                          ...)
-    
+                      min.vaf=min.vaf,
+                      min.total.depth=min.total.depth,
+                      clonalStatus=clonalStatus,
+                      ...)
     patient <- getMafPatient(m)
     if(nrow(maf_data) == 0){
       message("Warning :there was no mutation in ", patient, " after filtering.")

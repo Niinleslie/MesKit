@@ -23,7 +23,7 @@
 #' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' maf_data <- subMaf(maf)
-#' @return a list of Maf object or Maf data.
+#' @return Maf object or Maf data.
 #' @export subMaf
 
 subMaf <- function(maf,
@@ -156,7 +156,12 @@ subMaf <- function(maf,
       }
    }
    
-   return(result)
+   if(length(result) == 1){
+      return(result[[1]])
+   }else{
+      return(result)
+   }
+   
    
 }
 
