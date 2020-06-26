@@ -17,7 +17,7 @@
 #' library(BSgenome.Hsapiens.UCSC.hg19)
 #' 
 #' tri_matrix <- triMatrix(phyloTree)
-#' fit_out <- fitSignatrues(tri_matrix)
+#' fit_out <- fitSignatures(tri_matrix)
 #' plotMutSigProfile(fit_out)
 #' ## input from treeMatrix
 #' plotMutSigProfile(tri_matrix)
