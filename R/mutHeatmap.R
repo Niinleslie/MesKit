@@ -110,6 +110,7 @@ mutHeatmap <- function(maf,
         
         mat <- as.data.frame(mat)
         sample_num <- ncol(mat)
+        sample_levels <- colnames(mat)
         mat$mutation_type <- factor(mutation_type, levels = mutation_type_level)
         
         
@@ -161,13 +162,20 @@ mutHeatmap <- function(maf,
         if(type == "CCF"){
             value.name <- "CCF"
         }
-        mut_dat <- reshape2::melt(mat,
-                                  id.vars = c("ymin","ymax","mutation","mutation_type", "Gene"),
-                                  variable.name = "sample",
-                                  value.name = value.name)
+        # mut_dat <- reshape2::melt(mat,
+        #                           id.vars = c("ymin","ymax","mutation","mutation_type", "Gene"),
+        #                           variable.name = "sample",
+        #                           value.name = value.name)
+        mut_dat <- tidyr::pivot_longer(
+            mat,
+            col = -c("ymin","ymax","mutation","mutation_type", "Gene"),
+            names_to = "sample",
+            values_to = value.name
+        )
+        mut_dat$sample <- factor(mut_dat$sample, levels = sample_levels)
+        mut_dat <- dplyr::arrange(mut_dat,sample)
         mut_dat$xmin <- rep(cumsum(c(0, rep(0.5, sample_num-1))) ,each = nrow(mat))
         mut_dat$xmax <- mut_dat$xmin + 0.49
-        mut_dat$sample <- factor(mut_dat$sample, levels =unique(mut_dat$sample))
         if(nrow(mut_dat) == 0){
             next
         }
@@ -349,13 +357,14 @@ mutHeatmap <- function(maf,
             geom_rect(data = annotation.bar,
                       mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax),fill = type_colors)
            # scale_fill_manual(values = type_colors,name = "Class")
-        
         ## multi legend
         type_legend <- (
             ggplot()+
                 geom_rect(data = annotation.bar,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax, fill = factor(mutation_type))) +
-                scale_fill_manual(values = type_colors,name = "Type") + 
+                scale_fill_manual(breaks = type_name_percentage,
+                                  values = type_colors,
+                                  name = "Type") + 
                 theme(legend.background = element_blank(),
                       legend.title = element_text(size = legend.title.size))
             )%>%

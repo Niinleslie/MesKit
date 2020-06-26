@@ -33,7 +33,7 @@
 #' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' calFst(maf)
-#' @import dplyr
+#' @import dplyr circlize
 #' @export calFst
 
 calFst <- function(
