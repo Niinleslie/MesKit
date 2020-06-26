@@ -37,6 +37,10 @@ calculate cosine similarity based on somatic SNVs.
 maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
 ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+
+## Load a reference genome.
+library(BSgenome.Hsapiens.UCSC.hg19)
+
 phyloTree <- getPhyloTree(maf)
 tri_matrix <- triMatrix(phyloTree)
 fitSignatures(tri_matrix)

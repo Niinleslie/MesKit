@@ -19,7 +19,7 @@
 #' plotCNA(seg)
 #' 
 #' @return a heatmap plot of CNA profile
-#' @import cowplot RColorBrewer plyr
+#' @import cowplot RColorBrewer
 #' @importFrom Biostrings start end
 #' @export plotCNA
 #'
@@ -132,8 +132,8 @@ plotCNA <- function(seg,
         
         ## sort sampleid 
         seg <- seg %>% 
-            dplyr::arrange(plyr::desc(patient) ,
-                           plyr::desc(Tumor_Sample_Barcode),
+            dplyr::arrange(dplyr::desc(patient) ,
+                           dplyr::desc(Tumor_Sample_Barcode),
                            Chromosome,
                            Start_Position) %>%
             as.data.table()
