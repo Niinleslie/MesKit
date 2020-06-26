@@ -43,5 +43,4 @@ maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 vafCluster(maf, plotOption="compare")
 vafCluster(maf, plotOption="combine")
 
-
 }
