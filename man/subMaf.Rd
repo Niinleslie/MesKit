@@ -28,6 +28,8 @@ subMaf(
 
 \item{mafObj}{return Maf class.Default FALSE.}
 
+\item{geneList}{A list of genes to restrict the analysis. Default NULL.}
+
 \item{chrSilent}{Chromosomes excluded in the analysis. e.g, 1, 2, X, Y. Default NULL.}
 
 \item{mutType}{Select Proper variant classification you need. Default "All". Option: "nonSyn".}
