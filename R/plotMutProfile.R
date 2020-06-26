@@ -23,8 +23,7 @@
 #' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' plotMutProfile(maf, class = "SP")
-#' @import ComplexHeatmap tibble
-#' @importFrom plyr rbind.fill
+#' @import ComplexHeatmap
 #' @export plotMutProfile
 
 
@@ -90,7 +89,14 @@ plotMutProfile <- function(maf,
       }
     }
     
-    maf_data <- plyr::rbind.fill(maf_data_list)
+    #maf_data <- plyr::rbind.fill(maf_data_list)
+    
+    maf_data <- maf_data_list[[1]]
+    
+    for (d in maf_data_list[-1]){
+      maf_data <- rbind(maf_data, d)
+    }
+    maf_data<- as.data.frame(maf_data)
     
     maf_data <- do.classify(maf_data, classByTumor = classByTumor, class = class)
   
@@ -145,9 +151,14 @@ plotMutProfile <- function(maf,
       message(paste0("Warnings: only ", nrow(mat), ' genes was found in this analysis.'))
     } else{
       
-      mat <- mat %>% dplyr::slice(seq_len(topGenesCount)) %>%
+      mat <- mat %>% dplyr::slice(seq_len(topGenesCount))
         
-                     tibble::column_to_rownames(., "Hugo_Symbol") %>% 
+                     #tibble::column_to_rownames(., "Hugo_Symbol") %>% 
+      
+      matTemp <- data.frame(mat[, (seq_len(ncol(mat) - 1) + 1)])  
+      rownames(matTemp) <- mat$Hugo_Symbol
+      
+      mat <- matTemp %>% 
                      dplyr::select(-total_barcode_count) %>%
                      as.matrix()
     }
