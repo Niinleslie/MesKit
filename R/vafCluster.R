@@ -17,7 +17,6 @@
 #' vafCluster(maf)
 #' 
 #' @import ggridges 
-#' @importFrom purrr pluck
 #' @return clustering plots of vaf
 #' @export vafCluster
 
