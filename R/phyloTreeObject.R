@@ -119,7 +119,7 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    
    # print(binary.matrix[!binary.matrix$mut_id %in% mutBranchesOutput$mut_id,])
    
-   mutBranchesOutput <- plyr::rbind.fill(mutBranchesOutput) %>% 
+   mutBranchesOutput <- dplyr::bind_rows(mutBranchesOutput) %>% 
        dplyr::select(-mut_id)
    
    branch.type <- mutBranchesOutput %>% 

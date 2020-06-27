@@ -183,7 +183,7 @@ testNeutral <- function(maf,
 
 # if(plot){
 #     ## combind data of all patients
-#     violin.data <- do.call(plyr::rbind.fill, testNeutral.out$neutrality.metrics)
+#     violin.data <- do.call(dplyr::bind_rows, testNeutral.out$neutrality.metrics)
 #     if(nrow(violin.data) != 0){
 #         y.min <- floor(min(violin.data$R2)*10)/10 
 #         breaks.y <-  seq(y.min, 1, (1-y.min)/3)

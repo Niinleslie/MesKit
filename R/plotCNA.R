@@ -40,7 +40,7 @@ plotCNA <- function(seg,
     
     ## combine data frame
     if(is(seg, "list")){
-        seg <- plyr::rbind.fill(seg) %>% as.data.table()
+        seg <- dplyr::bind_rows(seg) %>% as.data.table()
     }
     
     if(!is.null(chrSilent)){

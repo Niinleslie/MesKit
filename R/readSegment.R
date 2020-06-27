@@ -19,7 +19,7 @@
 #'                    gisticAllLesionsFile = gisticAllLesionsFile)
 #'
 #' @return a list of segmentation data frame
-#' @importFrom data.table foverlaps as.data.table setkey
+#' @importFrom data.table foverlaps as.data.table setkey rbindlist
 #' @export readSegment
 #'
 

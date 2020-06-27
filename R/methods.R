@@ -4,6 +4,9 @@
 #' @return Maf data
 #' @exportMethod getMafData
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' getMafData(maf)
 setGeneric(name = "getMafData", function(object) standardGeneric("getMafData"))
 
@@ -18,6 +21,9 @@ setMethod(f = "getMafData",signature = "Maf", function(object)object@data)
 #' @return Sample information
 #' @exportMethod getSampleInfo
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' getSampleInfo(maf)
 setGeneric(name = "getSampleInfo", function(object) standardGeneric("getSampleInfo"))
 
@@ -30,7 +36,10 @@ setMethod(f = "getSampleInfo", signature = "Maf", function(object)object@sample.
 #' @param object An object of Maf
 #' @return A list of Variant classifications which are considered as non-silent.
 #' @exportMethod getNonSyn_vc
-#' @examples 
+#' @examples
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19") 
 #' getNonSyn_vc(maf)
 setGeneric(name = "getNonSyn_vc", function(object) standardGeneric("getNonSyn_vc"))
 
@@ -44,6 +53,9 @@ setMethod(f = "getNonSyn_vc", signature = "Maf", function(object)object@nonSyn.v
 #' @return Human reference genome versions of Maf
 #' @exportMethod getMafRef
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' getMafRef(maf)
 setGeneric(name = "getMafRef", function(object) standardGeneric("getMafRef"))
 
@@ -58,6 +70,9 @@ setMethod(f = "getMafRef",signature = "Maf", function(object)object@ref.build)
 #' @return Human reference genome versions of Maf
 #' @exportMethod getMafPatient
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' getMafPatient(maf)
 setGeneric(name = "getMafPatient", function(object) standardGeneric("getMafPatient"))
 
@@ -72,6 +87,10 @@ setMethod(f = "getMafPatient", signature = "Maf", function(object)unique(getMafD
 #' @return Tree object of phyloTree
 #' @exportMethod getTree
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getTree(phyloTree)
 setGeneric(name = "getTree", function(object) standardGeneric("getTree"))
 
@@ -86,6 +105,10 @@ setMethod(f = "getTree", signature = "phyloTree", function(object)object@tree)
 #' @return Binary matrix of phyloTree
 #' @exportMethod getBinaryMatrix
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getBinaryMatrix(phyloTree)
 setGeneric(name = "getBinaryMatrix", function(object) standardGeneric("getBinaryMatrix"))
 
@@ -99,6 +122,10 @@ setMethod(f = "getBinaryMatrix", signature = "phyloTree", function(object)object
 #' @return patientID of phyloTree
 #' @exportMethod getPhyloTreePatient
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getPhyloTreePatient(phyloTree)
 setGeneric(name = "getPhyloTreePatient", function(object) standardGeneric("getPhyloTreePatient"))
 
@@ -112,6 +139,10 @@ setMethod(f = "getPhyloTreePatient", signature = "phyloTree", function(object)ob
 #' @return Bootstrap value of phyloTree
 #' @exportMethod getBootstrapValue
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getBootstrapValue(phyloTree)
 setGeneric(name = "getBootstrapValue", function(object) standardGeneric("getBootstrapValue"))
 
@@ -125,6 +156,10 @@ setMethod(f = "getBootstrapValue",signature = "phyloTree", function(object)objec
 #' @return Tree construction method of phyloTree
 #' @exportMethod getTreeMethod
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getTreeMethod(phyloTree)
 setGeneric(name = "getTreeMethod", function(object) standardGeneric("getTreeMethod"))
 
@@ -138,6 +173,10 @@ setMethod(f = "getTreeMethod",signature = "phyloTree", function(object)object@me
 #' @return CCF matrix of phyloTree
 #' @exportMethod getCCFMatrix
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getCCFMatrix(phyloTree)
 setGeneric(name = "getCCFMatrix", function(object) standardGeneric("getCCFMatrix"))
 
@@ -151,6 +190,10 @@ setMethod(f = "getCCFMatrix",signature = "phyloTree", function(object)object@ccf
 #' @return Branches mutation of phyloTree
 #' @exportMethod getMutBranches
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getMutBranches(phyloTree)
 setGeneric(name = "getMutBranches", function(object) standardGeneric("getMutBranches"))
 
@@ -164,6 +207,10 @@ setMethod(f = "getMutBranches",signature = "phyloTree", function(object)object@m
 #' @return Branch type of phyloTree
 #' @exportMethod getBranchType
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getBranchType(phyloTree)
 setGeneric(name = "getBranchType", function(object) standardGeneric("getBranchType"))
 
@@ -177,6 +224,10 @@ setMethod(f = "getBranchType",signature = "phyloTree", function(object)object@br
 #' @return Reference genome versions of phyloTree
 #' @exportMethod getPhyloTreeRef
 #' @examples 
+#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' phyloTree <- getPhyloTree(maf)
 #' getPhyloTreeRef(phyloTree)
 setGeneric(name = "getPhyloTreeRef", function(object) standardGeneric("getPhyloTreeRef"))
 
