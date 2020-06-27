@@ -89,8 +89,6 @@ plotMutProfile <- function(maf,
       }
     }
     
-    #maf_data <- dplyr::bind_rows(maf_data_list)
-    
     maf_data <- maf_data_list[[1]]
     
     for (d in maf_data_list[-1]){

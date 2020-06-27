@@ -220,11 +220,11 @@ del.genes <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "Mes
 
 seg <- readSegment(segFile = segCN, gisticAllLesionsFile = all.lesions,
                    gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes)
-seg[1:5, ]
+seg$HCC8257[1:5, ]
 ```
 
 
-```{r, error=TRUE, fig.width=10, fig.align='left', fig.height=5}
+```{r, fig.width=10, fig.align='left', fig.height=5}
 plotCNA(seg, patient.id = c("HCC5647", "HCC8257", "HCC6690"))
 ```  
 
@@ -400,7 +400,7 @@ library(org.Hs.eg.db)
 library(clusterProfiler)
 
 # Pathway enrichment analysis
-HCC8257.branches <- phyloTree@mut.branches
+HCC8257.branches <- getMutBranches(phyloTree)
 
 # pathway enrichment for public mutated genes in patient HCC8257
 HCC8257_Public <- HCC8257.branches[HCC8257.branches$Mutation_Type == "Public", ]
