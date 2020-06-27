@@ -159,7 +159,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             diff_spectrum$Proportion <- recon_spectrum$Proportion - diff_spectrum$Proportion
             diff_spectrum$spectrum_type <- "Difference" 
             
-            mut_spectrum <- plyr::rbind.fill(recon_spectrum, origin_spectrum, diff_spectrum) %>% 
+            mut_spectrum <- dplyr::bind_rows(recon_spectrum, origin_spectrum, diff_spectrum) %>% 
                 dplyr::rowwise() %>% 
                 dplyr::mutate(Group = paste(
                     strsplit(Type,"")[[1]][3:5],

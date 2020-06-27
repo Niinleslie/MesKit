@@ -17,7 +17,6 @@
 #' vafCluster(maf)
 #' 
 #' @import ggridges 
-#' @importFrom purrr pluck
 #' @return clustering plots of vaf
 #' @export vafCluster
 
@@ -42,10 +41,7 @@ vafCluster <-function(maf,
           m <- copyNumberFilter(m,seg)
       }
       
-      maf_data <- subMaf(m,
-                            min.vaf = min.vaf,
-                            max.vaf = max.vaf,
-                            ...)
+      maf_data <- subMaf(m, min.vaf = min.vaf, max.vaf = max.vaf, ...)
       patient <- getMafPatient(m)
       if(nrow(maf_data) == 0){
             message("Warning :there was no mutation in ", patient, " after filtering.")

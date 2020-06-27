@@ -75,7 +75,7 @@ mathScore <- function(maf,
         }
         MATH_list[[patient]] <- MATH.df
     }
-    result <- plyr::rbind.fill(MATH_list)
+    result <- dplyr::bind_rows(MATH_list)
     #y.limits <- c(
         #floor(min(MATH.df$MATH_Score)-15),
         #ceiling(max(MATH.df$MATH_Score)+15)
