@@ -57,7 +57,7 @@ subMaf(
 \item{use.adjVAF}{Let VAF = VAF_adj, Tumor_Average_VAF = Tumor_Average_VAF_adj.Default: FALSE.}
 }
 \value{
-a list of Maf object or Maf data.
+Maf object or Maf data.
 }
 \description{
 Subset Maf object
