@@ -47,7 +47,8 @@ plotCNA <- function(seg,
         seg <- seg[!Chromosome %in% chrSilent]
     }
     
-    
+    chrSilent <- gsub(pattern = 'X', replacement = '23', x = chrSilent, fixed = TRUE)
+    chrSilent <- gsub(pattern = 'Y', replacement = '24', x = chrSilent, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE)
     ## select patients in patient.id 
@@ -109,9 +110,10 @@ plotCNA <- function(seg,
         return(as.numeric(x[pos]) + as.numeric(chrLens[as.numeric(x[chrname]) ]) )
     }
     
-    chrLens =  append(cumsum(chrLens),1,after = 0)
-    chrLabels = seq_len(24)
-    chrTable = data.table::data.table(chr = chrLabels,
+    chrLabels <- seq_len(24)[!seq_len(24) %in% chrSilent]
+    chrLens <- chrLens[as.numeric(chrLabels)]
+    chrLens <- append(cumsum(chrLens),1,after = 0)
+    chrTable <- data.table::data.table(chr = chrLabels,
                                       start = chrLens[seq_len(length(chrLens)-1)],
                                       end = chrLens[2:length(chrLens)])
     chrTable$color = rep(c('black','white'), length = nrow(chrTable))
@@ -306,11 +308,11 @@ plotCNA <- function(seg,
         ## chr bar
         geom_rect(data = chrTable,
                   mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),
-                  fill = rep(c("black","white"), 12), color = "black")+
+                  fill = rep(c("black","white"), length(chrLens) %/% 2), color = "black")+
         geom_text(data = chrTable,
                   mapping = aes(x = start + (end - start)/2, y = chrom.bar.height/2, label = chr), 
                   size = chrom.text.size,
-                  color = rep(c("white","black"), 12))+
+                  color = rep(c("white","black"), length(chrLens)%/% 2))+
         
         ## vertical line 
         geom_segment(aes(x = chrTable$end[seq_len(nrow(chrTable)-1)],
