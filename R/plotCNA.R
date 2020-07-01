@@ -43,12 +43,14 @@ plotCNA <- function(seg,
         seg <- dplyr::bind_rows(seg) %>% as.data.table()
     }
     
-    if(!is.null(chrSilent)){
-        seg <- seg[!Chromosome %in% chrSilent]
+    if(!is.null(chrSilent)){    
+        chrSilent <- gsub(pattern = 'chr', replacement = '', x = chrSilent, fixed = TRUE)
+        seg <- seg[!Chromosome %in% chrSilent]        
+        chrSilent <- gsub(pattern = 'X', replacement = '23', x = chrSilent, fixed = TRUE)
+        chrSilent <- gsub(pattern = 'Y', replacement = '24', x = chrSilent, fixed = TRUE)
     }
     
-    chrSilent <- gsub(pattern = 'X', replacement = '23', x = chrSilent, fixed = TRUE)
-    chrSilent <- gsub(pattern = 'Y', replacement = '24', x = chrSilent, fixed = TRUE)
+
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE)
     ## select patients in patient.id 
@@ -293,7 +295,17 @@ plotCNA <- function(seg,
     ## convert chromosome name
     chrTable$chr = gsub(pattern = '23', replacement = 'X', x = chrTable$chr, fixed = TRUE)
     chrTable$chr = gsub(pattern = '24', replacement = 'Y', x = chrTable$chr, fixed = TRUE)
-    
+    chr_bar_color <- c()
+    chr_text_color <- c()
+    for(i in seq_len(length(chrLabels))){
+        if((i %% 2) == 0){
+            chr_bar_color <- c(chr_bar_color, "white")
+            chr_text_color <- c(chr_text_color, "black")
+        }else{
+            chr_bar_color <- c(chr_bar_color, "black")
+            chr_text_color <- c(chr_text_color, "white")
+        }
+    }
     p <- ggplot()+
         ## background color
         geom_rect(data = backgroundTable, 
@@ -308,11 +320,11 @@ plotCNA <- function(seg,
         ## chr bar
         geom_rect(data = chrTable,
                   mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),
-                  fill = rep(c("black","white"), length(chrLens) %/% 2), color = "black")+
+                  fill = chr_bar_color, color = "black")+
         geom_text(data = chrTable,
                   mapping = aes(x = start + (end - start)/2, y = chrom.bar.height/2, label = chr), 
                   size = chrom.text.size,
-                  color = rep(c("white","black"), length(chrLens)%/% 2))+
+                  color = chr_text_color)+
         
         ## vertical line 
         geom_segment(aes(x = chrTable$end[seq_len(nrow(chrTable)-1)],
