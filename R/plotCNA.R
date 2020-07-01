@@ -108,26 +108,38 @@ plotCNA <- function(seg,
                     58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
     }
     
-    updatePosition <- function(x,pos,chrname,chrLens){
-        return(as.numeric(x[pos]) + as.numeric(chrLens[as.numeric(x[chrname]) ]) )
-    }
-    
     chrLabels <- seq_len(24)[!seq_len(24) %in% chrSilent]
     chrLens <- chrLens[as.numeric(chrLabels)]
     chrLens <- append(cumsum(chrLens),1,after = 0)
     chrTable <- data.table::data.table(chr = chrLabels,
                                       start = chrLens[seq_len(length(chrLens)-1)],
                                       end = chrLens[2:length(chrLens)])
-    chrTable$color = rep(c('black','white'), length = nrow(chrTable))
+    chr_bar_color <- c()
+    chr_text_color <- c()
+    for(i in seq_len(length(chrLabels))){
+        if((i %% 2) == 0){
+            chr_bar_color <- c(chr_bar_color, "white")
+            chr_text_color <- c(chr_text_color, "black")
+        }else{
+            chr_bar_color <- c(chr_bar_color, "black")
+            chr_text_color <- c(chr_text_color, "white")
+        }
+    }
+    chrTable$color = chr_bar_color
     
     # for(patient in patients){
     #     seg <- dat.list[[patient]]
-    updateStart <- apply(seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
-    updateEnd <- apply(seg,1,updatePosition,"End_Position","Chromosome",chrLens)
-    updateCytoband.pos <- apply(seg,1,updatePosition,"Cytoband.pos","Chromosome",chrLens)
-    seg$Update_Start <- updateStart
-    seg$Update_End <- updateEnd
-    seg$Cytoband.pos <- updateCytoband.pos
+    chr_start_pos <- as.numeric(chrTable$start) 
+    names(chr_start_pos) <- paste0("chr",chrTable$chr)
+    # chr_end_pos <- as.numeric(chrTable$end) 
+    # names(chr_end_pos) <- paste0("chr",chrTable$chr)
+    
+    seg <- seg %>% 
+        dplyr::mutate(
+            Update_Start = as.numeric(Start_Position) + chr_start_pos[paste0("chr",Chromosome)],
+            Update_End = as.numeric(End_Position) + chr_start_pos[paste0("chr",Chromosome)]
+        )
+    
     seg$hmin <- 0
     seg$hmax <- 0
     h <- chrom.bar.height
@@ -295,17 +307,6 @@ plotCNA <- function(seg,
     ## convert chromosome name
     chrTable$chr = gsub(pattern = '23', replacement = 'X', x = chrTable$chr, fixed = TRUE)
     chrTable$chr = gsub(pattern = '24', replacement = 'Y', x = chrTable$chr, fixed = TRUE)
-    chr_bar_color <- c()
-    chr_text_color <- c()
-    for(i in seq_len(length(chrLabels))){
-        if((i %% 2) == 0){
-            chr_bar_color <- c(chr_bar_color, "white")
-            chr_text_color <- c(chr_text_color, "black")
-        }else{
-            chr_bar_color <- c(chr_bar_color, "black")
-            chr_text_color <- c(chr_text_color, "white")
-        }
-    }
     p <- ggplot()+
         ## background color
         geom_rect(data = backgroundTable, 
