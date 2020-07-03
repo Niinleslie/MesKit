@@ -243,7 +243,7 @@ shinyServer(function(input, output, session){
           vc <- vafCluster(maf, 
                            patient.id = patientid,
                            withinTumor = input$vafcluster_withintumor,
-                           segCN.file = input$vafcluster_segfile,
+                           segFile = input$vafcluster_segfile,
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
                            max.vaf = as.numeric(input$vafcluster_maxvaf))        
           incProgress(amount = 1)
@@ -1593,7 +1593,7 @@ shinyServer(function(input, output, session){
   output$plotcna.patientlist <- renderUI({
       
       if(!is.null(input$plotcna_segfile$datapath)){
-          seg <- readSegment(segCN.file = input$plotcna_segfile$datapath,
+          seg <- readSegment(segFile = input$plotcna_segfile$datapath,
                              gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
                              gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
                              gisticDelGenesFile = input$plotcna_gisticDelGenesFile$datapath,
@@ -1641,7 +1641,7 @@ shinyServer(function(input, output, session){
       
       validate(
           need(!is.null(input$plotcna_segfile$datapath),
-               "PlotCNA need copy number information,upload seg file first"
+               "PlotCNA needs copy number information, upload segmentation file first"
                     )
           )
       

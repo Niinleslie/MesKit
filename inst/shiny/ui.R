@@ -474,10 +474,6 @@ bodyITH <- tabItem("ITH",
                                        title = "Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.",
                                        placement = "top",
                                        trigger = "hover"),
-                             checkboxInput('mutheatmap_useccf',
-                                           value = FALSE,
-                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Use ccf'),
-                                           width = 500),
                              # bsTooltip(id = "mutheatmap_useccf",
                              #           title = "Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.",
                              #           placement = "top",
@@ -1161,7 +1157,7 @@ bodyclone <- tabItem('clone',
                          box(
                            width = NULL,
                            div(strong("Metastatic routes inference"),style = "font-size:27px; font-weight:500;"),
-                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide two functions to help distinguish monoclonal versus polyclonal seeding. ",
+                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide two functions to help distinguish monoclonal from polyclonal seeding. ",
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
@@ -1830,7 +1826,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit:a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations.</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations</span>\');
       })
      ')), 
       
