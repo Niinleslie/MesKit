@@ -11,12 +11,13 @@
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' vafCluster(maf)
 #' 
-#' @import ggridges 
+#' @import ggridges mclust
+#' @importFrom grDevices boxplot.stats
 #' @return clustering plots of vaf
 #' @export vafCluster
 
@@ -63,7 +64,7 @@ vafCluster <-function(maf,
       
       rebuild_data <- data.frame()
       for (id in id_list){
-          subdata <- maf_data[ID == id]  
+          subdata <- maf_data[maf_data$ID == id]  
           ## data cleaning
           if (nrow(subdata) < 3) {
               message(paste0("Error: mutations of Sample ", id, " are not enough for clustering"))
@@ -97,10 +98,10 @@ vafCluster <-function(maf,
       }
       
       rebuild_data <-  rebuild_data %>% 
-          dplyr::select(Patient_ID, Tumor_Sample_Barcode, Hugo_Symbol,
-                        Chromosome, Start_Position, End_Position, cluster) %>% 
-          dplyr::arrange(cluster) %>% 
-          dplyr::rename(Cluster = cluster)
+          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Hugo_Symbol",
+                        "Chromosome", "Start_Position", "End_Position", "cluster") %>% 
+          dplyr::arrange(.data$cluster) %>% 
+          dplyr::rename("Cluster" = "cluster")
       
       ## combine: print VAF pictures for all samples in one document
       # pic <- cowplot::plot_grid(plotlist = plot_list,ncol = 2)
@@ -132,33 +133,3 @@ vafCluster <-function(maf,
 
 
 
-
-# ## plot all samples' vaf distribution with ggridges
-# else if (plotOption == "compare"){
-#     all_cluster_result <- c()
-#     rebuild_data <- data.frame()
-#     for (id in id_list){
-#         subdata <- maf_data[ID == id]  
-#         if (nrow(subdata) < 3) {
-#             message(paste0("Error: mutations of Sample ", id, " are not enough for clustering"))
-#             maf_data <- maf_data[ID != id]
-#             next
-#         }
-#         ## generate data from different Tumor_Sample_Barcode
-#         message(paste("Processing ", id," of ", patient, sep = ""))
-#         cluster_result <- mclust::densityMclust(subdata$VAF, G=1:7, verbose=FALSE)
-#         subdata$cluster <- as.character(cluster_result$classification)
-#         
-#         ## define outlier
-#         out_vaf <- boxplot.stats(subdata$VAF)$out
-#         subdata[subdata$VAF %in% out_vaf]$cluster <- "outlier"
-#         
-#         rebuild_data <- rbind(subdata, rebuild_data)
-#     }
-#     
-#     # print(all_cluster_result)
-#     maf_data <- rebuild_data
-#     pic <- suppressMessages(drawVAFCompare(maf_data, withinTumor = withinTumor))
-#     result[[patient]] <- pic
-#     next
-# }

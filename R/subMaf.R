@@ -19,8 +19,8 @@
 #'
 #'
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' maf_data <- subMaf(maf)
 #' @return Maf object or Maf data.
@@ -84,44 +84,44 @@ subMaf <- function(maf,
          if(length(chr.setdiff) > 0){
             stop(paste0("Chromosome ", chr.setdiff, " can not be found in your data"))
          }
-         maf_data <- maf_data[!Chromosome %in% chrSilent]
+         maf_data <- maf_data[!maf_data$Chromosome %in% chrSilent]
       }
       
       ## filter variant classification
       mutType <- match.arg(mutType, choices = c("All","nonSyn"), several.ok = FALSE)
       if (mutType == "nonSyn") {
-         maf_data <-  maf_data[Variant_Classification %in% nonSyn.vc]
+         maf_data <-  maf_data[maf_data$Variant_Classification %in% nonSyn.vc]
       }
       
       ## use.indel filter
       if (!use.indel) {
-         maf_data <- maf_data[Variant_Type == "SNP"]
+         maf_data <- maf_data[maf_data$Variant_Type == "SNP"]
       }
       
       ## Select mutations in selected genes
       if(!is.null(geneList)){
-         maf_data <- maf_data[Hugo_Symbol %in% geneList]
+         maf_data <- maf_data[maf_data$Hugo_Symbol %in% geneList]
       }
       
       ## allele depth filter
       maf_data$Ref_allele_depth[is.na(maf_data$Ref_allele_depth)] <- 0
       maf_data$Alt_allele_depth[is.na(maf_data$Alt_allele_depth)] <- 0
-      maf_data <- maf_data[Ref_allele_depth >= min.ref.depth&
-                              Alt_allele_depth >= min.alt.depth &
-                              (Ref_allele_depth + Alt_allele_depth) >= min.total.depth]
+      maf_data <- maf_data[maf_data$Ref_allele_depth >= min.ref.depth&
+                              maf_data$Alt_allele_depth >= min.alt.depth &
+                              (maf_data$Ref_allele_depth + maf_data$Alt_allele_depth) >= min.total.depth]
       
       ## vaf filter
-      maf_data <- maf_data[VAF >= min.vaf & VAF <= max.vaf]
+      maf_data <- maf_data[maf_data$VAF >= min.vaf & maf_data$VAF <= max.vaf]
       if(!is.null(min.average.vaf)){
          if(min.average.vaf > 0){
-            maf_data <- maf_data[Tumor_Average_VAF >=min.average.vaf]
+            maf_data <- maf_data[maf_data$Tumor_Average_VAF >= min.average.vaf]
          }
       }
       
       if("VAF_adj" %in% colnames(maf_data)){
          if(!is.null(min.average.adj.vaf)){
             if(min.average.adj.vaf > 0){
-               maf_data <- maf_data[Tumor_Average_VAF_adj>=min.average.adj.vaf]
+               maf_data <- maf_data[maf_data$Tumor_Average_VAF_adj >= min.average.adj.vaf]
             }
          }
       }
@@ -130,7 +130,7 @@ subMaf <- function(maf,
       if("CCF" %in% colnames(maf_data)){
          if(!is.null(min.ccf)){
             if(min.ccf > 0){
-               maf_data <- maf_data[CCF >= min.ccf]
+               maf_data <- maf_data[maf_data$CCF >= min.ccf]
             }
          }
       }
@@ -140,7 +140,7 @@ subMaf <- function(maf,
             stop("Error:Missing information about clonal status in maf data")
          }
          clonalStatus <- match.arg(clonalStatus, choices = c("Clonal", "Subclonal"))
-         maf_data <- maf_data[Clonal_Status == clonalStatus]
+         maf_data <- maf_data[maf_data$Clonal_Status == clonalStatus]
       }
       
       if(mafObj){

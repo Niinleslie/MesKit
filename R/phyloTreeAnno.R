@@ -15,7 +15,16 @@ plotTree <- function(phyloTree,
     tree <- getTree(phyloTree)
     min.len <- max(tree$edge.length)*min.ratio
     tree$edge.length[tree$edge.length < min.len] <- min.len
-    phyloTree@tree <- tree
+    phyloTree <- new('phyloTree',
+                      patientID = getPhyloTreePatient(phyloTree),
+                      tree = tree, 
+                      binary.matrix = getBinaryMatrix(phyloTree),
+                      ccf.matrix = getCCFMatrix(phyloTree), 
+                      mut.branches = getMutBranches(phyloTree),
+                      branch.type = getBranchType(phyloTree),
+                      ref.build = getPhyloTreeRef(phyloTree),
+                      bootstrap.value = getBootstrapValue(phyloTree),
+                      method = getTreeMethod(phyloTree))
     
     patient <- getPhyloTreePatient(phyloTree)
     if(is.null(treeData)){
@@ -47,7 +56,7 @@ plotTree <- function(phyloTree,
     bootLabelPaddingSize <- 0.15
     legend.text.size <- 10
     legend.title.size <- legend.text.size + 0.5
-    samplesLength <- nrow(treeData[sample != "internal node",]) 
+    samplesLength <- nrow(treeData[treeData$sample != "internal node",]) 
     if(samplesLength > 7){
         samplePointsSize <- 1.5 
         sampleTextSize <- 3
@@ -61,12 +70,13 @@ plotTree <- function(phyloTree,
         legend.text.size <- 9
         legend.title.size <- legend.text.size + 0.5
     }
-    rootNode <- treeData[sample == rootLabel,]$node
+    rootNode <- treeData[treeData$sample == rootLabel,]$node
     if(length(boot_value) == 1){
         bootsData <- data.frame(x2 = 0, y2 = 0, node = rootNode, end_num = rootNode, boots = boot_value)
     }else{
         sub <- data.table::data.table(x2 = 0, y2 = 0,node = rootNode, end_num = rootNode)
-        bootsData <- rbind(treeData[sample == 'internal node',][,.(x2,y2,node,end_num)],sub)
+        bootsData <- rbind(treeData[treeData$sample == 'internal node',] %>% 
+                           dplyr::select("x2","y2","node","end_num"),sub)
         boots <- c()
         LN <- min(bootsData$node)-1
         for(i in seq_len(nrow(bootsData))){      
@@ -79,6 +89,13 @@ plotTree <- function(phyloTree,
         }
         bootsData <- cbind(bootsData, boots = boots)
     }
+    
+    ## initialize
+    x2 <- NULL
+    y2 <- NULL
+    x1 <- NULL
+    y1 <- NULL
+    
     ## get the max value of X axis 
     x_max <- max(abs(treeData$x2))
     p <- ggplot(data = treeData) + 
@@ -92,11 +109,12 @@ plotTree <- function(phyloTree,
         if(branchCol == "mutSig"){
             color_scale <- getSigColors(as.character(unique(treeData$Signature)) )
             sig_level <- levels(treeData$Signature)
+            ## initialize
+            Signature <- NULL
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = Signature), size=segmentSize)
             p <- p + scale_color_manual(breaks = sig_level ,values = color_scale) + 
                 theme(legend.title = element_text(size = legend.title.size))
-        }
-        else{
+        }else{
             ## sort branch tumor type 
             all.types <- unique(treeData$Mutation_Type) 
             public <- all.types[grep("Public", all.types)] 
@@ -118,21 +136,22 @@ plotTree <- function(phyloTree,
             }
             names(type_all_colors) <- type.level
             treeData$Mutation_Type <- factor(treeData$Mutation_Type, levels = type.level)
+            ## initialize
+            Mutation_Type <- NULL
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, color = factor(Mutation_Type)), size=segmentSize)
             ## remove legend title
             p <- p +  theme(legend.title = element_blank()) + 
                 scale_color_manual(breaks = type.level, values = type_all_colors)
         }
-    }
-    else{
+    }else{
         if(compare){
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
                                   color = common.col,
-                                  data = treeData[is.match != "NO"],
+                                  data = treeData[treeData$is.match != "NO"],
                                   size = segmentSize)
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
                                   color = "black",
-                                  data = treeData[is.match == "NO"],size = segmentSize)
+                                  data = treeData[treeData$is.match == "NO"],size = segmentSize)
         }else{
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = "black",
                                   data = treeData, 
@@ -159,29 +178,29 @@ plotTree <- function(phyloTree,
                              nudge_x = textAdjust/10,
                              segment.color = "grey",
                              segment.size = 0.25,
-                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
-                                                 x2 >= 0, ],
+                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
+                                                treeData$x2 >= 0, ],
                              size = sampleTextSize ,force = 10)
     p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
                              nudge_y = textAdjust/10,
                              nudge_x = -textAdjust/10,
                              segment.color = "grey",
                              segment.size = 0.25,
-                             data = treeData[(!sample %in% c("internal node",rootLabel)) &
-                                                 x2 < 0, ],
+                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
+                                                treeData$x2 < 0, ],
                              size = sampleTextSize ,force = 10)
     ## label NORMAL
     p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
                        label = rootLabel,
-                       data = treeData[sample == rootLabel,], 
+                       data = treeData[treeData$sample == rootLabel,], 
                        size = sampleTextSize)
     
     p <- p + geom_point(aes(x = x2,y = y2),
-                        data = treeData[sample == 'internal node',],
+                        data = treeData[treeData$sample == 'internal node',],
                         size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
                         stroke = nodeStrokeSize)
     p <- p + geom_point(aes(x = x2, y = y2), 
-                        data = treeData[sample != 'internal node',],
+                        data = treeData[treeData$sample != 'internal node',],
                         size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
     Nd <- treeData[sample == rootLabel,]$distance
     if(length(Nd)!=0){
@@ -203,8 +222,9 @@ plotTree <- function(phyloTree,
                                   force = 5)
     }
     if(compare){
-        p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2,label = is.match),
-                                  data = treeData[is.match != "NO",],
+      is.match <- NULL
+        p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2, label = is.match),
+                                  data = treeData[treeData$is.match != "NO",],
                                   fontface = 'bold', 
                                   size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
                                   segment.colour = "grey50", segment.size = 0.5, force = 5)
@@ -272,7 +292,7 @@ getTreeData <- function(phyloTree = NULL,
       while(TRUE){
          node <- nodeNoOnTree[t]
          subnodes <- subnumlist[[node]]
-         subEdge <- treeEdge[node %in% subnodes, ]
+         subEdge <- treeEdge[treeEdge$node %in% subnodes, ]
          rootNode <- node
          numNORMAL <- NULL
          mainTrunk <- calMainTrunk(tree, subEdge, rootNode = rootNode, rootLabel = "")
@@ -281,8 +301,8 @@ getTreeData <- function(phyloTree = NULL,
          pointsList <- ccn[[2]]
          nodeNoOnTree <- append(nodeNoOnTree,ccn[[3]])
          nodeOnTree <- append(nodeOnTree,ccn[[4]])
-         horizon <- treeData[end_num == rootNode,]$angle
-         W <- treeData[end_num == rootNode,]$W
+         horizon <- treeData[treeData$end_num == rootNode,]$angle
+         W <- treeData[treeData$end_num == rootNode,]$W
          gta <- getNodeAngle(tree = tree, treeEdge = subEdge,
                                mainTrunk = mainTrunk, numList = numList,
                                pointsList = pointsList, rootNode = rootNode,
@@ -327,13 +347,13 @@ getTreeData <- function(phyloTree = NULL,
          i = i+1
       }
    }
-   if(nrow(treeData[x2 > 0,]) == 0){
+   if(nrow(treeData[treeData$x2 > 0,]) == 0){
       maxy <- which.max(treeData$y2)
       angle <- treeData$angle[maxy] - pi/18
       treeData$angle[maxy] <- angle
       treeData$y2[maxy] <- treeData$distance[maxy]*sin(angle) + treeData$y1[maxy]
       treeData$x2[maxy] <- treeData$distance[maxy]*cos(angle) + treeData$x1[maxy]
-   }else if(nrow(treeData[x2 < 0,]) == 0){
+   }else if(nrow(treeData[treeData$x2 < 0,]) == 0){
       maxy <- which.max(treeData$y2)
       angle <- treeData$angle[maxy] + pi/18
       treeData$angle[maxy] <- angle
@@ -378,12 +398,12 @@ getTreeData <- function(phyloTree = NULL,
               sig_level <- gsub('SBS', '', sig_level)
           }
           treeData$Signature <- signatures[treeData$label]
-          treeData[Signature == ''|is.na(Signature)]$Signature <- "Unknown"
+          treeData[treeData$Signature == ''| is.na(treeData$Signature)]$Signature <- "Unknown"
           if("Unknown" %in% treeData$Signature){
               sig_level <- c(sig_level,"Unknown")
           }
           treeData$Signature <- factor(treeData$Signature, levels = sig_level)
-          treeData <- treeData[order(Signature), ]
+          treeData <- treeData[order(treeData$Signature), ]
       }else{
           branch_type <- getBranchType(phyloTree)
           types <- as.character(branch_type$Mutation_Type)
@@ -393,7 +413,7 @@ getTreeData <- function(phyloTree = NULL,
               # as.data.table()
       }
    }
-   treeData <- treeData[distance!= 0|sample == rootLabel]
+   treeData <- treeData[treeData$distance!= 0|treeData$sample == rootLabel,]
    return(treeData)
 }
 
@@ -403,11 +423,11 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacent
    trunkPath <- rev(c(mainTrunk,rootNode))
    if(length(trunkPath) > 0){
       for(i in 2:length(trunkPath)){
-         x1 <- treeData[end_num == trunkPath[i-1],]$x2
-         y1 <- treeData[end_num == trunkPath[i-1],]$y2
+         x1 <- treeData[treeData$end_num == trunkPath[i-1],]$x2
+         y1 <- treeData[treeData$end_num == trunkPath[i-1],]$y2
          W <- W
          angle <- horizon
-         distance <- treeEdge[endNum == trunkPath[i],]$length
+         distance <- treeEdge[treeEdge$endNum == trunkPath[i],]$length
          if(horizon == pi/2){
             x2 <- x1
             y2 <- y1 + distance
@@ -426,12 +446,12 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacent
    if(length(adjacentPoints) > 0){
       for(i in seq_len(length(adjacentPoints))){
          point <- adjacentPoints[i]
-         startnode <- treeEdge[endNum == point, ]$node
-         x1 <- treeData[end_num == startnode,]$x2
-         y1 <- treeData[end_num == startnode,]$y2
+         startnode <- treeEdge[treeEdge$endNum == point, ]$node
+         x1 <- treeData[treeData$end_num == startnode,]$x2
+         y1 <- treeData[treeData$end_num == startnode,]$y2
          W <- adjacentWs[point]
          angle <- adjacentAngles[point]
-         distance <- treeEdge[endNum == point, ]$length
+         distance <- treeEdge[treeEdge$endNum == point, ]$length
          x2 <- x1 + distance*cos(angle)
          y2 <- y1 + distance*sin(angle)
          subdat <- data.table::data.table('x1'= x1, 'y1' = y1,
@@ -447,7 +467,7 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacent
 
 calMainTrunk <- function(tree, treeEdge, rootNode, rootLabel = "NORMAL"){
    Ntips <- Ntip(tree)
-   subtips <- treeEdge[!endNum > Ntips,]$endNum
+   subtips <- treeEdge[!treeEdge$endNum > Ntips,]$endNum
    distanceTable <- data.frame(x = 0)
    for(i in seq_len(length(subtips))){
       distanceTable <- cbind(distanceTable, -1)
@@ -485,12 +505,12 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
                            horizon = pi/2, W = pi ,numNORMAL = NULL){
     # print(pointsList)
    if(!is.null(numNORMAL)){
-      treeEdge <- treeEdge[endNum != numNORMAL,]    
+      treeEdge <- treeEdge[treeEdge$endNum != numNORMAL,]    
    }
    nodes <- factor(rev(c(mainTrunk,rootNode)), levels = rev(c(mainTrunk,rootNode)))
    adjacentPoints <- c()
    for(n in nodes){
-      p <- treeEdge[node == n,]$endNum %>% setdiff(nodes)
+      p <- treeEdge[treeEdge$node == n,]$endNum %>% setdiff(nodes)
       adjacentPoints <- append(adjacentPoints,p)
    }
    left <- c()
@@ -618,15 +638,15 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
          next
       }
       start <- pointsList[i]
-      end <- as.numeric(treeEdge[endNum == start,]$node)
+      end <- as.numeric(treeEdge[treeEdge$endNum == start,]$node)
       while(TRUE){
          pos <- which(pointsList == end)
          numList[pos] <- numList[pos] + 1
          if(end == rootNode){
             break
          }
-         start <- treeEdge[endNum == end, ]$endNum
-         end <- treeEdge[endNum == end, ]$node
+         start <- treeEdge[treeEdge$endNum == end, ]$endNum
+         end <- treeEdge[treeEdge$endNum == end, ]$node
       }
       # if(count > 1){
       #     numList[i] <- 0
@@ -635,7 +655,7 @@ calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
    ## samples are not in mainTrunk
    nodeRange <- c(Ntip(tree)+1):(length(tree$edge.length)+1)
    nodeOnTree <- c(mainTrunk,rootNode) %>% intersect(nodeRange)
-   nodeNoOnTree <- treeEdge[node %in% c(mainTrunk,rootNode), ]$endNum %>% setdiff(nodeOnTree) %>% intersect(nodeRange)
+   nodeNoOnTree <- treeEdge[treeEdge$node %in% c(mainTrunk,rootNode), ]$endNum %>% setdiff(nodeOnTree) %>% intersect(nodeRange)
    return(list(numList,pointsList, nodeNoOnTree, nodeOnTree))
 }
 

@@ -24,10 +24,11 @@ A data.frame of MATH scores
 calculates MATH score of each tumor sample or based on Mutant-Allele Tumor Heterogeneity (MATH) approach.
 }
 \examples{
-maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 mathScore(maf)
+
 }
 \references{
 Mroz, Edmund A. et al. Intra-Tumor Genetic Heterogeneity and Mortality in Head and Neck Cancer: Analysis of Data from The Cancer Genome Atlas. Ed. Andrew H. Beck. PLoS Medicine 12.2 (2015): e1001786.

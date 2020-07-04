@@ -11,8 +11,8 @@
 #' @return A data.frame with classification of mutations for each patient 
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' classifyMut(maf, class = "SP")
 #' @export classifyMut
@@ -42,15 +42,18 @@ classifyMut <- function(
             classByTumor = classByTumor
         ) %>% 
             dplyr::mutate(Mut_ID = paste(
-                Hugo_Symbol, Chromosome,
-                Start_Position,
-                Reference_Allele, 
-                Tumor_Seq_Allele2,
+                .data$Hugo_Symbol, 
+                .data$Chromosome,
+                .data$Start_Position,
+                .data$Reference_Allele, 
+                .data$Tumor_Seq_Allele2,
                 sep = ":"
             )) %>%
             dplyr::select(
-                Patient_ID, Tumor_Sample_Barcode,
-                Mut_ID, Mutation_Type)
+                "Patient_ID", 
+                "Tumor_Sample_Barcode",
+                "Mut_ID", 
+                "Mutation_Type")
         
         result[[patient]] <- mut.class
         

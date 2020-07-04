@@ -17,14 +17,15 @@ readGisticGene <- function(gisticGenesFile = NULL, Gistic.type = NULL){
     colnames(gisticGenes) <- c( 'cytoband', paste0( colnames(gisticGenes)[2:length(colnames(gisticGenes))], '_',wpb))
     
     gisticGenes <- suppressWarnings(data.table::melt(gisticGenes, id.vars = 'cytoband'))
-    gisticGenes <- gisticGenes[!value %in% '']
+    gisticGenes <- gisticGenes[!gisticGenes$value %in% '']
     
     #gisticGenes <- gisticGenes[!grep(pattern = '|', x = gisticGenes$value, fixed = TRUE)] #remove genes with ambiguous annotation
-    gisticGenes <- gisticGenes[,.(variable, value)] %>%
-      tidyr::separate(col = variable, into = c("Cytoband", "Wide_Peak_Boundaries"), 
+    gisticGenes <- gisticGenes  %>% 
+      dplyr::select("variable", "value") %>%
+      tidyr::separate(col = "variable", into = c("Cytoband", "Wide_Peak_Boundaries"), 
                       sep = "_", remove = TRUE) %>%
-      dplyr::mutate(Gene=sub("\\|.+", "", value), Gistic.type = Gistic.type) %>%
-      dplyr::select(-value)
+      dplyr::mutate(Gene=sub("\\|.+", "", .data$value), Gistic.type = Gistic.type) %>%
+      dplyr::select(-"value")
     
     return(gisticGenes)
   }
@@ -44,10 +45,10 @@ readGisticAllLesions <- function(gisticAllLesionsFile = NULL, verbose = TRUE){
   gisticLesions <- gisticLesions %>%
     dplyr::select(1,2,3,6) %>%
     `colnames<-` (c("PeakID", "Cytoband", "WPB", "Qvalue")) %>%
-    dplyr::filter(!grepl("values", PeakID)) %>%
+    dplyr::filter(!grepl("values", .data$PeakID)) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(WPB = strsplit(WPB, split = "(", fixed =  TRUE)[[1]][1]) %>%
-    dplyr::mutate(Gistic.type = substr(PeakID, start = 1, stop = 3), PeakID = NULL) %>% as.data.table()
+    dplyr::mutate(WPB = strsplit(.data$WPB, split = "(", fixed =  TRUE)[[1]][1]) %>%
+    dplyr::mutate(Gistic.type = substr(.data$PeakID, start = 1, stop = 3), PeakID = NULL) %>% as.data.table()
   
   return(gisticLesions)
 }

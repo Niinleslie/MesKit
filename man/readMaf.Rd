@@ -33,8 +33,8 @@ an object of Maf or MafList.
 Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC6046.maf", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC6046.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
 }

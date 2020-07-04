@@ -48,7 +48,7 @@ a heatmap plot of CNA profile
 plotCNA
 }
 \examples{
-segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
+segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
 seg <- readSegment(segFile = segFile)
 plotCNA(seg)
 

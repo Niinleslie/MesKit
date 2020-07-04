@@ -11,10 +11,12 @@
 #' @return A data.frame of MATH scores
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' mathScore(maf)
+#' 
+#' @importFrom stats median
 #' @export mathScore
 
 ## MATH Score main function
@@ -49,8 +51,8 @@ mathScore <- function(maf,
         calMATH <- function(VAF){
             VAF = VAF[!is.na(VAF)] 
             
-            MAD <- 1.4826 * median(abs(VAF - median(VAF)))
-            MATH <- 100 * MAD / median(VAF)
+            MAD <- 1.4826 * stats::median(abs(VAF - stats::median(VAF)))
+            MATH <- 100 * MAD / stats::median(VAF)
             return(round(MATH, digits=3))
         }
         
@@ -61,15 +63,15 @@ mathScore <- function(maf,
             }
             
             MATH.df <- maf_data %>% 
-                dplyr::group_by(Patient_ID, Tumor_ID) %>%
-                dplyr::summarise(MATH_Score = calMATH(Tumor_Average_VAF)) %>%
+                dplyr::group_by(.data$Patient_ID, .data$Tumor_ID) %>%
+                dplyr::summarise(MATH_Score = calMATH(.data$Tumor_Average_VAF)) %>%
                 dplyr::ungroup() %>% 
                 as.data.frame()
         }
         else{
             MATH.df <- maf_data %>%
-                dplyr::group_by(Patient_ID, Tumor_Sample_Barcode) %>%
-                dplyr::summarise(MATH_Score = calMATH(VAF)) %>%
+                dplyr::group_by(.data$Patient_ID, .data$Tumor_Sample_Barcode) %>%
+                dplyr::summarise(MATH_Score = calMATH(.data$VAF)) %>%
                 dplyr::ungroup() %>% 
                 as.data.frame()
         }

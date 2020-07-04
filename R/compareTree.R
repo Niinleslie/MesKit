@@ -17,11 +17,11 @@
 #' Weighted.path.difference	 difference in the path length, counted using branches lengths
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' phyloTree1 <- getPhyloTree(maf, method = "NJ")
-#' phyloTree2 <- getPhyloTree(maf, method = "MP")
+#' phyloTree1 <- getPhyloTree(maf$HCC5647, method = "NJ")[[1]]
+#' phyloTree2 <- getPhyloTree(maf$HCC5647, method = "MP")[[1]]
 #' compareTree(phyloTree1, phyloTree2)
 #' compareTree(phyloTree1, phyloTree2, plot = TRUE)
 #' @export compareTree
@@ -64,8 +64,8 @@ compareTree <- function(phyloTree1,
 	                next
 	            }
 	            else{
-	                pos1 <- which(treedat1$end_num == treedat1[sample == "internal node",]$end_num[i])
-	                pos2 <- which(treedat2$end_num == treedat2[sample == "internal node",]$end_num[m12[i]])
+	                pos1 <- which(treedat1$end_num == treedat1[treedat1$sample == "internal node",]$end_num[i])
+	                pos2 <- which(treedat2$end_num == treedat2[treedat2$sample == "internal node",]$end_num[m12[i]])
 	                treedat1$is.match[pos1] <- paste0("com", x)
 	                treedat2$is.match[pos2] <- paste0("com", x)
 	                x <- x + 1

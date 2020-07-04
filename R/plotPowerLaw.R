@@ -17,9 +17,14 @@ plotPowerLaw <- function(vafCumsum, test.df, id, max.vaf, lmModel, patient){
  y.max <- max(vafCumsum$count,
               (max(vafCumsum$inv_f)*lmModel$coefficients[1]))
  p <- NA
+ 
+ ## initialize
+ inv_f <- NULL
+ count <- NULL
+
  p <- ggplot(data = vafCumsum, mapping = aes(x = inv_f, y = count)) +
   geom_point()+
-  geom_smooth(method=lm,formula = y ~ x + 0, color="red",se = FALSE)+
+  geom_smooth(method="lm",formula = y ~ x + 0, color="red",se = FALSE)+
   theme(panel.grid =element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank(),

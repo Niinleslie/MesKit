@@ -16,8 +16,8 @@
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
 #'
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' calNeiDist(maf)
 #' @export calNeiDist
@@ -72,17 +72,18 @@ calNeiDist <- function(maf,
         remove = FALSE
       ) %>% 
       dplyr::select(
-        Mut_ID,
-        Tumor_ID,
-        Tumor_Sample_Barcode,
-        CCF)
+        "Mut_ID",
+        "Tumor_ID",
+        "Tumor_Sample_Barcode",
+        "CCF"
+      )
     
     if(!withinTumor){
       Nei_input$Tumor_ID <- "All"
     }
     ids <- unique(Nei_input$Tumor_ID)
     for(id in ids){
-      subdata <- subset(Nei_input, Tumor_ID == id)
+      subdata <- subset(Nei_input, Nei_input$Tumor_ID == id)
       if(withinTumor){
         if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
           message(paste0("Warnings: only one sample was found of ", id,
@@ -98,10 +99,10 @@ calNeiDist <- function(maf,
       }
       
       subdata <- tidyr::pivot_wider(subdata,
-                                    names_from = Tumor_Sample_Barcode,
-                                    values_from = CCF,
-                                    values_fill = list(CCF = 0)) %>%
-        dplyr::select(-Mut_ID, -Tumor_ID)
+                                    names_from = "Tumor_Sample_Barcode",
+                                    values_from = "CCF",
+                                    values_fill = list("CCF" = 0)) %>%
+        dplyr::select(-"Mut_ID", -"Tumor_ID")
       dist_mat <- diag(1, nrow = ncol(subdata), ncol = ncol(subdata))
       for (i in seq_len(ncol(subdata)-1)) {
         s1 <- colnames(subdata)[i]
