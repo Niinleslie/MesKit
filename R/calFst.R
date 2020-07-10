@@ -29,11 +29,12 @@
 #' @return A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
 #'
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' calFst(maf)
-#' @import dplyr circlize
+#' @import dplyr circlize tidyr
+#' @importFrom utils combn
 #' @export calFst
 
 calFst <- function(
@@ -89,22 +90,22 @@ calFst <- function(
         sep = ":",
         remove = FALSE
       ) %>% 
-      dplyr::mutate(totalDepth=Ref_allele_depth + Alt_allele_depth) %>% 
+      dplyr::mutate(totalDepth = .data$Ref_allele_depth + .data$Alt_allele_depth) %>% 
       dplyr::select(        	
-        Mut_ID,
-        Tumor_ID,
-        Tumor_Sample_Barcode,
-        VAF_adj,
-        totalDepth) %>% 
+        "Mut_ID",
+        "Tumor_ID",
+        "Tumor_Sample_Barcode",
+        "VAF_adj",
+        "totalDepth") %>% 
       ## remove NA(it may be caused by NA of CCF)
-      dplyr::filter(!is.na(VAF_adj))
+      dplyr::filter(!is.na(.data$VAF_adj))
     
     if(!withinTumor){
       Fst_input$Tumor_ID <- "All"
     }
     ids <- unique(Fst_input$Tumor_ID)
     for(id in ids){
-      subdata <- subset(Fst_input, Tumor_ID == id)
+      subdata <- subset(Fst_input, Fst_input$Tumor_ID == id)
       if(withinTumor){
         if(length(unique(subdata$Tumor_Sample_Barcode))  < 2 ){
           message(paste0("Warnings: Only one sample was found of ", id,
@@ -121,29 +122,29 @@ calFst <- function(
       
       ## pairwise heterogeneity
       samples <- as.character(unique(subdata$Tumor_Sample_Barcode))
-      pairs <- combn(length(samples), 2, simplify=FALSE)
+      pairs <- utils::combn(length(samples), 2, simplify=FALSE)
       
       dist_mat <- diag(1, nrow=length(samples), ncol=length(samples))
       rownames(dist_mat) <- samples
       colnames(dist_mat) <- samples
       
       for (pair in pairs){
-        s  <- subset(subdata, Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>%
-          dplyr::select(-Tumor_ID) 
+        s  <- subset(subdata, subdata$Tumor_Sample_Barcode %in% c(samples[pair[1]],samples[pair[2]])) %>%
+          dplyr::select(-"Tumor_ID") 
         maf.pair <- as.data.frame(s) %>% 
           tidyr::pivot_wider(
-            names_from = Tumor_Sample_Barcode,       
-            values_from = c(VAF_adj, totalDepth),
-            values_fill = list(VAF_adj=0, totalDepth=0)
+            names_from = "Tumor_Sample_Barcode",       
+            values_from = c("VAF_adj", "totalDepth"),
+            values_fill = list("VAF_adj" = 0, "totalDepth" = 0)
           )
         colnames(maf.pair) <- c("Mut_ID", "vaf1", "vaf2", "depth1", "depth2")
         
         name <- paste(samples[pair[1]], samples[pair[2]], sep = "_")
         vafCol <- which(grepl("vaf", colnames(maf.pair)))
-        maf.pair <- dplyr::mutate(
-          maf.pair, 
-          covariance = (vaf1-vaf2)^2-(vaf1*(1-vaf1))/(depth1-1)-(vaf2*(1-vaf2))/(depth2-1), 
-          sd = vaf1*(1-vaf2)+vaf2*(1-vaf1)
+        maf.pair <- maf.pair %>% 
+        dplyr::mutate(
+          covariance = (.data$vaf1-.data$vaf2)^2-(.data$vaf1*(1-.data$vaf1))/(.data$depth1-1)-(.data$vaf2*(1-.data$vaf2))/(.data$depth2-1), 
+          sd = .data$vaf1*(1-.data$vaf2)+.data$vaf2*(1-.data$vaf1)
         )
         fst <- mean(maf.pair$covariance)/mean(maf.pair$sd)
         dist_mat[pair[1], pair[2]] <- dist_mat[pair[2], pair[1]] <- fst

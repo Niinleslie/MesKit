@@ -12,8 +12,8 @@
 #' 
 #' @importFrom pracma lsqnonneg
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' 
 #' ## Load a reference genome.
@@ -185,8 +185,8 @@ fitSignatures <- function(tri_matrix = NULL,
     }
     ## order data frame by contribution of each branch
     signatures_aetiology <- dplyr::arrange(signatures_aetiology,
-                                           dplyr::desc(Branch),
-                                           dplyr::desc(Contribution))
+                                           dplyr::desc(.data$Branch),
+                                           dplyr::desc(.data$Contribution))
     
     result[[patient]] <- list(
       reconstructed.mat = recon_matrix,

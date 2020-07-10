@@ -10,13 +10,14 @@
 #'
 #'
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
 #' @return an object of Maf or MafList.
 #' @import methods
 #' @importFrom data.table fread setkey 
+#' @importFrom stats qnorm
 #' @export readMaf
 
 
@@ -62,9 +63,9 @@ readMaf <- function(
     
     ## calculate average VAF
     maf_data <- maf_data %>% 
-        dplyr::group_by(Patient_ID,Tumor_ID,Chromosome,Start_Position,Reference_Allele,Tumor_Seq_Allele2) %>%
-        dplyr::mutate(Total_allele_depth = Ref_allele_depth + Alt_allele_depth) %>% 
-        dplyr::mutate(Tumor_Average_VAF = round(sum(VAF * Total_allele_depth)/sum(Total_allele_depth),3)) %>% 
+        dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2) %>%
+        dplyr::mutate(Total_allele_depth = .data$Ref_allele_depth + .data$Alt_allele_depth) %>% 
+        dplyr::mutate(Tumor_Average_VAF = round(sum(.data$VAF * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3)) %>% 
         dplyr::ungroup() %>% 
         as.data.frame()
     
@@ -92,30 +93,30 @@ readMaf <- function(
     ## calculate average adjust VAF
     if("VAF_adj" %in% colnames(maf_data)){
         maf_data <- maf_data %>%
-            dplyr::group_by(Patient_ID, Tumor_ID, Chromosome, 
-                            Start_Position, Reference_Allele,Tumor_Seq_Allele2) %>%
-            dplyr::mutate(Tumor_Average_VAF_adj = round(sum(VAF_adj * Total_allele_depth)/sum(Total_allele_depth),3))
+            dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, 
+                            .data$Start_Position, .data$Reference_Allele,.data$Tumor_Seq_Allele2) %>%
+            dplyr::mutate(Tumor_Average_VAF_adj = round(sum(.data$VAF_adj * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3))
     }
     
     maf_data <- maf_data %>% 
         dplyr::ungroup() %>% 
-        dplyr::select(-Total_allele_depth) %>% 
+        dplyr::select(-"Total_allele_depth") %>% 
         as.data.frame()
     
     data_list <- split(maf_data, maf_data$Patient_ID)
     maf_patient_list <- list()
     for(data in data_list){
         patient <- unique(data$Patient_ID)
-        info <- data %>% 
-            dplyr::select(Tumor_Sample_Barcode,Tumor_ID) %>%
-            dplyr::distinct(Tumor_Sample_Barcode, .keep_all = TRUE)
-        if(nrow(info) < 2){
+        sample.info <- data %>% 
+            dplyr::select("Tumor_Sample_Barcode","Tumor_ID") %>%
+            dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
+        if(nrow(sample.info) < 2){
             stop("Error: each patient should have at least two tumor samples.")
         }
         ## set Maf
         maf <- Maf(
             data = data.table::setDT(data),
-            sample.info = as.data.frame(info),
+            sample.info = as.data.frame(sample.info),
             nonSyn.vc = nonSyn.vc,
             ref.build = refBuild
         )

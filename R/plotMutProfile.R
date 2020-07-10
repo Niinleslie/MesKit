@@ -19,11 +19,12 @@
 #' @return Mutation profile
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' plotMutProfile(maf, class = "SP")
 #' @import ComplexHeatmap
+#' @importFrom stats na.omit
 #' @export plotMutProfile
 
 
@@ -103,16 +104,16 @@ plotMutProfile <- function(maf,
       maf_data <- maf_data %>%
         dplyr::rowwise() %>%
         dplyr::mutate(Selected_Mut = dplyr::if_else(
-          any(Hugo_Symbol %in% geneList),
+          any(.data$Hugo_Symbol %in% geneList),
           TRUE,
           FALSE)) %>%
-        dplyr::filter(Selected_Mut)
+        dplyr::filter(.data$Selected_Mut)
    }
     
    patient.split <- maf_data %>%
-     dplyr::select(Patient_ID, Tumor_Sample_Barcode) %>%
+     dplyr::select("Patient_ID", "Tumor_Sample_Barcode") %>%
      dplyr::distinct() %>%
-     dplyr::select(Patient_ID) %>%
+     dplyr::select("Patient_ID") %>%
      as.matrix() %>%
      as.vector() %>%
      as.character()
@@ -121,28 +122,27 @@ plotMutProfile <- function(maf,
     if(length(unique(patient.split)) == 1){
         patient.split = NULL
     }
-
     # long -> wider
     mat <- maf_data %>%
         dplyr::ungroup() %>%
-        dplyr::group_by(Hugo_Symbol) %>%
+        dplyr::group_by(.data$Hugo_Symbol) %>%
         dplyr::mutate(
-            total_barcode_count = sum(unique_barcode_count)
+            total_barcode_count = sum(.data$unique_barcode_count)
             ) %>%
-        dplyr::select(Hugo_Symbol,
-                      Patient_ID,
-                      Tumor_Sample_Barcode,
-                      Mutation_Type,
-                      total_barcode_count
+        dplyr::select("Hugo_Symbol",
+                      "Patient_ID",
+                      "Tumor_Sample_Barcode",
+                      "Mutation_Type",
+                      "total_barcode_count"
                       ) %>%
         tidyr::pivot_wider(
             #names_from = Tumor_Sample_Barcode,
-            names_from = c(Patient_ID, Tumor_Sample_Barcode),
-            values_from = Mutation_Type,
-            values_fn = list(Mutation_Type = multiHits)
+            names_from = c("Patient_ID", "Tumor_Sample_Barcode"),
+            values_from = "Mutation_Type",
+            values_fn = list("Mutation_Type" = multiHits)
         ) %>%
         dplyr::ungroup() %>%
-        dplyr::arrange(dplyr::desc(total_barcode_count))      
+        dplyr::arrange(dplyr::desc(.data$total_barcode_count))      
         #dplyr::select_if(function(x) {!all(is.na(x))}) %>%
       
     if (nrow(mat) < topGenesCount) {
@@ -157,14 +157,14 @@ plotMutProfile <- function(maf,
       rownames(matTemp) <- mat$Hugo_Symbol
       
       mat <- matTemp %>% 
-                     dplyr::select(-total_barcode_count) %>%
+                     dplyr::select(-"total_barcode_count") %>%
                      as.matrix()
     }
     
     
     
-    col_labels <- dplyr::select(maf_data, Patient_ID, Tumor_Sample_Barcode)%>%
-                    distinct(.)
+    col_labels <- dplyr::select(maf_data, "Patient_ID", "Tumor_Sample_Barcode")%>%
+                   dplyr::distinct()
     col_labels <- as.vector(col_labels$Tumor_Sample_Barcode)
 
     # get the order of rows
@@ -230,7 +230,7 @@ plotMutProfile <- function(maf,
                   )
               
           }
-          mutTypes <- as.character(na.omit(unique(unlist(strsplit(mat, ";")))))
+          mutTypes <- as.character(stats::na.omit(unique(unlist(strsplit(mat, ";")))))
           cols <- cols[which(names(cols) %in% mutTypes)]
           
           return(cols)
@@ -299,7 +299,7 @@ plotMutProfile <- function(maf,
               ))
           }
           
-          mutTypes <- as.character(na.omit(unique(unlist(strsplit(mat, ";")))))
+          mutTypes <- as.character(stats::na.omit(unique(unlist(strsplit(mat, ";")))))
           l_filter <- l[which(names(l) %in% mutTypes)]
           l_final <- c(background = function(x, y, w, h)
                             grid::grid.rect(x, y, w * 0.9, h * 0.9,
@@ -327,7 +327,7 @@ plotMutProfile <- function(maf,
                       "#7570B3" , "#c51b7d" ,"#66A61E" ,
                       "#E6AB02" , "#003c30", "#666666")
       
-      mutationTypes <- na.omit(unique(maf_data$Mutation_Type))
+      mutationTypes <- stats::na.omit(unique(maf_data$Mutation_Type))
       
       # filter mutation types
       filteredTypes <- c()

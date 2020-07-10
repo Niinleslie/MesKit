@@ -105,30 +105,30 @@ do.classify <- function(
     
     mutation_barcode_count <-
         maf_data %>%
-        dplyr::group_by(., Patient_ID, mutation_id) %>%
+        dplyr::group_by(.data$Patient_ID, .data$mutation_id) %>%
         #dplyr::group_by(., Patient_ID) %>%
         #{if(classByTumor) dplyr::group_by(., Patient_ID, Tumor_ID, mutation_id)
         #else dplyr::group_by(., Patient_ID, mutation_id)
         #} %>%
-        dplyr::summarise(unique_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
+        dplyr::summarise(unique_barcode_count = dplyr::n_distinct(.data$Tumor_Sample_Barcode))
     
     patient_barcode_count <-
         maf_data %>%
-        dplyr::group_by(., Patient_ID) %>%
+        dplyr::group_by(.data$Patient_ID) %>%
         #{if(classByTumor) dplyr::group_by(., Patient_ID, Tumor_ID)
         #else dplyr::group_by(., Patient_ID)
         #} %>%
-        dplyr::summarise(total_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
+        dplyr::summarise(total_barcode_count = dplyr::n_distinct(.data$Tumor_Sample_Barcode))
     
     
     
     type_barcode_count <-maf_data %>%
         #dplyr::group_by(., Patient_ID, Tumor_ID, mutation_id) %>%
         #dplyr::summarise(type_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode))
-        dplyr::group_by(., Patient_ID, mutation_id) %>%
+        dplyr::group_by(.data$Patient_ID, .data$mutation_id) %>%
         dplyr::summarise(
-            type_barcode_count = dplyr::n_distinct(Tumor_Sample_Barcode), 
-            tumor_barcode_ID = paste(unique(Tumor_ID), collapse = "_")
+            type_barcode_count = dplyr::n_distinct(.data$Tumor_Sample_Barcode), 
+            tumor_barcode_ID = paste(unique(.data$Tumor_ID), collapse = "_")
         )
     
     maf_data <-
@@ -147,10 +147,10 @@ do.classify <- function(
             dplyr::mutate(
                 Mutation_Type = mutType_SP(
                     #Tumor_ID, 
-                    unique_barcode_count, 
-                    total_barcode_count,
-                    type_barcode_count,
-                    tumor_barcode_ID, 
+                    .data$unique_barcode_count, 
+                    .data$total_barcode_count,
+                    .data$type_barcode_count,
+                    .data$tumor_barcode_ID, 
                     TypeCount,
                     classByTumor)
             )
@@ -162,20 +162,20 @@ do.classify <- function(
             if(class == "CS"){
                 maf_data <- maf_data %>%
                     dplyr::mutate(
-                        Mutation_Type = Clonal_Status
+                        Mutation_Type = .data$Clonal_Status
                     )
             }
             else if(class == "SPCS"){
                 maf_data <- maf_data %>%
-                    dplyr::filter(!is.na(Clonal_Status)) %>%
+                    dplyr::filter(!is.na(.data$Clonal_Status)) %>%
                     dplyr::mutate(Mutation_Type =
                                       mutType_SPCS(
                                           #Tumor_ID, 
-                                          unique_barcode_count, 
-                                          total_barcode_count,
-                                          type_barcode_count,
-                                          tumor_barcode_ID, 
-                                          Clonal_Status,
+                                          .data$unique_barcode_count, 
+                                          .data$total_barcode_count,
+                                          .data$type_barcode_count,
+                                          .data$tumor_barcode_ID, 
+                                          .data$Clonal_Status,
                                           TypeCount,
                                           classByTumor)
                     )
@@ -184,11 +184,11 @@ do.classify <- function(
     }
     
     maf_data <- maf_data %>%
-        dplyr::select(Hugo_Symbol, Chromosome, 
-                      Start_Position, End_Position,
-                      Reference_Allele, Tumor_Seq_Allele2, 
-                      Tumor_Sample_Barcode, Mutation_Type,
-                      unique_barcode_count, Patient_ID
+        dplyr::select("Hugo_Symbol", "Chromosome", 
+                      "Start_Position", "End_Position",
+                      "Reference_Allele", "Tumor_Seq_Allele2", 
+                      "Tumor_Sample_Barcode", "Mutation_Type",
+                      "unique_barcode_count", "Patient_ID"
                       #type_barcode_ID,type_barcode_count,total_barcode_count
         )
     

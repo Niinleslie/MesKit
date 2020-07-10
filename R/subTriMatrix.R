@@ -59,11 +59,11 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
     }
     mut_branches <- phyloTree@mut.branches
     if(nrow(mut_branches) == 0){
-      stop("Error: There are not enough mutations in ",patientID)
+      stop("Error: There are not enough mutations in ",patient)
     }
     
     origin_context <- Biostrings::getSeq(get(refBuild),
-                                         Rle(paste("chr",mut_branches$Chromosome,sep = "")),
+                                         S4Vectors::Rle(paste("chr",mut_branches$Chromosome,sep = "")),
                                          mut_branches$Start_Position-1,
                                          mut_branches$Start_Position+1) 
     origin_context <- as.character(origin_context)
@@ -84,21 +84,21 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
     if(!CT){
       mut_branches <- mut_branches %>% 
         dplyr::rowwise() %>% 
-        dplyr::mutate(context = paste0(strsplit(context,"")[[1]][1],
-                                       "[", mut_type, "]",
-                                       strsplit(context,"")[[1]][3])) %>% 
+        dplyr::mutate(context = paste0(strsplit(.data$context,"")[[1]][1],
+                                       "[", .data$mut_type, "]",
+                                       strsplit(.data$context,"")[[1]][3])) %>% 
         as.data.frame()
     }else{
       CpG = c("ACG", "CCG", "TCG", "GCG")
       mut_branches <- mut_branches %>% 
         dplyr::rowwise() %>% 
         dplyr::mutate(context = dplyr::case_when(
-          mut_type == "C>T" & origin_context %in% CpG ~  
-            paste0(strsplit(context,"")[[1]][1],"[C>T at CpG]",strsplit(context,"")[[1]][3]),
-          mut_type == "C>T" & !origin_context %in% CpG ~  
-            paste0(strsplit(context,"")[[1]][1],"[C>T other]",strsplit(context,"")[[1]][3]),
-          mut_type != "C>T" ~ 
-            paste0(strsplit(context,"")[[1]][1],"[", mut_type, "]",strsplit(context,"")[[1]][3])
+          .data$mut_type == "C>T" & .data$origin_context %in% CpG ~  
+            paste0(strsplit(.data$context,"")[[1]][1],"[C>T at CpG]",strsplit(.data$context,"")[[1]][3]),
+          .data$mut_type == "C>T" & !.data$origin_context %in% CpG ~  
+            paste0(strsplit(.data$context,"")[[1]][1],"[C>T other]",strsplit(.data$context,"")[[1]][3]),
+          .data$mut_type != "C>T" ~ 
+            paste0(strsplit(.data$context,"")[[1]][1],"[", .data$mut_type, "]",strsplit(.data$context,"")[[1]][3])
         )) %>% 
         as.data.frame()
     }

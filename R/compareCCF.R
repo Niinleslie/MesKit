@@ -10,8 +10,8 @@
 #' 
 #' @return a result list of CCF comparing between samples/tumor pairs
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' compareCCF(maf)
 #' @export compareCCF
@@ -40,7 +40,7 @@ compareCCF <- function(maf,
         sep = ":",
         remove = FALSE
       ) %>%
-      dplyr::filter(!is.na(CCF))
+      dplyr::filter(!is.na(.data$CCF))
     
     patient <- getMafPatient(m)
     if(nrow(maf_data) == 0){
@@ -63,15 +63,15 @@ compareCCF <- function(maf,
       
       ## get average CCF
       maf_data <- maf_data %>% 
-        dplyr::mutate(CCF = Tumor_Average_CCF)
-      pairs <- combn(length(types), 2, simplify = FALSE)  
+        dplyr::mutate(CCF = .data$Tumor_Average_CCF)
+      pairs <- utils::combn(length(types), 2, simplify = FALSE)  
     }else{
       samples <- unique(maf_data$Tumor_Sample_Barcode)
       if(length(samples) < 2){
         message(paste0("Warnings: Only one sample was found in",patient))
         next
       }
-      pairs <- combn(length(samples), 2, simplify = FALSE)  
+      pairs <- utils::combn(length(samples), 2, simplify = FALSE)  
     }
     pair.name <- c()
     i <- 1
@@ -84,18 +84,21 @@ compareCCF <- function(maf,
         S2 <- samples[pair[2]]
       }
       if(pairByTumor){
-        ccf.pair <- maf_data %>% dplyr::filter(Tumor_ID %in% c(S1, S2)) %>%
-          tidyr::unite("Mut_ID2", c("Tumor_ID","Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
+        ccf.pair <- maf_data %>% 
+          dplyr::filter(.data$Tumor_ID %in% c(S1, S2)) %>%
+          tidyr::unite("Mut_ID2",
+                       c("Tumor_ID","Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
                        sep = ":", remove = FALSE) %>% 
-          dplyr::distinct(Mut_ID2, .keep_all = TRUE) %>%
-          dplyr::select(Tumor_ID, Hugo_Symbol, Mut_ID, CCF) %>% 
-          tidyr::pivot_wider(names_from = Tumor_ID, values_from = CCF) %>% 
+          dplyr::distinct(.data$Mut_ID2, .keep_all = TRUE) %>%
+          dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>% 
+          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>% 
           tidyr::drop_na()
         
       }else{
-        ccf.pair <- maf_data %>% dplyr::filter(Tumor_Sample_Barcode %in% c(S1, S2)) %>%
-          dplyr::select(Tumor_Sample_Barcode, Hugo_Symbol, Mut_ID, CCF) %>% 
-          tidyr::pivot_wider(names_from = Tumor_Sample_Barcode, values_from = CCF) %>% 
+        ccf.pair <- maf_data %>% 
+          dplyr::filter(.data$Tumor_Sample_Barcode %in% c(S1, S2)) %>%
+          dplyr::select("Tumor_Sample_Barcode", "Hugo_Symbol", "Mut_ID", "CCF") %>% 
+          tidyr::pivot_wider(names_from = "Tumor_Sample_Barcode", values_from = "CCF") %>% 
           tidyr::drop_na()
       }
       if(nrow(ccf.pair) == 0){

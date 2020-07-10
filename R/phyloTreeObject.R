@@ -20,10 +20,10 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    binary.matrix$mut_id <- rownames(binary.matrix)
    ## get mutationalSigs-related  infomation
    mut_id <- dplyr::select(tidyr::unite(maf_data, "mut_id", 
-                                       Hugo_Symbol, Chromosome, 
-                                       Start_Position, 
-                                       Reference_Allele, Tumor_Seq_Allele2, 
-                                       sep=":"), mut_id)
+                                       "Hugo_Symbol", "Chromosome", 
+                                       "Start_Position", 
+                                       "Reference_Allele", "Tumor_Seq_Allele2", 
+                                       sep=":"), "mut_id")
    mutSigRef <- data.frame(Branch_ID = as.character(maf_data$Tumor_Sample_Barcode), 
                            Mutation_Type = as.character(maf_data$Tumor_ID),
                            Hugo_Symbol = maf_data$Hugo_Symbol, 
@@ -51,8 +51,8 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       unbranch <- names(binary.matrix)[!names(binary.matrix) %in% branch]
       unbranch <- unbranch[unbranch!="mut_id"]
       ## get branch tumor type
-      types <- unique(maf_data[Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
-      tsbs <- unique(maf_data[Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
+      types <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
+      tsbs <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
       tsbs.all <- unique(maf_data$Tumor_Sample_Barcode)
       
       if(length(tsbs.all) == length(tsbs)){
@@ -76,7 +76,8 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
               Mutation_Type <- paste0("Private_",paste(types,collapse = "_"))
           }
       }
-      
+      ## initialize 
+      . = NULL
       ## generate mutation intersection for specific branch
       branch.intersection <- dplyr::intersect(
          binary.matrix %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1)), 
@@ -120,14 +121,14 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    # print(binary.matrix[!binary.matrix$mut_id %in% mutBranchesOutput$mut_id,])
    
    mutBranchesOutput <- dplyr::bind_rows(mutBranchesOutput) %>% 
-       dplyr::select(-mut_id)
+       dplyr::select(-"mut_id")
    
    branch.type <- mutBranchesOutput %>% 
-       dplyr::select(Branch_ID, Mutation_Type) %>% 
-       dplyr::distinct(Branch_ID, .keep_all = TRUE)
+       dplyr::select("Branch_ID", "Mutation_Type") %>% 
+       dplyr::distinct(.data$Branch_ID, .keep_all = TRUE)
    
    mut.branches <- mutBranchesOutput %>% 
-       dplyr::filter(!is.na(Chromosome))
+       dplyr::filter(!is.na(.data$Chromosome))
    
    return(list(
        mut.branches = mut.branches,
