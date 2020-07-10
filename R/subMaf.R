@@ -106,9 +106,7 @@ subMaf <- function(maf,
       ## allele depth filter
       maf_data$Ref_allele_depth[is.na(maf_data$Ref_allele_depth)] <- 0
       maf_data$Alt_allele_depth[is.na(maf_data$Alt_allele_depth)] <- 0
-      maf_data <- maf_data[maf_data$Ref_allele_depth >= min.ref.depth&
-                              maf_data$Alt_allele_depth >= min.alt.depth &
-                              (maf_data$Ref_allele_depth + maf_data$Alt_allele_depth) >= min.total.depth]
+      maf_data <- maf_data[maf_data$Ref_allele_depth >= min.ref.depth & maf_data$Alt_allele_depth >= min.alt.depth &(maf_data$Ref_allele_depth + maf_data$Alt_allele_depth) >= min.total.depth,]
       
       ## vaf filter
       maf_data <- maf_data[maf_data$VAF >= min.vaf & maf_data$VAF <= max.vaf]

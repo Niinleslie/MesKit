@@ -33,94 +33,71 @@ vafCluster <-function(maf,
   ## check input data
   maf_list <- checkMafInput(maf, patient.id = patient.id)
   
-  result <- list()
-  for(m in maf_list){
-      
-      ## remove mutation in CNA regions
-      if(!is.null(segFile)){
-          seg <- readSegment(segFile = segFile)
-          m <- copyNumberFilter(m,seg)
-      }
-      
-      maf_data <- subMaf(m, min.vaf = min.vaf, max.vaf = max.vaf, ...)
-      patient <- getMafPatient(m)
-      if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filtering.")
-            next
-      }
-      
-      ## extract vaf info
-      if(withinTumor){
-          maf_data$VAF <- maf_data$Tumor_Average_VAF
-          maf_data$ID <- maf_data$Tumor_ID
-          id_list <- unique(maf_data$ID)
-      }else{
-          maf_data$ID <- maf_data$Tumor_Sample_Barcode
-          id_list <- unique(maf_data$ID)
-      }
-      
-      ## general data process for all samples 
-      plot_list <- list()
-      
-      rebuild_data <- data.frame()
-      for (id in id_list){
-          subdata <- maf_data[maf_data$ID == id]  
-          ## data cleaning
-          if (nrow(subdata) < 3) {
-              message(paste0("Error: mutations of Sample ", id, " are not enough for clustering"))
-              next()
-          }
-          
-          ## infer possible cluster from maf_data
-          message(paste("Processing ", id," of ", patient, sep = ""))
-          cluster_result <- mclust::densityMclust(subdata$VAF, G=seq_len(7), verbose=FALSE)
-          subdata$cluster <- as.character(cluster_result$classification)
-          
-          ## define outfilter
-          out_vaf <- boxplot.stats(subdata$VAF)$out
-          subdata[subdata$VAF %in% out_vaf]$cluster <- "outlier"
-          
-          rebuild_data <- rbind(rebuild_data, subdata)
-          
-          # prepare separated pictures for later combination 
-          p  <- drawVAFCombine(subdata)
-          # if(length(id_list) == 1){
-          #         p <- p + ggtitle(label = paste("VAF clustering of ", patient, sep=""),
-          #                          subtitle = id)+
-          #         theme(plot.title = element_text(face = "bold",size = 18,hjust = 0.5),
-          #               plot.subtitle = element_text(size = 16,hjust = 1,vjust = -5))
-          # }
-          plot_list[[id]] <- p
-      }
-      
-      if(nrow(rebuild_data) == 0){
-        next
-      }
-      
-      rebuild_data <-  rebuild_data %>% 
-          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Hugo_Symbol",
-                        "Chromosome", "Start_Position", "End_Position", "cluster") %>% 
-          dplyr::arrange(.data$cluster) %>% 
-          dplyr::rename("Cluster" = "cluster")
-      
-      ## combine: print VAF pictures for all samples in one document
-      # pic <- cowplot::plot_grid(plotlist = plot_list,ncol = 2)
-      
-      # combineTitle <-  ggdraw() + draw_label(
-      #     paste("VAF clustering of ", patient, sep=""),
-      #     fontface = 'bold',
-      #     x = 0.5,
-      #     hjust = 0.5,
-      #     size = 13.5
-      # )
-      # pic <- cowplot::plot_grid(combineTitle,
-      #                           pic,
-      #                           ncol = 1,
-      #                           # rel_heights values control vertical title margins
-      #                            rel_heights = c(0.1, 1))
-      result[[patient]] <- list(cluster.data = rebuild_data, cluster.plot = plot_list) 
-      
+  processVafcluster_maf <- function(m){
+    ## remove mutation in CNA regions
+    if(!is.null(segFile)){
+      seg <- readSegment(segFile = segFile)
+      m <- copyNumberFilter(m,seg)
+    }
+    
+    maf_data <- subMaf(m, min.vaf = min.vaf, max.vaf = max.vaf, ...)
+    patient <- getMafPatient(m)
+    
+    if(nrow(maf_data) == 0){
+      message("Warning :there was no mutation in ", patient, " after filtering.")
+      return(NA)
+    }
+    
+    ## extract vaf info
+    if(withinTumor){
+      maf_data$VAF <- maf_data$Tumor_Average_VAF
+      maf_data$ID <- maf_data$Tumor_ID
+      id_list <- unique(maf_data$ID)
+    }else{
+      maf_data$ID <- maf_data$Tumor_Sample_Barcode
+      id_list <- unique(maf_data$ID)
+    }
+    
+    sample_result <- lapply(id_list, processVafcluster_sample, maf_data, patient)
+    na_idx <- which(!is.na(sample_result))
+    sample_result <- sample_result[na_idx]
+    
+    plot_list <- lapply(sample_result, function(x)x$p)
+    names(plot_list) <- id_list[na_idx]
+    
+    rebuild_data_list <- lapply(sample_result, function(x)x$subdata)
+    
+    rebuild_data <- dplyr::bind_rows(rebuild_data_list)
+    
+    return(list(cluster.data = rebuild_data, cluster.plot = plot_list))
+    
   }
+  
+  processVafcluster_sample <- function(id, maf_data, patient){
+    subdata <- maf_data[maf_data$ID == id]
+    ## data cleaning
+    if (nrow(subdata) < 3) {
+      message(paste0("Error: mutations of Sample ", id, " are not enough for clustering"))
+      return(NA)
+    }
+    
+    ## infer possible cluster from maf_data
+    message(paste("Processing ", id," of ", patient, sep = ""))
+    cluster_result <- mclust::densityMclust(subdata$VAF, G=seq_len(7), verbose=FALSE)
+    subdata$cluster <- as.character(cluster_result$classification)
+    
+    ## define outfilter
+    out_vaf <- boxplot.stats(subdata$VAF)$out
+    subdata[subdata$VAF %in% out_vaf]$cluster <- "outlier"
+    
+    p  <- drawVAFCombine(subdata)
+    
+    return(list(p = p, subdata = subdata))
+  }
+  
+  result <- lapply(maf_list, processVafcluster_maf)
+  result <- result[!is.na(result)]
+  
   if(length(result) > 1){
       return(result)
   }else if(length(result) == 0){

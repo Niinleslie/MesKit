@@ -16,8 +16,8 @@ shinyServer(function(input, output, session){
       
       
       if(is.null(input$mafFile)){
-        mafFile <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-        ccfFile <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+        mafFile <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+        ccfFile <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
         maf <- readMaf(mafFile = mafFile,ccfFile = ccfFile)
       } else {
         if(!is.null(input$mafFile) & !is.null(input$ccfFile)){
@@ -1505,10 +1505,15 @@ shinyServer(function(input, output, session){
           }else{
               patientid <- input$plotmutprofile_patientid
           }
-          if(!is.null(input$plotmutprofile_genelist$datapath)){
+          if(input$plotmutprofile_usegenelist){
+            if(!is.null(input$plotmutprofile_genelist$datapath)){
               genelist <- as.character(read.table(input$plotmutprofile_genelist$datapath)$V1)
+            }else{
+              genelist_file <- system.file("extdata", "IntOGen-DriverGenes_HC.tsv", package = "MesKit")
+              genelist <- as.character(read.table(genelist_file)$V1)
+            }
           }else{
-              genelist <- NULL
+            genelist <- NULL
           }
           cc <- plotMutProfile(maf,
                                patient.id = patientid,

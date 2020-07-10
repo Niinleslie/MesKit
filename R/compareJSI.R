@@ -22,17 +22,17 @@
 #' @export compareJSI
 
 compareJSI <- function(
-   maf, 
-   patient.id = NULL,
-   pairByTumor = FALSE,
-   min.ccf = 0,
-   plot = TRUE, 
-   use.circle = TRUE, 
-   title = NULL,
-   number.cex = 8, 
-   number.col = "#C77960",
-   ...) {
-   
+    maf, 
+    patient.id = NULL,
+    pairByTumor = FALSE,
+    min.ccf = 0,
+    plot = TRUE, 
+    use.circle = TRUE, 
+    title = NULL,
+    number.cex = 8, 
+    number.col = "#C77960",
+    ...) {
+    
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
@@ -43,9 +43,9 @@ compareJSI <- function(
                         "No CCF data was found when generate Maf/MafList object."))
         }
         maf_data <- subMaf(m,
-                            min.ccf = min.ccf,
-                            use.adjVAF = TRUE,
-                            ...) %>% 
+                           min.ccf = min.ccf,
+                           use.adjVAF = TRUE,
+                           ...) %>% 
             ## valid clonal status
             dplyr::filter(!is.na(.data$Clonal_Status))
         patient <- getMafPatient(m)
@@ -208,7 +208,7 @@ compareJSI <- function(
     }else{
         return(result[[1]])
     }
-   
-   
-   
+    
+    
+    
 }

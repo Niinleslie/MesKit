@@ -48,8 +48,26 @@ compareTree <- function(phyloTree1,
 	        min2 <- max(tree2$edge.length)*min.ratio
 	        tree1$edge.length[tree1$edge.length < min1] <- min1
 	        tree2$edge.length[tree2$edge.length < min2] <- min2
-	        phyloTree1@tree <- tree1
-	        phyloTree2@tree <- tree2
+	        phyloTree1 <- new('phyloTree',
+	                          patientID = getPhyloTreePatient(phyloTree1),
+	                          tree = tree1, 
+	                          binary.matrix = getBinaryMatrix(phyloTree1),
+	                          ccf.matrix = getCCFMatrix(phyloTree1), 
+	                          mut.branches = getMutBranches(phyloTree1),
+	                          branch.type = getBranchType(phyloTree1),
+	                          ref.build = getPhyloTreeRef(phyloTree1),
+	                          bootstrap.value = getBootstrapValue(phyloTree1),
+	                          method = getTreeMethod(phyloTree1))
+	        phyloTree2 <- new('phyloTree',
+	                          patientID = getPhyloTreePatient(phyloTree2),
+	                          tree = tree2, 
+	                          binary.matrix = getBinaryMatrix(phyloTree2),
+	                          ccf.matrix = getCCFMatrix(phyloTree2), 
+	                          mut.branches = getMutBranches(phyloTree2),
+	                          branch.type = getBranchType(phyloTree2),
+	                          ref.build = getPhyloTreeRef(phyloTree2),
+	                          bootstrap.value = getBootstrapValue(phyloTree2),
+	                          method = getTreeMethod(phyloTree2))
 	    }
 	    treedat1 <- getTreeData(phyloTree1, compare = compare)
 	    treedat2 <- getTreeData(phyloTree2, compare = compare)
