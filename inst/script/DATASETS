@@ -6,13 +6,17 @@
 # Lin, DC., et al. 2017. Genomic and Epigenomic Heterogeneity of Hepatocellular Carcinoma. Cancer Res 77(9): 2255-2265.
 Name: HCC_LDC.maf; HCC_LDC.ccf.tsv HCC_LDC.seg.txt
 
+# MesKit input data of CRC cohort 
+# Hu, Z., et al. (2019). Quantitative evidence for early metastatic seeding in colorectal cancer. Nat Genet 51(7): 1113-1122.
+Name: HCC_CRC.maf; HCC_CRC.ccf.tsv HCC_CRC.seg.txt
+
 
 ## ----------------------------------
 ## ------ Driver genes list ---------
 
 # HCC drivers genes defined based on IntOGen (v.2020.2)
 Source urls: https://www.intogen.org/download
-Name: IntOGen-DriverGenes_HC.tsv
+Name: IntOGen-DriverGenes_HC.tsv; IntOGen-DriverGenes_COREAD.tsv
 
 
 ## ----------------------------------
