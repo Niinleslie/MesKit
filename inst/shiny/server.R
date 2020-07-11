@@ -239,7 +239,7 @@ shinyServer(function(input, output, session){
       )
       patientid <- input$vafcluster_patientid
       withProgress(min = 0, max = 1, value = 0,{
-          setProgress(message = 'Processing: generating VAF distribution curve')
+          setProgress(message = 'Processing: perform vaf clustering')
           vc <- vafCluster(maf, 
                            patient.id = patientid,
                            withinTumor = input$vafcluster_withintumor,
@@ -1499,7 +1499,7 @@ shinyServer(function(input, output, session){
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'Processing: drawing mutation profile')
+          setProgress(message = 'Processing: drawing mutational profile')
           if(is.null(input$plotmutprofile_patientid)){
               patientid <- NULL
           }else{
@@ -1598,11 +1598,7 @@ shinyServer(function(input, output, session){
   output$plotcna.patientlist <- renderUI({
       
       if(!is.null(input$plotcna_segfile$datapath)){
-          seg <- readSegment(segFile = input$plotcna_segfile$datapath,
-                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
-                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
-                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile$datapath,
-                             gistic.qval = as.numeric(input$plotcna_gisticqval) )
+          seg <- readSegment(segFile = input$plotcna_segfile$datapath) %>% dplyr::bind_rows()
           patient.list <- unique(seg$Patient_ID)
            tagList(
                   selectizeInput("plotcna_patientid",
@@ -1619,21 +1615,21 @@ shinyServer(function(input, output, session){
   })
   
   output$plotcna_gistic_parameters_ui <- renderUI({
-      if(any(!is.null(input$plotcna_gisticAllLesionsFile),
-             !is.null(input$plotcna_gisticAmpGenesFile),
-             !is.null(input$plotcna_gisticDelGenesFile))){
+      if(any(input$plotmutprofile_usegisticAmpGenes,
+             input$plotmutprofile_usegisticDelGenes,
+             input$plotmutprofile_usegisticAllLesions)){
           tagList(
-              checkboxInput('plotcna_showGISTICgene', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show GISTIC gene'),value = FALSE,width = 400),
-              bsTooltip(id = "plotcna_showGISTICgene",
-                        title = "Whether GISTIC gene in seg.Default FALSE.",
-                        placement = "top",
-                        trigger = "hover"),
+              # checkboxInput('plotcna_showGISTICgene', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show GISTIC gene'),value = FALSE,width = 400),
+              # bsTooltip(id = "plotcna_showGISTICgene",
+              #           title = "Whether GISTIC gene in seg.Default FALSE.",
+              #           placement = "top",
+              #           trigger = "hover"),
               tags$table(
-                  tags$tr(id = "inline", 
+                  tags$tr(id = "inline",
                           width = "100%",
                           tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Gistic qvalue: ")),
                           tags$td(width = "50%", textInput(inputId = "plotcna_gisticqval", value = 0.25, label = NULL)))
-              ), 
+              ),
               bsTooltip(id = "plotcna_gisticqval",
                         title = "The threshold of gistic Q value. Default is 0.25",
                         placement = "top",
@@ -1652,12 +1648,39 @@ shinyServer(function(input, output, session){
       
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'Processing: drawing CNA profile')
-          seg <- readSegment(segCN.file = input$plotcna_segfile$datapath,
-                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
-                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
-                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile$datapath,
+        if(input$plotmutprofile_usegisticAmpGenes){
+          if(!is.null(input$plotcna_gisticAmpGenesFile$datapath)){
+            gisticAmpGenesFile <- input$plotcna_gisticAmpGenesFile$datapath
+          }else{
+            gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
+          }
+        }else{
+          gisticAmpGenesFile <- NULL
+        }
+        if(input$plotmutprofile_usegisticDelGenes){
+          if(!is.null(input$plotcna_gisticDelGenesFile$datapath)){
+            gisticDelGenesFile <- input$plotcna_gisticDelGenesFile$datapath
+          }else{
+            gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+          }
+        }else{
+          gisticDelGenesFile <- NULL
+        }
+        if(input$plotmutprofile_usegisticAllLesions){
+          if(!is.null(input$plotcna_gisticAllLesionsFile$datapath)){
+            gisticAllLesionsFile <- input$plotcna_gisticAllLesionsFile$datapath
+          }else{
+            gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+          }
+        }else{
+          gisticAllLesionsFile <- NULL
+        }
+        print(input$plotcna_gisticqval)
+          seg <- readSegment(segFile = input$plotcna_segfile$datapath,
+                             gisticAllLesionsFile = gisticAllLesionsFile,
+                             gisticAmpGenesFile = gisticAmpGenesFile,
+                             gisticDelGenesFile = gisticDelGenesFile,
                              gistic.qval = as.numeric(input$plotcna_gisticqval) )
-          
           incProgress(amount = 1)
           setProgress(message = 'Complete reading seg file!')
           if(is.null(input$plotcna_patientid)){
@@ -1665,20 +1688,20 @@ shinyServer(function(input, output, session){
           }else{
               patientid <- input$plotcna_patientid
           }
-          if(is.null(input$plotcna_showGISTICgene)){
-              show.GISTIC.gene <- FALSE
-          }else{
-              show.GISTIC.gene <- input$plotcna_showGISTICgene
-          }
+          # if(is.null(input$plotcna_showGISTICgene)){
+          #     show.GISTIC.gene <- FALSE
+          # }else{
+          #     show.GISTIC.gene <- input$plotcna_showGISTICgene
+          # }
           cna.plot <- plotCNA(seg,
                               patient.id = patientid,
                               refBuild = input$plotcna_refBuild,
-                              show.GISTIC.gene = show.GISTIC.gene,
                               sample.text.size = as.numeric(input$plotcna_sampletextsize) ,
                               sample.bar.height = as.numeric(input$plotcna_samplebarheight) ,
                               legend.text.size = as.numeric(input$plotcna_legendtextsize) ,
                               legend.title.size = as.numeric(input$plotcna_legendtitlesize) ,
                               chrom.bar.height = as.numeric(input$plotcna_chrombarheight) )
+          seg <- dplyr::bind_rows(seg)
           if(!is.null(patientid)){
               seg <- seg[Patient_ID %in% patientid]
           }
@@ -1749,6 +1772,7 @@ shinyServer(function(input, output, session){
   output$plotcna_table <- DT::renderDataTable({
       if(!is.null(plotcna())){
           t <- plotcna()$seg
+          print(t)
           d <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
           return(d)
       }
@@ -1758,7 +1782,7 @@ shinyServer(function(input, output, session){
   output$plotcna_table_ui <- renderUI({
       if(!is.null(plotcna())){
           tagList(
-              div(style = "font-size:1.5em; font-weight:600; ", "Seg file"),
+              div(style = "font-size:1.5em; font-weight:600; ", "Segment"),
               br(),
               DT::dataTableOutput('plotcna_table'),
               br(),
@@ -2361,7 +2385,7 @@ shinyServer(function(input, output, session){
           
           ct <- compareTree(phylotree1, phylotree2,
                             common.col = input$comparetree_commoncol,
-                            min.ratio = input$comparetree_minratio,
+                            min.ratio = as.numeric(input$comparetree_minratio) ,
                             show.bootstrap = input$comparetree_showbootstrap,
                             plot = TRUE)
           
@@ -2554,7 +2578,7 @@ shinyServer(function(input, output, session){
               names <- names(sample.list)
               tagList(
                   selectInput("treemutsig.sl", 
-                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Select branch'),
                               choices = names, width = 600) 
               ) 
           }else{
@@ -2562,7 +2586,7 @@ shinyServer(function(input, output, session){
               names <- names(sample.list)
               tagList(
                   selectInput("treemutsig.sl", 
-                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Select branch'),
                               choices = names, width = 600) 
               )
           }
