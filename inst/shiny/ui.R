@@ -94,27 +94,25 @@ bodyIP <- tabItem("input",
                                       ), 
                                       placeholder = "Example: HCC_LDC.maf", 
                                       width = 400),
-                            # bsTooltip(id = "maf",
-                            #           title = "Upload maf data",
-                            #           placement = "right",
-                            #           trigger = "hover"),
-                            # checkboxInput(inputId = 'useccf', 
-                            #               label = div(style = "font-size:1.5em; font-weight:600;position: relative;padding-left:15px", 'use ccf'),value = FALSE, width = 200),
-                            # bsTooltip(id = "useccf",
-                            #           title = "Click if provide CCF data.",
-                            #           placement = "top",
-                            #           trigger = "hover"),
-                          fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
-                                                          tags$button(
-                                                              Id = "iecontrol02",
-                                                              type = "button",
-                                                              class = "bttn-material-circle",
-                                                              class = "btn action-button",
-                                                              list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
-                                                              style = " background-position: center;padding:0;margin-bottom:7px;"
-                                                          )
-                          ),
-                          placeholder = "Example: HCC_LDC.ccf.tsv", width = 400),
+                          checkboxInput('useccffile', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px",
+                                                                  'CCF file',
+                                                                  tags$button(
+                                                                    Id = "iecontrol02",
+                                                                    type = "button",
+                                                                    class = "bttn-material-circle",
+                                                                    class = "btn action-button",
+                                                                    list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
+                                                                    style = " background-position: center;padding:0;margin-bottom:7px;"
+                                                                  )),
+                                        value = FALSE,width = 400),
+                          bsTooltip(id = "useccffile",
+                                    title = "Whether to use ccf file.",
+                                    placement = "top",
+                                    trigger = "hover"),
+                          conditionalPanel(
+                            condition = "input.useccffile == true",
+                            fileInput('ccfFile',label = '',placeholder = "Example: HCC_LDC.ccf.tsv", width = 400)
+                          ), 
                             # conditionalPanel(
                             #     condition = "input.useccf == true",
                             #     fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
@@ -685,6 +683,7 @@ bodyITH <- tabItem("ITH",
                              uiOutput("vafcluster_table_ui"),
                              uiOutput("vafcluster.samplelist"),
                              div(plotOutput("vaf",height = "100%", width = "100%"),align = "left"),
+                             br(),
                              uiOutput("vcdb")
                            ),
                            tabPanel(
@@ -822,8 +821,7 @@ bodyAL <- tabItem("AL",
                                   conditionalPanel(
                                     condition = "input.plotmutprofile_usegisticAmpGenes == true",
                                     fileInput(inputId = 'plotcna_gisticAmpGenesFile', 
-                                              label = div(style = "font-size:1.5em; font-weight:600; ", 
-                                                          'Gistic amplification genes file'),
+                                              label = '',
                                               placeholder = "Example: LIHC_amp_genes.conf_99.txt",
                                               width = 400)
                                   ), 
@@ -835,8 +833,7 @@ bodyAL <- tabItem("AL",
                                   conditionalPanel(
                                     condition = "input.plotmutprofile_usegisticDelGenes == true",
                                     fileInput(inputId = 'plotcna_gisticDelGenesFile', 
-                                              label = div(style = "font-size:1.5em; font-weight:600; ",
-                                                          'Gistic deletion genes file'),
+                                              label = '',
                                               placeholder = "Example: LIHC_del_genes.conf_99.txt",
                                               width = 400)
                                   ), 
@@ -848,8 +845,7 @@ bodyAL <- tabItem("AL",
                                   conditionalPanel(
                                     condition = "input.plotmutprofile_usegisticAllLesions == true",
                                     fileInput(inputId = 'plotcna_gisticAllLesionsFile', 
-                                              label = div(style = "font-size:1.5em; font-weight:600; ", 
-                                                          'Gistic all lesions file'),
+                                              label = '',
                                               placeholder = "Example: LIHC_all_lesions.conf_99.txt",
                                               
                                               width = 400)
@@ -918,6 +914,7 @@ bodyAL <- tabItem("AL",
                                             placement = "top",
                                             trigger = "hover"),
                                   br(),
+                                  checkboxInput('plotcna_showrownames',label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Show row names'),value = TRUE),
                                   sliderInput('plotcna_width', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'), min = 400,max = 1200, value = 800,width = 500),
                                   sliderInput('plotcna_height', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'), min = 400,max = 1200, value = 800,width = 500),
                                   br(),
@@ -1333,8 +1330,8 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
-                                               tags$td(width = "20%", textInput(inputId = "plotphylotree_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                               tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
+                                               tags$td(width = "30%", textInput(inputId = "plotphylotree_getphylotree_bootstraprepnum", value = 100, label = NULL)))
                                    ), 
                                    bsTooltip(id = "plotphylotree_getphylotree_bootstraprepnum",
                                              title = "Bootstrap iterations. Default 100.",
@@ -1463,10 +1460,10 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "60%", 
+                                               tags$td(width = "50%", 
                                                        div(style = "font-size:1.5em; font-weight:600; ",
                                                            "Boostrap repetitions")),
-                                               tags$td(width = "20%", 
+                                               tags$td(width = "30%", 
                                                        textInput(inputId = "comparetree_getphylotree_bootstraprepnum", 
                                                                  value = 100, label = NULL)))
                                    ), 
@@ -1598,8 +1595,8 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
-                                             tags$td(width = "20%", textInput(inputId = "treemutsig_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                             tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
+                                             tags$td(width = "30%", textInput(inputId = "treemutsig_getphylotree_bootstraprepnum", value = 100, label = NULL)))
                                  ), 
                                  bsTooltip(id = "treemutsig_getphylotree_bootstraprepnum",
                                            title = "Bootstrap iterations. Default 100.",
@@ -1709,8 +1706,8 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
-                                             tags$td(width = "20%", textInput(inputId = "muttrunkbranch_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                             tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
+                                             tags$td(width = "30%", textInput(inputId = "muttrunkbranch_getphylotree_bootstraprepnum", value = 100, label = NULL)))
                                  ), 
                                  bsTooltip(id = "muttrunkbranch_getphylotree_bootstraprepnum",
                                            title = "Bootstrap iterations. Default 100.",
