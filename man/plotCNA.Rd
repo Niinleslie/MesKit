@@ -15,7 +15,8 @@ plotCNA(
   legend.text.size = 9,
   legend.title.size = 11,
   sample.bar.height = 0.5,
-  chrom.bar.height = 0.5
+  chrom.bar.height = 0.5,
+  showRownames = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ plotCNA(
 \item{sample.bar.height}{Bar height of each sample .Default 0.5.}
 
 \item{chrom.bar.height}{Bar height of each chromosome .Default 0.5.}
+
+\item{showRownames}{show sample names.Default TRUE.}
 }
 \value{
 a heatmap plot of CNA profile

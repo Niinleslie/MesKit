@@ -11,6 +11,7 @@
 #' @param legend.title.size Size of legend title.Default 11.
 #' @param sample.bar.height Bar height of each sample .Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome .Default 0.5.
+#' @param showRownames show sample names.Default TRUE.
 #' 
 #' 
 #' @examples
@@ -35,7 +36,8 @@ plotCNA <- function(seg,
                     legend.text.size = 9,
                     legend.title.size = 11,
                     sample.bar.height = 0.5,
-                    chrom.bar.height = 0.5
+                    chrom.bar.height = 0.5,
+                    showRownames = TRUE
 ){
     
     ## combine data frame
@@ -351,9 +353,9 @@ plotCNA <- function(seg,
         
         theme(
             axis.text.x = element_blank(),
-            axis.text.y.left =  element_text(size = sample.text.size,
-                                             margin = margin(l = 0),
-                                             colour = "black"),
+            # axis.text.y.left =  element_text(size = sample.text.size,
+            #                                  margin = margin(l = 0),
+            #                                  colour = "black"),
             axis.ticks = element_blank(),
             # axis.line.y = element_line(colour = "darkblue", size = 1, linetype = "solid"),
             panel.grid =element_blank(),
@@ -367,10 +369,21 @@ plotCNA <- function(seg,
             # legend.text = element_text(size = legend.text.size,margin = margin(b = 3))
         )+
         scale_x_continuous(expand = c(0,0))+
-        scale_y_continuous(breaks = Y.text.table$Pos,
-                           labels = Y.text.table$Tumor_Sample_Barcode)+
+        # scale_y_continuous(breaks = Y.text.table$Pos,
+        #                    labels = Y.text.table$Tumor_Sample_Barcode)+
         ggtitle("Copy number variant profile")+
         theme(plot.title = element_text(size = 13.5, face = "bold", hjust = 0.5, vjust = -2))
+    if(showRownames){
+        p <- p + scale_y_continuous(breaks = Y.text.table$Pos,
+                               labels = Y.text.table$Tumor_Sample_Barcode) + 
+            theme(
+                axis.text.y.left =  element_text(size = sample.text.size,
+                                                 margin = margin(l = 0),
+                                                 colour = "black")
+            )
+    }else{
+        p <- p + theme(axis.text.y.left =  element_blank())
+    }
     ## patient bar
     if("patient" %in% colnames(seg)&
        length(unique(seg$patient)) > 1){

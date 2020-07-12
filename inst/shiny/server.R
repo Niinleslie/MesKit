@@ -17,12 +17,21 @@ shinyServer(function(input, output, session){
       
       if(is.null(input$mafFile)){
         mafFile <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-        ccfFile <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+        if(input$useccffile){
+          ccfFile <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+        }else{
+          ccfFile <- NULL
+        }
         maf <- readMaf(mafFile = mafFile,ccfFile = ccfFile)
       } else {
-        if(!is.null(input$mafFile) & !is.null(input$ccfFile)){
+        if(!is.null(input$mafFile)){
+          if(is.null(input$ccfFile)){
+            ccfFile <- NULL
+          }else{
+            ccfFile <- input$ccfFile$datapath
+          }
           maf <- readMaf(mafFile = input$mafFile$datapath,
-                         ccfFile =  input$ccfFile$datapath,
+                         ccfFile =  ccfFile,
                          refBuild = input$ref)          
         }
         else{
@@ -194,11 +203,11 @@ shinyServer(function(input, output, session){
     if(!is.null(ms())){
       fluidRow(
         column(
-          width = 9
+          width = 9,
+          downloadBttn('DownloadMathScore', 'Download')
         ),
         column(
-          width = 3,
-          downloadBttn('DownloadMathScore', 'Download')
+          width = 3
         )
       )
     }
@@ -323,9 +332,6 @@ shinyServer(function(input, output, session){
     if(!is.null(vafcluster())){
       fluidRow(
         column(
-          width = 7
-        ),
-        column(
           width = 2,
           radioButtons(inputId = 'DownloadVafPlotCheck', 
                        label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -388,13 +394,11 @@ shinyServer(function(input, output, session){
               br(),
               fluidRow(
                   column(
-                      width = 9
-                  ),
-                  column(
                       width = 3,
                       downloadBttn('Download_vafcluster_table', 'Download')
                   )
-              )
+              ),
+              br()
           )
       }
   })
@@ -498,9 +502,6 @@ shinyServer(function(input, output, session){
       if(!is.null(ccfauc())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_ccfauc_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -568,13 +569,11 @@ shinyServer(function(input, output, session){
               br(),
               fluidRow(
                   column(
-                      width = 9
-                  ),
-                  column(
                       width = 3,
                       downloadBttn('Download_ccfauc_table', 'Download')
                   )
-              )
+              ),
+              br()
           )
       }
   })
@@ -682,9 +681,6 @@ shinyServer(function(input, output, session){
       if(!is.null(calfst())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_calfst_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -754,9 +750,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('calfst_pair_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_calfst_pair_table', 'Download')
@@ -871,9 +864,6 @@ shinyServer(function(input, output, session){
       if(!is.null(calneidist())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_calneidist_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -942,9 +932,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('calneidist_pair_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_calneidist_pair_table', 'Download')
@@ -1121,9 +1108,6 @@ shinyServer(function(input, output, session){
       if(!is.null(mutheatmap())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_mutheatmap_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1289,9 +1273,6 @@ shinyServer(function(input, output, session){
       if(!is.null(comparejsi())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_comparejsi_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1361,9 +1342,6 @@ shinyServer(function(input, output, session){
               br(),
               fluidRow(
                   column(
-                      width = 9
-                  ),
-                  column(
                       width = 3,
                       downloadBttn('Download_comparejsi_pair_table', 'Download')
                   )
@@ -1417,9 +1395,6 @@ shinyServer(function(input, output, session){
       if(!is.null(classifymut())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_classifymut_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1461,9 +1436,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('classifymut_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_classifymut_table', 'Download')
@@ -1554,9 +1526,6 @@ shinyServer(function(input, output, session){
   output$plotmutprofile_download_button_ui <- renderUI({
       if(!is.null(plotmutprofile())){
           fluidRow(
-              column(
-                  width = 7
-              ),
               column(
                   width = 2,
                   radioButtons(inputId = 'Download_plotmutprofile_plot_check', 
@@ -1700,7 +1669,8 @@ shinyServer(function(input, output, session){
                               sample.bar.height = as.numeric(input$plotcna_samplebarheight) ,
                               legend.text.size = as.numeric(input$plotcna_legendtextsize) ,
                               legend.title.size = as.numeric(input$plotcna_legendtitlesize) ,
-                              chrom.bar.height = as.numeric(input$plotcna_chrombarheight) )
+                              chrom.bar.height = as.numeric(input$plotcna_chrombarheight),
+                              showRownames = input$plotcna_showrownames)
           seg <- dplyr::bind_rows(seg)
           if(!is.null(patientid)){
               seg <- seg[Patient_ID %in% patientid]
@@ -1730,9 +1700,6 @@ shinyServer(function(input, output, session){
   output$plotcna_download_button_ui <- renderUI({
       if(!is.null(plotcna())){
           fluidRow(
-              column(
-                  width = 7
-              ),
               column(
                   width = 2,
                   radioButtons(inputId = 'Download_plotcna_plot_check', 
@@ -1787,9 +1754,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('plotcna_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_plotcna_table', 'Download')
@@ -1925,9 +1889,6 @@ shinyServer(function(input, output, session){
       if(!is.null(testneutral())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_testneutral_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1996,9 +1957,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('testneutral_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_testneutral_table', 'Download')
@@ -2156,9 +2114,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('compareccf_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_compareccf_table', 'Download')
@@ -2322,9 +2277,6 @@ shinyServer(function(input, output, session){
           br()
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons('Download_phylotree_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                                choiceNames = list(
@@ -2370,7 +2322,7 @@ shinyServer(function(input, output, session){
       )
       
       withProgress(min = 0, max = 1, value = 0,{
-          setProgress(message = 'Processing: compare phylogenetic tree')
+          setProgress(message = 'Processing: compare phylogenetic trees')
           
           phylotree1 <- getPhyloTree(maf, patient.id = input$comparetree_patientid, 
                                      method = input$comparetree_getphylotree_method1,
@@ -2446,9 +2398,6 @@ shinyServer(function(input, output, session){
           br()
           br()
           fluidRow(
-              column(
-                  width = 7
-              ),
               column(
                   width = 2,
                   radioButtons('Download_comparetree_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -2622,9 +2571,6 @@ shinyServer(function(input, output, session){
       if(!is.null(treemutsig())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_treemutsig_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -2673,13 +2619,11 @@ shinyServer(function(input, output, session){
         br(),
         fluidRow(
           column(
-            width = 9
-          ),
-          column(
             width = 3,
             downloadBttn('Download_treemutsig_table', 'Download')
           )
-        )
+        ),
+        br()
       )
     }
   })
@@ -2774,9 +2718,6 @@ shinyServer(function(input, output, session){
       if(!is.null(muttrunkbranch())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons('Download_muttrunkbranch_plot_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                                choiceNames = list(
@@ -2821,9 +2762,6 @@ shinyServer(function(input, output, session){
             br(),
             DT::dataTableOutput('muttrunkbranch_table'),
             fluidRow(
-                column(
-                    width = 9
-                ),
                 column(
                     width = 3,
                     downloadBttn('Download_muttrunkbranch_table', 'Download')
