@@ -11,7 +11,7 @@
 #' @param legend.title.size Size of legend title.Default 11.
 #' @param sample.bar.height Bar height of each sample .Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome .Default 0.5.
-#' @param showRownames show sample names.Default TRUE.
+#' @param showRownames TRUE(Default). Show sample names of rows.
 #' 
 #' 
 #' @examples
