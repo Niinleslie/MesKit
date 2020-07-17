@@ -8,8 +8,8 @@
 #' 
 #' @examples
 #' ## input from fitSignatures
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
 #' 
@@ -62,17 +62,17 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             origin_df$Branch <- as.character(row.names(origin_df)) 
             rownames(origin_df) <- NULL
             origin_spectrum <- tidyr::pivot_longer(origin_df,
-                                                   -Branch,
+                                                   -"Branch",
                                                    names_to = "Type",
                                                    values_to = "Proportion") %>%
                 dplyr::mutate(spectrum_type = "Original") %>% 
                 dplyr::rowwise() %>% 
                 ## get mutation group :"C>A", "C>G", "C>T", "T>A", "T>C", "T>G"
                 dplyr::mutate(Group = paste(
-                    strsplit(Type,"")[[1]][3:5],
+                    strsplit(.data$Type,"")[[1]][3:5],
                     collapse = ''
                 )) %>% as.data.frame() %>% 
-                dplyr::mutate(group_background = paste(Group,1,sep = ""))
+                dplyr::mutate(group_background = paste(.data$Group,1,sep = ""))
             ## set levels
             type_level <- unique(origin_spectrum$Type)
             origin_spectrum$Type <- factor(origin_spectrum$Type, levels = type_level)
@@ -80,9 +80,16 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             
             ## plot signature profile for each branches
             pic_list <- list()
+            
+            ## initialize
+            Type <- NULL
+            Proportion <- NULL
+            Group <- NULL
+            group_background <- NULL
+            
             for(branch in unique(origin_spectrum$Branch)){
                 name <- paste0(patient,": ",branch)
-                branch_spectrum <- subset(origin_spectrum, Branch == branch)
+                branch_spectrum <- subset(origin_spectrum, origin_spectrum$Branch == branch)
                 pic <- ggplot(branch_spectrum, aes(x=Type, y=Proportion, group=Group, fill=Group))+ 
                      geom_rect(data = branch_spectrum,
                                        aes(fill = group_background),
@@ -140,7 +147,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             recon_df$Branch <- as.character(row.names(recon_df)) 
             rownames(recon_df) <- NULL
             recon_spectrum <- tidyr::pivot_longer(recon_df,
-                                                  -Branch,
+                                                  -"Branch",
                                                   names_to = "Type",
                                                   values_to = "Proportion") %>%
                 dplyr::mutate(spectrum_type = "Reconstructed")
@@ -149,7 +156,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             origin_df$Branch <- as.character(row.names(origin_df)) 
             rownames(origin_df) <- NULL
             origin_spectrum <- tidyr::pivot_longer(origin_df,
-                                                   -Branch,
+                                                   -"Branch",
                                                    names_to = "Type",
                                                    values_to = "Proportion") %>%
                 dplyr::mutate(spectrum_type = "Original")
@@ -162,7 +169,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             mut_spectrum <- dplyr::bind_rows(recon_spectrum, origin_spectrum, diff_spectrum) %>% 
                 dplyr::rowwise() %>% 
                 dplyr::mutate(Group = paste(
-                    strsplit(Type,"")[[1]][3:5],
+                    strsplit(.data$Type,"")[[1]][3:5],
                     collapse = ''
                 )) %>% as.data.frame()
             
@@ -174,12 +181,12 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             branch_list <- unique(mut_spectrum$Branch)
             pic_list <- list()
             for(branch in branch_list){
-                branch_spectrum <- subset(mut_spectrum, Branch == branch)
+                branch_spectrum <- subset(mut_spectrum, mut_spectrum$Branch == branch)
                 ## group of background color
                 branch_spectrum$group_background <- paste(branch_spectrum$Group,1,sep = "")
-                odata <- subset(branch_spectrum, spectrum_type == "Original")
-                rdata <- subset(branch_spectrum, spectrum_type == "Reconstructed")
-                ddata <- subset(branch_spectrum, spectrum_type == "Difference")
+                odata <- subset(branch_spectrum, branch_spectrum$spectrum_type == "Original")
+                rdata <- subset(branch_spectrum, branch_spectrum$spectrum_type == "Reconstructed")
+                ddata <- subset(branch_spectrum, branch_spectrum$spectrum_type == "Difference")
                 
                 ## calculate cosine similarity between original and reconstructed
                 p1 <- odata$Proportion
@@ -190,9 +197,9 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                 if(is.null(mode)){
                     branch_spectrum$spectrum_type <- factor(branch_spectrum$spectrum_type,
                                                             levels = c("Original","Reconstructed","Difference"))
-                    branch_spectrum <- dplyr::arrange(branch_spectrum, spectrum_type)
+                    branch_spectrum <- dplyr::arrange(branch_spectrum, .data$spectrum_type)
                 }else{
-                    branch_spectrum <- subset(branch_spectrum, spectrum_type %in% mode)
+                    branch_spectrum <- subset(branch_spectrum, branch_spectrum$spectrum_type %in% mode)
                     branch_spectrum$spectrum_type <- factor(branch_spectrum$spectrum_type,
                                                             levels = unique(branch_spectrum$spectrum_type)) 
                 }
@@ -220,6 +227,14 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                 name <- paste0(patient,": ",branch)
                 ## adjust Y axis
                 adjY_table <- data.frame()
+                
+                ## initialize
+                Type <- NULL
+                Proportion <- NULL
+                Group <- NULL
+                group_background <- NULL
+                
+                
                 pic <- ggplot(branch_spectrum, aes(x=Type, y=Proportion, group=Group, fill=Group))
                 if("Original" %in% branch_spectrum$spectrum_type){
                     pic <- pic + geom_rect(data = odata,

@@ -16,13 +16,22 @@ shinyServer(function(input, output, session){
       
       
       if(is.null(input$mafFile)){
-        mafFile <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-        ccfFile <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+        mafFile <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+        if(input$useccffile){
+          ccfFile <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+        }else{
+          ccfFile <- NULL
+        }
         maf <- readMaf(mafFile = mafFile,ccfFile = ccfFile)
       } else {
-        if(!is.null(input$mafFile) & !is.null(input$ccfFile)){
+        if(!is.null(input$mafFile)){
+          if(is.null(input$ccfFile)){
+            ccfFile <- NULL
+          }else{
+            ccfFile <- input$ccfFile$datapath
+          }
           maf <- readMaf(mafFile = input$mafFile$datapath,
-                         ccfFile =  input$ccfFile$datapath,
+                         ccfFile =  ccfFile,
                          refBuild = input$ref)          
         }
         else{
@@ -194,11 +203,11 @@ shinyServer(function(input, output, session){
     if(!is.null(ms())){
       fluidRow(
         column(
-          width = 9
+          width = 9,
+          downloadBttn('DownloadMathScore', 'Download')
         ),
         column(
-          width = 3,
-          downloadBttn('DownloadMathScore', 'Download')
+          width = 3
         )
       )
     }
@@ -239,11 +248,11 @@ shinyServer(function(input, output, session){
       )
       patientid <- input$vafcluster_patientid
       withProgress(min = 0, max = 1, value = 0,{
-          setProgress(message = 'Processing: generating VAF distribution curve')
+          setProgress(message = 'Processing: perform vaf clustering')
           vc <- vafCluster(maf, 
                            patient.id = patientid,
                            withinTumor = input$vafcluster_withintumor,
-                           segCN.file = input$vafcluster_segfile,
+                           segFile = input$vafcluster_segfile,
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
                            max.vaf = as.numeric(input$vafcluster_maxvaf))        
           incProgress(amount = 1)
@@ -323,9 +332,6 @@ shinyServer(function(input, output, session){
     if(!is.null(vafcluster())){
       fluidRow(
         column(
-          width = 7
-        ),
-        column(
           width = 2,
           radioButtons(inputId = 'DownloadVafPlotCheck', 
                        label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -388,13 +394,11 @@ shinyServer(function(input, output, session){
               br(),
               fluidRow(
                   column(
-                      width = 9
-                  ),
-                  column(
                       width = 3,
                       downloadBttn('Download_vafcluster_table', 'Download')
                   )
-              )
+              ),
+              br()
           )
       }
   })
@@ -498,9 +502,6 @@ shinyServer(function(input, output, session){
       if(!is.null(ccfauc())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_ccfauc_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -568,13 +569,11 @@ shinyServer(function(input, output, session){
               br(),
               fluidRow(
                   column(
-                      width = 9
-                  ),
-                  column(
                       width = 3,
                       downloadBttn('Download_ccfauc_table', 'Download')
                   )
-              )
+              ),
+              br()
           )
       }
   })
@@ -682,9 +681,6 @@ shinyServer(function(input, output, session){
       if(!is.null(calfst())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_calfst_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -754,9 +750,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('calfst_pair_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_calfst_pair_table', 'Download')
@@ -871,9 +864,6 @@ shinyServer(function(input, output, session){
       if(!is.null(calneidist())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_calneidist_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -942,9 +932,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('calneidist_pair_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_calneidist_pair_table', 'Download')
@@ -1121,9 +1108,6 @@ shinyServer(function(input, output, session){
       if(!is.null(mutheatmap())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_mutheatmap_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1289,9 +1273,6 @@ shinyServer(function(input, output, session){
       if(!is.null(comparejsi())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_comparejsi_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1361,9 +1342,6 @@ shinyServer(function(input, output, session){
               br(),
               fluidRow(
                   column(
-                      width = 9
-                  ),
-                  column(
                       width = 3,
                       downloadBttn('Download_comparejsi_pair_table', 'Download')
                   )
@@ -1417,9 +1395,6 @@ shinyServer(function(input, output, session){
       if(!is.null(classifymut())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_classifymut_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1462,9 +1437,6 @@ shinyServer(function(input, output, session){
               br(),
               fluidRow(
                   column(
-                      width = 9
-                  ),
-                  column(
                       width = 3,
                       downloadBttn('Download_classifymut_table', 'Download')
                   )
@@ -1499,16 +1471,21 @@ shinyServer(function(input, output, session){
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
-          setProgress(message = 'Processing: drawing mutation profile')
+          setProgress(message = 'Processing: drawing mutational profile')
           if(is.null(input$plotmutprofile_patientid)){
               patientid <- NULL
           }else{
               patientid <- input$plotmutprofile_patientid
           }
-          if(!is.null(input$plotmutprofile_genelist$datapath)){
+          if(input$plotmutprofile_usegenelist){
+            if(!is.null(input$plotmutprofile_genelist$datapath)){
               genelist <- as.character(read.table(input$plotmutprofile_genelist$datapath)$V1)
+            }else{
+              genelist_file <- system.file("extdata", "IntOGen-DriverGenes_HC.tsv", package = "MesKit")
+              genelist <- as.character(read.table(genelist_file)$V1)
+            }
           }else{
-              genelist <- NULL
+            genelist <- NULL
           }
           cc <- plotMutProfile(maf,
                                patient.id = patientid,
@@ -1550,9 +1527,6 @@ shinyServer(function(input, output, session){
       if(!is.null(plotmutprofile())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_plotmutprofile_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1593,11 +1567,7 @@ shinyServer(function(input, output, session){
   output$plotcna.patientlist <- renderUI({
       
       if(!is.null(input$plotcna_segfile$datapath)){
-          seg <- readSegment(segCN.file = input$plotcna_segfile$datapath,
-                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
-                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
-                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile$datapath,
-                             gistic.qval = as.numeric(input$plotcna_gisticqval) )
+          seg <- readSegment(segFile = input$plotcna_segfile$datapath) %>% dplyr::bind_rows()
           patient.list <- unique(seg$Patient_ID)
            tagList(
                   selectizeInput("plotcna_patientid",
@@ -1614,21 +1584,21 @@ shinyServer(function(input, output, session){
   })
   
   output$plotcna_gistic_parameters_ui <- renderUI({
-      if(any(!is.null(input$plotcna_gisticAllLesionsFile),
-             !is.null(input$plotcna_gisticAmpGenesFile),
-             !is.null(input$plotcna_gisticDelGenesFile))){
+      if(any(input$plotmutprofile_usegisticAmpGenes,
+             input$plotmutprofile_usegisticDelGenes,
+             input$plotmutprofile_usegisticAllLesions)){
           tagList(
-              checkboxInput('plotcna_showGISTICgene', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show GISTIC gene'),value = FALSE,width = 400),
-              bsTooltip(id = "plotcna_showGISTICgene",
-                        title = "Whether GISTIC gene in seg.Default FALSE.",
-                        placement = "top",
-                        trigger = "hover"),
+              # checkboxInput('plotcna_showGISTICgene', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Show GISTIC gene'),value = FALSE,width = 400),
+              # bsTooltip(id = "plotcna_showGISTICgene",
+              #           title = "Whether GISTIC gene in seg.Default FALSE.",
+              #           placement = "top",
+              #           trigger = "hover"),
               tags$table(
-                  tags$tr(id = "inline", 
+                  tags$tr(id = "inline",
                           width = "100%",
                           tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Gistic qvalue: ")),
                           tags$td(width = "50%", textInput(inputId = "plotcna_gisticqval", value = 0.25, label = NULL)))
-              ), 
+              ),
               bsTooltip(id = "plotcna_gisticqval",
                         title = "The threshold of gistic Q value. Default is 0.25",
                         placement = "top",
@@ -1641,18 +1611,45 @@ shinyServer(function(input, output, session){
       
       validate(
           need(!is.null(input$plotcna_segfile$datapath),
-               "PlotCNA need copy number information,upload seg file first"
+               "PlotCNA needs copy number information, upload segmentation file first"
                     )
           )
       
       withProgress(min = 0, max = 2, value = 0, {
           setProgress(message = 'Processing: drawing CNA profile')
-          seg <- readSegment(segCN.file = input$plotcna_segfile$datapath,
-                             gisticAllLesionsFile = input$plotcna_gisticAllLesionsFile$datapath,
-                             gisticAmpGenesFile = input$plotcna_gisticAmpGenesFile$datapath,
-                             gisticDelGenesFile = input$plotcna_gisticDelGenesFile$datapath,
+        if(input$plotmutprofile_usegisticAmpGenes){
+          if(!is.null(input$plotcna_gisticAmpGenesFile$datapath)){
+            gisticAmpGenesFile <- input$plotcna_gisticAmpGenesFile$datapath
+          }else{
+            gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
+          }
+        }else{
+          gisticAmpGenesFile <- NULL
+        }
+        if(input$plotmutprofile_usegisticDelGenes){
+          if(!is.null(input$plotcna_gisticDelGenesFile$datapath)){
+            gisticDelGenesFile <- input$plotcna_gisticDelGenesFile$datapath
+          }else{
+            gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+          }
+        }else{
+          gisticDelGenesFile <- NULL
+        }
+        if(input$plotmutprofile_usegisticAllLesions){
+          if(!is.null(input$plotcna_gisticAllLesionsFile$datapath)){
+            gisticAllLesionsFile <- input$plotcna_gisticAllLesionsFile$datapath
+          }else{
+            gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+          }
+        }else{
+          gisticAllLesionsFile <- NULL
+        }
+        print(input$plotcna_gisticqval)
+          seg <- readSegment(segFile = input$plotcna_segfile$datapath,
+                             gisticAllLesionsFile = gisticAllLesionsFile,
+                             gisticAmpGenesFile = gisticAmpGenesFile,
+                             gisticDelGenesFile = gisticDelGenesFile,
                              gistic.qval = as.numeric(input$plotcna_gisticqval) )
-          
           incProgress(amount = 1)
           setProgress(message = 'Complete reading seg file!')
           if(is.null(input$plotcna_patientid)){
@@ -1660,20 +1657,21 @@ shinyServer(function(input, output, session){
           }else{
               patientid <- input$plotcna_patientid
           }
-          if(is.null(input$plotcna_showGISTICgene)){
-              show.GISTIC.gene <- FALSE
-          }else{
-              show.GISTIC.gene <- input$plotcna_showGISTICgene
-          }
+          # if(is.null(input$plotcna_showGISTICgene)){
+          #     show.GISTIC.gene <- FALSE
+          # }else{
+          #     show.GISTIC.gene <- input$plotcna_showGISTICgene
+          # }
           cna.plot <- plotCNA(seg,
                               patient.id = patientid,
                               refBuild = input$plotcna_refBuild,
-                              show.GISTIC.gene = show.GISTIC.gene,
                               sample.text.size = as.numeric(input$plotcna_sampletextsize) ,
                               sample.bar.height = as.numeric(input$plotcna_samplebarheight) ,
                               legend.text.size = as.numeric(input$plotcna_legendtextsize) ,
                               legend.title.size = as.numeric(input$plotcna_legendtitlesize) ,
-                              chrom.bar.height = as.numeric(input$plotcna_chrombarheight) )
+                              chrom.bar.height = as.numeric(input$plotcna_chrombarheight),
+                              showRownames = input$plotcna_showrownames)
+          seg <- dplyr::bind_rows(seg)
           if(!is.null(patientid)){
               seg <- seg[Patient_ID %in% patientid]
           }
@@ -1702,9 +1700,6 @@ shinyServer(function(input, output, session){
   output$plotcna_download_button_ui <- renderUI({
       if(!is.null(plotcna())){
           fluidRow(
-              column(
-                  width = 7
-              ),
               column(
                   width = 2,
                   radioButtons(inputId = 'Download_plotcna_plot_check', 
@@ -1744,6 +1739,7 @@ shinyServer(function(input, output, session){
   output$plotcna_table <- DT::renderDataTable({
       if(!is.null(plotcna())){
           t <- plotcna()$seg
+          print(t)
           d <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
           return(d)
       }
@@ -1753,14 +1749,11 @@ shinyServer(function(input, output, session){
   output$plotcna_table_ui <- renderUI({
       if(!is.null(plotcna())){
           tagList(
-              div(style = "font-size:1.5em; font-weight:600; ", "Seg file"),
+              div(style = "font-size:1.5em; font-weight:600; ", "Segment"),
               br(),
               DT::dataTableOutput('plotcna_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_plotcna_table', 'Download')
@@ -1896,9 +1889,6 @@ shinyServer(function(input, output, session){
       if(!is.null(testneutral())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons(inputId = 'Download_testneutral_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -1967,9 +1957,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('testneutral_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_testneutral_table', 'Download')
@@ -2127,9 +2114,6 @@ shinyServer(function(input, output, session){
               DT::dataTableOutput('compareccf_table'),
               br(),
               fluidRow(
-                  column(
-                      width = 9
-                  ),
                   column(
                       width = 3,
                       downloadBttn('Download_compareccf_table', 'Download')
@@ -2293,9 +2277,6 @@ shinyServer(function(input, output, session){
           br()
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons('Download_phylotree_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                                choiceNames = list(
@@ -2341,7 +2322,7 @@ shinyServer(function(input, output, session){
       )
       
       withProgress(min = 0, max = 1, value = 0,{
-          setProgress(message = 'Processing: compare phylogenetic tree')
+          setProgress(message = 'Processing: compare phylogenetic trees')
           
           phylotree1 <- getPhyloTree(maf, patient.id = input$comparetree_patientid, 
                                      method = input$comparetree_getphylotree_method1,
@@ -2356,7 +2337,7 @@ shinyServer(function(input, output, session){
           
           ct <- compareTree(phylotree1, phylotree2,
                             common.col = input$comparetree_commoncol,
-                            min.ratio = input$comparetree_minratio,
+                            min.ratio = as.numeric(input$comparetree_minratio) ,
                             show.bootstrap = input$comparetree_showbootstrap,
                             plot = TRUE)
           
@@ -2417,9 +2398,6 @@ shinyServer(function(input, output, session){
           br()
           br()
           fluidRow(
-              column(
-                  width = 7
-              ),
               column(
                   width = 2,
                   radioButtons('Download_comparetree_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
@@ -2549,7 +2527,7 @@ shinyServer(function(input, output, session){
               names <- names(sample.list)
               tagList(
                   selectInput("treemutsig.sl", 
-                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Select branch'),
                               choices = names, width = 600) 
               ) 
           }else{
@@ -2557,7 +2535,7 @@ shinyServer(function(input, output, session){
               names <- names(sample.list)
               tagList(
                   selectInput("treemutsig.sl", 
-                              div(style = "font-size:1.5em; font-weight:600; ", 'Branch'),
+                              div(style = "font-size:1.5em; font-weight:600; ", 'Select branch'),
                               choices = names, width = 600) 
               )
           }
@@ -2592,9 +2570,6 @@ shinyServer(function(input, output, session){
   output$treemutsig_download_button_ui <- renderUI({
       if(!is.null(treemutsig())){
           fluidRow(
-              column(
-                  width = 7
-              ),
               column(
                   width = 2,
                   radioButtons(inputId = 'Download_treemutsig_plot_check', 
@@ -2644,13 +2619,11 @@ shinyServer(function(input, output, session){
         br(),
         fluidRow(
           column(
-            width = 9
-          ),
-          column(
             width = 3,
             downloadBttn('Download_treemutsig_table', 'Download')
           )
-        )
+        ),
+        br()
       )
     }
   })
@@ -2745,9 +2718,6 @@ shinyServer(function(input, output, session){
       if(!is.null(muttrunkbranch())){
           fluidRow(
               column(
-                  width = 7
-              ),
-              column(
                   width = 2,
                   radioButtons('Download_muttrunkbranch_plot_check', label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                                choiceNames = list(
@@ -2792,9 +2762,6 @@ shinyServer(function(input, output, session){
             br(),
             DT::dataTableOutput('muttrunkbranch_table'),
             fluidRow(
-                column(
-                    width = 9
-                ),
                 column(
                     width = 3,
                     downloadBttn('Download_muttrunkbranch_table', 'Download')

@@ -3,10 +3,7 @@ drawVAFCombine <- function(subdata){
     
    id <- unique(subdata$ID)
    patient <- unique(subdata$Patient_ID)
-   ## A draft for density infomation(density_info) of ggplot
-   picv <- ggplot(subdata, aes(x=VAF)) + 
-      geom_line(size=1, colour="#00C0EB", stat="density")
-   
+
    # build color vector for later use
    color_scale <- c("#3B4992FF", "#EE0000FF", "#008B45FF", "#631879FF", 
                     "#008280FF", "#BB0021FF", "#5F559BFF", "#A20056FF", 
@@ -14,7 +11,10 @@ drawVAFCombine <- function(subdata){
    
    names(color_scale) <- c(seq_len(9), "outlier")
    
-     ## generate  plot and specific titles for minifigures
+   ## initialize variable in ggplot for biocheck error
+   VAF <- NULL
+   cluster <- NULL
+   ## generate  plot and specific titles for minifigures
    p <- ggplot(subdata, aes(x = VAF)) + 
          theme_bw() +
          theme(legend.position='right', 
@@ -37,8 +37,16 @@ drawVAFCombine <- function(subdata){
 
 
 ## Draw vlines for all plotOption
-drawVAFCombineVline <- function(subdata)
-{   
+drawVAFCombineVline <- function(subdata){   
+   
+   ## initialize variable in ggplot for biocheck error
+   VAF <- NULL
+   cluster <- NULL
+   x <- NULL
+   xend <- NULL
+   y <- NULL
+   yend <- NULL
+   
    ## A draft for density infomation(density_info) of ggplot
    picv <- ggplot(subdata, aes(x=VAF)) + 
         geom_line(size=1, colour="#00C0EB", stat="density")

@@ -18,10 +18,11 @@
 #' @return the neutrality metrics and model fitting plots
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' testNeutral(maf)
+#' @importFrom stats approxfun integrate lm
 #' @export testNeutral
 
 testNeutral <- function(maf,
@@ -76,10 +77,10 @@ testNeutral <- function(maf,
     
     for(id in ids){
       if(withinTumor){
-        subdata <- subset(maf_data, Tumor_ID == id&!is.na(Tumor_Average_VAF_adj))
+        subdata <- subset(maf_data, maf_data$Tumor_ID == id & !is.na(maf_data$Tumor_Average_VAF_adj))
         subdata$VAF_adj <- subdata$Tumor_Average_VAF_adj
       }else{
-        subdata <- subset(maf_data, Tumor_Sample_Barcode == id&!is.na(VAF_adj))
+        subdata <- subset(maf_data, maf_data$Tumor_Sample_Barcode == id & !is.na(maf_data$VAF_adj))
       }
       ## warning
       if(nrow(subdata) < min.mut.count){
@@ -95,11 +96,11 @@ testNeutral <- function(maf,
       vafCumsum$n_count <- vafCumsum$count/max(vafCumsum)
       vafCumsum$t_count <- vafCumsum$inv_f/(1/min.vaf - 1/max.vaf)
       ## area of theoretical curve
-      theoryA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$t_count),
+      theoryA <- stats::integrate(stats::approxfun(vafCumsum$inv_f,vafCumsum$t_count),
                            min(vafCumsum$inv_f),
                            max(vafCumsum$inv_f),stop.on.error = FALSE)$value
       # area of emprical curve
-      dataA <- integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
+      dataA <- stats::integrate(approxfun(vafCumsum$inv_f,vafCumsum$n_count),
                          min(vafCumsum$inv_f),
                          max(vafCumsum$inv_f),stop.on.error = FALSE)$value
       # Take absolute difference between the two
@@ -119,7 +120,7 @@ testNeutral <- function(maf,
       kolmogorovdist  <- max(c(dn, dp))
       
       ## R squared
-      lmModel <- lm(vafCumsum$count ~ vafCumsum$inv_f + 0)
+      lmModel <- stats::lm(vafCumsum$count ~ vafCumsum$inv_f + 0)
       lmLine = summary(lmModel)
       R2 = lmLine$adj.r.squared
       

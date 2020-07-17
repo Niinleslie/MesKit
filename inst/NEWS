@@ -1,0 +1,21 @@
+MesKit 0.99.11
+==============
+
+Changes:
+
+* Preparations for Bioconductor release 4.0.
+
+* Bugfixes:
+  + Fix 'plotCNA' to not show 'chrSilent'.
+
+* Other changes:
+  +  Update exmaples.
+  +  Removed useless datasets.
+
+
+MesKit 0.99.0 (Release date: 2019-06-01)
+==============
+
+Changes:
+
+* Package created.

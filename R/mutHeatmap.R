@@ -16,13 +16,13 @@
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' mutHeatmap(maf)
 #' 
 #' @return heatmap of somatic mutations
-#'
+#' @importFrom grDevices colors
 #' @export mutHeatmap
 
 mutHeatmap <- function(maf,
@@ -126,9 +126,9 @@ mutHeatmap <- function(maf,
         if(!is.null(geneList)){
             if(plot.geneList){
                 mat <- mat  %>%
-                    dplyr::filter(Gene %in% geneList) %>%
+                    dplyr::filter(.data$Gene %in% geneList) %>%
                     as.data.frame() %>% 
-                    dplyr::distinct(mutation_type, Gene, .keep_all = TRUE)
+                    dplyr::distinct(.data$mutation_type, .data$Gene, .keep_all = TRUE)
                 if(nrow(mat) == 0){
                     message("Warning: none of mutated genes map to genelist")
                     next
@@ -136,8 +136,8 @@ mutHeatmap <- function(maf,
             }else{
                 mat <- mat  %>%
                     dplyr::mutate(Gene = dplyr::if_else(
-                        Gene %in% geneList,
-                        Gene,
+                        .data$Gene %in% geneList,
+                        .data$Gene,
                         "genelist.out"
                     )) %>%
                     as.data.frame()
@@ -150,7 +150,7 @@ mutHeatmap <- function(maf,
         # mat <- dplyr::distinct(mat, mutation_type, Gene, .keep_all = TRUE)
         ## sort mutation
         mut.num <- nrow(mat)        
-        mat <- dplyr::arrange(mat,  mutation_type)
+        mat <- dplyr::arrange(mat,  .data$mutation_type)
         mat$mutation <- seq_len(nrow(mat))
         
         
@@ -173,7 +173,7 @@ mutHeatmap <- function(maf,
             values_to = value.name
         )
         mut_dat$sample <- factor(mut_dat$sample, levels = sample_levels)
-        mut_dat <- dplyr::arrange(mut_dat,sample)
+        mut_dat <- dplyr::arrange(mut_dat,.data$sample)
         mut_dat$xmin <- rep(cumsum(c(0, rep(0.5, sample_num-1))) ,each = nrow(mat))
         mut_dat$xmax <- mut_dat$xmin + 0.49
         if(nrow(mut_dat) == 0){
@@ -219,13 +219,13 @@ mutHeatmap <- function(maf,
         mutation_type_sum <- length(mut_dat$mutation_type)/length(unique(mut_dat$sample))
         
         ## set colors
-        mutation_type_colors <- sample(colors(),length(mutation_type_level),replace = FALSE)
+        mutation_type_colors <- sample(grDevices::colors(),length(mutation_type_level),replace = FALSE)
         ## get colors
         mutation_type_colors <- c("#7fc97f","#fdc086", "#E64B35FF", "#82166E",
                                   "#B77B42","#6349B7","#D5017D","#B77562",
                                    "#88A4FF", "#439F18", "#971D37","#8C9F3C")
         if(length(mutation_type_level) > length(mutation_type_colors)){
-            left_colors <- sample(colors(),
+            left_colors <- sample(grDevices::colors(),
                                   length(mutation_type_level)-length(mutation_type_colors),
                                   replace = FALSE)
             mutation_type_colors <- append(mutation_type_colors, left_colors)
@@ -257,6 +257,10 @@ mutHeatmap <- function(maf,
         # ## label of annotation bar
         # type_label <- paste0(mutation_type_level,mutation_type_num)
         
+        ## initialize
+        xmin <- NULL
+        xmax <- NULL
+        
         p_basic <- ggplot() +
             labs(x = "", y = "") + theme_bw() +
             theme(panel.border = element_blank()) +
@@ -284,6 +288,8 @@ mutHeatmap <- function(maf,
             theme(legend.position = "right")
         
         if(use.ccf){
+            ## initialize
+            CCF <- NULL
             p <- p_basic + 
                 geom_rect(data = mut_dat,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = CCF))+
@@ -291,6 +297,8 @@ mutHeatmap <- function(maf,
             #ggsave(paste(patientID, "_mut_CCF.pdf", sep = ""), p, width = 4.5, height = 6.5)
         }else if(!use.ccf){
             mut_dat$Mutation <- as.character(mut_dat$Mutation)
+            ## initialize
+            Mutation <- NULL
             p <- p_basic + 
                 geom_rect(data = mut_dat,
                           mapping = aes(xmin = xmin,xmax = xmax,ymin = ymin, ymax = ymax,fill = Mutation))+
@@ -300,8 +308,9 @@ mutHeatmap <- function(maf,
         }
         
         mutation_legend <- (p+ theme(legend.background = element_blank()))%>%    
-            ggplotGrob %>%
-            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
+            ggplotGrob()
+        mutation_legend <- mutation_legend$grobs[[which(unlist(lapply(mutation_legend$grobs, function(x) {x$name})) == "guide-box")]]
+
         
         # if(is.null(geneList) & show.gene){
         #     breaks.gene <- unique(mut_dat$ymin + (mut_dat$ymax - mut_dat$ymin)/2)
@@ -316,8 +325,8 @@ mutHeatmap <- function(maf,
         if(!is.null(geneList)){
             if(plot.geneList & show.geneList){
                 y.dat <- mut_dat %>% 
-                    dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
-                    dplyr::distinct(y.breaks, .keep_all = TRUE)
+                    dplyr::mutate(y.breaks = .data$ymin + (.data$ymax - .data$ymin)/2) %>% 
+                    dplyr::distinct(.data$y.breaks, .keep_all = TRUE)
                 y.breaks <- y.dat$y.breaks
                 y.labels <- y.dat$Gene
                 p <- p + 
@@ -332,10 +341,10 @@ mutHeatmap <- function(maf,
             }
             else if(!plot.geneList & show.geneList){
                 y.dat <- mut_dat %>% 
-                    dplyr::filter(Gene != "genelist.out") %>% 
-                    dplyr::mutate(y.breaks = ymin + (ymax - ymin)/2) %>% 
-                    dplyr::distinct(y.breaks, .keep_all = TRUE) %>% 
-                    dplyr::distinct(mutation_type, Gene, .keep_all = TRUE)
+                    dplyr::filter(.data$Gene != "genelist.out") %>% 
+                    dplyr::mutate(y.breaks = .data$ymin + (.data$ymax - .data$ymin)/2) %>% 
+                    dplyr::distinct(.data$y.breaks, .keep_all = TRUE) %>% 
+                    dplyr::distinct(.data$mutation_type, .data$Gene, .keep_all = TRUE)
                 y.breaks <- y.dat$y.breaks
                 y.labels <- y.dat$Gene
                 p <- p +
@@ -366,11 +375,10 @@ mutHeatmap <- function(maf,
                                   values = type_colors,
                                   name = "Type") + 
                 theme(legend.background = element_blank(),
-                      legend.title = element_text(size = legend.title.size))
-            )%>%
-            ggplotGrob %>%
-            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
-        
+                      legend.title = element_text(size = legend.title.size)))%>%
+            ggplotGrob() 
+        type_legend <-  type_legend$grobs[[which(unlist(lapply(type_legend$grobs, function(x) {x$name})) == "guide-box")]]
+
         legends_column <-
             plot_grid(
                 mutation_legend + theme(legend.position = "none"),

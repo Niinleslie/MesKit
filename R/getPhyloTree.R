@@ -10,8 +10,8 @@
 #' 
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
 #' @return  PhyloTree or phyloTreeList object
@@ -58,19 +58,29 @@ getPhyloTree <- function(maf,
       mut_dat <- t(binary.matrix)
       if(method == "NJ"){
           matTree <- nj(dist.gene(mut_dat))
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)nj(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE)/(bootstrap.rep.num)*100
+          root_num <- which(matTree$tip.label == "NORMAL")
+          matTree <- root(matTree, root_num)
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){nj(dist.gene(e))},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
       }else if(method == "MP"){
           matTree <- byMP(mut_dat)
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = TRUE)/(bootstrap.rep.num)*100 
+          root_num <- which(matTree$tip.label == "NORMAL")
+          matTree <- root(matTree, root_num)
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100 
       }else if(method == "ML"){
           matTree <- byML(mut_dat)
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = TRUE)/(bootstrap.rep.num)*100
+          root_num <- which(matTree$tip.label == "NORMAL")
+          matTree <- root(matTree, root_num)
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
       }else if(method == "FASTME.bal"){
           matTree <- ape::fastme.bal(dist.gene(mut_dat))
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE)/(bootstrap.rep.num)*100
+          root_num <- which(matTree$tip.label == "NORMAL")
+          matTree <- root(matTree, root_num)
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
       }else if(method == "FASTME.ols"){
           matTree <- ape::fastme.ols(dist.gene(mut_dat))
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE)/(bootstrap.rep.num)*100
+          root_num <- which(matTree$tip.label == "NORMAL")
+          matTree <- root(matTree, root_num)
+          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
       }
       branch.id <- readPhyloTree(matTree)
       

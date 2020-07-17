@@ -17,11 +17,11 @@
 #' Weighted.path.difference	 difference in the path length, counted using branches lengths
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' phyloTree1 <- getPhyloTree(maf, method = "NJ")
-#' phyloTree2 <- getPhyloTree(maf, method = "MP")
+#' phyloTree1 <- getPhyloTree(maf$HCC5647, method = "NJ")[[1]]
+#' phyloTree2 <- getPhyloTree(maf$HCC5647, method = "MP")[[1]]
 #' compareTree(phyloTree1, phyloTree2)
 #' compareTree(phyloTree1, phyloTree2, plot = TRUE)
 #' @export compareTree
@@ -48,8 +48,26 @@ compareTree <- function(phyloTree1,
 	        min2 <- max(tree2$edge.length)*min.ratio
 	        tree1$edge.length[tree1$edge.length < min1] <- min1
 	        tree2$edge.length[tree2$edge.length < min2] <- min2
-	        phyloTree1@tree <- tree1
-	        phyloTree2@tree <- tree2
+	        phyloTree1 <- new('phyloTree',
+	                          patientID = getPhyloTreePatient(phyloTree1),
+	                          tree = tree1, 
+	                          binary.matrix = getBinaryMatrix(phyloTree1),
+	                          ccf.matrix = getCCFMatrix(phyloTree1), 
+	                          mut.branches = getMutBranches(phyloTree1),
+	                          branch.type = getBranchType(phyloTree1),
+	                          ref.build = getPhyloTreeRef(phyloTree1),
+	                          bootstrap.value = getBootstrapValue(phyloTree1),
+	                          method = getTreeMethod(phyloTree1))
+	        phyloTree2 <- new('phyloTree',
+	                          patientID = getPhyloTreePatient(phyloTree2),
+	                          tree = tree2, 
+	                          binary.matrix = getBinaryMatrix(phyloTree2),
+	                          ccf.matrix = getCCFMatrix(phyloTree2), 
+	                          mut.branches = getMutBranches(phyloTree2),
+	                          branch.type = getBranchType(phyloTree2),
+	                          ref.build = getPhyloTreeRef(phyloTree2),
+	                          bootstrap.value = getBootstrapValue(phyloTree2),
+	                          method = getTreeMethod(phyloTree2))
 	    }
 	    treedat1 <- getTreeData(phyloTree1, compare = compare)
 	    treedat2 <- getTreeData(phyloTree2, compare = compare)
@@ -64,8 +82,8 @@ compareTree <- function(phyloTree1,
 	                next
 	            }
 	            else{
-	                pos1 <- which(treedat1$end_num == treedat1[sample == "internal node",]$end_num[i])
-	                pos2 <- which(treedat2$end_num == treedat2[sample == "internal node",]$end_num[m12[i]])
+	                pos1 <- which(treedat1$end_num == treedat1[treedat1$sample == "internal node",]$end_num[i])
+	                pos2 <- which(treedat2$end_num == treedat2[treedat2$sample == "internal node",]$end_num[m12[i]])
 	                treedat1$is.match[pos1] <- paste0("com", x)
 	                treedat2$is.match[pos2] <- paste0("com", x)
 	                x <- x + 1

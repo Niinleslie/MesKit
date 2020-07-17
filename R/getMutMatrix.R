@@ -4,13 +4,13 @@ getMutMatrix <- function(maf_data, use.ccf = FALSE){
     # maf_data <- maf$`38`@data
     M <- maf_data %>% 
     tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE) %>% 
-    dplyr::select(mutation_id, Tumor_Sample_Barcode)
+    dplyr::select("mutation_id", "Tumor_Sample_Barcode")
     
     # print(M[450:451,])
     M$mutation <- 1
-    mutBinary <- suppressMessages(tidyr::spread(M, Tumor_Sample_Barcode, mutation))
+    mutBinary <- suppressMessages(tidyr::spread(M, "Tumor_Sample_Barcode", "mutation"))
     mut.id <- mutBinary$mutation_id
-    mutBinary <- dplyr::select(mutBinary, -mutation_id)
+    mutBinary <- dplyr::select(mutBinary, -"mutation_id")
   
 
     mutBinary[!is.na(mutBinary)] <- 1
@@ -61,11 +61,11 @@ getMutMatrix <- function(maf_data, use.ccf = FALSE){
     M$CCF <- maf_data$CCF
     M[is.na(M$CCF),'CCF'] <- 2
 
-    mutCCF <- dplyr::select(M, -mutation) %>%
-      tidyr::spread(key=Tumor_Sample_Barcode, value=CCF)
+    mutCCF <- dplyr::select(M, -"mutation") %>%
+      tidyr::spread(key="Tumor_Sample_Barcode", value="CCF")
 
     mut.id <- mutCCF$mutation_id
-    mutCCF <- dplyr::select(mutCCF, -mutation_id)
+    mutCCF <- dplyr::select(mutCCF, -"mutation_id")
 
     mutCCF[is.na(mutCCF)] <- 0
     mutCCF$NORMAL <- 0

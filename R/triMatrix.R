@@ -7,9 +7,10 @@
 #' @return The frequency of 96 trinucleotide mutation.
 #' 
 #' @importFrom Biostrings getSeq
+#' @importFrom S4Vectors Rle
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' 
 #' ## Load a reference genome.

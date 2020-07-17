@@ -13,11 +13,12 @@
 #' @return A list containing AUC of CCF and a graph
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC6046.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC6046.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' ccfAUC(maf)
 #' 
+#' @importFrom stats approxfun
 #' @export ccfAUC
 
 ccfAUC <- function(
@@ -38,9 +39,9 @@ ccfAUC <- function(
                         "No CCF data was found when generate Maf object."))
         }
         maf_data <- subMaf(m, min.ccf = min.ccf, ...) %>% 
-        dplyr::filter(!is.na(CCF))
+        dplyr::filter(!is.na(.data$CCF))
         if(withinTumor) {
-            maf_data <- dplyr::filter(maf_data, !is.na(Tumor_Average_CCF))
+            maf_data <- dplyr::filter(maf_data, !is.na(.data$Tumor_Average_CCF))
         }
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
@@ -61,15 +62,15 @@ ccfAUC <- function(
         CCF.sort <- data.frame()
         for(id in ids){
             if(withinTumor){
-                subdata <- subset(maf_data, Tumor_ID == id)
+                subdata <- subset(maf_data, maf_data$Tumor_ID == id)
                 ccf <- subdata$Tumor_Average_CCF
             }else{
-                subdata <- subset(maf_data, Tumor_Sample_Barcode == id)
+                subdata <- subset(maf_data, maf_data$Tumor_Sample_Barcode == id)
                 ccf <- subdata$CCF
             }
             df_ccf <- data.frame(CCF = as.vector(sort(ccf)), 
                                  prop = seq_len(length(ccf))/length(ccf))
-            auc <- suppressWarnings(stats::integrate(approxfun(df_ccf$CCF,df_ccf$prop),
+            auc <- suppressWarnings(stats::integrate(stats::approxfun(df_ccf$CCF,df_ccf$prop),
                                                      min(df_ccf$CCF),
                                                      max(df_ccf$CCF),
                                                      # subdivisions = length(df_ccf),
@@ -88,21 +89,28 @@ ccfAUC <- function(
             
             if(withinTumor){
                 c <-  subdata %>%         
-                    dplyr::arrange(Tumor_Average_CCF) %>%
-                    dplyr::mutate(prop = seq_len(nrow(.))/nrow(.)) %>% 
-                    dplyr::mutate(Tumor_ID = paste0(Tumor_ID," (", round(auc,3), ")"))
+                    dplyr::arrange(.data$Tumor_Average_CCF) %>%
+                    dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
+                    dplyr::mutate(Tumor_ID = paste0(.data$Tumor_ID," (", round(auc,3), ")"))
                 
             }else{
                 c <-  subdata %>%         
-                    dplyr::arrange(CCF) %>%
-                    dplyr::mutate(prop = seq_len(nrow(.))/nrow(.)) %>% 
-                    dplyr::mutate(Tumor_Sample_Barcode = paste0(Tumor_Sample_Barcode," (",round(auc,3),")"))
+                    dplyr::arrange(.data$CCF) %>%
+                    dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
+                    dplyr::mutate(Tumor_Sample_Barcode = paste0(.data$Tumor_Sample_Barcode," (",round(auc,3),")"))
                 
             }
             CCF.sort <- rbind(CCF.sort, c)
             
         }
         if(plot.density){
+            ## initialize variable in ggplot for biocheck error
+            Tumor_Average_CCF <- NULL
+            prop <- NULL
+            Tumor_ID <- NULL
+            CCF <- NULL
+            Tumor_Sample_Barcode <- NULL
+            
             if(withinTumor){
                 p <- ggplot2::ggplot(CCF.sort, 
                                      aes(x=Tumor_Average_CCF, y=prop, group=Tumor_ID, color=Tumor_ID))

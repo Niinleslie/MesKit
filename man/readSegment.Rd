@@ -36,7 +36,7 @@ a list of segmentation data frame
 readSegment
 }
 \examples{
-segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
+segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
 gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
 gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
 gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")

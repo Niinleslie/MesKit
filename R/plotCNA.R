@@ -11,10 +11,11 @@
 #' @param legend.title.size Size of legend title.Default 11.
 #' @param sample.bar.height Bar height of each sample .Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome .Default 0.5.
+#' @param showRownames TRUE(Default). Show sample names of rows.
 #' 
 #' 
 #' @examples
-#' segFile <- system.file("extdata", "HCC6046.seg.txt", package = "MesKit")
+#' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
 #' seg <- readSegment(segFile = segFile)
 #' plotCNA(seg)
 #' 
@@ -35,7 +36,8 @@ plotCNA <- function(seg,
                     legend.text.size = 9,
                     legend.title.size = 11,
                     sample.bar.height = 0.5,
-                    chrom.bar.height = 0.5
+                    chrom.bar.height = 0.5,
+                    showRownames = TRUE
 ){
     
     ## combine data frame
@@ -43,11 +45,14 @@ plotCNA <- function(seg,
         seg <- dplyr::bind_rows(seg) %>% as.data.table()
     }
     
-    if(!is.null(chrSilent)){
-        seg <- seg[!Chromosome %in% chrSilent]
+    if(!is.null(chrSilent)){    
+        chrSilent <- gsub(pattern = 'chr', replacement = '', x = chrSilent, fixed = TRUE)
+        seg <- seg[!seg$Chromosome %in% chrSilent]        
+        chrSilent <- gsub(pattern = 'X', replacement = '23', x = chrSilent, fixed = TRUE)
+        chrSilent <- gsub(pattern = 'Y', replacement = '24', x = chrSilent, fixed = TRUE)
     }
     
-    
+
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
     seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE)
     ## select patients in patient.id 
@@ -63,7 +68,7 @@ plotCNA <- function(seg,
             seg$patient <- seg$Patient_ID
         }
         patient_num <- length(unique(seg$Patient_ID)) 
-        seg <- dplyr::select(seg, -Patient_ID)
+        seg <- dplyr::select(seg, -"Patient_ID")
         seg$Patient_ID <- "ALL"
     }else if(length(patient.id) == 1){
         patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
@@ -105,25 +110,38 @@ plotCNA <- function(seg,
                     58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
     }
     
-    updatePosition <- function(x,pos,chrname,chrLens){
-        return(as.numeric(x[pos]) + as.numeric(chrLens[as.numeric(x[chrname]) ]) )
-    }
-    
-    chrLens =  append(cumsum(chrLens),1,after = 0)
-    chrLabels = seq_len(24)
-    chrTable = data.table::data.table(chr = chrLabels,
+    chrLabels <- seq_len(24)[!seq_len(24) %in% chrSilent]
+    chrLens <- chrLens[as.numeric(chrLabels)]
+    chrLens <- append(cumsum(chrLens),1,after = 0)
+    chrTable <- data.table::data.table(chr = chrLabels,
                                       start = chrLens[seq_len(length(chrLens)-1)],
                                       end = chrLens[2:length(chrLens)])
-    chrTable$color = rep(c('black','white'), length = nrow(chrTable))
+    chr_bar_color <- c()
+    chr_text_color <- c()
+    for(i in seq_len(length(chrLabels))){
+        if((i %% 2) == 0){
+            chr_bar_color <- c(chr_bar_color, "white")
+            chr_text_color <- c(chr_text_color, "black")
+        }else{
+            chr_bar_color <- c(chr_bar_color, "black")
+            chr_text_color <- c(chr_text_color, "white")
+        }
+    }
+    chrTable$color = chr_bar_color
     
     # for(patient in patients){
     #     seg <- dat.list[[patient]]
-    updateStart <- apply(seg,1,updatePosition,"Start_Position","Chromosome",chrLens)
-    updateEnd <- apply(seg,1,updatePosition,"End_Position","Chromosome",chrLens)
-    updateCytoband.pos <- apply(seg,1,updatePosition,"Cytoband.pos","Chromosome",chrLens)
-    seg$Update_Start <- updateStart
-    seg$Update_End <- updateEnd
-    seg$Cytoband.pos <- updateCytoband.pos
+    chr_start_pos <- as.numeric(chrTable$start) 
+    names(chr_start_pos) <- paste0("chr",chrTable$chr)
+    # chr_end_pos <- as.numeric(chrTable$end) 
+    # names(chr_end_pos) <- paste0("chr",chrTable$chr)
+    
+    seg <- seg %>% 
+        dplyr::mutate(
+            Update_Start = as.numeric(.data$Start_Position) + chr_start_pos[paste0("chr",.data$Chromosome)],
+            Update_End = as.numeric(.data$End_Position) + chr_start_pos[paste0("chr",.data$Chromosome)]
+        )
+    
     seg$hmin <- 0
     seg$hmax <- 0
     h <- chrom.bar.height
@@ -132,13 +150,13 @@ plotCNA <- function(seg,
         
         ## sort sampleid 
         seg <- seg %>% 
-            dplyr::arrange(dplyr::desc(patient) ,
-                           dplyr::desc(Tumor_Sample_Barcode),
-                           Chromosome,
-                           Start_Position) %>%
+            dplyr::arrange(dplyr::desc(.data$patient) ,
+                           dplyr::desc(.data$Tumor_Sample_Barcode),
+                           .data$Chromosome,
+                           .data$Start_Position) %>%
             as.data.table()
         
-        seg$Sample_ID <- paste(seg$patient,seg$Tumor_Sample_Barcode,sep = "&")
+        seg$Sample_ID <- paste(seg$patient, seg$Tumor_Sample_Barcode,sep = "&")
         sampleids <- unique(seg$Sample_ID)
         ## reorder sample by sampleOrder
         if(!is.null(sampleOrder)){
@@ -149,9 +167,9 @@ plotCNA <- function(seg,
             }
             for(p in names(sampleOrder)){
                 o1 <- sampleOrder[[p]]
-                o2 <- unique(seg[patient == p]$Tumor_Sample_Barcode)
+                o2 <- unique(seg[seg$patient == p]$Tumor_Sample_Barcode)
                 s1 <- paste(p, sampleOrder[[p]], sep = "&") 
-                s2 <- paste(p, unique(seg[patient == p]$Tumor_Sample_Barcode), sep = "&") 
+                s2 <- paste(p, unique(seg[seg$patient == p]$Tumor_Sample_Barcode), sep = "&") 
                 sample.setdiff <- setdiff(o1, o2)
                 if(length(sample.setdiff) > 0){
                     stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
@@ -169,17 +187,17 @@ plotCNA <- function(seg,
         
         patient.rect.hmin <- c(h)
         patient.rect.hmax <- c()
-        patient1 <- unique(seg[Sample_ID == sampleids[1],]$patient)
+        patient1 <- unique(seg[seg$Sample_ID == sampleids[1],]$patient)
         for(sampleid in sampleids){
-            patient2 <- unique(seg[Sample_ID == sampleid,]$patient)
+            patient2 <- unique(seg[seg$Sample_ID == sampleid,]$patient)
             if(patient1 != patient2){
                 patient.rect.hmin <- append(patient.rect.hmin, h+ sample.bar.height*2/5)
                 patient.rect.hmax <- append(patient.rect.hmax, h)
                 h <- h + sample.bar.height*2/5
             }
             patient1 <- patient2
-            seg[Sample_ID == sampleid,]$hmin <- h
-            seg[Sample_ID == sampleid,]$hmax <- h + sample.bar.height
+            seg[seg$Sample_ID == sampleid,]$hmin <- h
+            seg[seg$Sample_ID == sampleid,]$hmax <- h + sample.bar.height
             h <- h + sample.bar.height + sample.bar.height/10
         }
         patient.rect.hmax <- append(patient.rect.hmax,max(seg$hmax))
@@ -189,10 +207,10 @@ plotCNA <- function(seg,
 
     }else{
         seg <- seg %>% 
-            dplyr::arrange(Patient_ID,
-                           Tumor_Sample_Barcode,
-                           Chromosome,
-                           Start_Position) %>%
+            dplyr::arrange(.data$Patient_ID,
+                           .data$Tumor_Sample_Barcode,
+                           .data$Chromosome,
+                           .data$Start_Position) %>%
             as.data.table()
         
         seg$Sample_ID <- paste(seg$Patient_ID,seg$Tumor_Sample_Barcode,sep = "&")
@@ -208,9 +226,9 @@ plotCNA <- function(seg,
                             " can not be found in your data.Please check sampleOrder!"))
             }
             o1 <- sampleOrder[[p]]
-            o2 <- unique(seg[Patient_ID == p]$Tumor_Sample_Barcode)
+            o2 <- unique(seg[seg$Patient_ID == p]$Tumor_Sample_Barcode)
             s1 <- paste(p, sampleOrder[[p]], sep = "&") 
-            s2 <- paste(p, unique(seg[Patient_ID == p]$Tumor_Sample_Barcode), sep = "&") 
+            s2 <- paste(p, unique(seg[seg$Patient_ID == p]$Tumor_Sample_Barcode), sep = "&") 
             sample.setdiff <- setdiff(o1, o2)
             if(length(sample.setdiff) > 0){
                 stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
@@ -226,17 +244,17 @@ plotCNA <- function(seg,
         }
         
         for(sampleid in sampleids){
-            seg[Sample_ID == sampleid,]$hmin <- h
-            seg[Sample_ID == sampleid,]$hmax <- h + sample.bar.height
+            seg[seg$Sample_ID == sampleid,]$hmin <- h
+            seg[seg$Sample_ID == sampleid,]$hmax <- h + sample.bar.height
             h <- h + sample.bar.height + sample.bar.height/10
         }
     }
     
-    seg <- seg[Sample_ID %in% sampleids]
+    seg <- seg[seg$Sample_ID %in% sampleids]
     
     min <- sort(unique(seg$hmin))
     max <- sort(unique(seg$hmax))
-    CNADat <- seg[Type != "Neutral",]
+    CNADat <- seg[seg$Type != "Neutral",]
     patient.type <- unique(CNADat$Type)
     
     ## set color for CNA type
@@ -292,6 +310,18 @@ plotCNA <- function(seg,
     chrTable$chr = gsub(pattern = '23', replacement = 'X', x = chrTable$chr, fixed = TRUE)
     chrTable$chr = gsub(pattern = '24', replacement = 'Y', x = chrTable$chr, fixed = TRUE)
     
+    ## initialize 
+    xmin <- NULL
+    xmax <- NULL
+    ymin <- NULL
+    ymax <- NULL
+    Update_Start <- NULL
+    Update_End <- NULL
+    hmin <- NULL
+    hmax <- NULL
+    Type <- NULL
+    chr <- NULL
+
     p <- ggplot()+
         ## background color
         geom_rect(data = backgroundTable, 
@@ -306,11 +336,11 @@ plotCNA <- function(seg,
         ## chr bar
         geom_rect(data = chrTable,
                   mapping = aes(xmin = start, xmax = end, ymin = 0, ymax = chrom.bar.height),
-                  fill = rep(c("black","white"), 12), color = "black")+
+                  fill = chr_bar_color, color = "black")+
         geom_text(data = chrTable,
                   mapping = aes(x = start + (end - start)/2, y = chrom.bar.height/2, label = chr), 
                   size = chrom.text.size,
-                  color = rep(c("white","black"), 12))+
+                  color = chr_text_color)+
         
         ## vertical line 
         geom_segment(aes(x = chrTable$end[seq_len(nrow(chrTable)-1)],
@@ -323,9 +353,9 @@ plotCNA <- function(seg,
         
         theme(
             axis.text.x = element_blank(),
-            axis.text.y.left =  element_text(size = sample.text.size,
-                                             margin = margin(l = 0),
-                                             colour = "black"),
+            # axis.text.y.left =  element_text(size = sample.text.size,
+            #                                  margin = margin(l = 0),
+            #                                  colour = "black"),
             axis.ticks = element_blank(),
             # axis.line.y = element_line(colour = "darkblue", size = 1, linetype = "solid"),
             panel.grid =element_blank(),
@@ -339,10 +369,21 @@ plotCNA <- function(seg,
             # legend.text = element_text(size = legend.text.size,margin = margin(b = 3))
         )+
         scale_x_continuous(expand = c(0,0))+
-        scale_y_continuous(breaks = Y.text.table$Pos,
-                           labels = Y.text.table$Tumor_Sample_Barcode)+
+        # scale_y_continuous(breaks = Y.text.table$Pos,
+        #                    labels = Y.text.table$Tumor_Sample_Barcode)+
         ggtitle("Copy number variant profile")+
         theme(plot.title = element_text(size = 13.5, face = "bold", hjust = 0.5, vjust = -2))
+    if(showRownames){
+        p <- p + scale_y_continuous(breaks = Y.text.table$Pos,
+                               labels = Y.text.table$Tumor_Sample_Barcode) + 
+            theme(
+                axis.text.y.left =  element_text(size = sample.text.size,
+                                                 margin = margin(l = 0),
+                                                 colour = "black")
+            )
+    }else{
+        p <- p + theme(axis.text.y.left =  element_blank())
+    }
     ## patient bar
     if("patient" %in% colnames(seg)&
        length(unique(seg$patient)) > 1){
@@ -353,6 +394,8 @@ plotCNA <- function(seg,
         # print(CNADat)
         ## multi legend
         patients <- unique(seg$patient)
+        ## initialize
+        patient <- NULL
         patient_legend <- (
             ggplot()+
                 geom_rect(data = patient.rect.table,
@@ -364,9 +407,8 @@ plotCNA <- function(seg,
                 theme(legend.background = element_blank(),
                       legend.title = element_text(size = legend.title.size),
                       legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
-        )%>%
-            ggplotGrob %>%
-            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
+        )%>% ggplotGrob()
+        patient_legend <- patient_legend$grobs[[which(unlist(lapply(patient_legend$grobs, function(x) {x$name})) == "guide-box")]]
         
         type_legend <- (
             ggplot()+
@@ -375,9 +417,8 @@ plotCNA <- function(seg,
                 theme(legend.background = element_blank(),
                       legend.title = element_text(size = legend.title.size),
                       legend.text = element_text(size = legend.text.size,margin = margin(b = 3)))
-        ) %>% 
-            ggplotGrob %>%
-            {.$grobs[[which(unlist(lapply(.$grobs, function(x) {x$name})) == "guide-box")]]}
+        ) %>% ggplotGrob()
+        type_legend <- type_legend$grobs[[which(unlist(lapply(type_legend$grobs, function(x) {x$name})) == "guide-box")]]
         
         legends_column <-
             plot_grid(

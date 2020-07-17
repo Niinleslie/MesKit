@@ -15,8 +15,8 @@ sidebar <- dashboardSidebar(
   width = 300,
   sidebarMenu(id="sidername",selected='home',
               menuItem(strong("Home"), tabName = "home", icon = icon("home")),              
-              menuItem(strong("Input Data"), tabName = "input", icon = icon("gear")),
-              menuItem(strong("Alternational landscape"), tabName = "AL", icon = icon("bar-chart")),
+              menuItem(strong("Input data"), tabName = "input", icon = icon("gear")),
+              menuItem(strong("Mutational landscape"), tabName = "AL", icon = icon("bar-chart")),
               menuItem(strong("ITH evaluation"), tabName = "ITH", icon = icon("bar-chart")),
               menuItem(strong("Metastatic routes inference"), tabName = "clone", icon = icon("bar-chart")),
               menuItem(strong("PhyloTree-based analysis"), tabName = "tree", icon = icon("tree")) 
@@ -92,29 +92,27 @@ bodyIP <- tabItem("input",
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
                                       ), 
-                                      placeholder = "example data: HCC6046.maf", 
+                                      placeholder = "Example: HCC_LDC.maf", 
                                       width = 400),
-                            # bsTooltip(id = "maf",
-                            #           title = "Upload maf data",
-                            #           placement = "right",
-                            #           trigger = "hover"),
-                            # checkboxInput(inputId = 'useccf', 
-                            #               label = div(style = "font-size:1.5em; font-weight:600;position: relative;padding-left:15px", 'use ccf'),value = FALSE, width = 200),
-                            # bsTooltip(id = "useccf",
-                            #           title = "Click if provide CCF data.",
-                            #           placement = "top",
-                            #           trigger = "hover"),
-                          fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
-                                                          tags$button(
-                                                              Id = "iecontrol02",
-                                                              type = "button",
-                                                              class = "bttn-material-circle",
-                                                              class = "btn action-button",
-                                                              list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
-                                                              style = " background-position: center;padding:0;margin-bottom:7px;"
-                                                          )
-                          ),
-                          placeholder = "example data: HCC6046.CCF.txt", width = 400),
+                          checkboxInput('useccffile', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px",
+                                                                  'CCF file',
+                                                                  tags$button(
+                                                                    Id = "iecontrol02",
+                                                                    type = "button",
+                                                                    class = "bttn-material-circle",
+                                                                    class = "btn action-button",
+                                                                    list(tags$img(src = "image/button.png",width = "22px",height = "22px")),
+                                                                    style = " background-position: center;padding:0;margin-bottom:7px;"
+                                                                  )),
+                                        value = FALSE,width = 400),
+                          bsTooltip(id = "useccffile",
+                                    title = "Whether to use ccf file.",
+                                    placement = "top",
+                                    trigger = "hover"),
+                          conditionalPanel(
+                            condition = "input.useccffile == true",
+                            fileInput('ccfFile',label = '',placeholder = "Example: HCC_LDC.ccf.tsv", width = 400)
+                          ), 
                             # conditionalPanel(
                             #     condition = "input.useccf == true",
                             #     fileInput('ccfFile',label = div(style = "font-size:1.5em; font-weight:600; ", 'CCF file',
@@ -214,6 +212,7 @@ bodyITH <- tabItem("ITH",
                          conditionalPanel(
                            condition = "input.tith == 'ith_mathscore'",
                            div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                           br(),
                            uiOutput("mathscore_patientid_ui"),
                            checkboxInput('mathscore_withintumor',
                                          value = FALSE,
@@ -226,8 +225,8 @@ bodyITH <- tabItem("ITH",
                            tags$table(
                              tags$tr(id = "inline", 
                                      width = "100%",
-                                     tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                     tags$td(width = "70%", textInput(inputId = "mathscore_minvaf", value = 0.02, label = NULL)))
+                                     tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                     tags$td(width = "60%", textInput(inputId = "mathscore_minvaf", value = 0.02, label = NULL)))
                            ), 
                            bsTooltip(id = "mathscore_minvaf",
                                      title = "The minimum value of vaf",
@@ -252,12 +251,13 @@ bodyITH <- tabItem("ITH",
                          conditionalPanel(
                            condition = "input.tith == 'ith_vafcluster'",
                            div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                           br(),
                            uiOutput("vafcluster_patientid_ui"),
                            tags$table(
                                tags$tr(id = "inline", 
                                        width = "100%",
-                                       tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                       tags$td(width = "70%", textInput(inputId = "vafcluster_minvaf", value = 0.02, label = NULL)))
+                                       tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                       tags$td(width = "60%", textInput(inputId = "vafcluster_minvaf", value = 0.02, label = NULL)))
                            ), 
                            bsTooltip(id = "vafcluster_minvaf",
                                      title = "The minimum value of vaf",
@@ -267,8 +267,8 @@ bodyITH <- tabItem("ITH",
                            tags$table(
                                tags$tr(id = "inline", 
                                        width = "100%",
-                                       tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Max vaf: ")),
-                                       tags$td(width = "70%", textInput(inputId = "vafcluster_maxvaf", value = 1, label = NULL)))
+                                       tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Max vaf")),
+                                       tags$td(width = "60%", textInput(inputId = "vafcluster_maxvaf", value = 1, label = NULL)))
                            ), 
                            bsTooltip(id = "vafcluster_maxvaf",
                                      title = "The maximum value of vaf",
@@ -305,12 +305,13 @@ bodyITH <- tabItem("ITH",
                          conditionalPanel(
                              condition = "input.tith == 'ith_ccfauc'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             br(),
                              uiOutput("ccfauc_patientid_ui"),
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                         tags$td(width = "70%", textInput(inputId = "ccfauc_minccf", value = 0, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                         tags$td(width = "60%", textInput(inputId = "ccfauc_minccf", value = 0, label = NULL)))
                              ), 
                              bsTooltip(id = "ccfauc_minccf",
                                        title = "The minimum value of ccf",
@@ -346,12 +347,13 @@ bodyITH <- tabItem("ITH",
                          conditionalPanel(
                              condition = "input.tith == 'ith_calfst'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             br(),
                              uiOutput("calfst_patientid_ui"),
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                         tags$td(width = "70%", textInput(inputId = "calfst_minvaf", value = 0.02, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                         tags$td(width = "60%", textInput(inputId = "calfst_minvaf", value = 0.02, label = NULL)))
                              ), 
                              bsTooltip(id = "calfst_minvaf",
                                        title = "The minimum value of ccf",
@@ -361,8 +363,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Min total depth: ")),
-                                         tags$td(width = "50%", textInput(inputId = "calfst_mintotaldepth", value = 2, label = NULL)))
+                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Min total depth")),
+                                         tags$td(width = "40%", textInput(inputId = "calfst_mintotaldepth", value = 2, label = NULL)))
                              ), 
                              bsTooltip(id = "calfst_mintotaldepth",
                                        title = "The minimum total allele depth for filtering variants. Default: 2.",
@@ -401,8 +403,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.cex: ")),
-                                         tags$td(width = "70%", textInput(inputId = "calfst_numbercex", value = 8, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.cex")),
+                                         tags$td(width = "50%", textInput(inputId = "calfst_numbercex", value = 8, label = NULL)))
                              ), 
                              bsTooltip(id = "calfst_numbercex",
                                        title = "The size of text shown in correlation plot. Default 8.",
@@ -413,8 +415,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.col: ")),
-                                         tags$td(width = "70%", textInput(inputId = "calfst_numbercol", value = "#C77960", label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.col")),
+                                         tags$td(width = "50%", textInput(inputId = "calfst_numbercol", value = "#C77960", label = NULL)))
                              ), 
                              bsTooltip(id = "calfst_numbercol",
                                        title = "The color of text shown in correlation plot. Default #C77960.",
@@ -443,12 +445,13 @@ bodyITH <- tabItem("ITH",
                          conditionalPanel(
                              condition = "input.tith == 'ith_mutheatmap'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             br(),
                              uiOutput("mutheatmap_patientid_ui"),
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                         tags$td(width = "70%", textInput(inputId = "mutheatmap_minvaf", value = 0.02, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                         tags$td(width = "60%", textInput(inputId = "mutheatmap_minvaf", value = 0.02, label = NULL)))
                              ), 
                              bsTooltip(id = "mutheatmap_minvaf",
                                        title = "The minimum value of vaf",
@@ -458,8 +461,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                         tags$td(width = "70%", textInput(inputId = "mutheatmap_minccf", value = 0, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                         tags$td(width = "60%", textInput(inputId = "mutheatmap_minccf", value = 0, label = NULL)))
                              ), 
                              bsTooltip(id = "mutheatmap_minccf",
                                        title = "The minimum value of ccf",
@@ -474,10 +477,6 @@ bodyITH <- tabItem("ITH",
                                        title = "Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.",
                                        placement = "top",
                                        trigger = "hover"),
-                             checkboxInput('mutheatmap_useccf',
-                                           value = FALSE,
-                                           label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Use ccf'),
-                                           width = 500),
                              # bsTooltip(id = "mutheatmap_useccf",
                              #           title = "Logical. If FALSE (default), print a binary heatmap of mutations. Otherwise, print a cancer cell frequency (CCF) heatmap.",
                              #           placement = "top",
@@ -517,7 +516,7 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "70%", div(style = "font-size:1.5em; font-weight:600; ", "Mutation threshold: ")),
+                                         tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Mutation threshold")),
                                          tags$td(width = "30%", textInput(inputId = "mutheatmap_mutthreshold", value = 150, label = NULL)))
                              ), 
                              bsTooltip(id = "mutheatmap_mutthreshold",
@@ -528,8 +527,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Sample text size: ")),
-                                         tags$td(width = "50%", textInput(inputId = "mutheatmap_sampletextsize", value = 9, label = NULL)))
+                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Sample text size")),
+                                         tags$td(width = "40%", textInput(inputId = "mutheatmap_sampletextsize", value = 9, label = NULL)))
                              ), 
                              bsTooltip(id = "mutheatmap_sampletextsize",
                                        title = "Size of sample name.Default 9.",
@@ -539,8 +538,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Legend title size: ")),
-                                         tags$td(width = "50%", textInput(inputId = "mutheatmap_legendtitlesize", value = 10, label = NULL)))
+                                         tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Legend title size")),
+                                         tags$td(width = "40%", textInput(inputId = "mutheatmap_legendtitlesize", value = 10, label = NULL)))
                              ), 
                              bsTooltip(id = "mutheatmap_legendtitlesize",
                                        title = "Size of legend title.Default 9.",
@@ -569,12 +568,13 @@ bodyITH <- tabItem("ITH",
                          conditionalPanel(
                              condition = "input.tith == 'caInput_calneidist'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             br(),
                              uiOutput("calneidist_patientid_ui"),
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                         tags$td(width = "70%", textInput(inputId = "calneidist_minccf", value = 0.08, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                         tags$td(width = "60%", textInput(inputId = "calneidist_minccf", value = 0.08, label = NULL)))
                              ), 
                              br(),
                              bsTooltip(id = "calneidist_minccf",
@@ -613,8 +613,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.cex: ")),
-                                         tags$td(width = "70%", textInput(inputId = "calneidist_numbercex", value = 8, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.cex")),
+                                         tags$td(width = "50%", textInput(inputId = "calneidist_numbercex", value = 8, label = NULL)))
                              ), 
                              bsTooltip(id = "calneidist_numbercex",
                                        title = "The size of text shown in correlation plot. Default 8.",
@@ -625,8 +625,8 @@ bodyITH <- tabItem("ITH",
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.col: ")),
-                                         tags$td(width = "70%", textInput(inputId = "calneidist_numbercol", value = "#C77960", label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.col")),
+                                         tags$td(width = "50%", textInput(inputId = "calneidist_numbercol", value = "#C77960", label = NULL)))
                              ), 
                              bsTooltip(id = "calneidist_numbercol",
                                        title = "The color of text shown in correlation plot. Default #C77960.",
@@ -669,7 +669,7 @@ bodyITH <- tabItem("ITH",
                            selected = "ith_mathscore",
                            side = "left",
                            tabPanel(
-                             title = div(icon("chart-bar"), strong("MATH score")),
+                             title = div(icon("chart-bar"), "MATH score", style = "font-size:1.5em; font-weight:600; "),
                              value = "ith_mathscore",
                              DT::dataTableOutput('mathScore'),
                              br(),
@@ -677,16 +677,17 @@ bodyITH <- tabItem("ITH",
                              uiOutput("msdb")
                            ),
                            tabPanel(
-                             title = div(icon("image"), strong("VAF clustering")),
+                             title = div(icon("image"), "VAF clustering", style = "font-size:1.5em; font-weight:600; "),
                              value = "ith_vafcluster",
                              uiOutput("vafcluster.patientlist"),
                              uiOutput("vafcluster_table_ui"),
                              uiOutput("vafcluster.samplelist"),
                              div(plotOutput("vaf",height = "100%", width = "100%"),align = "left"),
+                             br(),
                              uiOutput("vcdb")
                            ),
                            tabPanel(
-                               title = div(icon("image"), strong("ccfAUC")),
+                               title = div(icon("image"), "AUC of CCF", style = "font-size:1.5em; font-weight:600; "),
                                value = "ith_ccfauc",
                                uiOutput('ccfauc.patientlist'),
                                uiOutput("ccfauc_table_ui"),
@@ -694,7 +695,7 @@ bodyITH <- tabItem("ITH",
                                uiOutput("ccfauc_db_ui")
                            ),
                            tabPanel(
-                               title = div(icon("image"), strong("calFst")),
+                               title = div(icon("image"), "Fixation index", style = "font-size:1.5em; font-weight:600; "),
                                value = "ith_calfst",
                                uiOutput('calfst.patientlist'),
                                uiOutput("calfst_pair_table_ui"),
@@ -703,7 +704,7 @@ bodyITH <- tabItem("ITH",
                                # uiOutput("calfst_avg_table_ui"),
                            ),
                            tabPanel(
-                               title = div(icon("image"), strong("calNeiDist")),
+                               title = div(icon("image"), "Nei's distance", style = "font-size:1.5em; font-weight:600; "),
                                value = "caInput_calneidist",
                                uiOutput('calneidist.patientlist'),
                                
@@ -714,7 +715,7 @@ bodyITH <- tabItem("ITH",
                                # uiOutput("calneidist_avg_table_ui"),
                            ),
                            tabPanel(
-                               title = div(icon("image"), strong("mutHeatmap")),
+                               title = div(icon("image"), "Heatmap", style = "font-size:1.5em; font-weight:600; "),
                                value = "ith_mutheatmap",
                                uiOutput('mutheatmap.patientlist'),
                                div(plotOutput("mutheatmap_plot",height = "100%", width = "100%"),align = "left") ,
@@ -735,6 +736,7 @@ bodyAL <- tabItem("AL",
                               conditionalPanel(
                                   condition = "input.al_tabbox == 'pannel_plotmutprofile'",
                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                  br(),
                                   uiOutput("plotmutprofile.patientlist"),
                                   selectInput("plotmutprofile_class", label = div(style = "font-size:1.5em; font-weight:600;  ", "Class"),
                                               choices = c("SP","CS","SPCS"),
@@ -746,18 +748,26 @@ bodyAL <- tabItem("AL",
                                   tags$table(
                                       tags$tr(id = "inline", 
                                               width = "100%",
-                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Top genes count: ")),
-                                              tags$td(width = "50%", textInput(inputId = "plotmutprofile_topGenesCount", value = 10, label = NULL)))
+                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Top genes count")),
+                                              tags$td(width = "40%", textInput(inputId = "plotmutprofile_topGenesCount", value = 10, label = NULL)))
                                   ), 
                                   bsTooltip(id = "plotmutprofile_topGenesCount",
                                             title = "The number of genes print, default is 10",
                                             placement = "top",
                                             trigger = "hover"),
                                   br(),
-                                  fileInput(inputId = 'plotmutprofile_genelist', 
-                                            label = div(style = "font-size:1.5em; font-weight:600; ", 'Gene list file'),
-                                            placeholder = "Default: IntOGen-DriverGenes_HC.tsv",
-                                            width = 400),
+                                  checkboxInput('plotmutprofile_usegenelist', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Gene list'),value = FALSE,width = 400),
+                                  bsTooltip(id = "plotmutprofile_usegenelist",
+                                            title = "Whether to use a list of genes to restrict the analysis.",
+                                            placement = "top",
+                                            trigger = "hover"),
+                                  conditionalPanel(
+                                    condition = "input.plotmutprofile_usegenelist == true",
+                                    fileInput(inputId = 'plotmutprofile_genelist', 
+                                              label = div(style = "font-size:1.5em; font-weight:600; ", 'Gene list file'),
+                                              placeholder = "Example: IntOGen-DriverGenes_HC.tsv",
+                                              width = 400)
+                                    ), 
                                   checkboxInput('plotmutprofile_classByTumor', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Class by tumor'),value = FALSE,width = 400),
                                   bsTooltip(id = "plotmutprofile_classByTumor",
                                             title = "FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)",
@@ -798,28 +808,48 @@ bodyAL <- tabItem("AL",
                               conditionalPanel(
                                   condition = "input.al_tabbox == 'pannel_plotcna'",
                                   div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                  br(),
                                   fileInput(inputId = 'plotcna_segfile', 
                                             label = div(style = "font-size:1.5em; font-weight:600; ",
                                                         'Segment file'),
-                                            
                                             width = 400),
-                                  fileInput(inputId = 'plotcna_gisticAmpGenesFile', 
-                                            label = div(style = "font-size:1.5em; font-weight:600; ", 
-                                                        'Gistic Amplification genes file'),
-                                            placeholder = "Default: LIHC_amp_genes.conf_99.txt",
-                                            
-                                            width = 400),
-                                  fileInput(inputId = 'plotcna_gisticDelGenesFile', 
-                                            label = div(style = "font-size:1.5em; font-weight:600; ",
-                                                        'Gistic deletion genes file'),
-                                            placeholder = "Default: LIHC_del_genes.conf_99.txt",
-                                            width = 400),
-                                  fileInput(inputId = 'plotcna_gisticAllLesionsFile', 
-                                            label = div(style = "font-size:1.5em; font-weight:600; ", 
-                                                        'Gistic all lesions file'),
-                                            placeholder = "Default: LIHC_all_lesions.conf_99.txt",
-                                            
-                                            width = 400),
+                                  checkboxInput('plotmutprofile_usegisticAmpGenes', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Gistic amplification genes'),value = FALSE,width = 400),
+                                  bsTooltip(id = "plotmutprofile_usegisticAmpGenes",
+                                            title = "Whether to use gistic amplification genes.",
+                                            placement = "top",
+                                            trigger = "hover"),
+                                  conditionalPanel(
+                                    condition = "input.plotmutprofile_usegisticAmpGenes == true",
+                                    fileInput(inputId = 'plotcna_gisticAmpGenesFile', 
+                                              label = '',
+                                              placeholder = "Example: LIHC_amp_genes.conf_99.txt",
+                                              width = 400)
+                                  ), 
+                                  checkboxInput('plotmutprofile_usegisticDelGenes', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Gistic deletion genes'),value = FALSE,width = 400),
+                                  bsTooltip(id = "plotmutprofile_usegisticDelGenes",
+                                            title = "Whether to use gistic deletion genes.",
+                                            placement = "top",
+                                            trigger = "hover"),
+                                  conditionalPanel(
+                                    condition = "input.plotmutprofile_usegisticDelGenes == true",
+                                    fileInput(inputId = 'plotcna_gisticDelGenesFile', 
+                                              label = '',
+                                              placeholder = "Example: LIHC_del_genes.conf_99.txt",
+                                              width = 400)
+                                  ), 
+                                  checkboxInput('plotmutprofile_usegisticAllLesions', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Gistic all lesions'),value = FALSE,width = 400),
+                                  bsTooltip(id = "plotmutprofile_usegisticAllLesions",
+                                            title = "Whether to use gistic all lesions.",
+                                            placement = "top",
+                                            trigger = "hover"),
+                                  conditionalPanel(
+                                    condition = "input.plotmutprofile_usegisticAllLesions == true",
+                                    fileInput(inputId = 'plotcna_gisticAllLesionsFile', 
+                                              label = '',
+                                              placeholder = "Example: LIHC_all_lesions.conf_99.txt",
+                                              
+                                              width = 400)
+                                  ), 
                                   selectInput('plotcna_refBuild', label = div(style = "font-size:1.5em; font-weight:600; ", 'Genome reference'),
                                               choices = c('hg18','hg19','hg38'),selected = "hg19", width = 400),
                                   bsTooltip(id = "plotcna_refBuild",
@@ -832,8 +862,8 @@ bodyAL <- tabItem("AL",
                                   tags$table(
                                       tags$tr(id = "inline", 
                                               width = "100%",
-                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Sample text size: ")),
-                                              tags$td(width = "50%", textInput(inputId = "plotcna_sampletextsize", value = 11, label = NULL)))
+                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Sample text size")),
+                                              tags$td(width = "40%", textInput(inputId = "plotcna_sampletextsize", value = 11, label = NULL)))
                                   ), 
                                   bsTooltip(id = "plotcna_sampletextsize",
                                             title = "Size of sample name.Default 11.",
@@ -843,8 +873,8 @@ bodyAL <- tabItem("AL",
                                   tags$table(
                                       tags$tr(id = "inline", 
                                               width = "100%",
-                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Legend text size: ")),
-                                              tags$td(width = "50%", textInput(inputId = "plotcna_legendtextsize", value = 9, label = NULL)))
+                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Legend text size")),
+                                              tags$td(width = "40%", textInput(inputId = "plotcna_legendtextsize", value = 9, label = NULL)))
                                   ), 
                                   bsTooltip(id = "plotcna_legendtextsize",
                                             title = "Size of legend text.Default 9.",
@@ -854,8 +884,8 @@ bodyAL <- tabItem("AL",
                                   tags$table(
                                       tags$tr(id = "inline", 
                                               width = "100%",
-                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Legend title size: ")),
-                                              tags$td(width = "50%", textInput(inputId = "plotcna_legendtitlesize", value = 11, label = NULL)))
+                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Legend title size")),
+                                              tags$td(width = "40%", textInput(inputId = "plotcna_legendtitlesize", value = 11, label = NULL)))
                                   ), 
                                   bsTooltip(id = "plotcna_legendtitlesize",
                                             title = "Size of legend title.Default 11.",
@@ -865,8 +895,8 @@ bodyAL <- tabItem("AL",
                                   tags$table(
                                       tags$tr(id = "inline", 
                                               width = "100%",
-                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Sample bar size: ")),
-                                              tags$td(width = "50%", textInput(inputId = "plotcna_samplebarheight", value = 0.5, label = NULL)))
+                                              tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Sample bar size")),
+                                              tags$td(width = "40%", textInput(inputId = "plotcna_samplebarheight", value = 0.5, label = NULL)))
                                   ), 
                                   bsTooltip(id = "plotcna_samplebarheight",
                                             title = "Bar height of each sample .Default 0.5.",
@@ -876,7 +906,7 @@ bodyAL <- tabItem("AL",
                                   tags$table(
                                       tags$tr(id = "inline", 
                                               width = "100%",
-                                              tags$td(width = "70%", div(style = "font-size:1.5em; font-weight:600; ", "Chromosome bar size: ")),
+                                              tags$td(width = "70%", div(style = "font-size:1.5em; font-weight:600; ", "Chromosome bar size")),
                                               tags$td(width = "30%", textInput(inputId = "plotcna_chrombarheight", value = 0.5, label = NULL)))
                                   ), 
                                   bsTooltip(id = "plotcna_chrombarheight",
@@ -884,6 +914,7 @@ bodyAL <- tabItem("AL",
                                             placement = "top",
                                             trigger = "hover"),
                                   br(),
+                                  checkboxInput('plotcna_showrownames',label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Show row names'),value = TRUE),
                                   sliderInput('plotcna_width', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'), min = 400,max = 1200, value = 800,width = 500),
                                   sliderInput('plotcna_height', label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'), min = 400,max = 1200, value = 800,width = 500),
                                   br(),
@@ -908,7 +939,7 @@ bodyAL <- tabItem("AL",
                           width = 9,
                           box(
                               width = NULL,
-                              div(strong("Alterational Landscape"),style = "font-size:27px; font-weight:500;"),
+                              div(strong("Mutational landscape"),style = "font-size:27px; font-weight:500;"),
                               p("",
                                 style = "font-size:20px; font-weight:500;line-height:40px;"),
                               tabBox(
@@ -919,15 +950,14 @@ bodyAL <- tabItem("AL",
                                   width = "100%",
                                   tabPanel(
                                       value = 'pannel_plotmutprofile',
-                                      title = div(icon("image"), strong("Plot Mutation profile")), 
+                                      title = div(icon("image"), "Mutational profile",style = "font-size:1.5em; font-weight:600; "), 
                                       div(plotOutput('plotmutprofile_plot', height = "100%", width = "100%"), align = "left"),
                                       br(),
                                       uiOutput("plotmutprofile_download_button_ui")
                                   ),
                                   tabPanel(
                                       value = 'pannel_plotcna',
-                                      title = div(icon("image"), strong("CNA profile")), 
-                                      
+                                      title = div(icon("image"), "CNA profile", style = "font-size:1.5em; font-weight:600; "), 
                                       uiOutput("plotcna_table_ui"),
                                       div(plotOutput('plotcna_plot', height = "100%", width = "100%"), align = "left"),
                                       br(),
@@ -948,12 +978,13 @@ bodyclone <- tabItem('clone',
                            conditionalPanel(
                              condition = "input.clt == 'clone_compareccf'",
                              div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                             br(),
                              uiOutput("compareccf_patientid_ui"),
                              tags$table(
                                  tags$tr(id = "inline", 
                                          width = "100%",
-                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                         tags$td(width = "70%", textInput(inputId = "compareccf_minccf", value = 0, label = NULL)))
+                                         tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                         tags$td(width = "60%", textInput(inputId = "compareccf_minccf", value = 0, label = NULL)))
                              ), 
                              br(),
                              bsTooltip(id = "compareccf_minccf",
@@ -987,12 +1018,13 @@ bodyclone <- tabItem('clone',
                            conditionalPanel(
                                condition = "input.clt == 'clone_comparejsi'",
                                div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                               br(),
                                uiOutput("comparejsi_patientid_ui"),
                                tags$table(
                                    tags$tr(id = "inline", 
                                            width = "100%",
-                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                           tags$td(width = "70%", textInput(inputId = "comparejsi_minccf", value = 0, label = NULL)))
+                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                           tags$td(width = "60%", textInput(inputId = "comparejsi_minccf", value = 0, label = NULL)))
                                ), 
                                bsTooltip(id = "comparejsi_minccf",
                                          title = "The minimum value of ccf",
@@ -1032,8 +1064,8 @@ bodyclone <- tabItem('clone',
                                tags$table(
                                    tags$tr(id = "inline", 
                                            width = "100%",
-                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.cex: ")),
-                                           tags$td(width = "70%", textInput(inputId = "comparejsi_numbercex", value = 8, label = NULL)))
+                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.cex")),
+                                           tags$td(width = "40%", textInput(inputId = "comparejsi_numbercex", value = 8, label = NULL)))
                                ), 
                                bsTooltip(id = "comparejsi_numbercex",
                                          title = "The size of text shown in correlation plot. Default 8.",
@@ -1043,8 +1075,8 @@ bodyclone <- tabItem('clone',
                                tags$table(
                                    tags$tr(id = "inline", 
                                            width = "100%",
-                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.col: ")),
-                                           tags$td(width = "70%", textInput(inputId = "comparejsi_numbercol", value = "#C77960", label = NULL)))
+                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "number.col")),
+                                           tags$td(width = "40%", textInput(inputId = "comparejsi_numbercol", value = "#C77960", label = NULL)))
                                ), 
                                bsTooltip(id = "comparejsi_numbercol",
                                          title = "The color of text shown in correlation plot. Default #C77960.",
@@ -1074,6 +1106,7 @@ bodyclone <- tabItem('clone',
                            conditionalPanel(
                                condition = "input.clt == 'clone_testneutral'",
                                div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                               br(),
                                uiOutput("testneutral_patientid_ui"),
                                checkboxInput('testneutral_withintumor',div(style = "font-size:1.5em; font-weight:600; padding-left:15px ", 'Within Tumor'),value = FALSE),
                                bsTooltip(id = "testneutral_withintumor",
@@ -1161,7 +1194,7 @@ bodyclone <- tabItem('clone',
                          box(
                            width = NULL,
                            div(strong("Metastatic routes inference"),style = "font-size:27px; font-weight:500;"),
-                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide two functions to help distinguish monoclonal versus polyclonal seeding. ",
+                           p("Since metastasis is the ultimate cause of death for most patients, it is particularly important to gain a systematic understanding of how tumor disseminates and the scale of ongoing parallel evolution in metastatic and primary site. Here, we provide two functions to help distinguish monoclonal from polyclonal seeding. ",
                              style = "font-size:20px; font-weight:500;line-height:40px;"),
                            tabBox(
                              id = 'clt',
@@ -1171,14 +1204,14 @@ bodyclone <- tabItem('clone',
                              width = "100%",
                              tabPanel(
                                value = 'clone_compareccf',
-                               title = div(icon("chart-bar"), strong("compareCCF")), 
+                               title = div(icon("chart-bar"), "CCF comparison", style = "font-size:1.5em; font-weight:600; "), 
                                uiOutput('compareccf.patientlist'),
                                uiOutput('compareccf.samplelist'), 
                                br(),
                                uiOutput("compareccf_table_ui")
                              ),
                              tabPanel(
-                                 title = div(icon("image"), strong("compareJSI")),
+                                 title = div(icon("image"), "Jaccard similarity index", style = "font-size:1.5em; font-weight:600; "),
                                  value = "clone_comparejsi",
                                  uiOutput('comparejsi.patientlist'),
                                  uiOutput("comparejsi_pair_table_ui"),
@@ -1263,6 +1296,7 @@ bodytree <- tabItem('tree',
                                conditionalPanel(
                                    condition = "input.sgt == 'S_plotphylotree'",
                                    div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                   br(),
                                    uiOutput("plotphylotree_patientid_ui"),
                                    selectInput("plotphylotree_getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
                                                choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
@@ -1274,8 +1308,8 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                               tags$td(width = "70%", textInput(inputId = "plotphylotree_getphylotree_minvaf", value = 0.02, label = NULL)))
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                               tags$td(width = "60%", textInput(inputId = "plotphylotree_getphylotree_minvaf", value = 0.02, label = NULL)))
                                    ), 
                                    bsTooltip(id = "plotphylotree_getphylotree_minvaf",
                                              title = "The minimum value of vaf",
@@ -1285,8 +1319,8 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                               tags$td(width = "70%", textInput(inputId = "plotphylotree_getphylotree_minccf", value = 0, label = NULL)))
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                               tags$td(width = "60%", textInput(inputId = "plotphylotree_getphylotree_minccf", value = 0, label = NULL)))
                                    ), 
                                    bsTooltip(id = "plotphylotree_getphylotree_minccf",
                                              title = "The minimum value of ccf",
@@ -1296,8 +1330,8 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions: ")),
-                                               tags$td(width = "40%", textInput(inputId = "plotphylotree_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                               tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
+                                               tags$td(width = "30%", textInput(inputId = "plotphylotree_getphylotree_bootstraprepnum", value = 100, label = NULL)))
                                    ), 
                                    bsTooltip(id = "plotphylotree_getphylotree_bootstraprepnum",
                                              title = "Bootstrap iterations. Default 100.",
@@ -1325,7 +1359,12 @@ bodytree <- tabItem('tree',
                                                  title = 'signature reference',
                                                  placement = "top",
                                                  trigger = "hover"),
-                                       numericInput('plotphylotree_minmutcount', div(style = "font-size:1.5em; font-weight:600;  ", 'Minimal mutation number'), value = 15),
+                                       tags$table(
+                                         tags$tr(id = "inline", 
+                                                 width = "100%",
+                                                 tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Minimal mutation number")),
+                                                 tags$td(width = "20%", textInput(inputId = "plotphylotree_minmutcount", value = 15, label = NULL)))
+                                       ), 
                                        bsTooltip(id = "plotphylotree_minmutcount",
                                                  title = 'The threshold for the variants in a branch. Default 15.',
                                                  placement = "top",
@@ -1344,14 +1383,19 @@ bodytree <- tabItem('tree',
                                    #               placement = "top",
                                    #               trigger = "hover")
                                    # ), 
-                                   numericInput('plotphylotree_minratio', div(style = "font-size:1.5em; font-weight:600;  ", 'Min ratio'),
-                                                value = 0.05, min = 0.05, max = 1, step = 0.05),
+                                   tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ratio")),
+                                             tags$td(width = "60%", textInput(inputId = "plotphylotree_minratio", value = 0.05, label = NULL)))
+                                   ), 
                                    bsTooltip(id = "plotphylotree_minratio",
                                              title = "Double (Default:1/20). If min.ratio is not NULL,all edge length of a phylogenetic tree should be greater than min.ratio*the longest edge length.If not, the edge length will be reset as min.ratio*longest edge length.",
                                              placement = "top",
                                              trigger = "hover"),
-                                   sliderInput(inputId='plotphylotree_width',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 500,max = 1200, value = 1000, width = 500),
-                                   sliderInput(inputId='plotphylotree_height',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 500,max = 1200, value = 900, width = 500),
+                                   br(),
+                                   sliderInput(inputId='plotphylotree_width',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image width'),min = 300,max = 1200, value = 500, width = 500),
+                                   sliderInput(inputId='plotphylotree_height',label = div(style = "font-size:1.5em; font-weight:600; ", 'Image height'),min = 300,max = 1200, value = 500, width = 500),
                                    # 
                                    fluidRow(
                                        column(
@@ -1371,6 +1415,7 @@ bodytree <- tabItem('tree',
                                conditionalPanel(
                                    condition = "input.sgt == 'S_comparetree'",
                                    div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                   br(),
                                    uiOutput("comparetree.patientlist"),
                                    selectInput("comparetree_getphylotree_method1",
                                                label = div(style = "font-size:1.5em; font-weight:600;  ",
@@ -1393,8 +1438,8 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                               tags$td(width = "70%", textInput(inputId = "comparetree_getphylotree_minvaf", value = 0.02, label = NULL)))
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                               tags$td(width = "60%", textInput(inputId = "comparetree_getphylotree_minvaf", value = 0.02, label = NULL)))
                                    ), 
                                    bsTooltip(id = "comparetree_getphylotree_minvaf",
                                              title = "The minimum value of vaf",
@@ -1404,8 +1449,8 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                               tags$td(width = "70%", textInput(inputId = "comparetree_getphylotree_minccf", value = 0, label = NULL)))
+                                               tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                               tags$td(width = "60%", textInput(inputId = "comparetree_getphylotree_minccf", value = 0, label = NULL)))
                                    ), 
                                    bsTooltip(id = "comparetree_getphylotree_minccf",
                                              title = "The minimum value of ccf",
@@ -1415,10 +1460,10 @@ bodytree <- tabItem('tree',
                                    tags$table(
                                        tags$tr(id = "inline", 
                                                width = "100%",
-                                               tags$td(width = "60%", 
+                                               tags$td(width = "50%", 
                                                        div(style = "font-size:1.5em; font-weight:600; ",
-                                                           "Boostrap repetitions: ")),
-                                               tags$td(width = "40%", 
+                                                           "Boostrap repetitions")),
+                                               tags$td(width = "30%", 
                                                        textInput(inputId = "comparetree_getphylotree_bootstraprepnum", 
                                                                  value = 100, label = NULL)))
                                    ), 
@@ -1476,15 +1521,17 @@ bodytree <- tabItem('tree',
                                              title = 'Whether to add bootstrap value on internal nodes.',
                                              placement = "top",
                                              trigger = "hover"),
-                                   numericInput('comparetree_minratio', 
-                                                div(style = "font-size:1.5em; font-weight:600;  ",
-                                                    'Min ratio'),
-                                                value = 0.05, min = 0.05, max = 1, step = 0.05),
+                                   tags$table(
+                                     tags$tr(id = "inline", 
+                                             width = "100%",
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ratio")),
+                                             tags$td(width = "60%", textInput(inputId = "comparetree_minratio", value = 0.05, label = NULL)))
+                                   ), 
                                    bsTooltip(id = "comparetree_minratio",
                                              title = "Double (Default:1/20). If min.ratio is not NULL,all edge length of a phylogenetic tree should be greater than min.ratio*the longest edge length.If not, the edge length will be reset as min.ratio*longest edge length.",
                                              placement = "top",
                                              trigger = "hover"),
-                                   
+                                   br(),
                                    textInput(inputId = "comparetree_commoncol",
                                              label = div(style = "font-size:1.5em; font-weight:600; ", 'Common color'),
                                              value = "red"),
@@ -1514,6 +1561,7 @@ bodytree <- tabItem('tree',
                                conditionalPanel(
                                  condition = "input.sgt == 'S_treemutsig'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                 br(),
                                  uiOutput("treemutsig_patientid_ui"),
                                  selectInput("treemutsig_getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
                                              choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
@@ -1525,8 +1573,8 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                             tags$td(width = "70%", textInput(inputId = "treemutsig_getphylotree_minvaf", value = 0.02, label = NULL)))
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                             tags$td(width = "60%", textInput(inputId = "treemutsig_getphylotree_minvaf", value = 0.02, label = NULL)))
                                  ), 
                                  bsTooltip(id = "treemutsig_getphylotree_minvaf",
                                            title = "The minimum value of vaf",
@@ -1536,8 +1584,8 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                             tags$td(width = "70%", textInput(inputId = "treemutsig_getphylotree_minccf", value = 0, label = NULL)))
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                             tags$td(width = "60%", textInput(inputId = "treemutsig_getphylotree_minccf", value = 0, label = NULL)))
                                  ), 
                                  bsTooltip(id = "treemutsig_getphylotree_minccf",
                                            title = "The minimum value of ccf",
@@ -1547,13 +1595,14 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions: ")),
-                                             tags$td(width = "40%", textInput(inputId = "treemutsig_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                             tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
+                                             tags$td(width = "30%", textInput(inputId = "treemutsig_getphylotree_bootstraprepnum", value = 100, label = NULL)))
                                  ), 
                                  bsTooltip(id = "treemutsig_getphylotree_bootstraprepnum",
                                            title = "Bootstrap iterations. Default 100.",
                                            placement = "top",
                                            trigger = "hover"),
+                                 br(),
                                  checkboxInput('treemutsig_withintumor',label = div(style = "font-size:1.5em; font-weight:600;padding-left:15px ", 'Within tumor'),value = FALSE),
                                  bsTooltip(id = "treemutsig_withintumor",
                                            title = 'Exploring signatures within tumor. Default: FALSE.',
@@ -1568,17 +1617,28 @@ bodytree <- tabItem('tree',
                                            title = 'signature reference',
                                            placement = "top",
                                            trigger = "hover"),
-                                 numericInput('treemutsig_minmutcount', div(style = "font-size:1.5em; font-weight:600;  ", 'Minimal mutation number'), value = 15),
+                                 tags$table(
+                                   tags$tr(id = "inline", 
+                                           width = "100%",
+                                           tags$td(width = "85%", div(style = "font-size:1.5em; font-weight:600; ", "Minimal mutation number")),
+                                           tags$td(width = "15%", textInput(inputId = "treemutsig_minmutcount", value = 15, label = NULL)))
+                                 ), 
                                  bsTooltip(id = "treemutsig_minmutcount",
                                            title = 'The threshold for the variants in a branch. Default 15.',
                                            placement = "top",
                                            trigger = "hover"),
-                                 
-                                 numericInput('treemutsig_signaturecutoff', div(style = "font-size:1.5em; font-weight:600;  ", 'Signature cutoff'), min = 0,max = 1,step = 0.05,value = 0.1),
+                                 br(),
+                                 tags$table(
+                                   tags$tr(id = "inline", 
+                                           width = "100%",
+                                           tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Signature cutoff")),
+                                           tags$td(width = "30%", textInput(inputId = "treemutsig_signaturecutoff", value = 0.1, label = NULL)))
+                                 ), 
                                  bsTooltip(id = "treemutsig_signaturecutoff",
-                                           title = 'The threshold for the variants in a branch. Default 15.',
+                                           title = 'Discard any signature contributions with a weight less than this amount.Default: 0.1.',
                                            placement = "top",
                                            trigger = "hover"),
+                                 br(),
                                  selectInput("treemutsig_mode", label = div(style = "font-size:1.5em; font-weight:600;  ", "Mode"),
                                              choices = c('NULL',
                                                          'Original',
@@ -1612,6 +1672,7 @@ bodytree <- tabItem('tree',
                                conditionalPanel(
                                  condition = "input.sgt == 'S_muttrunkbranch'",
                                  div(strong("Parameter"),style = "font-size:2em; font-weight:600;"),
+                                 br(),
                                  uiOutput("muttrunkbranch_patientid_ui"),
                                  selectInput("muttrunkbranch_getphylotree_method", label = div(style = "font-size:1.5em; font-weight:600;  ", "Tree construct method"),
                                              choices = c("NJ","MP","ML","FASTME.ols","FASTME.bal"),
@@ -1623,8 +1684,8 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf: ")),
-                                             tags$td(width = "70%", textInput(inputId = "muttrunkbranch_getphylotree_minvaf", value = 0.02, label = NULL)))
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min vaf")),
+                                             tags$td(width = "60%", textInput(inputId = "muttrunkbranch_getphylotree_minvaf", value = 0.02, label = NULL)))
                                  ), 
                                  bsTooltip(id = "muttrunkbranch_getphylotree_minvaf",
                                            title = "The minimum value of vaf",
@@ -1634,8 +1695,8 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf: ")),
-                                             tags$td(width = "70%", textInput(inputId = "muttrunkbranch_getphylotree_minccf", value = 0, label = NULL)))
+                                             tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "Min ccf")),
+                                             tags$td(width = "60%", textInput(inputId = "muttrunkbranch_getphylotree_minccf", value = 0, label = NULL)))
                                  ), 
                                  bsTooltip(id = "muttrunkbranch_getphylotree_minccf",
                                            title = "The minimum value of ccf",
@@ -1645,8 +1706,8 @@ bodytree <- tabItem('tree',
                                  tags$table(
                                      tags$tr(id = "inline", 
                                              width = "100%",
-                                             tags$td(width = "60%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions: ")),
-                                             tags$td(width = "40%", textInput(inputId = "muttrunkbranch_getphylotree_bootstraprepnum", value = 100, label = NULL)))
+                                             tags$td(width = "50%", div(style = "font-size:1.5em; font-weight:600; ", "Boostrap repetitions")),
+                                             tags$td(width = "30%", textInput(inputId = "muttrunkbranch_getphylotree_bootstraprepnum", value = 100, label = NULL)))
                                  ), 
                                  bsTooltip(id = "muttrunkbranch_getphylotree_bootstraprepnum",
                                            title = "Bootstrap iterations. Default 100.",
@@ -1657,10 +1718,13 @@ bodytree <- tabItem('tree',
                                            title = 'Distinction between C>T at CpG and C>T at other sites, Default FALSE',
                                            placement = "top",
                                            trigger = "hover"),
-                                 numericInput(inputId = "muttrunkbranch_pvalue",
-                                           label = div(style = "font-size:1.5em; font-weight:600; ", 'P-value'),
-                                           min = 0,max = 1,step = 0.05,
-                                           value = 0.05),
+                                 tags$table(
+                                   tags$tr(id = "inline", 
+                                           width = "100%",
+                                           tags$td(width = "30%", div(style = "font-size:1.5em; font-weight:600; ", "P-value")),
+                                           tags$td(width = "60%", textInput(inputId = "muttrunkbranch_pvalue", value = 0.05, label = NULL)))
+                                 ), 
+                                 br(),
                                  bsTooltip(id = "muttrunkbranch_pvalue",
                                            title = "Confidence level of the interval for Fisher test. Default: 0.05.",
                                            placement = "right",
@@ -1700,7 +1764,7 @@ bodytree <- tabItem('tree',
                                  width = "100%",
                                  height = "100%",
                                  tabPanel(
-                                     title = div(icon("tree"), strong("Plot phylotree")),
+                                     title = div(icon("tree"), "Plot phylotree", style = "font-size:1.5em; font-weight:600; "),
                                      value = 'S_plotphylotree',
                                      uiOutput("phylotree.patientlist"),
                                      div(plotOutput("phylotree_plot",height = "100%",width = "100%"),align = "left"),
@@ -1708,7 +1772,7 @@ bodytree <- tabItem('tree',
                                      uiOutput("phylotree_downloadbutton_ui")
                                  ),
                                  tabPanel(
-                                     title = div(icon("tree"), strong("Compare tree")), 
+                                     title = div(icon("tree"), "Compare tree", style = "font-size:1.5em; font-weight:600; "), 
                                      value = 'S_comparetree',
                                      verbatimTextOutput("comparetree_dist"),
                                      br(),
@@ -1718,7 +1782,7 @@ bodytree <- tabItem('tree',
                                      # uiOutput('treemutsig_table_ui')
                                  ),
                                  tabPanel(
-                                     title = div(icon("image"), strong("Fit signatrues")), 
+                                     title = div(icon("image"), "Mutational signature", style = "font-size:1.5em; font-weight:600; "), 
                                      value = 'S_treemutsig',
                                      # uiOutput('warningMessage_treemutsig'),
                                      uiOutput("treemutsig.patientlist"),
@@ -1729,7 +1793,7 @@ bodytree <- tabItem('tree',
                                      # uiOutput('treemutsig_table_ui')
                                  ),
                                  tabPanel(
-                                     title = div(icon("image"), strong("MutTrunkBranch")),
+                                     title = div(icon("image"), "MutTrunkBranch", style = "font-size:1.5em; font-weight:600; "),
                                      value = 'S_muttrunkbranch',
                                      uiOutput("muttrunkbranch.patientlist"),
                                      br(),
@@ -1830,7 +1894,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit:a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations.</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations</span>\');
       })
      ')), 
       
