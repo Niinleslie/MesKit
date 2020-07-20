@@ -205,7 +205,7 @@ plotCNA <- function(seg,
         
         patient.rect.hmin <- c(h)
         patient.rect.hmax <- c()
-        sample_patient_list <- (seg %>% dplyr::distinct(Sample_ID, .keep_all = TRUE))$patient
+        sample_patient_list <- (seg %>% dplyr::distinct(.data$Sample_ID, .keep_all = TRUE))$patient
         
         hlist1 <- lapply(seq_len(length(sampleids)), function(i){
             p <- sample_patient_list[i]

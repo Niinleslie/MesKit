@@ -145,7 +145,7 @@ calNeiDist <- function(maf,
     }
     
     dist_mat <- t(apply(dist_mat, 1, processNeiMat))
-    dist_mat <- dist_mat[,-ncol(dist_mat)] %>% apply(1:2,as.numeric)
+    dist_mat <- dist_mat[,-ncol(dist_mat)] %>% apply(c(1,2), as.numeric)
     
     Nei.dist.avg <- mean(dist_mat[upper.tri(dist_mat, diag = FALSE)])
     Nei.dist <- dist_mat
@@ -197,7 +197,7 @@ calNeiDist <- function(maf,
   
   if(withinTumor){
     maf_group <- dplyr::bind_rows(maf_data_list) %>%
-      dplyr::group_by(Patient_ID, Tumor_ID)
+      dplyr::group_by(.data$Patient_ID, .data$Tumor_ID)
     group_name <- paste(group_keys(maf_group)$Patient_ID, group_keys(maf_group)$Tumor_ID, sep = "_")
     
     result <- maf_group %>% 
@@ -205,7 +205,7 @@ calNeiDist <- function(maf,
     names(result) <- group_name
   }else{
     maf_group <- dplyr::bind_rows(maf_data_list) %>%
-      dplyr::group_by(Patient_ID)
+      dplyr::group_by(.data$Patient_ID)
     group_name <- group_keys(maf_group)$Patient_ID
     
     result <- maf_group %>% 

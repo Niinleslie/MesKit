@@ -184,7 +184,7 @@ compareJSI <- function(
         }
         
         dist_mat <- t(apply(dist_mat, 1, processJSI3))
-        dist_mat <- dist_mat[,-ncol(dist_mat)] %>% apply(1:2,as.numeric)
+        dist_mat <- dist_mat[,-ncol(dist_mat)] %>% apply(c(1,2), as.numeric)
         
         JSI.multi <- multi
         JSI.pair <- dist_mat

@@ -116,23 +116,6 @@ mutTrunkBranch <- function(phyloTree,
         })
         df_pvalue <- dplyr::bind_rows(df_pvalue_list) %>% as.data.table()
         
-        # for (group in group_level) {
-        #     b1 <- sum(BT_spectrum[BT_spectrum$Group == group &  BT_spectrum$BT == "Branch", ]$mut_num) 
-        #     b2 <- sum(BT_spectrum[BT_spectrum$Group != group &  BT_spectrum$BT == "Branch", ]$mut_num)
-        #     t1<-  sum(BT_spectrum[BT_spectrum$Group == group & BT_spectrum$BT == "Trunk", ]$mut_num) 
-        #     t2 <-  sum(BT_spectrum[BT_spectrum$Group != group & BT_spectrum$BT == "Trunk", ]$mut_num) 
-        #     if(all(!is.nan(b1)) & all(!is.nan(t1))){
-        #         m <- matrix(c(b1, t1, b2, t2),ncol = 2)
-        #         pValue <- stats::fisher.test(m,alternative = "two.sided")$p.value
-        #     }
-        #     else{
-        #         pValue <- NA
-        #     }
-        #     sub <- data.frame(group, pValue)
-        #     colnames(sub) <- c("Group", "P_Value")
-        #     df_pvalue <- rbind(df_pvalue, sub)
-        # }
-        
         ## generate output data.frame with quantity of mutations in different categories
         
         BT_summary <-  BT_spectrum %>% 
@@ -165,7 +148,7 @@ mutTrunkBranch <- function(phyloTree,
                                     values_to = "fraction") %>%
                 as.data.frame() 
             dat$Group <- factor(dat$Group, levels = unique(group_level))
-            dat <- dplyr::arrange(dat,dplyr::desc(.data$Group))
+            dat <- dplyr::arrange(dat, dplyr::desc(.data$Group))
             
             ## get position
             dat <- as.data.table(dat)
@@ -193,17 +176,6 @@ mutTrunkBranch <- function(phyloTree,
             })
             dat <- dplyr::bind_rows(d_list) %>% as.data.table()
             
-            # for(bt in unique(dat$BT)){
-            #     dat[dat$BT == bt,]$rect.xmin <- i
-            #     dat[dat$BT == bt,]$rect.xmax <- i + 0.1
-            #     i <- i + 0.15
-            # 
-            #     ## get position for y axis
-            #     yy <- cumsum(dat[dat$BT == bt]$fraction)
-            #     len.yy <- length(yy)
-            #     dat[dat$BT == bt,]$rect.ymin <- c(0,yy[-len.yy])
-            #     dat[dat$BT == bt,]$rect.ymax <- yy
-            # }
             
             ## set table for number of mutation
             num_table_list <- lapply(unique(dat$BT), function(bt){
@@ -218,18 +190,7 @@ mutTrunkBranch <- function(phyloTree,
                 return(sub)
             })
             num_table <- dplyr::bind_rows(num_table_list) %>% as.data.table()
-            # for(bt in unique(dat$BT)){
-            #     xmin <- min(dat[dat$BT == bt]$rect.xmin)
-            #     xmax <- max(dat[dat$BT == bt]$rect.xmax)
-            #     x <- xmin + (xmax-xmin)/2
-            #     if(bt == "Trunk"){
-            #         sub <- data.table(x = x, y = 1.03, num = trunk_num)
-            #     }else{
-            #         sub <- data.table(x = x, y = 1.03, num = branch_num)
-            #     }
-            #     num_table <- rbind(num_table,sub)
-            # }
-            # 
+
             ## set table for pvalue
             pvalue_table_list <- lapply(unique(dat$Group), function(g){
                 v <- unique(dat[dat$Group == g]$P_Value) 
@@ -248,20 +209,7 @@ mutTrunkBranch <- function(phyloTree,
                 }
             })
             pvalue_table <- dplyr::bind_rows(pvalue_table_list) %>% as.data.table()
-            # for(g in unique(dat$Group)){
-            #     v <- unique(dat[dat$Group == g]$P_Value) 
-            #     if(is.na(v)){
-            #         next
-            #     }
-            #     if(v < pvalue){
-            #         x <- max(dat[dat$Group == g]$rect.xmax)
-            #         ymin <- dat[dat$Group == g & dat$BT == "Branch"]$rect.ymin
-            #         ymax <- dat[dat$Group == g& dat$BT == "Branch"]$rect.ymax
-            #         y <- ymin + (ymax - ymin)/2
-            #         sub <- data.table(x,y,label = "*")
-            #         pvalue_table <- rbind(pvalue_table,sub)
-            #     }
-            # }
+
             
             ## set segment from trunk to branches
             segment_table_list <- lapply(unique(dat$Group), function(g){
@@ -278,18 +226,7 @@ mutTrunkBranch <- function(phyloTree,
             })
             segment_table <- dplyr::bind_rows(segment_table_list) %>% as.data.table()
             
-            # for(g in unique(dat$Group)){
-            #     fractions <- dat[dat$Group == g]$fraction
-            #     if(all(fractions == 0)){
-            #         next
-            #     }
-            #     x1 <- dat[dat$Group == g& dat$BT == "Trunk"]$rect.xmax
-            #     x2 <- dat[dat$Group == g& dat$BT == "Branch"]$rect.xmin
-            #     y1 <- dat[dat$Group == g& dat$BT == "Trunk"]$rect.ymax
-            #     y2 <- dat[dat$Group == g& dat$BT == "Branch"]$rect.ymax
-            #     sub <- data.table(x1,x2,y1,y2)
-            #     segment_table <- rbind(segment_table,sub)
-            # }
+
             
             ## set color 
             if(CT){
@@ -319,6 +256,12 @@ mutTrunkBranch <- function(phyloTree,
             Group <- NULL
             num <- NULL
             label <- NULL
+            x <- NULL
+            x1 <- NULL
+            x2 <- NULL
+            y <- NULL
+            y1 <- NULL
+            y2 <- NULL
             
             ## plot
             pic <- ggplot() + 
