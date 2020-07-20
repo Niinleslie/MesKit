@@ -33,25 +33,12 @@ calNeiDist <- function(maf,
                        number.col = "#C77960",
                        ...){
   
-  ## check input data
-  maf_list <- checkMafInput(maf, patient.id = patient.id)
-  
-  if(withinTumor){
-    clonalStatus <- "Subclonal"
-  }else{
-    clonalStatus <- NULL
-  }
-  
-  
-  result <- list()
-  for( m in maf_list){
-    maf_data <- subMaf(m,
-                       min.ccf = min.ccf,
-                       clonalStatus = clonalStatus,...)
-    patient <- getMafPatient(m)
+  processNei <- function(maf_data){
+    
+    patient <- unique(maf_data$Patient_ID)
     if(nrow(maf_data) == 0){
       message("Warning :there was no mutation in ", patient, " after filtering.")
-      next
+      return(NA)
     }
     
     if(! "CCF" %in% colnames(maf_data)){
@@ -77,96 +64,157 @@ calNeiDist <- function(maf,
         "Tumor_Sample_Barcode",
         "CCF"
       )
+  
     
     if(!withinTumor){
-      Nei_input$Tumor_ID <- "All"
-    }
-    ids <- unique(Nei_input$Tumor_ID)
-    for(id in ids){
+      subdata <- Nei_input
+    }else{
+      id <- unique(Nei_input$Tumor_ID)
       subdata <- subset(Nei_input, Nei_input$Tumor_ID == id)
-      if(withinTumor){
-        if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
-          message(paste0("Warnings: only one sample was found of ", id,
-                         " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
-          next
-
-        }
-      }
-      
+    }
+    
+    if(withinTumor){
       if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
-        message(paste0("Warnings: Only one sample was found of ",patient,"."))
+        message(paste0("Warnings: only one sample was found of ", id,
+                       " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
         return(NA)
-      }
-      
-      subdata <- tidyr::pivot_wider(subdata,
-                                    names_from = "Tumor_Sample_Barcode",
-                                    values_from = "CCF",
-                                    values_fill = list("CCF" = 0)) %>%
-        dplyr::select(-"Mut_ID", -"Tumor_ID")
-      dist_mat <- diag(1, nrow = ncol(subdata), ncol = ncol(subdata))
-      for (i in seq_len(ncol(subdata)-1)) {
-        s1 <- colnames(subdata)[i]
-        for (j in (i + 1):ncol(subdata)) {
-          s2 <- colnames(subdata)[j]
-          x <- as.vector(subdata[, i])
-          y <- as.vector(subdata[, j])
-          
-          x_ <- sum(x ^ 2 + (1 - x) ^ 2)
-          y_ <- sum(y ^ 2 + (1 - y) ^ 2)
-          
-          xy <- sum(x * y + (1 - x) * (1 - y))
-          
-          nei_dist <- -log(xy / sqrt(x_ * y_))
-          dist_mat[i, j] <- dist_mat[j, i] <- nei_dist
-        }
-      }
-      rownames(dist_mat) <- colnames(subdata)
-      colnames(dist_mat) <- colnames(subdata)
-      
-      Nei.dist.avg <- mean(dist_mat[upper.tri(dist_mat, diag = FALSE)])
-      Nei.dist <- dist_mat
-      if(withinTumor){
-        name <- paste(patient, id, sep = "_")
-      }else{
-        name <- patient
-      }
-      
-      if(plot){
-        if(is.null(title)){
-          ## get significant number
-          min_value <- min(dist_mat[dist_mat!=1 & dist_mat!=0])
-          significant_digit <- gsub(pattern =  "0\\.0*","", as.character(min_value))
-          digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
-          if(withinTumor){
-            title_id <- paste0("Nei's distance of ", id," in ", patient, ": ",round(Nei.dist.avg,digits))
-          }else{
-            title_id <- paste0("Nei's distance of patient ", patient, ": ",round(Nei.dist.avg,digits))
-          }
-        }else{
-          title_id <- title
-        }
-        Nei.plot <- plotCorr(
-          dist_mat, 
-          use.circle, 
-          number.cex = number.cex,
-          number.col = number.col,
-          title = if(!is.null(title_id)) title_id else{NA} 
-        )
-      }
-      
-      if(withinTumor){
-        name <- paste(patient, id, sep = "_")
-      }else{
-        name <- patient
-      }
-      
-      if(plot){
-        result[[name]] <- list(Nei.dist.avg = Nei.dist.avg, Nei.dist = Nei.dist, Nei.plot =  Nei.plot)           
-      }else{
-        result[[name]] <- list(Nei.dist.avg = Nei.dist.avg, Nei.dist = Nei.dist)           
+        
       }
     }
+    if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
+      message(paste0("Warnings: Only one sample was found of ",patient,"."))
+      return(NA)
+    }
+    
+    ## pairwise heterogeneity
+    samples <- as.character(unique(subdata$Tumor_Sample_Barcode))
+    pairs <- utils::combn(samples, 2, simplify = FALSE)
+    
+    dist_mat <- diag(1, nrow=length(samples), ncol=length(samples))
+    dist_mat <- cbind(dist_mat, samples)
+    rownames(dist_mat) <- samples
+    colnames(dist_mat) <- c(samples, "name")
+    
+    processNeipair <- function(pair){
+      s <- subset(subdata, subdata$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>%
+        dplyr::mutate(CCF = as.numeric(.data$CCF))
+      maf.pair <- as.data.frame(s) %>% 
+        tidyr::pivot_wider(names_from = "Tumor_Sample_Barcode",
+                           values_from = "CCF",
+                           values_fill = list("CCF" = 0)) %>%
+        dplyr::select(-"Mut_ID", -"Tumor_ID")
+      
+      colnames(maf.pair) <- c("ccf1", "ccf2")
+      x <- maf.pair$ccf1
+      y <- maf.pair$ccf2
+      x_ <- sum(x ^ 2 + (1 - x) ^ 2)
+      y_ <- sum(y ^ 2 + (1 - y) ^ 2)
+      
+      xy <- sum(x * y + (1 - x) * (1 - y))
+      
+      nei_dist <- -log(xy / sqrt(x_ * y_))
+      
+      return(nei_dist)
+    }
+    
+    nei.list <- lapply(pairs, processNeipair) %>% unlist()
+    pairs_name <- lapply(pairs, function(x)paste0(x[1], "_", x[2])) %>% unlist()
+    names(nei.list) <- pairs_name
+    
+    processNeiMat <- function(j){
+      row_name <- j["name"]
+      j1 <- j[-length(j)]
+      
+      idx <- which(j == "0")
+      j2 <- names(j[idx])
+      
+      mat_row <- vapply(j2, function(g){
+        name1 <- paste0(g, "_", row_name)
+        name2 <- paste0(row_name, "_", g)
+        
+        pos <- which(grepl(name1, names(nei.list)))
+        if(length(pos) == 0){
+          pos <- which(grepl(name2, names(nei.list)))
+        }
+        fst <- nei.list[pos]
+        return(fst)
+      }, FUN.VALUE = double(1))
+      
+      j[idx] <- mat_row
+      return(j)
+    }
+    
+    dist_mat <- t(apply(dist_mat, 1, processNeiMat))
+    dist_mat <- dist_mat[,-ncol(dist_mat)] %>% apply(1:2,as.numeric)
+    
+    Nei.dist.avg <- mean(dist_mat[upper.tri(dist_mat, diag = FALSE)])
+    Nei.dist <- dist_mat
+    
+    if(plot){
+      if(is.null(title)){
+        ## get significant number
+        min_value <- min(dist_mat[dist_mat!=1 & dist_mat!=0])
+        significant_digit <- gsub(pattern =  "0\\.0*","", as.character(min_value))
+        digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
+        if(withinTumor){
+          title_id <- paste0("Nei's distance of ", id," in ", patient, ": ",round(Nei.dist.avg,digits))
+        }else{
+          title_id <- paste0("Nei's distance of patient ", patient, ": ",round(Nei.dist.avg,digits))
+        }
+      }else{
+        title_id <- title
+      }
+      Nei.plot <- plotCorr(
+        dist_mat, 
+        use.circle, 
+        number.cex = number.cex,
+        number.col = number.col,
+        title = if(!is.null(title_id)) title_id else{NA} 
+      )
+    }
+    
+    if(plot){
+      return(list(Nei.dist.avg = Nei.dist.avg, Nei.dist = Nei.dist, Nei.plot = Nei.plot))
+    }else{
+      return(list(Nei.dist.avg = Nei.dist.avg, Nei.dist = Nei.dist))
+    }  
+    
   }
+  
+  if(withinTumor){
+    clonalStatus <- "Subclonal"
+  }else{
+    clonalStatus <- NULL
+  }
+  
+  maf <- subMaf(maf, min.ccf = min.ccf, clonalStatus = clonalStatus, mafObj = TRUE, ...)
+  
+  ## check input data
+  maf_list <- checkMafInput(maf, patient.id = patient.id)
+  maf_data_list <- lapply(maf_list, getMafData)
+  
+  . <- NULL
+  
+  if(withinTumor){
+    maf_group <- dplyr::bind_rows(maf_data_list) %>%
+      dplyr::group_by(Patient_ID, Tumor_ID)
+    group_name <- paste(group_keys(maf_group)$Patient_ID, group_keys(maf_group)$Tumor_ID, sep = "_")
+    
+    result <- maf_group %>% 
+      dplyr::group_map(~processNei(.), .keep = TRUE)
+    names(result) <- group_name
+  }else{
+    maf_group <- dplyr::bind_rows(maf_data_list) %>%
+      dplyr::group_by(Patient_ID)
+    group_name <- group_keys(maf_group)$Patient_ID
+    
+    result <- maf_group %>% 
+      dplyr::group_map(~processNei(.), .keep = TRUE)
+    names(result) <- group_name
+  }
+  
+  result <- result[!is.na(result)]
+  
   if(length(result) > 1){
     return(result)
   }else if(length(result) == 0){

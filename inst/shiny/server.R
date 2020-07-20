@@ -213,7 +213,7 @@ shinyServer(function(input, output, session){
     }
   })
   output$DownloadMathScore <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "mathscore.csv",
       content = function(file){
           data <- ms()
           write.csv(data,file,row.names = FALSE)
@@ -352,7 +352,7 @@ shinyServer(function(input, output, session){
   
   output$DownloadVafPlot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$DownloadVafPlotCheck, sep='')
+          paste("vafcluster.",input$DownloadVafPlotCheck, sep='')
       },
       content = function(file) {
           if (input$DownloadVafPlotCheck == "png"){
@@ -404,7 +404,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_vafcluster_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "vafcluster.csv",
       content = function(file){
           if("cluster.data" %in% names(vafcluster())){
               t <- vafcluster()$cluster.data
@@ -522,7 +522,7 @@ shinyServer(function(input, output, session){
   
   output$Download_ccfauc_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_ccfauc_plot_check, sep='')
+          paste("ccfauc.",input$Download_ccfauc_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_ccfauc_plot_check == "png"){
@@ -579,7 +579,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_ccfauc_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "ccfauc.csv",
       content = function(file){
           if("CCF.density.plot" %in% names(ccfauc())){
               t <- ccfauc()$AUC.value
@@ -702,7 +702,7 @@ shinyServer(function(input, output, session){
   
   output$Download_calfst_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_calfst_plot_check, sep='')
+          paste("calfst.",input$Download_calfst_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_calfst_plot_check == "png"){
@@ -760,7 +760,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_calfst_pair_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "calfst.csv",
       content = function(file){
           if(!"Fst.plot" %in% names(calfst())){
               m <- calfst()[[getpatient.calfst()]]$Fst.pair
@@ -884,7 +884,7 @@ shinyServer(function(input, output, session){
   
   output$Download_calneidist_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_calneidist_plot_check, sep='')
+          paste("calneidist.",input$Download_calneidist_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_calneidist_plot_check == "png"){
@@ -942,7 +942,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_calneidist_pair_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "calneidist.csv",
       content = function(file){
           if(!"Nei.plot" %in% names(calneidist())){
               m <- calneidist()[[getpatient.calneidist()]]$Nei.dist
@@ -1128,7 +1128,7 @@ shinyServer(function(input, output, session){
   
   output$Download_mutheatmap_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_mutheatmap_plot_check, sep='')
+          paste("mutheatmap.",input$Download_mutheatmap_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_mutheatmap_plot_check == "png"){
@@ -1293,7 +1293,7 @@ shinyServer(function(input, output, session){
   
   output$Download_comparejsi_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_comparejsi_plot_check, sep='')
+          paste("comparejsi.",input$Download_comparejsi_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_comparejsi_plot_check == "png"){
@@ -1351,7 +1351,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_comparejsi_pair_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "comparejsi.csv",
       content = function(file){
           if(!"JSI.plot" %in% names(comparejsi())){
               m <- comparejsi()[[getpatient.comparejsi()]]$JSI.pair
@@ -1547,7 +1547,7 @@ shinyServer(function(input, output, session){
   
   output$Download_plotmutprofile_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_plotmutprofile_plot_check, sep='')
+          paste("mutationprofile.",input$Download_plotmutprofile_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_plotmutprofile_plot_check == "png"){
@@ -1721,7 +1721,7 @@ shinyServer(function(input, output, session){
   
   output$Download_plotcna_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_plotcna_plot_check, sep='')
+          paste("plotcna.",input$Download_plotcna_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_plotcna_plot_check == "png"){
@@ -1764,7 +1764,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_plotcna_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "plotcna.csv",
       content = function(file){
           data <- plotcna()$seg
           write.csv(data,file,row.names = FALSE)
@@ -1909,7 +1909,7 @@ shinyServer(function(input, output, session){
   
   output$Download_testneutral_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_testneutral_plot_check, sep='')
+          paste("testneutral.",input$Download_testneutral_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_testneutral_plot_check == "png"){
@@ -1967,7 +1967,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_testneutral_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "testneutral.csv",
       content = function(file){
           if(!"neutrality.metrics" %in% names(testneutral())){
               t <- testneutral()[[getpatient.testneutral()]]$neutrality.metrics
@@ -2136,7 +2136,7 @@ shinyServer(function(input, output, session){
   })
   
   output$Download_compareccf_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "compareccf.csv",
       content = function(file){
           if(class(compareccf()[[1]]) != "data.frame"){
               t <- compareccf()[[getpatient.compareccf()]][[getsample.compareccf()]]
@@ -2295,7 +2295,7 @@ shinyServer(function(input, output, session){
   
   output$Download_phylotree <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_phylotree_check, sep='')
+          paste("phylotree.",input$Download_phylotree_check, sep='')
       },
       content = function(file) {
           if (input$Download_phylotree_check == "png"){
@@ -2417,7 +2417,7 @@ shinyServer(function(input, output, session){
   
   output$Download_comparetree <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_comparetree_check, sep='')
+          paste("comparetree.",input$Download_comparetree_check, sep='')
       },
       content = function(file) {
           if (input$Download_comparetree_check == "png"){
@@ -2591,7 +2591,7 @@ shinyServer(function(input, output, session){
   
   output$Download_treemutsig_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_treemutsig_plot_check, sep='')
+          paste("treemutsig.",input$Download_treemutsig_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_treemutsig_plot_check == "png"){
@@ -2735,7 +2735,7 @@ shinyServer(function(input, output, session){
   
   output$Download_muttrunkbranch_plot <- downloadHandler(
       filename = function() {
-          paste("Rplot.",input$Download_muttrunkbranch_plot_check, sep='')
+          paste("muttrunkbranch.",input$Download_muttrunkbranch_plot_check, sep='')
       },
       content = function(file) {
           if (input$Download_muttrunkbranch_plot_check == "png"){
@@ -2785,7 +2785,7 @@ shinyServer(function(input, output, session){
   
   
   output$Download_muttrunkbranch_table <- downloadHandler(
-      filename = "Rtable.csv",
+      filename = "muttrunkbranch.csv",
       content = function(file){
           if(!"mutTrunkBranch.plot" %in% names(muttrunkbranch())){
               t <- muttrunkbranch()[[getpatient.muttrunkbranch()]]$mutTrunkBranch.res

@@ -42,20 +42,17 @@ plotPhyloTree <- function(phyloTree,
     ## check input data
     phyloTree_list <- checkPhyloTreeInput(phyloTree,patient.id = patient.id)
     
-    tree_list <- list()
-   
-   for(phyloTree in phyloTree_list){
-       
+    processPlotTree <- function(phyloTree){
        patient <- getPhyloTreePatient(phyloTree)
-       
        p <- plotTree(phyloTree,
                      branchCol = branchCol,
                      show.bootstrap = show.bootstrap,
                      signaturesRef = signaturesRef,
                      min.mut.count = min.mut.count)
-       tree_list[[patient]] <- p
-   }
+       return(p)
+    }
    
+   tree_list <- lapply(phyloTree_list, processPlotTree)
    tree_list <- tree_list[!is.na(tree_list)]
    
    if(length(tree_list)==1){

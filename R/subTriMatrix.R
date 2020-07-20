@@ -8,46 +8,80 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
   }
   
   ## 96 trinucleotide 
-  all_tri <- c()
-  for(type in types){
-    for(base.up in bases){
-      for(base.down in bases){
-        if(type == "C>T at CpG"){
-          if(base.down != "G"){
-            next
-          }
-        }
-        tri <- paste(base.up,"[",type,"]",base.down,sep = "")
-        all_tri <- append(all_tri,tri)
-      }
-    }
-  }
   
-  ref64_type <- c()
-  ref64_seq <- c()
-  for(base.mid in bases){
-    base.mid1 <- base.mid
-    for(base.up in bases){
-      for(base.down in bases){
-        tri <- paste(base.up,base.mid,base.down,sep = "")
-        ref64_seq <- append(ref64_seq,tri)
-        if(base.mid == "G"){
-          base.mid1 <- "C"
+  all_tri <- lapply(
+    types,
+    function(type){
+      lapply(
+        bases,
+        function(base.up){
+          lapply(
+            bases,
+            function(base.down){
+              if(type == "C>T at CpG"){
+                if(base.down != "G"){
+                  return(NULL)
+                }
+              }
+              tri <- paste(base.up,"[",type,"]",base.down,sep = "")
+              return(tri)
+            }
+          )
         }
-        else if(base.mid == "A"){
-          base.mid1 <- "T"
-        }
-        n <- paste(base.up,base.mid1,base.down,sep = "")
-        ref64_type <- append(ref64_type,n)
-      }
+      )
     }
-  }
+  ) %>% unlist()
+  
+  ref64_seq <- lapply(
+    bases,
+    function(base.mid){
+      base.mid1 <- base.mid
+      r1 <- lapply(
+        bases,
+        function(base.up){
+          lapply(
+            bases,
+            function(base.down){
+              tri <- paste(base.up, base.mid, base.down, sep = "")
+              return(tri)
+            }
+          )
+        }
+      )
+      return(r1)
+    }
+  ) %>% unlist()
+  
+  ref64_type <- lapply(
+    bases,
+    function(base.mid){
+      base.mid1 <- base.mid
+      r1 <- lapply(
+        bases,
+        function(base.up){
+          lapply(
+            bases,
+            function(base.down){
+              if(base.mid == "G"){
+                base.mid1 <- "C"
+              }
+              else if(base.mid == "A"){
+                base.mid1 <- "T"
+              }
+              n <- paste(base.up,base.mid1,base.down,sep = "")
+              return(n)
+            }
+          )
+        }
+      )
+      return(r1)
+    }
+  ) %>% unlist()
+  
   names(ref64_type) <- ref64_seq
   ref64 <- ref64_type
-  # names(all_tri) <- seq96
-  result <- list()
-  for(phyloTree in phyloTree_list){
-    
+  
+  processTriMat <- function(phyloTree){
     patient <- getPhyloTreePatient(phyloTree)
     ## check reference
     refBuild <- getPhyloTreeRef(phyloTree)
@@ -116,26 +150,29 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
       branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
     }
     
+    tri_matrix_list <- lapply(
+      branch_data_list,
+      function(branch_data){
+        branch_count <- table(branch_data$context)
+        branch_count <- branch_count[names(branch_count) %in% all_tri] 
+        
+        m <- branch_count[all_tri]
+        m[is.na(m)] <- 0
+        names(m) <- all_tri
+        
+        branch_matrix <- matrix(m, ncol = length(all_tri), nrow = 1)
+        colnames(branch_matrix) <- as.character(all_tri)
+        return(as.data.frame(branch_matrix))
+      }
+    )
     
+    tri_matrix <- dplyr::bind_rows(tri_matrix_list)
+    row.names(tri_matrix) <- names(branch_data_list)
     
-    tri_matrix <- data.frame()
-    for(branch_data in branch_data_list){
-      
-      branch_count <- table(branch_data$context)
-      branch_count <- branch_count[names(branch_count) %in% all_tri] 
-      
-      m <- branch_count[all_tri]
-      m[is.na(m)] <- 0
-      names(m) <- all_tri
-      
-      branch_matrix <- matrix(m, ncol = length(all_tri), nrow = 1)
-      colnames(branch_matrix) <- as.character(all_tri)
-      
-      tri_matrix <- rbind(tri_matrix, as.data.frame(branch_matrix)) 
-    }
-    rownames(tri_matrix) <- names(branch_data_list)
-    
-    result[[patient]] <- as.matrix(tri_matrix)  
+    return(as.matrix(tri_matrix))  
   }
+  
+  result <- lapply(phyloTree_list, processTriMat)
+  
   return(result)
 }
