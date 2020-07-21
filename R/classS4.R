@@ -18,7 +18,7 @@ Maf <- setClass(
   )
 )
 
-#' MafList 
+#' MafList class
 #' @description S4 class for storing a list of Maf objects.
 #' @slot .Data a list of \code{\link{Maf}} objects.
 #' @section Constructor:\describe{
@@ -38,6 +38,8 @@ setClass('phylo')
 
 
 #' phyloTree class
+#' @name phyloTree-class
+#' @aliases phyloTree
 #' @description S4 class for storing informations about phylogenetic tree.
 #' @slot patientID patient ID.
 #' @slot tree a object of class "phylo".
@@ -49,8 +51,8 @@ setClass('phylo')
 #' @slot branch.type a data.frame of trunk/branch types based on shared pattern.
 #' @slot ref.build human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.
 #' @rdname phyloTree-class
-#' @exportClass phyloTree
-setClass('phyloTree', slots = c(
+#' @export
+setClass(Class = 'phyloTree', slots = c(
   patientID = 'character', 
   tree = 'phylo',
   bootstrap.value = 'numeric',    

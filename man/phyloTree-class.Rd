@@ -3,6 +3,7 @@
 \docType{class}
 \name{phyloTree-class}
 \alias{phyloTree-class}
+\alias{phyloTree}
 \title{phyloTree class}
 \description{
 S4 class for storing informations about phylogenetic tree.

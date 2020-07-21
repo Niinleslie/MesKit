@@ -4,7 +4,7 @@
 \name{MafList-class}
 \alias{MafList-class}
 \alias{MafList}
-\title{MafList}
+\title{MafList class}
 \description{
 S4 class for storing a list of Maf objects.
 }
