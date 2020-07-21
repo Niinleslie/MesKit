@@ -79,15 +79,24 @@ plotTree <- function(phyloTree,
                            dplyr::select("x2","y2","node","end_num"),sub)
         boots <- c()
         LN <- min(bootsData$node)-1
-        for(i in seq_len(nrow(bootsData))){      
-            if(i == nrow(bootsData)){
-                boots <- append(boots, boot_value[rootNode - LN])
-                next
-            }
+        
+        boots_list <- lapply(seq_len(nrow(bootsData)), function(i){
+          if(i == nrow(bootsData)){
+            boots <- append(boots, boot_value[rootNode - LN])
+          }else{
             boots <- append(boots, boot_value[bootsData$end_num[i] - LN])
-            
-        }
-        bootsData <- cbind(bootsData, boots = boots)
+          }
+          return(boots)
+        }) %>% unlist()
+        # 
+        # for(i in seq_len(nrow(bootsData))){      
+        #     if(i == nrow(bootsData)){
+        #         boots <- append(boots, boot_value[rootNode - LN])
+        #         next
+        #     }
+        #     boots <- append(boots, boot_value[bootsData$end_num[i] - LN])
+        # }
+        bootsData <- cbind(bootsData, boots = boots_list)
     }
     
     ## initialize
@@ -326,26 +335,34 @@ getTreeData <- function(phyloTree = NULL,
    treeData[1,]$y2 <- -rootEdge
    treeData[1,]$distance <- rootEdge
    treeData$sample <- ""
-   for(i in seq_len(nrow(treeData))){
-      if(treeData$end_num[i] > length(tree$tip.label)){
-         treeData$sample[i] <- "internal node"
-      }
-      else{
-         pos <- treeData$end_num[i]
-         treeData$sample[i] <- tree$tip.label[pos]
-      }
-   }
+   
+   
+   
+   sample_list <- vapply(treeData$end_num, function(e){
+     if(e > length(tree$tip.label)){
+       return("internal node")
+     }else{
+       return(tree$tip.label[e])
+     }
+   }, FUN.VALUE = character(1))
+   
+   treeData$sample <- sample_list
+   
+   # for(i in seq_len(nrow(treeData))){
+   #    if(treeData$end_num[i] > length(tree$tip.label)){
+   #       treeData$sample[i] <- "internal node"
+   #    }
+   #    else{
+   #       pos <- treeData$end_num[i]
+   #       treeData$sample[i] <- tree$tip.label[pos]
+   #    }
+   # }
    if(nrow(treeData) == 3){
       angleList <- c(pi/3, 2*pi/3)
       rows <- which(treeData$sample != "NORMAL")
-      i = 1
-      for(row in rows){
-         angle <- angleList[i]
-         treeData$angle[row] <- angle
-         treeData$x2[row] <- treeData$distance[row]*cos(angle)
-         treeData$y2[row] <- treeData$distance[row]*sin(angle)
-         i = i+1
-      }
+      treeData[rows, ]$angle <- angleList
+      treeData[rows, ]$x2 <- treeData[rows, ]$distance*cos(treeData[rows, ]$angle)
+      treeData[rows, ]$y2 <- treeData[rows, ]$distance*sin(treeData[rows, ]$angle)
    }
    if(nrow(treeData[treeData$x2 > 0,]) == 0){
       maxy <- which.max(treeData$y2)
@@ -363,18 +380,20 @@ getTreeData <- function(phyloTree = NULL,
    
    ## label represents the common evolution path of samples
    treeData$label <- ""
-   for(i in seq_len(nrow(treeData))){
-       if(treeData$sample[i] == "NORMAL"){
-           treeData$label[i] <- branchLabel[[rootNode]]
-       }else{
-           if(treeData$end_num[i] > length(tree$tip.label)){
-               treeData$label[i] <- branchLabel[[treeData$end_num[i]]]
-           }
-           else{
-               treeData$label[i] <- as.character(treeData$sample[i]) 
-           }
+   label_list <- vapply(seq_len(nrow(treeData)), function(i){
+     if(treeData$sample[i] == "NORMAL"){
+       return(branchLabel[[rootNode]])
+     }else{
+       if(treeData$end_num[i] > length(tree$tip.label)){
+         return(branchLabel[[treeData$end_num[i]]])
        }
-   }
+       else{
+         return(as.character(treeData$sample[i])) 
+       }
+     }
+   }, FUN.VALUE = character(1))
+   treeData$label <- label_list
+   
    if(!is.null(branchCol) & !compare){
        ## add signature
       if(branchCol == "mutSig"){
@@ -422,6 +441,30 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacent
                          horizon = pi/2 , W = pi){
    trunkPath <- rev(c(mainTrunk,rootNode))
    if(length(trunkPath) > 0){
+     # subdat_list <- lapply(2:length(trunkPath), function(i){
+     #   x1 <- treeData[treeData$end_num == trunkPath[i-1],]$x2
+     #   y1 <- treeData[treeData$end_num == trunkPath[i-1],]$y2
+     #   W <- W
+     #   angle <- horizon
+     #   distance <- treeEdge[treeEdge$endNum == trunkPath[i],]$length
+     #   if(horizon == pi/2){
+     #     x2 <- x1
+     #     y2 <- y1 + distance
+     #   }else{
+     #     x2 <- x1 + distance*cos(angle)
+     #     y2 <- y1 + distance*sin(angle)
+     #   }
+     #   subdat <- data.table::data.table('x1'= x1, 'y1' = y1,
+     #                                    'x2' = x2, 'y2' = y2,
+     #                                    'horizon' = horizon,'W' = W,
+     #                                    'distance' = distance, 'angle' = horizon,
+     #                                    'node' = trunkPath[i-1],'end_num' = trunkPath[i])
+     #   return(subdat)
+     # })
+     # 
+     # subdat <- dplyr::bind_rows(subdat_list)
+     # treeData <- rbind(treeData, subdat)
+     
       for(i in 2:length(trunkPath)){
          x1 <- treeData[treeData$end_num == trunkPath[i-1],]$x2
          y1 <- treeData[treeData$end_num == trunkPath[i-1],]$y2
@@ -444,6 +487,25 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacent
       }
    }
    if(length(adjacentPoints) > 0){
+      # subdat_list <- lapply(seq_len(length(adjacentPoints)), function(i){
+      #   point <- adjacentPoints[i]
+      #   startnode <- treeEdge[treeEdge$endNum == point, ]$node
+      #   x1 <- treeData[treeData$end_num == startnode,]$x2
+      #   y1 <- treeData[treeData$end_num == startnode,]$y2
+      #   W <- adjacentWs[point]
+      #   angle <- adjacentAngles[point]
+      #   distance <- treeEdge[treeEdge$endNum == point, ]$length
+      #   x2 <- x1 + distance*cos(angle)
+      #   y2 <- y1 + distance*sin(angle)
+      #   subdat <- data.table::data.table('x1'= x1, 'y1' = y1,
+      #                                    'x2' = x2, 'y2' = y2,
+      #                                    'horizon' = horizon,'W' = W,
+      #                                    'distance' = distance, 'angle' = angle,
+      #                                    'node' = startnode,'end_num' = point)
+      #   return(subdat)
+      # })
+      # subdat <- dplyr::bind_rows(subdat_list)
+      # treeData <- rbind(treeData, subdat)
       for(i in seq_len(length(adjacentPoints))){
          point <- adjacentPoints[i]
          startnode <- treeEdge[treeEdge$endNum == point, ]$node
@@ -468,11 +530,15 @@ setPhyloTree <- function(tree, treeEdge, treeData, rootNode, mainTrunk, adjacent
 calMainTrunk <- function(tree, treeEdge, rootNode, rootLabel = "NORMAL"){
    Ntips <- Ntip(tree)
    subtips <- treeEdge[!treeEdge$endNum > Ntips,]$endNum
-   distanceTable <- data.frame(x = 0)
-   for(i in seq_len(length(subtips))){
-      distanceTable <- cbind(distanceTable, -1)
-   }
-   distanceTable <- distanceTable[,(-1)]
+   distanceTable <- c(0)
+   # for(i in seq_len(length(subtips))){
+   #    distanceTable <- cbind(distanceTable, -1)
+   # }
+
+   s <- vapply(seq_len(length(subtips)), function(i)-1, FUN.VALUE = numeric(1))
+   distanceTable <- c(distanceTable, s)
+   names(distanceTable) <- c("x",s)
+   distanceTable <- distanceTable[(-1)]
    names(distanceTable) <- tree$tip.label[subtips]
    t <- 1
    path <- list()
@@ -509,31 +575,57 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
    }
    nodes <- factor(rev(c(mainTrunk,rootNode)), levels = rev(c(mainTrunk,rootNode)))
    adjacentPoints <- c()
-   for(n in nodes){
-      p <- treeEdge[treeEdge$node == n,]$endNum %>% setdiff(nodes)
-      adjacentPoints <- append(adjacentPoints,p)
-   }
+   adjacentPoints <- lapply(nodes, function(n){
+     p <- treeEdge[treeEdge$node == n,]$endNum %>% setdiff(nodes)
+     return(p)
+   }) %>% unlist()
+   # for(n in nodes){
+   #    p <- treeEdge[treeEdge$node == n,]$endNum %>% setdiff(nodes)
+   #    adjacentPoints <- append(adjacentPoints,p)
+   # }
    left <- c()
    right <- c()
    leftList <- c()
    rightList <- c()
    i <- 1
+   
+   # adresult <- lapply(seq_len(length(adjacentPoints)),function(i){
+   #   point <- adjacentPoints[i]
+   #   pos <- which(pointsList == point)
+   #   if(i == 1){
+   #     if(horizon < pi/2){
+   #       return(list(l = numList[pos], ll = point, r = NULL, rl = NULL))
+   #     }else{
+   #       return(list(l = NULL, ll = NULL, r = numList[pos], rl = point))
+   #     }
+   #   }else{
+   #     if(sum(right) <= sum(left)){
+   #       return(list(l = NULL, ll = NULL, r = numList[pos], rl = point))
+   #     }else{
+   #       return(list(l = numList[pos], ll = point, r = NULL, rl = NULL))
+   #     }
+   #   }
+   # })
+   # left <- lapply(adresult, function(x)x$l) %>% unlist()
+   # leftList <- lapply(adresult, function(x)x$ll) %>% unlist()
+   # right <- lapply(adresult, function(x)x$r) %>% unlist()
+   # rightList <- lapply(adresult, function(x)x$rl) %>% unlist()
    for(point in adjacentPoints){
       if(i == 1){
          if(horizon < pi/2){
             leftList <- append(leftList, point)
             pos <- which(pointsList == point)
-            left <- append(left,numList[pos])  
+            left <- append(left,numList[pos])
          }else{
             rightList <- append(rightList, point)
             pos <- which(pointsList == point)
-            right <- append(right,numList[pos])  
+            right <- append(right,numList[pos])
          }
       }else{
          if(sum(right) <= sum(left)){
             rightList <- append(rightList, point)
             pos <- which(pointsList == point)
-            right <- append(right,numList[pos]) 
+            right <- append(right,numList[pos])
          }else{
             leftList <- append(leftList, point)
             pos <- which(pointsList == point)
@@ -544,6 +636,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
    }
    adjacentWs <- rep(0,length(tree$edge.length)+1)
    adjacentAngles <- rep(0,length(tree$edge.length)+1)
+   
    if(length(rightList) > 0){
       startr <- horizon - W/2
       wrt <- W/2
@@ -627,12 +720,12 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
 
 calChildNodeNum <- function(tree, treeEdge, mainTrunk, rootNode, ft = FALSE){
    pointsList <- sort(unique(c(treeEdge$node,treeEdge$endNum))) 
-   numList <- c()
-   lrnumList <- c()
-   for(i in seq_len(length(pointsList))){
-      numList[i] <- 1
-      lrnumList[i] <- 0
-   }
+   numList <- rep(1, length(pointsList))
+   lrnumList <- rep(0, length(pointsList))
+   # for(i in seq_len(length(pointsList))){
+   #    numList[i] <- 1
+   #    lrnumList[i] <- 0
+   # }
    for(i in seq_len(length(pointsList))){
       if(pointsList[i] == rootNode){
          next
@@ -696,15 +789,26 @@ labelBranch <- function(tree){
    internalNodes <- sort(unique(tree$edge[,1]))
    result <- list()
    subnumList <- list()
-   for(i in seq_len(length(tree$edge.length)+1)){
-      result[[i]] <- NA
-      if(i > Ntip(tree)){
-         subnumList[[i]] <- i 
-      }
-      else{
-         subnumList[[i]] <- NA
-      }
-   }
+   subnumList <- lapply(seq_len(length(tree$edge.length)+1), function(i){
+     if(i > Ntip(tree)){
+       return(i)
+     }
+     else{
+       return(NA)
+     }
+   })
+   result <- rep(NA, (length(tree$edge.length)+1)) %>% as.list()
+   # for(i in seq_len(length(tree$edge.length)+1)){
+   #    result[[i]] <- NA
+   #    if(i > Ntip(tree)){
+   #       subnumList[[i]] <- i
+   #    }
+   #    else{
+   #       subnumList[[i]] <- NA
+   #    }
+   # }
+   # print(result)
+   # print(subnumList)
    end <- tree$edge[which(tree$edge[,2] == Root),1]
    for(i in seq_len(length(tree$tip.label))){
       row <- tree$edge[which(tree$edge[,2] == i), ]

@@ -51,7 +51,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
     
     if(is(sig_input[[1]], "matrix")){
         
-        for(i in seq_len(length(sig_input))){
+        processMSP1 <- function(i){
             patient <- names(sig_input)[[i]]
             origin_matrix <- sig_input[[i]]
             
@@ -87,46 +87,48 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             Group <- NULL
             group_background <- NULL
             
-            for(branch in unique(origin_spectrum$Branch)){
+            processMSPB1 <- function(branch){
                 name <- paste0(patient,": ",branch)
                 branch_spectrum <- subset(origin_spectrum, origin_spectrum$Branch == branch)
                 pic <- ggplot(branch_spectrum, aes(x=Type, y=Proportion, group=Group, fill=Group))+ 
-                     geom_rect(data = branch_spectrum,
-                                       aes(fill = group_background),
-                                       xmin = -Inf,
-                                       xmax = Inf,
-                                       ymin = min(branch_spectrum$Proportion),
-                                       ymax = max(branch_spectrum$Proportion)) +
-                     geom_bar(stat="identity") +
-                     # geom_hline(yintercept = 0)+
-                     theme(
-                         legend.position='none', 
-                         strip.background = element_rect(colour = "black", fill = "grey"),
-                         strip.text.x=element_text(size=13),
-                         strip.text.y=element_text(size=13),
-                         panel.spacing.y = unit(0.5, "lines"),
-                         panel.spacing.x = unit(0, "lines"),
-                         plot.title = element_text(size = 13.5, hjust = 0,vjust = 0,face = "bold"),
-                         plot.subtitle = element_text(size = 13.5, hjust = 0,vjust = 0),
-                         axis.text.x= element_text(angle = 90,vjust = 0.2,size = 5,colour = "black"),
-                         axis.ticks.x=element_line(color = "black"),
-                         axis.ticks.length.y = unit(0.2, "cm"),
-                         axis.text.y=element_text(size=6, color = "black"))+
-                     facet_grid(. ~ Group,scales =  "free") + 
-                     ## color setting
-                     scale_fill_manual(values= all_color) +
-                     scale_y_continuous(expand = c(0,0)) + 
-                     xlab("Mutational type") + 
-                     ylab("Mutation probability") + 
-                     ggtitle(label = name)
-                     
-             pic_list[[branch]] <- pic
-             # n <- paste0(patient,":",branch)
-             # # print(n)
-             # result[[n]] <- pic
+                    geom_rect(data = branch_spectrum,
+                              aes(fill = group_background),
+                              xmin = -Inf,
+                              xmax = Inf,
+                              ymin = min(branch_spectrum$Proportion),
+                              ymax = max(branch_spectrum$Proportion)) +
+                    geom_bar(stat="identity") +
+                    # geom_hline(yintercept = 0)+
+                    theme(
+                        legend.position='none', 
+                        strip.background = element_rect(colour = "black", fill = "grey"),
+                        strip.text.x=element_text(size=13),
+                        strip.text.y=element_text(size=13),
+                        panel.spacing.y = unit(0.5, "lines"),
+                        panel.spacing.x = unit(0, "lines"),
+                        plot.title = element_text(size = 13.5, hjust = 0,vjust = 0,face = "bold"),
+                        plot.subtitle = element_text(size = 13.5, hjust = 0,vjust = 0),
+                        axis.text.x= element_text(angle = 90,vjust = 0.2,size = 5,colour = "black"),
+                        axis.ticks.x=element_line(color = "black"),
+                        axis.ticks.length.y = unit(0.2, "cm"),
+                        axis.text.y=element_text(size=6, color = "black"))+
+                    facet_grid(. ~ Group,scales =  "free") + 
+                    ## color setting
+                    scale_fill_manual(values= all_color) +
+                    scale_y_continuous(expand = c(0,0)) + 
+                    xlab("Mutational type") + 
+                    ylab("Mutation probability") + 
+                    ggtitle(label = name)
+                return(pic)
             }
-            result[[patient]] <- pic_list
+            
+            pic_list <- lapply(unique(origin_spectrum$Branch), processMSPB1)
+            names(pic_list) <- unique(origin_spectrum$Branch)
+            return(pic_list)
         }
+        
+        result <- lapply(seq_len(length(sig_input)), processMSP1)
+        names(result) <- names(sig_input)
         
     }else if(is(sig_input[[1]], "list")){
         if(!is.null(mode)){
@@ -136,7 +138,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             }
         }
         
-        for(i in seq_len(length(sig_input))){
+        processMSP2 <- function(i){
             fit <- sig_input[[i]]
             patient <- names(sig_input)[[i]]
             RSS <- fit$RSS
@@ -180,7 +182,8 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
             
             branch_list <- unique(mut_spectrum$Branch)
             pic_list <- list()
-            for(branch in branch_list){
+            
+            processMSPB2 <- function(branch){
                 branch_spectrum <- subset(mut_spectrum, mut_spectrum$Branch == branch)
                 ## group of background color
                 branch_spectrum$group_background <- paste(branch_spectrum$Group,1,sep = "")
@@ -211,15 +214,27 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                 ## sort by contribution
                 sig_con <- sort(sig_con, decreasing = TRUE)
                 sig_title <- ''
-                for(i in seq_len(length(sig_con))){
+                sig_title_list <- vapply(seq_len(length(sig_con)), function(i){
                     c <- round(sig_con[i], 2)
                     n <- names(sig_con)[i]
                     if(i == 1){
-                        sig_title <- paste0(n,": ", c) 
+                        t <- paste0(n,": ", c)
                     }else{
-                        sig_title <- paste0(sig_title, " & ", n, ": ", c)
+                        t <- paste0(" & ", n, ": ", c)
                     }
-                }
+                    return(t)
+                }, FUN.VALUE = character(1))
+                sig_title <- paste(sig_title_list, collapse = "")
+                
+                # for(i in seq_len(length(sig_con))){
+                #     c <- round(sig_con[i], 2)
+                #     n <- names(sig_con)[i]
+                #     if(i == 1){
+                #         sig_title <- paste0(n,": ", c) 
+                #     }else{
+                #         sig_title <- paste0(sig_title, " & ", n, ": ", c)
+                #     }
+                # }
                 
                 # if(!is.null(mode)){
                 #     branch_spectrum <- branch_spectrum[branch_spectrum$spectrum_type == mode, ]
@@ -268,31 +283,6 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                     adjY_table <- rbind(adjY_table, ddata)
                     
                 }
-                
-                # if("Original" %in% branch_spectrum$spectrum_type){
-                #     pic <- pic + geom_rect(data = odata,
-                #                            aes(fill = group_background),
-                #                            xmin = -Inf,
-                #                            xmax = Inf,
-                #                            ymin = min(odata$Proportion),
-                #                            ymax = max(odata$Proportion))
-                # }
-                # if("Reconstructed" %in% branch_spectrum$spectrum_type){
-                #     pic <- pic + geom_rect(data = rdata,
-                #                            aes(fill = group_background),
-                #                            xmin = -Inf,
-                #                            xmax = Inf,
-                #                            ymin = min(rdata$Proportion),
-                #                            ymax = max(rdata$Proportion))
-                # }
-                # if("Difference" %in% branch_spectrum$spectrum_type){
-                #     pic <- pic + geom_rect(data = ddata,
-                #                            aes(fill = group_background),
-                #                            xmin = -Inf,
-                #                            xmax = Inf,
-                #                            ymin = min(ddata$Proportion),
-                #                            ymax = max(ddata$Proportion))
-                # }
                 pic <- pic + 
                     geom_bar(stat="identity",color = "#252525",width = 1) +
                     ## adjust ylab
@@ -324,13 +314,16 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL){
                                 "; Cosine similarity = ", round(cos_sim,3),"\n",
                                 sig_title,
                                 sep = ""))
-                # n <- paste0(patient,":",branch)
-                # result[[n]] <- pic
-                pic_list[[branch]] <- pic
+                return(pic)
             }
-            result[[patient]] <-pic_list
-            
+            pic_list <- lapply(branch_list ,processMSPB2)
+            names(pic_list) <- branch_list
+            return(pic_list)
         }
+        
+        result <- lapply(seq_len(length(sig_input)), processMSP2)
+        names(result) <- names(sig_input)
+        
     }else{
         stop("Error: input data should be the result of function fitSignatures or triMatrix")
     }

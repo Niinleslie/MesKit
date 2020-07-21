@@ -6,5 +6,18 @@
 \alias{MafList}
 \title{MafList}
 \description{
-S4 class for storing multi-patients Maf object.
+S4 class for storing a list of Maf objects.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{.Data}}{a list of \code{\link{Maf}} objects.}
+}}
+
+\section{Constructor}{
+\describe{
+                 \item{\code{MafList (...)}}{combine multiple Maf 
+                 objects supplied in ... into a MafList object.}
+               }
+}
+

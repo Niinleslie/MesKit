@@ -17,7 +17,7 @@ devtools::install_github("Niinleslie/MesKit")
 ```
 
 ## Usage
-The structured documentation of MesKit can be found at [http://meskit.renlab.org/](http://meskit.renlab.org/)   
+The structured documentation of MesKit can be found at [http://meskit.renlab.org/](http://meskit.renlab.org/).   
 <div  align="left">   
 
 <img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/MesKit_overview.png" height="500" width="600" alt = "MesKit Workflow"/>
@@ -49,6 +49,8 @@ Also, you can run the shiny interface by:
 ```R
 runMesKit()
 ```
+
+The guidance video for MesKit Shiny APP can be found at http://meskit.renlab.org/video.html.
 
 ## Configure Shiny APP with Docker 
 

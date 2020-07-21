@@ -27,18 +27,18 @@ getMutMatrix <- function(maf_data, use.ccf = FALSE){
     }
     
     mutBinary.trans <- t(mutBinary)
-
     sampleOrder <- sort(rowSums(mutBinary.trans), decreasing=TRUE, index.return=TRUE)$ix
     scoreCol <- function(x) {
-      score <- 0;
-      for(i in seq_len(length(x))) {
-        if(x[i]) {
-          score <- score + 2^(length(x)-i)
-        }
-      }
+      score_list <- vapply(seq_len(length(x)),function(j)ifelse(x[j], 2^(length(x) - j), 0), FUN.VALUE = numeric(1))
+      score <- sum(score_list)
+      # score <- 0
+      # for(i in seq_len(length(x))) {
+      #   if(x[i]) {
+      #     score <- score + 2^(length(x)-i)
+      #   }
+      # }
       return(score)
     }
-    
     if(ncol(mutBinary.trans) == 1){
         sampleOrder <- sort(mutBinary,decreasing = TRUE,index.return=TRUE)$ix
         mutBinary <- t(mutBinary[,sampleOrder])

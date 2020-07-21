@@ -28,74 +28,81 @@ getPhyloTree <- function(maf,
   method <- match.arg(method, choices = c("NJ", "MP", "ML", 
                                           "FASTME.ols", "FASTME.bal"), several.ok = FALSE)
   
+  maf <- subMaf(maf, min.vaf = min.vaf, min.ccf = min.ccf, mafObj = TRUE, ...)
+  
   ## check input data
   maf_list <- checkMafInput(maf, patient.id = patient.id)
   
   phyloTree_patient_list <- list()
-  for(m in maf_list){
-      maf_data <- subMaf(m,min.vaf = min.vaf, min.ccf = min.ccf, ...)
-      patient <- getMafPatient(m)
-      if(nrow(maf_data) == 0){
-            message("Warning :there was no mutation in ", patient, " after filtering.")
-            next
-      }
-      # print(nrow(maf_data))
-      refBuild <- getMafRef(m)
-      ## information input
-      binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
-      
-      if(nrow(binary.matrix) == 1){
-          message("Warning: ",patient, " has only one mutation. ",
-                  "patient have to have two or more different mutations to build a tree")
-          next
-      }
-      
-      if("CCF" %in% colnames(maf_data)){
-          ccf.matrix <- getMutMatrix(maf_data, use.ccf = TRUE)
-      }else{
-          ccf.matrix <- matrix() 
-      }
-      mut_dat <- t(binary.matrix)
-      if(method == "NJ"){
-          matTree <- nj(dist.gene(mut_dat))
-          root_num <- which(matTree$tip.label == "NORMAL")
-          matTree <- root(matTree, root_num)
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){nj(dist.gene(e))},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
-      }else if(method == "MP"){
-          matTree <- byMP(mut_dat)
-          root_num <- which(matTree$tip.label == "NORMAL")
-          matTree <- root(matTree, root_num)
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100 
-      }else if(method == "ML"){
-          matTree <- byML(mut_dat)
-          root_num <- which(matTree$tip.label == "NORMAL")
-          matTree <- root(matTree, root_num)
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
-      }else if(method == "FASTME.bal"){
-          matTree <- ape::fastme.bal(dist.gene(mut_dat))
-          root_num <- which(matTree$tip.label == "NORMAL")
-          matTree <- root(matTree, root_num)
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
-      }else if(method == "FASTME.ols"){
-          matTree <- ape::fastme.ols(dist.gene(mut_dat))
-          root_num <- which(matTree$tip.label == "NORMAL")
-          matTree <- root(matTree, root_num)
-          bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
-      }
-      branch.id <- readPhyloTree(matTree)
-      
-      mut.branches_types <- treeMutationalBranches(maf_data, branch.id, binary.matrix)
-      mut.branches <- mut.branches_types$mut.branches
-      branch.type <- mut.branches_types$branch.type
-      
-      phylo.tree <- new('phyloTree',
-                        patientID = patient, tree = matTree, 
-                        binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
-                        mut.branches = mut.branches, branch.type = branch.type,
-                        ref.build = refBuild,
-                        bootstrap.value = bootstrap.value, method = method)
-      phyloTree_patient_list[[patient]] <- phylo.tree
+  
+  processGetPhyloTree <- function(m){
+    maf_data <- getMafData(m)
+    patient <- getMafPatient(m)
+    if(nrow(maf_data) == 0){
+      message("Warning :there was no mutation in ", patient, " after filtering.")
+      return(NA)
+    }
+    # print(nrow(maf_data))
+    refBuild <- getMafRef(m)
+    ## information input
+    binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
+    
+    if(nrow(binary.matrix) == 1){
+      message("Warning: ",patient, " has only one mutation. ",
+              "patient have to have two or more different mutations to build a tree")
+      return(NA)
+    }
+    
+    if("CCF" %in% colnames(maf_data)){
+      ccf.matrix <- getMutMatrix(maf_data, use.ccf = TRUE)
+    }else{
+      ccf.matrix <- matrix() 
+    }
+    mut_dat <- t(binary.matrix)
+    if(method == "NJ"){
+      matTree <- nj(dist.gene(mut_dat))
+      root_num <- which(matTree$tip.label == "NORMAL")
+      matTree <- root(matTree, root_num)
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){nj(dist.gene(e))},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+    }else if(method == "MP"){
+      matTree <- byMP(mut_dat)
+      root_num <- which(matTree$tip.label == "NORMAL")
+      matTree <- root(matTree, root_num)
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100 
+    }else if(method == "ML"){
+      matTree <- byML(mut_dat)
+      root_num <- which(matTree$tip.label == "NORMAL")
+      matTree <- root(matTree, root_num)
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+    }else if(method == "FASTME.bal"){
+      matTree <- ape::fastme.bal(dist.gene(mut_dat))
+      root_num <- which(matTree$tip.label == "NORMAL")
+      matTree <- root(matTree, root_num)
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+    }else if(method == "FASTME.ols"){
+      matTree <- ape::fastme.ols(dist.gene(mut_dat))
+      root_num <- which(matTree$tip.label == "NORMAL")
+      matTree <- root(matTree, root_num)
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+    }
+    branch.id <- readPhyloTree(matTree)
+    
+    mut.branches_types <- treeMutationalBranches(maf_data, branch.id, binary.matrix)
+    mut.branches <- mut.branches_types$mut.branches
+    branch.type <- mut.branches_types$branch.type
+    
+    phylo.tree <- new('phyloTree',
+                      patientID = patient, tree = matTree, 
+                      binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
+                      mut.branches = mut.branches, branch.type = branch.type,
+                      ref.build = refBuild,
+                      bootstrap.value = bootstrap.value, method = method)
+    return(phylo.tree)
   }
+  
+  phyloTree_patient_list <- lapply(maf_list, processGetPhyloTree)
+  phyloTree_patient_list <- phyloTree_patient_list[!is.na(phyloTree_patient_list)]
+  
   
   if(length(phyloTree_patient_list) > 1){
       phyloTree_list <- new('phyloTreeList',phyloTree_patient_list)

@@ -12,6 +12,11 @@ a shiny app window
 \description{
 \code{runMesKit} run MesKit locally
 }
+\examples{
+\donttest{
+runMesKit()
+}
+}
 \author{
 Mengni Liu
 }

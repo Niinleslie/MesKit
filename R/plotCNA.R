@@ -116,17 +116,35 @@ plotCNA <- function(seg,
     chrTable <- data.table::data.table(chr = chrLabels,
                                       start = chrLens[seq_len(length(chrLens)-1)],
                                       end = chrLens[2:length(chrLens)])
-    chr_bar_color <- c()
-    chr_text_color <- c()
-    for(i in seq_len(length(chrLabels))){
+    # chr_bar_color <- c()
+    # chr_text_color <- c()
+    
+    chr_bar_color <- lapply(seq_len(length(chrLabels)), function(i){
         if((i %% 2) == 0){
-            chr_bar_color <- c(chr_bar_color, "white")
-            chr_text_color <- c(chr_text_color, "black")
+            return("white")
         }else{
-            chr_bar_color <- c(chr_bar_color, "black")
-            chr_text_color <- c(chr_text_color, "white")
+            return("black")
         }
-    }
+    }) %>% unlist()
+    
+    chr_text_color <- lapply(seq_len(length(chrLabels)), function(i){
+        if((i %% 2) == 0){
+            return("black")
+        }else{
+            return("white")
+        }
+    }) %>% unlist()
+    
+    
+    # for(i in seq_len(length(chrLabels))){
+    #     if((i %% 2) == 0){
+    #         chr_bar_color <- c(chr_bar_color, "white")
+    #         chr_text_color <- c(chr_text_color, "black")
+    #     }else{
+    #         chr_bar_color <- c(chr_bar_color, "black")
+    #         chr_text_color <- c(chr_text_color, "white")
+    #     }
+    # }
     chrTable$color = chr_bar_color
     
     # for(patient in patients){
@@ -165,42 +183,55 @@ plotCNA <- function(seg,
                 stop(paste0("Error: ", patient.setdiff,
                             " can not be found in your data.Please check sampleOrder!"))
             }
-            for(p in names(sampleOrder)){
+            
+            slist <- lapply(unique(seg$patient) ,function(p){
                 o1 <- sampleOrder[[p]]
+                if(is.null(o1)){
+                    return(sampleids[grepl(p, sampleids)])
+                }
                 o2 <- unique(seg[seg$patient == p]$Tumor_Sample_Barcode)
-                s1 <- paste(p, sampleOrder[[p]], sep = "&") 
-                s2 <- paste(p, unique(seg[seg$patient == p]$Tumor_Sample_Barcode), sep = "&") 
+                s1 <- paste(p, o1, sep = "&") 
                 sample.setdiff <- setdiff(o1, o2)
                 if(length(sample.setdiff) > 0){
                     stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
                                 " can not be found in ", p, ".Please check sampleOrder!"))
-                }else if(length(sample.setdiff) == 0 & length(s1)< length(s2)){
-                    s3 <- setdiff(s2, s1)
-                    sampleids <-  sampleids[!sampleids %in% s3]
-                    sampleids[grepl(p, sampleids)] <- s1
                 }else{
-                    sampleids[grepl(p, sampleids)] <- s1
+                    return(s1)
                 }
-            }
+            }) %>% unlist() 
+            sampleids <- slist
         }
         
         
         patient.rect.hmin <- c(h)
         patient.rect.hmax <- c()
-        patient1 <- unique(seg[seg$Sample_ID == sampleids[1],]$patient)
-        for(sampleid in sampleids){
-            patient2 <- unique(seg[seg$Sample_ID == sampleid,]$patient)
-            if(patient1 != patient2){
-                patient.rect.hmin <- append(patient.rect.hmin, h+ sample.bar.height*2/5)
-                patient.rect.hmax <- append(patient.rect.hmax, h)
-                h <- h + sample.bar.height*2/5
-            }
-            patient1 <- patient2
-            seg[seg$Sample_ID == sampleid,]$hmin <- h
-            seg[seg$Sample_ID == sampleid,]$hmax <- h + sample.bar.height
-            h <- h + sample.bar.height + sample.bar.height/10
-        }
-        patient.rect.hmax <- append(patient.rect.hmax,max(seg$hmax))
+        sample_patient_list <- (seg %>% dplyr::distinct(.data$Sample_ID, .keep_all = TRUE))$patient
+        
+        hlist1 <- lapply(seq_len(length(sampleids)), function(i){
+            p <- sample_patient_list[i]
+            h1 <- h + (sample.bar.height + sample.bar.height/10) * (i-1)
+            p_idx <- which(unique(seg$patient) == p)
+            h1 <- h1 + sample.bar.height*2/5 * (p_idx - 1)
+            return(h1)
+        }) %>% unlist()
+        seg_sample_list <- lapply(seq_len(length(sampleids)), function(i){
+            h1 <- hlist1[i]
+            sampleid <- sampleids[i]
+            dat <- seg[seg$Sample_ID == sampleid,]
+            dat$hmin <- h1
+            dat$hmax <- h1 + sample.bar.height
+            return(dat)
+        })
+        seg <- dplyr::bind_rows(seg_sample_list)
+        
+        patient.rect.hmin <- lapply(unique(seg$patient), function(p){
+            return(min(seg[seg$patient == p,]$hmin))
+        }) %>% unlist()
+        
+        patient.rect.hmax <- lapply(unique(seg$patient), function(p){
+            return(max(seg[seg$patient == p,]$hmax))
+        }) %>% unlist()
+        
         patient.rect.table <- data.frame(hmin = patient.rect.hmin,
                                          hmax = patient.rect.hmax,
                                          patient = as.character(unique(seg$patient)))
@@ -213,12 +244,12 @@ plotCNA <- function(seg,
                            .data$Start_Position) %>%
             as.data.table()
         
-        seg$Sample_ID <- paste(seg$Patient_ID,seg$Tumor_Sample_Barcode,sep = "&")
+        seg$Sample_ID <- paste(seg$patient,seg$Tumor_Sample_Barcode,sep = "&")
         
         sampleids <- sort(unique(seg$Sample_ID))
         
         ## sort sampleid 
-        p <- unique(seg$Patient_ID)
+        p <- unique(seg$patient)
         if(!is.null(sampleOrder)){
             patient.setdiff <- setdiff(names(sampleOrder), p)
             if(length(patient.setdiff) > 0){
@@ -226,9 +257,9 @@ plotCNA <- function(seg,
                             " can not be found in your data.Please check sampleOrder!"))
             }
             o1 <- sampleOrder[[p]]
-            o2 <- unique(seg[seg$Patient_ID == p]$Tumor_Sample_Barcode)
+            o2 <- unique(seg[seg$patient == p]$Tumor_Sample_Barcode)
             s1 <- paste(p, sampleOrder[[p]], sep = "&") 
-            s2 <- paste(p, unique(seg[seg$Patient_ID == p]$Tumor_Sample_Barcode), sep = "&") 
+            s2 <- paste(p, unique(seg[seg$patient == p]$Tumor_Sample_Barcode), sep = "&") 
             sample.setdiff <- setdiff(o1, o2)
             if(length(sample.setdiff) > 0){
                 stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
@@ -243,11 +274,29 @@ plotCNA <- function(seg,
             
         }
         
-        for(sampleid in sampleids){
-            seg[seg$Sample_ID == sampleid,]$hmin <- h
-            seg[seg$Sample_ID == sampleid,]$hmax <- h + sample.bar.height
-            h <- h + sample.bar.height + sample.bar.height/10
-        }
+        seg$Sample_ID <- factor(seg$Sample_ID, levels = sampleids)
+        seg <- dplyr::arrange(seg, .data$Sample_ID)
+        
+        hlist1 <- seq(h,
+                  h + (sample.bar.height + sample.bar.height/10) * (length(sampleids)-1),
+                  (sample.bar.height + sample.bar.height/10))
+        hlist2 <- hlist1 + sample.bar.height
+        
+        slist <- lapply(seq_len(length(sampleids)), function(i){
+            h <- hlist1[i]
+            sampleid <- sampleids[i]
+            dat <- seg[seg$Sample_ID == sampleid,]
+            dat$hmin <- h
+            dat$hmax <- h + sample.bar.height
+            return(dat)
+        })
+        seg <- dplyr::bind_rows(slist)
+        
+        # for(sampleid in sampleids){
+            # seg[seg$Sample_ID == sampleid,]$hmin <- h
+            # seg[seg$Sample_ID == sampleid,]$hmax <- h + sample.bar.height
+            # h <- h + sample.bar.height + sample.bar.height/10
+        # }
     }
     
     seg <- seg[seg$Sample_ID %in% sampleids]

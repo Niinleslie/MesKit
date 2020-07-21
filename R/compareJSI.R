@@ -33,25 +33,21 @@ compareJSI <- function(
     number.col = "#C77960",
     ...) {
     
+    maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE,...)
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
-    result <- list()
-    for(m in maf_list){
+    processJSI <- function(m){
+        maf_data <- getMafData(m) %>% dplyr::filter(!is.na(.data$Clonal_Status))
         if(! "CCF" %in% colnames(getMafData(m))){
             stop(paste0("Error: calculation of Jaccard similarity requires CCF data." ,
                         "No CCF data was found when generate Maf/MafList object."))
         }
-        maf_data <- subMaf(m,
-                           min.ccf = min.ccf,
-                           use.adjVAF = TRUE,
-                           ...) %>% 
-            ## valid clonal status
-            dplyr::filter(!is.na(.data$Clonal_Status))
+        
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
             message("Warnings :there was no mutation in ", patient, " after filtering.")
-            next
+            return(NA)
         }
         
         JSI_input <-  maf_data %>%
@@ -73,49 +69,43 @@ compareJSI <- function(
                 "Clonal_Status",
                 "VAF_adj")
         
-        JSI.multi <- data.frame()
-        JSI.pair <- list()
-        if(plot){
-            JSI.plot <- list()
-        }
-        
         if(pairByTumor){
             if(length(unique(JSI_input$Tumor_ID))  < 2 ){
                 message(paste0("Warnings: only one tumor was found in ",patient,
                                " according to Tumor_ID. If you want to compare CCF 
                                between tumors, pairByTumor should be set as FALSE"))
-                next
+                return(NA)
             }
         }else{
             if(length(unique(JSI_input$Tumor_Sample_Barcode))  < 2 ){
                 message(paste0("Warnings: Only one sample was found in ", patient, "."))
-                next
+                return(NA)
             } 
         }
         
         ## pairwise heterogeneity
         if(pairByTumor){
             tumors <- as.character(unique(JSI_input$Tumor_ID))
-            pairs <- utils::combn(length(tumors), 2, simplify = FALSE)
+            pairs <- utils::combn(tumors, 2, simplify = FALSE)
             dist_mat <- diag(1, nrow = length(tumors), ncol = length(tumors))
+            dist_mat <- cbind(dist_mat, tumors)
             rownames(dist_mat) <- tumors
-            colnames(dist_mat) <- tumors
+            colnames(dist_mat) <- c(tumors, "name")
         }else{
             samples <- as.character(unique(JSI_input$Tumor_Sample_Barcode))
-            pairs <- utils::combn(length(samples), 2, simplify = FALSE)
+            pairs <- utils::combn(samples, 2, simplify = FALSE)
             dist_mat <- diag(1, nrow = length(samples), ncol = length(samples))
+            dist_mat <- cbind(dist_mat, samples)
             rownames(dist_mat) <- samples
-            colnames(dist_mat) <- samples
+            colnames(dist_mat) <- c(samples, "name")
         }
         
-        PC_1.list <- c()
-        PC_2.list <- c()
-        SS_12.list <- c()
-        for (pair in pairs){
+        
+        processJSI2 <- function(pair){
             
             if(pairByTumor){
-                name <- paste(tumors[pair[1]], tumors[pair[2]], sep = "_")
-                vaf.pair <- subset(JSI_input, JSI_input$Tumor_ID %in% c(tumors[pair[1]],tumors[pair[2]])) %>%
+                name <- paste(pair[1], pair[2], sep = "_")
+                vaf.pair <- subset(JSI_input, JSI_input$Tumor_ID %in% c(pair[1], pair[2])) %>%
                     tidyr::unite("Mut_ID2",
                                  c("Mut_ID",
                                    "Tumor_ID"),
@@ -133,8 +123,8 @@ compareJSI <- function(
                 colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")
             }
             else{
-                name <- paste(samples[pair[1]],samples[pair[2]], sep = "_")
-                vaf.pair <- subset(JSI_input, JSI_input$Tumor_Sample_Barcode %in% c(samples[pair[1]], samples[pair[2]])) %>% 
+                name <- paste(pair[1], pair[2], sep = "_")
+                vaf.pair <- subset(JSI_input, JSI_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>% 
                     dplyr::select("Mut_ID", "Tumor_Sample_Barcode", "Clonal_Status", "VAF_adj") %>% 
                     tidyr::pivot_wider(
                         names_from = "Tumor_Sample_Barcode",       
@@ -149,32 +139,61 @@ compareJSI <- function(
                 dplyr::filter(.data$vaf1 + .data$vaf2 !=0) %>% 
                 data.table::setDT()
             PC_1 <- nrow(vaf.pair[vaf.pair$status1 == "Clonal" & vaf.pair$vaf1 > 0 & vaf.pair$vaf2 == 0])
-            PC_1.list <- c(PC_1.list, PC_1)
             PC_2 <- nrow(vaf.pair[vaf.pair$status2 == "Clonal" & vaf.pair$vaf1 == 0 & vaf.pair$vaf2 > 0])
-            PC_2.list <- c(PC_2.list, PC_2)
             SS_12 = nrow(vaf.pair[vaf.pair$status2 == "Subclonal" & vaf.pair$status1 == "Subclonal" & vaf.pair$vaf1>0 & vaf.pair$vaf2>0 ])
-            SS_12.list <- c(SS_12.list, SS_12)
             jsi <- SS_12/(PC_1+PC_2+SS_12)
             if(is.nan(jsi)){
-                dist_mat[pair[1],pair[2]] <- dist_mat[pair[2],pair[1]] <- 0
+                jsi <- 0
             }
-            else{
-                dist_mat[pair[1],pair[2]] <- dist_mat[pair[2],pair[1]] <- jsi
-                
-            }
+            return(c(PC_1 = PC_1, PC_2 = PC_2, SS_12 = SS_12, jsi = jsi))
         }
         
+        pair_result <- lapply(pairs, processJSI2)
+        
+        PC_1.list <- lapply(pair_result, function(x)x["PC_1"]) %>% unlist()
+        PC_2.list <- lapply(pair_result, function(x)x["PC_2"]) %>% unlist()
+        SS_12.list <- lapply(pair_result, function(x)x["SS_12"]) %>% unlist()
         multi <- mean(SS_12.list)/(mean(PC_1.list) + mean(PC_2.list) + mean(SS_12.list))
         multi <- ifelse(is.nan(multi), 0, multi)
         
+        pairs_name <- lapply(pairs, function(x)paste0(x[1], "_", x[2])) %>% unlist()
+        jsi.list <- lapply(pair_result, function(x)x["jsi"]) %>% unlist()
+        names(jsi.list) <- pairs_name
+        
+        processJSI3 <- function(j){
+            row_name <- j["name"]
+            j1 <- j[-length(j)]
+            
+            idx <- which(j == "0")
+            j2 <- names(j[idx])
+            
+            mat_row <- vapply(j2, function(g){
+                name1 <- paste0(g, "_", row_name)
+                name2 <- paste0(row_name, "_", g)
+                
+                pos <- which(grepl(name1, names(jsi.list)))
+                if(length(pos) == 0){
+                    pos <- which(grepl(name2, names(jsi.list)))
+                }
+                jsi <- jsi.list[pos]
+                return(jsi)
+            }, FUN.VALUE = double(1))
+            
+            j[idx] <- mat_row
+            return(j)
+        }
+        
+        dist_mat <- t(apply(dist_mat, 1, processJSI3))
+        dist_mat <- dist_mat[,-ncol(dist_mat)] %>% apply(c(1,2), as.numeric)
+        
         JSI.multi <- multi
         JSI.pair <- dist_mat
+        
         if(plot){
             values <- sort(unique(as.numeric(dist_mat))) 
             if(length(values[values!=0 &values !=1]) == 0){
                 message(paste0("Warnings: there is no JSI within (0,1),can not plot JSI for ", patient, "."))
-                result[[patient]] <- list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = NA)
-                next
+                return(list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = NA))
             }
             if(is.null(title)){
                 min_value <- min(dist_mat[dist_mat!=1 & dist_mat!=0])
@@ -192,14 +211,15 @@ compareJSI <- function(
                 title = if(!is.null(title_id)) title_id else{NA} 
             )
             JSI.plot <- p
-            result[[patient]] <- list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = JSI.plot)
-            next
+            return(list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = JSI.plot))
         }else{
-            result[[patient]] <- list(JSI.multi = JSI.multi, JSI.pair = JSI.pair)
-            next
+            return(list(JSI.multi = JSI.multi, JSI.pair = JSI.pair))
         }
         
     }
+    
+    result <- lapply(maf_list, processJSI)
+    result <- result[!is.na(result)]
     
     if(length(result) > 1){
         return(result)

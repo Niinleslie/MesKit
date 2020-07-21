@@ -8,3 +8,16 @@
 \description{
 Maf class.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{data}}{data.table of MAF file containing somatic mutations.}
+
+\item{\code{sample.info}}{data.frame of sample information per patient.}
+
+\item{\code{nonSyn.vc}}{list of variant classifications which are considered as non-silent.
+Default NULL, use Variant Classifications with "Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", "Translation_Start_Site", "Nonsense_Mutation", "Nonstop_Mutation", "In_Frame_Del", "In_Frame_Ins", "Missense_Mutation"}
+
+\item{\code{ref.build}}{human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.}
+}}
+

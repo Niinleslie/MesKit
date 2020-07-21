@@ -154,6 +154,10 @@ subMaf <- function(maf,
       }
    }
    
+   if(mafObj & length(result) > 1){
+      return(MafList(result))
+   }
+   
    if(length(result) == 1){
       return(result[[1]])
    }else{

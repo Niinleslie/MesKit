@@ -26,10 +26,6 @@ mathScore <- function(maf,
                       min.vaf = 0.02,
                       ...
                       ){
-    
-    ## check input data
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
-    
     ## select subclonal mutation when withinTumor is TRUE
     if(withinTumor){
         clonalStatus <- "Subclonal"
@@ -37,16 +33,20 @@ mathScore <- function(maf,
         clonalStatus <- NULL
     }
     
-    MATH_list <- list()
-    for(m in maf_list){
-        maf_data <- subMaf(m,min.vaf = min.vaf,clonalStatus = clonalStatus,...)
-        
+    maf <- subMaf(maf,min.vaf = min.vaf,clonalStatus = clonalStatus,mafObj = TRUE,...)
+    
+    ## check input data
+    maf_list <- checkMafInput(maf, patient.id = patient.id)
+
+
+    processMATH <- function(m, clonalStatus){
         patient <- getMafPatient(m)
+        maf_data <- getMafData(m)
         if(nrow(maf_data) == 0){
             message("Warning :there was no mutation in ", patient, " after filtering.")
-            next
+            return(NA)
         }
-
+        
         ## MATH Caculation
         calMATH <- function(VAF){
             VAF = VAF[!is.na(VAF)] 
@@ -75,9 +75,13 @@ mathScore <- function(maf,
                 dplyr::ungroup() %>% 
                 as.data.frame()
         }
-        MATH_list[[patient]] <- MATH.df
+        return(MATH.df)
     }
+    
+    MATH_list <- lapply(maf_list, processMATH, clonalStatus)
+    MATH_list <- MATH_list[!is.na(MATH_list)]
     result <- dplyr::bind_rows(MATH_list)
+    
     #y.limits <- c(
         #floor(min(MATH.df$MATH_Score)-15),
         #ceiling(max(MATH.df$MATH_Score)+15)

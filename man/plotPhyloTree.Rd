@@ -21,7 +21,7 @@ plotPhyloTree(
 
 \item{branchCol}{Specify the colors of branches (Default: mutType). Other options: "mutSig" for coloring branches by branch mutation signature;}
 
-\item{show.bootstrap}{Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.}
+\item{show.bootstrap}{Logical. Whether to add bootstrap value on internal nodes. Default is TRUE.}
 
 \item{min.ratio}{Double (Default:1/20). If min.ratio is not NULL,
 all edge length of a phylogenetic tree should be greater than

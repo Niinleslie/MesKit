@@ -76,9 +76,9 @@ fitSignatures <- function(tri_matrix = NULL,
     sigsRef <- sigsRef[rownames(sigsRef) %in% associated, ]
   }
   
-  result <- list()
   tri_matrix_list <- tri_matrix
-  for(i in seq_len(length(tri_matrix_list))){
+  
+  processFitSig <- function(i){
     tri_matrix <- tri_matrix_list[[i]]
     patient <- names(tri_matrix_list)[i]
     ## Remove branches whose mutation number is less than min.mut.count
@@ -90,7 +90,7 @@ fitSignatures <- function(tri_matrix = NULL,
               " in ",patient, " is less than min.mut.count")
       branch_left <- setdiff(rownames(tri_matrix),branch_remove)
       if(length(branch_left) == 0){
-        next
+        return(NA)
       }
       tri_matrix <- tri_matrix[branch_left,]
       ## rebuild matrix if there is only one branch left
@@ -109,18 +109,17 @@ fitSignatures <- function(tri_matrix = NULL,
     branch_num <- nrow(origin_matrix)
     refsig_num <- nrow(sigsRef)
     
-    cos_sim_matrix <- matrix(nrow = branch_num,ncol = refsig_num)
+    cos_sim_matrix <- matrix(nrow = branch_num, ncol = refsig_num)
     rownames(cos_sim_matrix) <- rownames(origin_matrix)
     colnames(cos_sim_matrix) <- rownames(sigsRef)
     
-    for(i in seq_len(branch_num)){
-      x <- as.numeric(origin_matrix[i,])  
-      for( j in seq_len(refsig_num)){
-        y <- as.numeric(sigsRef[j,])  
+    cos_sim_matrix <- apply(origin_matrix, 1, function(x){
+      apply(sigsRef, 1, function(y){
+        y <- as.numeric(y)
         s <- as.numeric(x %*% y / (sqrt(x %*% x) * sqrt(y %*% y)))
-        cos_sim_matrix[i,j] <- s
-      }
-    }
+        return(s)
+      })
+    }) %>% t()
     
     ## calculate signature contribution by solving nonnegative least-squares constraints problem(weight)
     type_num <- ncol(origin_matrix)
@@ -132,12 +131,16 @@ fitSignatures <- function(tri_matrix = NULL,
     recon_matrix <- matrix(1, nrow = branch_num, ncol = type_num)
     
     ## solve nonnegative least-squares constraints.
-    for(i in seq_len(branch_num)){
-      m <- as.numeric(origin_matrix[i,]) 
+    con_matrix <- apply(origin_matrix, 1, function(m){
       lsq <- pracma::lsqnonneg(sigsRef_t, m)
-      con_matrix[i,] <- lsq$x
-      recon_matrix[i,] <- sigsRef_t %*% as.matrix(lsq$x)
-    }
+      return(lsq$x)
+    }) %>% t()
+    
+    recon_matrix <- apply(origin_matrix, 1, function(m){
+      lsq <- pracma::lsqnonneg(sigsRef_t, m)
+      l <- sigsRef_t %*% as.matrix(lsq$x)
+      return(l)
+    }) %>% t()
     
     rownames(con_matrix) <- rownames(origin_matrix)
     colnames(con_matrix) <- rownames(sigsRef)
@@ -146,14 +149,14 @@ fitSignatures <- function(tri_matrix = NULL,
     colnames(recon_matrix) <- colnames(origin_matrix)
     
     ## calculate RSS of reconstructed matrix and origin matrix
-    RSS <- c()
-    for(i in seq_len(branch_num)){
+    RSS <- vapply(seq_len(branch_num), function(i){
       r <- recon_matrix[i,]
       o <- origin_matrix[i,]
       rss <- sum((r-o)^2) 
-      RSS <- c(RSS,rss)
-    }
+      return(rss)
+    },FUN.VALUE = numeric(1))
     names(RSS) <- rownames(origin_matrix)
+    
     
     ## summary mutation signatures of branches
     if(!is.null(df.aetiology)){
@@ -163,12 +166,12 @@ fitSignatures <- function(tri_matrix = NULL,
     aetiology_ref <- as.character(df.aetiology$aeti)  
     names(aetiology_ref) <-  as.character(df.aetiology$sig)
     signatures_aetiology <- data.frame()
-    for(i in seq_len(branch_num)){
+    signatures_aetiology_list <- lapply(seq_len(branch_num), function(i){
       branch_name <- rownames(tri_matrix)[i]
       contribution <- con_matrix[i,]
       sig_cut <- names(contribution[contribution > signature.cutoff])
       if(length(sig_cut) == 0){
-          next
+        return(NA)
       }
       sig_con <- as.numeric(contribution[contribution > signature.cutoff])  
       # mut_sum <- sum(tri_matrix[i,])
@@ -181,22 +184,28 @@ fitSignatures <- function(tri_matrix = NULL,
         aet <- aetiology_ref[sig_cut]
         sub$Aetiology <- as.character(aet)  
       }
-      signatures_aetiology <- rbind(signatures_aetiology, sub)
-    }
+      return(sub)
+    })
+    signatures_aetiology_list <- signatures_aetiology_list[!is.na(signatures_aetiology_list)]
+    signatures_aetiology <- dplyr::bind_rows(signatures_aetiology_list)
     ## order data frame by contribution of each branch
     signatures_aetiology <- dplyr::arrange(signatures_aetiology,
                                            dplyr::desc(.data$Branch),
                                            dplyr::desc(.data$Contribution))
     
-    result[[patient]] <- list(
+    f <- list(
       reconstructed.mat = recon_matrix,
       original.mat = origin_matrix,
       cosine.similarity = cos_sim_matrix,
       RSS = RSS, 
       signatures.aetiology = signatures_aetiology
     )
-    
+    return(f)
   }
+  
+  result <- lapply(seq_len(length(tri_matrix_list)) ,processFitSig)
+  names(result) <- names(tri_matrix_list)
+  result <- result[!is.na(result)]
   
   if(length(result) == 0){
     return(NA)

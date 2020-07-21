@@ -29,38 +29,40 @@ ccfAUC <- function(
    plot.density = TRUE,
    ...
 ){
+    maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
-    result <- list()
-    for(m in maf_list){
-        if(! "CCF" %in% colnames(getMafData(m)) ){
+    processAUC <- function(m, withinTumor, plot.density){
+        
+        maf_data <- getMafData(m) %>% dplyr::filter(!is.na(.data$CCF))
+        if(! "CCF" %in% colnames(maf_data) ){
             stop(paste0("Error: calculation of AUC of CCF requires CCF data." ,
                         "No CCF data was found when generate Maf object."))
         }
-        maf_data <- subMaf(m, min.ccf = min.ccf, ...) %>% 
-        dplyr::filter(!is.na(.data$CCF))
+        
         if(withinTumor) {
             maf_data <- dplyr::filter(maf_data, !is.na(.data$Tumor_Average_CCF))
         }
+        
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
             message("Warning :there was no mutation in ", patient, " after filtering.")
-            next
+            return(NA)
         }
         
         if(plot.density){
             CCF.density.plot <- list()
         }
-        AUC.df <- data.frame()
+
         
         if(withinTumor){
             ids <- unique(maf_data$Tumor_ID)
         }else{
             ids <- unique(maf_data$Tumor_Sample_Barcode)
         }
-        CCF.sort <- data.frame()
-        for(id in ids){
+        
+        processAUCID <- function(id, maf_data, withinTumor){
             if(withinTumor){
                 subdata <- subset(maf_data, maf_data$Tumor_ID == id)
                 ccf <- subdata$Tumor_Average_CCF
@@ -75,17 +77,11 @@ ccfAUC <- function(
                                                      max(df_ccf$CCF),
                                                      # subdivisions = length(df_ccf),
                                                      stop.on.error = FALSE)$value)
-            # auc <- 0
-            # for(i in seq_len(nrow(df_ccf)-1)){
-            #     mutArea <- (df_ccf[i, "prop"] + df_ccf[i+1, "prop"])*(df_ccf[i+1, "CCF"] - df_ccf[i, "CCF"])/2
-            #     auc <- mutArea + auc
-            # }
             if(withinTumor){
                 a <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
             }else{
                 a <- data.frame(Patient_ID = patient, Tumor_Sample_Barcode = id, AUC = auc)
             }
-            AUC.df <- rbind(AUC.df, a)
             
             if(withinTumor){
                 c <-  subdata %>%         
@@ -100,9 +96,16 @@ ccfAUC <- function(
                     dplyr::mutate(Tumor_Sample_Barcode = paste0(.data$Tumor_Sample_Barcode," (",round(auc,3),")"))
                 
             }
-            CCF.sort <- rbind(CCF.sort, c)
-            
+            return(list(a = a, c = c))
         }
+        
+        CCF.sort <- data.frame()        
+        AUC.df <- data.frame()
+        
+        id_result <- lapply(ids, processAUCID, maf_data, withinTumor)
+        CCF.sort <- lapply(id_result, function(x)x$c) %>% dplyr::bind_rows()
+        AUC.df <- lapply(id_result, function(x)x$a) %>% dplyr::bind_rows()
+        
         if(plot.density){
             ## initialize variable in ggplot for biocheck error
             Tumor_Average_CCF <- NULL
@@ -140,12 +143,15 @@ ccfAUC <- function(
                      title = paste0("AUC plot of CCF : ", patient))
             
             CCF.density.plot <- p
-            result[[patient]] <- list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot)
-            next
+            return(list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot))
         }else{
-            result[[patient]] <- AUC.df
+            return(AUC.df)
         }
     }
+    
+    result <- lapply(maf_list, processAUC, withinTumor, plot.density)
+    result <- result[!is.na(result)]   
+        
     
     if(length(result) > 1){
         return(result)

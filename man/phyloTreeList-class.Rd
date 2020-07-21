@@ -5,5 +5,18 @@
 \alias{phyloTreeList-class}
 \title{phyloTreeList class}
 \description{
-S4 class for storing multi-patients phyloTree.
+S4 class for storing a list of phyloTree objects.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{.Data}}{a list of \code{\link{phyloTree}} objects.}
+}}
+
+\section{Constructor}{
+\describe{
+                 \item{\code{phyloTreeList (...)}}{combine multiple phyloTree 
+                 objects supplied in ... into a phyloTreeList object.}
+               }
+}
+

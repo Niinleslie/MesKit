@@ -154,8 +154,8 @@ segInfo[1:5, ]
 Install the latest version of this package by typing the commands below in R console:  
   
 ```{r eval=FALSE}
-install.packages("remotes")
-remotes::install_github("Niinleslie/MesKit")
+install.packages("devtools")
+devtools::install_github("Niinleslie/MesKit")
 ```   
   
 #### Via Bioconductor

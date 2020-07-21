@@ -23,12 +23,12 @@ compareCCF <- function(maf,
                        pairByTumor = FALSE,
                        ...){
   
+  maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
   ## check input data
   maf_list <- checkMafInput(maf, patient.id = patient.id)
   
-  ccf.pair.list <- list()
-  for(m in maf_list){
-    maf_data <- subMaf(m, min.ccf = min.ccf, ...) %>% 
+  processComCCF <- function(m, pairByTumor){
+    maf_data <- getMafData(m) %>% 
       tidyr::unite(
         "Mut_ID",
         c(
@@ -45,7 +45,7 @@ compareCCF <- function(maf,
     patient <- getMafPatient(m)
     if(nrow(maf_data) == 0){
       message("Warning :there was no mutation in ", patient, " after filtering.")
-      next
+      return(NA)
     }
     
     ## check if ccf data is provided
@@ -58,31 +58,30 @@ compareCCF <- function(maf,
       if(length(types) < 2){
         message(paste0("Warnings: Only one tumor was found in ",patient," according to Tumor_ID. 
           If you want to compare CCF between regions, pairByTumor should be set as FALSE"))
-        next
+        return(NA)
       }
       
       ## get average CCF
       maf_data <- maf_data %>% 
         dplyr::mutate(CCF = .data$Tumor_Average_CCF)
-      pairs <- utils::combn(length(types), 2, simplify = FALSE)  
+      pairs <- utils::combn(length(types), 2, simplify = FALSE) 
+      pair_name_list <- unlist(lapply(pairs, function(x)paste(types[x[1]],"-",types[x[2]], sep = ""))) 
+      pairs <- lapply(pairs, function(x)c(types[x[1]],types[x[2]]))
     }else{
       samples <- unique(maf_data$Tumor_Sample_Barcode)
       if(length(samples) < 2){
         message(paste0("Warnings: Only one sample was found in",patient))
-        next
+        return(NA)
       }
       pairs <- utils::combn(length(samples), 2, simplify = FALSE)  
+      pair_name_list <- unlist(lapply(pairs, function(x)paste(samples[x[1]],"-",samples[x[2]], sep = "")))
+      pairs <- lapply(pairs, function(x)c(samples[x[1]],samples[x[2]]))
     }
-    pair.name <- c()
-    i <- 1
-    for (pair in pairs){
-      if(pairByTumor){
-        S1 <- types[pair[1]]
-        S2 <- types[pair[2]]  
-      }else{
-        S1 <- samples[pair[1]]
-        S2 <- samples[pair[2]]
-      }
+    
+    
+    processComCCFPair <- function(pair, maf_data, pairByTumor){
+      S1 <- pair[1]
+      S2 <- pair[2]
       if(pairByTumor){
         ccf.pair <- maf_data %>% 
           dplyr::filter(.data$Tumor_ID %in% c(S1, S2)) %>%
@@ -103,18 +102,27 @@ compareCCF <- function(maf,
       }
       if(nrow(ccf.pair) == 0){
         message(paste0("Warning: No shared mutaions were detected between ",S1, " and ", S2) )
-        next
+        return(NA)
       }
-      pair.name <- paste(S1,"-",S2, sep = "")
-      ccf.pair.list[[patient]][[pair.name]] <- as.data.frame(ccf.pair) 
+      return(as.data.frame(ccf.pair) )
     }
     
+    ccf.pair.list <- lapply(pairs, processComCCFPair, maf_data, pairByTumor)
+    names(ccf.pair.list) <- pair_name_list
+    ccf.pair.list <- ccf.pair.list[!is.na(ccf.pair.list)]
+    
+    return(ccf.pair.list)
+    
   }
-  if(length(ccf.pair.list) == 1){
-    return(ccf.pair.list[[1]])
-  }else if(length(ccf.pair.list) == 0){
+  
+  result <- lapply(maf_list, processComCCF, pairByTumor)
+  result <- result[!is.na(result)]
+  
+  if(length(result) == 1){
+    return(result[[1]])
+  }else if(length(result) == 0){
     return(NA)
   }
   
-  return(ccf.pair.list)      
+  return(result)      
 }

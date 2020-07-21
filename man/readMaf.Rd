@@ -24,7 +24,7 @@ readMaf(
 
 \item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
 
-\item{refBuild}{Human reference genome versions of "hg18", "hg19" or "hg38" by UCSC. Default: "hg19".}
+\item{refBuild}{Human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.}
 }
 \value{
 an object of Maf or MafList.

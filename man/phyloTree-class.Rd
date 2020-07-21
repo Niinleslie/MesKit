@@ -5,5 +5,27 @@
 \alias{phyloTree-class}
 \title{phyloTree class}
 \description{
-S4 class for storing informations about phylogenetic tree .
+S4 class for storing informations about phylogenetic tree.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{patientID}}{patient ID.}
+
+\item{\code{tree}}{a object of class "phylo".}
+
+\item{\code{bootstrap.value}}{a numeric vector of bootstrap values.}
+
+\item{\code{method}}{approach to construct a phylogenetic tree.}
+
+\item{\code{binary.matrix}}{a presense/absent binary matrix of mutations.}
+
+\item{\code{ccf.matrix}}{a ccf matrix of mutations.}
+
+\item{\code{mut.branches}}{a data.frame of mutations per trunk/branch.}
+
+\item{\code{branch.type}}{a data.frame of trunk/branch types based on shared pattern.}
+
+\item{\code{ref.build}}{human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.}
+}}
+

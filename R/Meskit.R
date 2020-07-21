@@ -2,7 +2,10 @@
 #' 
 #' \code{runMesKit} run MesKit locally 
 #' @author Mengni Liu
-#' 
+#' @examples
+#' \donttest{
+#' runMesKit()
+#' }
 #' @return a shiny app window
 #' @export 
 runMesKit<-function(){ 
