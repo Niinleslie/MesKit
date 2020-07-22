@@ -7,7 +7,7 @@
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' getMafData(maf)
+#' getMafData(maf$HCC5647)
 setGeneric(name = "getMafData", function(object) standardGeneric("getMafData"))
 
 #' @rdname getMafData
@@ -24,7 +24,7 @@ setMethod(f = "getMafData",signature = "Maf", function(object)object@data)
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' getSampleInfo(maf)
+#' getSampleInfo(maf$HCC5647)
 setGeneric(name = "getSampleInfo", function(object) standardGeneric("getSampleInfo"))
 
 #' @rdname getSampleInfo
@@ -40,7 +40,7 @@ setMethod(f = "getSampleInfo", signature = "Maf", function(object)object@sample.
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19") 
-#' getNonSyn_vc(maf)
+#' getNonSyn_vc(maf$HCC5647)
 setGeneric(name = "getNonSyn_vc", function(object) standardGeneric("getNonSyn_vc"))
 
 #' @rdname getNonSyn_vc
@@ -56,7 +56,7 @@ setMethod(f = "getNonSyn_vc", signature = "Maf", function(object)object@nonSyn.v
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' getMafRef(maf)
+#' getMafRef(maf$HCC5647)
 setGeneric(name = "getMafRef", function(object) standardGeneric("getMafRef"))
 
 #' @rdname getMafRef
@@ -73,7 +73,7 @@ setMethod(f = "getMafRef",signature = "Maf", function(object)object@ref.build)
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' getMafPatient(maf)
+#' getMafPatient(maf$HCC5647)
 setGeneric(name = "getMafPatient", function(object) standardGeneric("getMafPatient"))
 
 #' @rdname getMafPatient
@@ -91,7 +91,7 @@ setMethod(f = "getMafPatient", signature = "Maf", function(object)unique(getMafD
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getTree(phyloTree)
+#' getTree(phyloTree$HCC5647)
 setGeneric(name = "getTree", function(object) standardGeneric("getTree"))
 
 #' @rdname getTree
@@ -109,7 +109,7 @@ setMethod(f = "getTree", signature = "phyloTree", function(object)object@tree)
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getBinaryMatrix(phyloTree)
+#' getBinaryMatrix(phyloTree$HCC5647)
 setGeneric(name = "getBinaryMatrix", function(object) standardGeneric("getBinaryMatrix"))
 
 #' @rdname getBinaryMatrix
@@ -126,7 +126,7 @@ setMethod(f = "getBinaryMatrix", signature = "phyloTree", function(object)object
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getPhyloTreePatient(phyloTree)
+#' getPhyloTreePatient(phyloTree$HCC5647)
 setGeneric(name = "getPhyloTreePatient", function(object) standardGeneric("getPhyloTreePatient"))
 
 #' @rdname getPhyloTreePatient
@@ -143,7 +143,7 @@ setMethod(f = "getPhyloTreePatient", signature = "phyloTree", function(object)ob
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getBootstrapValue(phyloTree)
+#' getBootstrapValue(phyloTree$HCC5647)
 setGeneric(name = "getBootstrapValue", function(object) standardGeneric("getBootstrapValue"))
 
 #' @rdname getBootstrapValue
@@ -160,7 +160,7 @@ setMethod(f = "getBootstrapValue",signature = "phyloTree", function(object)objec
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getTreeMethod(phyloTree)
+#' getTreeMethod(phyloTree$HCC5647)
 setGeneric(name = "getTreeMethod", function(object) standardGeneric("getTreeMethod"))
 
 #' @rdname getTreeMethod
@@ -177,7 +177,7 @@ setMethod(f = "getTreeMethod",signature = "phyloTree", function(object)object@me
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getCCFMatrix(phyloTree)
+#' getCCFMatrix(phyloTree$HCC5647)
 setGeneric(name = "getCCFMatrix", function(object) standardGeneric("getCCFMatrix"))
 
 #' @rdname getCCFMatrix
@@ -194,7 +194,7 @@ setMethod(f = "getCCFMatrix",signature = "phyloTree", function(object)object@ccf
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getMutBranches(phyloTree)
+#' getMutBranches(phyloTree$HCC5647)
 setGeneric(name = "getMutBranches", function(object) standardGeneric("getMutBranches"))
 
 #' @rdname getMutBranches
@@ -211,7 +211,7 @@ setMethod(f = "getMutBranches",signature = "phyloTree", function(object)object@m
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getBranchType(phyloTree)
+#' getBranchType(phyloTree$HCC5647)
 setGeneric(name = "getBranchType", function(object) standardGeneric("getBranchType"))
 
 #' @rdname getBranchType
@@ -228,7 +228,7 @@ setMethod(f = "getBranchType",signature = "phyloTree", function(object)object@br
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' getPhyloTreeRef(phyloTree)
+#' getPhyloTreeRef(phyloTree$HCC5647)
 setGeneric(name = "getPhyloTreeRef", function(object) standardGeneric("getPhyloTreeRef"))
 
 #' @rdname getPhyloTreeRef

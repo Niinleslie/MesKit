@@ -22,5 +22,5 @@ getNonSyn_vc
 maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19") 
-getNonSyn_vc(maf)
+getNonSyn_vc(maf$HCC5647)
 }
