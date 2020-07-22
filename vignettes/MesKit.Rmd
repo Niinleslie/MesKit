@@ -207,8 +207,17 @@ head(mut.class)
    
 `plotMutProfile` function can visualize the mutational profile of tumor samples. 
    
-```{r message=FALSE, fig.align='left', fig.width=11, fig.height=6.5}
-plotMutProfile(maf, class =  "SP", geneList = driverGene)
+```{r message=FALSE, fig.align='left', fig.width=11, fig.height=4.5}
+# specify the order of patients and samples via "patient.id" and "sampleOrder" respectively
+
+patientOrder <- c("HCC5647", "HCC6690", "HCC6046")
+sampleOrder <- list("HCC5647" = c("T1", "T4", "T5", "T3"))
+
+plotMutProfile(
+  maf,
+  patient.id = patientOrder,
+  sampleOrder = sampleOrder,
+  class =  "SP", geneList = driverGene)
 ```
  
 

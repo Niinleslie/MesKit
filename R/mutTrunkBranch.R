@@ -11,9 +11,12 @@
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' 
+#' ## Load a reference genome.
+#' library(BSgenome.Hsapiens.UCSC.hg19)
+#' 
 #' phyloTree <- getPhyloTree(maf)
-#' mutTrunkBranch(phyloTree)
-#' mutTrunkBranch(phyloTree,plot = TRUE)
+#' mutTrunkBranch(phyloTree, plot = TRUE)
 #' 
 #' @return  a list of box plots based on mutational categories
 #' @importFrom data.table data.table

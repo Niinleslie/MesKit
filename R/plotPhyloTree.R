@@ -16,6 +16,7 @@
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' 
 #' phyloTree <- getPhyloTree(maf)
 #' plotPhyloTree(phyloTree)
 #
