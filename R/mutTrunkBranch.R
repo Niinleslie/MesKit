@@ -15,7 +15,7 @@
 #' ## Load a reference genome.
 #' library(BSgenome.Hsapiens.UCSC.hg19)
 #' 
-#' phyloTree <- getPhyloTree(maf)
+#' phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
 #' mutTrunkBranch(phyloTree, plot = TRUE)
 #' 
 #' @return  a list of box plots based on mutational categories

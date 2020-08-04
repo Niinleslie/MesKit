@@ -19,7 +19,7 @@
 #' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
 #' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
-#' mutHeatmap(maf)
+#' mutHeatmap(maf, patient.id = 'HCC8257')
 #' 
 #' @return heatmap of somatic mutations
 #' @importFrom grDevices colors

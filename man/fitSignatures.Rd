@@ -41,7 +41,7 @@ maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 ## Load a reference genome.
 library(BSgenome.Hsapiens.UCSC.hg19)
 
-phyloTree <- getPhyloTree(maf)
+phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
 tri_matrix <- triMatrix(phyloTree)
 fitSignatures(tri_matrix)
 }

@@ -19,7 +19,7 @@
 #' ## Load a reference genome.
 #' library(BSgenome.Hsapiens.UCSC.hg19)
 #' 
-#' phyloTree <- getPhyloTree(maf)
+#' phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
 #' tri_matrix <- triMatrix(phyloTree)
 #' fitSignatures(tri_matrix)
 #' @export  fitSignatures
