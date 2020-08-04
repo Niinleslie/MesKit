@@ -13,5 +13,4 @@ vignettes/.gitignore
 .seed
 .settings
 .tm_properties
-Dockerfile
 .gitignore

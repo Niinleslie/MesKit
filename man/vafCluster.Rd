@@ -33,8 +33,7 @@ vafCluster(
 clustering plots of vaf
 }
 \description{
-Generate variant allele frequency(VAF) frequency distribution
- curve in different mode.
+Generate variant allele frequency (VAF) frequency distribution curve.
 }
 \examples{
 maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
