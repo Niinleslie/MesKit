@@ -13,7 +13,6 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
    if(!adjusted.VAF){
       mafData_merge_ccf$VAF_adj <- mafData_merge_ccf$CCF/2
    }
-   
    ## calculate tumor average ccf
    mafData_merge_ccf <- mafData_merge_ccf %>% 
        dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2) %>%

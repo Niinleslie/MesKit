@@ -63,27 +63,27 @@ getPhyloTree <- function(maf,
       matTree <- nj(dist.gene(mut_dat))
       root_num <- which(matTree$tip.label == "NORMAL")
       matTree <- root(matTree, root_num)
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){nj(dist.gene(e))},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){nj(dist.gene(e))}, B = bootstrap.rep.num,quiet = TRUE, rooted = ape::is.rooted(matTree))/(bootstrap.rep.num)*100
     }else if(method == "MP"){
       matTree <- byMP(mut_dat)
       root_num <- which(matTree$tip.label == "NORMAL")
       matTree <- root(matTree, root_num)
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)},B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100 
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){byMP(e)}, B = bootstrap.rep.num,quiet = TRUE, rooted = ape::is.rooted(matTree))/(bootstrap.rep.num)*100 
     }else if(method == "ML"){
       matTree <- byML(mut_dat)
       root_num <- which(matTree$tip.label == "NORMAL")
       matTree <- root(matTree, root_num)
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e)byML(e), B = bootstrap.rep.num, quiet = TRUE, rooted = ape::is.rooted(matTree))/(bootstrap.rep.num)*100
     }else if(method == "FASTME.bal"){
       matTree <- ape::fastme.bal(dist.gene(mut_dat))
       root_num <- which(matTree$tip.label == "NORMAL")
       matTree <- root(matTree, root_num)
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.bal(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE, rooted = ape::is.rooted(matTree))/(bootstrap.rep.num)*100
     }else if(method == "FASTME.ols"){
       matTree <- ape::fastme.ols(dist.gene(mut_dat))
       root_num <- which(matTree$tip.label == "NORMAL")
       matTree <- root(matTree, root_num)
-      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE,rooted = TRUE)/(bootstrap.rep.num)*100
+      bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e) ape::fastme.ols(dist.gene(e)),B = bootstrap.rep.num,quiet = TRUE, rooted = ape::is.rooted(matTree))/(bootstrap.rep.num)*100
     }
     branch.id <- readPhyloTree(matTree)
     

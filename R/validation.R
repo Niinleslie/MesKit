@@ -47,9 +47,17 @@ validCCF <- function(ccf_data){
     ccf_data$Tumor_Sample_Barcode <- as.character(ccf_data$Tumor_Sample_Barcode)
     ccf_data$Chromosome <- as.character(ccf_data$Chromosome)
     ccf_data$CCF <- as.numeric(ccf_data$CCF)
+    # if("CCF_Std" %in% colnames(ccf_data)){
+    #     ccf_data$CCF_Std <- as.numeric(ccf_data$CCF_Std)
+    # }
+    
     if("CCF_Std" %in% colnames(ccf_data)){
-        ccf_data$CCF_Std <- as.numeric(ccf_data$CCF_Std)
+      ccf_data$CCF_Std <- as.numeric(ccf_data$CCF_Std)
+      ccf_data <- dplyr::select(ccf_data, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF", "CCF_Std")
+    }else{
+      ccf_data <- dplyr::select(ccf_data, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
     }
+    
     
     return(ccf_data)
 }
