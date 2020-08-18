@@ -1,7 +1,7 @@
 byMP <- function(mut_dat){
    matTree <- nj(dist.gene(mut_dat))
    tree_dat <- phangorn::as.phyDat(mut_dat, type="USER", levels = c(0, 1))
-   tree_pars <- suppressMessages(phangorn::optim.parsimony(matTree, tree_dat,method = "sankoff",trace = FALSE)) 
+   tree_pars <- suppressMessages(phangorn::optim.parsimony(matTree, tree_dat, method = "sankoff", trace = FALSE)) 
    matTree <- phangorn::acctran(tree_pars, tree_dat)
    return(matTree)
 }
