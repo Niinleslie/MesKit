@@ -114,6 +114,7 @@ plotTree <- function(phyloTree,
     
     textAdjust <- mean(as.numeric(treeData$distance))
     
+    
     if(!is.null(branchCol)){
         if(branchCol == "mutSig"){
             color_scale <- getSigColors(as.character(unique(treeData$Signature)) )
