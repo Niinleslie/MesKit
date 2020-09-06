@@ -13,6 +13,7 @@
 #' @param sample.text.size Size of sample name.Default 9.
 #' @param legend.title.size Size of legend title.Default 10.
 #' @param gene.text.size Size of gene text. Default 9.
+#' @param sampleOrder A named list which contains the sample order used in plotting the heatmap. Default: NULL.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
@@ -37,10 +38,20 @@ mutHeatmap <- function(maf,
                        sample.text.size = 9,
                        legend.title.size = 10,
                        gene.text.size = 9,
+                       sampleOrder = NULL,
                        ...){
     
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
+    
+    ## check sampleOrder
+    if(!is.null(sampleOrder)){
+        patient.setdiff <- setdiff(names(sampleOrder), names(maf_list))
+        if(length(patient.setdiff) > 0){
+            stop(paste0("Error: ", patient.setdiff,
+                        " can not be found in your data.Please check sampleOrder!"))
+        }
+    }
     
     heatmap_list <- list()
     for(m in maf_list){
@@ -90,8 +101,6 @@ mutHeatmap <- function(maf,
         
         
         mat <- binary.matrix
-        # print(nrow(mat))
-        # print(nrow(maf_data))
         type  <- "Mutation"
         if(use.ccf){
             type <- "CCF"
@@ -108,13 +117,34 @@ mutHeatmap <- function(maf,
         private <- sort(unique(mutation_type)[grep("Private", unique(mutation_type))])
         mutation_type_level <- c(public, shared, private)
         
+        ## reorder sample by sampleOrder
+        if(!is.null(sampleOrder)){
+            ## select the appropriate patients
+            if(patient %in% names(sampleOrder)){
+                sample_order <- sampleOrder[[patient]]
+                samples <- colnames(mat)
+                ## check order
+                sample.setdiff <- setdiff(sample_order, samples)
+                
+                if(length(sample.setdiff) > 0){
+                    stop(paste0("Error: sample ", paste(sample.setdiff, collapse = ","),
+                                " can not be found in ", patient, ".Please check sampleOrder!"))
+                }else if(length(sample.setdiff) == 0 & length(sample_order) != length(samples)){
+                    sample.setdiff <- setdiff(samples, sample_order)
+                    stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
+                                " can not be found in sampleOrder of ", patient, ".Please check sampleOrder!"))
+                }
+                
+                mat <- mat[,sample_order]
+            }
+        }
+        
         mat <- as.data.frame(mat)
         sample_num <- ncol(mat)
         sample_levels <- colnames(mat)
         mat$mutation_type <- factor(mutation_type, levels = mutation_type_level)
         
         
-        # print(length(which(mat$type == "Private")))
         ## get gene name
         genes <- lapply(rownames(mat),function(x){
             s <- strsplit(x,":")[[1]][1]

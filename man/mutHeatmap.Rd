@@ -17,6 +17,7 @@ mutHeatmap(
   sample.text.size = 9,
   legend.title.size = 10,
   gene.text.size = 9,
+  sampleOrder = NULL,
   ...
 )
 }
@@ -44,6 +45,8 @@ mutHeatmap(
 \item{legend.title.size}{Size of legend title.Default 10.}
 
 \item{gene.text.size}{Size of gene text. Default 9.}
+
+\item{sampleOrder}{A named list which contains the sample order used in plotting the heatmap. Default: NULL.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
