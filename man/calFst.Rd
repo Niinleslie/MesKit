@@ -24,7 +24,7 @@ calFst(
 \item{patient.id}{Select the specific patients. 
 Default: NULL, all patients are included.}
 
-\item{min.vaf}{Specify the minimum VAF_adj, default is 0.02}
+\item{min.vaf}{Specify the minimum VAF_adj, default is 0.02.}
 
 \item{min.total.depth}{The minimum total allele depth for filtering variants. 
 Default: 2.}
