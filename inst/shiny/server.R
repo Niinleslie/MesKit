@@ -1498,8 +1498,8 @@ shinyServer(function(input, output, session){
                                classByTumor = input$plotmutprofile_classByTumor,
                                class = input$plotmutprofile_class,
                                topGenesCount = input$plotmutprofile_topGenesCount,
-                               remove_empty_columns = input$plotmutprofile_remove_empty_columns,
-                               remove_empty_rows = input$plotmutprofile_remove_empty_rows)
+                               removeEmptyCols = input$plotmutprofile_remove_empty_columns,
+                               removeEmptyRows = input$plotmutprofile_remove_empty_rows)
           incProgress(amount = 1)
           setProgress(message = 'plotMutProfile done!')
       })

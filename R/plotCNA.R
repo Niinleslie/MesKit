@@ -11,7 +11,8 @@
 #' @param legend.title.size Size of legend title.Default 11.
 #' @param sample.bar.height Bar height of each sample .Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome .Default 0.5.
-#' @param showRownames TRUE(Default). Show sample names of rows.
+#' @param showRownames Show sample names of rows.Default is TRUE. 
+#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples.Default is TRUE. 
 #' 
 #' 
 #' @examples
@@ -37,7 +38,8 @@ plotCNA <- function(seg,
                     legend.title.size = 11,
                     sample.bar.height = 0.5,
                     chrom.bar.height = 0.5,
-                    showRownames = TRUE
+                    showRownames = TRUE,
+                    removeEmptyChr = TRUE
 ){
     
     ## combine data frame
@@ -51,6 +53,7 @@ plotCNA <- function(seg,
         chrSilent <- gsub(pattern = 'X', replacement = '23', x = chrSilent, fixed = TRUE)
         chrSilent <- gsub(pattern = 'Y', replacement = '24', x = chrSilent, fixed = TRUE)
     }
+    
     
 
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
@@ -110,8 +113,17 @@ plotCNA <- function(seg,
                     58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
     }
     
+    names(chrLens) <- paste("chr" ,seq_len(24),sep = "")
     chrLabels <- seq_len(24)[!seq_len(24) %in% chrSilent]
-    chrLens <- chrLens[as.numeric(chrLabels)]
+    chrLens <- chrLens[!names(chrLens) %in% paste("chr" ,chrSilent, sep = "")]
+    
+    ## remove empty chromosome
+    if(removeEmptyChr){
+        chr_seg <- sort(as.numeric(unique(seg$Chromosome)))
+        chrLabels <- chrLabels[chrLabels %in% chr_seg]
+        chrLens <- chrLens[paste("chr" , chr_seg, sep = "")]
+    }
+    
     chrLens <- append(cumsum(chrLens),1,after = 0)
     chrTable <- data.table::data.table(chr = chrLabels,
                                       start = chrLens[seq_len(length(chrLens)-1)],
