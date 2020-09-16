@@ -85,7 +85,7 @@ plotCNA <- function(seg,
     
     
     # if(show.GISTIC.gene){
-    #     if(!"Gistic.type" %in% colnames(seg)){
+    #     if(!"Gistic_type" %in% colnames(seg)){
     #         stop("Error: GISTIC genes information were not found. Please check readSegment")
     #     }
     # }

@@ -1,0 +1,130 @@
+## library(org.Hs.eg.db)
+
+cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
+  
+  ## combine data frame
+  if(is(seg, "list")){
+    seg <- plyr::rbind.fill(seg) %>% as.data.table()
+  }
+  seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
+  seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE)
+  seg$Chromosome <- as.numeric(seg$Chromosome)
+  # annotate seg with gene
+  # txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+  allgenes <- as.data.table(genes(txdb))
+  allgenes$seqnames = gsub(pattern = 'X', replacement = '23', x = allgenes$seqnames, fixed = TRUE)
+  allgenes$seqnames = gsub(pattern = 'Y', replacement = '24', x = allgenes$seqnames, fixed = TRUE)
+  gene_symbols <- suppressMessages(select(org.Hs.eg.db,keys=allgenes$gene_id,columns="SYMBOL",keytype="ENTREZID")$SYMBOL)
+  allgenes <- allgenes %>%
+      dplyr::mutate(Hugo_Symbol = gene_symbols) %>%
+      dplyr::rename(Chromosome = seqnames,
+             Start_Position = start,
+             End_Position = end) %>%
+      dplyr::mutate(Chromosome = gsub("chr","",Chromosome)) %>%  
+    dplyr::filter(Chromosome %in% seq_len(24)) %>% 
+    dplyr::mutate(Chromosome = as.numeric(Chromosome))
+
+  if(!is.null(geneList)){
+     gene.setdiff <- setdiff(geneList, gene_symbols)
+     if(length(gene.setdiff) > 0){
+        stop(paste0("Gene: ", gene.setdiff, " can not be found in Entrez Gene"))
+     }
+    allgenes <- allgenes[Hugo_Symbol %in% geneList]
+  }
+  
+  data.table::setkey(x = seg,Chromosome, Start_Position, End_Position)
+  data.table::setkey(x = allgenes,Chromosome, Start_Position, End_Position)
+  ## map gene to seg
+  anno_result <-  data.table::foverlaps(seg,allgenes,
+                                        by.x = c("Chromosome","Start_Position","End_Position")) %>%
+    na.omit()
+  if(nrow(anno_result) == 0){
+    stop("No gene mapped to seg")
+  } 
+  anno_result$id <- seq_len(nrow(anno_result))
+  
+  anno_result$seg_id <- paste0(
+    anno_result$Patient_ID,"&",
+    anno_result$Tumor_Sample_Barcode,"&",
+    anno_result$Chromosome,"&",
+    anno_result$i.Start_Position,"&",
+    anno_result$i.End_Position
+    )
+  
+  anno_result$gene_id <- paste0(
+    anno_result$Hugo_Symbol,"&",
+    anno_result$Chromosome,"&",
+    anno_result$i.Start_Position,"&",
+    anno_result$i.End_Position
+  )
+  
+  ## seg end position > gene start position, 
+  ## seg end position < gene end position
+  ar1 <- anno_result %>%
+    dplyr::filter(
+      (i.End_Position - Start_Position) > min.overlap.len,
+      i.End_Position <= End_Position,
+      i.Start_Position <= Start_Position
+    ) %>% 
+      dplyr::mutate(
+        overlap_width = i.End_Position - Start_Position
+      ) %>%
+      dplyr::mutate(
+          End_Position = i.End_Position
+      )
+  ## gene end position > seg start position, 
+  ## gene end position < seg end position
+  ar2 <- anno_result %>% 
+    dplyr::filter(
+      (End_Position - i.Start_Position) > min.overlap.len,
+      End_Position <= i.End_Position,
+      Start_Position <= i.Start_Position
+    ) %>% 
+    dplyr::mutate(
+      overlap_width = End_Position - i.Start_Position
+    ) %>%
+      dplyr::mutate(
+          Start_Position = i.Start_Position
+      )
+  ## gene in seg
+  ar3 <- anno_result %>% 
+    dplyr::filter(
+      i.End_Position >= End_Position,
+      i.Start_Position <= Start_Position
+    ) %>% 
+    dplyr::mutate(
+      overlap_width = End_Position - Start_Position
+    )
+  ## seg in gene
+  ar4 <- anno_result %>% 
+    dplyr::filter(
+      End_Position >= i.End_Position,
+      Start_Position <= i.Start_Position
+    )%>% 
+    dplyr::mutate(
+      overlap_width = i.End_Position - i.Start_Position
+    ) %>% 
+      dplyr::mutate(
+          End_Position = i.End_Position,
+          Start_Position = i.Start_Position,
+      )
+  result <- rbind(ar1,ar2,ar3,ar4) %>% 
+    dplyr::distinct(id, .keep_all = TRUE) %>% 
+    dplyr::group_by(Patient_ID, Tumor_Sample_Barcode, gene_id) %>%
+    dplyr::filter(overlap_width == max(overlap_width)) %>%
+    dplyr::ungroup() %>%
+    as.data.frame() %>%
+    dplyr::select(
+      Hugo_Symbol,
+      Tumor_Sample_Barcode,
+      Chromosome, 
+      Start_Position, 
+      End_Position,
+      Patient_ID,
+      CopyNumber,
+      Type,
+      Gistic_type
+    )
+  return(result)
+  # t <- anno_result[Patient_ID == "HCC5647"&Tumor_Sample_Barcode == "T1"]
+}
