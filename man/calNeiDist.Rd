@@ -22,9 +22,9 @@ calNeiDist(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{withinTumor}{Calculate fst within types in each patients,default is FALSE.}
+\item{withinTumor}{Calculate fst within tumors in each patients,default is FALSE.}
 
-\item{min.ccf}{Specify the minimum CCF, default is 0.08}
+\item{min.ccf}{Specify the minimum CCF, default is 0.08.}
 
 \item{plot}{Logical (Default:TRUE). Whether to show the plot. Default TRUE}
 

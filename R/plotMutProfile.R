@@ -11,8 +11,8 @@
 #' @param geneList  A list of genes to restrict the analysis. Default NULL.
 #' @param patientsCol  A list containing customized colors for distinct patients. Default: NULL.
 #' @param bgCol  Background grid color. Default: "#f0f0f0"
-#' @param remove_empty_columns  Whether remove the samples without alterations. Only works when plot is TRUE
-#' @param remove_empty_rows  Whether remove the genes without alterations. Only works when plot is TRUE
+#' @param removeEmptyCols  Whether remove the samples without alterations. Only works when plot is TRUE
+#' @param removeEmptyRows  Whether remove the genes without alterations. Only works when plot is TRUE
 #' @param showColnames  TRUE(Default). Show sample names of columns.
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
 #' @param ... Other options passed to \code{\link{subMaf}}
@@ -36,8 +36,8 @@ plotMutProfile <- function(maf,
                            geneList = NULL,
                            bgCol = "#f0f0f0",
                            patientsCol = NULL,
-                           remove_empty_columns = TRUE,
-                           remove_empty_rows = TRUE, 
+                           removeEmptyCols = TRUE,
+                           removeEmptyRows = TRUE, 
                            showColnames = TRUE,
                            sampleOrder = NULL,
                            ...) {
@@ -397,7 +397,7 @@ plotMutProfile <- function(maf,
     
     if (is.null(patient.split)) {
       patient.id <- NULL
-    } else if (remove_empty_columns ){
+    } else if (removeEmptyCols ){
       excluded_sample_index <- c()
       for (i in seq_len(ncol(mat))) {
         if (all(is.na(mat[,i]))) {
@@ -496,8 +496,8 @@ plotMutProfile <- function(maf,
               row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
               #heatmap_legend_param = heatmap_legend(class),
               show_heatmap_legend = FALSE,
-              remove_empty_columns = remove_empty_columns,
-              remove_empty_rows = remove_empty_rows,
+              removeEmptyCols = removeEmptyCols,
+              removeEmptyRows = removeEmptyRows,
               row_order = rowOrder,
               row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
               column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
@@ -539,8 +539,8 @@ plotMutProfile <- function(maf,
           row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
           #heatmap_legend_param = heatmap_legend(class),
           show_heatmap_legend = FALSE,
-          remove_empty_columns = remove_empty_columns,
-          remove_empty_rows = remove_empty_rows,
+          removeEmptyCols = removeEmptyCols,
+          removeEmptyRows = removeEmptyRows,
           row_order = rowOrder,
           row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
           column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),

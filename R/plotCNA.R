@@ -11,7 +11,9 @@
 #' @param legend.title.size Size of legend title.Default 11.
 #' @param sample.bar.height Bar height of each sample .Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome .Default 0.5.
-#' @param showRownames TRUE(Default). Show sample names of rows.
+#' @param showRownames Show sample names of rows.Default is TRUE. 
+#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples.Default is TRUE. 
+#' @param showCytoband Show the information about cytoband on the plot.Default is FALSE 
 #' 
 #' 
 #' @examples
@@ -37,7 +39,10 @@ plotCNA <- function(seg,
                     legend.title.size = 11,
                     sample.bar.height = 0.5,
                     chrom.bar.height = 0.5,
-                    showRownames = TRUE
+                    showRownames = TRUE,
+                    removeEmptyChr = TRUE,
+                    showCytoband = FALSE,
+                    showGene = TRUE
 ){
     
     ## combine data frame
@@ -51,6 +56,7 @@ plotCNA <- function(seg,
         chrSilent <- gsub(pattern = 'X', replacement = '23', x = chrSilent, fixed = TRUE)
         chrSilent <- gsub(pattern = 'Y', replacement = '24', x = chrSilent, fixed = TRUE)
     }
+    
     
 
     seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
@@ -82,7 +88,7 @@ plotCNA <- function(seg,
     
     
     # if(show.GISTIC.gene){
-    #     if(!"Gistic.type" %in% colnames(seg)){
+    #     if(!"Gistic_type" %in% colnames(seg)){
     #         stop("Error: GISTIC genes information were not found. Please check readSegment")
     #     }
     # }
@@ -110,8 +116,17 @@ plotCNA <- function(seg,
                     58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
     }
     
+    names(chrLens) <- paste("chr" ,seq_len(24),sep = "")
     chrLabels <- seq_len(24)[!seq_len(24) %in% chrSilent]
-    chrLens <- chrLens[as.numeric(chrLabels)]
+    chrLens <- chrLens[!names(chrLens) %in% paste("chr" ,chrSilent, sep = "")]
+    
+    ## remove empty chromosome
+    if(removeEmptyChr){
+        chr_seg <- sort(as.numeric(unique(seg$Chromosome)))
+        chrLabels <- chrLabels[chrLabels %in% chr_seg]
+        chrLens <- chrLens[paste("chr" , chr_seg, sep = "")]
+    }
+    
     chrLens <- append(cumsum(chrLens),1,after = 0)
     chrTable <- data.table::data.table(chr = chrLabels,
                                       start = chrLens[seq_len(length(chrLens)-1)],
@@ -432,6 +447,49 @@ plotCNA <- function(seg,
             )
     }else{
         p <- p + theme(axis.text.y.left =  element_blank())
+    }
+    
+    if(showCytoband){
+        if(!"Cytoband_pos" %in% colnames(CNADat)){
+            stop("Can not find information about Cytoband,please upload gisticAmpGenesFile,gisticDelGenesFile or gisticAllLesionsFile in readSegment!")
+        }
+        ## cytoband
+        CNADat$Cytoband_pos <- as.numeric(CNADat$Start_Position) + chr_start_pos[paste0("chr",CNADat$Chromosome)]
+        cytoband_table <- CNADat %>%
+            distinct(Cytoband, .keep_all = TRUE)
+        
+        p <- p + 
+            ggrepel::geom_text_repel(data = cytoband_table, 
+                                     aes(x = Cytoband_pos,
+                                         y = max(backgroundTable$ymax),
+                                         label = Cytoband),
+                                     angle = 90,
+                                     nudge_y  = sample.bar.height*0.3*patient_num,
+                                     direction = "x",
+                                     vjust = 0)
+                                                                           
+    }
+    
+    if(showGene){
+        if(showGene & showCytoband){
+            stop("Only one of showGene and showCytoband can be TRUE")
+        }
+        if(!"Hugo_Symbol" %in% colnames(CNADat)){
+            stop("Can not find information about gene,please use parameter 'txdb' in readSegment")
+        }
+        CNADat$gene_pos <- as.numeric(CNADat$Start_Position) + (as.numeric(CNADat$End_Position) - as.numeric(CNADat$Start_Position))/2
+        CNADat$gene_id <- paste(CNADat$Hugo_Symbol, CNADat$Chromosome, CNADat$Start_Position, CNADat$End_Position, sep = ":")
+        gene_table <- CNADat %>%
+            distinct(gene_id, .keep_all = TRUE)
+        p <- p + 
+            ggrepel::geom_text_repel(data = gene_table, 
+                                     aes(x = gene_pos,
+                                         y = max(backgroundTable$ymax),
+                                         label = Hugo_Symbol),
+                                     angle = 90,
+                                     nudge_y  = sample.bar.height*0.3*patient_num,
+                                     direction = "x",
+                                     vjust = 0)
     }
     ## patient bar
     if("patient" %in% colnames(seg)&

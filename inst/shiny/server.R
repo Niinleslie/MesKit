@@ -192,7 +192,8 @@ shinyServer(function(input, output, session){
     mathScore(maf,
               patient.id = patientid,
               min.vaf = as.numeric(input$mathscore_minvaf),
-              withinTumor = input$mathscore_withintumor)
+              withinTumor = input$mathscore_withintumor,
+              use.adjVAF = input$mathscore_useadjvaf)
   })
   output$mathScore <- DT::renderDataTable({
     ms()
@@ -254,7 +255,8 @@ shinyServer(function(input, output, session){
                            withinTumor = input$vafcluster_withintumor,
                            segFile = input$vafcluster_segfile,
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
-                           max.vaf = as.numeric(input$vafcluster_maxvaf))        
+                           max.vaf = as.numeric(input$vafcluster_maxvaf),
+                           use.adjVAF = input$vafcluster_useadjvaf)        
           incProgress(amount = 1)
           setProgress(message = 'vafCluster done!')
       })
@@ -453,7 +455,8 @@ shinyServer(function(input, output, session){
           cc <- ccfAUC(maf,
                        patient.id = patientid,
                        min.ccf = as.numeric(input$ccfauc_minccf) ,
-                       withinTumor = input$ccfauc_withintumor)
+                       withinTumor = input$ccfauc_withintumor,
+                       use.adjVAF = input$ccfauc_useadjvaf)
           incProgress(amount = 1)
           setProgress(message = 'ccfAUC done!')
       })
@@ -630,6 +633,7 @@ shinyServer(function(input, output, session){
                         min.vaf = as.numeric(input$calfst_minvaf) ,
                         min.total.depth = as.numeric(input$calfst_mintotaldepth),
                         withinTumor =input$calfst_withinTumor,
+                        use.adjVAF = input$calfst_useadjvaf,
                         # title = title,
                         use.circle = input$calfst_usecircle,
                         number.cex = as.numeric(input$calfst_numbercex),
@@ -814,6 +818,7 @@ shinyServer(function(input, output, session){
                            patient.id = input$calneidist_patientid,
                            min.ccf = as.numeric(input$calneidist_minccf) ,
                            withinTumor = input$calneidist_withintumor,
+                           use.adjVAF = input$calneidist_useadjvaf,
                            use.circle = input$calneidist_usecircle,
                            number.cex = as.numeric(input$calneidist_numbercex),
                            number.col = input$calneidist_numbercol)
@@ -1493,8 +1498,8 @@ shinyServer(function(input, output, session){
                                classByTumor = input$plotmutprofile_classByTumor,
                                class = input$plotmutprofile_class,
                                topGenesCount = input$plotmutprofile_topGenesCount,
-                               remove_empty_columns = input$plotmutprofile_remove_empty_columns,
-                               remove_empty_rows = input$plotmutprofile_remove_empty_rows)
+                               removeEmptyCols = input$plotmutprofile_remove_empty_columns,
+                               removeEmptyRows = input$plotmutprofile_remove_empty_rows)
           incProgress(amount = 1)
           setProgress(message = 'plotMutProfile done!')
       })
@@ -2023,7 +2028,7 @@ shinyServer(function(input, output, session){
                             label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Pair by tumor'),
                             width = 500),
               bsTooltip(id = "compareccf_pairbytumor",
-                        title = "Compare CCF by tumor",
+                        title = "Pair by tumor types in each patients,default is FALSE.",
                         placement = "top",
                         trigger = "hover")
           )

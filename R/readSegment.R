@@ -7,6 +7,9 @@
 #' @param gistic.qval The threshold of gistic Q value. Default is 0.25
 #' @param verbose whether to display details in the console. Default True.
 #' @param min.seg.size The smallest size of segments.Default is 500.
+#' @param txdb Default: TxDb.Hsapiens.UCSC.hg19.knownGene.
+#' @param min.overlap.len The minimum insertion size of segment and gene. Default 50.
+#' @param ... ... Other options passed to \code{\link{cna2gene}}
 #' 
 #' @examples
 #' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
@@ -30,7 +33,10 @@ readSegment <- function(segFile = NULL,
                         gisticAllLesionsFile = NULL,
                         gistic.qval = 0.25,
                         min.seg.size = 500,
-                        verbose = TRUE){
+                        txdb = NULL,
+                        min.overlap.len = 50,
+                        verbose = TRUE,
+                        ...){
   seg <- suppressWarnings(data.table::fread(segFile, header=TRUE, sep="\t", stringsAsFactors = FALSE))
   
   ## valid seg
@@ -93,18 +99,18 @@ readSegment <- function(segFile = NULL,
   if(!is.null(gisticAllLesionsFile)){
       gisticLesions <- as.data.table(readGisticAllLesions(gisticAllLesionsFile, verbose = verbose)) %>%
                        dplyr::rename("Wide_Peak_Boundaries" = "WPB")
-      if("Amp" %in% gisticLesions$Gistic.type){
-          gisticLesions[gisticLesions$Gistic.type == "Amp",]$Gistic.type <- "AMP"
+      if("Amp" %in% gisticLesions$Gistic_type){
+          gisticLesions[gisticLesions$Gistic_type == "Amp",]$Gistic_type <- "AMP"
       }
   }
   if(nrow(gisticCNVgenes) != 0){
       if(!is.null(gisticAllLesionsFile)){
-          gisticLesions$ID <- tidyr::unite(gisticLesions,"ID","Cytoband","Wide_Peak_Boundaries","Gistic.type",sep = "_")$ID
-          gisticCNVgenes$ID <- tidyr::unite(gisticCNVgenes,"ID","Cytoband","Wide_Peak_Boundaries","Gistic.type",sep = "_")$ID
+          gisticLesions$ID <- tidyr::unite(gisticLesions,"ID","Cytoband","Wide_Peak_Boundaries","Gistic_type",sep = "_")$ID
+          gisticCNVgenes$ID <- tidyr::unite(gisticCNVgenes,"ID","Cytoband","Wide_Peak_Boundaries","Gistic_type",sep = "_")$ID
           gisticCNVgenes <- merge(gisticLesions,gisticCNVgenes,by = "ID") %>% 
-                         dplyr::select("Cytoband.x", "Wide_Peak_Boundaries.x", "Gene", "Gistic.type.x", "Qvalue") %>%
+                         dplyr::select("Cytoband.x", "Wide_Peak_Boundaries.x", "Gene", "Gistic_type.x", "Qvalue") %>%
                          dplyr::rename("Cytoband" = "Cytoband.x", "Wide_Peak_Boundaries" = "Wide_Peak_Boundaries.x",
-                                       "Gistic.type" = "Gistic.type.x") %>%
+                                       "Gistic_type" = "Gistic_type.x") %>%
                          dplyr::filter(.data$Qvalue < gistic.qval) %>% data.table::as.data.table()
           
       }
@@ -115,19 +121,20 @@ readSegment <- function(segFile = NULL,
       gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
       gisticCNVgenes$End_Position <- unlist(lapply(gisticCNVgenes$loc,function(x)strsplit(x, "-")[[1]][2]))
       gisticCNVgenes$End_Position <- as.numeric(gisticCNVgenes$End_Position)
+      gisticCNVgenes$Cytoband_pos <- as.integer(gisticCNVgenes$Start_Position + (gisticCNVgenes$End_Position - gisticCNVgenes$Start_Position)/2)
       gisticCNVgenes$Chromosome <- gsub(pattern = 'chr', replacement = '', x = gisticCNVgenes$Chromosome, fixed = TRUE)
       gisticCNVgenes$Chromosome <- gsub(pattern = 'X', replacement = '23', x = gisticCNVgenes$Chromosome, fixed = TRUE)
       gisticCNVgenes$Chromosome <- gsub(pattern = 'Y', replacement = '24', x = gisticCNVgenes$Chromosome, fixed = TRUE)
-      gisticCNVgenes <- dplyr::select(gisticCNVgenes,"Gene", "Gistic.type", "Chromosome", "Start_Position", "End_Position")
+      gisticCNVgenes <- dplyr::select(gisticCNVgenes, "Cytoband", "Cytoband_pos", "Gene", "Gistic_type", "Chromosome", "Start_Position", "End_Position")
       gisticCNVgenes$Chromosome <- as.numeric(gisticCNVgenes$Chromosome)
       gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
       gisticCNVgenes$End_Position <- as.numeric(gisticCNVgenes$End_Position)
       data.table::setkey(x = gisticCNVgenes,"Chromosome", "Start_Position", "End_Position")
       mapDat <- data.table::foverlaps(gisticCNVgenes,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
                 na.omit() %>% 
-                dplyr::select("Patient_ID", "Tumor_Sample_Barcode","Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic.type") %>% 
+                dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>% 
                 dplyr::distinct()
-      seg <- mapDat[(mapDat$Type %in% c("Loss", "Deletion") & mapDat$Gistic.type  == "Del")|(mapDat$Type %in% c("Gain", "Amplification") & mapDat$Gistic.type  == "AMP"),]
+      seg <- mapDat[(mapDat$Type %in% c("Loss", "Deletion") & mapDat$Gistic_type  == "Del")|(mapDat$Type %in% c("Gain", "Amplification") & mapDat$Gistic_type  == "AMP"),]
   }else if(nrow(gisticLesions) != 0){
     gisticLesions$Chromosome <-  unlist(lapply(gisticLesions$Wide_Peak_Boundaries,function(x)strsplit(x, ":")[[1]][1]))  
     gisticLesions$loc <-  unlist(lapply(gisticLesions$Wide_Peak_Boundaries,function(x)strsplit(x, ":")[[1]][2]))  
@@ -135,10 +142,11 @@ readSegment <- function(segFile = NULL,
     gisticLesions$Start_Position <- as.numeric(gisticLesions$Start_Position)
     gisticLesions$End_Position <- unlist(lapply(gisticLesions$loc,function(x)strsplit(x, "-")[[1]][2]))
     gisticLesions$End_Position <- as.numeric(gisticLesions$End_Position)
+    gisticLesions$Cytoband_pos <- as.integer(gisticLesions$Start_Position + (gisticLesions$End_Position - gisticLesions$Start_Position)/2)
       gisticLesions$Chromosome <- gsub(pattern = 'chr', replacement = '', x = gisticLesions$Chromosome, fixed = TRUE)
       gisticLesions$Chromosome <- gsub(pattern = 'X', replacement = '23', x = gisticLesions$Chromosome, fixed = TRUE)
       gisticLesions$Chromosome <- gsub(pattern = 'Y', replacement = '24', x = gisticLesions$Chromosome, fixed = TRUE)
-      gisticLesions <- dplyr::select(gisticLesions,"Gistic.type", "Chromosome", "Start_Position", "End_Position", "Qvalue")
+      gisticLesions <- dplyr::select(gisticLesions,"Cytoband", "Cytoband_pos", "Gistic_type", "Chromosome", "Start_Position", "End_Position", "Qvalue")
       gisticLesions$Chromosome <- as.numeric(gisticLesions$Chromosome)
       gisticLesions$Start_Position <- as.numeric(gisticLesions$Start_Position)
       gisticLesions$End_Position <- as.numeric(gisticLesions$End_Position)
@@ -146,16 +154,20 @@ readSegment <- function(segFile = NULL,
       mapDat <- data.table::foverlaps(gisticLesions,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
           na.omit() %>% 
           dplyr::filter(.data$Qvalue < gistic.qval) %>% 
-          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic.type") %>%
+          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>%
           dplyr::distinct() %>% 
           data.table::as.data.table()
-      seg <- mapDat[(mapDat$Type %in% c("Loss", "Deletion") & mapDat$Gistic.type  == "Del")|(mapDat$Type %in% c("Gain", "Amplification") & mapDat$Gistic.type  == "AMP"),]
+      seg <- mapDat[(mapDat$Type %in% c("Loss", "Deletion") & mapDat$Gistic_type  == "Del")|(mapDat$Type %in% c("Gain", "Amplification") & mapDat$Gistic_type  == "AMP"),]
   }
   
   data.table::setkey(x = seg, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "End_Position")
   
   seg$Chromosome = gsub(pattern = '23', replacement = 'X', x = seg$Chromosome, fixed = TRUE)
   seg$Chromosome = gsub(pattern = '24', replacement = 'Y', x = seg$Chromosome, fixed = TRUE)
+  
+  if(!is.null(txdb)){
+    seg <- cna2gene(seg, txdb = txdb, min.overlap.len = min.overlap.len, ...)
+  }
   
   result <- split(seg, seg$Patient_ID)
   

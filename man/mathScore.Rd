@@ -11,9 +11,9 @@ mathScore(maf, patient.id = NULL, withinTumor = FALSE, min.vaf = 0.02, ...)
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{withinTumor}{Calculate AUC within types in each patients. Default :FALSE.}
+\item{withinTumor}{Calculate math score within tumors in each patients. Default :FALSE.}
 
-\item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02}
+\item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
