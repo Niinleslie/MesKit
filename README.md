@@ -11,6 +11,12 @@ The source code and documents are freely available through Github (https://githu
 ## Installation
 
 ```R
+# install via Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("MesKit")
+
 #  install the latest version from GitHub
 if(!require(devtools)) install.packages("devtools")
 devtools::install_github("Niinleslie/MesKit")
@@ -36,7 +42,7 @@ pkg.suggested <- c('shiny','shinyBS','shinydashboard', 'shinyWidgets', 'shinycss
 # Install the required packages
 checkPackages <- function(pkg){
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop("Package pkg needed for shiny app. Please install it.", call. = FALSE)
+    stop(paste0("Package ", pkg, " needed for shiny app. Please install it."), call. = FALSE)
   }
 }
 lapply(pkg.suggested, checkPackages)
