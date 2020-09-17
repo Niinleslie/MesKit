@@ -42,7 +42,7 @@ plotCNA <- function(seg,
                     showRownames = TRUE,
                     removeEmptyChr = TRUE,
                     showCytoband = FALSE,
-                    showGene = TRUE
+                    showGene = FALSE
 ){
     
     ## combine data frame

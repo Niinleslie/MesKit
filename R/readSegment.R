@@ -7,7 +7,7 @@
 #' @param gistic.qval The threshold of gistic Q value. Default is 0.25
 #' @param verbose whether to display details in the console. Default True.
 #' @param min.seg.size The smallest size of segments.Default is 500.
-#' @param txdb Default: TxDb.Hsapiens.UCSC.hg19.knownGene.
+#' @param txdb Default: NULL. i.e.,TxDb.Hsapiens.UCSC.hg19.knownGene
 #' @param min.overlap.len The minimum insertion size of segment and gene. Default 50.
 #' @param ... ... Other options passed to \code{\link{cna2gene}}
 #' 
