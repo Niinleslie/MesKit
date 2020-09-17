@@ -88,7 +88,7 @@ To analyze with MesKit, you need to provide:
 * A segmentation file. **Optional**
 * The GISTIC outputs.  **Optional**
 
-**Note:** `Patient_ID` and `Tumor_Sample_Barcode` should be consistant in all input files, respectively.
+**Note:** `Patient_ID` and `Tumor_Sample_Barcode` should be consistent in all input files, respectively.
   
 #### 2.1 MAF file  
   
@@ -114,7 +114,7 @@ data.frame(extractLines, row.names = NULL)
   
 #### 2.2 CCF files  
   
-By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be included in the input CCF files.
+By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
 
 
 **Example CCF file**
@@ -130,7 +130,7 @@ ccfInfo[1:5, ]
 The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 
 * `Patient_ID` - ID of a patient
-* `Tumor_Sample_Barcode` - Tumor sample barcode of samples
+* `Tumor_Sample_Barcode` - tumor sample barcode of samples
 * `Chromosome` - chromosome name or ID
 * `Start_Position` - genomic start position of segments (1-indexed)
 * `End_Position` - genomic end position of segments (1-indexed)
@@ -148,23 +148,32 @@ segInfo[1:5, ]
  
 ### 3. Installation  
   
-  
+#### Via Bioconductor
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+  install.packages("BiocManager")
+}   
+
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
+
+BiocManager::install("MesKit")
+```
+
+
 #### Via GitHub 
 
 Install the latest version of this package by typing the commands below in R console:  
   
 ```{r eval=FALSE}
-install.packages("devtools")
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+
 devtools::install_github("Niinleslie/MesKit")
 ```   
   
-#### Via Bioconductor
-
-```{r, eval=FALSE}
-if(!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("MesKit")
-```
    
    
   
@@ -174,7 +183,7 @@ BiocManager::install("MesKit")
 `readMaf` function creates Maf/MafList objects by reading MAF files and cancer cell fraction (CCF) data (optional but recommended). Parameter `refBuild` is used to set reference genome version for Homo sapiens reference (`"hg18"`, `"hg19"` or `"hg38"`).
    
    
-```{r message=FALSE}
+```{r message=FALSE,warning=FALSE}
 library(MesKit)
 ```  
 
@@ -198,7 +207,7 @@ maf <- readMaf(mafFile = maf.File,
 In order to explore the genomic alterations during cancer progression with multi-region sequencing approach, we provided `classifyMut` function to categorize mutations. The classification is based on shared pattern or clonal status (CCF data is required) of mutations, which can be specified by `class` option. Additionally, `classByTumor` can be used to reveal the mutational profile within tumors.  
 
 ```{r message=FALSE, fig.align='left', fig.width=11, fig.height=6.5}
-# Driver genes of CRC collected from [IntOGen](https://www.intogen.org/search) (v.2020.2）
+# Driver genes of CRC collected from [IntOGen] (https://www.intogen.org/search) (v.2020.2)
 driverGene.file <- system.file("extdata/", "IntOGen-DriverGenes_HC.tsv", package = "MesKit")
 driverGene <- as.character(read.table(driverGene.file)$V1)
 mut.class <- classifyMut(maf, class =  "SP", patient.id = 'HCC8257')
@@ -207,23 +216,14 @@ head(mut.class)
    
 `plotMutProfile` function can visualize the mutational profile of tumor samples. 
    
-```{r message=FALSE, fig.align='left', fig.width=11, fig.height=4.5}
-# specify the order of patients and samples via "patient.id" and "sampleOrder" respectively
-
-patientOrder <- c("HCC5647", "HCC6690", "HCC6046")
-sampleOrder <- list("HCC5647" = c("T1", "T4", "T5", "T3"))
-
-plotMutProfile(
-  maf,
-  patient.id = patientOrder,
-  sampleOrder = sampleOrder,
-  class =  "SP", geneList = driverGene)
+```{r message=FALSE, fig.align='left', fig.width=11, fig.height=6.5}
+plotMutProfile(maf, class =  "SP", geneList = driverGene)
 ```
  
 
 #### 5.2 CNA profile
 
-The `plotCNA` function can characterizes the CNA landscape across samples based on copy number data from segmentation algorithms. Besides, MesKit provides options to integrate GISTIC2 results, which can be obtained from [http://gdac.broadinstitute.org](http://gdac.broadinstitute.org). Please make sure the genome version based on these results is consistent with `refBuild` of the Maf/MafList object .
+The `plotCNA` function can characterize the CNA landscape across samples based on copy number data from segmentation algorithms. Besides, MesKit provides options to integrate GISTIC2 results, which can be obtained from [http://gdac.broadinstitute.org](http://gdac.broadinstitute.org). Please make sure the genome version based on these results is consistent with `refBuild` of the Maf/MafList object .
 
 
 ```{r message=FALSE}
@@ -309,7 +309,7 @@ calFst(maf, patient.id = 'HCC8257', plot = TRUE, number.cex = 10)
 ```  
 
 
-#### 6.2.2 Nei’s genetic distance
+##### 6.2.2 Nei’s genetic distance
    
 Nei’s genetic distance is used in population genetics to assess the similarity between populations, taking heterogeneity within populations into account. The function `calNeiDist` calculates Nei's distance of CCF among multi-region samples from the same patient for each sample-pair [8](#refer).   
    
@@ -320,7 +320,7 @@ calNeiDist(maf, patient.id = 'HCC8257', number.cex = 10)
    
 ### 7. Clonal origins inference 
    
-Metastasis remains poorly understood despite its critical clinical significance, and the understanding of metastasis process can offer supplementary information for clinical treatments.   
+Metastasis remains poorly understood despite its critical clinical significance, and the understanding of metastasis process offers supplementary information for clinical treatments.   
       
    
 #### 7.1 Pairwise CCF comparison
@@ -434,7 +434,7 @@ dotplot(KEGG_HCC8257_Public)
 
 The sequence context of the base substitutions can be retrieved from the corresponding reference genome to construct a mutation matrix with counts for all 96 trinucleotide changes using “mut_matrix”. Subsequently, the 6 base substitution type spectrum can be plotted with “plot_spectrum” , which can be divided into several sample groups.
 
-`mutTrunkBranch` function calculates the fraction of branch/trunk mutations occurring in each of the six types of base substitution types (C>A, C>G, C>T, T>A, T>C, T>G) and conducts two-sided Fisher’s exact tests. For C>T mutations, it can be further classified into C>T at CpG sites and other sites by setting `CT = TRUE`. This function provides option `plot` to print the distribution of branch/trunk mutations. Substitutions types with significant difference between trunk and branch mutations are marked with Asterisks. 
+`mutTrunkBranch` function calculates the fraction of branch/trunk mutations occurring in each of the six types of base substitution types (C>A, C>G, C>T, T>A, T>C, T>G) and conducts two-sided Fisher’s exact tests. For C>T mutations, it can be further classified as C>T at CpG sites or other sites by setting `CT = TRUE`. This function provides option `plot` to show the distribution of branch/trunk mutations. Substitutions types with significant difference between trunk and branch mutations are marked with Asterisks. 
    
 ```{r message=FALSE}
 # load the genome reference
@@ -454,7 +454,7 @@ mutClass$mutTrunkBranch.plot
 ```
    
    
-`triMatrix` function returns a mutation count matrix of 96 trinucleotides based on somatic SNVs per sample. The `fitSignatures` function takes the matrix and known signature matrix as input to find the optimal nonnegative linear combination of mutation signatures to reconstruct matrix and calculate cosine similarity based on somatic SNVs. Besides, the signature matrix can be specified (`"cosmic_v2"`, `"exome_cosmic_v3"` or `"nature2013"`) or provided by users via `signaturesRef`. 
+`triMatrix` function returns a mutation count matrix of 96 trinucleotides based on somatic SNVs per sample. The `fitSignatures` function takes the matrix and known signature matrix as inputs to find the optimal nonnegative linear combination of mutation signatures to reconstruct matrix and calculate cosine similarity based on somatic SNVs. Besides, the signature matrix can be specified (`"cosmic_v2"`, `"exome_cosmic_v3"` or `"nature2013"`) or provided by users via `signaturesRef`. 
    
    
 ```{r, warning = FALSE, message=FALSE, fig.height=7, fig.width=10}
