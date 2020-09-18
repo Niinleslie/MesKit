@@ -2,6 +2,7 @@
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
 #' @param mafFile Tab delimited MAF file (plain text or *.gz compressed). Required.
+#' @param clinicalData This file includes clinical information of Tumor_Sample_Barcode, Tumor_ID, and Patient_ID. Required. 
 #' @param ccfFile CCF file of somatic mutations. Default NULL.
 #' @param adjusted.VAF Let VAF = VAF_adj.Default FALSE.
 #' @param nonSyn.vc List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"
@@ -11,6 +12,7 @@
 #'
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 #' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
@@ -24,6 +26,7 @@
 ## read.maf main function
 readMaf <- function(
     mafFile,
+    clinicalData,
     ccfFile = NULL,
     adjusted.VAF = FALSE,
     nonSyn.vc = NULL,
@@ -56,6 +59,26 @@ readMaf <- function(
             sep = '\t',
             skip = "Hugo_Symbol",
             stringsAsFactors = FALSE
+        )
+    
+    clin_data <- data.table::fread(
+        file = clinicalData,
+        quote = "",
+        header = TRUE,
+        data.table = TRUE,
+        fill = TRUE,
+        sep = '\t',
+        stringsAsFactors = FALSE
+    )
+    
+    ## merge maf data and clinical data
+    maf_data <- dplyr::left_join(
+        maf_data,
+        clin_data,
+        by = c(
+            "Tumor_Sample_Barcode",
+            "Patient_ID"
+            )
         )
     
     ## check maf data
