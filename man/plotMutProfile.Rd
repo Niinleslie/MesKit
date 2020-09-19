@@ -13,8 +13,8 @@ plotMutProfile(
   geneList = NULL,
   bgCol = "#f0f0f0",
   patientsCol = NULL,
-  remove_empty_columns = TRUE,
-  remove_empty_rows = TRUE,
+  removeEmptyCols = TRUE,
+  removeEmptyRows = TRUE,
   showColnames = TRUE,
   sampleOrder = NULL,
   ...
@@ -40,9 +40,9 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{patientsCol}{A list containing customized colors for distinct patients. Default: NULL.}
 
-\item{remove_empty_columns}{Whether remove the samples without alterations. Only works when plot is TRUE}
+\item{removeEmptyCols}{Whether remove the samples without alterations. Only works when plot is TRUE}
 
-\item{remove_empty_rows}{Whether remove the genes without alterations. Only works when plot is TRUE}
+\item{removeEmptyRows}{Whether remove the genes without alterations. Only works when plot is TRUE}
 
 \item{showColnames}{TRUE(Default). Show sample names of columns.}
 

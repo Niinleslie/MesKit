@@ -8,7 +8,7 @@
 #' @param nonSyn.vc List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"
 #' @param ccf.conf.level The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95
 #' @param refBuild Human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.
-#'
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.
 #'
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
@@ -31,7 +31,8 @@ readMaf <- function(
     adjusted.VAF = FALSE,
     nonSyn.vc = NULL,
     ccf.conf.level = 0.95,
-    refBuild = "hg19") {
+    refBuild = "hg19",
+    use.Tumor_Label = TRUE) {
 
     refBuild <- match.arg(refBuild, choices =  c('hg18', 'hg19', 'hg38'), several.ok = FALSE)
     
@@ -71,15 +72,47 @@ readMaf <- function(
         stringsAsFactors = FALSE
     )
     
+    ## check Tumor_Sample_Barcode of maf data and clinical data
+    clin_tb_count <- table(clin_data$Tumor_Sample_Barcode)
+    if(length(which(clin_tb_count > 1)) > 0){
+        rep_tb <- names(clin_tb_count)[which(clin_tb_count > 1)]
+        stop(paste0("There are more than one ", paste(rep_tb, collapse = ", "), " in clinical data"))
+    }
+    
+    
+    maf_tb <- unique(maf_data$Tumor_Sample_Barcode)
+    clin_tb <- unique(clin_data$Tumor_Sample_Barcode)
+    tb_setdiff <- setdiff(maf_tb, clin_tb)
+    if(length(tb_setdiff) > 0){
+        stop(paste0("Information about Tumor_Sample_Barcode ", paste(tb_setdiff, collapse = ", "), " can not be found in clinical data!"))
+    }
+    
+    
+    
+        
+    
     ## merge maf data and clinical data
     maf_data <- dplyr::left_join(
         maf_data,
         clin_data,
         by = c(
-            "Tumor_Sample_Barcode",
-            "Patient_ID"
+            "Tumor_Sample_Barcode"
             )
         )
+    
+    if(use.Tumor_Label){
+        if(!"Tumor_Label" %in% colnames(maf_data)){
+            stop("There is no information about the Tumor_Label.Please check clinical data or let use.Tumor_Label be FALSE")
+        }
+        maf_data <- maf_data %>% 
+            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label) %>% 
+            dplyr::select(-"Tumor_Label")
+    }else{
+        if("Tumor_Label" %in% colnames(maf_data)){
+            maf_data <- maf_data %>% 
+                dplyr::select(-"Tumor_Label")
+            }
+    }
     
     ## check maf data
     maf_data <- validMaf(maf_data)
