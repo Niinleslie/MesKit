@@ -16,7 +16,10 @@ plotCNA(
   legend.title.size = 11,
   sample.bar.height = 0.5,
   chrom.bar.height = 0.5,
-  showRownames = TRUE
+  showRownames = TRUE,
+  removeEmptyChr = TRUE,
+  showCytoband = FALSE,
+  showGene = FALSE
 )
 }
 \arguments{
@@ -42,7 +45,11 @@ plotCNA(
 
 \item{chrom.bar.height}{Bar height of each chromosome .Default 0.5.}
 
-\item{showRownames}{TRUE(Default). Show sample names of rows.}
+\item{showRownames}{Show sample names of rows.Default is TRUE.}
+
+\item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples.Default is TRUE.}
+
+\item{showCytoband}{Show the information about cytoband on the plot.Default is FALSE}
 }
 \value{
 a heatmap plot of CNA profile

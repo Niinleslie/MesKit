@@ -11,7 +11,10 @@ readSegment(
   gisticAllLesionsFile = NULL,
   gistic.qval = 0.25,
   min.seg.size = 500,
-  verbose = TRUE
+  txdb = NULL,
+  min.overlap.len = 50,
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
@@ -27,7 +30,13 @@ readSegment(
 
 \item{min.seg.size}{The smallest size of segments.Default is 500.}
 
+\item{txdb}{Default: NULL. i.e.,TxDb.Hsapiens.UCSC.hg19.knownGene}
+
+\item{min.overlap.len}{The minimum insertion size of segment and gene. Default 50.}
+
 \item{verbose}{whether to display details in the console. Default True.}
+
+\item{...}{... Other options passed to \code{\link{cna2gene}}}
 }
 \value{
 a list of segmentation data frame

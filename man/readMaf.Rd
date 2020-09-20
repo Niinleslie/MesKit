@@ -6,15 +6,19 @@
 \usage{
 readMaf(
   mafFile,
+  clinicalData,
   ccfFile = NULL,
   adjusted.VAF = FALSE,
   nonSyn.vc = NULL,
   ccf.conf.level = 0.95,
-  refBuild = "hg19"
+  refBuild = "hg19",
+  use.Tumor_Label = TRUE
 )
 }
 \arguments{
 \item{mafFile}{Tab delimited MAF file (plain text or *.gz compressed). Required.}
+
+\item{clinicalData}{This file includes clinical information of Tumor_Sample_Barcode, Tumor_ID, and Patient_ID. Required.}
 
 \item{ccfFile}{CCF file of somatic mutations. Default NULL.}
 
@@ -25,6 +29,8 @@ readMaf(
 \item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
 
 \item{refBuild}{Human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.}
+
+\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.}
 }
 \value{
 an object of Maf or MafList.
@@ -34,6 +40,7 @@ Read tab delimited MAF (can be plain text or *.gz compressed) file along with sa
 }
 \examples{
 maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, refBuild="hg19")
 maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
