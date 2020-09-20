@@ -14,6 +14,7 @@ calNeiDist(
   title = NULL,
   number.cex = 8,
   number.col = "#C77960",
+  use.Tumor_Label = FALSE,
   ...
 )
 }
@@ -36,6 +37,8 @@ calNeiDist(
 
 \item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
+\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
@@ -45,8 +48,9 @@ Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
 Nei's distance of CCF for each sample-pair
 }
 \examples{
-maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 calNeiDist(maf)
 }

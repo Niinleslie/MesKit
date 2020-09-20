@@ -11,8 +11,7 @@ readMaf(
   adjusted.VAF = FALSE,
   nonSyn.vc = NULL,
   ccf.conf.level = 0.95,
-  refBuild = "hg19",
-  use.Tumor_Label = TRUE
+  refBuild = "hg19"
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ readMaf(
 \item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default: 0.95}
 
 \item{refBuild}{Human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.}
-
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.}
 }
 \value{
 an object of Maf or MafList.

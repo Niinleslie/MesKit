@@ -24,13 +24,15 @@
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. 
 #' Default "#C77960".
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'  
 #' @return A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
 #'
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' calFst(maf)
 #' @import dplyr circlize tidyr
@@ -47,7 +49,8 @@ calFst <- function(
   use.circle = TRUE,
   title = NULL,
   number.cex = 8, 
-  number.col = "#C77960",...){
+  number.col = "#C77960",
+  use.Tumor_Label = FALSE,...){
   
   if(min.total.depth <= 1){
     stop("Error: min.total.depth should be greater than 1")
@@ -71,6 +74,14 @@ calFst <- function(
   processFst <- function(maf_data){
     
     patient <- unique(maf_data$Patient_ID)
+    
+    if(use.Tumor_Label){
+      if(!"Tumor_Label" %in% colnames(maf_data)){
+        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+      }
+      maf_data <- maf_data %>% 
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+    }
     
     if(nrow(maf_data) == 0){
       message("Warning :there was no mutation in ", patient, " after filtering.")
@@ -103,13 +114,13 @@ calFst <- function(
       dplyr::filter(!is.na(.data$VAF_adj))
     
     
-    
     if(!withinTumor){
       subdata <- Fst_input
     }else{
       id <- unique(Fst_input$Tumor_ID)
       subdata <- subset(Fst_input, Fst_input$Tumor_ID == id)
     }
+    
     
     if(withinTumor){
       if(length(unique(subdata$Tumor_Sample_Barcode))  < 2 ){

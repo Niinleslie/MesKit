@@ -14,6 +14,7 @@
 #' @param showRownames Show sample names of rows.Default is TRUE. 
 #' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples.Default is TRUE. 
 #' @param showCytoband Show the information about cytoband on the plot.Default is FALSE 
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' 
 #' 
 #' @examples
@@ -42,12 +43,21 @@ plotCNA <- function(seg,
                     showRownames = TRUE,
                     removeEmptyChr = TRUE,
                     showCytoband = FALSE,
-                    showGene = FALSE
+                    showGene = FALSE,
+                    use.Tumor_Label = FALSE
 ){
     
     ## combine data frame
     if(is(seg, "list")){
         seg <- dplyr::bind_rows(seg) %>% as.data.table()
+    }
+    
+    if(use.Tumor_Label){
+        if(!"Tumor_Label" %in% colnames(seg)){
+            stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+        }
+        seg <- seg %>% 
+            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
     }
     
     if(!is.null(chrSilent)){    

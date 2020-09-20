@@ -15,12 +15,14 @@
 #' @param removeEmptyRows  Whether remove the genes without alterations. Only works when plot is TRUE
 #' @param showColnames  TRUE(Default). Show sample names of columns.
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return Mutation profile
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' plotMutProfile(maf, class = "SP")
 #' @import ComplexHeatmap
@@ -40,6 +42,7 @@ plotMutProfile <- function(maf,
                            removeEmptyRows = TRUE, 
                            showColnames = TRUE,
                            sampleOrder = NULL,
+                           use.Tumor_Label = FALSE,
                            ...) {
     
     ## check maf and order patient
@@ -58,7 +61,15 @@ plotMutProfile <- function(maf,
     maf_data_list <- list()
     i <- 1
     for(m in maf_list){
-        maf_data_list[[i]] <- subMaf(m,...)
+        maf_data <- subMaf(m,...)
+        if(use.Tumor_Label){
+          if(!"Tumor_Label" %in% colnames(maf_data)){
+            stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+          }
+          maf_data <- maf_data %>% 
+            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+        }
+        maf_data_list[[i]] <- maf_data
         i <- i + 1
     }
     names(maf_data_list) <- patient.id
@@ -496,8 +507,8 @@ plotMutProfile <- function(maf,
               row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
               #heatmap_legend_param = heatmap_legend(class),
               show_heatmap_legend = FALSE,
-              removeEmptyCols = removeEmptyCols,
-              removeEmptyRows = removeEmptyRows,
+              remove_empty_columns = removeEmptyCols,
+              remove_empty_rows =removeEmptyRows,
               row_order = rowOrder,
               row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
               column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),

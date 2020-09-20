@@ -9,8 +9,9 @@
 #' @importFrom Biostrings getSeq
 #' @importFrom S4Vectors Rle
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' 
 #' ## Load a reference genome.
@@ -28,7 +29,6 @@ triMatrix <- function(phyloTree,
   phyloTree_list <- checkPhyloTreeInput(phyloTree, patient.id = patient.id)
   
   result <- subTriMatrix(phyloTree_list, withinTumor = withinTumor)
-  
   if(length(result) == 0){
     return(NA)
   }else{

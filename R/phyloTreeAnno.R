@@ -5,7 +5,8 @@ plotTree <- function(phyloTree,
                      signaturesRef = "cosmic_v2",
                      min.mut.count = 15,
                      min.ratio = 1/20,
-                     common.col = "red"){
+                     common.col = "red",
+                     use.Tumor_Label = FALSE){
     
     if(min.ratio <= 0|min.ratio > 1){
         stop("Error: min.ratio should be within (0,1]")
@@ -24,7 +25,8 @@ plotTree <- function(phyloTree,
                       branch.type = getBranchType(phyloTree),
                       ref.build = getPhyloTreeRef(phyloTree),
                       bootstrap.value = getBootstrapValue(phyloTree),
-                      method = getTreeMethod(phyloTree))
+                      method = getTreeMethod(phyloTree),
+                      tsb.label = getPhyloTreeTsbLabel(phyloTree))
     
     patient <- getPhyloTreePatient(phyloTree)
     if(is.null(treeData)){
@@ -114,6 +116,15 @@ plotTree <- function(phyloTree,
     
     textAdjust <- mean(as.numeric(treeData$distance))
     
+    if(use.Tumor_Label){
+       tsb.label <- getPhyloTreeTsbLabel(phyloTree)
+       ctsb <- treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")]
+       treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")] <- lapply(as.list(ctsb),
+                                                                                     function(x){
+                                                                                        tsb.label[which(tsb.label$Tumor_Sample_Barcode == x),]$Tumor_Label
+                                                                                        }) %>% 
+                                                                              unlist()
+    }
     
     if(!is.null(branchCol)){
         if(branchCol == "mutSig"){

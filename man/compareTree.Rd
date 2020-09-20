@@ -10,7 +10,8 @@ compareTree(
   plot = FALSE,
   min.ratio = 1/20,
   show.bootstrap = FALSE,
-  common.col = "red"
+  common.col = "red",
+  use.Tumor_Label = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ all edge length which are smaller than min.ratio*the longest edge length will be
 \item{show.bootstrap}{Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.}
 
 \item{common.col}{Color of common branches.}
+
+\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.}
 }
 \value{
 A vector containing the following tree distance methods by R package phangorn
@@ -38,8 +41,9 @@ Weighted.path.difference	 difference in the path length, counted using branches 
 Compares two phylogenetic trees and returns a detailed report of several distance methods
 }
 \examples{
-maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 
 

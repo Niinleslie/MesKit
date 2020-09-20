@@ -35,6 +35,10 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
                            mut_id = mut_id,
                            stringsAsFactors=FALSE)
    
+   # if("Tumor_Label" %in% colnames(maf_data)){
+   #    mutSigRef$Branch_Label <- maf_data$Tumor_Label
+   # }
+   
    ## get branch infomation
    branchChar <- as.character(branch.id$Branch_ID)
    ls.branch <- branchChar[order(nchar(branchChar), branchChar)]
