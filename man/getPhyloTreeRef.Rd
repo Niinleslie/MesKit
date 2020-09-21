@@ -3,11 +3,14 @@
 \name{getPhyloTreeRef}
 \alias{getPhyloTreeRef}
 \alias{getPhyloTreeRef,phyloTree-method}
+\alias{getPhyloTreeTsbLabel,phyloTree-method}
 \title{getPhyloTreeRef}
 \usage{
 getPhyloTreeRef(object)
 
 \S4method{getPhyloTreeRef}{phyloTree}(object)
+
+\S4method{getPhyloTreeTsbLabel}{phyloTree}(object)
 }
 \arguments{
 \item{object}{An object of phyloTree}
@@ -19,9 +22,10 @@ Reference genome versions of phyloTree
 getPhyloTreeRef
 }
 \examples{
-maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
-maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf <- readMaf(mafFile=maf.File, ccfFile=ccf.File, refBuild="hg19")
 phyloTree <- getPhyloTree(maf)
 getPhyloTreeRef(phyloTree$HCC5647)
 }

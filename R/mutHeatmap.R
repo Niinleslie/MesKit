@@ -14,11 +14,13 @@
 #' @param legend.title.size Size of legend title.Default 10.
 #' @param gene.text.size Size of gene text. Default 9.
 #' @param sampleOrder A named list which contains the sample order used in plotting the heatmap. Default: NULL.
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' mutHeatmap(maf, patient.id = 'HCC8257')
 #' 
@@ -39,6 +41,7 @@ mutHeatmap <- function(maf,
                        legend.title.size = 10,
                        gene.text.size = 9,
                        sampleOrder = NULL,
+                       use.Tumor_Label = FALSE,
                        ...){
     
     ## check input data
@@ -60,6 +63,14 @@ mutHeatmap <- function(maf,
         if(nrow(maf_data) == 0){
             message("Warning: there was no mutations in ", patient, " after filtering.")
             next
+        }
+        
+        if(use.Tumor_Label){
+            if(!"Tumor_Label" %in% colnames(maf_data)){
+                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+            }
+            maf_data <- maf_data %>% 
+                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
         }
         
         ## get mutation matrix

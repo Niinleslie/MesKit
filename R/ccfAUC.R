@@ -8,13 +8,15 @@
 #' @param min.ccf The minimum value of CCF. Default: 0.
 #' @param withinTumor Calculate AUC within tumors in each patients, default is FALSE.
 #' @param plot.density Whether to show the density plot. Default: TRUE.
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return A list containing AUC of CCF and a graph
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' ccfAUC(maf)
 #' 
@@ -27,6 +29,7 @@ ccfAUC <- function(
    min.ccf = 0, 
    withinTumor = FALSE,
    plot.density = TRUE,
+   use.Tumor_Label = FALSE,
    ...
 ){
     maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
@@ -49,6 +52,14 @@ ccfAUC <- function(
         if(nrow(maf_data) == 0){
             message("Warning :there was no mutation in ", patient, " after filtering.")
             return(NA)
+        }
+        
+        if(use.Tumor_Label){
+            if(!"Tumor_Label" %in% colnames(maf_data)){
+                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+            }
+            maf_data <- maf_data %>% 
+                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
         }
         
         if(plot.density){

@@ -19,7 +19,8 @@ plotCNA(
   showRownames = TRUE,
   removeEmptyChr = TRUE,
   showCytoband = FALSE,
-  showGene = FALSE
+  showGene = FALSE,
+  use.Tumor_Label = FALSE
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ plotCNA(
 \item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples.Default is TRUE.}
 
 \item{showCytoband}{Show the information about cytoband on the plot.Default is FALSE}
+
+\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 }
 \value{
 a heatmap plot of CNA profile

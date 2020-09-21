@@ -10,6 +10,7 @@ ccfAUC(
   min.ccf = 0,
   withinTumor = FALSE,
   plot.density = TRUE,
+  use.Tumor_Label = FALSE,
   ...
 )
 }
@@ -24,6 +25,8 @@ ccfAUC(
 
 \item{plot.density}{Whether to show the density plot. Default: TRUE.}
 
+\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
@@ -33,8 +36,9 @@ A list containing AUC of CCF and a graph
 The tumor heterogeneity was estimated as the area under the curve (AUC) of the cumulative density function from all cancer cell fractions per tumor
 }
 \examples{
-maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 ccfAUC(maf)
 

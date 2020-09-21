@@ -12,8 +12,9 @@
 #' 
 #' @importFrom pracma lsqnonneg
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' 
 #' ## Load a reference genome.
@@ -79,7 +80,12 @@ fitSignatures <- function(tri_matrix = NULL,
   tri_matrix_list <- tri_matrix
   
   processFitSig <- function(i){
-    tri_matrix <- tri_matrix_list[[i]]
+    if(typeof(tri_matrix_list[[i]]) == "list"){
+      tri_matrix <- tri_matrix_list[[i]]$tri_matrix
+      tsb.label <- tri_matrix_list[[i]]$tsb.label
+    }else{
+      tri_matrix <- tri_matrix_list[[i]]
+    }
     patient <- names(tri_matrix_list)[i]
     ## Remove branches whose mutation number is less than min.mut.count
     branch_remove_idx <- which(rowSums(tri_matrix) <= min.mut.count)
@@ -193,14 +199,26 @@ fitSignatures <- function(tri_matrix = NULL,
                                            dplyr::desc(.data$Branch),
                                            dplyr::desc(.data$Contribution))
     
-    f <- list(
-      reconstructed.mat = recon_matrix,
-      original.mat = origin_matrix,
-      cosine.similarity = cos_sim_matrix,
-      RSS = RSS, 
-      signatures.aetiology = signatures_aetiology
-    )
-    return(f)
+    if(typeof(tri_matrix_list[[i]]) == "list"){
+      f <- list(
+        reconstructed.mat = recon_matrix,
+        original.mat = origin_matrix,
+        cosine.similarity = cos_sim_matrix,
+        RSS = RSS, 
+        signatures.aetiology = signatures_aetiology,
+        tsb.label = tsb.label
+      )
+      return(f)
+    }else{
+      f <- list(
+        reconstructed.mat = recon_matrix,
+        original.mat = origin_matrix,
+        cosine.similarity = cos_sim_matrix,
+        RSS = RSS, 
+        signatures.aetiology = signatures_aetiology
+      )
+      return(f)
+    }
   }
   
   result <- lapply(seq_len(length(tri_matrix_list)) ,processFitSig)

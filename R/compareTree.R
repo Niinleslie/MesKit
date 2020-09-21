@@ -9,6 +9,7 @@
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
 #' @param show.bootstrap Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.
 #' @param common.col Color of common branches.
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.
 #' 
 #' @return A vector containing the following tree distance methods by R package phangorn
 #' Symmetric.difference  Robinson-Foulds distance
@@ -17,8 +18,9 @@
 #' Weighted.path.difference	 difference in the path length, counted using branches lengths
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' 
 #' 
@@ -33,12 +35,12 @@ compareTree <- function(phyloTree1,
                         plot = FALSE,
                         min.ratio = 1/20,
                         show.bootstrap = FALSE,
-                        common.col = "red"){
+                        common.col = "red",
+                        use.Tumor_Label = FALSE){
     
     if(min.ratio <= 0){
         stop("Error: min.ratio must greater than 0")
     }
-    
 	tree1 <- getTree(phyloTree1)
 	tree2 <- getTree(phyloTree2)
 	dist <- phangorn::treedist(tree1, tree2)
@@ -50,6 +52,13 @@ compareTree <- function(phyloTree1,
 	        min2 <- max(tree2$edge.length)*min.ratio
 	        tree1$edge.length[tree1$edge.length < min1] <- min1
 	        tree2$edge.length[tree2$edge.length < min2] <- min2
+	        if(use.Tumor_Label){
+	          tsb.label <- getPhyloTreeTsbLabel(phyloTree1)
+	          if(nrow(tsb.label) == 0){
+	            stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+	            
+	          }
+	        }
 	        phyloTree1 <- new('phyloTree',
 	                          patientID = getPhyloTreePatient(phyloTree1),
 	                          tree = tree1, 
@@ -59,7 +68,8 @@ compareTree <- function(phyloTree1,
 	                          branch.type = getBranchType(phyloTree1),
 	                          ref.build = getPhyloTreeRef(phyloTree1),
 	                          bootstrap.value = getBootstrapValue(phyloTree1),
-	                          method = getTreeMethod(phyloTree1))
+	                          method = getTreeMethod(phyloTree1),
+	                          tsb.label = getPhyloTreeTsbLabel(phyloTree1))
 	        phyloTree2 <- new('phyloTree',
 	                          patientID = getPhyloTreePatient(phyloTree2),
 	                          tree = tree2, 
@@ -69,7 +79,8 @@ compareTree <- function(phyloTree1,
 	                          branch.type = getBranchType(phyloTree2),
 	                          ref.build = getPhyloTreeRef(phyloTree2),
 	                          bootstrap.value = getBootstrapValue(phyloTree2),
-	                          method = getTreeMethod(phyloTree2))
+	                          method = getTreeMethod(phyloTree2),
+	                          tsb.label = getPhyloTreeTsbLabel(phyloTree2))
 	    }
 	    treedat1 <- getTreeData(phyloTree1, compare = compare)
 	    treedat2 <- getTreeData(phyloTree2, compare = compare)
@@ -101,13 +112,15 @@ compareTree <- function(phyloTree1,
 	                   show.bootstrap = show.bootstrap,
 	                   min.ratio = min.ratio,
 	                   common.col = common.col,
-	                   branchCol = NULL)
+	                   branchCol = NULL,
+	                   use.Tumor_Label = use.Tumor_Label)
 	    p2 <- plotTree(phyloTree2,
 	                   treeData = treedat2,
 	                   show.bootstrap = show.bootstrap,
 	                   min.ratio = min.ratio,
 	                   common.col = common.col,
-	                  branchCol = NULL)
+	                  branchCol = NULL,
+	                  use.Tumor_Label = use.Tumor_Label)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
 	                                labels = c(getTreeMethod(phyloTree1),getTreeMethod(phyloTree2))

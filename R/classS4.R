@@ -50,6 +50,7 @@ setClass('phylo')
 #' @slot mut.branches a data.frame of mutations per trunk/branch.
 #' @slot branch.type a data.frame of trunk/branch types based on shared pattern.
 #' @slot ref.build human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.
+#' @slot tsb.label store relationship between Tumor_Sample_Barcode and Tumor_Label if Tumor_Label is provided in clinical data.
 #' @rdname phyloTree-class
 #' @export
 setClass(Class = 'phyloTree', slots = c(
@@ -61,8 +62,8 @@ setClass(Class = 'phyloTree', slots = c(
   ccf.matrix = 'matrix', 
   mut.branches = 'data.frame', 
   branch.type = 'data.frame',
-  ref.build = 'character'
-  
+  ref.build = 'character',
+  tsb.label = 'data.frame'
 ))
 
 

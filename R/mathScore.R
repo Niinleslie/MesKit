@@ -7,12 +7,14 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param withinTumor Calculate math score within tumors in each patients. Default :FALSE.
 #' @param min.vaf The minimum VAF for filtering variants. Default: 0.02. 
+#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return A data.frame of MATH scores
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' mathScore(maf)
 #' 
@@ -24,6 +26,7 @@ mathScore <- function(maf,
                       patient.id = NULL, 
                       withinTumor = FALSE,  
                       min.vaf = 0.02,
+                      use.Tumor_Label = FALSE,
                       ...
                       ){
     ## select subclonal mutation when withinTumor is TRUE
@@ -45,6 +48,14 @@ mathScore <- function(maf,
         if(nrow(maf_data) == 0){
             message("Warning :there was no mutation in ", patient, " after filtering.")
             return(NA)
+        }
+        
+        if(use.Tumor_Label){
+            if(!"Tumor_Label" %in% colnames(maf_data)){
+                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+            }
+            maf_data <- maf_data %>% 
+                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
         }
         
         ## MATH Caculation

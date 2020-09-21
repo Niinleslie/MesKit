@@ -10,8 +10,9 @@
 #' 
 #' 
 #' @examples
-#' maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-#' ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
 #' @return  PhyloTree or phyloTreeList object
@@ -23,7 +24,8 @@ getPhyloTree <- function(maf,
                       method = "NJ",
                       min.vaf = 0.02, 
                       min.ccf = 0,
-                      bootstrap.rep.num = 100,...){
+                      bootstrap.rep.num = 100,
+                      ...){
   
   method <- match.arg(method, choices = c("NJ", "MP", "ML", 
                                           "FASTME.ols", "FASTME.bal"), several.ok = FALSE)
@@ -91,12 +93,21 @@ getPhyloTree <- function(maf,
     mut.branches <- mut.branches_types$mut.branches
     branch.type <- mut.branches_types$branch.type
     
+    if("Tumor_Label" %in% colnames(maf_data)){
+      tsb.label <-  maf_data %>% 
+        dplyr::select("Tumor_Sample_Barcode", "Tumor_Label") %>% 
+        dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
+    }else{
+      tsb.label <- data.frame()
+    }
+    
     phylo.tree <- new('phyloTree',
                       patientID = patient, tree = matTree, 
                       binary.matrix = binary.matrix, ccf.matrix = ccf.matrix, 
                       mut.branches = mut.branches, branch.type = branch.type,
                       ref.build = refBuild,
-                      bootstrap.value = bootstrap.value, method = method)
+                      bootstrap.value = bootstrap.value, method = method,
+                      tsb.label = tsb.label)
     return(phylo.tree)
   }
   

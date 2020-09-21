@@ -169,7 +169,16 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
     tri_matrix <- dplyr::bind_rows(tri_matrix_list)
     row.names(tri_matrix) <- names(branch_data_list)
     
-    return(as.matrix(tri_matrix))  
+    tsb.label <- getPhyloTreeTsbLabel(phyloTree)
+    
+    if(nrow(tsb.label) == 0){
+      return(as.matrix(tri_matrix))  
+    }else{
+      return(list(
+        tri_matrix = as.matrix(tri_matrix),
+        tsb.label = tsb.label
+      ))  
+    }
   }
   
   result <- lapply(phyloTree_list, processTriMat)

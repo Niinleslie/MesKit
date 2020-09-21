@@ -27,8 +27,9 @@ A data.frame with classification of mutations for each patient
 classifyMut
 }
 \examples{
-maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 classifyMut(maf, class = "SP")
 }

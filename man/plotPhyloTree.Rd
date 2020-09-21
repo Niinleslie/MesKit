@@ -11,7 +11,8 @@ plotPhyloTree(
   show.bootstrap = TRUE,
   min.ratio = 1/20,
   signaturesRef = "cosmic_v2",
-  min.mut.count = 15
+  min.mut.count = 15,
+  use.Tumor_Label = FALSE
 )
 }
 \arguments{
@@ -30,9 +31,9 @@ If not, the edge length will be reset as min.ratio*longest edge length.}
 
 \item{signaturesRef}{Signature reference,Users can upload their own reference. Default "cosmic_v2". Option:"exome_cosmic_v3","nature2013".}
 
-\item{min.mut.count}{The threshold for the variants in a branch. Default 15.
+\item{min.mut.count}{The threshold for the variants in a branch. Default 15.}
 
-are mapped along the trees as indicated}
+\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 }
 \value{
 return a list of phylotree graph .
@@ -41,8 +42,9 @@ return a list of phylotree graph .
 plotPhyloTree
 }
 \examples{
-maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
 
 phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
