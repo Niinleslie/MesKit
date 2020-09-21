@@ -50,7 +50,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.Tum
     
     result <- list()
     
-    if(length(sig_input[[1]]) <= 2){
+    if(is(sig_input[[1]], "matrix") | all(is(sig_input[[1]], "list") & length(sig_input[[1]]) <=2)){
         
         processMSP1 <- function(i){
             patient <- names(sig_input)[[i]]
@@ -166,7 +166,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.Tum
             patient <- names(sig_input)[[i]]
             RSS <- fit$RSS
             signatures_aetiology <- fit$signatures.aetiology
-            tsb.label <- sig_input[[i]]$tsb.label
+            # tsb.label <- sig_input[[i]]$tsb.label
             
             ## convert reconstructed matrix to data frame
             recon_df  <- as.data.frame(fit$reconstructed.mat) 
@@ -200,9 +200,10 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.Tum
                 )) %>% as.data.frame()
             
             if(use.Tumor_Label){
-                if(nrow(tsb.label) == 0){
+                if(!"tsb.label" %in% names(sig_input[[i]])){
                     stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
                 }
+                tsb.label <- sig_input[[i]]$tsb.label
                 tsb_tl <- tsb.label$Tumor_Label
                 names(tsb_tl) <- tsb.label$Tumor_Sample_Barcode
                 mut_spectrum$Branch <- lapply(mut_spectrum$Branch,
