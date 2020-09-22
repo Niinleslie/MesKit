@@ -9,7 +9,7 @@
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
 #' @param show.bootstrap Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.
 #' @param common.col Color of common branches.
-#' @param use.tumorLabel Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.
+#' @param use.tumorLabel FALSE(Default). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' 
 #' @return A vector containing the following tree distance methods by R package phangorn
 #' Symmetric.difference  Robinson-Foulds distance
@@ -55,7 +55,7 @@ compareTree <- function(phyloTree1,
 	        if(use.tumorLabel){
 	          tsb.label <- getPhyloTreeTsbLabel(phyloTree1)
 	          if(nrow(tsb.label) == 0){
-	            stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+        		stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
 	            
 	          }
 	        }

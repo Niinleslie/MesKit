@@ -18,10 +18,10 @@ plotMutSigProfile(
 
 \item{mode}{Type of mutation spectrum.Default: NULL. Options:'Original','Reconstructed' or 'Difference'}
 
-\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 }
 \value{
-Mutation signature profile of patients
+Mutational signature profile of patients
 }
 \description{
 plotMutSigProfile

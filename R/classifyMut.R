@@ -34,7 +34,7 @@ classifyMut <- function(
         maf_data <- subMaf(m, ...)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
-            message("Warning : there was no mutation in ", patient, " after filtering.")
+            message("Warning: there was no mutation in ", patient, " after filtering.")
             next
         }
         mut.class <- do.classify(
@@ -51,9 +51,9 @@ classifyMut <- function(
                 sep = ":"
             )) %>%
             dplyr::select(
-                "Patient_ID", 
+                "Patient_ID",
                 "Tumor_Sample_Barcode",
-                "Mut_ID", 
+                "Mut_ID",
                 "Mutation_Type")
         
         result[[patient]] <- mut.class

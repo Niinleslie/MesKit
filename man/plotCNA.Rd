@@ -52,7 +52,7 @@ plotCNA(
 
 \item{showCytoband}{Show the information about cytoband on the plot.Default is FALSE}
 
-\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 }
 \value{
 a heatmap plot of CNA profile

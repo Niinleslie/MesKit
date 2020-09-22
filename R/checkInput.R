@@ -33,7 +33,7 @@ checkMafInput <- function(object,patient.id = NULL){
     if(!is.null(patient.id)){
       patient.setdiff <- setdiff(patient.id, names(object))
       if(length(patient.setdiff) > 0){
-        stop(paste0("Patient ", patient.setdiff, " can not be found in MafList"))
+        stop(paste0("Error: patient ", patient.setdiff, " can not be found in MafList"))
       }
       object <- object[names(object) %in% patient.id]
     }

@@ -14,8 +14,7 @@
 #' @param showRownames Show sample names of rows.Default is TRUE. 
 #' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples.Default is TRUE. 
 #' @param showCytoband Show the information about cytoband on the plot.Default is FALSE 
-#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
-#' 
+#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' 
 #' @examples
 #' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
@@ -54,7 +53,7 @@ plotCNA <- function(seg,
     
     if(use.tumorLabel){
         if(!"Tumor_Label" %in% colnames(seg)){
-            stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+            stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
         }
         seg <- seg %>% 
             dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
@@ -107,7 +106,7 @@ plotCNA <- function(seg,
     # }
     ref.options <- c("hg19","hg18","hg38")
     if(!refBuild %in% ref.options){
-        stop("Error: refBuild should only be either 'hg18','hg19' or 'hg38'")
+        stop("Error: refBuild should be either 'hg18','hg19' or 'hg38'")
     }
     if(refBuild == 'hg19'){
         chrLens = c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663,
@@ -206,7 +205,7 @@ plotCNA <- function(seg,
             patient.setdiff <- setdiff(names(sampleOrder), unique(seg$patient))
             if(length(patient.setdiff) > 0){
                 stop(paste0("Error: ", patient.setdiff,
-                            " can not be found in your data.Please check sampleOrder!"))
+                            " can not be found in your data. Please check sampleOrder!"))
             }
             
             slist <- lapply(unique(seg$patient) ,function(p){
@@ -288,7 +287,7 @@ plotCNA <- function(seg,
             sample.setdiff <- setdiff(o1, o2)
             if(length(sample.setdiff) > 0){
                 stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
-                            " can not be found in ", p, ".Please check sampleOrder!"))
+                            " can not be found in ", p, ". Please check sampleOrder!"))
             }else if(length(sample.setdiff) == 0 & length(s1)< length(s2)){
                 s3 <- setdiff(s2, s1)
                 sampleids <-  sampleids[!sampleids %in% s3]

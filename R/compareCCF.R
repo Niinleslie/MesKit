@@ -5,10 +5,8 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param min.ccf The minimum value of CCF. Default: 0
 #' @param pairByTumor Pair by tumor types in each patients,default is FALSE.
-#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
-
+#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
-#' 
 #' 
 #' @return a result list of CCF comparing between samples/tumor pairs
 #' @examples
@@ -48,13 +46,13 @@ compareCCF <- function(maf,
     
     patient <- getMafPatient(m)
     if(nrow(maf_data) == 0){
-      message("Warning :there was no mutation in ", patient, " after filtering.")
+      message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
     }
     
     if(use.tumorLabel){
       if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+        stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
       }
       maf_data <- maf_data %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
@@ -62,14 +60,14 @@ compareCCF <- function(maf,
     
     ## check if ccf data is provided
     if(! "CCF" %in% colnames(maf_data)){
-      stop(paste0("ccfDensity function requires CCF data.\n",
-                  "No CCF data was found when generate Maf object."))
+      stop(paste0("Error: ccfDensity function requires CCF data.\n",
+                  "No CCF data was found when generate Maf/MafList object."))
     }
     if(pairByTumor){
       types <- unique(maf_data$Tumor_ID)
       if(length(types) < 2){
-        message(paste0("Warnings: Only one tumor was found in ",patient," according to Tumor_ID. 
-          If you want to compare CCF between regions, pairByTumor should be set as FALSE"))
+        message(paste0("Warnings: only one tumor was found in ", patient," according to Tumor_ID. 
+          If you want to compare CCF between regions, pairByTumor should be set as 'FALSE'"))
         return(NA)
       }
       
@@ -82,7 +80,7 @@ compareCCF <- function(maf,
     }else{
       samples <- unique(maf_data$Tumor_Sample_Barcode)
       if(length(samples) < 2){
-        message(paste0("Warnings: Only one sample was found in",patient))
+        message(paste0("Warnings: only one sample was found in",patient))
         return(NA)
       }
       pairs <- utils::combn(length(samples), 2, simplify = FALSE)  
@@ -113,7 +111,7 @@ compareCCF <- function(maf,
           tidyr::drop_na()
       }
       if(nrow(ccf.pair) == 0){
-        message(paste0("Warning: No shared mutaions were detected between ",S1, " and ", S2) )
+        message(paste0("Warning: no shared mutaions were detected between ",S1, " and ", S2) )
         return(NA)
       }
       return(as.data.frame(ccf.pair) )

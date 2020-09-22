@@ -28,7 +28,7 @@ all edge length which are smaller than min.ratio*the longest edge length will be
 
 \item{common.col}{Color of common branches.}
 
-\item{use.tumorLabel}{Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.}
+\item{use.tumorLabel}{FALSE(Default). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 }
 \value{
 A vector containing the following tree distance methods by R package phangorn

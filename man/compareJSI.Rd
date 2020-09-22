@@ -37,7 +37,7 @@ compareJSI(
 
 \item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
-\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

@@ -46,7 +46,7 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
   if(!is.null(geneList)){
      gene.setdiff <- setdiff(geneList, gene_symbols)
      if(length(gene.setdiff) > 0){
-        stop(paste0("Gene: ", gene.setdiff, " can not be found in Entrez Gene"))
+        stop(paste0("Error: Gene: ", gene.setdiff, " can not be found in Entrez Gene"))
      }
     allgenes <- allgenes[Hugo_Symbol %in% geneList]
   }

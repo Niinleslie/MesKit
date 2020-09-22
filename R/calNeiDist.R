@@ -6,12 +6,12 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param withinTumor Calculate fst within tumors in each patients,default is FALSE.
 #' @param min.ccf Specify the minimum CCF, default is 0.08.
-#' @param plot Logical (Default:TRUE). Whether to show the plot. Default TRUE
-#' @param use.circle Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix
+#' @param plot Logical (Default: TRUE). Whether to show the plot.
+#' @param use.circle Logical (Default: TRUE). Whether to use "circle" as visualization method of correlation matrix
 #' @param title The title of the plot. Default is "Nei's distance"
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
@@ -46,14 +46,14 @@ calNeiDist <- function(maf,
     
     if(use.tumorLabel){
       if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+        stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
       }
       maf_data <- maf_data %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
     }
     
     if(! "CCF" %in% colnames(maf_data)){
-      stop(paste0("Error: calculation of Nei's distance requires CCF data." ,
+      stop(paste0("Error: calculation of Nei's distance requires CCF data.",
                   "No CCF data was found when generate Maf object with readMaf function"))
     }
     
@@ -86,14 +86,14 @@ calNeiDist <- function(maf,
     
     if(withinTumor){
       if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
-        message(paste0("Warnings: only one sample was found of ", id,
+        message(paste0("Warnings: only one sample was found in ", id,
                        " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
         return(NA)
         
       }
     }
     if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
-      message(paste0("Warnings: Only one sample was found of ",patient,"."))
+      message(paste0("Warnings: only one sample was found in ",patient,"."))
       return(NA)
     }
     

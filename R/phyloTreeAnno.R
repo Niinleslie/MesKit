@@ -119,7 +119,7 @@ plotTree <- function(phyloTree,
     if(use.tumorLabel){
        tsb.label <- getPhyloTreeTsbLabel(phyloTree)
        if(nrow(tsb.label) == 0){
-          stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+         stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
        }
        ctsb <- treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")]
        treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")] <- lapply(as.list(ctsb),

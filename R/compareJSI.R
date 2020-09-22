@@ -11,7 +11,7 @@
 #' @param title Title of the plot, default is "Jaccard similarity".
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'
 #' @examples
@@ -24,19 +24,19 @@
 #' @export compareJSI
 
 compareJSI <- function(
-    maf, 
+    maf,
     patient.id = NULL,
     pairByTumor = FALSE,
     min.ccf = 0,
     plot = TRUE, 
-    use.circle = TRUE, 
+    use.circle = TRUE,
     title = NULL,
-    number.cex = 8, 
+    number.cex = 8,
     number.col = "#C77960",
     use.tumorLabel = FALSE,
     ...) {
     
-    maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE,...)
+    maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE, ...)
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
@@ -49,13 +49,13 @@ compareJSI <- function(
         
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
-            message("Warnings :there was no mutation in ", patient, " after filtering.")
+            message("Warnings: there was no mutation in ", patient, " after filtering.")
             return(NA)
         }
         
         if(use.tumorLabel){
             if(!"Tumor_Label" %in% colnames(maf_data)){
-                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+                stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
             }
             maf_data <- maf_data %>% 
                 dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)

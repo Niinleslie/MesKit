@@ -33,7 +33,7 @@ If not, the edge length will be reset as min.ratio*longest edge length.}
 
 \item{min.mut.count}{The threshold for the variants in a branch. Default 15.}
 
-\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 }
 \value{
 return a list of phylotree graph .

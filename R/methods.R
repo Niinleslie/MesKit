@@ -13,7 +13,7 @@ setGeneric(name = "getMafData", function(object) standardGeneric("getMafData"))
 
 #' @rdname getMafData
 #' @aliases getMafData
-setMethod(f = "getMafData",signature = "Maf", function(object)object@data)
+setMethod(f = "getMafData", signature = "Maf", function(object)object@data)
 
 
 #' @title getSampleInfo
@@ -65,7 +65,7 @@ setGeneric(name = "getMafRef", function(object) standardGeneric("getMafRef"))
 
 #' @rdname getMafRef
 #' @aliases getMafRef
-setMethod(f = "getMafRef",signature = "Maf", function(object)object@ref.build)
+setMethod(f = "getMafRef", signature = "Maf", function(object)object@ref.build)
 
 
 #' @title getMafPatient
@@ -157,7 +157,7 @@ setGeneric(name = "getBootstrapValue", function(object) standardGeneric("getBoot
 
 #' @rdname getBootstrapValue
 #' @aliases getBootstrapValue
-setMethod(f = "getBootstrapValue",signature = "phyloTree", function(object)object@bootstrap.value)
+setMethod(f = "getBootstrapValue", signature = "phyloTree", function(object)object@bootstrap.value)
 
 #' @title getTreeMethod
 #' @rdname getTreeMethod
@@ -175,7 +175,7 @@ setGeneric(name = "getTreeMethod", function(object) standardGeneric("getTreeMeth
 
 #' @rdname getTreeMethod
 #' @aliases getTreeMethod
-setMethod(f = "getTreeMethod",signature = "phyloTree", function(object)object@method)
+setMethod(f = "getTreeMethod", signature = "phyloTree", function(object)object@method)
 
 #' @title getCCFMatrix
 #' @rdname getCCFMatrix
@@ -193,7 +193,7 @@ setGeneric(name = "getCCFMatrix", function(object) standardGeneric("getCCFMatrix
 
 #' @rdname getCCFMatrix
 #' @aliases getCCFMatrix
-setMethod(f = "getCCFMatrix",signature = "phyloTree", function(object)object@ccf.matrix)
+setMethod(f = "getCCFMatrix", signature = "phyloTree", function(object)object@ccf.matrix)
 
 #' @title getMutBranches
 #' @rdname getMutBranches
@@ -211,7 +211,7 @@ setGeneric(name = "getMutBranches", function(object) standardGeneric("getMutBran
 
 #' @rdname getMutBranches
 #' @aliases getMutBranches
-setMethod(f = "getMutBranches",signature = "phyloTree", function(object)object@mut.branches)
+setMethod(f = "getMutBranches", signature = "phyloTree", function(object)object@mut.branches)
 
 #' @title getBranchType
 #' @rdname getBranchType
@@ -229,7 +229,7 @@ setGeneric(name = "getBranchType", function(object) standardGeneric("getBranchTy
 
 #' @rdname getBranchType
 #' @aliases getBranchType
-setMethod(f = "getBranchType",signature = "phyloTree", function(object)object@branch.type)
+setMethod(f = "getBranchType", signature = "phyloTree", function(object)object@branch.type)
 
 #' @title getPhyloTreeRef
 #' @rdname getPhyloTreeRef
@@ -247,7 +247,7 @@ setGeneric(name = "getPhyloTreeRef", function(object) standardGeneric("getPhyloT
 
 #' @rdname getPhyloTreeRef
 #' @aliases getPhyloTreeRef
-setMethod(f = "getPhyloTreeRef",signature = "phyloTree", function(object)object@ref.build)
+setMethod(f = "getPhyloTreeRef", signature = "phyloTree", function(object)object@ref.build)
 
 
 
@@ -267,4 +267,4 @@ setGeneric(name = "getPhyloTreeTsbLabel", function(object) standardGeneric("getP
 
 #' @rdname getPhyloTreeRef
 #' @aliases getPhyloTreeRef
-setMethod(f = "getPhyloTreeTsbLabel",signature = "phyloTree", function(object)object@tsb.label)
+setMethod(f = "getPhyloTreeTsbLabel", signature = "phyloTree", function(object)object@tsb.label)

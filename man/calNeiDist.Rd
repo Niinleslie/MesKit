@@ -27,9 +27,9 @@ calNeiDist(
 
 \item{min.ccf}{Specify the minimum CCF, default is 0.08.}
 
-\item{plot}{Logical (Default:TRUE). Whether to show the plot. Default TRUE}
+\item{plot}{Logical (Default: TRUE). Whether to show the plot.}
 
-\item{use.circle}{Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix}
+\item{use.circle}{Logical (Default: TRUE). Whether to use "circle" as visualization method of correlation matrix}
 
 \item{title}{The title of the plot. Default is "Nei's distance"}
 
@@ -37,7 +37,7 @@ calNeiDist(
 
 \item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
-\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

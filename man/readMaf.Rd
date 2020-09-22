@@ -17,11 +17,11 @@ readMaf(
 \arguments{
 \item{mafFile}{Tab delimited MAF file (plain text or *.gz compressed). Required.}
 
-\item{clinicalData}{This file includes clinical information of Tumor_Sample_Barcode, Tumor_ID, and Patient_ID. Required.}
+\item{clinicalData}{Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_label is optional. Default NULL.}
 
 \item{ccfFile}{CCF file of somatic mutations. Default NULL.}
 
-\item{adjusted.VAF}{Let VAF = VAF_adj.Default FALSE.}
+\item{adjusted.VAF}{Whether adjusted VAF is included in mafFile. Default FALSE.}
 
 \item{nonSyn.vc}{List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"}
 

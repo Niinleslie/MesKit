@@ -24,7 +24,7 @@
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. 
 #' Default "#C77960".
-#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'  
 #' @return A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
@@ -61,9 +61,9 @@ calFst <- function(
     clonalStatus <- NULL
   }
   
-  maf <- subMaf(maf = maf, 
+  maf <- subMaf(maf = maf,
                 min.vaf = min.vaf, 
-                min.total.depth = min.total.depth, 
+                min.total.depth = min.total.depth,
                 clonalStatus = clonalStatus,
                 mafObj = TRUE,
                 ...)
@@ -77,14 +77,14 @@ calFst <- function(
     
     if(use.tumorLabel){
       if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+        stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
       }
       maf_data <- maf_data %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
     }
     
     if(nrow(maf_data) == 0){
-      message("Warning :there was no mutation in ", patient, " after filtering.")
+      message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
     }
     if(!"VAF_adj" %in% colnames(maf_data)){

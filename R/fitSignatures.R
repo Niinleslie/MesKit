@@ -72,7 +72,7 @@ fitSignatures <- function(tri_matrix = NULL,
   if(!is.null(associated)){
     signature.setdiff <- setdiff(associated, rownames(sigsRef))
     if(length(signature.setdiff) > 0){
-      stop(paste0("Error: ", signature.setdiff, " can not be found in signature reference"))
+      stop(paste0("Error: ", signature.setdiff, " were not found in signature reference"))
     }
     sigsRef <- sigsRef[rownames(sigsRef) %in% associated, ]
   }

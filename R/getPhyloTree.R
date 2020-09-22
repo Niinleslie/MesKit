@@ -15,7 +15,7 @@
 #' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile = maf.File, ccfFile = ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
-#' @return  PhyloTree or phyloTreeList object
+#' @return PhyloTree or phyloTreeList object
 #' @import phangorn ape
 #' @export getPhyloTree
 
@@ -41,7 +41,7 @@ getPhyloTree <- function(maf,
     maf_data <- getMafData(m)
     patient <- getMafPatient(m)
     if(nrow(maf_data) == 0){
-      message("Warning :there was no mutation in ", patient, " after filtering.")
+      message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
     }
     # print(nrow(maf_data))
@@ -50,8 +50,7 @@ getPhyloTree <- function(maf,
     binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
     
     if(nrow(binary.matrix) == 1){
-      message("Warning: ",patient, " has only one mutation. ",
-              "patient have to have two or more different mutations to build a tree")
+      message("Warning: ", patient, " should have at least two mutations.")
       return(NA)
     }
     

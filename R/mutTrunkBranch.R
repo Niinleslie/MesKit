@@ -5,7 +5,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included
 #' @param CT Distinction between C>T at CpG and C>T at other sites, Default FALSE
 #' @param pvalue Confidence level of the interval for Fisher test. Default: 0.05.
-#' @param plot Logical. Default: TRUE. 
+#' @param plot Logical. Default: TRUE.
 #' 
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
@@ -52,7 +52,7 @@ mutTrunkBranch <- function(phyloTree,
         
         ## label the Trunk
         if (length(trunk_name) == 0){
-            warning(paste0("Patient ",patient,": no trunk mutations are detected!"))
+            warning(paste0("Patient ", patient,": no trunk mutations were detected!"))
             return(NA)
         }
         
