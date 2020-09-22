@@ -17,7 +17,7 @@ plotMutProfile(
   removeEmptyRows = TRUE,
   showColnames = TRUE,
   sampleOrder = NULL,
-  use.Tumor_Label = FALSE,
+  use.tumorLabel = FALSE,
   ...
 )
 }
@@ -49,7 +49,7 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{sampleOrder}{A named list which contains the sample order used in plotting the final profile. Default: NULL}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

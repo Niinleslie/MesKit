@@ -11,7 +11,7 @@ compareTree(
   min.ratio = 1/20,
   show.bootstrap = FALSE,
   common.col = "red",
-  use.Tumor_Label = FALSE
+  use.tumorLabel = FALSE
 )
 }
 \arguments{
@@ -28,7 +28,7 @@ all edge length which are smaller than min.ratio*the longest edge length will be
 
 \item{common.col}{Color of common branches.}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be the same as Tumor_Label.Default TRUE.}
 }
 \value{
 A vector containing the following tree distance methods by R package phangorn

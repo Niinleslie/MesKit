@@ -5,7 +5,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param min.ccf The minimum value of CCF. Default: 0
 #' @param pairByTumor Pair by tumor types in each patients,default is FALSE.
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
@@ -24,7 +24,7 @@ compareCCF <- function(maf,
                        patient.id = NULL,
                        min.ccf = 0,
                        pairByTumor = FALSE,
-                       use.Tumor_Label = FALSE,
+                       use.tumorLabel = FALSE,
                        ...){
   
   maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
@@ -52,9 +52,9 @@ compareCCF <- function(maf,
       return(NA)
     }
     
-    if(use.Tumor_Label){
+    if(use.tumorLabel){
       if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
       }
       maf_data <- maf_data %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)

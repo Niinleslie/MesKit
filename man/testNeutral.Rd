@@ -14,7 +14,7 @@ testNeutral(
   R2.threshold = 0.98,
   min.mut.count = 20,
   plot = TRUE,
-  use.Tumor_Label = FALSE,
+  use.tumorLabel = FALSE,
   ...
 )
 }
@@ -37,7 +37,7 @@ testNeutral(
 
 \item{plot}{Logical, whether to print model fitting plot of each sample. Default: TRUE}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

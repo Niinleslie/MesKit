@@ -11,7 +11,7 @@
 #' @param title Title of the plot, default is "Jaccard similarity".
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'
 #' @examples
@@ -33,7 +33,7 @@ compareJSI <- function(
     title = NULL,
     number.cex = 8, 
     number.col = "#C77960",
-    use.Tumor_Label = FALSE,
+    use.tumorLabel = FALSE,
     ...) {
     
     maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE,...)
@@ -53,9 +53,9 @@ compareJSI <- function(
             return(NA)
         }
         
-        if(use.Tumor_Label){
+        if(use.tumorLabel){
             if(!"Tumor_Label" %in% colnames(maf_data)){
-                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
             }
             maf_data <- maf_data %>% 
                 dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)

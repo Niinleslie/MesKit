@@ -9,7 +9,7 @@ mathScore(
   patient.id = NULL,
   withinTumor = FALSE,
   min.vaf = 0.02,
-  use.Tumor_Label = FALSE,
+  use.tumorLabel = FALSE,
   ...
 )
 }
@@ -22,7 +22,7 @@ mathScore(
 
 \item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02.}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

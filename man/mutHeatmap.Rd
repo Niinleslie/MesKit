@@ -18,7 +18,7 @@ mutHeatmap(
   legend.title.size = 10,
   gene.text.size = 9,
   sampleOrder = NULL,
-  use.Tumor_Label = FALSE,
+  use.tumorLabel = FALSE,
   ...
 )
 }
@@ -49,7 +49,7 @@ mutHeatmap(
 
 \item{sampleOrder}{A named list which contains the sample order used in plotting the heatmap. Default: NULL.}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

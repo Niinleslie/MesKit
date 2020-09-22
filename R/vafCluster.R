@@ -7,7 +7,7 @@
 #' @param min.vaf The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1
 #' @param max.vaf The maximum value of VAF. Default: 0. Option: on the scale of 0 to 1
 #' @param withinTumor Cluster VAF within tumors in each patients,default is FALSE.
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
@@ -30,7 +30,7 @@ vafCluster <-function(maf,
                       min.vaf = 0.02,
                       max.vaf = 1,
                       withinTumor = FALSE,
-                      use.Tumor_Label = FALSE,
+                      use.tumorLabel = FALSE,
                       ...){
   # plotOption <- match.arg(plotOption, choices = c('combine', 'compare'), several.ok = FALSE)
   ## check input data
@@ -53,9 +53,9 @@ vafCluster <-function(maf,
       return(NA)
     }
     
-    if(use.Tumor_Label){
+    if(use.tumorLabel){
       if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
       }
       maf_data <- maf_data %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
