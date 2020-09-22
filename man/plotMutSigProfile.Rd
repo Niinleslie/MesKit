@@ -8,7 +8,7 @@ plotMutSigProfile(
   sig_input,
   patient.id = NULL,
   mode = NULL,
-  use.Tumor_Label = FALSE
+  use.tumorLabel = FALSE
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ plotMutSigProfile(
 
 \item{mode}{Type of mutation spectrum.Default: NULL. Options:'Original','Reconstructed' or 'Difference'}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 }
 \value{
 Mutation signature profile of patients

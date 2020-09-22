@@ -15,7 +15,7 @@
 #' @param removeEmptyRows  Whether remove the genes without alterations. Only works when plot is TRUE
 #' @param showColnames  TRUE(Default). Show sample names of columns.
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return Mutation profile
 #' 
@@ -42,7 +42,7 @@ plotMutProfile <- function(maf,
                            removeEmptyRows = TRUE, 
                            showColnames = TRUE,
                            sampleOrder = NULL,
-                           use.Tumor_Label = FALSE,
+                           use.tumorLabel = FALSE,
                            ...) {
     
     ## check maf and order patient
@@ -62,9 +62,9 @@ plotMutProfile <- function(maf,
     i <- 1
     for(m in maf_list){
         maf_data <- subMaf(m,...)
-        if(use.Tumor_Label){
+        if(use.tumorLabel){
           if(!"Tumor_Label" %in% colnames(maf_data)){
-            stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+            stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
           }
           maf_data <- maf_data %>% 
             dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)

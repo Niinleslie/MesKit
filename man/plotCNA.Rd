@@ -20,7 +20,7 @@ plotCNA(
   removeEmptyChr = TRUE,
   showCytoband = FALSE,
   showGene = FALSE,
-  use.Tumor_Label = FALSE
+  use.tumorLabel = FALSE
 )
 }
 \arguments{
@@ -52,7 +52,7 @@ plotCNA(
 
 \item{showCytoband}{Show the information about cytoband on the plot.Default is FALSE}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 }
 \value{
 a heatmap plot of CNA profile

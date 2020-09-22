@@ -14,7 +14,7 @@ calNeiDist(
   title = NULL,
   number.cex = 8,
   number.col = "#C77960",
-  use.Tumor_Label = FALSE,
+  use.tumorLabel = FALSE,
   ...
 )
 }
@@ -37,7 +37,7 @@ calNeiDist(
 
 \item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

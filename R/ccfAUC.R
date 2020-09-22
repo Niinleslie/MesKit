@@ -8,7 +8,7 @@
 #' @param min.ccf The minimum value of CCF. Default: 0.
 #' @param withinTumor Calculate AUC within tumors in each patients, default is FALSE.
 #' @param plot.density Whether to show the density plot. Default: TRUE.
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return A list containing AUC of CCF and a graph
@@ -29,7 +29,7 @@ ccfAUC <- function(
    min.ccf = 0, 
    withinTumor = FALSE,
    plot.density = TRUE,
-   use.Tumor_Label = FALSE,
+   use.tumorLabel = FALSE,
    ...
 ){
     maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
@@ -54,9 +54,9 @@ ccfAUC <- function(
             return(NA)
         }
         
-        if(use.Tumor_Label){
+        if(use.tumorLabel){
             if(!"Tumor_Label" %in% colnames(maf_data)){
-                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+                stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
             }
             maf_data <- maf_data %>% 
                 dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)

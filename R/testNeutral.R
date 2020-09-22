@@ -13,7 +13,7 @@
 #' @param R2.threshold The threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
 #' @param min.mut.count The minimun number of subclonal mutations used to fit model. Default: 20
 #' @param plot Logical, whether to print model fitting plot of each sample. Default: TRUE
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return the neutrality metrics and model fitting plots
@@ -36,7 +36,7 @@ testNeutral <- function(maf,
                         R2.threshold = 0.98,
                         min.mut.count = 20,
                         plot = TRUE,
-                        use.Tumor_Label = FALSE,
+                        use.tumorLabel = FALSE,
                         ...){
   
   if(min.vaf <= 0){
@@ -67,9 +67,9 @@ testNeutral <- function(maf,
       return(NA)
     }
     
-    if(use.Tumor_Label){
+    if(use.tumorLabel){
       if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
       }
       maf_data <- maf_data %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)

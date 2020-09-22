@@ -10,7 +10,7 @@
 #'  If not, the edge length will be reset as min.ratio*longest edge length.
 #' @param signaturesRef Signature reference,Users can upload their own reference. Default "cosmic_v2". Option:"exome_cosmic_v3","nature2013".
 #' @param min.mut.count The threshold for the variants in a branch. Default 15.
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 #' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
@@ -33,7 +33,7 @@ plotPhyloTree <- function(phyloTree,
                           min.ratio = 1/20,
                           signaturesRef = "cosmic_v2",
                           min.mut.count = 15,
-                          use.Tumor_Label = FALSE){
+                          use.tumorLabel = FALSE){
    
    if(!is.null(branchCol)){
        branchCol.options <- c("mutSig","mutType")
@@ -51,7 +51,7 @@ plotPhyloTree <- function(phyloTree,
                      show.bootstrap = show.bootstrap,
                      signaturesRef = signaturesRef,
                      min.mut.count = min.mut.count,
-                     use.Tumor_Label = use.Tumor_Label)
+                     use.tumorLabel = use.tumorLabel)
        return(p)
     }
    

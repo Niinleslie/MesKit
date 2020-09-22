@@ -84,3 +84,21 @@ validSeg <- function(seg){
 }
 
 
+validClinicalData <- function(clin_data, maf_data){
+  ## check Tumor_Sample_Barcode of maf data and clinical data
+  clin_tb_count <- table(clin_data$Tumor_Sample_Barcode)
+  if(length(which(clin_tb_count > 1)) > 0){
+    rep_tb <- names(clin_tb_count)[which(clin_tb_count > 1)]
+    stop(paste0("There are more than one ", paste(rep_tb, collapse = ", "), " in clinical data"))
+  }
+  
+  
+  maf_tb <- unique(maf_data$Tumor_Sample_Barcode)
+  clin_tb <- unique(clin_data$Tumor_Sample_Barcode)
+  tb_setdiff <- setdiff(maf_tb, clin_tb)
+  if(length(tb_setdiff) > 0){
+    stop(paste0("Information about Tumor_Sample_Barcode ", paste(tb_setdiff, collapse = ", "), " can not be found in clinical data!"))
+  }
+}
+
+

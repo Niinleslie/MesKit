@@ -24,7 +24,7 @@
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. 
 #' Default "#C77960".
-#' @param use.Tumor_Label Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'  
 #' @return A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
@@ -50,7 +50,7 @@ calFst <- function(
   title = NULL,
   number.cex = 8, 
   number.col = "#C77960",
-  use.Tumor_Label = FALSE,...){
+  use.tumorLabel = FALSE,...){
   
   if(min.total.depth <= 1){
     stop("Error: min.total.depth should be greater than 1")
@@ -75,9 +75,9 @@ calFst <- function(
     
     patient <- unique(maf_data$Patient_ID)
     
-    if(use.Tumor_Label){
+    if(use.tumorLabel){
       if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.Tumor_Label be FALSE")
+        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
       }
       maf_data <- maf_data %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)

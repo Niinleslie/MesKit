@@ -11,7 +11,7 @@ vafCluster(
   min.vaf = 0.02,
   max.vaf = 1,
   withinTumor = FALSE,
-  use.Tumor_Label = FALSE,
+  use.tumorLabel = FALSE,
   ...
 )
 }
@@ -28,7 +28,7 @@ vafCluster(
 
 \item{withinTumor}{Cluster VAF within tumors in each patients,default is FALSE.}
 
-\item{use.Tumor_Label}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
+\item{use.tumorLabel}{Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
