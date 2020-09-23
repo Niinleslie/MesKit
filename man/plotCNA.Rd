@@ -50,9 +50,9 @@ plotCNA(
 
 \item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. Default TRUE.}
 
-\item{showCytoband}{Show cytobands on the plot. Default FALSE.}
+\item{showCytoband}{FALSE (Default). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.}
 
-\item{showGene}{Show gene symbols on the plot. Default FALSE.}
+\item{showGene}{FALSE (Default). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.}
 
 \item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 }

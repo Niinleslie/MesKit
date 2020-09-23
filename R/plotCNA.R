@@ -13,8 +13,8 @@
 #' @param chrom.bar.height Bar height of each chromosome. Default 0.5.
 #' @param showRownames Show sample names of rows. Default is TRUE. 
 #' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. Default TRUE. 
-#' @param showCytoband Show cytobands on the plot. Default FALSE.
-#' @param showGene Show gene symbols on the plot. Default FALSE.  
+#' @param showCytoband FALSE (Default). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.
+#' @param showGene FALSE (Default). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.
 #' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' 
 #' @examples
