@@ -444,7 +444,7 @@ plotCNA <- function(seg,
         scale_x_continuous(expand = c(0,0))+
         # scale_y_continuous(breaks = Y.text.table$Pos,
         #                    labels = Y.text.table$Tumor_Sample_Barcode)+
-        ggtitle("Copy number variant profile")+
+        ggtitle("Copy number alteration profile")+
         theme(plot.title = element_text(size = 13.5, face = "bold", hjust = 0.5, vjust = -2))
     if(showRownames){
         p <- p + scale_y_continuous(breaks = Y.text.table$Pos,
