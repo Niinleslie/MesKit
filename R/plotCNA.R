@@ -14,6 +14,7 @@
 #' @param showRownames Show sample names of rows.Default is TRUE. 
 #' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples.Default is TRUE. 
 #' @param showCytoband Show the information about cytoband on the plot.Default is FALSE 
+#' @param showGene Show the information about Gene on the plot if parameter 'txdb' is not null in function readSegment.Default is FALSE
 #' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
 #' 
 #' @examples

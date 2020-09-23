@@ -52,7 +52,7 @@ The subclonal mutant allele frequencies of a follow a simple power-law distribut
 maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
-maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 testNeutral(maf)
 }
 \references{

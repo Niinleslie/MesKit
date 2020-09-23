@@ -52,6 +52,8 @@ plotCNA(
 
 \item{showCytoband}{Show the information about cytoband on the plot.Default is FALSE}
 
+\item{showGene}{Show the information about Gene on the plot if parameter 'txdb' is not null in function readSegment.Default is FALSE}
+
 \item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 }
 \value{
