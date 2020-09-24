@@ -23,7 +23,7 @@
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 #' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 #' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
-#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' plotMutProfile(maf, class = "SP")
 #' @import ComplexHeatmap
 #' @importFrom stats na.omit
@@ -549,8 +549,8 @@ plotMutProfile <- function(maf,
           row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
           #heatmap_legend_param = heatmap_legend(class),
           show_heatmap_legend = FALSE,
-          removeEmptyCols = removeEmptyCols,
-          removeEmptyRows = removeEmptyRows,
+          remove_empty_columns = removeEmptyCols,
+          remove_empty_rows = removeEmptyRows,
           row_order = rowOrder,
           row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
           column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),

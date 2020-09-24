@@ -26,7 +26,7 @@
 #' @export readSegment
 #'
 
-readSegment <- function(segFile = NULL,
+readSegment <- function(segFile,
                         gisticAmpGenesFile = NULL, 
                         gisticDelGenesFile = NULL,
                         gisticAllLesionsFile = NULL,
@@ -136,7 +136,15 @@ readSegment <- function(segFile = NULL,
       gisticCNVgenes$Chromosome <- gsub(pattern = 'chr', replacement = '', x = gisticCNVgenes$Chromosome, fixed = TRUE)
       gisticCNVgenes$Chromosome <- gsub(pattern = 'X', replacement = '23', x = gisticCNVgenes$Chromosome, fixed = TRUE)
       gisticCNVgenes$Chromosome <- gsub(pattern = 'Y', replacement = '24', x = gisticCNVgenes$Chromosome, fixed = TRUE)
-      gisticCNVgenes <- dplyr::select(gisticCNVgenes, "Cytoband", "Cytoband_pos", "Gene", "Gistic_type", "Chromosome", "Start_Position", "End_Position")
+      gisticCNVgenes <- gisticCNVgenes %>% 
+        dplyr::select(.data$Cytoband,
+                      .data$Cytoband_pos, 
+                      .data$Gene, 
+                      .data$Gistic_type, 
+                      .data$Chromosome, 
+                      .data$Start_Position, 
+                      .data$End_Position) %>% 
+        dplyr::distinct(.data$Cytoband, .keep_all = TRUE)
       gisticCNVgenes$Chromosome <- as.numeric(gisticCNVgenes$Chromosome)
       gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
       gisticCNVgenes$End_Position <- as.numeric(gisticCNVgenes$End_Position)
@@ -147,7 +155,8 @@ readSegment <- function(segFile = NULL,
       if("Tumor_Label" %in% colnames(mapDat)){
         mapDat <- mapDat %>% 
           dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Label", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>% 
-          as.data.table()
+          as.data.table() %>%
+        dplyr::distinct()
       }else{
         mapDat <-  mapDat %>% 
           dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>% 

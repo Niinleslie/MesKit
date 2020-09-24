@@ -5,7 +5,7 @@
 \title{readSegment}
 \usage{
 readSegment(
-  segFile = NULL,
+  segFile,
   gisticAmpGenesFile = NULL,
   gisticDelGenesFile = NULL,
   gisticAllLesionsFile = NULL,

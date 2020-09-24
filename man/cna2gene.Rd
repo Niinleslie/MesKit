@@ -31,6 +31,8 @@ seg <- readSegment(segFile = segFile,
                     gisticDelGenesFile = gisticDelGenesFile, 
                    gisticAllLesionsFile = gisticAllLesionsFile)
                    
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(org.Hs.eg.db)
+library(AnnotationDbi)
 cna2gene(seg, txdb)
 }

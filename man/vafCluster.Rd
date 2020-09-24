@@ -22,9 +22,9 @@ vafCluster(
 
 \item{segFile}{The segment file.}
 
-\item{min.vaf}{The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1}
+\item{min.vaf}{The minimum value of VAF. Default: 0.02. Option: on the scale of 0 to 1}
 
-\item{max.vaf}{The maximum value of VAF. Default: 0. Option: on the scale of 0 to 1}
+\item{max.vaf}{The maximum value of VAF. Default: 1. Option: on the scale of 0 to 1}
 
 \item{withinTumor}{Cluster VAF within tumors in each patients,default is FALSE.}
 
@@ -42,7 +42,7 @@ Generate variant allele frequency (VAF) frequency distribution curve.
 maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
-maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 vafCluster(maf, patient.id = 'HCC8257')
 
 }

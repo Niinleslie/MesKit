@@ -54,6 +54,8 @@ plotCNA(
 
 \item{showGene}{FALSE (Default). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.}
 
+\item{showGene}{Show the information about Gene on the plot if parameter 'txdb' is not null in function readSegment.Default is FALSE}
+
 \item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
 }
 \value{
@@ -66,5 +68,36 @@ plotCNA
 segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
 seg <- readSegment(segFile = segFile)
 plotCNA(seg)
+
+## showCytoband
+segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
+gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+seg <- readSegment(segFile = segFile,
+                   gisticAmpGenesFile = gisticAmpGenesFile,
+                    gisticDelGenesFile = gisticDelGenesFile,
+                   gisticAllLesionsFile = gisticAllLesionsFile)
+plotCNA(seg, showCytoband = TRUE)
+
+## showGene
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+txdb = TxDb.Hsapiens.UCSC.hg19.knownGene
+
+segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
+gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+
+seg <- readSegment(segFile = segFile,
+                   gisticAmpGenesFile = gisticAmpGenesFile,
+                    gisticDelGenesFile = gisticDelGenesFile, 
+                   gisticAllLesionsFile = gisticAllLesionsFile,
+                   txdb = txdb)
+
+plotCNA(seg, showGene = TRUE)
+                   
 
 }

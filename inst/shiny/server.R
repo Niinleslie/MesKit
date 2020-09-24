@@ -17,12 +17,13 @@ shinyServer(function(input, output, session){
       
       if(is.null(input$mafFile)){
         mafFile <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
+        clinFile <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
         if(input$useccffile){
           ccfFile <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
         }else{
           ccfFile <- NULL
         }
-        maf <- readMaf(mafFile = mafFile,ccfFile = ccfFile)
+        maf <- readMaf(mafFile = mafFile, clinicalFile = clinFile, ccfFile = ccfFile)
       } else {
         if(!is.null(input$mafFile)){
           if(is.null(input$ccfFile)){
@@ -31,11 +32,14 @@ shinyServer(function(input, output, session){
             ccfFile <- input$ccfFile$datapath
           }
           maf <- readMaf(mafFile = input$mafFile$datapath,
+                         clinicalFile =  input$clinFile$datapath,
                          ccfFile =  ccfFile,
                          refBuild = input$ref)          
         }
         else{
-          maf <-  readMaf(mafFile = input$mafFile$datapath, refBuild = input$ref)
+          maf <-  readMaf(mafFile = input$mafFile$datapath,
+                          clinicalFile =  input$clinFile$datapath,
+                          refBuild = input$ref)
         }
       }
       return(maf)
@@ -193,7 +197,8 @@ shinyServer(function(input, output, session){
               patient.id = patientid,
               min.vaf = as.numeric(input$mathscore_minvaf),
               withinTumor = input$mathscore_withintumor,
-              use.adjVAF = input$mathscore_useadjvaf)
+              use.adjVAF = input$mathscore_useadjvaf,
+              use.tumorLabel = input$mathscore_usetumorlabel)
   })
   output$mathScore <- DT::renderDataTable({
     ms()
@@ -256,7 +261,8 @@ shinyServer(function(input, output, session){
                            segFile = input$vafcluster_segfile,
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
                            max.vaf = as.numeric(input$vafcluster_maxvaf),
-                           use.adjVAF = input$vafcluster_useadjvaf)        
+                           use.adjVAF = input$vafcluster_useadjvaf,
+                           use.tumorLabel = input$vafcluster_usetumorlabel)        
           incProgress(amount = 1)
           setProgress(message = 'vafCluster done!')
       })
@@ -456,7 +462,8 @@ shinyServer(function(input, output, session){
                        patient.id = patientid,
                        min.ccf = as.numeric(input$ccfauc_minccf) ,
                        withinTumor = input$ccfauc_withintumor,
-                       use.adjVAF = input$ccfauc_useadjvaf)
+                       use.adjVAF = input$ccfauc_useadjvaf,
+                       use.tumorLabel = input$ccfauc_usetumorlabel)
           incProgress(amount = 1)
           setProgress(message = 'ccfAUC done!')
       })
@@ -637,7 +644,8 @@ shinyServer(function(input, output, session){
                         # title = title,
                         use.circle = input$calfst_usecircle,
                         number.cex = as.numeric(input$calfst_numbercex),
-                        number.col = input$calfst_numbercol)
+                        number.col = input$calfst_numbercol,
+                        use.tumorLabel = input$calfst_usetumorlabel)
           incProgress(amount = 1)
           setProgress(message = 'calFst done!')
       })
@@ -821,7 +829,8 @@ shinyServer(function(input, output, session){
                            use.adjVAF = input$calneidist_useadjvaf,
                            use.circle = input$calneidist_usecircle,
                            number.cex = as.numeric(input$calneidist_numbercex),
-                           number.col = input$calneidist_numbercol)
+                           number.col = input$calneidist_numbercol,
+                           use.tumorLabel = input$calneidist_usetumorlabel)
           incProgress(amount = 1)
           setProgress(message = 'calNeiDist done!')
       })
@@ -1063,7 +1072,8 @@ shinyServer(function(input, output, session){
                            mut.threshold = as.numeric(input$mutheatmap_mutthreshold),
                            sample.text.size = as.numeric(input$mutheatmap_sampletextsize),
                            legend.title.size = as.numeric(input$mutheatmap_legendtitlesize),
-                           gene.text.size = gene.text.size)
+                           gene.text.size = gene.text.size,
+                           use.tumorLabel = input$mutheatmap_usetumorlabel)
           incProgress(amount = 1)
           setProgress(message = 'mutHeatmap done!')
       })
@@ -1228,7 +1238,8 @@ shinyServer(function(input, output, session){
                            # title = title,
                            use.circle = input$comparejsi_usecircle,
                            number.cex = as.numeric(input$comparejsi_numbercex),
-                           number.col = input$comparejsi_numbercol)
+                           number.col = input$comparejsi_numbercol,
+                           use.tumorLabel = input$comparejsi_usetumorlabel)
           incProgress(amount = 1)
           setProgress(message = 'compareJSI done!')
       })
@@ -1499,7 +1510,8 @@ shinyServer(function(input, output, session){
                                class = input$plotmutprofile_class,
                                topGenesCount = input$plotmutprofile_topGenesCount,
                                removeEmptyCols = input$plotmutprofile_remove_empty_columns,
-                               removeEmptyRows = input$plotmutprofile_remove_empty_rows)
+                               removeEmptyRows = input$plotmutprofile_remove_empty_rows,
+                               use.tumorLabel = input$plotmutprofile_usetumorlabel)
           incProgress(amount = 1)
           setProgress(message = 'plotMutProfile done!')
       })
@@ -2051,7 +2063,8 @@ shinyServer(function(input, output, session){
       cc <- compareCCF(maf,
                        patient.id = input$compareccf_patientid,
                        min.ccf = input$compareccf_minccf,
-                       pairByTumor = pairbytumor)
+                       pairByTumor = pairbytumor,
+                       use.tumorLabel = input$compareccf_usetumorlabel)
       progress$set(value = 1)
       return(cc)
   })
@@ -2231,7 +2244,8 @@ shinyServer(function(input, output, session){
                                      show.bootstrap = input$plotphylotree_showbootstrap,
                                      min.ratio = as.numeric(input$plotphylotree_minratio) ,
                                      signaturesRef = input$plotphylotree_signatureref,
-                                     min.mut.count = as.numeric(input$plotphylotree_minmutcount) )
+                                     min.mut.count = as.numeric(input$plotphylotree_minmutcount),
+                                     use.tumorLabel = input$plotphylotree_usetumorlabel )
           incProgress(amount=1)
           setProgress(message = paste("Plot phylotree done!", sep=""), detail = "") 
           
@@ -2344,7 +2358,8 @@ shinyServer(function(input, output, session){
                             common.col = input$comparetree_commoncol,
                             min.ratio = as.numeric(input$comparetree_minratio) ,
                             show.bootstrap = input$comparetree_showbootstrap,
-                            plot = TRUE)
+                            plot = TRUE,
+                            use.tumorLabel = input$comparetree_usetumorlabel)
           
           incProgress(amount=1)
           setProgress(message = paste("Comparetree done!", sep=""), detail = "") 
@@ -2495,7 +2510,8 @@ shinyServer(function(input, output, session){
           }else{
               mode <- input$treemutsig_mode
           }
-          pms <- plotMutSigProfile(fs, mode = mode)
+          pms <- plotMutSigProfile(fs, mode = mode,
+                                   use.tumorLabel = input$treemutsig_usetumorlabel)
           incProgress(amount = 1)
           
           setProgress(message = 'plotMutSigProfile done!')

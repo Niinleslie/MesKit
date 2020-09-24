@@ -36,7 +36,7 @@ calculates MATH score of each tumor sample or based on Mutant-Allele Tumor Heter
 maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
-maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 mathScore(maf)
 
 }

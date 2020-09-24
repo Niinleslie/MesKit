@@ -15,7 +15,9 @@
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile)
 #'                    
+#' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' library(org.Hs.eg.db)
+#' library(AnnotationDbi)
 #' cna2gene(seg, txdb)
 #' @return seg object
 
@@ -30,10 +32,10 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
   seg$Chromosome <- as.numeric(seg$Chromosome)
   # annotate seg with gene
   # txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-  allgenes <- as.data.table(genes(txdb))
+  allgenes <-  suppressMessages(as.data.table(genes(txdb)))
   allgenes$seqnames = gsub(pattern = 'X', replacement = '23', x = allgenes$seqnames, fixed = TRUE)
   allgenes$seqnames = gsub(pattern = 'Y', replacement = '24', x = allgenes$seqnames, fixed = TRUE)
-  gene_symbols <- suppressMessages(select(org.Hs.eg.db,keys=allgenes$gene_id,columns="SYMBOL",keytype="ENTREZID")$SYMBOL)
+  gene_symbols <- suppressMessages(AnnotationDbi::select(org.Hs.eg.db,keys=allgenes$gene_id,columns="SYMBOL",keytype="ENTREZID")$SYMBOL)
   allgenes <- allgenes %>%
       dplyr::mutate(Hugo_Symbol = gene_symbols) %>%
       dplyr::rename(Chromosome = seqnames,

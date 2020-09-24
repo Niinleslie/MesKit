@@ -11,7 +11,7 @@
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 #' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 #' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
-#' maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+#' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' 
 #' ## Load a reference genome.
 #' library(BSgenome.Hsapiens.UCSC.hg19)
@@ -40,8 +40,13 @@ mutTrunkBranch <- function(phyloTree,
         mut_branches <- getMutBranches(phyloTree)
         
         ## get trinucleotide matrix
-        tri_matrix <- tri_matrix_list[[patient]]
-        
+        tsb.label <- getPhyloTreeTsbLabel(phyloTree)
+        if(nrow(tsb.label) > 0){
+            tri_matrix <- tri_matrix_list[[patient]]$tri_matrix
+        }else{
+            tri_matrix <- tri_matrix_list[[patient]]
+        }
+
         ## define Trunk
         branch_names <- unique(mut_branches$Branch_ID)
         branch_sample_num <- lapply(branch_names,function(x){
