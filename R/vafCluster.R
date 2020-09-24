@@ -81,6 +81,10 @@ vafCluster <-function(maf,
     
     rebuild_data <- dplyr::bind_rows(rebuild_data_list)
     
+    if(length(plot_list) == 1){
+      plot_list <- plot_list[[1]]
+    }
+    
     return(list(cluster.data = rebuild_data, cluster.plot = plot_list))
     
   }
