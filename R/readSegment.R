@@ -26,7 +26,7 @@
 #' @export readSegment
 #'
 
-readSegment <- function(segFile = NULL,
+readSegment <- function(segFile,
                         gisticAmpGenesFile = NULL, 
                         gisticDelGenesFile = NULL,
                         gisticAllLesionsFile = NULL,
