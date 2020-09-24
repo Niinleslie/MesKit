@@ -22,9 +22,9 @@ vafCluster(
 
 \item{segFile}{The segment file.}
 
-\item{min.vaf}{The minimum value of VAF. Default: 0. Option: on the scale of 0 to 1}
+\item{min.vaf}{The minimum value of VAF. Default: 0.02. Option: on the scale of 0 to 1}
 
-\item{max.vaf}{The maximum value of VAF. Default: 0. Option: on the scale of 0 to 1}
+\item{max.vaf}{The maximum value of VAF. Default: 1. Option: on the scale of 0 to 1}
 
 \item{withinTumor}{Cluster VAF within tumors in each patients,default is FALSE.}
 

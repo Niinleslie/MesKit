@@ -40,8 +40,13 @@ mutTrunkBranch <- function(phyloTree,
         mut_branches <- getMutBranches(phyloTree)
         
         ## get trinucleotide matrix
-        tri_matrix <- tri_matrix_list[[patient]]
-        
+        tsb.label <- getPhyloTreeTsbLabel(phyloTree)
+        if(nrow(tsb.label) > 0){
+            tri_matrix <- tri_matrix_list[[patient]]$tri_matrix
+        }else{
+            tri_matrix <- tri_matrix_list[[patient]]
+        }
+
         ## define Trunk
         branch_names <- unique(mut_branches$Branch_ID)
         branch_sample_num <- lapply(branch_names,function(x){
