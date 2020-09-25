@@ -1788,6 +1788,7 @@ shinyServer(function(input, output, session){
                               legend.title.size = as.numeric(input$plotcna_legendtitlesize) ,
                               chrom.bar.height = as.numeric(input$plotcna_chrombarheight),
                               showRownames = input$plotcna_showrownames,
+                              removeEmptyChr = input$plotcna_removeempytchr,
                               use.tumorSampleLabel = input$plotcna_usetumorsamplelabel)
           seg <- dplyr::bind_rows(seg)
           if(!is.null(patientid)){
