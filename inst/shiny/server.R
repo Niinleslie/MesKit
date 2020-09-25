@@ -62,24 +62,34 @@ shinyServer(function(input, output, session){
     })
   })
   
-  buttonValue <- reactiveValues(a = 0, b = 0)
+  buttonValue <- reactiveValues(maf = 0, ccf = 0, clin = 0, seg = 0)
   observeEvent(input$iecontrol01,{
-    buttonValue$a <- buttonValue$a + 1
-    if(buttonValue$a == 2){
-      buttonValue$a <- 0
+    buttonValue$ccf <- 0
+    buttonValue$clin <- 0
+    buttonValue$maf <- buttonValue$maf + 1
+    if(buttonValue$maf == 2){
+      buttonValue$maf <- 0
     }
-    buttonValue$b <- 0
   })
   observeEvent(input$iecontrol02,{
-    buttonValue$a <- 0
-    buttonValue$b <- buttonValue$b + 1
-    if(buttonValue$b == 2){
-      buttonValue$b <- 0
+    buttonValue$maf <- 0
+    buttonValue$clin <- 0
+    buttonValue$ccf <- buttonValue$ccf + 1
+    if(buttonValue$ccf == 2){
+      buttonValue$ccf <- 0
+    }
+  })
+  observeEvent(input$iecontrol_clin,{
+    buttonValue$maf <- 0
+    buttonValue$ccf <- 0
+    buttonValue$clin <- buttonValue$clin + 1
+    if(buttonValue$clin == 2){
+      buttonValue$clin <- 0
     }
   })
   ## output Introduction of maf datatable
   output$ie1 <- renderUI({
-    if(buttonValue$a == 1){
+    if(buttonValue$maf == 1){
       tagList(
           div(
             h3(strong("The MAF files")),
@@ -99,8 +109,8 @@ shinyServer(function(input, output, session){
       )
     }
   })
-  output$ied1 <- renderDataTable({
-    if(input$iecontrol01){
+  output$ied1 <- DT::renderDataTable({
+    if(buttonValue$maf == 1){
       mafFile <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
       maf_data <- data.table::fread(
           file = mafFile,
@@ -112,13 +122,19 @@ shinyServer(function(input, output, session){
           skip = "Hugo_Symbol",
           stringsAsFactors = FALSE
       )
-      d <- datatable(maf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      d <- datatable(maf_data, 
+                     options = list(searching = TRUE,
+                                    pageLength = 5,
+                                    lengthMenu = c(5, 10, 15, 18), 
+                                    scrollX = TRUE, fixedColumns = TRUE, 
+                                    columnDefs=list(list(width="10em",targets="_all"))),
+                     rownames = FALSE, width=5)
       return(d)
     }
   })
   ## output Introduction of CCF
   output$ie2 <- renderUI({
-    if(buttonValue$b == 1){
+    if(buttonValue$ccf == 1){
         tagList(
           h3(strong("The CCF file")),
           p("CCF files contain cancer cell fraction of each mutation.",
@@ -131,8 +147,8 @@ shinyServer(function(input, output, session){
         )
     }
   })
-  output$ied2 <- renderDataTable({
-    if(input$iecontrol02){
+  output$ied2 <- DT::renderDataTable({
+    if(buttonValue$ccf == 1){
      ccfFile <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
      ccf_data <- suppressWarnings(data.table::fread(
          ccfFile,
@@ -143,6 +159,38 @@ shinyServer(function(input, output, session){
          stringsAsFactors = FALSE
      ))
       d <- datatable(ccf_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      return(d)
+    }
+  })
+  
+  ## output Introduction of clinical file
+  output$ie_clin <- renderUI({
+    if(buttonValue$clin == 1){
+      tagList(
+        h3(strong("The clinical file")),
+        p("Clinical file store clinical information.",
+          style = "font-size:16px; font-weight:500;line-height:30px;"),
+        p(strong("Mandatory fields"),": Tumor_Sample_Barcode, Tumor_ID, Patient_ID, Tumor_Sample_Label(optional)",
+          style = "font-size:16px; font-weight:500;line-height:30px;"),
+        h3(strong("Example clinical file:")),
+        DT::dataTableOutput("ied_clin"),
+        br()
+      )
+    }
+  })
+  output$ied_clin <- DT::renderDataTable({
+    if(buttonValue$clin == 1){
+      clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+      clin_data <- data.table::fread(
+        file = clin.File,
+        quote = "",
+        header = TRUE,
+        data.table = TRUE,
+        fill = TRUE,
+        sep = '\t',
+        stringsAsFactors = FALSE
+      )
+      d <- datatable(clin_data, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
       return(d)
     }
   })
@@ -198,7 +246,7 @@ shinyServer(function(input, output, session){
               min.vaf = as.numeric(input$mathscore_minvaf),
               withinTumor = input$mathscore_withintumor,
               use.adjVAF = input$mathscore_useadjvaf,
-              use.tumorLabel = input$mathscore_usetumorlabel)
+              use.tumorSampleLabel = input$mathscore_usetumorsamplelabel)
   })
   output$mathScore <- DT::renderDataTable({
     ms()
@@ -262,7 +310,7 @@ shinyServer(function(input, output, session){
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
                            max.vaf = as.numeric(input$vafcluster_maxvaf),
                            use.adjVAF = input$vafcluster_useadjvaf,
-                           use.tumorLabel = input$vafcluster_usetumorlabel)        
+                           use.tumorSampleLabel = input$vafcluster_usetumorsamplelabel)        
           incProgress(amount = 1)
           setProgress(message = 'vafCluster done!')
       })
@@ -463,7 +511,7 @@ shinyServer(function(input, output, session){
                        min.ccf = as.numeric(input$ccfauc_minccf) ,
                        withinTumor = input$ccfauc_withintumor,
                        use.adjVAF = input$ccfauc_useadjvaf,
-                       use.tumorLabel = input$ccfauc_usetumorlabel)
+                       use.tumorSampleLabel = input$ccfauc_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'ccfAUC done!')
       })
@@ -645,7 +693,7 @@ shinyServer(function(input, output, session){
                         use.circle = input$calfst_usecircle,
                         number.cex = as.numeric(input$calfst_numbercex),
                         number.col = input$calfst_numbercol,
-                        use.tumorLabel = input$calfst_usetumorlabel)
+                        use.tumorSampleLabel = input$calfst_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'calFst done!')
       })
@@ -830,7 +878,7 @@ shinyServer(function(input, output, session){
                            use.circle = input$calneidist_usecircle,
                            number.cex = as.numeric(input$calneidist_numbercex),
                            number.col = input$calneidist_numbercol,
-                           use.tumorLabel = input$calneidist_usetumorlabel)
+                           use.tumorSampleLabel = input$calneidist_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'calNeiDist done!')
       })
@@ -1073,7 +1121,7 @@ shinyServer(function(input, output, session){
                            sample.text.size = as.numeric(input$mutheatmap_sampletextsize),
                            legend.title.size = as.numeric(input$mutheatmap_legendtitlesize),
                            gene.text.size = gene.text.size,
-                           use.tumorLabel = input$mutheatmap_usetumorlabel)
+                           use.tumorSampleLabel = input$mutheatmap_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'mutHeatmap done!')
       })
@@ -1239,7 +1287,7 @@ shinyServer(function(input, output, session){
                            use.circle = input$comparejsi_usecircle,
                            number.cex = as.numeric(input$comparejsi_numbercex),
                            number.col = input$comparejsi_numbercol,
-                           use.tumorLabel = input$comparejsi_usetumorlabel)
+                           use.tumorSampleLabel = input$comparejsi_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'compareJSI done!')
       })
@@ -1511,7 +1559,7 @@ shinyServer(function(input, output, session){
                                topGenesCount = input$plotmutprofile_topGenesCount,
                                removeEmptyCols = input$plotmutprofile_remove_empty_columns,
                                removeEmptyRows = input$plotmutprofile_remove_empty_rows,
-                               use.tumorLabel = input$plotmutprofile_usetumorlabel)
+                               use.tumorSampleLabel = input$plotmutprofile_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'plotMutProfile done!')
       })
@@ -1581,6 +1629,37 @@ shinyServer(function(input, output, session){
   
   ## plotCNA sever 
   
+  observeEvent(input$iecontrol_seg,{
+    buttonValue$seg <- buttonValue$seg + 1
+    if(buttonValue$seg == 2){
+      buttonValue$seg <- 0
+    }
+  })
+  
+  output$ie_seg <- renderUI({
+    if(buttonValue$seg == 1){
+      tagList(
+        h3(strong("The segment file")),
+        p("The segment file store information about copy number of each segment.",
+          style = "font-size:16px; font-weight:500;line-height:30px;"),
+        p(strong("Mandatory fields"),": Patient_ID, Tumor_Sample_Barcode, Chromosome, Start_Position, End_Position, CopyNumber, Tumor_Sample_Label(optional)",
+          style = "font-size:16px; font-weight:500;line-height:30px;"),
+        h3(strong("Example segment file:")),
+        DT::dataTableOutput("ied_seg"),
+        br()
+      )
+    }
+  })
+  output$ied_seg <- DT::renderDataTable({
+    if(buttonValue$seg == 1){
+      segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+      seg <- suppressWarnings(data.table::fread(segFile, header=TRUE, sep="\t", stringsAsFactors = FALSE))
+      
+      d <- datatable(seg, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
+      return(d)
+    }
+  })
+  
   output$plotcna.patientlist <- renderUI({
       
       if(!is.null(input$plotcna_segfile$datapath)){
@@ -1597,6 +1676,21 @@ shinyServer(function(input, output, session){
                             placement = "top",
                             trigger = "hover"),
               )
+      }else{
+        segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+        seg <- readSegment(segFile = segFile) %>% dplyr::bind_rows()
+        patient.list <- unique(seg$Patient_ID)
+        tagList(
+          selectizeInput("plotcna_patientid",
+                         label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
+                         choices = patient.list,
+                         select  = patient.list,
+                         multiple = TRUE),
+          bsTooltip(id = "plotcna_patientid",
+                    title = 'Select the specific patients. Default: NULL, all patients are included',
+                    placement = "top",
+                    trigger = "hover"),
+        )
       }
   })
   
@@ -1626,14 +1720,21 @@ shinyServer(function(input, output, session){
   
   plotcna <- eventReactive(input$submit_plotcna,{
       
-      validate(
-          need(!is.null(input$plotcna_segfile$datapath),
-               "PlotCNA needs copy number information, upload segmentation file first"
-                    )
-          )
+      # validate(
+      #     need(!is.null(input$plotcna_segfile$datapath),
+      #          "PlotCNA needs copy number information, upload segmentation file first"
+      #               )
+      #     )
+    
       
       withProgress(min = 0, max = 2, value = 0, {
+        if(is.null(input$plotcna_segfile$datapath)){
+          setProgress(message = 'Processing: drawing example CNA profile')
+          segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+        }else{
           setProgress(message = 'Processing: drawing CNA profile')
+          segFile <- input$plotcna_segfile$datapath
+        }
         if(input$plotmutprofile_usegisticAmpGenes){
           if(!is.null(input$plotcna_gisticAmpGenesFile$datapath)){
             gisticAmpGenesFile <- input$plotcna_gisticAmpGenesFile$datapath
@@ -1661,8 +1762,7 @@ shinyServer(function(input, output, session){
         }else{
           gisticAllLesionsFile <- NULL
         }
-        print(input$plotcna_gisticqval)
-          seg <- readSegment(segFile = input$plotcna_segfile$datapath,
+          seg <- readSegment(segFile = segFile,
                              gisticAllLesionsFile = gisticAllLesionsFile,
                              gisticAmpGenesFile = gisticAmpGenesFile,
                              gisticDelGenesFile = gisticDelGenesFile,
@@ -1687,7 +1787,9 @@ shinyServer(function(input, output, session){
                               legend.text.size = as.numeric(input$plotcna_legendtextsize) ,
                               legend.title.size = as.numeric(input$plotcna_legendtitlesize) ,
                               chrom.bar.height = as.numeric(input$plotcna_chrombarheight),
-                              showRownames = input$plotcna_showrownames)
+                              showRownames = input$plotcna_showrownames,
+                              removeEmptyChr = input$plotcna_removeempytchr,
+                              use.tumorSampleLabel = input$plotcna_usetumorsamplelabel)
           seg <- dplyr::bind_rows(seg)
           if(!is.null(patientid)){
               seg <- seg[Patient_ID %in% patientid]
@@ -1756,7 +1858,6 @@ shinyServer(function(input, output, session){
   output$plotcna_table <- DT::renderDataTable({
       if(!is.null(plotcna())){
           t <- plotcna()$seg
-          print(t)
           d <- datatable(t, options = list(searching = TRUE, pageLength = 10, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)  
           return(d)
       }
@@ -1766,7 +1867,11 @@ shinyServer(function(input, output, session){
   output$plotcna_table_ui <- renderUI({
       if(!is.null(plotcna())){
           tagList(
-              div(style = "font-size:1.5em; font-weight:600; ", "Segment"),
+              if(is.null(input$plotcna_segfile$datapath)){
+                div(style = "font-size:1.5em; font-weight:600; ", "Example segment(HCC_LDC)")
+              }else{
+                div(style = "font-size:1.5em; font-weight:600; ", "Segment")
+              },
               br(),
               DT::dataTableOutput('plotcna_table'),
               br(),
@@ -2064,7 +2169,7 @@ shinyServer(function(input, output, session){
                        patient.id = input$compareccf_patientid,
                        min.ccf = input$compareccf_minccf,
                        pairByTumor = pairbytumor,
-                       use.tumorLabel = input$compareccf_usetumorlabel)
+                       use.tumorSampleLabel = input$compareccf_usetumorsamplelabel)
       progress$set(value = 1)
       return(cc)
   })
@@ -2245,7 +2350,7 @@ shinyServer(function(input, output, session){
                                      min.ratio = as.numeric(input$plotphylotree_minratio) ,
                                      signaturesRef = input$plotphylotree_signatureref,
                                      min.mut.count = as.numeric(input$plotphylotree_minmutcount),
-                                     use.tumorLabel = input$plotphylotree_usetumorlabel )
+                                     use.tumorSampleLabel = input$plotphylotree_usetumorsamplelabel )
           incProgress(amount=1)
           setProgress(message = paste("Plot phylotree done!", sep=""), detail = "") 
           
@@ -2359,7 +2464,7 @@ shinyServer(function(input, output, session){
                             min.ratio = as.numeric(input$comparetree_minratio) ,
                             show.bootstrap = input$comparetree_showbootstrap,
                             plot = TRUE,
-                            use.tumorLabel = input$comparetree_usetumorlabel)
+                            use.tumorSampleLabel = input$comparetree_usetumorsamplelabel)
           
           incProgress(amount=1)
           setProgress(message = paste("Comparetree done!", sep=""), detail = "") 
@@ -2511,7 +2616,7 @@ shinyServer(function(input, output, session){
               mode <- input$treemutsig_mode
           }
           pms <- plotMutSigProfile(fs, mode = mode,
-                                   use.tumorLabel = input$treemutsig_usetumorlabel)
+                                   use.tumorSampleLabel = input$treemutsig_usetumorsamplelabel)
           incProgress(amount = 1)
           
           setProgress(message = 'plotMutSigProfile done!')
