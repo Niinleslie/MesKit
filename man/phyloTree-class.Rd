@@ -29,6 +29,6 @@ S4 class for storing informations about phylogenetic tree.
 
 \item{\code{ref.build}}{human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.}
 
-\item{\code{tsb.label}}{store relationship between Tumor_Sample_Barcode and Tumor_Label if Tumor_Label is provided in clinical data.}
+\item{\code{tsb.label}}{store relationship between Tumor_Sample_Barcode and Tumor_Sample_Label if Tumor_Sample_Label is provided in clinical data.}
 }}
 
