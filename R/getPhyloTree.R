@@ -92,9 +92,9 @@ getPhyloTree <- function(maf,
     mut.branches <- mut.branches_types$mut.branches
     branch.type <- mut.branches_types$branch.type
     
-    if("Tumor_Label" %in% colnames(maf_data)){
+    if("Tumor_Sample_Label" %in% colnames(maf_data)){
       tsb.label <-  maf_data %>% 
-        dplyr::select("Tumor_Sample_Barcode", "Tumor_Label") %>% 
+        dplyr::select("Tumor_Sample_Barcode", "Tumor_Sample_Label") %>% 
         dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
     }else{
       tsb.label <- data.frame()

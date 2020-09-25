@@ -8,7 +8,7 @@
 #' @param min.ccf The minimum value of CCF. Default: 0.
 #' @param withinTumor Calculate AUC within tumors in each patients, default is FALSE.
 #' @param plot.density Whether to show the density plot. Default: TRUE.
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return A list containing AUC of CCF and a graph
@@ -29,7 +29,7 @@ ccfAUC <- function(
    min.ccf = 0, 
    withinTumor = FALSE,
    plot.density = TRUE,
-   use.tumorLabel = FALSE,
+   use.tumorSampleLabel = FALSE,
    ...
 ){
     maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
@@ -40,7 +40,7 @@ ccfAUC <- function(
         
         maf_data <- getMafData(m) %>% dplyr::filter(!is.na(.data$CCF))
         if(! "CCF" %in% colnames(maf_data) ){
-            stop(paste0("Error: No CCF data was found when generate Maf/MafList object."))
+            stop(paste0("No CCF data was found when generate Maf/MafList object."))
         }
         
         if(withinTumor) {
@@ -53,12 +53,12 @@ ccfAUC <- function(
             return(NA)
         }
         
-        if(use.tumorLabel){
-            if(!"Tumor_Label" %in% colnames(maf_data)){
-                stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+        if(use.tumorSampleLabel){
+            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be FALSE.")
             }
             maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
         }
         
         if(plot.density){

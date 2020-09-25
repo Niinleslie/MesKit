@@ -14,7 +14,7 @@ calNeiDist(
   title = NULL,
   number.cex = 8,
   number.col = "#C77960",
-  use.tumorLabel = FALSE,
+  use.tumorSampleLabel = FALSE,
   ...
 )
 }
@@ -37,7 +37,7 @@ calNeiDist(
 
 \item{number.col}{The color of text shown in correlation plot. Default "#C77960".}
 
-\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
+\item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

@@ -20,7 +20,7 @@ plotCNA(
   removeEmptyChr = TRUE,
   showCytoband = FALSE,
   showGene = FALSE,
-  use.tumorLabel = FALSE
+  use.tumorSampleLabel = FALSE
 )
 }
 \arguments{
@@ -54,9 +54,7 @@ plotCNA(
 
 \item{showGene}{FALSE (Default). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.}
 
-\item{showGene}{Show the information about Gene on the plot if parameter 'txdb' is not null in function readSegment.Default is FALSE}
-
-\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
+\item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 }
 \value{
 a heatmap plot of CNA profile
@@ -93,7 +91,7 @@ gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", p
 
 seg <- readSegment(segFile = segFile,
                    gisticAmpGenesFile = gisticAmpGenesFile,
-                    gisticDelGenesFile = gisticDelGenesFile, 
+                   gisticDelGenesFile = gisticDelGenesFile, 
                    gisticAllLesionsFile = gisticAllLesionsFile,
                    txdb = txdb)
 

@@ -254,7 +254,7 @@ setMethod(f = "getPhyloTreeRef", signature = "phyloTree", function(object)object
 #' @title getPhyloTreeRef
 #' @rdname getPhyloTreeTsbLabel
 #' @param object An object of phyloTree
-#' @return relationship between Tumor_Sample_Barcode and Tumor_Label
+#' @return relationship between Tumor_Sample_Barcode and Tumor_Sample_Label
 #' @exportMethod getPhyloTreeTsbLabel
 #' @examples 
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")

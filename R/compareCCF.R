@@ -5,7 +5,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param min.ccf The minimum value of CCF. Default: 0
 #' @param pairByTumor Pair by tumor types in each patients,default is FALSE.
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return a result list of CCF comparing between samples/tumor pairs
@@ -22,7 +22,7 @@ compareCCF <- function(maf,
                        patient.id = NULL,
                        min.ccf = 0,
                        pairByTumor = FALSE,
-                       use.tumorLabel = FALSE,
+                       use.tumorSampleLabel = FALSE,
                        ...){
   
   maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
@@ -50,17 +50,17 @@ compareCCF <- function(maf,
       return(NA)
     }
     
-    if(use.tumorLabel){
-      if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+    if(use.tumorSampleLabel){
+      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+        stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
       }
       maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
     ## check if ccf data is provided
     if(! "CCF" %in% colnames(maf_data)){
-      stop(paste0("Error: ccfDensity function requires CCF data.\n",
+      stop(paste0("ccfDensity function requires CCF data.\n",
                   "No CCF data was found when generate Maf/MafList object."))
     }
     if(pairByTumor){

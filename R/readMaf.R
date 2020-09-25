@@ -2,7 +2,7 @@
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
 #' @param mafFile Tab delimited MAF file (plain text or *.gz compressed). Required.
-#' @param clinicalFile Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_label is optional. Default NULL.
+#' @param clinicalFile Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.
 #' @param ccfFile CCF file of somatic mutations. Default NULL.
 #' @param adjusted.VAF Whether adjusted VAF is included in mafFile. Default FALSE.
 #' @param nonSyn.vc List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"
@@ -84,12 +84,12 @@ readMaf <- function(
             )
         )
     
-    # if(use.tumorLabel){
-    #     if(!"Tumor_Label" %in% colnames(maf_data)){
-    #         stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+    # if(use.tumorSampleLabel){
+    #     if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+    #         stop("There is no information about the Tumor_Sample_Label.Please check clinical data in readMaf or let use.tumorSampleLabel be FALSE")
     #     }
     #     maf_data <- maf_data %>% 
-    #         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+    #         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     # }
     
     ## check maf data
@@ -145,7 +145,7 @@ readMaf <- function(
             dplyr::select("Tumor_Sample_Barcode","Tumor_ID") %>%
             dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
         if(nrow(sample.info) < 2){
-            stop("Error: each patient should have at least two tumor samples.")
+            stop("Minimum two tumor samples are required for each patient.")
         }
         ## set Maf
         maf <- Maf(

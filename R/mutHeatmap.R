@@ -14,7 +14,7 @@
 #' @param legend.title.size Size of legend title.Default 10.
 #' @param gene.text.size Size of gene text. Default 9.
 #' @param sampleOrder A named list which contains the sample order used in plotting the heatmap. Default: NULL.
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
@@ -41,7 +41,7 @@ mutHeatmap <- function(maf,
                        legend.title.size = 10,
                        gene.text.size = 9,
                        sampleOrder = NULL,
-                       use.tumorLabel = FALSE,
+                       use.tumorSampleLabel = FALSE,
                        ...){
     
     ## check input data
@@ -51,7 +51,7 @@ mutHeatmap <- function(maf,
     if(!is.null(sampleOrder)){
         patient.setdiff <- setdiff(names(sampleOrder), names(maf_list))
         if(length(patient.setdiff) > 0){
-            stop(paste0("Error: ", patient.setdiff,
+            stop(paste0(patient.setdiff,
                         " can not be found in your data. Please check sampleOrder!"))
         }
     }
@@ -65,12 +65,12 @@ mutHeatmap <- function(maf,
             next
         }
         
-        if(use.tumorLabel){
-            if(!"Tumor_Label" %in% colnames(maf_data)){
-                stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+        if(use.tumorSampleLabel){
+            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
             }
             maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
         }
         
         ## get mutation matrix
@@ -80,7 +80,7 @@ mutHeatmap <- function(maf,
             if("CCF" %in% colnames(maf_data)){
                 ccf.matrix <- getMutMatrix(maf_data, use.ccf = TRUE)
             }else{
-                stop("Error: heatmap requires CCF data when use.ccf is True")
+                stop("Heatmap requires CCF data when use.ccf is True")
             }
         }
         
@@ -138,11 +138,11 @@ mutHeatmap <- function(maf,
                 sample.setdiff <- setdiff(sample_order, samples)
                 
                 if(length(sample.setdiff) > 0){
-                    stop(paste0("Error: sample ", paste(sample.setdiff, collapse = ","),
+                    stop(paste0("Sample ", paste(sample.setdiff, collapse = ","),
                                 " can not be found in ", patient, ". Please check sampleOrder!"))
                 }else if(length(sample.setdiff) == 0 & length(sample_order) != length(samples)){
                     sample.setdiff <- setdiff(samples, sample_order)
-                    stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
+                    stop(paste0(paste(sample.setdiff, collapse = ","),
                                 " can not be found in sampleOrder of ", patient, ". Please check sampleOrder!"))
                 }
                 

@@ -10,7 +10,7 @@ ccfAUC(
   min.ccf = 0,
   withinTumor = FALSE,
   plot.density = TRUE,
-  use.tumorLabel = FALSE,
+  use.tumorSampleLabel = FALSE,
   ...
 )
 }
@@ -25,7 +25,7 @@ ccfAUC(
 
 \item{plot.density}{Whether to show the density plot. Default: TRUE.}
 
-\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
+\item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

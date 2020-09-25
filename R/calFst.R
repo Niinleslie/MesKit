@@ -24,7 +24,7 @@
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. 
 #' Default "#C77960".
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'  
 #' @return A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.
@@ -50,10 +50,10 @@ calFst <- function(
   title = NULL,
   number.cex = 8, 
   number.col = "#C77960",
-  use.tumorLabel = FALSE,...){
+  use.tumorSampleLabel = FALSE,...){
   
   if(min.total.depth <= 1){
-    stop("Error: min.total.depth should be greater than 1")
+    stop("min.total.depth should be greater than 1!")
   }
   if(withinTumor){
     clonalStatus <- "Subclonal"
@@ -75,12 +75,12 @@ calFst <- function(
     
     patient <- unique(maf_data$Patient_ID)
     
-    if(use.tumorLabel){
-      if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+    if(use.tumorSampleLabel){
+      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+        stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
       }
       maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
     if(nrow(maf_data) == 0){
@@ -88,7 +88,7 @@ calFst <- function(
       return(NA)
     }
     if(!"VAF_adj" %in% colnames(maf_data)){
-      stop("Error: adjust_VAF was not found in maf object.")
+      stop("Adjusted VAFs were not found in maf object.")
     }
     
     Fst_input <- maf_data %>% 

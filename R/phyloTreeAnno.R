@@ -6,10 +6,10 @@ plotTree <- function(phyloTree,
                      min.mut.count = 15,
                      min.ratio = 1/20,
                      common.col = "red",
-                     use.tumorLabel = FALSE){
+                     use.tumorSampleLabel = FALSE){
     
     if(min.ratio <= 0|min.ratio > 1){
-        stop("Error: min.ratio should be within (0,1]")
+        stop("min.ratio should be within (0,1]")
     }
     
     ## adjust length of branches by min.ratio
@@ -116,15 +116,15 @@ plotTree <- function(phyloTree,
     
     textAdjust <- mean(as.numeric(treeData$distance))
     
-    if(use.tumorLabel){
+    if(use.tumorSampleLabel){
        tsb.label <- getPhyloTreeTsbLabel(phyloTree)
        if(nrow(tsb.label) == 0){
-         stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+         stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be FALSE.")
        }
        ctsb <- treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")]
        treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")] <- lapply(as.list(ctsb),
                                                                                      function(x){
-                                                                                        tsb.label[which(tsb.label$Tumor_Sample_Barcode == x),]$Tumor_Label
+                                                                                        tsb.label[which(tsb.label$Tumor_Sample_Barcode == x),]$Tumor_Sample_Label
                                                                                         }) %>% 
                                                                               unlist()
     }

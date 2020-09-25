@@ -35,7 +35,7 @@ fitSignatures <- function(tri_matrix = NULL,
     if(!is.null(patient.id)){
          patient.setdiff <- setdiff(patient.id, names(tri_matrix))
          if(length(patient.setdiff) > 0){
-            stop(paste0("Error: patient ", patient.setdiff, " can not be found in your data"))
+            stop(paste0("Patient ", patient.setdiff, " can not be found in your data"))
          }
          tri_matrix <- tri_matrix[names(tri_matrix) %in% patient.id]
     }
@@ -64,7 +64,7 @@ fitSignatures <- function(tri_matrix = NULL,
                                  sig = rownames(signatures.aetiology$cosmic_v3))
     }
   }else if(!is(signaturesRef, 'data.frame')){
-    stop('Error: input signature reference should be a data frame')
+    stop('Input signature reference should be a data frame.')
   }else{
     sigsRef <- signaturesRef 
   }
@@ -72,7 +72,7 @@ fitSignatures <- function(tri_matrix = NULL,
   if(!is.null(associated)){
     signature.setdiff <- setdiff(associated, rownames(sigsRef))
     if(length(signature.setdiff) > 0){
-      stop(paste0("Error: ", signature.setdiff, " were not found in signature reference"))
+      stop(paste0(signature.setdiff, " were not found in signature reference."))
     }
     sigsRef <- sigsRef[rownames(sigsRef) %in% associated, ]
   }

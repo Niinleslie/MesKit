@@ -88,7 +88,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
             
             if(use.tumorLabel){
                 if(nrow(tsb.label) == 0){
-                    stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+                    stop("Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
                 }
                 tsb_tl <- tsb.label$Tumor_Label
                 names(tsb_tl) <- tsb.label$Tumor_Sample_Barcode
@@ -157,7 +157,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
         if(!is.null(mode)){
             mode.options <- c("Original","Reconstructed","Difference")
             if(!mode %in% mode.options){
-                stop("Error: mode should be 'NULL', 'Original', 'Reconstructed' or 'Difference'") 
+                stop("'mode' should be 'NULL', 'Original', 'Reconstructed' or 'Difference'") 
             }
         }
         

@@ -7,7 +7,7 @@
 #' @param min.vaf The minimum value of VAF. Default: 0.02. Option: on the scale of 0 to 1
 #' @param max.vaf The maximum value of VAF. Default: 1. Option: on the scale of 0 to 1
 #' @param withinTumor Cluster VAF within tumors in each patients,default is FALSE.
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
@@ -29,7 +29,7 @@ vafCluster <-function(maf,
                       min.vaf = 0.02,
                       max.vaf = 1,
                       withinTumor = FALSE,
-                      use.tumorLabel = FALSE,
+                      use.tumorSampleLabel = FALSE,
                       ...){
   # plotOption <- match.arg(plotOption, choices = c('combine', 'compare'), several.ok = FALSE)
   ## check input data
@@ -52,12 +52,12 @@ vafCluster <-function(maf,
       return(NA)
     }
     
-    if(use.tumorLabel){
-      if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+    if(use.tumorSampleLabel){
+      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+        stop("There is no information about the Tumor_Sample_Label.Please check clinical data in readMaf or let use.tumorSampleLabel be FALSE")
       }
       maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
     ## extract vaf info
@@ -93,7 +93,7 @@ vafCluster <-function(maf,
     subdata <- maf_data[maf_data$ID == id]
     ## data cleaning
     if (nrow(subdata) < 3) {
-      message(paste0("Error: mutations of Sample ", id, " are not enough for clustering"))
+      message(paste0("Mutation counts of Sample ", id, " are not enough for clustering!"))
       return(NA)
     }
     

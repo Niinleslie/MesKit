@@ -7,7 +7,7 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param withinTumor Calculate math score within tumors in each patients. Default :FALSE.
 #' @param min.vaf The minimum VAF for filtering variants. Default: 0.02. 
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return A data.frame of MATH scores
 #' 
@@ -26,7 +26,7 @@ mathScore <- function(maf,
                       patient.id = NULL,
                       withinTumor = FALSE,
                       min.vaf = 0.02,
-                      use.tumorLabel = FALSE,
+                      use.tumorSampleLabel = FALSE,
                       ...
                       ){
     ## select subclonal mutation when withinTumor is TRUE
@@ -50,12 +50,12 @@ mathScore <- function(maf,
             return(NA)
         }
         
-        if(use.tumorLabel){
-            if(!"Tumor_Label" %in% colnames(maf_data)){
-                stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+        if(use.tumorSampleLabel){
+            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
             }
             maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
         }
         
         ## MATH Caculation
@@ -69,7 +69,7 @@ mathScore <- function(maf,
         
         if(withinTumor){
             if(! "CCF" %in% colnames(maf_data)){
-                stop(paste0("Error: calculation of MATH score requires CCF data when withinTumor is TRUE."))
+                stop(paste0("Calculation of MATH score requires CCF data when withinTumor is TRUE."))
             }
             
             MATH.df <- maf_data %>% 

@@ -15,7 +15,7 @@
 #' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. Default TRUE. 
 #' @param showCytoband FALSE (Default). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.
 #' @param showGene FALSE (Default). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' 
 #' @examples
 #' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
@@ -46,7 +46,7 @@
 #' 
 #' seg <- readSegment(segFile = segFile,
 #'                    gisticAmpGenesFile = gisticAmpGenesFile,
-#'                     gisticDelGenesFile = gisticDelGenesFile, 
+#'                    gisticDelGenesFile = gisticDelGenesFile, 
 #'                    gisticAllLesionsFile = gisticAllLesionsFile,
 #'                    txdb = txdb)
 #' 
@@ -75,7 +75,7 @@ plotCNA <- function(seg,
                     removeEmptyChr = TRUE,
                     showCytoband = FALSE,
                     showGene = FALSE,
-                    use.tumorLabel = FALSE
+                    use.tumorSampleLabel = FALSE
 ){
     
     ## combine data frame
@@ -83,12 +83,12 @@ plotCNA <- function(seg,
         seg <- dplyr::bind_rows(seg) %>% as.data.table()
     }
     
-    if(use.tumorLabel){
-        if(!"Tumor_Label" %in% colnames(seg)){
-            stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+    if(use.tumorSampleLabel){
+        if(!"Tumor_Sample_Label" %in% colnames(seg)){
+            stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
         }
         seg <- seg %>% 
-            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
     if(!is.null(chrSilent)){    
@@ -107,7 +107,7 @@ plotCNA <- function(seg,
         if(length(patient.id) > 1){
             patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
             if(length(patient.setdiff) > 0){
-                stop(paste0("Error: ", patient.setdiff, " cannot be found in your data"))
+                stop(paste0(patient.setdiff, " cannot be found in your data"))
             }
             seg <- seg[seg$Patient_ID %in% patient.id, ]
             seg$patient <- factor(seg$Patient_ID, levels = rev(patient.id))
@@ -120,7 +120,7 @@ plotCNA <- function(seg,
     }else if(length(patient.id) == 1){
         patient.setdiff <- setdiff(patient.id, unique(seg$Patient_ID))
         if(length(patient.setdiff) > 0){
-            stop(paste0("Error: ", patient.setdiff, " cannot be found in your data"))
+            stop(paste0(patient.setdiff, " cannot be found in your data"))
         }
         patient_num <- 1
         seg <- seg[seg$Patient_ID %in% patient.id, ]
@@ -138,7 +138,7 @@ plotCNA <- function(seg,
     # }
     ref.options <- c("hg19","hg18","hg38")
     if(!refBuild %in% ref.options){
-        stop("Error: refBuild should be either 'hg18','hg19' or 'hg38'.")
+        stop("refBuild should be either 'hg18','hg19' or 'hg38'.")
     }
     if(refBuild == 'hg19'){
         chrLens = c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663,
@@ -236,7 +236,7 @@ plotCNA <- function(seg,
         if(!is.null(sampleOrder)){
             patient.setdiff <- setdiff(names(sampleOrder), unique(seg$patient))
             if(length(patient.setdiff) > 0){
-                stop(paste0("Error: ", patient.setdiff,
+                stop(paste0(patient.setdiff,
                             " cannot be found in your data. Please check sampleOrder!"))
             }
             
@@ -249,7 +249,7 @@ plotCNA <- function(seg,
                 s1 <- paste(p, o1, sep = "&") 
                 sample.setdiff <- setdiff(o1, o2)
                 if(length(sample.setdiff) > 0){
-                    stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
+                    stop(paste0(paste(sample.setdiff, collapse = ","),
                                 " cannot be found in ", p, ". Please check sampleOrder!"))
                 }else{
                     return(s1)
@@ -309,7 +309,7 @@ plotCNA <- function(seg,
         if(!is.null(sampleOrder)){
             patient.setdiff <- setdiff(names(sampleOrder), p)
             if(length(patient.setdiff) > 0){
-                stop(paste0("Error: ", patient.setdiff,
+                stop(paste0(patient.setdiff,
                             " cannot be found in your data. Please check sampleOrder!"))
             }
             o1 <- sampleOrder[[p]]
@@ -318,7 +318,7 @@ plotCNA <- function(seg,
             s2 <- paste(p, unique(seg[seg$patient == p]$Tumor_Sample_Barcode), sep = "&") 
             sample.setdiff <- setdiff(o1, o2)
             if(length(sample.setdiff) > 0){
-                stop(paste0("Error: ", paste(sample.setdiff, collapse = ","),
+                stop(paste0(paste(sample.setdiff, collapse = ","),
                             " cannot be found in ", p, ". Please check sampleOrder!"))
             }else if(length(sample.setdiff) == 0 & length(s1)< length(s2)){
                 s3 <- setdiff(s2, s1)
@@ -492,7 +492,7 @@ plotCNA <- function(seg,
     
     if(showCytoband){
         if(!"Cytoband_pos" %in% colnames(CNADat)){
-            stop("Error: cannot find information of cytoband. Please check you seg object.")
+            stop("Cannot find information of cytoband. Please check you seg object.")
         }
         ## cytoband
         CNADat$Cytoband_pos <- as.numeric(CNADat$Start_Position) + chr_start_pos[paste0("chr",CNADat$Chromosome)]
@@ -513,10 +513,10 @@ plotCNA <- function(seg,
     
     if(showGene){
         if(showGene & showCytoband){
-            stop("Error: showGene and showCytoband cannot both be TRUE.")
+            stop("showGene and showCytoband cannot both be TRUE.")
         }
         if(!"Hugo_Symbol" %in% colnames(CNADat)){
-            stop("Error: cannot find gene information. Please use parameter 'txdb' in readSegment.")
+            stop("Cannot find gene information. Please use parameter 'txdb' in readSegment.")
         }
         CNADat$gene_pos <- as.numeric(CNADat$Start_Position) + (as.numeric(CNADat$End_Position) - as.numeric(CNADat$Start_Position))/2
         CNADat$gene_id <- paste(CNADat$Hugo_Symbol, CNADat$Chromosome, CNADat$Start_Position, CNADat$End_Position, sep = ":")

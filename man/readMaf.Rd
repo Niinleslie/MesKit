@@ -17,7 +17,7 @@ readMaf(
 \arguments{
 \item{mafFile}{Tab delimited MAF file (plain text or *.gz compressed). Required.}
 
-\item{clinicalFile}{Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_label is optional. Default NULL.}
+\item{clinicalFile}{Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.}
 
 \item{ccfFile}{CCF file of somatic mutations. Default NULL.}
 

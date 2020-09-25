@@ -9,7 +9,7 @@ compareCCF(
   patient.id = NULL,
   min.ccf = 0,
   pairByTumor = FALSE,
-  use.tumorLabel = FALSE,
+  use.tumorSampleLabel = FALSE,
   ...
 )
 }
@@ -22,7 +22,7 @@ compareCCF(
 
 \item{pairByTumor}{Pair by tumor types in each patients,default is FALSE.}
 
-\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
+\item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

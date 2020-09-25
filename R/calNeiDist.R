@@ -11,7 +11,7 @@
 #' @param title The title of the plot. Default is "Nei's distance"
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
@@ -33,7 +33,7 @@ calNeiDist <- function(maf,
                        title = NULL,
                        number.cex = 8, 
                        number.col = "#C77960",
-                       use.tumorLabel = FALSE,
+                       use.tumorSampleLabel = FALSE,
                        ...){
   
   processNei <- function(maf_data){
@@ -44,16 +44,16 @@ calNeiDist <- function(maf,
       return(NA)
     }
     
-    if(use.tumorLabel){
-      if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+    if(use.tumorSampleLabel){
+      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+        stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
       }
       maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
     if(! "CCF" %in% colnames(maf_data)){
-      stop(paste0("Error: calculation of Nei's distance requires CCF data.",
+      stop(paste0("Calculation of Nei's distance requires CCF data.",
                   "No CCF data was found when generate Maf object with readMaf function"))
     }
     

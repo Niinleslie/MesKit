@@ -45,14 +45,14 @@ readSegment <- function(segFile,
     if("SegmentMean" %in% colnames(seg)){
         seg$SegmentMean <- as.numeric(seg$SegmentMean)
         seg$CopyNumber <- round(2^(seg$SegmentMean)*2)
-        if("Tumor_Label" %in% colnames(seg)){
-          seg <- dplyr::select(seg, "Patient_ID", "Tumor_Sample_Barcode", "Tumor_Label", "Chromosome", "Start_Position", "End_Position", "CopyNumber")
+        if("Tumor_Sample_Label" %in% colnames(seg)){
+          seg <- dplyr::select(seg, "Patient_ID", "Tumor_Sample_Barcode", "Tumor_Sample_Label", "Chromosome", "Start_Position", "End_Position", "CopyNumber")
         }else{
           seg <- dplyr::select(seg, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "End_Position", "CopyNumber")
         }
     }
     else{
-        stop("Error: segFile does not contain copy number or SegmentMean information")  
+        stop("Neither copy number nor SegmentMean information were found in seg object.")  
     }
   }
   seg$CopyNumber <- as.numeric(seg$CopyNumber)
@@ -77,9 +77,9 @@ readSegment <- function(segFile,
   }))) %>%
       dplyr::filter(.data$Width > min.seg.size)
   
-  if("Tumor_Label" %in% colnames(seg)){
+  if("Tumor_Sample_Label" %in% colnames(seg)){
     seg <-  seg %>% 
-      dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Label", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type") %>% 
+      dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Sample_Label", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type") %>% 
       as.data.table()
   }else{
     seg <- seg %>% 
@@ -152,9 +152,9 @@ readSegment <- function(segFile,
       mapDat <- data.table::foverlaps(gisticCNVgenes,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
                 na.omit()
       
-      if("Tumor_Label" %in% colnames(mapDat)){
+      if("Tumor_Sample_Label" %in% colnames(mapDat)){
         mapDat <- mapDat %>% 
-          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Label", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>% 
+          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Sample_Label", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>% 
           as.data.table() %>%
         dplyr::distinct()
       }else{
@@ -184,9 +184,9 @@ readSegment <- function(segFile,
           na.omit() %>% 
           dplyr::filter(.data$Qvalue < gistic.qval)
       
-      if("Tumor_Label" %in% colnames(mapDat)){
+      if("Tumor_Sample_Label" %in% colnames(mapDat)){
         mapDat <- mapDat %>% 
-          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Label", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>%
+          dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Sample_Label", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>%
           dplyr::distinct() %>% 
           data.table::as.data.table()
       }else{

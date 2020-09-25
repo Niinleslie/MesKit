@@ -13,7 +13,7 @@
 #' @param R2.threshold The threshod of R2 to decide whether a tumor follows neutral evolution. Default: 0.98
 #' @param min.mut.count The minimun number of subclonal mutations used to fit model. Default: 20
 #' @param plot Logical, whether to print model fitting plot of each sample. Default: TRUE
-#' @param use.tumorLabel Let Tumor_Sample_Barcode be Tumor_Label if Tumor Label is provided in clinical data.Default FALSE.
+#' @param use.tumorSampleLabel Let Tumor_Sample_Barcode be Tumor_Sample_Label if Tumor Label is provided in clinical data.Default FALSE.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return the neutrality metrics and model fitting plots
@@ -36,14 +36,14 @@ testNeutral <- function(maf,
                         R2.threshold = 0.98,
                         min.mut.count = 20,
                         plot = TRUE,
-                        use.tumorLabel = FALSE,
+                        use.tumorSampleLabel = FALSE,
                         ...){
   
   if(min.vaf <= 0){
-    stop("Error: min.vaf must be greater than 0")
+    stop("'min.vaf' must be greater than 0")
   }
   if(max.vaf < min.vaf){
-    stop("Error: max.vaf must be greater than min.vaf")
+    stop("'max.vaf' must be greater than min.vaf")
   }
   
   maf <- subMaf(maf, 
@@ -67,18 +67,17 @@ testNeutral <- function(maf,
       return(NA)
     }
     
-    if(use.tumorLabel){
-      if(!"Tumor_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Label.Please check clinical data in readMaf or let use.tumorLabel be FALSE")
+    if(use.tumorSampleLabel){
+      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+        stop("There is no information about the Tumor_Sample_Label.Please check clinical data in readMaf or let use.tumorSampleLabel be FALSE")
       }
       maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
     patient <- unique(maf_data$Patient_ID)
     if(! "CCF" %in% colnames(maf_data)){
-      stop(paste0("Error: inferring whether a tumor follows neutral evolution requires CCF data.",
-                  "No CCF data was found when generate Maf object."))
+      stop("CCF data ia required for inferring whether a tumor follows neutral.")
     }
     
     neutrality.metrics <- data.frame()

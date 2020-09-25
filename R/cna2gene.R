@@ -48,7 +48,7 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
   if(!is.null(geneList)){
      gene.setdiff <- setdiff(geneList, gene_symbols)
      if(length(gene.setdiff) > 0){
-        stop(paste0("Error: Gene: ", gene.setdiff, " can not be found in Entrez Gene"))
+        stop(paste0("Gene: ", gene.setdiff, " can not be found in Entrez Gene"))
      }
     allgenes <- allgenes[Hugo_Symbol %in% geneList]
   }
@@ -60,7 +60,7 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
                                         by.x = c("Chromosome","Start_Position","End_Position")) %>%
     na.omit()
   if(nrow(anno_result) == 0){
-    stop("No gene mapped to seg")
+    stop("No genes mapped to seg.")
   } 
   anno_result$id <- seq_len(nrow(anno_result))
   

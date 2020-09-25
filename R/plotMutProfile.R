@@ -15,7 +15,7 @@
 #' @param removeEmptyRows  Whether remove the genes without alterations. Only works when plot is TRUE
 #' @param showColnames  TRUE(Default). Show sample names of columns.
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return Mutational profile
 #' 
@@ -42,7 +42,7 @@ plotMutProfile <- function(maf,
                            removeEmptyRows = TRUE, 
                            showColnames = TRUE,
                            sampleOrder = NULL,
-                           use.tumorLabel = FALSE,
+                           use.tumorSampleLabel = FALSE,
                            ...) {
     
     ## check maf and order patient
@@ -62,12 +62,12 @@ plotMutProfile <- function(maf,
     i <- 1
     for(m in maf_list){
         maf_data <- subMaf(m,...)
-        if(use.tumorLabel){
-          if(!"Tumor_Label" %in% colnames(maf_data)){
-            stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+        if(use.tumorSampleLabel){
+          if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+            stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
           }
           maf_data <- maf_data %>% 
-            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
         }
         maf_data_list[[i]] <- maf_data
         i <- i + 1
@@ -93,7 +93,7 @@ plotMutProfile <- function(maf,
             mafOrdered$Tumor_Sample_Barcode <- as.character(mafOrdered$Tumor_Sample_Barcode)
             
           } else {
-            stop(paste0("Error: sampleOrder should be consistent with Tumor_Sample_Barcode in Maf obejct."))
+            stop(paste0("sampleOrder should be consistent with Tumor_Sample_Barcode in Maf obejct."))
           }
         }
         maf_data_list[names(sampleOrder)[i]][[1]] <- as.data.table(mafOrdered)
@@ -469,7 +469,7 @@ plotMutProfile <- function(maf,
           if (length(patientsCol) == length(patient.id)) {
             names(patientsCol) <- patient.id
           } else {
-            stop("Error: the number of provided colors does not equal to number of patients.")
+            stop("The number of provided colors does not equal to number of patients.")
           }
         }
             

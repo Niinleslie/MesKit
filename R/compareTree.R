@@ -9,7 +9,7 @@
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
 #' @param show.bootstrap Logical. Whether to add bootstrap value on internal nodes.Default is TRUE.
 #' @param common.col Color of common branches.
-#' @param use.tumorLabel FALSE(Default). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel FALSE(Default). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' 
 #' @return A vector containing the following tree distance methods by R package phangorn
 #' Symmetric.difference  Robinson-Foulds distance
@@ -36,10 +36,10 @@ compareTree <- function(phyloTree1,
                         min.ratio = 1/20,
                         show.bootstrap = FALSE,
                         common.col = "red",
-                        use.tumorLabel = FALSE){
+                        use.tumorSampleLabel = FALSE){
     
     if(min.ratio <= 0){
-        stop("Error: min.ratio must greater than 0")
+        stop("min.ratio must greater than 0")
     }
 	tree1 <- getTree(phyloTree1)
 	tree2 <- getTree(phyloTree2)
@@ -52,10 +52,10 @@ compareTree <- function(phyloTree1,
 	        min2 <- max(tree2$edge.length)*min.ratio
 	        tree1$edge.length[tree1$edge.length < min1] <- min1
 	        tree2$edge.length[tree2$edge.length < min2] <- min2
-	        if(use.tumorLabel){
+	        if(use.tumorSampleLabel){
 	          tsb.label <- getPhyloTreeTsbLabel(phyloTree1)
 	          if(nrow(tsb.label) == 0){
-        		stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+        		stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
 	            
 	          }
 	        }
@@ -113,14 +113,14 @@ compareTree <- function(phyloTree1,
 	                   min.ratio = min.ratio,
 	                   common.col = common.col,
 	                   branchCol = NULL,
-	                   use.tumorLabel = use.tumorLabel)
+	                   use.tumorSampleLabel = use.tumorSampleLabel)
 	    p2 <- plotTree(phyloTree2,
 	                   treeData = treedat2,
 	                   show.bootstrap = show.bootstrap,
 	                   min.ratio = min.ratio,
 	                   common.col = common.col,
 	                  branchCol = NULL,
-	                  use.tumorLabel = use.tumorLabel)
+	                  use.tumorSampleLabel = use.tumorSampleLabel)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
 	                                labels = c(getTreeMethod(phyloTree1),getTreeMethod(phyloTree2))

@@ -12,7 +12,7 @@ plotPhyloTree(
   min.ratio = 1/20,
   signaturesRef = "cosmic_v2",
   min.mut.count = 15,
-  use.tumorLabel = FALSE
+  use.tumorSampleLabel = FALSE
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ If not, the edge length will be reset as min.ratio*longest edge length.}
 
 \item{min.mut.count}{The threshold for the variants in a branch. Default 15.}
 
-\item{use.tumorLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.}
+\item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 }
 \value{
 return a list of phylotree graph .

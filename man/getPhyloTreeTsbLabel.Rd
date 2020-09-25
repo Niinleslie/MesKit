@@ -10,7 +10,7 @@ getPhyloTreeTsbLabel(object)
 \item{object}{An object of phyloTree}
 }
 \value{
-relationship between Tumor_Sample_Barcode and Tumor_Label
+relationship between Tumor_Sample_Barcode and Tumor_Sample_Label
 }
 \description{
 getPhyloTreeRef

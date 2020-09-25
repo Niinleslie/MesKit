@@ -11,7 +11,7 @@
 #' @param title Title of the plot, default is "Jaccard similarity".
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
-#' @param use.tumorLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Label'.
+#' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #'
 #' @examples
@@ -33,7 +33,7 @@ compareJSI <- function(
     title = NULL,
     number.cex = 8,
     number.col = "#C77960",
-    use.tumorLabel = FALSE,
+    use.tumorSampleLabel = FALSE,
     ...) {
     
     maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE, ...)
@@ -43,7 +43,7 @@ compareJSI <- function(
     processJSI <- function(m){
         maf_data <- getMafData(m) %>% dplyr::filter(!is.na(.data$Clonal_Status))
         if(! "CCF" %in% colnames(getMafData(m))){
-            stop(paste0("Error: calculation of Jaccard similarity requires CCF data." ,
+            stop(paste0("Calculation of Jaccard similarity requires CCF data." ,
                         "No CCF data was found when generate Maf/MafList object."))
         }
         
@@ -53,12 +53,12 @@ compareJSI <- function(
             return(NA)
         }
         
-        if(use.tumorLabel){
-            if(!"Tumor_Label" %in% colnames(maf_data)){
-                stop("Error: Tumor_Label was not found. Please check clinical data or let use.tumorLabel be 'FALSE'")
+        if(use.tumorSampleLabel){
+            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
+                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
             }
             maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Label)
+                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
         }
         
         JSI_input <-  maf_data %>%
