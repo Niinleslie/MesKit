@@ -1,4 +1,4 @@
-Patient_ID	Tumor_Sample_Barcode	Chromosome	Start_Position	End_Position	CopyNumber	Tumor_Label
+Patient_ID	Tumor_Sample_Barcode	Chromosome	Start_Position	End_Position	CopyNumber	Tumor_Sample_Label
 V402	V402_P_1	1	1	1650882	2	P_1
 V402	V402_P_1	1	1650883	33159352	1	P_1
 V402	V402_P_1	1	33159353	33610373	3	P_1

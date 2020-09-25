@@ -1,4 +1,4 @@
-Tumor_Sample_Barcode	Tumor_ID	Patient_ID	Tumor_Label
+Tumor_Sample_Barcode	Tumor_ID	Patient_ID	Tumor_Sample_Label
 HCC5647_T1	Primary	HCC5647	T1
 HCC5647_T3	Primary	HCC5647	T3
 HCC5647_T4	Primary	HCC5647	T4

@@ -1,4 +1,4 @@
-Tumor_Sample_Barcode	Tumor_ID	Patient_ID	Tumor_Label
+Tumor_Sample_Barcode	Tumor_ID	Patient_ID	Tumor_Sample_Label
 V402_P_1	P	V402	P_1
 V402_P_2	P	V402	P_2
 V402_P_3	P	V402	P_3

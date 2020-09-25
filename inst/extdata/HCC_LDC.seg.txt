@@ -1,4 +1,4 @@
-Patient_ID	Tumor_Sample_Barcode	Chromosome	Start_Position	End_Position	CopyNumber	Tumor_Label
+Patient_ID	Tumor_Sample_Barcode	Chromosome	Start_Position	End_Position	CopyNumber	Tumor_Sample_Label
 HCC5647	HCC5647_T1	1	138488	6479452	2	T1
 HCC5647	HCC5647_T1	1	6504488	120906360	2	T1
 HCC5647	HCC5647_T1	1	144921930	157805992	6	T1
