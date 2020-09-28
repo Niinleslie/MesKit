@@ -17,8 +17,7 @@
 #'                    
 #' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' library(org.Hs.eg.db)
-#' library(AnnotationDbi)
-#' cna2gene(seg, txdb)
+#' cna2gene(seg, txdb = TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' @return seg object
 
 cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
@@ -125,8 +124,7 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
     dplyr::filter(overlap_width == max(overlap_width)) %>%
     dplyr::ungroup() %>%
     as.data.frame()
-  
-  if("Gistic_Type" %in% colnames(result)){
+  if("Gistic_type" %in% colnames(result)){
     if("Tumor_Sample_Label" %in% colnames(result)){
       result <- result %>% 
         dplyr::select(
