@@ -32,7 +32,14 @@ ccfAUC <- function(
    use.tumorSampleLabel = FALSE,
    ...
 ){
-    maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
+
+    if(withinTumor){
+      clonalStatus <- "Subclonal"
+    }else{
+      clonalStatus <- NULL
+    }
+  
+    maf <- subMaf(maf, min.ccf = min.ccf, clonalStatus = clonalStatus, mafObj = TRUE,...)
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
     
