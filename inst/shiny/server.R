@@ -231,7 +231,10 @@ shinyServer(function(input, output, session){
           }
       }
   })
+  
+  
 
+  
   ms <- eventReactive(input$submit_mathscore, {
     maf <- isolate(varsMaf$maf)
     validate(
@@ -251,10 +254,11 @@ shinyServer(function(input, output, session){
   output$mathScore <- DT::renderDataTable({
     ms()
   })
-  
+    
+  # ms_value <- ms()
   
   output$msdb <- renderUI({
-    if(!is.null(ms())){
+    if(!is.null(ms_value$v)){
       fluidRow(
         column(
           width = 9,
@@ -1799,6 +1803,8 @@ shinyServer(function(input, output, session){
       })
       return(list(seg = seg, cna.plot = cna.plot))
   })
+  
+  # plotcna_value <- reactiveValues(v = plotcna())
   
   plotcna_width <- reactive({
       return(input$plotcna_width)

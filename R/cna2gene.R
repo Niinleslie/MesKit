@@ -17,8 +17,7 @@
 #'                    
 #' library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' library(org.Hs.eg.db)
-#' library(AnnotationDbi)
-#' cna2gene(seg, txdb)
+#' cna2gene(seg, txdb = TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' @return seg object
 
 cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
@@ -124,18 +123,71 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
     dplyr::group_by(Patient_ID, Tumor_Sample_Barcode, seg_id) %>%
     dplyr::filter(overlap_width == max(overlap_width)) %>%
     dplyr::ungroup() %>%
-    as.data.frame() %>%
-    dplyr::select(
-      "Hugo_Symbol",
-      "Tumor_Sample_Barcode",
-      "Chromosome", 
-      "i.Start_Position", 
-      "i.End_Position",
-      "Patient_ID",
-      "CopyNumber",
-      "Type",
-      "Gistic_type"
-    ) %>% 
+    as.data.frame()
+  if("Gistic_type" %in% colnames(result)){
+    if("Tumor_Sample_Label" %in% colnames(result)){
+      result <- result %>% 
+        dplyr::select(
+          "Patient_ID",
+          "Hugo_Symbol",
+          "Tumor_Sample_Barcode",
+          "Tumor_Sample_Label",
+          "Cytoband",
+          "Cytoband_pos",
+          "Chromosome", 
+          "i.Start_Position", 
+          "i.End_Position",
+          "CopyNumber",
+          "Type",
+          "Gistic_type"
+        )
+    }else{
+      result <- result %>% 
+        dplyr::select(
+          "Patient_ID",
+          "Hugo_Symbol",
+          "Tumor_Sample_Barcode",
+          "Cytoband",
+          "Cytoband_pos",
+          "Chromosome", 
+          "i.Start_Position", 
+          "i.End_Position",
+          "CopyNumber",
+          "Type",
+          "Gistic_type"
+        )
+    }
+  }else{
+    if("Tumor_Sample_Label" %in% colnames(result)){
+      result <- result %>% 
+        dplyr::select(
+          "Patient_ID",
+          "Hugo_Symbol",
+          "Tumor_Sample_Barcode",
+          "Tumor_Sample_Label",
+          "Chromosome", 
+          "i.Start_Position", 
+          "i.End_Position",
+          "CopyNumber",
+          "Type",
+        )
+    }else{
+      result <- result %>% 
+        dplyr::select(
+          "Patient_ID",
+          "Hugo_Symbol",
+          "Tumor_Sample_Barcode",
+          "Chromosome", 
+          "i.Start_Position", 
+          "i.End_Position",
+          "CopyNumber",
+          "Type"
+        )
+    }
+  }
+  
+  
+  result <- result %>% 
     dplyr::rename(
       "End_Position" = "i.End_Position",
       "Start_Position" = "i.Start_Position"

@@ -17,7 +17,7 @@
 #' @param min.total.depth The minimum total allele depth for filtering variants. 
 #' Default: 2.
 #' @param plot Logical (Default:TRUE). Whether to show the plot, default TRUE
-#' @param withinTumor Calculate fst within types in each patients,default is FALSE.
+#' @param withinTumor Calculate fst within tumors in each patients,default is FALSE.
 #' @param use.circle Logical (Default:TRUE). Whether to use "circle" 
 #' as visualization method of correlation matrix
 #' @param title The title of the plot. Default is "Nei's distance"
