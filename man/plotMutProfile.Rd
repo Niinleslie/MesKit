@@ -31,7 +31,7 @@ or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClo
 \item{class}{The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
 other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
-\item{classByTumor}{FALSE(Default). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)}
+\item{classByTumor}{Logical (Default: FALSE). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)}
 
 \item{topGenesCount}{The number of genes print, default is 10}
 
@@ -41,11 +41,11 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{patientsCol}{A list containing customized colors for distinct patients. Default: NULL.}
 
-\item{removeEmptyCols}{Whether remove the samples without alterations. Only works when plot is TRUE}
+\item{removeEmptyCols}{Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE}
 
-\item{removeEmptyRows}{Whether remove the genes without alterations. Only works when plot is TRUE}
+\item{removeEmptyRows}{Logical (Default: TRUE). Whether remove the genes without alterations. Only works when plot is TRUE}
 
-\item{showColnames}{TRUE(Default). Show sample names of columns.}
+\item{showColnames}{Logical (Default: TRUE). Show sample names of columns.}
 
 \item{sampleOrder}{A named list which contains the sample order used in plotting the final profile. Default: NULL}
 

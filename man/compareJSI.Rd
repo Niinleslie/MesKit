@@ -27,9 +27,9 @@ compareJSI(
 
 \item{min.ccf}{The minimum value of CCF. Default: 0}
 
-\item{plot}{Logical (Default:TRUE).}
+\item{plot}{Logical (Default: TRUE).}
 
-\item{use.circle}{Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix.}
+\item{use.circle}{Logical (Default: TRUE). Whether to use "circle" as visualization method of correlation matrix.}
 
 \item{title}{Title of the plot, default is "Jaccard similarity".}
 

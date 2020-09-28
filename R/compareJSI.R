@@ -6,8 +6,8 @@
 #' @param patient.id Select the specific patients. Default: NULL, all patients are included.
 #' @param pairByTumor Compare JSI between different tumors. Default: FALSE.
 #' @param min.ccf The minimum value of CCF. Default: 0
-#' @param plot Logical (Default:TRUE).
-#' @param use.circle Logical (Default:TRUE). Whether to use "circle" as visualization method of correlation matrix.
+#' @param plot Logical (Default: TRUE).
+#' @param use.circle Logical (Default: TRUE). Whether to use "circle" as visualization method of correlation matrix.
 #' @param title Title of the plot, default is "Jaccard similarity".
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".

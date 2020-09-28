@@ -18,7 +18,7 @@ mathScore(
 
 \item{patient.id}{Select the specific patients. Default: NULL, all patients are included.}
 
-\item{withinTumor}{Calculate math score within tumors in each patients. Default :FALSE.}
+\item{withinTumor}{Calculate between-region heterogeneity within tumor. Default FALSE.}
 
 \item{min.vaf}{The minimum VAF for filtering variants. Default: 0.02.}
 
