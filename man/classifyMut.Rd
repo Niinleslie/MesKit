@@ -16,7 +16,7 @@ or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClo
 \item{class}{The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
 other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
-\item{classByTumor}{FALSE(Default). Classify mutations based on "Tumor_ID".}
+\item{classByTumor}{Logical (Default: FALSE). Classify mutations based on "Tumor_ID".}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

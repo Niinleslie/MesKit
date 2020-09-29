@@ -84,13 +84,6 @@ readMaf <- function(
             )
         )
     
-    # if(use.tumorSampleLabel){
-    #     if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-    #         stop("There is no information about the Tumor_Sample_Label.Please check clinical data in readMaf or let use.tumorSampleLabel be FALSE")
-    #     }
-    #     maf_data <- maf_data %>% 
-    #         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-    # }
     
     ## check maf data
     maf_data <- validMaf(maf_data)
