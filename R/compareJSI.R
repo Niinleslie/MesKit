@@ -55,7 +55,7 @@ compareJSI <- function(
         
         if(use.tumorSampleLabel){
             if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
+                stop("'Tumor_Sample_Label' was not found. Please check clinical data or let use.tumorSampleLabel be FALSE")
             }
             maf_data <- maf_data %>% 
                 dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
@@ -82,14 +82,14 @@ compareJSI <- function(
         
         if(pairByTumor){
             if(length(unique(JSI_input$Tumor_ID))  < 2 ){
-                message(paste0("Warnings: only one tumor was found in ",patient,
-                               " according to Tumor_ID. If you want to compare CCF 
-                               between tumors, pairByTumor should be set as FALSE"))
+                message(paste0("Warnings: only one tumor was found in ", patient,
+                               " according to 'Tumor_ID'. You may want to compare CCF between regions by setting 'pairByTumor' as 'FALSE'")
+                               )
                 return(NA)
             }
         }else{
             if(length(unique(JSI_input$Tumor_Sample_Barcode))  < 2 ){
-                message(paste0("Warnings: Only one sample was found in ", patient, "."))
+                message(paste0("Warnings: only one sample was found in ", patient, "."))
                 return(NA)
             } 
         }
@@ -203,7 +203,8 @@ compareJSI <- function(
         if(plot){
             values <- sort(unique(as.numeric(dist_mat))) 
             if(length(values[values!=0 &values !=1]) == 0){
-                message(paste0("Warnings: there is no JSI within (0,1),can not plot JSI for ", patient, "."))
+                message(paste0("Warnings: private clonal mutations or shared subclonal mutations were not found in all tumor/sample pairs in ", patient, ".\n",
+                    "Correlation plot of Jaccard similarity coefficient will not be generated for ", patient, "!"))
                 return(list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = NA))
             }
             if(is.null(title)){
