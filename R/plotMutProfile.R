@@ -398,7 +398,7 @@ plotMutProfile <- function(maf,
                             title_gp = grid::gpar(fontsize = 11),
                             #title_gp = grid::gpar(fontsize = 11, fontface = "bold"),
                             at = names(colorSelect),
-                            labels = sub("_", "-", names(colorSelect)),
+                            labels = gsub("_", "-", names(colorSelect)),
                             labels_gp = grid::gpar(fontsize = 11),
                             grid_width = unit(4, "mm"),
                             grid_height = unit(4, "mm"), legend_gp = grid::gpar(fill = colorSelect))
