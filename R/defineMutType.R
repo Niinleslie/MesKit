@@ -14,9 +14,9 @@ mutType_SP <- function(
     if(classByTumor){
         dplyr::case_when(
             #unique_barcode_count == 1 ~ "Private",
-            (TypeCount == "Single") & (unique_barcode_count == 1) ~ "Private",
-            (TypeCount == "Multi") & (unique_barcode_count == 1) ~ paste0("Private-", tumor_barcode_ID),
-            (unique_tumor_count == total_tumor_count) ~ "Public",        
+            (unique_tumor_count == total_tumor_count) ~ "Public",  
+            (TypeCount == "Single") & (unique_tumor_count == 1) ~ "Private",
+            (TypeCount == "Multi") & (unique_tumor_count == 1) ~ paste0("Private-", tumor_barcode_ID),
             (TypeCount == "Single") & (1 < unique_tumor_count) &
                 (unique_tumor_count < total_tumor_count) ~ "Shared",
             (TypeCount == "Multi") & (1 < unique_tumor_count) &
@@ -47,13 +47,12 @@ mutType_SPCS <- function(
     
     if(classByTumor){
         dplyr::case_when(
+            unique_tumor_count == total_tumor_count ~ paste0("Public-", Clonal_Status),        
             (TypeCount == "Single") & (unique_tumor_count == 1)~ paste0("Private-", Clonal_Status),
             (TypeCount == "Multi") & (unique_tumor_count == 1)~ paste0("Private-", tumor_barcode_ID, "-", Clonal_Status),
-            unique_tumor_count ==  ~ paste0("Public-", Clonal_Status),        
             (TypeCount == "Single") & (1 < unique_tumor_count) &
                 (unique_tumor_count < total_tumor_count) ~ paste0("Shared-", Clonal_Status),
-            (TypeCount == "Multi") & (1 < unique_tumor_count) &
-                (unique_tumor_count < total_tumor_count)
+            (TypeCount == "Multi") & (1 < unique_tumor_count) & (unique_tumor_count < total_tumor_count)
             ~ paste0("Shared-", tumor_barcode_ID,"-", Clonal_Status)   
         )
     } else{
@@ -149,12 +148,12 @@ do.classify <- function(
             dplyr::mutate(
                 Mutation_Type = mutType_SP(
                     #Tumor_ID, 
-                    .data$unique_barcode_count, 
-                    .data$total_barcode_count,
-                    .data$unique_tumor_count,
-                    .data$tumor_barcode_ID, 
-                    .data$total_tumor_count,
-                    TypeCount,
+                    unique_barcode_count =  .data$unique_barcode_count, 
+                    total_barcode_count =  .data$total_barcode_count,
+                    unique_tumor_count =  .data$unique_tumor_count,
+                    tumor_barcode_ID =  .data$tumor_barcode_ID, 
+                    total_tumor_count =  .data$total_tumor_count,
+                    TypeCount = TypeCount,
                     classByTumor)
             )
     }else{
