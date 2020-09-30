@@ -41,14 +41,8 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
                                                         .data$CCF_CI_High < 1 ~ "Subclonal"))
       
       
-      sample_in_tumor_num <- mafData_merge_ccf %>% 
-         dplyr::group_by(.data$Patient_ID, .data$Tumor_ID) %>% 
-         dplyr::summarise(sample_in_tumor_num = dplyr::n_distinct(.data$Tumor_Sample_Barcode))
-      
-      mafData_merge_ccf <- mafData_merge_ccf %>% 
-         dplyr::left_join(sample_in_tumor_num, by = c("Patient_ID", "Tumor_ID"))
-      ## classify clonal status by tumor type
-      ## condition1:if any region CCFm < 0.5
+      ## classify clonal status within tumors
+      ## condition1: if any region CCFm < 0.5
       mafData_merge_ccf <- mafData_merge_ccf %>%
          dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2)%>%
          dplyr::mutate(condition1 = dplyr::if_else(

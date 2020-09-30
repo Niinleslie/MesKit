@@ -16,11 +16,11 @@ mutType_SP <- function(
             #unique_barcode_count == 1 ~ "Private",
             (unique_tumor_count == total_tumor_count) ~ "Public",  
             (TypeCount == "Single") & (unique_tumor_count == 1) ~ "Private",
-            (TypeCount == "Multi") & (unique_tumor_count == 1) ~ paste0("Private-", tumor_barcode_ID),
+            (TypeCount == "Multi") & (unique_tumor_count == 1) ~ paste0("Private_", tumor_barcode_ID),
             (TypeCount == "Single") & (1 < unique_tumor_count) &
                 (unique_tumor_count < total_tumor_count) ~ "Shared",
             (TypeCount == "Multi") & (1 < unique_tumor_count) &
-                (unique_tumor_count < total_tumor_count) ~ paste0("Shared-", tumor_barcode_ID)   
+                (unique_tumor_count < total_tumor_count) ~ paste0("Shared_", tumor_barcode_ID)   
         )
     }
     else{
@@ -47,20 +47,20 @@ mutType_SPCS <- function(
     
     if(classByTumor){
         dplyr::case_when(
-            unique_tumor_count == total_tumor_count ~ paste0("Public-", Clonal_Status),        
-            (TypeCount == "Single") & (unique_tumor_count == 1)~ paste0("Private-", Clonal_Status),
-            (TypeCount == "Multi") & (unique_tumor_count == 1)~ paste0("Private-", tumor_barcode_ID, "-", Clonal_Status),
+            unique_tumor_count == total_tumor_count ~ paste0("Public_", Clonal_Status),        
+            (TypeCount == "Single") & (unique_tumor_count == 1)~ paste0("Private_", Clonal_Status),
+            (TypeCount == "Multi") & (unique_tumor_count == 1)~ paste0("Private_", tumor_barcode_ID, "_", Clonal_Status),
             (TypeCount == "Single") & (1 < unique_tumor_count) &
-                (unique_tumor_count < total_tumor_count) ~ paste0("Shared-", Clonal_Status),
+                (unique_tumor_count < total_tumor_count) ~ paste0("Shared_", Clonal_Status),
             (TypeCount == "Multi") & (1 < unique_tumor_count) & (unique_tumor_count < total_tumor_count)
-            ~ paste0("Shared-", tumor_barcode_ID,"-", Clonal_Status)   
+            ~ paste0("Shared_", tumor_barcode_ID,"_", Clonal_Status)   
         )
     } else{
         dplyr::case_when(
-            unique_barcode_count == 1 ~ paste0("Private-", Clonal_Status),
-            unique_barcode_count == total_barcode_count ~ paste0("Public-", Clonal_Status),
+            unique_barcode_count == 1 ~ paste0("Private_", Clonal_Status),
+            unique_barcode_count == total_barcode_count ~ paste0("Public_", Clonal_Status),
             (1 < unique_barcode_count) &
-                (unique_barcode_count < total_barcode_count) ~ paste0("Shared-", Clonal_Status)
+                (unique_barcode_count < total_barcode_count) ~ paste0("Shared_", Clonal_Status)
         )       
     }   
 }

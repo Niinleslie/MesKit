@@ -35,7 +35,7 @@ mutHeatmap(
 
 \item{geneList}{List of genes to restrict the analysis. Default NULL.}
 
-\item{plot.geneList}{If TRUE, plot heatmap with genes on geneList when geneList is not NULL.Default FALSE.}
+\item{plot.geneList}{Logical (Default: FALSE). If TRUE, plot heatmap with genes on geneList when geneList is not NULL.}
 
 \item{show.geneList}{Show the names of gene on the geneList.Default TRUE.}
 
@@ -47,7 +47,7 @@ mutHeatmap(
 
 \item{gene.text.size}{Size of gene text. Default 9.}
 
-\item{sampleOrder}{A named list which contains the sample order used in plotting the heatmap. Default: NULL.}
+\item{sampleOrder}{A named list which contains the sample order used in plotting the heatmap. Default NULL.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 

@@ -6,7 +6,7 @@
 #' @param patient.id  Select the specific patients. Default: NULL, all patients are included
 #' @param class  The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
-#' @param classByTumor  FALSE(Default). Classify mutations based on "Tumor_ID".
+#' @param classByTumor  Logical (Default: FALSE). Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return A data.frame with classification of mutations for each patient 
 #' 

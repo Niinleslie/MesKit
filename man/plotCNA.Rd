@@ -46,13 +46,13 @@ plotCNA(
 
 \item{chrom.bar.height}{Bar height of each chromosome. Default 0.5.}
 
-\item{showRownames}{Show sample names of rows. Default is TRUE.}
+\item{showRownames}{Logical (Default: TRUE). Show sample names of rows.}
 
 \item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. Default TRUE.}
 
-\item{showCytoband}{FALSE (Default). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.}
+\item{showCytoband}{Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.}
 
-\item{showGene}{FALSE (Default). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.}
+\item{showGene}{Logical (Default: FALSE). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 }
