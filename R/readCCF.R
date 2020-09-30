@@ -40,13 +40,18 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
          dplyr::mutate(Clonal_Status = dplyr::case_when(.data$CCF_CI_High >= 1 ~ "Clonal",
                                                         .data$CCF_CI_High < 1 ~ "Subclonal"))
       
+      sample_in_tumor_num <- mafData_merge_ccf %>% 
+         dplyr::group_by(.data$Patient_ID, .data$Tumor_ID) %>% 
+         dplyr::summarise(sample_in_tumor_num = dplyr::n_distinct(.data$Tumor_Sample_Barcode))
       
+      mafData_merge_ccf <- mafData_merge_ccf %>% 
+         dplyr::left_join(sample_in_tumor_num, by = c("Patient_ID", "Tumor_ID"))
       ## classify clonal status within tumors
       ## condition1: if any region CCFm < 0.5
       mafData_merge_ccf <- mafData_merge_ccf %>%
          dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2)%>%
          dplyr::mutate(condition1 = dplyr::if_else(
-            any(.data$CCF< 0.5)  |length(.data$CCF) == 1,
+            any(.data$CCF< 0.5)  | .data$sample_in_tumor_num == 1,
             "yes",
             "no"
          )) %>% 
@@ -56,7 +61,7 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
             "Subclonal",
             "Clonal"
          ))%>%
-         dplyr::select(-"CCF_CI_High", -"condition1")
+         dplyr::select(-"CCF_CI_High", -"condition1", -"sample_in_tumor_num")
 
    }
    
