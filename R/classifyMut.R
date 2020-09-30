@@ -6,9 +6,15 @@
 #' @param patient.id  Select the specific patients. Default NULL, all patients are included
 #' @param class  The class which would be represented. Default: "SP" (Shared pattern: Public/Shared/Private),
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
+<<<<<<< HEAD
 #' @param classByTumor  Logical (Default: FALSE). Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return A data.frame with classification of mutations for each patient 
+=======
+#' @param classByTumor  FALSE(Default). Classify mutations based on "Tumor_ID".
+#' @param ... Other options passed to \code{\link{subMaf}}
+#' @return A data.frame with classification of mutations 
+>>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
 #' 
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")

@@ -9,6 +9,7 @@
 #' @param classByTumor  Logical (Default: FALSE). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)
 #' @param topGenesCount  The number of genes print, Default 10.
 #' @param geneList  A list of genes to restrict the analysis. Default NULL.
+<<<<<<< HEAD
 #' @param patientsCol  A list containing customized colors for distinct patients. Default NULL.
 #' @param bgCol  Background grid color. Default "#f0f0f0".
 #' @param removeEmptyCols  Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE.
@@ -18,6 +19,16 @@
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return Mutational profile
+=======
+#' @param patientsCol  A list containing customized colors for distinct patients. Default: NULL.
+#' @param bgCol  Background grid color. Default: "#f0f0f0"
+#' @param remove_empty_columns  Whether remove the samples without alterations. Only works when plot is TRUE
+#' @param remove_empty_rows  Whether remove the genes without alterations. Only works when plot is TRUE
+#' @param showColnames  TRUE(Default). Show sample names of columns.
+#' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
+#' @param ... Other options passed to \code{\link{subMaf}}
+#' @return Mutation profile
+>>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
 #' 
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
@@ -61,6 +72,7 @@ plotMutProfile <- function(maf,
     maf_data_list <- list()
     i <- 1
     for(m in maf_list){
+<<<<<<< HEAD
         maf_data <- subMaf(m,...)
         if(use.tumorSampleLabel){
           if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
@@ -70,6 +82,9 @@ plotMutProfile <- function(maf,
             dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
         }
         maf_data_list[[i]] <- maf_data
+=======
+        maf_data_list[[i]] <- subMaf(m,...)
+>>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
         i <- i + 1
     }
     names(maf_data_list) <- patient.id

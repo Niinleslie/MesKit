@@ -12,7 +12,10 @@
 #' @param title The title of the plot. Default "Nei's distance"
 #' @param number.cex The size of text shown in correlation plot. Default 8.
 #' @param number.col The color of text shown in correlation plot. Default "#C77960".
+<<<<<<< HEAD
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
+=======
+>>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
@@ -53,6 +56,7 @@ calNeiDist <- function(maf,
         dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
+<<<<<<< HEAD
     if(! "CCF" %in% colnames(maf_data)){
       stop(paste0("Calculation of Nei's distance requires CCF data.",
                   "No CCF data was found when generate Maf object with readMaf function"))
@@ -90,6 +94,23 @@ calNeiDist <- function(maf,
         message(paste0("Warning: only one sample was found in ", id,
                        " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
         return(NA)
+=======
+    result <- list()
+    for( m in maf_list){
+        maf_data <- subMaf(m,
+                         min.ccf = min.ccf,
+                         clonalStatus = clonalStatus,...)
+        patient <- getMafPatient(m)
+        if(nrow(maf_data) == 0){
+            message("Warning :there was no mutation in ", patient, " after filtering.")
+            next
+        }
+        
+        if(! "CCF" %in% colnames(maf_data)){
+            stop(paste0("Error: calculation of Nei’s distance requires CCF data." ,
+                        "No CCF data was found when generate Maf object with readMaf function"))
+        }
+>>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
         
       }
     }
