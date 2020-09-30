@@ -4,7 +4,7 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default NULL.
 #' @param chrSilent Chromosomes excluded in the analysis. e.g, 1, 2, 3. Default NULL.
-#' @param refBuild Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".
+#' @param refBuild Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".
 #' @param sample.text.size Size of sample name. Default 11.
 #' @param chrom.text.size Size of chromosome text. Default 3.
 #' @param legend.text.size Size of legend text. Default 9.
@@ -12,7 +12,7 @@
 #' @param sample.bar.height Bar height of each sample. Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome. Default 0.5.
 #' @param showRownames Logical (Default: TRUE). Show sample names of rows.
-#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. Default TRUE. 
+#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. (Default: TRUE). 
 #' @param showCytoband Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.
 #' @param showGene Logical (Default: FALSE). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.

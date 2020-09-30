@@ -87,7 +87,7 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
     refBuild <- getPhyloTreeRef(phyloTree)
     ref.options = c('hg18', 'hg19', 'hg38')
     if(!refBuild %in% ref.options){
-      stop("'refBuild' can only be either 'hg18', 'hg19' or 'hg38'")
+      stop("'refBuild' can only be one of 'hg18', 'hg19' or 'hg38'")
     }else {
       refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
     }
