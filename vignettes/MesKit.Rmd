@@ -142,7 +142,11 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 **Example Segmentation file**
 
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
+<<<<<<< HEAD
 segInfo <- read.table(system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit"), header = TRUE)
+=======
+segInfo <- read.table(system.file("extdata", "HCC6046.seg.txt", package = "MesKit"), header = TRUE)
+>>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
 segInfo[1:5, ]
 ```  
  

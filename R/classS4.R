@@ -4,7 +4,7 @@
 #' @slot sample.info data.frame of sample information per patient.
 #' @slot nonSyn.vc list of variant classifications which are considered as non-silent.
 #' Default NULL, use Variant Classifications with "Frame_Shift_Del", "Frame_Shift_Ins", "Splice_Site", "Translation_Start_Site", "Nonsense_Mutation", "Nonstop_Mutation", "In_Frame_Del", "In_Frame_Ins", "Missense_Mutation"
-#' @slot ref.build human reference genome version. Default: 'hg19'. Optional: 'hg18' or 'hg38'.
+#' @slot ref.build human reference genome version. Default 'hg19'. Optional: 'hg18' or 'hg38'.
 #' @rdname Maf-class
 #' @exportClass Maf
 Maf <- setClass(
