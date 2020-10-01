@@ -1,6 +1,5 @@
 Package: MesKit
 Type: Package
-<<<<<<< HEAD
 Title: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations
 Version: 0.99.17
 Authors@R: c(
@@ -18,25 +17,3 @@ Imports: methods, data.table, Biostrings, dplyr, tidyr (>= 1.0.0), ape (>= 5.4.1
 RoxygenNote: 7.1.1
 Suggests: shiny, knitr, rmarkdown, BSgenome.Hsapiens.UCSC.hg19 (>= 1.4.0), org.Hs.eg.db, clusterProfiler,      
           TxDb.Hsapiens.UCSC.hg19.knownGene
-=======
-Title: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations.
-Version: 0.99.4
-Author: Mengni Liu
-Maintainer: Mengni Liu <niinleslie@gmail.com>
-Description: A tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations
-License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: TRUE
-Depends: R (>= 3.6.0)
-Imports: data.table, Biostrings, dplyr, tidyr (>= 1.0.0), ape, ggrepel, pracma, 
-        cowplot, mclust, phangorn, ComplexHeatmap (>= 1.9.3), ggplot2, RColorBrewer
-RoxygenNote: 7.1.0
-Suggests: shiny, knitr, rmarkdown
->>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
-VignetteBuilder: knitr
-biocViews: Software, SomaticMutation, GeneticVariability, Genetics, Classification,
-			VariantAnnotation, DataRepresentation, Visualization, Sequencing, GUI
-NeedsCompilation: no
-BugReports: https://github.com/Niinleslie/MesKit/issues
-git_url: https://github.com/Niinleslie/MesKit
-git_last_commit_date: 2020-07-03
