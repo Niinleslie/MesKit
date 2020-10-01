@@ -21,14 +21,14 @@ compareTree(
 
 \item{plot}{Logical (Default: FALSE). If TRUE, two trees will be plotted on the same device and their similarities will be shown.}
 
-\item{min.ratio}{Double (Default: 1/20). If min.ratio is not NULL,
+\item{min.ratio}{Double, Default 1/20. If min.ratio is not NULL,
 all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length.}
 
 \item{show.bootstrap}{Logical (Default: TRUE). Whether to add bootstrap value on internal nodes.}
 
 \item{common.col}{Color of common branches.}
 
-\item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
+\item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 }
 \value{
 A vector containing the following tree distance methods by R package phangorn

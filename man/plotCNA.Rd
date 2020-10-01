@@ -32,7 +32,7 @@ plotCNA(
 
 \item{chrSilent}{Chromosomes excluded in the analysis. e.g, 1, 2, 3. Default NULL.}
 
-\item{refBuild}{Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".}
+\item{refBuild}{Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".}
 
 \item{sample.text.size}{Size of sample name. Default 11.}
 
@@ -48,7 +48,7 @@ plotCNA(
 
 \item{showRownames}{Logical (Default: TRUE). Show sample names of rows.}
 
-\item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. Default TRUE.}
+\item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. (Default: TRUE).}
 
 \item{showCytoband}{Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.}
 

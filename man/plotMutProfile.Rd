@@ -28,26 +28,26 @@ plotMutProfile(
 Classify SSNVs/Indels into Shared/P-shared/Private, Clonal/Subclonl
 or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClonal/Private-SubClonal}
 
-\item{class}{The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
+\item{class}{The class which would be represented. Default "SP" (Shared pattern: Public/Shared/Private),
 other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{classByTumor}{Logical (Default: FALSE). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)}
 
-\item{topGenesCount}{The number of genes print, default is 10}
+\item{topGenesCount}{The number of genes print, Default 10.}
 
 \item{geneList}{A list of genes to restrict the analysis. Default NULL.}
 
-\item{bgCol}{Background grid color. Default: "#f0f0f0"}
+\item{bgCol}{Background grid color. Default "#f0f0f0".}
 
-\item{patientsCol}{A list containing customized colors for distinct patients. Default: NULL.}
+\item{patientsCol}{A list containing customized colors for distinct patients. Default NULL.}
 
-\item{removeEmptyCols}{Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE}
+\item{removeEmptyCols}{Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE.}
 
-\item{removeEmptyRows}{Logical (Default: TRUE). Whether remove the genes without alterations. Only works when plot is TRUE}
+\item{removeEmptyRows}{Logical (Default: TRUE). Whether remove the genes without alterations. Only works when plot is TRUE.}
 
 \item{showColnames}{Logical (Default: TRUE). Show sample names of columns.}
 
-\item{sampleOrder}{A named list which contains the sample order used in plotting the final profile. Default: NULL}
+\item{sampleOrder}{A named list which contains the sample order used in plotting the final profile. Default NULL.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 
