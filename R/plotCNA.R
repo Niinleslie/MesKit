@@ -158,25 +158,34 @@ plotCNA <- function(seg,
                     58617616, 64444167, 46709983, 50818468, 156040895, 57227415)
     }
     
-    names(chrLens) <- paste("chr" ,seq_len(24),sep = "")
-    chrLabels <- seq_len(24)[!seq_len(24) %in% chrSilent]
-    chrLens <- chrLens[!names(chrLens) %in% paste("chr" ,chrSilent, sep = "")]
+    chrLabels <- seq_len(24)
     
-    ## remove empty chromosome
+    chrTable <- data.table::data.table(chr = as.character(chrLabels),
+                                       start = as.numeric(chrLens),
+                                       end = as.numeric(chrLens))
     if(removeEmptyChr){
-        chr_seg <- sort(as.numeric(unique(seg$Chromosome)))
-        chrLabels <- chrLabels[chrLabels %in% chr_seg]
-        chrLens <- chrLens[paste("chr" , chr_seg, sep = "")]
+        chr_seg <- unique(as.character(seg$Chromosome)) 
+        chrTable <- dplyr::filter(chrTable, .data$chr %in% chr_seg)
     }
+    chrTable <- chrTable %>% 
+        dplyr::filter(!.data$chr %in% chrSilent)
+    seg <- seg %>% 
+        dplyr::filter(!.data$Chromosome %in% chrSilent)
     
-    chrLens <- append(cumsum(chrLens),1,after = 0)
-    chrTable <- data.table::data.table(chr = chrLabels,
-                                      start = chrLens[seq_len(length(chrLens)-1)],
-                                      end = chrLens[2:length(chrLens)])
+    
+    chrLens <- append(cumsum(chrTable$start),1,after = 0)
+    chrTable <- chrTable %>% 
+        dplyr::mutate(
+            start = chrLens[seq_len(length(chrLens)-1)],
+            end = chrLens[2:length(chrLens)]
+        )
+    
+    chrLabels <- chrTable$chr
+    
     # chr_bar_color <- c()
     # chr_text_color <- c()
     
-    chr_bar_color <- lapply(seq_len(length(chrLabels)), function(i){
+    chr_bar_color <- lapply(seq_len(length(as.numeric(chrLabels) )), function(i){
         if((i %% 2) == 0){
             return("white")
         }else{
@@ -184,7 +193,7 @@ plotCNA <- function(seg,
         }
     }) %>% unlist()
     
-    chr_text_color <- lapply(seq_len(length(chrLabels)), function(i){
+    chr_text_color <- lapply(seq_len(length(as.numeric(chrLabels))), function(i){
         if((i %% 2) == 0){
             return("black")
         }else{
@@ -193,29 +202,16 @@ plotCNA <- function(seg,
     }) %>% unlist()
     
     
-    # for(i in seq_len(length(chrLabels))){
-    #     if((i %% 2) == 0){
-    #         chr_bar_color <- c(chr_bar_color, "white")
-    #         chr_text_color <- c(chr_text_color, "black")
-    #     }else{
-    #         chr_bar_color <- c(chr_bar_color, "black")
-    #         chr_text_color <- c(chr_text_color, "white")
-    #     }
-    # }
     chrTable$color = chr_bar_color
-    
-    # for(patient in patients){
-    #     seg <- dat.list[[patient]]
     chr_start_pos <- as.numeric(chrTable$start) 
     names(chr_start_pos) <- paste0("chr",chrTable$chr)
-    # chr_end_pos <- as.numeric(chrTable$end) 
-    # names(chr_end_pos) <- paste0("chr",chrTable$chr)
-    
+
     seg <- seg %>% 
         dplyr::mutate(
             Update_Start = as.numeric(.data$Start_Position) + chr_start_pos[paste0("chr",.data$Chromosome)],
             Update_End = as.numeric(.data$End_Position) + chr_start_pos[paste0("chr",.data$Chromosome)]
         )
+    
     
     seg$hmin <- 0
     seg$hmax <- 0
