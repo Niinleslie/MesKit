@@ -55,7 +55,7 @@ calNeiDist <- function(maf,
     
     if(! "CCF" %in% colnames(maf_data)){
       stop(paste0("Calculation of Nei's distance requires CCF data.",
-                  "No CCF data was found when generate Maf object with readMaf function"))
+                  "No CCF data was found when generated Maf object with readMaf function"))
     }
     
     Nei_input <- maf_data %>%
