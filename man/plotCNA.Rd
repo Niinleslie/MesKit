@@ -14,6 +14,7 @@ plotCNA(
   chrom.text.size = 3,
   legend.text.size = 9,
   legend.title.size = 11,
+  annot.text.size = 3,
   sample.bar.height = 0.5,
   chrom.bar.height = 0.5,
   showRownames = TRUE,
@@ -34,13 +35,15 @@ plotCNA(
 
 \item{refBuild}{Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".}
 
-\item{sample.text.size}{Size of sample name. Default 11.}
+\item{sample.text.size}{Fontsize of sample name. Default 11.}
 
-\item{chrom.text.size}{Size of chromosome text. Default 3.}
+\item{chrom.text.size}{Fontsize of chromosome text. Default 3.}
 
-\item{legend.text.size}{Size of legend text. Default 9.}
+\item{legend.text.size}{Fontsize of legend text. Default 9.}
 
-\item{legend.title.size}{Size of legend title. Default 11.}
+\item{legend.title.size}{Fontsize of legend title. Default 11.}
+
+\item{annot.text.size}{Fontsize of cytoband or gene symbols. Default 3.}
 
 \item{sample.bar.height}{Bar height of each sample. Default 0.5.}
 
