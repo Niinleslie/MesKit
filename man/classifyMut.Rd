@@ -11,9 +11,9 @@ classifyMut(maf, patient.id = NULL, class = "SP", classByTumor = FALSE, ...)
 Classify SSNVs/Indels into Shared/P-shared/Private, Clonal/Subclonl
 or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClonal/Private-SubClonal}
 
-\item{patient.id}{Select the specific patients. Default: NULL, all patients are included}
+\item{patient.id}{Select the specific patients. Default NULL, all patients are included}
 
-\item{class}{The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
+\item{class}{The class which would be represented. Default: "SP" (Shared pattern: Public/Shared/Private),
 other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{classByTumor}{Logical (Default: FALSE). Classify mutations based on "Tumor_ID".}

@@ -17,10 +17,3 @@ Imports: methods, data.table, Biostrings, dplyr, tidyr (>= 1.0.0), ape (>= 5.4.1
 RoxygenNote: 7.1.1
 Suggests: shiny, knitr, rmarkdown, BSgenome.Hsapiens.UCSC.hg19 (>= 1.4.0), org.Hs.eg.db, clusterProfiler,      
           TxDb.Hsapiens.UCSC.hg19.knownGene
-VignetteBuilder: knitr
-biocViews: Software, SomaticMutation, GeneticVariability, Genetics, Classification,
-			VariantAnnotation, DataRepresentation, Visualization, Sequencing, GUI
-NeedsCompilation: no
-BugReports: https://github.com/Niinleslie/MesKit/issues
-git_url: https://github.com/Niinleslie/MesKit
-git_last_commit_date: 2020-07-03

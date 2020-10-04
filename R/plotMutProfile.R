@@ -4,17 +4,17 @@
 #' @param patient.id  Select or reorder the patients. Default NULL, all patients are included.
 #' Classify SSNVs/Indels into Shared/P-shared/Private, Clonal/Subclonl
 #' or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClonal/Private-SubClonal 
-#' @param class  The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
+#' @param class  The class which would be represented. Default "SP" (Shared pattern: Public/Shared/Private),
 #' other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".
 #' @param classByTumor  Logical (Default: FALSE). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)
-#' @param topGenesCount  The number of genes print, default is 10
+#' @param topGenesCount  The number of genes print, Default 10.
 #' @param geneList  A list of genes to restrict the analysis. Default NULL.
-#' @param patientsCol  A list containing customized colors for distinct patients. Default: NULL.
-#' @param bgCol  Background grid color. Default: "#f0f0f0"
-#' @param removeEmptyCols  Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE
-#' @param removeEmptyRows  Logical (Default: TRUE). Whether remove the genes without alterations. Only works when plot is TRUE
+#' @param patientsCol  A list containing customized colors for distinct patients. Default NULL.
+#' @param bgCol  Background grid color. Default "#f0f0f0".
+#' @param removeEmptyCols  Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE.
+#' @param removeEmptyRows  Logical (Default: TRUE). Whether remove the genes without alterations. Only works when plot is TRUE.
 #' @param showColnames  Logical (Default: TRUE). Show sample names of columns.
-#' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default: NULL
+#' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default NULL.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' @return Mutational profile
@@ -156,7 +156,7 @@ plotMutProfile <- function(maf,
         #dplyr::select_if(function(x) {!all(is.na(x))}) %>%
       
     if (nrow(mat) < topGenesCount) {
-      message(paste0("Warnings: only ", nrow(mat), ' genes was found in this analysis.'))
+      message(paste0("Warning: only ", nrow(mat), ' genes was/were found in this analysis.'))
     } else{
       
       mat <- mat %>% dplyr::slice(seq_len(topGenesCount))
@@ -503,7 +503,7 @@ plotMutProfile <- function(maf,
               mat,
               alter_fun = alter_fun(class),
               col = colorSelect,
-              column_title = "Mutational profile",
+              #column_title = "Mutational profile",
               column_title_gp = grid::gpar(fontsize = 13.5, col = "black"),
               #column_title_gp = grid::gpar(fontsize = 13.5, fontface = "bold", col = "black"),
               row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),

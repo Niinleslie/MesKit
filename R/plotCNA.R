@@ -4,15 +4,16 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param sampleOrder A named list which contains the sample order used in plotting the final profile. Default NULL.
 #' @param chrSilent Chromosomes excluded in the analysis. e.g, 1, 2, 3. Default NULL.
-#' @param refBuild Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default: "hg19".
-#' @param sample.text.size Size of sample name. Default 11.
-#' @param chrom.text.size Size of chromosome text. Default 3.
-#' @param legend.text.size Size of legend text. Default 9.
-#' @param legend.title.size Size of legend title. Default 11.
+#' @param refBuild Human reference genome versions of hg18, hg19 or hg38 by UCSC. Default "hg19".
+#' @param sample.text.size Fontsize of sample name. Default 11.
+#' @param chrom.text.size Fontsize of chromosome text. Default 3.
+#' @param legend.text.size Fontsize of legend text. Default 9.
+#' @param legend.title.size Fontsize of legend title. Default 11.
+#' @param annot.text.size Fontsize of cytoband or gene symbols. Default 3.
 #' @param sample.bar.height Bar height of each sample. Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome. Default 0.5.
 #' @param showRownames Logical (Default: TRUE). Show sample names of rows.
-#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. Default TRUE. 
+#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. (Default: TRUE). 
 #' @param showCytoband Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.
 #' @param showGene Logical (Default: FALSE). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
@@ -69,6 +70,7 @@ plotCNA <- function(seg,
                     chrom.text.size = 3,
                     legend.text.size = 9,
                     legend.title.size = 11,
+                    annot.text.size = 3,
                     sample.bar.height = 0.5,
                     chrom.bar.height = 0.5,
                     showRownames = TRUE,
@@ -474,7 +476,7 @@ plotCNA <- function(seg,
         scale_x_continuous(expand = c(0,0))+
         # scale_y_continuous(breaks = Y.text.table$Pos,
         #                    labels = Y.text.table$Tumor_Sample_Barcode)+
-        ggtitle("Copy number alteration profile")+
+        #ggtitle("Copy number alteration profile")+
         theme(plot.title = element_text(size = 13.5, face = "bold", hjust = 0.5, vjust = -2))
     if(showRownames){
         p <- p + scale_y_continuous(breaks = Y.text.table$Pos,
@@ -490,7 +492,7 @@ plotCNA <- function(seg,
     
     if(showCytoband){
         if(!"Cytoband_pos" %in% colnames(CNADat)){
-            stop("Cannot find information of cytoband. Please check you seg object.")
+            stop("Cannot find information of cytobands. Please check your seg object.")
         }
         ## cytoband
         CNADat$Cytoband_pos <- as.numeric(CNADat$Start_Position) + chr_start_pos[paste0("chr",CNADat$Chromosome)]
@@ -509,6 +511,7 @@ plotCNA <- function(seg,
                                      aes(x = Cytoband_pos,
                                          y = max(backgroundTable$ymax),
                                          label = Cytoband),
+                                     size = annot.text.size,
                                      angle = 90,
                                      nudge_y  = sample.bar.height*0.3*sample_num/8,
                                      direction = "x",
@@ -521,7 +524,7 @@ plotCNA <- function(seg,
             stop("showGene and showCytoband cannot both be TRUE.")
         }
         if(!"Hugo_Symbol" %in% colnames(CNADat)){
-            stop("Cannot find gene information. Please use parameter 'txdb' in readSegment.")
+            stop("Cannot find gene information. Please provide correct 'txdb' object in readSegment.")
         }
         CNADat$gene_pos <- as.numeric(CNADat$Start_Position) + (as.numeric(CNADat$End_Position) - as.numeric(CNADat$Start_Position))/2
         CNADat$gene_id <- paste(CNADat$Hugo_Symbol, CNADat$Chromosome, CNADat$Start_Position, CNADat$End_Position, sep = ":")
@@ -532,6 +535,7 @@ plotCNA <- function(seg,
                                      aes(x = gene_pos,
                                          y = max(backgroundTable$ymax),
                                          label = Hugo_Symbol),
+                                     size = annot.text.size,
                                      angle = 90,
                                      nudge_y  = sample.bar.height*0.3*patient_num,
                                      direction = "x",
