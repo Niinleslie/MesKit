@@ -490,7 +490,7 @@ plotCNA <- function(seg,
     
     if(showCytoband){
         if(!"Cytoband_pos" %in% colnames(CNADat)){
-            stop("Cannot find information of cytoband. Please check you seg object.")
+            stop("Cannot find information of cytobands. Please check your seg object.")
         }
         ## cytoband
         CNADat$Cytoband_pos <- as.numeric(CNADat$Start_Position) + chr_start_pos[paste0("chr",CNADat$Chromosome)]
@@ -502,6 +502,7 @@ plotCNA <- function(seg,
                                      aes(x = Cytoband_pos,
                                          y = max(backgroundTable$ymax),
                                          label = Cytoband),
+                                     size = annot.text.size,
                                      angle = 90,
                                      nudge_y  = sample.bar.height*0.3*patient_num,
                                      direction = "x",
@@ -514,7 +515,7 @@ plotCNA <- function(seg,
             stop("showGene and showCytoband cannot both be TRUE.")
         }
         if(!"Hugo_Symbol" %in% colnames(CNADat)){
-            stop("Cannot find gene information. Please use parameter 'txdb' in readSegment.")
+            stop("Cannot find gene information. Please provide correct 'txdb' object in readSegment.")
         }
         CNADat$gene_pos <- as.numeric(CNADat$Start_Position) + (as.numeric(CNADat$End_Position) - as.numeric(CNADat$Start_Position))/2
         CNADat$gene_id <- paste(CNADat$Hugo_Symbol, CNADat$Chromosome, CNADat$Start_Position, CNADat$End_Position, sep = ":")
@@ -525,7 +526,7 @@ plotCNA <- function(seg,
                                      aes(x = gene_pos,
                                          y = max(backgroundTable$ymax),
                                          label = Hugo_Symbol),
-                                     size = 2,
+                                     size = annot.text.size,
                                      angle = 90,
                                      nudge_y  = sample.bar.height*0.3*patient_num,
                                      direction = "x",
