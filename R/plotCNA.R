@@ -406,7 +406,7 @@ plotCNA <- function(seg,
     }
     
     ## cytoband table
-    # cytoband_table <- CNADat %>% 
+    # Cytoband_table <- CNADat %>% 
     #     distinct(Cytoband, .keep_all = TRUE)
     
     ## convert chromosome name
@@ -424,6 +424,7 @@ plotCNA <- function(seg,
     hmax <- NULL
     Type <- NULL
     chr <- NULL
+    sample_num <- length(unique(CNADat$Sample_ID))
 
     p <- ggplot()+
         ## background color
@@ -471,6 +472,7 @@ plotCNA <- function(seg,
             # legend.title = element_text(size = legend.title.size),
             # legend.text = element_text(size = legend.text.size,margin = margin(b = 3))
         )+
+        # coord_fixed(ratio = 1) + 
         scale_x_continuous(expand = c(0,0))+
         # scale_y_continuous(breaks = Y.text.table$Pos,
         #                    labels = Y.text.table$Tumor_Sample_Barcode)+
@@ -494,17 +496,24 @@ plotCNA <- function(seg,
         }
         ## cytoband
         CNADat$Cytoband_pos <- as.numeric(CNADat$Start_Position) + chr_start_pos[paste0("chr",CNADat$Chromosome)]
-        cytoband_table <- CNADat %>%
+        Cytoband_table <- CNADat %>%
             distinct(Cytoband, .keep_all = TRUE)
-        
         p <- p + 
-            ggrepel::geom_text_repel(data = cytoband_table, 
+            
+            ## blank bar
+            geom_rect(aes(xmin = 0,
+                         xmax = max(backgroundTable$xmax),
+                         ymin = max(backgroundTable$ymax),
+                         ymax = max(backgroundTable$ymax) + sample.bar.height*sample_num/5),
+                     fill = "white") + 
+            
+            ggrepel::geom_text_repel(data = Cytoband_table, 
                                      aes(x = Cytoband_pos,
                                          y = max(backgroundTable$ymax),
                                          label = Cytoband),
                                      size = annot.text.size,
                                      angle = 90,
-                                     nudge_y  = sample.bar.height*0.3*patient_num,
+                                     nudge_y  = sample.bar.height*0.3*sample_num/8,
                                      direction = "x",
                                      vjust = 0)
                                                                            
