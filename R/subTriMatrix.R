@@ -1,4 +1,4 @@
-subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE, level = "2"){
+subTriMatrix <- function(phyloTree_list, CT = FALSE, level = "2"){
   
   level <- as.character(level)
   level <- match.arg(level,
