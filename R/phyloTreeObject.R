@@ -26,6 +26,7 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
                                        sep=":"), "mut_id")
    mutSigRef <- data.frame(Branch_ID = as.character(maf_data$Tumor_Sample_Barcode), 
                            Mutation_Type = as.character(maf_data$Tumor_ID),
+                           Tumor_ID = as.character(maf_data$Tumor_ID),
                            Hugo_Symbol = maf_data$Hugo_Symbol, 
                            Chromosome = as.character(maf_data$Chromosome),
                            Start_Position = maf_data$Start_Position, 
@@ -55,30 +56,30 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       unbranch <- names(binary.matrix)[!names(binary.matrix) %in% branch]
       unbranch <- unbranch[unbranch!="mut_id"]
       ## get branch tumor type
-      types <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
+      ids <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
       tsbs <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
       tsbs.all <- unique(maf_data$Tumor_Sample_Barcode)
       
       if(length(tsbs.all) == length(tsbs)){
          Mutation_Type <- "Public"
-      }else if(length(types) > 1){
-         if(length(unique(maf_data$Tumor_ID)) == 1){
-             Mutation_Type <- "Shared"
-         }else{
-             Mutation_Type <- paste0("Shared_", paste(types,collapse = "_"))
-         }
-      }else if(length(types) == 1 & length(branch) > 1){
+         tumor_ids <- paste(ids, collapse = "&")
+      }else if(length(ids) > 1){
+         Mutation_Type <- paste0("Shared_", paste(ids,collapse = "_"))
+         tumor_ids <- paste(ids, collapse = "&")
+      }else if(length(ids) == 1 & length(branch) > 1){
           if(length(unique(maf_data$Tumor_ID)) == 1){
               Mutation_Type <- "Shared"
           }else{
-              Mutation_Type <- paste0("Shared_",paste(types,collapse = "_"))
+              Mutation_Type <- paste0("Shared_",paste(ids,collapse = "_"))
           }
-      }else if(length(types) == 1 & length(branch) == 1){
+         tumor_ids <- ids
+      }else if(length(ids) == 1 & length(branch) == 1){
           if(length(unique(maf_data$Tumor_ID)) == 1){
               Mutation_Type <- "Private"
           }else{
-              Mutation_Type <- paste0("Private_",paste(types,collapse = "_"))
+              Mutation_Type <- paste0("Private_",paste(ids,collapse = "_"))
           }
+         tumor_ids <- ids
       }
       ## initialize 
       . = NULL
@@ -89,16 +90,33 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       # print(branch)
       # print(branch.intersection)
       ## special situation: branch.intersection NULL
+      # if (nrow(branch.intersection) == 0){
+      #    left_binary_matrix <- binary.matrix %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1))
+      #    left_mut_ids <- left_binary_matrix$mut_id
+      #    branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% left_mut_ids), ]
+      #    branch.mut$Branch_ID <- paste0(branchName, "(NA)") 
+      #    
+      #    ## Tumor_ID 
+      #    branch.mut$Mutation_Type <- paste0(Mutation_Type, "(NA)") 
+      #    # message(paste(branchName, ": There are no private mutations for branch ", sep=""))
+      #    mutBranchesOutput[[branchName]] <- branch.mut
+      #    next()
+      # }
+      
       if (nrow(branch.intersection) == 0){
-         left_binary_matrix <- binary.matrix %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1))
-         left_mut_ids <- left_binary_matrix$mut_id
-         branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% left_mut_ids), ]
-         branch.mut$Branch_ID <- paste0(branchName, "(NA)") 
-         
-         ## Tumor_ID 
-         branch.mut$Mutation_Type <- paste0(Mutation_Type, "(NA)") 
-         print(branch.mut)
          # message(paste(branchName, ": There are no private mutations for branch ", sep=""))
+         branch.mut <- data.frame(Branch_ID=branchName,
+                                  Mutation_Type = Mutation_Type,
+                                  Tumor_ID = tumor_ids,
+                                  Chromosome=NA,
+                                  Start_Position=NA,
+                                  End_Position=NA,
+                                  Reference_Allele=NA,
+                                  Tumor_Allele=NA,
+                                  Hugo_Symbol=NA,
+                                  mut_id=NA
+                                  # Alias=NA
+         )
          mutBranchesOutput[[branchName]] <- branch.mut
          next()
       }
@@ -110,8 +128,9 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       
       ## Tumor_ID 
       branch.mut$Mutation_Type <- Mutation_Type
+      branch.mut$Tumor_ID <- tumor_ids
       
-      # branch.mut$Mutation_Type <- paste(types,collapse = "_")
+      # branch.mut$Mutation_Type <- paste(ids,collapse = "_")
       branch.mut <- branch.mut[!duplicated(branch.mut),]
       # branch.mut$Alias <- as.character(branch.id[which(branch.id$Branch == branchName), ]$Alias)
       
@@ -123,11 +142,14 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    
    mutBranchesOutput <- dplyr::bind_rows(mutBranchesOutput)
    
-   # mut_left <- mutSigRef %>%
-   #    dplyr::filter(!.data$mut_id %in% mutBranchesOutput$mut_id)
-   # print(mut_left)
+   mut_left <- mutSigRef %>%
+      dplyr::filter(!.data$mut_id %in% mutBranchesOutput$mut_id) %>% 
+      dplyr::mutate(Branch_ID = paste0(.data$Branch_ID,"(NA)"),
+                    Mutation_Type = paste0(.data$Mutation_Type,"(NA)")) %>% 
+      dplyr::select(-"mut_id")
    
-   mutBranchesOutput <- dplyr::select(mutBranchesOutput, -"mut_id")
+   mutBranchesOutput <- dplyr::select(mutBranchesOutput, -"mut_id") %>% 
+      dplyr::bind_rows(mut_left)
    
    branch.type <- mutBranchesOutput %>% 
        dplyr::select("Branch_ID", "Mutation_Type") %>% 

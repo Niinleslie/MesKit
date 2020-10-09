@@ -25,7 +25,7 @@
 triMatrix <- function(phyloTree,
                       patient.id = NULL,
                       withinTumor = FALSE,
-                      level = 2){
+                      level = "2"){
   ## check input data
   phyloTree_list <- checkPhyloTreeInput(phyloTree, patient.id = patient.id)
   result <- subTriMatrix(phyloTree_list, withinTumor = withinTumor, level = level)

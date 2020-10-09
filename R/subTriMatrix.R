@@ -1,7 +1,8 @@
-subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE, level = 2){
+subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE, level = "2"){
   
+  level <- as.character(level)
   level <- match.arg(level,
-                     choices = c(1, 2, 3, 4, 5),
+                     choices = c("1", "2", "3", "4", "5"),
                      several.ok = FALSE)
   
   bases <- c("A","C","G","T")
@@ -141,16 +142,40 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE, level 
         as.data.frame()
     }
     
-    if(level = 1){
-      branch_data_list <- list(patient = mut_branches)
-    }else if(level = 2){
+    if(level == 1){
+        
+      branch_data_list <- list(mut_branches)
+      names(branch_data_list) <- patient
+    }else if(level == 2){
+      mut_branches <- mut_branches %>% 
+        tidyr::separate_rows(.data$Tumor_ID, sep = "&")
       
-    }else if(level = 3){
+      branch_data_list <- split(mut_branches, mut_branches$Tumor_ID)
       
-    }else if(level = 4){
+    }else if(level == 3){
+      
+      NA_mutaion_df <- mut_branches[grepl("\\(NA\\)", mut_branches$Branch_ID), ]
+      if(nrow(NA_mutaion_df) > 0){
+        NA_mutaion_df <- NA_mutaion_df %>% 
+          dplyr::mutate(Branch_ID = sub("\\(NA\\)","",.data$Branch_ID))
+      }
+      # NA_mutaion_df <- mut_branches[grepl("\\(NA\\)", mut_branches$Branch_ID), ] %>% 
+      #   dplyr::mutate(Branch_ID = sub("\\(NA\\)","",.data$Branch_ID))
+      # print( mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),])
+      
+      mutation_df <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),] %>% 
+        tidyr::separate_rows(.data$Branch_ID, sep = "&")
+      
+      mut_branches <- dplyr::bind_rows(mutation_df, NA_mutaion_df)%>% 
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Branch_ID)
+      
+      branch_data_list <- split(mut_branches, mut_branches$Tumor_Sample_Barcode)
+    }else if(level == 4){
+      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
       branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
-    }else if(level = 5){
+    }else if(level == 5){
       ## sort mutation type by Public Shared Private
+      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
       mutation_type <- unique(mut_branches$Mutation_Type)
       public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
       shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
