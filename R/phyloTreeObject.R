@@ -90,18 +90,15 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       # print(branch.intersection)
       ## special situation: branch.intersection NULL
       if (nrow(branch.intersection) == 0){
+         left_binary_matrix <- binary.matrix %>% dplyr::filter_at(branch, dplyr::all_vars(. == 1))
+         left_mut_ids <- left_binary_matrix$mut_id
+         branch.mut <- mutSigRef[which(mutSigRef$mut_id %in% left_mut_ids), ]
+         branch.mut$Branch_ID <- paste0(branchName, "(NA)") 
+         
+         ## Tumor_ID 
+         branch.mut$Mutation_Type <- paste0(Mutation_Type, "(NA)") 
+         print(branch.mut)
          # message(paste(branchName, ": There are no private mutations for branch ", sep=""))
-         branch.mut <- data.frame(Branch_ID=branchName,
-                                  Mutation_Type = Mutation_Type,
-                                  Chromosome=NA,
-                                  Start_Position=NA,
-                                  End_Position=NA,
-                                  Reference_Allele=NA,
-                                  Tumor_Allele=NA,
-                                  Hugo_Symbol=NA,
-                                  mut_id=NA
-                                  # Alias=NA
-                                  )
          mutBranchesOutput[[branchName]] <- branch.mut
          next()
       }
@@ -124,8 +121,13 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    
    # print(binary.matrix[!binary.matrix$mut_id %in% mutBranchesOutput$mut_id,])
    
-   mutBranchesOutput <- dplyr::bind_rows(mutBranchesOutput) %>% 
-       dplyr::select(-"mut_id")
+   mutBranchesOutput <- dplyr::bind_rows(mutBranchesOutput)
+   
+   # mut_left <- mutSigRef %>%
+   #    dplyr::filter(!.data$mut_id %in% mutBranchesOutput$mut_id)
+   # print(mut_left)
+   
+   mutBranchesOutput <- dplyr::select(mutBranchesOutput, -"mut_id")
    
    branch.type <- mutBranchesOutput %>% 
        dplyr::select("Branch_ID", "Mutation_Type") %>% 
