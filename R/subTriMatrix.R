@@ -143,7 +143,8 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE, level 
     }
     
     if(level == 1){
-        
+      mut_branches <- tidyr::separate_rows(mut_branches, .data$Branch_ID, sep = "&")
+      
       branch_data_list <- list(mut_branches)
       names(branch_data_list) <- patient
     }else if(level == 2){

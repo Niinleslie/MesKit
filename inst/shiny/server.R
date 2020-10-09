@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 # Define server logic required to plot various variables against mpg
 shinyServer(function(input, output, session){
   observeEvent(input$help, {
@@ -2606,7 +2604,9 @@ shinyServer(function(input, output, session){
           
           setProgress(message = 'Processing: triMatrix')
           
-          tm <- triMatrix(phyloTree, withinTumor = input$treemutsig_withintumor)
+          tm <- triMatrix(phyloTree,
+                          withinTumor = input$treemutsig_withintumor,
+                          level = input$treemutsig_level)
           incProgress(amount = 1)
           
           setProgress(message = 'Processing: fitSignatrues')
@@ -2932,8 +2932,6 @@ shinyServer(function(input, output, session){
    
 })  
   
-=======
-
 # Define server logic required to plot various variables against mpg
 shinyServer(function(input, output, session){
   observeEvent(input$help, {
@@ -5771,7 +5769,3 @@ shinyServer(function(input, output, session){
   
    
 })  
-  
-## Download control  
-
->>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12

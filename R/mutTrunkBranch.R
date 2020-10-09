@@ -33,7 +33,7 @@ mutTrunkBranch <- function(phyloTree,
     ## check input data
     phyloTree_list <- checkPhyloTreeInput(phyloTree, patient.id = patient.id)
     ## get trinucleotide matrix
-    tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_list, CT = CT)
+    tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_list, CT = CT, level = "4")
 
     processMTB <- function(phyloTree){
         patient <- getPhyloTreePatient(phyloTree)
@@ -54,7 +54,6 @@ mutTrunkBranch <- function(phyloTree,
             num <- length(s)
         })
         trunk_name <- branch_names[which.max(branch_sample_num)]
-        
         ## label the Trunk
         if (length(trunk_name) == 0){
             warning(paste0("Patient ", patient,": no trunk mutations were detected!"))
