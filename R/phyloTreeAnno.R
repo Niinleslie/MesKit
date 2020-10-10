@@ -412,7 +412,7 @@ getTreeData <- function(phyloTree = NULL,
    if(!is.null(branchCol) & !compare){
        ## add signature
       if(branchCol == "mutSig"){
-          tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
+          tri_matrix <- triMatrix(phyloTree,level = "4")
           fit_out <- fitSignatures(tri_matrix,
                                    signaturesRef = signaturesRef,
                                    min.mut.count = min.mut.count)

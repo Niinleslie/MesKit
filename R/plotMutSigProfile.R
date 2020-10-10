@@ -165,7 +165,6 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
             fit <- sig_input[[i]]
             patient <- names(sig_input)[[i]]
             RSS <- fit$RSS
-            print(RSS)
             signatures_aetiology <- fit$signatures.aetiology
             # tsb.label <- sig_input[[i]]$tsb.label
             
