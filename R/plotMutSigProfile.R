@@ -364,7 +364,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
         names(result) <- names(sig_input)
         
     }else{
-        stop("Error: input data should be the result of function fitSignatures or triMatrix")
+        stop("Input data should be the result of function fitSignatures or triMatrix")
     }
     
    if(length(result) == 1){
