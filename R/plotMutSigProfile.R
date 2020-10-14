@@ -165,7 +165,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
             fit <- sig_input[[i]]
             patient <- names(sig_input)[[i]]
             RSS <- fit$RSS
-            signatures_aetiology <- fit$signatures.aetiology
+            signatures_etiology <- fit$signatures.etiology
             # tsb.label <- sig_input[[i]]$tsb.label
             
             ## convert reconstructed matrix to data frame
@@ -247,8 +247,8 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
                 }
                 
                 ## get signature title
-                sig_names <- signatures_aetiology[signatures_aetiology$Branch == branch,]$Signature
-                sig_con <- signatures_aetiology[signatures_aetiology$Branch == branch,]$Contribution 
+                sig_names <- signatures_etiology[signatures_etiology$Branch == branch,]$Signature
+                sig_con <- signatures_etiology[signatures_etiology$Branch == branch,]$Contribution 
                 names(sig_con) <- sig_names
                 ## sort by contribution
                 sig_con <- sort(sig_con, decreasing = TRUE)

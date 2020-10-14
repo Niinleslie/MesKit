@@ -44,27 +44,28 @@ fitSignatures <- function(tri_matrix = NULL,
     }
   
   ## get signatrue reference
-  df.aetiology <- NULL
+  df.etiology <- NULL
   if(is(signaturesRef,'character')){
     signaturesRef <- match.arg(signaturesRef,
                                choices = c("cosmic_v2","nature2013","exome_cosmic_v3"),
                                several.ok = FALSE)
-    signatures.aetiology <- readRDS(file = system.file("extdata", "signatures.aetiology.rds", package = "MesKit")) 
+    # signatures.etiology <- readRDS(file = system.file("extdata", "signatures.etiology.rds", package = "MesKit"))
+    signatures.etiology <- readRDS(file = "D:/renlab/MesKit/inst/extdata/signatures.etiology.rds")
     if (signaturesRef == "cosmic_v2"){
       sigsRef <- readRDS(file = system.file("extdata", "signatures.cosmic.rds", package = "MesKit"))
       rownames(sigsRef) <- gsub("Signature.", "Signature ", rownames(sigsRef))
-      df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v2$aetiology,
-                                 sig = rownames(signatures.aetiology$cosmic_v2))
+      df.etiology <- data.frame(aeti = signatures.etiology$cosmic_v2$etiology,
+                                 sig = rownames(signatures.etiology$cosmic_v2))
     }else if(signaturesRef == "nature2013"){
       sigsRef <- readRDS(file = system.file("extdata", "signatures.nature2013.rds", package = "MesKit"))
       ## rename signature
       rownames(sigsRef) <- gsub("Signature.", "Signature ", rownames(sigsRef))
-      df.aetiology <- data.frame(aeti = signatures.aetiology$nature2013$aetiology,
-                                 sig = rownames(signatures.aetiology$nature2013))
+      df.etiology <- data.frame(aeti = signatures.etiology$nature2013$etiology,
+                                 sig = rownames(signatures.etiology$nature2013))
     }else if(signaturesRef == "exome_cosmic_v3"){
       sigsRef <- readRDS(file = system.file("extdata", "signatures.exome.cosmic.v3.may2019.rds", package = "MesKit"))
-      df.aetiology <- data.frame(aeti = signatures.aetiology$cosmic_v3$aetiology,
-                                 sig = rownames(signatures.aetiology$cosmic_v3))
+      df.etiology <- data.frame(aeti = signatures.etiology$cosmic_v3$etiology,
+                                 sig = rownames(signatures.etiology$cosmic_v3))
     }
   }else if(!is(signaturesRef, 'data.frame')){
     stop('Input signature reference should be a data frame.')
@@ -168,14 +169,14 @@ fitSignatures <- function(tri_matrix = NULL,
     
     
     ## summary mutation signatures of branches
-    if(!is.null(df.aetiology)){
-      aetiology_ref <- as.character(df.aetiology$aeti)  
-      names(aetiology_ref) <-  as.character(df.aetiology$sig)
+    if(!is.null(df.etiology)){
+      etiology_ref <- as.character(df.etiology$aeti)  
+      names(etiology_ref) <-  as.character(df.etiology$sig)
     }
-    aetiology_ref <- as.character(df.aetiology$aeti)  
-    names(aetiology_ref) <-  as.character(df.aetiology$sig)
-    signatures_aetiology <- data.frame()
-    signatures_aetiology_list <- lapply(seq_len(branch_num), function(i){
+    etiology_ref <- as.character(df.etiology$aeti)  
+    names(etiology_ref) <-  as.character(df.etiology$sig)
+    signatures_etiology <- data.frame()
+    signatures_etiology_list <- lapply(seq_len(branch_num), function(i){
       branch_name <- rownames(tri_matrix)[i]
       contribution <- con_matrix[i,]
       sig_cut <- names(contribution[contribution > signature.cutoff])
@@ -185,21 +186,21 @@ fitSignatures <- function(tri_matrix = NULL,
       sig_con <- as.numeric(contribution[contribution > signature.cutoff])  
       # mut_sum <- sum(tri_matrix[i,])
       
-      sub <- data.frame(Branch = branch_name, 
+      sub <- data.frame(Level_ID = branch_name, 
                         Signature = sig_cut,
                         # Mutation_number = mut_sum,
                         Contribution = sig_con)
-      if(!is.null(df.aetiology)){
-        aet <- aetiology_ref[sig_cut]
-        sub$Aetiology <- as.character(aet)  
+      if(!is.null(df.etiology)){
+        aet <- etiology_ref[sig_cut]
+        sub$Etiology <- as.character(aet)  
       }
       return(sub)
     })
-    signatures_aetiology_list <- signatures_aetiology_list[!is.na(signatures_aetiology_list)]
-    signatures_aetiology <- dplyr::bind_rows(signatures_aetiology_list)
+    signatures_etiology_list <- signatures_etiology_list[!is.na(signatures_etiology_list)]
+    signatures_etiology <- dplyr::bind_rows(signatures_etiology_list)
     ## order data frame by contribution of each branch
-    signatures_aetiology <- dplyr::arrange(signatures_aetiology,
-                                           dplyr::desc(.data$Branch),
+    signatures_etiology <- dplyr::arrange(signatures_etiology,
+                                           dplyr::desc(.data$Level_ID),
                                            dplyr::desc(.data$Contribution))
     
     if(typeof(tri_matrix_list[[i]]) == "list"){
@@ -208,7 +209,7 @@ fitSignatures <- function(tri_matrix = NULL,
         original.mat = origin_matrix,
         cosine.similarity = cos_sim_matrix,
         RSS = RSS, 
-        signatures.aetiology = signatures_aetiology,
+        signatures.etiology = signatures_etiology,
         tsb.label = tsb.label
       )
       return(f)
@@ -218,7 +219,7 @@ fitSignatures <- function(tri_matrix = NULL,
         original.mat = origin_matrix,
         cosine.similarity = cos_sim_matrix,
         RSS = RSS, 
-        signatures.aetiology = signatures_aetiology
+        signatures.etiology = signatures_etiology
       )
       return(f)
     }
