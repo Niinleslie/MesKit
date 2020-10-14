@@ -1,8 +1,8 @@
-subTriMatrix <- function(phyloTree_list, CT = FALSE, level = "2"){
+subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
   
   level <- as.character(level)
   level <- match.arg(level,
-                     choices = c("1", "2", "3", "4", "5"),
+                     choices = c(1, 2, 3, 4, 5),
                      several.ok = FALSE)
   
   bases <- c("A","C","G","T")

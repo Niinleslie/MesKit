@@ -83,25 +83,27 @@ _**MesKit: a tool kit for dissecting cancer evolution from multi-region derived 
   
 To analyze with MesKit, you need to provide:  
   
-* A MAF file of multi-region samples from patients (`*.maf / *.maf.gz`). **Required**
+* A MAF file of multi-region samples from patients. (`*.maf / *.maf.gz`). **Required**
+* A clinical file contains the clinical data of tumor samples from each patient. **Required**
 * Cancer cell fraction (CCF) data of somatic mutations. **Optional but recommended**
 * A segmentation file. **Optional**
 * The GISTIC outputs.  **Optional**
 
-**Note:** `Patient_ID` and `Tumor_Sample_Barcode` should be consistent in all input files, respectively.
+**Note:** ``Tumor_Sample_Barcode` should be consistent in all input files, respectively.
   
 #### 2.1 MAF file  
   
-Mutation Annotation Format (MAF) files are tab-delimited text files with aggregated mutations information from VCF Files. The input MAF file (or "*.maf.gz") of MesKit should have additional columns named `Patient_ID` and `Tumor_ID` on the basis of standard MAF files. Besides, as for the `Variant_Classification`column, allowed values can be found at [Mutation Annotation Format Page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).   
+Mutation Annotation Format (MAF) files are tab-delimited text files with aggregated mutations information from VCF Files. The input MAF file could be gz compressed, and allowed values of `Variant_Classification`column can be found at [Mutation Annotation Format Page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).   
 The following fields are required to be contained in the MAF files with MesKit. 
    
    
 **Mandatory fields:**  
   
-`Hugo_Symbol`, `Chromosome`, `Start_Position`, `End_Position`, `Variant_Classification`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2`, `Ref_allele_depth`, `Alt_allele_dept`, `VAF`, `Tumor_Sample_Barcode`, `Patient_ID`, `Tumor_ID` 
+`Hugo_Symbol`, `Chromosome`, `Start_Position`, `End_Position`, `Variant_Classification`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2`, `Ref_allele_depth`, `Alt_allele_dept`, `VAF`, `Tumor_Sample_Barcode`
    
    
-**Note:** Multi-region samples from the a single tumor are indicated with the same `Tumor_ID`, such as "primary", "metastasis" and "lymph". In addition, values in the `Hugo_Symbol` field are not necessarily from the HUGO database.
+**Note:** Values in the `Hugo_Symbol` field are not necessarily from the HUGO database.
+   
 **Example MAF file**  
   
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
@@ -112,9 +114,22 @@ data.frame(extractLines, row.names = NULL)
 ```  
   
   
-#### 2.2 CCF files  
+#### 2.2 Clinical data files  
   
-By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
+Clinical data file contains clinical information about each patient and their tumor samples, and mandatory fields are `Tumor_Sample_Barcode`, `Tumor_ID`, `Patient_ID`, and `Tumor_Label`.
+
+**Example clinical data file**
+
+```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
+ClinInfo <- read.table(system.file("extdata", "HCC_LDC.clin.txt", package = "MesKit"), header = TRUE)
+ClinInfo[1:5, ]
+```  
+  
+  
+  
+#### 2.3 CCF files  
+  
+By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_Std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
 
 
 **Example CCF file**
@@ -125,7 +140,7 @@ ccfInfo[1:5, ]
 ```
    
 
-#### 2.3 Segmentation files
+#### 2.4 Segmentation files
 
 The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 
@@ -135,6 +150,7 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 * `Start_Position` - genomic start position of segments (1-indexed)
 * `End_Position` - genomic end position of segments (1-indexed)
 * `Segment_Mean/CopyNumber` - segment mean value or absolute integer copy number
+* `Tumor_Label` - the specific label of each tumor sample
 
 **Note:** Positions are in base pair units.
     
@@ -142,11 +158,7 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 **Example Segmentation file**
 
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
-<<<<<<< HEAD
 segInfo <- read.table(system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit"), header = TRUE)
-=======
-segInfo <- read.table(system.file("extdata", "HCC6046.seg.txt", package = "MesKit"), header = TRUE)
->>>>>>> 32b9b431882b8ee2872c4b5b86c6bc237b4f3e12
 segInfo[1:5, ]
 ```  
  
@@ -161,7 +173,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 
 # The following initializes usage of Bioc devel
 BiocManager::install(version='devel')
-
 BiocManager::install("MesKit")
 ```
 
@@ -174,7 +185,6 @@ Install the latest version of this package by typing the commands below in R con
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
-
 devtools::install_github("Niinleslie/MesKit")
 ```   
   
@@ -184,7 +194,7 @@ devtools::install_github("Niinleslie/MesKit")
 ### 4. Start with the Maf object  
    
    
-`readMaf` function creates Maf/MafList objects by reading MAF files and cancer cell fraction (CCF) data (optional but recommended). Parameter `refBuild` is used to set reference genome version for Homo sapiens reference (`"hg18"`, `"hg19"` or `"hg38"`).
+`readMaf` function creates Maf/MafList objects by reading MAF files, clinical files and cancer cell fraction (CCF) data (optional but recommended). Parameter `refBuild` is used to set reference genome version for Homo sapiens reference (`"hg18"`, `"hg19"` or `"hg38"`).
    
    
 ```{r message=FALSE,warning=FALSE}
@@ -195,11 +205,12 @@ library(MesKit)
 ```{r}
 maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
-# Maf object generation
-maf <- readMaf(mafFile = maf.File, refBuild = "hg19") 
+clin.File <- system.file("extdata", "HCC_LDC.clin.txt", package = "MesKit")
+
 # Maf object with CCF information
 maf <- readMaf(mafFile = maf.File,
                ccfFile = ccf.File,
+               clinicalFile  = clin.File,
                refBuild = "hg19")  
 ```  
    
@@ -334,12 +345,12 @@ Distinct patterns of monoclonal versus polyclonal seeding based on the cancer ce
    
 ```{r fig.align='left', fig.width=5, fig.height=5, message=FALSE, warning=FALSE}
 ccf.list <- compareCCF(maf)
-ccf.pairwise <- ccf.list$HCC8257[["T3-T4"]]
+ccf.pairwise <- ccf.list$HCC8257[["HCC8257_T3-HCC8257_T4"]]
 # compare CCF using smoothScatter
 graphics::smoothScatter(matrix(c(ccf.pairwise[,3], ccf.pairwise[,4]),ncol = 2),
               xlim = c(0,1), ylim = c(0,1),
               colramp = colorRampPalette(c("white", RColorBrewer::brewer.pal(9,"BuPu"))),
-              xlab = "T3", ylab = "T4")
+              xlab = "HCC8257_T3", ylab = "HCC8257_T4")
 ## show driver genes
 gene.idx <- which(ccf.pairwise$Hugo_Symbol %in% driverGene) 
 points(ccf.pairwise[gene.idx, 3:4], cex=0.6, col=2, pch=2)
@@ -374,7 +385,7 @@ The subclonal mutant allele frequencies of a tumor follow a simple power-law dis
 ```{r message=FALSE, warning=FALSE, fig.height=4.5, fig.width=4.5}
 neutralResult <- testNeutral(maf, min.mut.count = 10, patient.id = 'HCC8257')
 neutralResult$neutrality.metrics
-neutralResult$model.fitting.plot$T3
+neutralResult$model.fitting.plot$HCC8257_T3
 ```     
    
    
@@ -417,7 +428,6 @@ The `phyloTree` object can be further used to conduct functional exploration. Be
 ```{r, message=FALSE, warning=FALSE, fig.width=5, fig.height=5}
 library(org.Hs.eg.db)
 library(clusterProfiler)
-
 # Pathway enrichment analysis
 HCC8257.branches <- getMutBranches(phyloTree)
 # pathway enrichment for public mutated genes in patient HCC8257
@@ -462,7 +472,7 @@ mutClass$mutTrunkBranch.plot
    
    
 ```{r, warning = FALSE, message=FALSE, fig.height=7, fig.width=10}
-trimatrix_HCC8257 <- triMatrix(phyloTree, withinTumor = TRUE)
+trimatrix_HCC8257 <- triMatrix(phyloTree)
 fit_HCC8257 <- fitSignatures(trimatrix_HCC8257)
 ```   
 
