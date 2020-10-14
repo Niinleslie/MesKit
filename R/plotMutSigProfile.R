@@ -247,8 +247,8 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
                 }
                 
                 ## get signature title
-                sig_names <- signatures_etiology[signatures_etiology$Branch == branch,]$Signature
-                sig_con <- signatures_etiology[signatures_etiology$Branch == branch,]$Contribution 
+                sig_names <- signatures_etiology[signatures_etiology$Level_ID == branch,]$Signature
+                sig_con <- signatures_etiology[signatures_etiology$Level_ID == branch,]$Contribution 
                 names(sig_con) <- sig_names
                 ## sort by contribution
                 sig_con <- sort(sig_con, decreasing = TRUE)
