@@ -49,8 +49,8 @@ fitSignatures <- function(tri_matrix = NULL,
     signaturesRef <- match.arg(signaturesRef,
                                choices = c("cosmic_v2","nature2013","exome_cosmic_v3"),
                                several.ok = FALSE)
-    # signatures.etiology <- readRDS(file = system.file("extdata", "signatures.etiology.rds", package = "MesKit"))
-    signatures.etiology <- readRDS(file = "D:/renlab/MesKit/inst/extdata/signatures.etiology.rds")
+    signatures.etiology <- readRDS(file = system.file("extdata", "signatures.etiology.rds", package = "MesKit"))
+    # signatures.etiology <- readRDS(file = "D:/renlab/MesKit/inst/extdata/signatures.etiology.rds")
     if (signaturesRef == "cosmic_v2"){
       sigsRef <- readRDS(file = system.file("extdata", "signatures.cosmic.rds", package = "MesKit"))
       rownames(sigsRef) <- gsub("Signature.", "Signature ", rownames(sigsRef))
