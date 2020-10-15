@@ -59,33 +59,33 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       ids_df <- maf_data %>% 
          dplyr::filter(.data$Tumor_Sample_Barcode %in% branch) %>% 
          dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
-      ids <- ids_df$Tumor_ID
-      # ids <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
+      tumor_ids <- ids_df$Tumor_ID
+      mutation_type_ids <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_ID)
       tsbs <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% branch, ]$Tumor_Sample_Barcode)
       tsbs.all <- unique(maf_data$Tumor_Sample_Barcode)
       
       if(length(tsbs.all) == length(tsbs)){
          Mutation_Type <- "Public"
          # tumor_ids <- paste(ids, collapse = "&")
-      }else if(length(ids) > 1){
-         Mutation_Type <- paste0("Shared_", paste(ids,collapse = "_"))
+      }else if(length(mutation_type_ids) > 1){
+         Mutation_Type <- paste0("Shared_", paste(mutation_type_ids,collapse = "_"))
          # tumor_ids <- paste(ids, collapse = "&")
-      }else if(length(ids) == 1 & length(branch) > 1){
+      }else if(length(mutation_type_ids) == 1 & length(branch) > 1){
           if(length(unique(maf_data$Tumor_ID)) == 1){
               Mutation_Type <- "Shared"
           }else{
-              Mutation_Type <- paste0("Shared_",paste(ids,collapse = "_"))
+              Mutation_Type <- paste0("Shared_",paste(mutation_type_ids,collapse = "_"))
           }
          # tumor_ids <- ids
-      }else if(length(ids) == 1 & length(branch) == 1){
+      }else if(length(mutation_type_ids) == 1 & length(branch) == 1){
           if(length(unique(maf_data$Tumor_ID)) == 1){
               Mutation_Type <- "Private"
           }else{
-              Mutation_Type <- paste0("Private_",paste(ids,collapse = "_"))
+              Mutation_Type <- paste0("Private_",paste(mutation_type_ids,collapse = "_"))
           }
          # tumor_ids <- ids
       }
-      tumor_ids <- paste(ids, collapse = "&")
+      tumor_ids <- paste(tumor_ids, collapse = "&")
       ## initialize 
       . = NULL
       ## generate mutation intersection for specific branch
