@@ -526,11 +526,16 @@ plotCNA <- function(seg,
         if(!"Hugo_Symbol" %in% colnames(CNADat)){
             stop("Cannot find gene information. Please provide correct 'txdb' object in readSegment.")
         }
-        CNADat$gene_pos <- as.numeric(CNADat$Start_Position) + (as.numeric(CNADat$End_Position) - as.numeric(CNADat$Start_Position))/2
-        CNADat$gene_id <- paste(CNADat$Hugo_Symbol, CNADat$Chromosome, CNADat$Start_Position, CNADat$End_Position, sep = ":")
+        CNADat$gene_pos <- as.numeric(CNADat$Update_Start) + (as.numeric(CNADat$Update_End) - as.numeric(CNADat$Update_Start ))/2
+        CNADat$gene_id <- paste(CNADat$Hugo_Symbol)
         gene_table <- CNADat %>%
             distinct(gene_id, .keep_all = TRUE)
         p <- p + 
+            geom_rect(aes(xmin = 0,
+                          xmax = max(backgroundTable$xmax),
+                          ymin = max(backgroundTable$ymax),
+                          ymax = max(backgroundTable$ymax) + sample.bar.height*sample_num/5),
+                      fill = "white") + 
             ggrepel::geom_text_repel(data = gene_table, 
                                      aes(x = gene_pos,
                                          y = max(backgroundTable$ymax),
