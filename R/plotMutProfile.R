@@ -9,6 +9,10 @@
 #' @param classByTumor  Logical (Default: FALSE). Define shared pattern of mutations based on tumor types (TRUE) or samples (FALSE)
 #' @param topGenesCount  The number of genes print, Default 10.
 #' @param geneList  A list of genes to restrict the analysis. Default NULL.
+#' @param sample.text.size Fontsize of sample name. Default 11.
+#' @param gene.text.size Fontsize of gene text. Default 11.
+#' @param legend.text.size Fontsize of legend text. Default 11.
+#' @param legend.title.size Fontsize of legend title. Default 11.
 #' @param patientsCol  A list containing customized colors for distinct patients. Default NULL.
 #' @param bgCol  Background grid color. Default "#f0f0f0".
 #' @param removeEmptyCols  Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE.
@@ -36,6 +40,10 @@ plotMutProfile <- function(maf,
                            classByTumor = FALSE,
                            topGenesCount = 10,
                            geneList = NULL,
+                           sample.text.size = 11,
+                           gene.text.size = 11,
+                           legend.text.size = 11,
+                           legend.title.size = 11,
                            bgCol = "#f0f0f0",
                            patientsCol = NULL,
                            removeEmptyCols = TRUE,
@@ -395,11 +403,11 @@ plotMutProfile <- function(maf,
     ## type legend
     
     heatmapLegend <- ComplexHeatmap::Legend(title = "Type", 
-                            title_gp = grid::gpar(fontsize = 11),
+                            title_gp = grid::gpar(fontsize = legend.title.size),
                             #title_gp = grid::gpar(fontsize = 11, fontface = "bold"),
                             at = names(colorSelect),
                             labels = gsub("_", "-", names(colorSelect)),
-                            labels_gp = grid::gpar(fontsize = 11),
+                            labels_gp = grid::gpar(fontsize = legend.text.size),
                             grid_width = unit(4, "mm"),
                             grid_height = unit(4, "mm"), legend_gp = grid::gpar(fill = colorSelect))
     
@@ -439,7 +447,7 @@ plotMutProfile <- function(maf,
     ## multi-hits legend
     multiLegend <- ComplexHeatmap::Legend(
         labels = "Multi_hits",
-        labels_gp = grid::gpar(fontsize = 11),
+        labels_gp = grid::gpar(fontsize = legend.text.size),
         type = "points",
         pch = 16,
         grid_width = unit(4, "mm"),
@@ -477,9 +485,9 @@ plotMutProfile <- function(maf,
         patientLegend <-  ComplexHeatmap::Legend(
                                     labels = patient.id, 
                                     legend_gp = grid::gpar(fill = patientsCol), 
-                                    title_gp = grid::gpar(fontsize = 11),
+                                    title_gp = grid::gpar(fontsize = legend.title.size),
                                     #title_gp = grid::gpar(fontsize = 11, fontface = "bold"),
-                                    labels_gp = grid::gpar(fontsize = 11),
+                                    labels_gp = grid::gpar(fontsize = legend.text.size),
                                     grid_width = unit(4, "mm"),
                                     grid_height = unit(4, "mm"), title = "Patient")
     
@@ -512,8 +520,8 @@ plotMutProfile <- function(maf,
               remove_empty_columns = removeEmptyCols,
               remove_empty_rows =removeEmptyRows,
               row_order = rowOrder,
-              row_names_gp = grid::gpar(fontsize = 11, fontface = "italic", col = "black"),
-              column_names_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
+              row_names_gp = grid::gpar(fontsize = gene.text.size, fontface = "italic", col = "black"),
+              column_names_gp = grid::gpar(fontsize = sample.text.size, fontface = "plain", col = "black"),
               pct_digits = 2,
               pct_side = "right",
               row_names_side = "left", 
@@ -531,8 +539,8 @@ plotMutProfile <- function(maf,
                   simple_anno_size = unit(0.2, "cm"),
                   show_legend = FALSE,
                   annotation_legend_param = list(
-                    title_gp = grid::gpar(fontsize = 10),
-                    labels_gp = grid::gpar(fontsize = 10),
+                    title_gp = grid::gpar(fontsize = legend.title.size),
+                    labels_gp = grid::gpar(fontsize = legend.text.size),
                     grid_width = unit(3.5, "mm"),
                     grid_height = unit(3.5, "mm")
                     #plot = FALSE
@@ -548,7 +556,7 @@ plotMutProfile <- function(maf,
           mat,
           alter_fun = alter_fun(class),
           col = colorSelect,
-          column_title = "Mutational profile",
+          column_title = NULL,
           column_title_gp = grid::gpar(fontsize = 13.5, col = "black"),
           #column_title_gp = grid::gpar(fontsize = 13.5, fontface = "bold", col = "black"),
           row_title_gp = grid::gpar(fontsize = 11, fontface = "plain", col = "black"),
@@ -557,8 +565,8 @@ plotMutProfile <- function(maf,
           remove_empty_columns = removeEmptyCols,
           remove_empty_rows = removeEmptyRows,
           row_order = rowOrder,
-          row_names_gp = grid::gpar(fontsize = 10, fontface = "italic", col = "black"),
-          column_names_gp = grid::gpar(fontsize = 10, fontface = "plain", col = "black"),
+          row_names_gp = grid::gpar(fontsize = gene.text.size, fontface = "italic", col = "black"),
+          column_names_gp = grid::gpar(fontsize = sample.text.size, fontface = "plain", col = "black"),
           pct_digits = 2,
           pct_side = "right",
           row_names_side = "left", 
@@ -577,8 +585,8 @@ plotMutProfile <- function(maf,
                 show_legend = FALSE,
                 annotation_legend_param = list(
                   #title_gp = grid::gpar(fontsize = 10, fontface = "bold"),
-                  title_gp = grid::gpar(fontsize = 11),
-                  labels_gp = grid::gpar(fontsize = 10),
+                  title_gp = grid::gpar(fontsize = legend.title.size),
+                  labels_gp = grid::gpar(fontsize = legend.text.size),
                   grid_width = unit(3.5, "mm"),
                   grid_height = unit(3.5, "mm")
                   #plot = FALSE

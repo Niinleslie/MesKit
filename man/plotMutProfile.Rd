@@ -11,6 +11,10 @@ plotMutProfile(
   classByTumor = FALSE,
   topGenesCount = 10,
   geneList = NULL,
+  sample.text.size = 11,
+  gene.text.size = 11,
+  legend.text.size = 11,
+  legend.title.size = 11,
   bgCol = "#f0f0f0",
   patientsCol = NULL,
   removeEmptyCols = TRUE,
@@ -36,6 +40,14 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 \item{topGenesCount}{The number of genes print, Default 10.}
 
 \item{geneList}{A list of genes to restrict the analysis. Default NULL.}
+
+\item{sample.text.size}{Fontsize of sample name. Default 11.}
+
+\item{gene.text.size}{Fontsize of gene text. Default 11.}
+
+\item{legend.text.size}{Fontsize of legend text. Default 11.}
+
+\item{legend.title.size}{Fontsize of legend title. Default 11.}
 
 \item{bgCol}{Background grid color. Default "#f0f0f0".}
 
