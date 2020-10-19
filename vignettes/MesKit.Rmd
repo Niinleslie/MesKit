@@ -89,7 +89,7 @@ To analyze with MesKit, you need to provide:
 * A segmentation file. **Optional**
 * The GISTIC outputs.  **Optional**
 
-**Note:** ``Tumor_Sample_Barcode` should be consistent in all input files, respectively.
+**Note:** `Tumor_Sample_Barcode` should be consistent in all input files, respectively.
   
 #### 2.1 MAF file  
   
@@ -99,7 +99,7 @@ The following fields are required to be contained in the MAF files with MesKit.
    
 **Mandatory fields:**  
   
-`Hugo_Symbol`, `Chromosome`, `Start_Position`, `End_Position`, `Variant_Classification`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2`, `Ref_allele_depth`, `Alt_allele_dept`, `VAF`, `Tumor_Sample_Barcode`
+`Hugo_Symbol`, `Chromosome`, `Start_Position`, `End_Position`, `Variant_Classification`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2`, `Ref_allele_depth`, `Alt_allele_depth`, `VAF`, `Tumor_Sample_Barcode`
    
    
 **Note:** Values in the `Hugo_Symbol` field are not necessarily from the HUGO database.
@@ -116,7 +116,7 @@ data.frame(extractLines, row.names = NULL)
   
 #### 2.2 Clinical data files  
   
-Clinical data file contains clinical information about each patient and their tumor samples, and mandatory fields are `Tumor_Sample_Barcode`, `Tumor_ID`, `Patient_ID`, and `Tumor_Label`.
+Clinical data file contains clinical information about each patient and their tumor samples, and mandatory fields are `Tumor_Sample_Barcode`, `Tumor_ID`, `Patient_ID`, and `Tumor_Sample_Label`.
 
 **Example clinical data file**
 
