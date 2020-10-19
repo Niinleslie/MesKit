@@ -129,11 +129,9 @@ compareCCF <- function(maf,
   result <- lapply(maf_list, processComCCF, pairByTumor)
   result <- result[!is.na(result)]
   
-  if(length(result) == 1){
-    return(result[[1]])
-  }else if(length(result) == 0){
+  if(length(result) == 0){
     return(NA)
-  }
+   }
   
   return(result)      
 }
