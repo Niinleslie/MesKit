@@ -148,8 +148,8 @@ calNeiDist <- function(maf,
         if(length(pos) == 0){
           pos <- which(grepl(name2, names(nei.list)))
         }
-        fst <- nei.list[pos]
-        return(fst)
+        nei <- nei.list[pos]
+        return(nei)
       }, FUN.VALUE = double(1))
       
       j[idx] <- mat_row
