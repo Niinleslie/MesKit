@@ -255,11 +255,12 @@ plotTree <- function(phyloTree,
                                   segment.colour = "grey50", segment.size = 0.5, force = 5)
     }
     
-    if(compare){
-        tree.title <- patient
-    }else{
-        tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
-    }
+    tree.title <- patient
+    # if(compare){
+    #     tree.title <- patient
+    # }else{
+    #     tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
+    # }
     p <- p + 
         ggtitle(tree.title)+
         theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
