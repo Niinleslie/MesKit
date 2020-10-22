@@ -166,6 +166,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
             patient <- names(sig_input)[[i]]
             RSS <- fit$RSS
             signatures_etiology <- fit$signatures.etiology
+            total_cosine_similarity <- fit$total.cosine.similarity
             # tsb.label <- sig_input[[i]]$tsb.label
             
             ## convert reconstructed matrix to data frame
@@ -233,7 +234,8 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
                 ## calculate cosine similarity between original and reconstructed
                 p1 <- odata$Proportion
                 p2 <- rdata$Proportion
-                cos_sim <- round(sum(p1*p2)/(sqrt(sum(p1^2))*sqrt(sum(p2^2))),3)
+                # cos_sim <- round(sum(p1*p2)/(sqrt(sum(p1^2))*sqrt(sum(p2^2))),3)
+                cos_sim <- total_cosine_similarity$cosine_similarity[which(total_cosine_similarity$Level_ID == branch)]
                 
                 ## select specific mode
                 if(is.null(mode)){

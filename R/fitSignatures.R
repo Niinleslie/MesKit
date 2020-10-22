@@ -201,13 +201,42 @@ fitSignatures <- function(tri_matrix = NULL,
     ## order data frame by contribution of each branch
     signatures_etiology <- dplyr::arrange(signatures_etiology,
                                            dplyr::desc(.data$Level_ID),
-                                           dplyr::desc(.data$Contribution))
+                                           dplyr::desc(.data$Contribution)) 
+    
+    recon_df  <- as.data.frame(recon_matrix) 
+    recon_df$Branch <- as.character(row.names(recon_df)) 
+    rownames(recon_df) <- NULL
+    recon_spectrum <- tidyr::pivot_longer(recon_df,
+                                          -"Branch",
+                                          names_to = "Type",
+                                          values_to = "Reconstructed")
+    
+    ## convert origin matrix to data frame
+    origin_df  <- as.data.frame(origin_matrix) 
+    origin_df$Branch <- as.character(row.names(origin_df)) 
+    rownames(origin_df) <- NULL
+    origin_spectrum <- tidyr::pivot_longer(origin_df,
+                                           -"Branch",
+                                           names_to = "Type",
+                                           values_to = "Original")
+    
+    mut_spectrum <- dplyr::left_join(recon_spectrum, origin_spectrum, by = c("Branch", "Type"))
+    
+    total_cosine_similarity <- mut_spectrum %>%
+      dplyr::group_by(Branch) %>%
+      dplyr::summarise(
+        cosine_similarity = sum(Original*Reconstructed)/(sqrt(sum(Original^2))*sqrt(sum(Reconstructed^2)))
+       ) %>% 
+      dplyr::rename("Level_ID" = "Branch") %>% 
+      as.data.frame()
+    ## calculate cosine similarity between origin matrix and reconstructed matrix
     
     if(typeof(tri_matrix_list[[i]]) == "list"){
       f <- list(
         reconstructed.mat = recon_matrix,
         original.mat = origin_matrix,
         cosine.similarity = cos_sim_matrix,
+        total.cosine.similarity = total_cosine_similarity,
         RSS = RSS, 
         signatures.etiology = signatures_etiology,
         tsb.label = tsb.label
@@ -218,6 +247,7 @@ fitSignatures <- function(tri_matrix = NULL,
         reconstructed.mat = recon_matrix,
         original.mat = origin_matrix,
         cosine.similarity = cos_sim_matrix,
+        total.cosine.similarity = total_cosine_similarity,
         RSS = RSS, 
         signatures.etiology = signatures_etiology
       )

@@ -109,6 +109,7 @@ plotTree <- function(phyloTree,
     
     ## get the max value of X axis 
     x_max <- max(abs(treeData$x2))
+    # print(treeData)
     p <- ggplot(data = treeData) + 
         ## balance the space on the left and right sides
         geom_segment(aes(x = 0, y = 0, xend = x_max, yend = 0),color = "white",size = 0.01)+

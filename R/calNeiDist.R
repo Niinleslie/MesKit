@@ -110,12 +110,13 @@ calNeiDist <- function(maf,
     processNeipair <- function(pair){
       s <- subset(subdata, subdata$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>%
         dplyr::mutate(CCF = as.numeric(.data$CCF))
+      # print(s)
       maf.pair <- as.data.frame(s) %>% 
         tidyr::pivot_wider(names_from = "Tumor_Sample_Barcode",
                            values_from = "CCF",
                            values_fill = list("CCF" = 0)) %>%
         dplyr::select(-"Mut_ID", -"Tumor_ID")
-      
+      # print(maf.pair)
       colnames(maf.pair) <- c("ccf1", "ccf2")
       x <- maf.pair$ccf1
       y <- maf.pair$ccf2
@@ -125,14 +126,13 @@ calNeiDist <- function(maf,
       xy <- sum(x * y + (1 - x) * (1 - y))
       
       nei_dist <- -log(xy / sqrt(x_ * y_))
-      
+      # print(paste0(pair[1], " ,", pair[2], ",", nei_dist))
       return(nei_dist)
     }
     
     nei.list <- lapply(pairs, processNeipair) %>% unlist()
     pairs_name <- lapply(pairs, function(x)paste0(x[1], "_", x[2])) %>% unlist()
     names(nei.list) <- pairs_name
-    
     processNeiMat <- function(j){
       row_name <- j["name"]
       j1 <- j[-length(j)]
@@ -148,8 +148,8 @@ calNeiDist <- function(maf,
         if(length(pos) == 0){
           pos <- which(grepl(name2, names(nei.list)))
         }
-        fst <- nei.list[pos]
-        return(fst)
+        nei <- nei.list[pos]
+        return(nei)
       }, FUN.VALUE = double(1))
       
       j[idx] <- mat_row

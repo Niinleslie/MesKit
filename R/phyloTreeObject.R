@@ -119,7 +119,7 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
                                   Reference_Allele=NA,
                                   Tumor_Allele=NA,
                                   Hugo_Symbol=NA,
-                                  mut_id=NA
+                                  mut_id="no mutation"
                                   # Alias=NA
          )
          mutBranchesOutput[[branchName]] <- branch.mut
@@ -146,13 +146,12 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    # print(binary.matrix[!binary.matrix$mut_id %in% mutBranchesOutput$mut_id,])
    
    mut.branches <- dplyr::bind_rows(mutBranchesOutput)%>% 
-      dplyr::filter(!is.na(.data$Chromosome))
+      dplyr::filter(!is.na(.data$mut_id))
    
    mut_left <- mutSigRef %>%
       dplyr::filter(!.data$mut_id %in% mut.branches$mut_id) %>% 
       dplyr::mutate(Branch_ID = paste0(.data$Branch_ID,"(NA)"),
-                    Mutation_Type = paste0(.data$Mutation_Type,"(NA)")) %>% 
-      dplyr::select(-"mut_id")
+                    Mutation_Type = paste0("Private_",.data$Mutation_Type,"(NA)"))
    
    
    
@@ -163,6 +162,11 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
        dplyr::select("Branch_ID", "Mutation_Type") %>% 
        dplyr::distinct(.data$Branch_ID, .keep_all = TRUE) %>% 
       dplyr::filter(!grepl("\\(NA\\)", .data$Branch_ID))
+   
+   mut.branches <-  mut.branches %>% 
+      dplyr::filter(.data$mut_id != "no mutation") %>% 
+      dplyr::select(-"mut_id")
+   
    
    
    return(list(
