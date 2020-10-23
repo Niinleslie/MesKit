@@ -90,8 +90,8 @@ mathScore <- function(maf,
     }
     
     MATH_list <- lapply(maf_list, processMATH, clonalStatus)
-    MATH_list <- MATH_list[!is.na(MATH_list)]
-    result <- dplyr::bind_rows(MATH_list)
+    result <- MATH_list[!is.na(MATH_list)]
+    # result <- dplyr::bind_rows(MATH_list)
     
     #y.limits <- c(
         #floor(min(MATH.df$MATH_Score)-15),

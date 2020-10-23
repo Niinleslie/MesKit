@@ -672,6 +672,7 @@ bodyITH <- tabItem("ITH",
                            tabPanel(
                              title = div(icon("chart-bar"), "MATH score", style = "font-size:1.5em; font-weight:600; "),
                              value = "ith_mathscore",
+                             uiOutput("mathscore.patientlist"),
                              DT::dataTableOutput('mathScore'),
                              br(),
                              br(),
