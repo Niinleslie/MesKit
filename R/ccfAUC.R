@@ -157,7 +157,7 @@ ccfAUC <- function(
                     panel.grid.major = element_line(linetype = 2, color = "grey")
                 )+
                 labs(x = "CCF", y = "Proportion", 
-                     title = paste0("AUC plot of CCF : ", patient))
+                     title = patient)
             
             CCF.density.plot <- p
             return(list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot))

@@ -107,6 +107,20 @@ vafCluster <-function(maf,
     out_vaf <- boxplot.stats(subdata$VAF)$out
     subdata[subdata$VAF %in% out_vaf]$cluster <- "outlier"
     
+    ## rename cluster
+    cluster_name_order <- c(
+      sort(unique(subdata[subdata$cluster != "outlier"]$cluster)),
+      "outlier"
+      )
+    subdata <- subdata %>%
+      dplyr::rowwise()%>%
+      dplyr::mutate(cluster = dplyr::if_else(
+        cluster == "outlier",
+        "outlier",
+        as.character(which(cluster == cluster_name_order))
+      )) %>%
+      as.data.frame()
+    
     p  <- drawVAFCombine(subdata)
     
     return(list(p = p, subdata = subdata))
