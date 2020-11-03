@@ -19,11 +19,11 @@
 #' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 #' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-#' compareJSI(maf)
+#' calJSI(maf)
 #' @return Correlation matrix and heatmap via Jaccard similarity coefficient method
-#' @export compareJSI
+#' @export calJSI
 
-compareJSI <- function(
+calJSI <- function(
     maf,
     patient.id = NULL,
     pairByTumor = FALSE,

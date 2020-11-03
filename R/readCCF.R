@@ -45,13 +45,17 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
                                               .data$Tumor_Seq_Allele2,
                                               sep = ":"))
       
+      sample_in_tumor_num <- mafData_merge_ccf %>% 
+         dplyr::group_by(.data$Patient_ID, .data$Tumor_ID) %>% 
+         dplyr::summarise(sample_in_tumor_num = dplyr::n_distinct(.data$Tumor_Sample_Barcode))
+      
       mut_in_tumor_num <- mafData_merge_ccf %>%
          dplyr::group_by(.data$Tumor_Mut_ID) %>%
          dplyr::summarise(mut_in_tumor_num = length(.data$Tumor_Mut_ID))
 
       any_ccf_lower_05 <- mafData_merge_ccf %>%
          dplyr::group_by(.data$Tumor_Mut_ID) %>%
-         dplyr::summarise(judge_any_ccf_lower_05 = dplyr::if_else(any(.data$CCF< 0.5),"yes","no"))
+         dplyr::summarise(judge_any_ccf_lower_05 = dplyr::if_else(any(.data$CCF < 0.5),"yes","no"))
       
       any_ccf_ci_lower_1 <- mafData_merge_ccf %>%
          dplyr::group_by(.data$Tumor_Mut_ID) %>%
@@ -63,7 +67,8 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
       mafData_merge_ccf <- mafData_merge_ccf %>%
          dplyr::left_join(mut_in_tumor_num, by = "Tumor_Mut_ID") %>%
          dplyr::left_join(any_ccf_lower_05, by = "Tumor_Mut_ID") %>% 
-         dplyr::left_join(any_ccf_ci_lower_1, by = "Tumor_Mut_ID")
+         dplyr::left_join(any_ccf_ci_lower_1, by = "Tumor_Mut_ID") %>%
+         dplyr::left_join(sample_in_tumor_num, by = c("Patient_ID", "Tumor_ID"))
       
       ## classify clonal status within tumors
       ## condition1: if any region CCFm < 0.5
@@ -71,10 +76,15 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
          dplyr::group_by(.data$Tumor_Mut_ID) %>% 
          dplyr::mutate(
             Clonal_Status = dplyr::case_when(
-               (.data$mut_in_tumor_num == 1 & .data$CCF_CI_High < 1) ~ "Subclonal",
-               (.data$mut_in_tumor_num > 1 &
+               ## mutation occurs in a part of MRS-tumor samples 
+               (.data$sample_in_tumor_num > 1 &
+                   .data$mut_in_tumor_num != .data$sample_in_tumor_num) ~ "Subclonal",
+               (.data$sample_in_tumor_num > 1 &
+                   .data$mut_in_tumor_num == .data$sample_in_tumor_num & 
                    .data$judge_any_ccf_ci_lower_1 == "yes" & 
                    .data$judge_any_ccf_lower_05 == "yes") ~ "Subclonal",
+               (.data$sample_in_tumor_num == 1 &
+                   .data$CCF_CI_High < 1) ~ "Subclonal",
                TRUE ~ "Clonal"
             )
          ) %>% 
@@ -84,6 +94,8 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
                        -"mut_in_tumor_num",
                        -"judge_any_ccf_lower_05",
                        -"judge_any_ccf_ci_lower_1")
+      
+      # print(mafData_merge_ccf[mafData_merge_ccf$Clonal_Status == "Clonal",])
  
    }
    
