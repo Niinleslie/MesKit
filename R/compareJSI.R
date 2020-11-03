@@ -84,7 +84,7 @@ compareJSI <- function(
             if(length(unique(JSI_input$Tumor_ID))  < 2 ){
                 message(paste0("Warning: only one tumor was found in ", patient,
                                " according to 'Tumor_ID'. You may want to compare CCF between regions by setting 'pairByTumor' as 'FALSE'")
-                               )
+                )
                 return(NA)
             }
         }else{
@@ -122,17 +122,8 @@ compareJSI <- function(
                                    "Tumor_ID"),
                                  sep = ":",
                                  remove = FALSE
-                    ) %>% 
-                    # tidyr::unite("Mut_ID2",
-                    #              c("Mut_ID",
-                    #                "Tumor_ID",
-                    #                "Clonal_Status"),
-                    #              sep = ":",
-                    #              remove = FALSE
-                    # ) %>% 
-                    # dplyr::mutate("Mut_ID" = paste0(.data$Mut_ID,":",.data$Clonal_Status)) %>% 
+                    ) %>%
                     dplyr::distinct(.data$Mut_ID2, .keep_all = TRUE) %>%
-                    
                     dplyr::select("Mut_ID", "Tumor_ID", "Clonal_Status", "VAF_adj") %>% 
                     tidyr::pivot_wider(
                         names_from = "Tumor_ID",       
@@ -162,11 +153,6 @@ compareJSI <- function(
             PC_2 <- nrow(vaf.pair[vaf.pair$status2 == "Clonal" & vaf.pair$vaf1 == 0 & vaf.pair$vaf2 > 0])
             SS_12 = nrow(vaf.pair[vaf.pair$status2 == "Subclonal" & vaf.pair$status1 == "Subclonal" & vaf.pair$vaf1>0 & vaf.pair$vaf2>0 ])
             jsi <- SS_12/(PC_1+PC_2+SS_12)
-            
-            print(paste0(pair[1], "_", pair[2]))
-            print(vaf.pair)
-            # print(jsi)
-            
             if(is.nan(jsi)){
                 jsi <- 0
             }
@@ -218,7 +204,7 @@ compareJSI <- function(
             values <- sort(unique(as.numeric(dist_mat))) 
             if(length(values[values!=0 &values !=1]) == 0){
                 message(paste0("Warning: private clonal mutations or shared subclonal mutations were not found in all tumor/sample pairs in ", patient, ".\n",
-                    "Correlation plot of Jaccard similarity coefficient will not be generated for ", patient, "!"))
+                               "Correlation plot of Jaccard similarity coefficient will not be generated for ", patient, "!"))
                 return(list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = NA))
             }
             if(is.null(title)){
