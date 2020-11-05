@@ -101,10 +101,10 @@ compareCCF <- function(maf,
                        c("Tumor_ID","Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
                        sep = ":", remove = FALSE) %>% 
           dplyr::distinct(.data$Mut_ID2, .keep_all = TRUE) %>%
-          dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>%
-          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>%
-          # dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF", "Clonal_Status") %>%
-          # tidyr::pivot_wider(names_from = "Tumor_ID", values_from = c("CCF", "Clonal_Status")) %>%
+          # dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>%
+          # tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>%
+          dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF", "Clonal_Status") %>%
+          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = c("CCF", "Clonal_Status")) %>%
           tidyr::drop_na()
           
       }else{

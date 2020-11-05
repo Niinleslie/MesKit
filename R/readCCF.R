@@ -77,10 +77,11 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
          dplyr::mutate(
             Clonal_Status = dplyr::case_when(
                ## mutation occurs in a part of MRS-tumor samples 
+               # (.data$sample_in_tumor_num > 1 &
+               #     .data$mut_in_tumor_num != .data$sample_in_tumor_num) ~ "Subclonal",
                (.data$sample_in_tumor_num > 1 &
-                   .data$mut_in_tumor_num != .data$sample_in_tumor_num) ~ "Subclonal",
-               (.data$sample_in_tumor_num > 1 &
-                   .data$mut_in_tumor_num == .data$sample_in_tumor_num & 
+                   # .data$mut_in_tumor_num == .data$sample_in_tumor_num & 
+                   .data$Tumor_Average_CCF < 0.5 &
                    .data$judge_any_ccf_ci_lower_1 == "yes" & 
                    .data$judge_any_ccf_lower_05 == "yes") ~ "Subclonal",
                (.data$sample_in_tumor_num == 1 &

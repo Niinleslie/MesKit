@@ -1230,20 +1230,20 @@ shinyServer(function(input, output, session){
       contentType = paste('image/',input$Download_mutheatmap_plot_check,sep="")
   )
    
-  ## comparejsi sever
+  ## caljsi sever
   
-  output$comparejsi_patientid_ui <- renderUI({
+  output$caljsi_patientid_ui <- renderUI({
       maf <- varsMaf$maf
       if(!is.null(maf)){
           if(class(maf) == "MafList"){
               patient.list <- names(maf) 
               tagList(
-                  selectizeInput("comparejsi_patientid",
+                  selectizeInput("caljsi_patientid",
                                  label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
                                  choices = patient.list,
                                  select = patient.list[1],
                                  multiple = TRUE),
-                  bsTooltip(id = "comparejsi_patientid",
+                  bsTooltip(id = "caljsi_patientid",
                             title = 'Select the specific patients. Default: all patients are included',
                             placement = "top",
                             trigger = "hover"),
@@ -1252,12 +1252,12 @@ shinyServer(function(input, output, session){
       }
   })
   
-  output$comparejsi_pairbytumor_ui <- renderUI({
+  output$caljsi_pairbytumor_ui <- renderUI({
       maf <- varsMaf$maf
       if(!is.null(maf)){
-          if(class(maf) == "MafList" & !is.null(input$comparejsi_patientid)){
-              if(length(input$comparejsi_patientid) == 1){
-                  x <- maf[[which(names(maf) == input$comparejsi_patientid) ]]@data
+          if(class(maf) == "MafList" & !is.null(input$caljsi_patientid)){
+              if(length(input$caljsi_patientid) == 1){
+                  x <- maf[[which(names(maf) == input$caljsi_patientid) ]]@data
                   if(length(unique(x$Tumor_ID)) <= 1){
                       return(NULL)
                   }
@@ -1269,11 +1269,11 @@ shinyServer(function(input, output, session){
               }
           }
           tagList(
-              checkboxInput('comparejsi_pairbytumor',
+              checkboxInput('caljsi_pairbytumor',
                             value = FALSE,
                             label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Pair by tumor'),
                             width = 500),
-              bsTooltip(id = "comparejsi_pairbytumor",
+              bsTooltip(id = "caljsi_pairbytumor",
                         title = "calculate JSI by tumor",
                         placement = "top",
                         trigger = "hover")
@@ -1281,7 +1281,7 @@ shinyServer(function(input, output, session){
       }
   })
   
-  comparejsi <- eventReactive(input$submit_comparejsi,{
+  caljsi <- eventReactive(input$submit_caljsi,{
       maf <- varsMaf$maf
       validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
@@ -1289,39 +1289,40 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = 'Processing: calculating Jaccard similarity index')
 
-          # if(input$comparejsi_title==""){
+          # if(input$caljsi_title==""){
           #     title <- NULL
           # }else{
-          #     title <- input$comparejsi_title
+          #     title <- input$caljsi_title
           # }
-          if(is.null(input$comparejsi_pairbytumor)){
+          if(is.null(input$caljsi_pairbytumor)){
               pairbytumor <- FALSE
           }else{
-              pairbytumor <- input$comparejsi_pairbytumor
+              pairbytumor <- input$caljsi_pairbytumor
           }
-          cc <- compareJSI(maf, 
-                           patient.id = input$comparejsi_patientid,
-                           min.vaf = as.numeric(input$comparejsi_minccf) ,
-                           pairByTumor = pairbytumor,
+          cc <- calJSI(maf, 
+                      patient.id = input$caljsi_patientid,
+                      min.vaf = as.numeric(input$caljsi_minccf) ,
+                      pairByTumor = pairbytumor,
                            # title = title,
-                           use.circle = input$comparejsi_usecircle,
-                           number.cex = as.numeric(input$comparejsi_numbercex),
-                           number.col = input$comparejsi_numbercol,
-                           use.tumorSampleLabel = input$comparejsi_usetumorsamplelabel)
+                      use.circle = input$caljsi_usecircle,
+                      number.cex = as.numeric(input$caljsi_numbercex),
+                      number.col = input$caljsi_numbercol,
+                      plot = T,
+                      use.tumorSampleLabel = input$caljsi_usetumorsamplelabel)
           incProgress(amount = 1)
-          setProgress(message = 'compareJSI done!')
+          setProgress(message = 'caljsi done!')
       })
       return(cc)
   })
   
   
   
-  output$comparejsi.patientlist <- renderUI({
-      if(!is.null(comparejsi())){
-          if(!"JSI.plot" %in% names(comparejsi())){
-              names <- names(comparejsi())
+  output$caljsi.patientlist <- renderUI({
+      if(!is.null(caljsi())){
+          if(!"JSI.plot" %in% (names(caljsi()))){
+              names <- names(caljsi())
               tagList(
-                  selectInput("comparejsi.pl", 
+                  selectInput("caljsi.pl", 
                               div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
                               choices = names, width = 600) 
               )
@@ -1329,36 +1330,36 @@ shinyServer(function(input, output, session){
       }
   })
   
-  getpatient.comparejsi <- eventReactive(input$comparejsi.pl,{
-      return(input$comparejsi.pl)
+  getpatient.caljsi <- eventReactive(input$caljsi.pl,{
+      return(input$caljsi.pl)
   })
   
-  comparejsi_width <- reactive({
-      return(input$comparejsi_width)
+  caljsi_width <- reactive({
+      return(input$caljsi_width)
   })
-  comparejsi_height <- reactive({
-      return(input$comparejsi_height)
+  caljsi_height <- reactive({
+      return(input$caljsi_height)
   })
   
-  output$comparejsi_plot <- renderPlot({
-      if(!is.null(comparejsi())){
-          if(!"JSI.plot" %in% names(comparejsi())){
-              return(comparejsi()[[getpatient.comparejsi()]]$JSI.plot)
+  output$caljsi_plot <- renderPlot({
+      if(!is.null(caljsi())){
+          if(!"JSI.plot" %in% names(caljsi())){
+              return(caljsi()[[getpatient.caljsi()]]$JSI.plot)
           }else{
-              return(comparejsi()$JSI.plot)
+              return(caljsi()$JSI.plot)
           }
       }
   },  
-  width = comparejsi_width,
-  height = comparejsi_height,
+  width = caljsi_width,
+  height = caljsi_height,
   res = 100)
   
-  output$comparejsi_db_ui <- renderUI({
-      if(!is.null(comparejsi())){
+  output$caljsi_db_ui <- renderUI({
+      if(!is.null(caljsi())){
           fluidRow(
               column(
                   width = 2,
-                  radioButtons(inputId = 'Download_comparejsi_plot_check', 
+                  radioButtons(inputId = 'Download_caljsi_plot_check', 
                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
                                choiceNames = list(
                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
@@ -1369,39 +1370,39 @@ shinyServer(function(input, output, session){
               ),
               column(
                   width = 3,
-                  downloadBttn('Download_comparejsi_plot', 'Download')
+                  downloadBttn('Download_caljsi_plot', 'Download')
               )
           )
       }
   })
   
-  output$Download_comparejsi_plot <- downloadHandler(
+  output$Download_caljsi_plot <- downloadHandler(
       filename = function() {
-          paste("comparejsi.",input$Download_comparejsi_plot_check, sep='')
+          paste("caljsi.",input$Download_caljsi_plot_check, sep='')
       },
       content = function(file) {
-          if (input$Download_comparejsi_plot_check == "png"){
-              png(file,width = input$comparejsi_width , height = input$comparejsi_height,res = 100)
+          if (input$Download_caljsi_plot_check == "png"){
+              png(file,width = input$caljsi_width , height = input$caljsi_height,res = 100)
           }
-          else if (input$Download_comparejsi_plot_check == "pdf"){
-              pdf(file,width = input$comparejsi_width/100 , height = input$comparejsi_height/100)
+          else if (input$Download_caljsi_plot_check == "pdf"){
+              pdf(file,width = input$caljsi_width/100 , height = input$caljsi_height/100)
           }
-          if(!"JSI.plot" %in% names(comparejsi())){
-              print(comparejsi()[[getpatient.comparejsi()]]$JSI.plot)
+          if(!"JSI.plot" %in% names(caljsi())){
+              print(caljsi()[[getpatient.caljsi()]]$JSI.plot)
           }else{
-              print(comparejsi()$JSI.plot)
+              print(caljsi()$JSI.plot)
           }
           dev.off()
       },
-      contentType = paste('image/',input$Download_comparejsi_plot_check,sep="")
+      contentType = paste('image/',input$Download_caljsi_plot_check,sep="")
   )
   
-  output$comparejsi_pair_table <- DT::renderDataTable({
-      if(!is.null(comparejsi())){
-          if(!"JSI.plot" %in% names(comparejsi())){
-              m <- comparejsi()[[getpatient.comparejsi()]]$JSI.pair
+  output$caljsi_pair_table <- DT::renderDataTable({
+      if(!is.null(caljsi())){
+          if(!"JSI.plot" %in% names(caljsi())){
+              m <- caljsi()[[getpatient.caljsi()]]$JSI.pair
           }else{
-              m <- comparejsi()$JSI.pair
+              m <- caljsi()$JSI.pair
           }
           rownames(m) <- colnames(m)
           m <- as.data.frame(m)
@@ -1417,30 +1418,30 @@ shinyServer(function(input, output, session){
   })
   
   
-  output$comparejsi_pair_table_ui <- renderUI({
-      if(!is.null(comparejsi())){
+  output$caljsi_pair_table_ui <- renderUI({
+      if(!is.null(caljsi())){
           tagList(
               div(style = "font-size:1.5em; font-weight:600; ", "JSI pair"),
               br(),
-              DT::dataTableOutput('comparejsi_pair_table'),
+              DT::dataTableOutput('caljsi_pair_table'),
               br(),
               fluidRow(
                   column(
                       width = 3,
-                      downloadBttn('Download_comparejsi_pair_table', 'Download')
+                      downloadBttn('Download_caljsi_pair_table', 'Download')
                   )
               )
           )
       }
   })
   
-  output$Download_comparejsi_pair_table <- downloadHandler(
-      filename = "comparejsi.csv",
+  output$Download_caljsi_pair_table <- downloadHandler(
+      filename = "caljsi.csv",
       content = function(file){
-          if(!"JSI.plot" %in% names(comparejsi())){
-              m <- comparejsi()[[getpatient.comparejsi()]]$JSI.pair
+          if(!"JSI.plot" %in% names(caljsi())){
+              m <- caljsi()[[getpatient.caljsi()]]$JSI.pair
           }else{
-              m <- comparejsi()$JSI.pair
+              m <- caljsi()$JSI.pair
           }
           rownames(m) <- colnames(m)
           m <- as.data.frame(m)
@@ -2622,7 +2623,7 @@ shinyServer(function(input, output, session){
           setProgress(message = 'Processing: triMatrix')
           
           tm <- triMatrix(phyloTree,
-                          withinTumor = input$treemutsig_withintumor,
+                          # withinTumor = input$treemutsig_withintumor,
                           level = input$treemutsig_level)
           incProgress(amount = 1)
           
@@ -4113,20 +4114,20 @@ shinyServer(function(input, output, session){
 #       contentType = paste('image/',input$Download_mutheatmap_plot_check,sep="")
 #   )
 #    
-#   ## comparejsi sever
+#   ## caljsi sever
 #   
-#   output$comparejsi_patientid_ui <- renderUI({
+#   output$caljsi_patientid_ui <- renderUI({
 #       maf <- varsMaf$maf
 #       if(!is.null(maf)){
 #           if(class(maf) == "MafList"){
 #               patient.list <- names(maf) 
 #               tagList(
-#                   selectizeInput("comparejsi_patientid",
+#                   selectizeInput("caljsi_patientid",
 #                                  label = div(style = "font-size:1.5em; font-weight:600;  ", "Select patients"),
 #                                  choices = patient.list,
 #                                  select = patient.list[1],
 #                                  multiple = TRUE),
-#                   bsTooltip(id = "comparejsi_patientid",
+#                   bsTooltip(id = "caljsi_patientid",
 #                             title = 'Select the specific patients. Default: all patients are included',
 #                             placement = "top",
 #                             trigger = "hover"),
@@ -4135,12 +4136,12 @@ shinyServer(function(input, output, session){
 #       }
 #   })
 #   
-#   output$comparejsi_pairbytumor_ui <- renderUI({
+#   output$caljsi_pairbytumor_ui <- renderUI({
 #       maf <- varsMaf$maf
 #       if(!is.null(maf)){
-#           if(class(maf) == "MafList" & !is.null(input$comparejsi_patientid)){
-#               if(length(input$comparejsi_patientid) == 1){
-#                   x <- maf[[which(names(maf) == input$comparejsi_patientid) ]]@data
+#           if(class(maf) == "MafList" & !is.null(input$caljsi_patientid)){
+#               if(length(input$caljsi_patientid) == 1){
+#                   x <- maf[[which(names(maf) == input$caljsi_patientid) ]]@data
 #                   if(length(unique(x$Tumor_ID)) <= 1){
 #                       return(NULL)
 #                   }
@@ -4152,11 +4153,11 @@ shinyServer(function(input, output, session){
 #               }
 #           }
 #           tagList(
-#               checkboxInput('comparejsi_pairbytumor',
+#               checkboxInput('caljsi_pairbytumor',
 #                             value = FALSE,
 #                             label = div(style = "font-size:1.5em; font-weight:600; padding-left:12px", 'Pair by tumor'),
 #                             width = 500),
-#               bsTooltip(id = "comparejsi_pairbytumor",
+#               bsTooltip(id = "caljsi_pairbytumor",
 #                         title = "calculate JSI by tumor",
 #                         placement = "top",
 #                         trigger = "hover")
@@ -4164,7 +4165,7 @@ shinyServer(function(input, output, session){
 #       }
 #   })
 #   
-#   comparejsi <- eventReactive(input$submit_comparejsi,{
+#   caljsi <- eventReactive(input$submit_caljsi,{
 #       maf <- varsMaf$maf
 #       validate(
 #           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
@@ -4172,38 +4173,38 @@ shinyServer(function(input, output, session){
 #       withProgress(min = 0, max = 1, value = 0, {
 #           setProgress(message = 'Processing: calculating Jaccard similarity index')
 # 
-#           # if(input$comparejsi_title==""){
+#           # if(input$caljsi_title==""){
 #           #     title <- NULL
 #           # }else{
-#           #     title <- input$comparejsi_title
+#           #     title <- input$caljsi_title
 #           # }
-#           if(is.null(input$comparejsi_pairbytumor)){
+#           if(is.null(input$caljsi_pairbytumor)){
 #               pairbytumor <- FALSE
 #           }else{
-#               pairbytumor <- input$comparejsi_pairbytumor
+#               pairbytumor <- input$caljsi_pairbytumor
 #           }
-#           cc <- compareJSI(maf, 
-#                            patient.id = input$comparejsi_patientid,
-#                            min.vaf = as.numeric(input$comparejsi_minccf) ,
+#           cc <- caljsi(maf, 
+#                            patient.id = input$caljsi_patientid,
+#                            min.vaf = as.numeric(input$caljsi_minccf) ,
 #                            pairByTumor = pairbytumor,
 #                            # title = title,
-#                            use.circle = input$comparejsi_usecircle,
-#                            number.cex = as.numeric(input$comparejsi_numbercex),
-#                            number.col = input$comparejsi_numbercol)
+#                            use.circle = input$caljsi_usecircle,
+#                            number.cex = as.numeric(input$caljsi_numbercex),
+#                            number.col = input$caljsi_numbercol)
 #           incProgress(amount = 1)
-#           setProgress(message = 'compareJSI done!')
+#           setProgress(message = 'caljsi done!')
 #       })
 #       return(cc)
 #   })
 #   
 #   
 #   
-#   output$comparejsi.patientlist <- renderUI({
-#       if(!is.null(comparejsi())){
-#           if(!"JSI.plot" %in% names(comparejsi())){
-#               names <- names(comparejsi())
+#   output$caljsi.patientlist <- renderUI({
+#       if(!is.null(caljsi())){
+#           if(!"JSI.plot" %in% names(caljsi())){
+#               names <- names(caljsi())
 #               tagList(
-#                   selectInput("comparejsi.pl", 
+#                   selectInput("caljsi.pl", 
 #                               div(style = "font-size:1.5em; font-weight:600; ", 'Patient'),
 #                               choices = names, width = 600) 
 #               )
@@ -4211,39 +4212,39 @@ shinyServer(function(input, output, session){
 #       }
 #   })
 #   
-#   getpatient.comparejsi <- eventReactive(input$comparejsi.pl,{
-#       return(input$comparejsi.pl)
+#   getpatient.caljsi <- eventReactive(input$caljsi.pl,{
+#       return(input$caljsi.pl)
 #   })
 #   
-#   comparejsi_width <- reactive({
-#       return(input$comparejsi_width)
+#   caljsi_width <- reactive({
+#       return(input$caljsi_width)
 #   })
-#   comparejsi_height <- reactive({
-#       return(input$comparejsi_height)
+#   caljsi_height <- reactive({
+#       return(input$caljsi_height)
 #   })
 #   
-#   output$comparejsi_plot <- renderPlot({
-#       if(!is.null(comparejsi())){
-#           if(!"JSI.plot" %in% names(comparejsi())){
-#               return(comparejsi()[[getpatient.comparejsi()]]$JSI.plot)
+#   output$caljsi_plot <- renderPlot({
+#       if(!is.null(caljsi())){
+#           if(!"JSI.plot" %in% names(caljsi())){
+#               return(caljsi()[[getpatient.caljsi()]]$JSI.plot)
 #           }else{
-#               return(comparejsi()$JSI.plot)
+#               return(caljsi()$JSI.plot)
 #           }
 #       }
 #   },  
-#   width = comparejsi_width,
-#   height = comparejsi_height,
+#   width = caljsi_width,
+#   height = caljsi_height,
 #   res = 100)
 #   
-#   output$comparejsi_db_ui <- renderUI({
-#       if(!is.null(comparejsi())){
+#   output$caljsi_db_ui <- renderUI({
+#       if(!is.null(caljsi())){
 #           fluidRow(
 #               column(
 #                   width = 7
 #               ),
 #               column(
 #                   width = 2,
-#                   radioButtons(inputId = 'Download_comparejsi_plot_check', 
+#                   radioButtons(inputId = 'Download_caljsi_plot_check', 
 #                                label = div(style = "font-size:18px; font-weight: bold; ", 'Save type as:'),
 #                                choiceNames = list(
 #                                    tags$span(style = "font-size:14.5px; font-weight:400; ", "png"), 
@@ -4254,39 +4255,39 @@ shinyServer(function(input, output, session){
 #               ),
 #               column(
 #                   width = 3,
-#                   downloadBttn('Download_comparejsi_plot', 'Download')
+#                   downloadBttn('Download_caljsi_plot', 'Download')
 #               )
 #           )
 #       }
 #   })
 #   
-#   output$Download_comparejsi_plot <- downloadHandler(
+#   output$Download_caljsi_plot <- downloadHandler(
 #       filename = function() {
-#           paste("Rplot.",input$Download_comparejsi_plot_check, sep='')
+#           paste("Rplot.",input$Download_caljsi_plot_check, sep='')
 #       },
 #       content = function(file) {
-#           if (input$Download_comparejsi_plot_check == "png"){
-#               png(file,width = input$comparejsi_width , height = input$comparejsi_height,res = 100)
+#           if (input$Download_caljsi_plot_check == "png"){
+#               png(file,width = input$caljsi_width , height = input$caljsi_height,res = 100)
 #           }
-#           else if (input$Download_comparejsi_plot_check == "pdf"){
-#               pdf(file,width = input$comparejsi_width/100 , height = input$comparejsi_height/100)
+#           else if (input$Download_caljsi_plot_check == "pdf"){
+#               pdf(file,width = input$caljsi_width/100 , height = input$caljsi_height/100)
 #           }
-#           if(!"JSI.plot" %in% names(comparejsi())){
-#               print(comparejsi()[[getpatient.comparejsi()]]$JSI.plot)
+#           if(!"JSI.plot" %in% names(caljsi())){
+#               print(caljsi()[[getpatient.caljsi()]]$JSI.plot)
 #           }else{
-#               print(comparejsi()$JSI.plot)
+#               print(caljsi()$JSI.plot)
 #           }
 #           dev.off()
 #       },
-#       contentType = paste('image/',input$Download_comparejsi_plot_check,sep="")
+#       contentType = paste('image/',input$Download_caljsi_plot_check,sep="")
 #   )
 #   
-#   output$comparejsi_pair_table <- DT::renderDataTable({
-#       if(!is.null(comparejsi())){
-#           if(!"JSI.plot" %in% names(comparejsi())){
-#               m <- comparejsi()[[getpatient.comparejsi()]]$JSI.pair
+#   output$caljsi_pair_table <- DT::renderDataTable({
+#       if(!is.null(caljsi())){
+#           if(!"JSI.plot" %in% names(caljsi())){
+#               m <- caljsi()[[getpatient.caljsi()]]$JSI.pair
 #           }else{
-#               m <- comparejsi()$JSI.pair
+#               m <- caljsi()$JSI.pair
 #           }
 #           rownames(m) <- colnames(m)
 #           m <- as.data.frame(m)
@@ -4302,12 +4303,12 @@ shinyServer(function(input, output, session){
 #   })
 #   
 #   
-#   output$comparejsi_pair_table_ui <- renderUI({
-#       if(!is.null(comparejsi())){
+#   output$caljsi_pair_table_ui <- renderUI({
+#       if(!is.null(caljsi())){
 #           tagList(
 #               div(style = "font-size:1.5em; font-weight:600; ", "JSI pair"),
 #               br(),
-#               DT::dataTableOutput('comparejsi_pair_table'),
+#               DT::dataTableOutput('caljsi_pair_table'),
 #               br(),
 #               fluidRow(
 #                   column(
@@ -4315,20 +4316,20 @@ shinyServer(function(input, output, session){
 #                   ),
 #                   column(
 #                       width = 3,
-#                       downloadBttn('Download_comparejsi_pair_table', 'Download')
+#                       downloadBttn('Download_caljsi_pair_table', 'Download')
 #                   )
 #               )
 #           )
 #       }
 #   })
 #   
-#   output$Download_comparejsi_pair_table <- downloadHandler(
+#   output$Download_caljsi_pair_table <- downloadHandler(
 #       filename = "Rtable.csv",
 #       content = function(file){
-#           if(!"JSI.plot" %in% names(comparejsi())){
-#               m <- comparejsi()[[getpatient.comparejsi()]]$JSI.pair
+#           if(!"JSI.plot" %in% names(caljsi())){
+#               m <- caljsi()[[getpatient.caljsi()]]$JSI.pair
 #           }else{
-#               m <- comparejsi()$JSI.pair
+#               m <- caljsi()$JSI.pair
 #           }
 #           rownames(m) <- colnames(m)
 #           m <- as.data.frame(m)

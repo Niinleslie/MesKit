@@ -6,7 +6,7 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param pairByTumor Compare JSI between different tumors. (Default: FALSE).
 #' @param min.ccf The minimum value of CCF. Default 0
-#' @param plot Logical (Default: TRUE).
+#' @param plot Logical (Default: FALSE).
 #' @param use.circle Logical (Default: TRUE). Whether to use "circle" as visualization method of correlation matrix.
 #' @param title Title of the plot Default "Jaccard similarity".
 #' @param number.cex The size of text shown in correlation plot. Default 8.
@@ -28,7 +28,7 @@ calJSI <- function(
     patient.id = NULL,
     pairByTumor = FALSE,
     min.ccf = 0,
-    plot = TRUE, 
+    plot = FALSE, 
     use.circle = TRUE,
     title = NULL,
     number.cex = 8,
