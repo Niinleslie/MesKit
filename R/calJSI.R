@@ -6,7 +6,7 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param pairByTumor Compare JSI between different tumors. (Default: FALSE).
 #' @param min.ccf The minimum value of CCF. Default 0
-#' @param plot Logical (Default: TRUE).
+#' @param plot Logical (Default: FALSE).
 #' @param use.circle Logical (Default: TRUE). Whether to use "circle" as visualization method of correlation matrix.
 #' @param title Title of the plot Default "Jaccard similarity".
 #' @param number.cex The size of text shown in correlation plot. Default 8.
@@ -19,16 +19,16 @@
 #' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
 #' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-#' compareJSI(maf)
+#' calJSI(maf)
 #' @return Correlation matrix and heatmap via Jaccard similarity coefficient method
-#' @export compareJSI
+#' @export calJSI
 
-compareJSI <- function(
+calJSI <- function(
     maf,
     patient.id = NULL,
     pairByTumor = FALSE,
     min.ccf = 0,
-    plot = TRUE, 
+    plot = FALSE, 
     use.circle = TRUE,
     title = NULL,
     number.cex = 8,
@@ -84,7 +84,7 @@ compareJSI <- function(
             if(length(unique(JSI_input$Tumor_ID))  < 2 ){
                 message(paste0("Warning: only one tumor was found in ", patient,
                                " according to 'Tumor_ID'. You may want to compare CCF between regions by setting 'pairByTumor' as 'FALSE'")
-                               )
+                )
                 return(NA)
             }
         }else{
@@ -204,7 +204,7 @@ compareJSI <- function(
             values <- sort(unique(as.numeric(dist_mat))) 
             if(length(values[values!=0 &values !=1]) == 0){
                 message(paste0("Warning: private clonal mutations or shared subclonal mutations were not found in all tumor/sample pairs in ", patient, ".\n",
-                    "Correlation plot of Jaccard similarity coefficient will not be generated for ", patient, "!"))
+                               "Correlation plot of Jaccard similarity coefficient will not be generated for ", patient, "!"))
                 return(list(JSI.multi = JSI.multi, JSI.pair = JSI.pair, JSI.plot = NA))
             }
             if(is.null(title)){

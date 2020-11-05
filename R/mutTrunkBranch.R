@@ -37,7 +37,9 @@ mutTrunkBranch <- function(phyloTree,
 
     processMTB <- function(phyloTree){
         patient <- getPhyloTreePatient(phyloTree)
-        mut_branches <- getMutBranches(phyloTree)
+        
+        mut_branches <- getMutBranches(phyloTree)%>% 
+            dplyr::filter(!grepl("\\(NA\\)", .data$Branch_ID))
         
         ## get trinucleotide matrix
         tsb.label <- getPhyloTreeTsbLabel(phyloTree)

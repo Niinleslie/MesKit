@@ -78,6 +78,7 @@ compareCCF <- function(maf,
       pairs <- utils::combn(length(types), 2, simplify = FALSE) 
       pair_name_list <- unlist(lapply(pairs, function(x)paste(types[x[1]],"-",types[x[2]], sep = ""))) 
       pairs <- lapply(pairs, function(x)c(types[x[1]],types[x[2]]))
+      
     }else{
       samples <- unique(maf_data$Tumor_Sample_Barcode)
       if(length(samples) < 2){
@@ -100,10 +101,12 @@ compareCCF <- function(maf,
                        c("Tumor_ID","Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
                        sep = ":", remove = FALSE) %>% 
           dplyr::distinct(.data$Mut_ID2, .keep_all = TRUE) %>%
-          dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>% 
-          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>% 
+          # dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>%
+          # tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>%
+          dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF", "Clonal_Status") %>%
+          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = c("CCF", "Clonal_Status")) %>%
           tidyr::drop_na()
-        
+          
       }else{
         ccf.pair <- maf_data %>% 
           dplyr::filter(.data$Tumor_Sample_Barcode %in% c(S1, S2)) %>%

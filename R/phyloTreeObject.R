@@ -153,11 +153,8 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       dplyr::mutate(Branch_ID = paste0(.data$Branch_ID,"(NA)"),
                     Mutation_Type = paste0("Private_",.data$Mutation_Type,"(NA)"))
    
-   
-   
-   mut.branches <- dplyr::select(mut.branches, -"mut_id") %>% 
-      dplyr::bind_rows(mut_left)
-   
+
+   mut.branches <- dplyr::bind_rows(mut.branches, mut_left)
    branch.type <- mut.branches %>% 
        dplyr::select("Branch_ID", "Mutation_Type") %>% 
        dplyr::distinct(.data$Branch_ID, .keep_all = TRUE) %>% 
