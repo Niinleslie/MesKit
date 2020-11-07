@@ -9,6 +9,7 @@ mutHeatmap(
   patient.id = NULL,
   min.vaf = 0.02,
   min.ccf = 0,
+  use.adjVAF = FALSE,
   use.ccf = FALSE,
   geneList = NULL,
   plot.geneList = FALSE,
@@ -30,6 +31,8 @@ mutHeatmap(
 \item{min.vaf}{The minimum value of VAF. Default 0.02. Option: on the scale of 0 to 1.}
 
 \item{min.ccf}{The minimum value of CCF. Default 0.02. Option: on the scale of 0 to 1.}
+
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 
 \item{use.ccf}{Logical. If FALSE (Default: FALSE), print a binary heatmap of mutations. 
 Otherwise, print a cancer cell frequency (CCF) heatmap.}

@@ -5,6 +5,7 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param min.vaf The minimum value of VAF. Default 0.02. Option: on the scale of 0 to 1.
 #' @param min.ccf The minimum value of CCF. Default 0.02. Option: on the scale of 0 to 1.
+#' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE. 
 #' @param use.ccf Logical. If FALSE (Default: FALSE), print a binary heatmap of mutations. 
 #' Otherwise, print a cancer cell frequency (CCF) heatmap.
 #' @param geneList List of genes to restrict the analysis. Default NULL.
@@ -33,6 +34,7 @@ mutHeatmap <- function(maf,
                        patient.id = NULL,
                        min.vaf = 0.02,
                        min.ccf = 0,
+                       use.adjVAF = FALSE,
                        use.ccf = FALSE,
                        geneList = NULL,
                        plot.geneList = FALSE,
@@ -59,7 +61,7 @@ mutHeatmap <- function(maf,
     
     heatmap_list <- list()
     for(m in maf_list){
-        maf_data <- subMaf(m, min.vaf = min.vaf, min.ccf = min.ccf, ...)
+        maf_data <- subMaf(m, min.vaf = min.vaf, use.adjVAF = use.adjVAF, min.ccf = min.ccf, ...)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
             message("Warning: there was no mutations in ", patient, " after filtering.")
@@ -68,7 +70,7 @@ mutHeatmap <- function(maf,
         
         if(use.tumorSampleLabel){
             if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
+                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be FALSE")
             }
             maf_data <- maf_data %>% 
                 dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)

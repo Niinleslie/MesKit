@@ -15,7 +15,7 @@
 #' @param min.alt.depth The minimum alteratation allele depth for filtering variants. Default 0.
 #' @param min.total.depth The minimum total allele depth for filtering variants. Default 0.
 #' @param clonalStatus Subset by clonal status. Default NULL. Option: "Clonal","Subclonal".
-#' @param use.adjVAF Let VAF = VAF_adj, Tumor_Average_VAF = Tumor_Average_VAF_adj. (Default: FALSE). 
+#' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE. 
 #'
 #'
 #' @examples

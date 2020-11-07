@@ -8,8 +8,8 @@ vafCluster(
   maf,
   patient.id = NULL,
   segFile = NULL,
-  min.vaf = 0.02,
-  max.vaf = 1,
+  min.vaf = 0,
+  use.adjVAF = FALSE,
   withinTumor = FALSE,
   use.tumorSampleLabel = FALSE,
   ...
@@ -22,9 +22,9 @@ vafCluster(
 
 \item{segFile}{The segment file.}
 
-\item{min.vaf}{The minimum value of VAF. Default 0.02. Option: on the scale of 0 to 1}
+\item{min.vaf}{The minimum value of VAF. Default 0.02. Option: on the scale of 0 to 1.}
 
-\item{max.vaf}{The maximum value of VAF. Default 1. Option: on the scale of 0 to 1}
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 
 \item{withinTumor}{Cluster VAF within tumors in each patients. (Default: FALSE).}
 

@@ -6,7 +6,7 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param withinTumor Calculate between-region heterogeneity within tumor. 
 #' (Default: FALSE).
-#' @param min.ccf Specify the minimum CCF. Default 0.08.
+#' @param min.ccf Specify the minimum CCF. Default 0.
 #' @param plot Logical (Default: TRUE).
 #' @param use.circle Logical (Default: TRUE). Whether to use "circle" as visualization method of correlation matrix.
 #' @param title The title of the plot. Default "Nei's distance"
@@ -28,7 +28,7 @@
 calNeiDist <- function(maf, 
                        patient.id = NULL,
                        withinTumor = FALSE, 
-                       min.ccf = 0.02,
+                       min.ccf = 0,
                        plot = TRUE, 
                        use.circle = TRUE, 
                        title = NULL,

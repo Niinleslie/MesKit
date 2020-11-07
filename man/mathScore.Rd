@@ -8,7 +8,8 @@ mathScore(
   maf,
   patient.id = NULL,
   withinTumor = FALSE,
-  min.vaf = 0.02,
+  min.vaf = 0,
+  use.adjVAF = TRUE,
   use.tumorSampleLabel = FALSE,
   ...
 )
@@ -20,7 +21,9 @@ mathScore(
 
 \item{withinTumor}{Calculate between-region heterogeneity within tumor. (Default FALSE).}
 
-\item{min.vaf}{The minimum VAF for filtering variants. Default 0.02.}
+\item{min.vaf}{The minimum VAF for filtering variants. Default 0.}
+
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). 
 Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}

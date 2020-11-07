@@ -8,7 +8,7 @@ calNeiDist(
   maf,
   patient.id = NULL,
   withinTumor = FALSE,
-  min.ccf = 0.02,
+  min.ccf = 0,
   plot = TRUE,
   use.circle = TRUE,
   title = NULL,
@@ -26,7 +26,7 @@ calNeiDist(
 \item{withinTumor}{Calculate between-region heterogeneity within tumor. 
 (Default: FALSE).}
 
-\item{min.ccf}{Specify the minimum CCF. Default 0.08.}
+\item{min.ccf}{Specify the minimum CCF. Default 0.}
 
 \item{plot}{Logical (Default: TRUE).}
 

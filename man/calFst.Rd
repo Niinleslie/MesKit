@@ -7,8 +7,8 @@
 calFst(
   maf,
   patient.id = NULL,
-  min.vaf = 0.02,
-  min.total.depth = 2,
+  min.vaf = 0,
+  use.adjVAF = FALSE,
   plot = TRUE,
   withinTumor = FALSE,
   use.circle = TRUE,
@@ -25,10 +25,9 @@ calFst(
 \item{patient.id}{Select the specific patients. 
 Default NULL, all patients are included.}
 
-\item{min.vaf}{Specify the minimum VAF_adj. Default 0.02.}
+\item{min.vaf}{Specify the minimum VAF_adj. Default 0.}
 
-\item{min.total.depth}{The minimum total allele depth for filtering variants. 
-Default 2.}
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 
 \item{plot}{Logical (Default: TRUE).}
 
@@ -47,6 +46,9 @@ Default "#C77960".}
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
+
+\item{min.total.depth}{The minimum total allele depth for filtering variants. 
+Default 2.}
 }
 \value{
 A list contains Fst value of MRS and Hudson estimator of each sample-pair, respectively.

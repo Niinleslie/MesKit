@@ -54,7 +54,7 @@ subMaf(
 
 \item{clonalStatus}{Subset by clonal status. Default NULL. Option: "Clonal","Subclonal".}
 
-\item{use.adjVAF}{Let VAF = VAF_adj, Tumor_Average_VAF = Tumor_Average_VAF_adj. (Default: FALSE).}
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 }
 \value{
 Maf object or Maf data.
