@@ -8,7 +8,7 @@ getPhyloTree(
   maf,
   patient.id = NULL,
   method = "NJ",
-  min.vaf = 0.02,
+  min.vaf = 0,
   min.ccf = 0,
   bootstrap.rep.num = 100,
   ...
@@ -23,7 +23,7 @@ getPhyloTree(
 Choose one of "NJ"(Neibor-Joining), "MP"(maximum parsimony), 
 "ML"(maximum likelihood), "FASTME.ols" or "FASTME.bal".}
 
-\item{min.vaf}{The minimum value of vaf. Default 0.02.}
+\item{min.vaf}{The minimum value of vaf. Default 0.}
 
 \item{min.ccf}{The minimum value of CCF. Default 0}
 

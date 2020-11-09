@@ -7,7 +7,7 @@
 mutHeatmap(
   maf,
   patient.id = NULL,
-  min.vaf = 0.02,
+  min.vaf = 0,
   min.ccf = 0,
   use.adjVAF = FALSE,
   use.ccf = FALSE,
@@ -28,9 +28,9 @@ mutHeatmap(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{min.vaf}{The minimum value of VAF. Default 0.02. Option: on the scale of 0 to 1.}
+\item{min.vaf}{The minimum value of VAF. Default 0. Option: on the scale of 0 to 1.}
 
-\item{min.ccf}{The minimum value of CCF. Default 0.02. Option: on the scale of 0 to 1.}
+\item{min.ccf}{The minimum value of CCF. Default 0. Option: on the scale of 0 to 1.}
 
 \item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 

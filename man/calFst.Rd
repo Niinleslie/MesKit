@@ -25,7 +25,7 @@ calFst(
 \item{patient.id}{Select the specific patients. 
 Default NULL, all patients are included.}
 
-\item{min.vaf}{Specify the minimum VAF_adj. Default 0.}
+\item{min.vaf}{Specify The minimum VAF to filter variants. Default 0.}
 
 \item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 

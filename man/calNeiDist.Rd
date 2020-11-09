@@ -46,7 +46,7 @@ calNeiDist(
 Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
 }
 \description{
-Nei's distance of CCF for each sample-pair
+Nei's distance of CCF for sample/tumor pair.
 }
 \examples{
 maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
