@@ -38,10 +38,12 @@ ccfAUC <- function(
     }else{
       clonalStatus <- NULL
     }
-  
-    maf <- subMaf(maf, min.ccf = min.ccf, clonalStatus = clonalStatus, mafObj = TRUE,...)
+     
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
+    
+    maf <- subMaf(maf, min.ccf = min.ccf, clonalStatus = clonalStatus, mafObj = TRUE,...)
+
     
     processAUC <- function(m, withinTumor, plot.density){
         

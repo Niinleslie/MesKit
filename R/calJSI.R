@@ -36,9 +36,11 @@ calJSI <- function(
     use.tumorSampleLabel = FALSE,
     ...) {
     
-    maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE, ...)
     ## check input data
     maf_list <- checkMafInput(maf, patient.id = patient.id)
+    
+    maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE, ...)
+
     
     processJSI <- function(m){
         maf_data <- getMafData(m) %>% dplyr::filter(!is.na(.data$Clonal_Status))
