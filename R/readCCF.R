@@ -93,6 +93,7 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
          dplyr::select(-"CCF_CI_High",
                        -"Tumor_Mut_ID",
                        -"mut_in_tumor_num",
+                       -"sample_in_tumor_num",
                        -"judge_any_ccf_lower_05",
                        -"judge_any_ccf_ci_lower_1")
       

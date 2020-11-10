@@ -27,11 +27,13 @@ classifyMut <- function(
      ...) {
     
     ## check input data
-    maf_list <- checkMafInput(maf, patient.id=patient.id)
+    maf_input <- maf_data <- subMaf(maf,
+                                   patient.id = patient.id,
+                                   ...)
     
     result <- list()
-    for(m in maf_list){
-        maf_data <- subMaf(m, ...)
+    for(m in maf_input){
+        maf_data <- getMafData(m)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
             message("Warning: there was no mutation in ", patient, " after filtering.")

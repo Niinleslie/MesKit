@@ -45,19 +45,10 @@ calNeiDist <- function(maf,
       return(NA)
     }
     
-    if(use.tumorSampleLabel){
-      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-        stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
-      }
-      maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-    }
-    
-    if(! "CCF" %in% colnames(maf_data)){
+    if(!"CCF" %in% colnames(maf_data)){
       stop(paste0("Calculation of Nei's distance requires CCF data.",
                   "No CCF data was found when generated Maf object with readMaf function"))
     }
-    
     Nei_input <- maf_data %>%
       tidyr::unite(
         "Mut_ID",
@@ -75,28 +66,27 @@ calNeiDist <- function(maf,
         "Tumor_ID",
         "Tumor_Sample_Barcode",
         "CCF"
-      )
-  
-    
-    if(!withinTumor){
-      subdata <- Nei_input
-    }else{
-      id <- unique(Nei_input$Tumor_ID)
-      subdata <- subset(Nei_input, Nei_input$Tumor_ID == id)
-    }
+      ) %>% 
+      dplyr::filter(!is.na(.data$CCF))
     
     if(withinTumor){
+      id <- unique(Nei_input$Tumor_ID)
+      subdata <- subset(Nei_input, Nei_input$Tumor_ID == id)
       if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
         message(paste0("Warning: only one sample was found in ", id,
                        " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
         return(NA)
         
       }
+    }else{
+      subdata <- Nei_input
+      if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
+        message(paste0("Warning: only one sample was found in ",patient,"."))
+        return(NA)
+      }
     }
-    if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
-      message(paste0("Warning: only one sample was found in ",patient,"."))
-      return(NA)
-    }
+    
+    
     
     ## pairwise heterogeneity
     samples <- as.character(unique(subdata$Tumor_Sample_Barcode))
@@ -166,8 +156,9 @@ calNeiDist <- function(maf,
       if(is.null(title)){
         ## get significant number
         min_value <- min(dist_mat[dist_mat!=1 & dist_mat!=0])
+        min_value <- format(min_value, scientific = FALSE)
         significant_digit <- gsub(pattern =  "0\\.0*","", as.character(min_value))
-        digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
+        digits <- nchar(as.character(min_value)) - nchar(significant_digit)
         if(withinTumor){
           title_id <- paste0("Nei's distance of ", id," in ", patient, ": ",round(Nei.dist.avg,digits))
         }else{
@@ -183,13 +174,12 @@ calNeiDist <- function(maf,
         number.col = number.col,
         title = if(!is.null(title_id)) title_id else{NA} 
       )
-    }
-    
-    if(plot){
       return(list(Nei.dist.avg = Nei.dist.avg, Nei.dist = Nei.dist, Nei.plot = Nei.plot))
+      
     }else{
       return(list(Nei.dist.avg = Nei.dist.avg, Nei.dist = Nei.dist))
-    }  
+      
+    }
     
   }
   
@@ -199,11 +189,14 @@ calNeiDist <- function(maf,
     clonalStatus <- NULL
   }
   
-  maf <- subMaf(maf, min.ccf = min.ccf, clonalStatus = clonalStatus, mafObj = TRUE, ...)
+  maf_input <- subMaf(maf, 
+                      patient.id = patient.id,
+                      min.ccf = min.ccf,
+                      clonalStatus = clonalStatus, 
+                      use.tumorSampleLabel = use.tumorSampleLabel,
+                      mafObj = TRUE, ...)
   
-  ## check input data
-  maf_list <- checkMafInput(maf, patient.id = patient.id)
-  maf_data_list <- lapply(maf_list, getMafData)
+  maf_data_list <- lapply(maf_input, getMafData)
   
   . <- NULL
   

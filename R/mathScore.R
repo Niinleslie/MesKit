@@ -32,18 +32,6 @@ mathScore <- function(maf,
                       use.tumorSampleLabel = FALSE,
                       ...
                       ){
-    ## select subclonal mutation when withinTumor is TRUE
-    if(withinTumor){
-        clonalStatus <- "Subclonal"
-    }else{
-        clonalStatus <- NULL
-    }
-    
-    maf <- subMaf(maf, min.vaf = min.vaf, use.adjVAF = use.adjVAF, clonalStatus = clonalStatus, mafObj = TRUE, ...)
-    
-    ## check input data
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
-
 
     processMATH <- function(m, clonalStatus){
         patient <- getMafPatient(m)
@@ -53,13 +41,6 @@ mathScore <- function(maf,
             return(NA)
         }
         
-        if(use.tumorSampleLabel){
-            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
-            }
-            maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-        }
         
         ## MATH Caculation
         calMATH <- function(VAF){
@@ -91,7 +72,23 @@ mathScore <- function(maf,
         return(MATH.df)
     }
     
-    MATH_list <- lapply(maf_list, processMATH, clonalStatus)
+    ## select subclonal mutation when withinTumor is TRUE
+    if(withinTumor){
+        clonalStatus <- "Subclonal"
+    }else{
+        clonalStatus <- NULL
+    }
+    
+    maf_input <- subMaf(maf,
+                        patient.id = patient.id,
+                        min.vaf = min.vaf, 
+                        use.adjVAF = use.adjVAF,
+                        clonalStatus = clonalStatus,
+                        use.tumorSampleLabel = use.tumorSampleLabel,
+                        mafObj = TRUE, ...)
+    
+    
+    MATH_list <- lapply(maf_input, processMATH, clonalStatus)
     result <- MATH_list[!is.na(MATH_list)]
     # result <- dplyr::bind_rows(MATH_list)
     

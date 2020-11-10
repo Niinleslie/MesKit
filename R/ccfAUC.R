@@ -33,48 +33,24 @@ ccfAUC <- function(
    ...
 ){
 
-    if(withinTumor){
-      clonalStatus <- "Subclonal"
-    }else{
-      clonalStatus <- NULL
-    }
-     
-    ## check input data
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
-    
-    maf <- subMaf(maf, min.ccf = min.ccf, clonalStatus = clonalStatus, mafObj = TRUE,...)
-
     
     processAUC <- function(m, withinTumor, plot.density){
-        
-        maf_data <- getMafData(m) %>% dplyr::filter(!is.na(.data$CCF))
-        if(! "CCF" %in% colnames(maf_data) ){
-            stop(paste0("No CCF data was found when generate Maf/MafList object."))
+      
+        if(! "CCF" %in% colnames(maf_data)){
+           stop(paste0("No CCF data was found when generate Maf/MafList object."))
         }
         
-        if(withinTumor) {
-            maf_data <- dplyr::filter(maf_data, !is.na(.data$Tumor_Average_CCF))
-        }
+        maf_data <- getMafData(m) %>% 
+          dplyr::filter(!is.na(CCF),
+                        !is.na(Tumor_Average_CCF))
         
         patient <- getMafPatient(m)
+        
         if(nrow(maf_data) == 0){
-            message("Warning: there was no mutation in ", patient, " after filtering.")
-            return(NA)
-        }
-        
-        if(use.tumorSampleLabel){
-            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be FALSE.")
-            }
-            maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-        }
-        
-        if(plot.density){
-            CCF.density.plot <- list()
+          message("Warning: there was no mutation in ", patient, " after filtering.")
+          return(NA)
         }
 
-        
         if(withinTumor){
             ids <- unique(maf_data$Tumor_ID)
         }else{
@@ -98,23 +74,19 @@ ccfAUC <- function(
                                                      stop.on.error = FALSE)$value)
             if(withinTumor){
                 a <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
+                c <-  subdata %>%         
+                  dplyr::arrange(.data$Tumor_Average_CCF) %>%
+                  dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
+                  dplyr::mutate(Tumor_ID = paste0(.data$Tumor_ID," (", round(auc,3), ")"))
             }else{
                 a <- data.frame(Patient_ID = patient, Tumor_Sample_Barcode = id, AUC = auc)
+                c <-  subdata %>%         
+                  dplyr::arrange(.data$CCF) %>%
+                  dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
+                  dplyr::mutate(Tumor_Sample_Barcode = paste0(.data$Tumor_Sample_Barcode," (",round(auc,3),")"))
+                
             }
             
-            if(withinTumor){
-                c <-  subdata %>%         
-                    dplyr::arrange(.data$Tumor_Average_CCF) %>%
-                    dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
-                    dplyr::mutate(Tumor_ID = paste0(.data$Tumor_ID," (", round(auc,3), ")"))
-                
-            }else{
-                c <-  subdata %>%         
-                    dplyr::arrange(.data$CCF) %>%
-                    dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
-                    dplyr::mutate(Tumor_Sample_Barcode = paste0(.data$Tumor_Sample_Barcode," (",round(auc,3),")"))
-                
-            }
             return(list(a = a, c = c))
         }
         
@@ -168,7 +140,21 @@ ccfAUC <- function(
         }
     }
     
-    result <- lapply(maf_list, processAUC, withinTumor, plot.density)
+    if(withinTumor){
+      clonalStatus <- "Subclonal"
+    }else{
+      clonalStatus <- NULL
+    }
+
+    maf_input <- subMaf(maf,
+                        patient.id = patient.id,
+                        min.ccf = min.ccf,
+                        clonalStatus = clonalStatus,
+                        use.tumorSampleLabel = use.tumorSampleLabel,
+                        mafObj = TRUE,...)
+    
+    
+    result <- lapply(maf_input, processAUC, withinTumor, plot.density)
     result <- result[!is.na(result)]   
         
     

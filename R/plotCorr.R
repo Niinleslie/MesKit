@@ -1,17 +1,23 @@
 plotCorr <- function(corrMat, use.circle = TRUE, title = NULL, number.cex = 8, number.col = "#c05836"){
     corrMat[lower.tri(corrMat)] <- 0
+    # maxCorr <- format(max(corrMat[corrMat!=1]), scientific = FALSE) 
+    # minCorr <- format( min(corrMat[corrMat!=1 & corrMat!=0]), scientific = FALSE)
+    
     maxCorr <- max(corrMat[corrMat!=1])
     minCorr <- min(corrMat[corrMat!=1 & corrMat!=0])
     #maxCorr <- max(corrMat)
     TSBs <- colnames(corrMat)
-    
-    
+
     #col_fun <- circlize::colorRamp2(pretty(c(0, maxCorr),6),
     #                                c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
     significant_digit <- gsub(pattern =  "0\\.0*","", as.character(minCorr))
-    digits <- nchar(as.character(minCorr)) - nchar(significant_digit) 
-    col_fun <- circlize::colorRamp2(breaks = round( seq(0, maxCorr, length = 6),digits = digits),
+    digits <- nchar(as.character(minCorr)) - nchar(significant_digit)
+
+    col_fun <- circlize::colorRamp2(breaks = seq(0, maxCorr, length = 6),
                                     c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
+
+    # col_fun <- circlize::colorRamp2(breaks = round(seq(0, maxCorr, length = 6),digits = digits),
+    #                                 c("#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#023858"))
 
     p <- ComplexHeatmap::Heatmap(
         corrMat,

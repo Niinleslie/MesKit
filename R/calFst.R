@@ -14,7 +14,6 @@
 #' @param patient.id Select the specific patients. 
 #' Default NULL, all patients are included.
 #' @param min.vaf Specify The minimum VAF to filter variants. Default 0.
-#' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE. 
 #' @param min.total.depth The minimum total allele depth for filtering variants. 
 #' Default 2.
 #' @param plot Logical (Default: TRUE).
@@ -44,7 +43,7 @@ calFst <- function(
   maf, 
   patient.id = NULL, 
   min.vaf = 0,
-  use.adjVAF = FALSE,
+  min.total.depth = 2,
   plot = TRUE,
   withinTumor = FALSE,
   use.circle = TRUE,
@@ -54,41 +53,19 @@ calFst <- function(
   use.tumorSampleLabel = FALSE,
   ...){
   
-  if(withinTumor){
-    clonalStatus <- "Subclonal"
-  }else{
-    clonalStatus <- NULL
-  }
-  
-  maf <- subMaf(maf = maf,
-                min.vaf = min.vaf,
-                use.adjVAF = use.adjVAF, 
-                clonalStatus = clonalStatus,
-                mafObj = TRUE,
-                ...)
-  
-  ## check input data
-  maf_list <- checkMafInput(maf, patient.id = patient.id)
   
   processFst <- function(maf_data){
     
     patient <- unique(maf_data$Patient_ID)
     
-    if(use.tumorSampleLabel){
-      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-        stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
-      }
-      maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-    }
-    
     if(nrow(maf_data) == 0){
       message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
     }
-    if(!"VAF_adj" %in% colnames(maf_data)){
-      stop("Adjusted VAFs were not found in the maf object.")
-    }
+    
+    # if(!"VAF_adj" %in% colnames(maf_data)){
+    #   stop("Adjusted VAFs were not found in the maf object.")
+    # }
     
     Fst_input <- maf_data %>% 
       tidyr::unite(
@@ -107,34 +84,29 @@ calFst <- function(
         "Mut_ID",
         "Tumor_ID",
         "Tumor_Sample_Barcode",
-        "VAF_adj",
+        "VAF",
         "totalDepth") %>% 
       ## remove NA(it may be caused by NA of CCF)
-      dplyr::filter(!is.na(.data$VAF_adj))
+      dplyr::filter(!is.na(.data$VAF))
     
     
     if(!withinTumor){
       subdata <- Fst_input
-    }else{
-      id <- unique(Fst_input$Tumor_ID)
-      subdata <- subset(Fst_input, Fst_input$Tumor_ID == id)
-    }
-    
-    
-    if(withinTumor){
       if(length(unique(subdata$Tumor_Sample_Barcode))  < 2 ){
         message(paste0("Warning: only one sample was found of ", id,
                        " in ", patient, 
                        ". If you want to compare CCF between regions, withinTumor should be set as FALSE"))
         return(NA)
       }
-    }
-    else{
+    }else{
+      id <- unique(Fst_input$Tumor_ID)
+      subdata <- subset(Fst_input, Fst_input$Tumor_ID == id)
       if(length(unique(subdata$Tumor_Sample_Barcode))  < 2 ){
         message(paste0("Warning: only one sample was found in ", patient, "."))
         return(NA)
       } 
     }
+    
     
     ## pairwise heterogeneity
     samples <- as.character(unique(subdata$Tumor_Sample_Barcode))
@@ -152,8 +124,8 @@ calFst <- function(
       maf.pair <- as.data.frame(s) %>% 
         tidyr::pivot_wider(
           names_from = "Tumor_Sample_Barcode",       
-          values_from = c("VAF_adj", "totalDepth"),
-          values_fill = list("VAF_adj" = 0, "totalDepth" = 0)
+          values_from = c("VAF", "totalDepth"),
+          values_fill = list("VAF" = 0, "totalDepth" = 0)
         )
       colnames(maf.pair) <- c("Mut_ID", "vaf1", "vaf2", "depth1", "depth2")
       
@@ -165,7 +137,10 @@ calFst <- function(
           sd = .data$vaf1*(1-.data$vaf2)+.data$vaf2*(1-.data$vaf1)
         )
       fst <- mean(maf.pair$covariance)/mean(maf.pair$sd)
-      
+      if(is.nan(fst)){
+        browser()
+        print(maf.pair)
+      }
       return(fst)
     }
     
@@ -206,6 +181,7 @@ calFst <- function(
       ## get significant number
       if(is.null(title)){
         min_value <- min(dist_mat[dist_mat != 1 & dist_mat != 0])
+        min_value <- format(min_value, scientific = FALSE)
         significant_digit <- gsub(pattern =  "0\\.0*", "", as.character(min_value))
         digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
         if(withinTumor){
@@ -224,17 +200,30 @@ calFst <- function(
         number.col=number.col,
         title = if(!is.null(title_id)) title_id else{NA} 
       )
-    }
-    
-    if(plot){
       return(list(Fst.avg = Fst.avg, Fst.pair = Fst.pair, Fst.plot = Fst.plot))
     }else{
       return(list(Fst.avg = Fst.avg, Fst.pair = Fst.pair))
-    }  
+    }
     
   }
   
-  maf_data_list <- lapply(maf_list, getMafData)
+  
+  if(withinTumor){
+    clonalStatus <- "Subclonal"
+  }else{
+    clonalStatus <- NULL
+  }
+  
+  maf_input <- subMaf(maf = maf,
+                min.vaf = min.vaf,
+                min.total.depth = min.total.depth,
+                clonalStatus = clonalStatus,
+                mafObj = TRUE,
+                patient.id = patient.id,
+                use.tumorSampleLabel = use.tumorSampleLabel,
+                ...)
+
+  maf_data_list <- lapply(maf_input, getMafData)
   
   if(withinTumor){
     maf_group <- dplyr::bind_rows(maf_data_list) %>%

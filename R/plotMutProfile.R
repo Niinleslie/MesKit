@@ -53,35 +53,24 @@ plotMutProfile <- function(maf,
                            use.tumorSampleLabel = FALSE,
                            ...) {
     
-    ## check maf and order patient
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
-    if (any(names(maf_list) != patient.id)) {
+    ## filter maf and order patient
+    maf_input <- subMaf(maf,
+                        patient.id = patient.id,
+                        mafObj = TRUE,
+                        use.tumorSampleLabel = use.tumorSampleLabel,
+                        ...)
+    if (any(names(maf_input) != patient.id)) {
       mafTemp <- list()
-      for (i in seq_len(length(maf_list))) {
-        mafTemp[i] <- maf_list[which(names(maf_list) == patient.id[i])]
+      for (i in seq_len(length(maf_input))) {
+        mafTemp[i] <- maf_input[which(names(maf_input) == patient.id[i])]
       }
       names(mafTemp) <- patient.id
-      maf_list <- mafTemp
+      maf_input <- mafTemp
     }
     
     
     ## merge maf data
-    maf_data_list <- list()
-    i <- 1
-    for(m in maf_list){
-        maf_data <- subMaf(m,...)
-        if(use.tumorSampleLabel){
-          if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-            stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
-          }
-          maf_data <- maf_data %>% 
-            dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-        }
-        maf_data_list[[i]] <- maf_data
-        i <- i + 1
-    }
-    names(maf_data_list) <- patient.id
-    
+    maf_data_list <- lapply(maf_input, getMafData)
     
     # order samples
     if (!(is.null(sampleOrder))) {

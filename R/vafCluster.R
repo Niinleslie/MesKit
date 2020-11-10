@@ -32,9 +32,6 @@ vafCluster <-function(maf,
                       withinTumor = FALSE,
                       use.tumorSampleLabel = FALSE,
                       ...){
-  # plotOption <- match.arg(plotOption, choices = c('combine', 'compare'), several.ok = FALSE)
-  ## check input data
-  maf_list <- checkMafInput(maf, patient.id = patient.id)
   
   processVafcluster_maf <- function(m){
     ## remove mutation in CNA regions
@@ -43,23 +40,14 @@ vafCluster <-function(maf,
       m <- copyNumberFilter(m,seg)
     }
     
-    maf_data <- subMaf(m, min.vaf = min.vaf, use.adjVAF = use.adjVAF, ...)
+    maf_data <- getMafData(m)
     patient <- getMafPatient(m)
-    
-    
     
     if(nrow(maf_data) == 0){
       message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
     }
     
-    if(use.tumorSampleLabel){
-      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-        stop("There is no information about the Tumor_Sample_Label.Please check clinical data in readMaf or let use.tumorSampleLabel be FALSE")
-      }
-      maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-    }
     
     ## extract vaf info
     if(withinTumor){
@@ -126,7 +114,16 @@ vafCluster <-function(maf,
     return(list(p = p, subdata = subdata))
   }
   
-  result <- lapply(maf_list, processVafcluster_maf)
+  # plotOption <- match.arg(plotOption, choices = c('combine', 'compare'), several.ok = FALSE)
+  ## check input data
+  maf_input <- subMaf(maf, 
+                      patient.id = patient.id,
+                      min.vaf = min.vaf,
+                      use.adjVAF = use.adjVAF,
+                      use.tumorSampleLabel = use.tumorSampleLabel,
+                      mafObj = TRUE, ...)
+  
+  result <- lapply(maf_input, processVafcluster_maf)
   result <- result[!is.na(result)]
   
   if(length(result) > 1){
