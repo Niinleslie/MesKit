@@ -30,11 +30,7 @@ mutTrunkBranch <- function(phyloTree,
                            pvalue = 0.05,
                            plot = TRUE){
     
-    ## check input data
-    phyloTree_list <- checkPhyloTreeInput(phyloTree, patient.id = patient.id)
-    ## get trinucleotide matrix
-    tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_list, CT = CT, level = "4")
-
+    
     processMTB <- function(phyloTree){
         patient <- getPhyloTreePatient(phyloTree)
         
@@ -331,7 +327,12 @@ mutTrunkBranch <- function(phyloTree,
         }
     }
     
-    result <- lapply(phyloTree_list, processMTB)
+    ## preprocess input data
+    phyloTree_input <- subPhyloTree(phyloTree, patient.id = patient.id)
+    ## get trinucleotide matrix
+    tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_input, CT = CT, level = "4")
+    
+    result <- lapply(phyloTree_input, processMTB)
     result <- result[!is.na(result)]
     
     if(length(result) == 1){

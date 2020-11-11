@@ -36,12 +36,10 @@ calJSI <- function(
     use.tumorSampleLabel = FALSE,
     ...) {
     
-    maf <- subMaf(maf, min.ccf = min.ccf, use.adjVAF = TRUE, mafObj = TRUE, ...)
-    ## check input data
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
-    
     processJSI <- function(m){
-        maf_data <- getMafData(m) %>% dplyr::filter(!is.na(.data$Clonal_Status))
+        maf_data <- getMafData(m) %>%
+            dplyr::filter(!is.na(.data$Clonal_Status),
+                          !is.na(CCF))
         if(! "CCF" %in% colnames(getMafData(m))){
             stop(paste0("Calculation of Jaccard similarity requires CCF data." ,
                         "No CCF data was found when generate Maf/MafList object."))
@@ -53,12 +51,37 @@ calJSI <- function(
             return(NA)
         }
         
-        if(use.tumorSampleLabel){
-            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-                stop("'Tumor_Sample_Label' was not found. Please check clinical data or let use.tumorSampleLabel be FALSE")
+        
+        if(pairByTumor){
+            if(length(unique(maf_data$Tumor_ID))  < 2 ){
+                message(paste0("Warning: only one tumor was found in ", patient,
+                               " according to 'Tumor_ID'. You may want to compare CCF between regions by setting 'pairByTumor' as 'FALSE'")
+                )
+                return(NA)
             }
-            maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
+            
+            maf_data$CCF <- maf_data$Tumor_Average_CCF
+            
+            tumors <- as.character(unique(maf_data$Tumor_ID))
+            pairs <- utils::combn(tumors, 2, simplify = FALSE)
+            dist_mat <- diag(1, nrow = length(tumors), ncol = length(tumors))
+            dist_mat <- cbind(dist_mat, tumors)
+            rownames(dist_mat) <- tumors
+            colnames(dist_mat) <- c(tumors, "name")
+            
+        }else{
+            if(length(unique(maf_data$Tumor_Sample_Barcode))  < 2 ){
+                message(paste0("Warning: only one sample was found in ", patient, "."))
+                return(NA)
+            } 
+            
+            samples <- as.character(unique(maf_data$Tumor_Sample_Barcode))
+            pairs <- utils::combn(samples, 2, simplify = FALSE)
+            dist_mat <- diag(1, nrow = length(samples), ncol = length(samples))
+            dist_mat <- cbind(dist_mat, samples)
+            rownames(dist_mat) <- samples
+            colnames(dist_mat) <- c(samples, "name")
+            
         }
         
         JSI_input <-  maf_data %>%
@@ -78,45 +101,15 @@ calJSI <- function(
                 "Tumor_ID",
                 "Tumor_Sample_Barcode",
                 "Clonal_Status",
-                "VAF_adj")
+                "CCF")
         
-        if(pairByTumor){
-            if(length(unique(JSI_input$Tumor_ID))  < 2 ){
-                message(paste0("Warning: only one tumor was found in ", patient,
-                               " according to 'Tumor_ID'. You may want to compare CCF between regions by setting 'pairByTumor' as 'FALSE'")
-                )
-                return(NA)
-            }
-        }else{
-            if(length(unique(JSI_input$Tumor_Sample_Barcode))  < 2 ){
-                message(paste0("Warning: only one sample was found in ", patient, "."))
-                return(NA)
-            } 
-        }
-        
-        ## pairwise heterogeneity
-        if(pairByTumor){
-            tumors <- as.character(unique(JSI_input$Tumor_ID))
-            pairs <- utils::combn(tumors, 2, simplify = FALSE)
-            dist_mat <- diag(1, nrow = length(tumors), ncol = length(tumors))
-            dist_mat <- cbind(dist_mat, tumors)
-            rownames(dist_mat) <- tumors
-            colnames(dist_mat) <- c(tumors, "name")
-        }else{
-            samples <- as.character(unique(JSI_input$Tumor_Sample_Barcode))
-            pairs <- utils::combn(samples, 2, simplify = FALSE)
-            dist_mat <- diag(1, nrow = length(samples), ncol = length(samples))
-            dist_mat <- cbind(dist_mat, samples)
-            rownames(dist_mat) <- samples
-            colnames(dist_mat) <- c(samples, "name")
-        }
         
         
         processJSI2 <- function(pair){
             
             if(pairByTumor){
                 name <- paste(pair[1], pair[2], sep = "_")
-                vaf.pair <- subset(JSI_input, JSI_input$Tumor_ID %in% c(pair[1], pair[2])) %>%
+                ccf.pair <- subset(JSI_input, JSI_input$Tumor_ID %in% c(pair[1], pair[2])) %>%
                     tidyr::unite("Mut_ID2",
                                  c("Mut_ID",
                                    "Tumor_ID"),
@@ -124,34 +117,41 @@ calJSI <- function(
                                  remove = FALSE
                     ) %>%
                     dplyr::distinct(.data$Mut_ID2, .keep_all = TRUE) %>%
-                    dplyr::select("Mut_ID", "Tumor_ID", "Clonal_Status", "VAF_adj") %>% 
+                    dplyr::select("Mut_ID", "Tumor_ID", "Clonal_Status", "CCF") %>% 
                     tidyr::pivot_wider(
                         names_from = "Tumor_ID",       
-                        values_from = c("VAF_adj", "Clonal_Status"),
-                        values_fill = list("VAF_adj" = 0, "Clonal_Status" = "nostatus")
+                        values_from = c("CCF", "Clonal_Status"),
+                        values_fill = list("CCF" = 0, "Clonal_Status" = "nostatus")
                     ) %>%
                     dplyr::ungroup()
-                colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")
+                colnames(ccf.pair) <- c("Mut_ID", "ccf1", "ccf2", "status1", "status2")
             }
             else{
                 name <- paste(pair[1], pair[2], sep = "_")
-                vaf.pair <- subset(JSI_input, JSI_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>% 
-                    dplyr::select("Mut_ID", "Tumor_Sample_Barcode", "Clonal_Status", "VAF_adj") %>% 
+                ccf.pair <- subset(JSI_input, JSI_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>% 
+                    dplyr::select("Mut_ID", "Tumor_Sample_Barcode", "Clonal_Status", "CCF") %>% 
                     tidyr::pivot_wider(
                         names_from = "Tumor_Sample_Barcode",       
-                        values_from = c("VAF_adj", "Clonal_Status"),
-                        values_fill = list("VAF_adj" = 0, "Clonal_Status" = "nostatus")
+                        values_from = c("CCF", "Clonal_Status"),
+                        values_fill = list("CCF" = 0, "Clonal_Status" = "nostatus")
                     ) %>%
                     dplyr::ungroup()
-                colnames(vaf.pair) <- c("Mut_ID", "vaf1", "vaf2", "status1", "status2")
+                colnames(ccf.pair) <- c("Mut_ID", "ccf1", "ccf2", "status1", "status2")
             }
             
-            vaf.pair <- vaf.pair %>% 
-                dplyr::filter(.data$vaf1 + .data$vaf2 !=0) %>% 
+            ccf.pair <- ccf.pair %>% 
+                dplyr::filter(.data$ccf1 + .data$ccf2 !=0) %>% 
                 data.table::setDT()
-            PC_1 <- nrow(vaf.pair[vaf.pair$status1 == "Clonal" & vaf.pair$vaf1 > 0 & vaf.pair$vaf2 == 0])
-            PC_2 <- nrow(vaf.pair[vaf.pair$status2 == "Clonal" & vaf.pair$vaf1 == 0 & vaf.pair$vaf2 > 0])
-            SS_12 = nrow(vaf.pair[vaf.pair$status2 == "Subclonal" & vaf.pair$status1 == "Subclonal" & vaf.pair$vaf1>0 & vaf.pair$vaf2>0 ])
+            PC_1 <- nrow(ccf.pair[ccf.pair$status1 == "Clonal" & 
+                                      ccf.pair$ccf1 > 0 & 
+                                      ccf.pair$ccf2 == 0])
+            PC_2 <- nrow(ccf.pair[ccf.pair$status2 == "Clonal" & 
+                                      ccf.pair$ccf1 == 0 & 
+                                      ccf.pair$ccf2 > 0])
+            SS_12 = nrow(ccf.pair[ccf.pair$status2 == "Subclonal" &
+                                      ccf.pair$status1 == "Subclonal" &
+                                      ccf.pair$ccf1>0 &
+                                      ccf.pair$ccf2>0 ])
             jsi <- SS_12/(PC_1+PC_2+SS_12)
             if(is.nan(jsi)){
                 jsi <- 0
@@ -230,7 +230,15 @@ calJSI <- function(
         
     }
     
-    result <- lapply(maf_list, processJSI)
+    maf_input <- subMaf(maf,
+                        min.ccf = min.ccf,
+                        patient.id = patient.id, 
+                        mafObj = TRUE,
+                        use.tumorSampleLabel = use.tumorSampleLabel,
+                        ...)
+    
+    
+    result <- lapply(maf_input, processJSI)
     result <- result[!is.na(result)]
     
     if(length(result) > 1){

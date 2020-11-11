@@ -127,7 +127,8 @@ compareTree <- function(phyloTree1,
 	                                )
 	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(phyloTree1@method,phyloTree2@method))
 	    return(list(compare.dist = dist, compare.plot = ptree))
+	}else{
+	  return(dist)
 	}
     
-	return(dist)
 }

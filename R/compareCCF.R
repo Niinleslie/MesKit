@@ -25,10 +25,7 @@ compareCCF <- function(maf,
                        pairByTumor = FALSE,
                        use.tumorSampleLabel = FALSE,
                        ...){
-  
-  maf <- subMaf(maf, min.ccf = min.ccf, mafObj = TRUE,...)
-  ## check input data
-  maf_list <- checkMafInput(maf, patient.id = patient.id)
+
   
   processComCCF <- function(m, pairByTumor){
     maf_data <- getMafData(m) %>% 
@@ -51,13 +48,6 @@ compareCCF <- function(maf,
       return(NA)
     }
     
-    if(use.tumorSampleLabel){
-      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-        stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
-      }
-      maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-    }
     
     ## check if ccf data is provided
     if(! "CCF" %in% colnames(maf_data)){
@@ -101,10 +91,10 @@ compareCCF <- function(maf,
                        c("Tumor_ID","Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), 
                        sep = ":", remove = FALSE) %>% 
           dplyr::distinct(.data$Mut_ID2, .keep_all = TRUE) %>%
+          dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>%
+          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>%
           # dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>%
-          # tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>%
-          dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF", "Clonal_Status") %>%
-          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = c("CCF", "Clonal_Status")) %>%
+          # tidyr::pivot_wider(names_from = "Tumor_ID", values_from = c("CCF", "Clonal_Status")) %>%
           tidyr::drop_na()
           
       }else{
@@ -129,7 +119,15 @@ compareCCF <- function(maf,
     
   }
   
-  result <- lapply(maf_list, processComCCF, pairByTumor)
+  
+  maf_input <- subMaf(maf,
+                      patient.id = patient.id,
+                      use.tumorSampleLabel = use.tumorSampleLabel,
+                      min.ccf = min.ccf,
+                      mafObj = TRUE,
+                      ...)
+  
+  result <- lapply(maf_input, processComCCF, pairByTumor)
   result <- result[!is.na(result)]
   
   if(length(result) == 0){

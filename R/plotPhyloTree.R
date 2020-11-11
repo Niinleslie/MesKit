@@ -34,15 +34,6 @@ plotPhyloTree <- function(phyloTree,
                           signaturesRef = "cosmic_v2",
                           min.mut.count = 15,
                           use.tumorSampleLabel = FALSE){
-   
-   if(!is.null(branchCol)){
-       branchCol.options <- c("mutSig","mutType")
-       if(!branchCol %in% branchCol.options){
-           stop("'branchCol' should be NULL, 'mutType' or 'mutSig'.")
-       }
-   }
-    ## check input data
-    phyloTree_list <- checkPhyloTreeInput(phyloTree,patient.id = patient.id)
     
     processPlotTree <- function(phyloTree){
        patient <- getPhyloTreePatient(phyloTree)
@@ -54,8 +45,18 @@ plotPhyloTree <- function(phyloTree,
                      use.tumorSampleLabel = use.tumorSampleLabel)
        return(p)
     }
-   
-   tree_list <- lapply(phyloTree_list, processPlotTree)
+    
+    if(!is.null(branchCol)){
+       branchCol.options <- c("mutSig","mutType")
+       if(!branchCol %in% branchCol.options){
+          stop("'branchCol' should be NULL, 'mutType' or 'mutSig'.")
+       }
+    }
+    
+    
+   phylotree_input <- subPhyloTree(phyloTree,patient.id = patient.id)
+    
+   tree_list <- lapply(phylotree_input, processPlotTree)
    tree_list <- tree_list[!is.na(tree_list)]
    
    if(length(tree_list)==1){

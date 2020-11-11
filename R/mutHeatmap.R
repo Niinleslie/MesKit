@@ -47,12 +47,19 @@ mutHeatmap <- function(maf,
                        use.tumorSampleLabel = FALSE,
                        ...){
     
-    ## check input data
-    maf_list <- checkMafInput(maf, patient.id = patient.id)
+    maf_input <- subMaf(maf,
+                        patient.id = patient.id,
+                        use.tumorSampleLabel = use.tumorSampleLabel,
+                        min.vaf = min.vaf,
+                        use.adjVAF = use.adjVAF,
+                        min.ccf = min.ccf,
+                         mafObj = TRUE,
+                        ...)
+    
     
     ## check sampleOrder
     if(!is.null(sampleOrder)){
-        patient.setdiff <- setdiff(names(sampleOrder), names(maf_list))
+        patient.setdiff <- setdiff(names(sampleOrder), names(maf_input))
         if(length(patient.setdiff) > 0){
             stop(paste0(patient.setdiff,
                         " can not be found in your data. Please check sampleOrder!"))
@@ -60,49 +67,37 @@ mutHeatmap <- function(maf,
     }
     
     heatmap_list <- list()
-    for(m in maf_list){
-        maf_data <- subMaf(m, min.vaf = min.vaf, use.adjVAF = use.adjVAF, min.ccf = min.ccf, ...)
+    for(m in maf_input){
+        maf_data <- getMafData(m)
         patient <- getMafPatient(m)
         if(nrow(maf_data) == 0){
             message("Warning: there was no mutations in ", patient, " after filtering.")
             next
         }
-        
-        if(use.tumorSampleLabel){
-            if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-                stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be FALSE")
-            }
-            maf_data <- maf_data %>% 
-                dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
-        }
-        
+
         ## get mutation matrix
-        binary.matrix <- getMutMatrix(maf_data, use.ccf = FALSE)
-        
         if(use.ccf){
             if("CCF" %in% colnames(maf_data)){
-                ccf.matrix <- getMutMatrix(maf_data, use.ccf = TRUE)
+                mat <- getMutMatrix(maf_data, use.ccf = TRUE)
             }else{
                 stop("Heatmap requires CCF data when use.ccf is True")
             }
+            type <- "CCF"
+            value.name <- "CCF"
+        }else{
+            mat <- getMutMatrix(maf_data, use.ccf = FALSE)
+            type  <- "Mutation"
+            value.name <- "Mutation"
         }
         
         ## delete "NORMAL"
-        if(!1 %in% binary.matrix[,"NORMAL"]){
-            if(nrow(binary.matrix) == 1){
-                name <- rownames(binary.matrix)
-                binary.matrix <- t(binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")])
-                rownames(binary.matrix) <- name
-                if(use.ccf){
-                    name <- rownames(ccf.matrix)
-                    ccf.matrix <- t(ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")])
-                    rownames(ccf.matrix) <- name
-                }
+        if(!1 %in% mat[,"NORMAL"]){
+            if(nrow(mat) == 1){
+                name <- rownames(mat)
+                mat <- t(mat[,which(colnames(mat)!= "NORMAL")])
+                rownames(mat) <- name
             }else{
-                binary.matrix <- binary.matrix[,which(colnames(binary.matrix)!= "NORMAL")]
-                if(use.ccf){
-                    ccf.matrix <- ccf.matrix[,which(colnames(ccf.matrix)!= "NORMAL")]
-                }
+                mat <- mat[,which(colnames(mat)!= "NORMAL")]
             }
         }
         
@@ -110,21 +105,18 @@ mutHeatmap <- function(maf,
         maf_data <- maf_data %>% 
             do.classify(class = "SP",classByTumor = TRUE) %>% 
             tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE)
-            
-        patient <- unique(maf_data$Patient_ID)
         
-        
-        mat <- binary.matrix
-        type  <- "Mutation"
-        if(use.ccf){
-            type <- "CCF"
-            mat <- ccf.matrix
-        }
+        # mat <- binary.matrix
+        # type  <- "Mutation"
+        # if(use.ccf){
+        #     type <- "CCF"
+        #     mat <- ccf.matrix
+        # }
         
         ## get mutation type
         maf_mutation_type <- maf_data$Mutation_Type
         names(maf_mutation_type) <- maf_data$mutation_id
-        mat_mutaion_id <- rownames(binary.matrix)
+        mat_mutaion_id <- rownames(mat)
         mutation_type <- maf_mutation_type[mat_mutaion_id]
         public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
         shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
@@ -202,10 +194,6 @@ mutHeatmap <- function(maf,
         mat$ymin <- cumsum(c(0, rep(2, mut.num-1)))
         mat$ymax <- mat$ymin + 1.5
         
-        value.name <- "Mutation"
-        if(type == "CCF"){
-            value.name <- "CCF"
-        }
         # mut_dat <- reshape2::melt(mat,
         #                           id.vars = c("ymin","ymax","mutation","mutation_type", "Gene"),
         #                           variable.name = "sample",

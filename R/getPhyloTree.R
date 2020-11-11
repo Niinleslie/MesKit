@@ -29,16 +29,6 @@ getPhyloTree <- function(maf,
                       bootstrap.rep.num = 100,
                       ...){
   
-  method <- match.arg(method, choices = c("NJ", "MP", "ML", 
-                                          "FASTME.ols", "FASTME.bal"), several.ok = FALSE)
-  
-  maf <- subMaf(maf, min.vaf = min.vaf, min.ccf = min.ccf, mafObj = TRUE, ...)
-  
-  ## check input data
-  maf_list <- checkMafInput(maf, patient.id = patient.id)
-  
-  phyloTree_patient_list <- list()
-  
   processGetPhyloTree <- function(m){
     maf_data <- getMafData(m)
     patient <- getMafPatient(m)
@@ -112,7 +102,18 @@ getPhyloTree <- function(maf,
     return(phylo.tree)
   }
   
-  phyloTree_patient_list <- lapply(maf_list, processGetPhyloTree)
+  
+  method <- match.arg(method, choices = c("NJ", "MP", "ML", 
+                                          "FASTME.ols", "FASTME.bal"), several.ok = FALSE)
+  
+  maf_input <- subMaf(maf,
+                      patient.id = patient.id,
+                      min.vaf = min.vaf,
+                      min.ccf = min.ccf,
+                      mafObj = TRUE, ...)
+  
+  
+  phyloTree_patient_list <- lapply(maf_input, processGetPhyloTree)
   phyloTree_patient_list <- phyloTree_patient_list[!is.na(phyloTree_patient_list)]
   
   
