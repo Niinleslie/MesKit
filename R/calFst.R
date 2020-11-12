@@ -16,6 +16,7 @@
 #' @param min.vaf Specify The minimum VAF to filter variants. Default 0.
 #' @param min.total.depth The minimum total allele depth for filtering variants. 
 #' Default 2.
+#' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE. 
 #' @param plot Logical (Default: TRUE).
 #' @param withinTumor Logical (Default: FALSE). Whether calculate between-region heterogeneity within tumors.
 #' @param use.circle Logical (Default: TRUE). Whether use "circle" in the plot. 
@@ -44,6 +45,7 @@ calFst <- function(
   patient.id = NULL, 
   min.vaf = 0,
   min.total.depth = 2,
+  use.adjVAF = FALSE,
   plot = TRUE,
   withinTumor = FALSE,
   use.circle = TRUE,
@@ -89,19 +91,17 @@ calFst <- function(
       ## remove NA(it may be caused by NA of CCF)
       dplyr::filter(!is.na(.data$VAF))
     
-    
-    if(!withinTumor){
-      subdata <- Fst_input
-      if(length(unique(subdata$Tumor_Sample_Barcode))  < 2 ){
-        message(paste0("Warning: only one sample was found of ", id,
+    ## check data
+    if(withinTumor){
+      tumor <- unique(Fst_input$Tumor_ID)
+      if(length(unique(Fst_input$Tumor_Sample_Barcode))  < 2 ){
+        message(paste0("Warning: only one sample was found of ", tumor,
                        " in ", patient, 
                        ". If you want to compare CCF between regions, withinTumor should be set as FALSE"))
         return(NA)
       }
     }else{
-      id <- unique(Fst_input$Tumor_ID)
-      subdata <- subset(Fst_input, Fst_input$Tumor_ID == id)
-      if(length(unique(subdata$Tumor_Sample_Barcode))  < 2 ){
+      if(length(unique(Fst_input$Tumor_Sample_Barcode))  < 2 ){
         message(paste0("Warning: only one sample was found in ", patient, "."))
         return(NA)
       } 
@@ -109,7 +109,7 @@ calFst <- function(
     
     
     ## pairwise heterogeneity
-    samples <- as.character(unique(subdata$Tumor_Sample_Barcode))
+    samples <- as.character(unique(Fst_input$Tumor_Sample_Barcode))
     pairs <- utils::combn(samples, 2, simplify = FALSE)
     
     dist_mat <- diag(1, nrow=length(samples), ncol=length(samples))
@@ -119,28 +119,26 @@ calFst <- function(
     
     processFstpair <- function(pair){
       
-      s <- subset(subdata, subdata$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>%
-        dplyr::select(-"Tumor_ID") 
-      maf.pair <- as.data.frame(s) %>% 
+      pair_vaf <- subset(Fst_input, Fst_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>%
+        dplyr::select(-"Tumor_ID") %>% 
         tidyr::pivot_wider(
           names_from = "Tumor_Sample_Barcode",       
           values_from = c("VAF", "totalDepth"),
           values_fill = list("VAF" = 0, "totalDepth" = 0)
         )
-      colnames(maf.pair) <- c("Mut_ID", "vaf1", "vaf2", "depth1", "depth2")
+      colnames(pair_vaf) <- c("Mut_ID", "vaf1", "vaf2", "depth1", "depth2")
       
-      name <- paste(pair[1], pair[2], sep = "_")
-      vafCol <- which(grepl("vaf", colnames(maf.pair)))
-      maf.pair <- maf.pair %>% 
+      ## 
+      pair_vaf <- pair_vaf %>% 
         dplyr::mutate(
           covariance = (.data$vaf1-.data$vaf2)^2-(.data$vaf1*(1-.data$vaf1))/(.data$depth1-1)-(.data$vaf2*(1-.data$vaf2))/(.data$depth2-1), 
           sd = .data$vaf1*(1-.data$vaf2)+.data$vaf2*(1-.data$vaf1)
         )
-      fst <- mean(maf.pair$covariance)/mean(maf.pair$sd)
-      if(is.nan(fst)){
-        browser()
-        print(maf.pair)
-      }
+      fst <- mean(pair_vaf$covariance)/mean(pair_vaf$sd)
+      # if(is.nan(fst)){
+      #   browser()
+      #   print(pair_vaf)
+      # }
       return(fst)
     }
     
@@ -185,7 +183,7 @@ calFst <- function(
         significant_digit <- gsub(pattern =  "0\\.0*", "", as.character(min_value))
         digits <- nchar(as.character(min_value)) - nchar(significant_digit) 
         if(withinTumor){
-          title_id <- paste0("Fst of ", id, " in ", patient, ": ", 
+          title_id <- paste0("Fst of ", tumor, " in ", patient, ": ", 
                              round(Fst.avg, digits))
         }else{
           title_id <- paste0("Fst of patient ", patient, ": ", round(Fst.avg, digits))
@@ -219,6 +217,7 @@ calFst <- function(
                 min.total.depth = min.total.depth,
                 clonalStatus = clonalStatus,
                 mafObj = TRUE,
+                use.adjVAF = use.adjVAF,
                 patient.id = patient.id,
                 use.tumorSampleLabel = use.tumorSampleLabel,
                 ...)
