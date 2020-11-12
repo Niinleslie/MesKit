@@ -9,6 +9,7 @@ calFst(
   patient.id = NULL,
   min.vaf = 0,
   min.total.depth = 2,
+  use.adjVAF = FALSE,
   plot = TRUE,
   withinTumor = FALSE,
   use.circle = TRUE,
@@ -29,6 +30,8 @@ Default NULL, all patients are included.}
 
 \item{min.total.depth}{The minimum total allele depth for filtering variants. 
 Default 2.}
+
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 
 \item{plot}{Logical (Default: TRUE).}
 

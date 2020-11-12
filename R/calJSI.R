@@ -108,7 +108,7 @@ calJSI <- function(
         processJSI2 <- function(pair){
             
             if(pairByTumor){
-                name <- paste(pair[1], pair[2], sep = "_")
+                # name <- paste(pair[1], pair[2], sep = "_")
                 ccf.pair <- subset(JSI_input, JSI_input$Tumor_ID %in% c(pair[1], pair[2])) %>%
                     tidyr::unite("Mut_ID2",
                                  c("Mut_ID",
@@ -127,7 +127,7 @@ calJSI <- function(
                 colnames(ccf.pair) <- c("Mut_ID", "ccf1", "ccf2", "status1", "status2")
             }
             else{
-                name <- paste(pair[1], pair[2], sep = "_")
+                # name <- paste(pair[1], pair[2], sep = "_")
                 ccf.pair <- subset(JSI_input, JSI_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>% 
                     dplyr::select("Mut_ID", "Tumor_Sample_Barcode", "Clonal_Status", "CCF") %>% 
                     tidyr::pivot_wider(

@@ -70,17 +70,15 @@ calNeiDist <- function(maf,
       dplyr::filter(!is.na(.data$CCF))
     
     if(withinTumor){
-      id <- unique(Nei_input$Tumor_ID)
-      subdata <- subset(Nei_input, Nei_input$Tumor_ID == id)
-      if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
-        message(paste0("Warning: only one sample was found in ", id,
+      tumor <- unique(Nei_input$Tumor_ID)
+      if(length(unique(Nei_input$Tumor_Sample_Barcode)) < 2){
+        message(paste0("Warning: only one sample was found in ", tumor,
                        " in ", patient, ". If you want to compare CCF between regions, withinTumor should be set as FALSE\n"))
         return(NA)
         
       }
     }else{
-      subdata <- Nei_input
-      if(length(unique(subdata$Tumor_Sample_Barcode)) < 2){
+      if(length(unique(Nei_input$Tumor_Sample_Barcode)) < 2){
         message(paste0("Warning: only one sample was found in ",patient,"."))
         return(NA)
       }
@@ -89,7 +87,7 @@ calNeiDist <- function(maf,
     
     
     ## pairwise heterogeneity
-    samples <- as.character(unique(subdata$Tumor_Sample_Barcode))
+    samples <- as.character(unique(Nei_input$Tumor_Sample_Barcode))
     pairs <- utils::combn(samples, 2, simplify = FALSE)
     
     dist_mat <- diag(1, nrow=length(samples), ncol=length(samples))
@@ -98,18 +96,16 @@ calNeiDist <- function(maf,
     colnames(dist_mat) <- c(samples, "name")
     
     processNeipair <- function(pair){
-      s <- subset(subdata, subdata$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>%
-        dplyr::mutate(CCF = as.numeric(.data$CCF))
-      # print(s)
-      maf.pair <- as.data.frame(s) %>% 
+      ccf.pair <- subset(Nei_input, Nei_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>%
+        dplyr::mutate(CCF = as.numeric(.data$CCF)) %>% 
+        as.data.frame( ) %>% 
         tidyr::pivot_wider(names_from = "Tumor_Sample_Barcode",
                            values_from = "CCF",
                            values_fill = list("CCF" = 0)) %>%
         dplyr::select(-"Mut_ID", -"Tumor_ID")
-      # print(maf.pair)
-      colnames(maf.pair) <- c("ccf1", "ccf2")
-      x <- maf.pair$ccf1
-      y <- maf.pair$ccf2
+      colnames(ccf.pair) <- c("ccf1", "ccf2")
+      x <- ccf.pair$ccf1
+      y <- ccf.pair$ccf2
       x_ <- sum(x ^ 2 + (1 - x) ^ 2)
       y_ <- sum(y ^ 2 + (1 - y) ^ 2)
       
@@ -160,7 +156,7 @@ calNeiDist <- function(maf,
         significant_digit <- gsub(pattern =  "0\\.0*","", as.character(min_value))
         digits <- nchar(as.character(min_value)) - nchar(significant_digit)
         if(withinTumor){
-          title_id <- paste0("Nei's distance of ", id," in ", patient, ": ",round(Nei.dist.avg,digits))
+          title_id <- paste0("Nei's distance of ", tumor," in ", patient, ": ",round(Nei.dist.avg,digits))
         }else{
           title_id <- paste0("Nei's distance of patient ", patient, ": ",round(Nei.dist.avg,digits))
         }
