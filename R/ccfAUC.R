@@ -36,7 +36,7 @@ ccfAUC <- function(
     
     processAUC <- function(m, withinTumor, plot.density){
       
-        if(! "CCF" %in% colnames(maf_data)){
+        if(! "CCF" %in% colnames(getMafData(m))){
            stop(paste0("No CCF data was found when generate Maf/MafList object."))
         }
         

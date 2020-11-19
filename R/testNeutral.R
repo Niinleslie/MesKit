@@ -39,23 +39,6 @@ testNeutral <- function(maf,
                         use.tumorSampleLabel = FALSE,
                         ...){
   
-  if(min.vaf <= 0){
-    stop("'min.vaf' must be greater than 0")
-  }
-  if(max.vaf < min.vaf){
-    stop("'max.vaf' must be greater than min.vaf")
-  }
-  
-  maf <- subMaf(maf, 
-                min.vaf = min.vaf, 
-                max.vaf = max.vaf, 
-                min.total.depth = min.total.depth,
-                clonalStatus = "Subclonal",
-                mafObj = TRUE,
-                ...)
-  
-  ## check input data
-  maf_list <- checkMafInput(maf, patient.id = patient.id)
   
   result <- list()
   
@@ -65,14 +48,6 @@ testNeutral <- function(maf,
     if(nrow(maf_data) == 0){
       message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
-    }
-    
-    if(use.tumorSampleLabel){
-      if(!"Tumor_Sample_Label" %in% colnames(maf_data)){
-        stop("There is no information about this Tumor_Sample_Label. Please check clinical data in readMaf or let use.tumorSampleLabel be FALSE")
-      }
-      maf_data <- maf_data %>% 
-        dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
     }
     
     patient <- unique(maf_data$Patient_ID)
@@ -199,7 +174,24 @@ testNeutral <- function(maf,
     
   }
   
-  result <- lapply(maf_list, processTestNeutral)
+  if(min.vaf <= 0){
+    stop("'min.vaf' must be greater than 0")
+  }
+  if(max.vaf < min.vaf){
+    stop("'max.vaf' must be greater than min.vaf")
+  }
+  
+  maf_input <- subMaf(maf, 
+                      min.vaf = min.vaf, 
+                      max.vaf = max.vaf, 
+                      min.total.depth = min.total.depth,
+                      clonalStatus = "Subclonal",
+                      mafObj = TRUE,
+                      patient.id = patient.id,
+                      use.tumorSampleLabel = use.tumorSampleLabel,
+                      ...)
+  
+  result <- lapply(maf_input, processTestNeutral)
   result <- result[!is.na(result)]
   
   if(length(result) > 1){

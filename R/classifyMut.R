@@ -29,6 +29,7 @@ classifyMut <- function(
     ## check input data
     maf_input <- maf_data <- subMaf(maf,
                                    patient.id = patient.id,
+                                   mafObj = TRUE,
                                    ...)
     
     result <- list()
