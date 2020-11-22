@@ -328,7 +328,7 @@ shinyServer(function(input, output, session){
                            withinTumor = input$vafcluster_withintumor,
                            segFile = input$vafcluster_segfile,
                            min.vaf = as.numeric(input$vafcluster_minvaf) ,
-                           max.vaf = as.numeric(input$vafcluster_maxvaf),
+                           # max.vaf = as.numeric(input$vafcluster_maxvaf),
                            use.adjVAF = input$vafcluster_useadjvaf,
                            use.tumorSampleLabel = input$vafcluster_usetumorsamplelabel)        
           incProgress(amount = 1)
@@ -530,7 +530,7 @@ shinyServer(function(input, output, session){
                        patient.id = patientid,
                        min.ccf = as.numeric(input$ccfauc_minccf) ,
                        withinTumor = input$ccfauc_withintumor,
-                       use.adjVAF = input$ccfauc_useadjvaf,
+                       # use.adjVAF = input$ccfauc_useadjvaf,
                        use.tumorSampleLabel = input$ccfauc_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'ccfAUC done!')
@@ -1141,6 +1141,7 @@ shinyServer(function(input, output, session){
                            sample.text.size = as.numeric(input$mutheatmap_sampletextsize),
                            legend.title.size = as.numeric(input$mutheatmap_legendtitlesize),
                            gene.text.size = gene.text.size,
+                           use.adjVAF = input$mutheatmap_useadjvaf,
                            use.tumorSampleLabel = input$mutheatmap_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'mutHeatmap done!')
@@ -1307,7 +1308,7 @@ shinyServer(function(input, output, session){
                       use.circle = input$caljsi_usecircle,
                       number.cex = as.numeric(input$caljsi_numbercex),
                       number.col = input$caljsi_numbercol,
-                      plot = T,
+                      plot = TRUE,
                       use.tumorSampleLabel = input$caljsi_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'caljsi done!')
