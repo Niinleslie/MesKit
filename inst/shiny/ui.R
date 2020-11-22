@@ -1956,7 +1956,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations</span>\');
       })
      ')), 
       
