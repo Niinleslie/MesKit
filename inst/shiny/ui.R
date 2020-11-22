@@ -92,7 +92,7 @@ bodyIP <- tabItem("input",
                                                     style = " background-position: center;padding:0;margin-bottom:7px;"
                                                   )
                                       ), 
-                                      placeholder = "Example: HCC_LDC.maf", 
+                                      placeholder = "Example: CRC_HZ.maf", 
                                       width = 400),
                           fileInput(inputId = 'clinFile', 
                                     label = div(style = "font-size:1.5em; font-weight:600;",'Clinical file',
@@ -105,7 +105,7 @@ bodyIP <- tabItem("input",
                                                   style = " background-position: center;padding:0;margin-bottom:7px;"
                                                 )
                                     ), 
-                                    placeholder = "Example: HCC_LDC.clin.txt", 
+                                    placeholder = "Example: CRC_HZ.clin.txt", 
                                     width = 400),
                           checkboxInput('useccffile', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px",
                                                                   'CCF file',
@@ -124,7 +124,7 @@ bodyIP <- tabItem("input",
                                     trigger = "hover"),
                           conditionalPanel(
                             condition = "input.useccffile == true",
-                            fileInput('ccfFile',label = '',placeholder = "Example: HCC_LDC.ccf.tsv", width = 400)
+                            fileInput('ccfFile',label = '',placeholder = "Example: CRC_HZ.ccf.tsv", width = 400)
                           ), 
                             selectInput('ref', label = div(style = "font-size:1.5em; font-weight:600; ", 'Genome reference'),
                                         choices = c('hg18','hg19','hg38'),selected = "hg19", width = 400),
@@ -833,7 +833,7 @@ bodyAL <- tabItem("AL",
                                                           style = " background-position: center;padding:0;margin-bottom:7px;"
                                                         )
                                             ), 
-                                            placeholder = "Example: HCC_LDC.seg.txt", 
+                                            placeholder = "Example: CRC_HZ.seg.txt", 
                                             width = 400),
                                   # fileInput(inputId = 'plotcna_segfile', 
                                   #           label = div(style = "font-size:1.5em; font-weight:600; ",
@@ -1961,7 +1961,7 @@ shinyUI(
       
       tags$script(HTML('
       $(document).ready(function() {
-        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic alterations</span>\');
+        $("header").find("nav").append(\'<span class="textnvbar"> MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations</span>\');
       })
      ')), 
       

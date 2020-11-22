@@ -15,10 +15,10 @@ shinyServer(function(input, output, session){
       
       
       if(is.null(input$mafFile$datapath)){
-        mafFile <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-        clinFile <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+        mafFile <- system.file("extdata", "CRC_HZ.maf", package = "MesKit")
+        clinFile <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
         if(input$useccffile){
-          ccfFile <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
+          ccfFile <- system.file("extdata", "CRC_HZ.ccf.tsv", package = "MesKit")
         }else{
           ccfFile <- NULL
         }
@@ -110,7 +110,7 @@ shinyServer(function(input, output, session){
   })
   output$ied1 <- DT::renderDataTable({
     if(buttonValue$maf == 1){
-      mafFile <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+      mafFile <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
       maf_data <- data.table::fread(
           file = mafFile,
           quote = "",
@@ -148,7 +148,7 @@ shinyServer(function(input, output, session){
   })
   output$ied2 <- DT::renderDataTable({
     if(buttonValue$ccf == 1){
-     ccfFile <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+     ccfFile <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
      ccf_data <- suppressWarnings(data.table::fread(
          ccfFile,
          quote = "",
@@ -179,7 +179,7 @@ shinyServer(function(input, output, session){
   })
   output$ied_clin <- DT::renderDataTable({
     if(buttonValue$clin == 1){
-      clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+      clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
       clin_data <- data.table::fread(
         file = clin.File,
         quote = "",
@@ -1674,7 +1674,7 @@ shinyServer(function(input, output, session){
   })
   output$ied_seg <- DT::renderDataTable({
     if(buttonValue$seg == 1){
-      segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+      segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
       seg <- suppressWarnings(data.table::fread(segFile, header=TRUE, sep="\t", stringsAsFactors = FALSE))
       
       d <- datatable(seg, options = list(searching = TRUE, pageLength = 5, lengthMenu = c(5, 10, 15, 18), scrollX = TRUE, fixedColumns = TRUE, columnDefs=list(list(width="10em",targets="_all"))),rownames = FALSE, width=5)
@@ -1699,7 +1699,7 @@ shinyServer(function(input, output, session){
                             trigger = "hover"),
               )
       }else{
-        segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+        segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
         seg <- readSegment(segFile = segFile) %>% dplyr::bind_rows()
         patient.list <- unique(seg$Patient_ID)
         tagList(
@@ -1752,7 +1752,7 @@ shinyServer(function(input, output, session){
       withProgress(min = 0, max = 2, value = 0, {
         if(is.null(input$plotcna_segfile$datapath)){
           setProgress(message = 'Processing: drawing example CNA profile')
-          segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+          segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
         }else{
           setProgress(message = 'Processing: drawing CNA profile')
           segFile <- input$plotcna_segfile$datapath
@@ -1892,7 +1892,7 @@ shinyServer(function(input, output, session){
       if(!is.null(plotcna())){
           tagList(
               if(is.null(input$plotcna_segfile$datapath)){
-                div(style = "font-size:1.5em; font-weight:600; ", "Example segment(HCC_LDC)")
+                div(style = "font-size:1.5em; font-weight:600; ", "Example segment(CRC_HZ)")
               }else{
                 div(style = "font-size:1.5em; font-weight:600; ", "Segment")
               },
@@ -3040,7 +3040,7 @@ shinyServer(function(input, output, session){
 #   })
 #   output$ied1 <- renderDataTable({
 #     if(input$iecontrol01){
-#       mafFile <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+#       mafFile <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
 #       maf_data <- data.table::fread(
 #           file = mafFile,
 #           quote = "",
@@ -3072,7 +3072,7 @@ shinyServer(function(input, output, session){
 #   })
 #   output$ied2 <- renderDataTable({
 #     if(input$iecontrol02){
-#      ccfFile <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#      ccfFile <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #      ccf_data <- suppressWarnings(data.table::fread(
 #          ccfFile,
 #          quote = "",
