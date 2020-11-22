@@ -7,7 +7,7 @@
 #' @param plot Logical (Default: FALSE). If TRUE, two trees will be plotted on the same device and their similarities will be shown.
 #' @param min.ratio Double, Default 1/20. If min.ratio is not NULL,
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
-#' @param show.bootstrap Logical (Default: TRUE). Whether to add bootstrap value on internal nodes.
+#' @param show.bootstrap Logical (Default: FALSE). Whether to add bootstrap value on internal nodes.
 #' @param common.col Color of common branches.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
 #' 

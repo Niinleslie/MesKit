@@ -7,7 +7,7 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param withinTumor Calculate between-region heterogeneity within tumor. (Default FALSE).
 #' @param min.vaf Specify The minimum VAF to filter variants. Default 0.
-#' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE. 
+#' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default TRUE 
 #' @param use.tumorSampleLabel Logical (Default: FALSE). 
 #' Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}

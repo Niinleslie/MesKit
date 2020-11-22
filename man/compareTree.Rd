@@ -24,7 +24,7 @@ compareTree(
 \item{min.ratio}{Double, Default 1/20. If min.ratio is not NULL,
 all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length.}
 
-\item{show.bootstrap}{Logical (Default: TRUE). Whether to add bootstrap value on internal nodes.}
+\item{show.bootstrap}{Logical (Default: FALSE). Whether to add bootstrap value on internal nodes.}
 
 \item{common.col}{Color of common branches.}
 
