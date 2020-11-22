@@ -76,7 +76,7 @@ Intra-tumor heterogeneity (ITH) is now thought to be a key factor that results i
 
 In R console, enter `citation("MesKit")`.  
   
-_**MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations (Submitted)**_
+_**MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (Submitted)**_
    
    
 ### 2. Prepare input Data  
@@ -89,25 +89,29 @@ To analyze with MesKit, you need to provide:
 * A segmentation file. **Optional**
 * The GISTIC outputs.  **Optional**
 
-**Note:** ``Tumor_Sample_Barcode` should be consistent in all input files, respectively.
+**Note:** `Tumor_Sample_Barcode` should be consistent in all input files, respectively.
   
 #### 2.1 MAF file  
   
 Mutation Annotation Format (MAF) files are tab-delimited text files with aggregated mutations information from VCF Files. The input MAF file could be gz compressed, and allowed values of `Variant_Classification`column can be found at [Mutation Annotation Format Page](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).   
+
 The following fields are required to be contained in the MAF files with MesKit. 
    
    
 **Mandatory fields:**  
   
-`Hugo_Symbol`, `Chromosome`, `Start_Position`, `End_Position`, `Variant_Classification`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2`, `Ref_allele_depth`, `Alt_allele_dept`, `VAF`, `Tumor_Sample_Barcode`
+`Hugo_Symbol`, `Chromosome`, `Start_Position`, `End_Position`, `Variant_Classification`, `Variant_Type`, `Reference_Allele`, `Tumor_Seq_Allele2`, `Ref_allele_depth`, `Alt_allele_depth`, `VAF`, `Tumor_Sample_Barcode`
    
    
-**Note:** Values in the `Hugo_Symbol` field are not necessarily from the HUGO database.
+**Note:**  
+
+* Values in the `Hugo_Symbol` field are not necessarily from the HUGO database.
+* The `Tumor_Sample_Barcode` of each sample should be unique.
    
 **Example MAF file**  
   
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
-MAFtable <- read.table(system.file("extdata", "HCC_LDC.maf", package = "MesKit"), header=TRUE)
+MAFtable <- read.table(system.file("extdata", "CRC_HZ.maf", package = "MesKit"), header=TRUE)
 extractLines <- rbind(MAFtable[1, ], MAFtable[6600, ])
 extractLines <- rbind(extractLines, MAFtable[15000, ])
 data.frame(extractLines, row.names = NULL)
@@ -116,12 +120,12 @@ data.frame(extractLines, row.names = NULL)
   
 #### 2.2 Clinical data files  
   
-Clinical data file contains clinical information about each patient and their tumor samples, and mandatory fields are `Tumor_Sample_Barcode`, `Tumor_ID`, `Patient_ID`, and `Tumor_Label`.
+Clinical data file contains clinical information about each patient and their tumor samples, and mandatory fields are `Tumor_Sample_Barcode`, `Tumor_ID`, `Patient_ID`, and `Tumor_Sample_Label`.
 
 **Example clinical data file**
 
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
-ClinInfo <- read.table(system.file("extdata", "HCC_LDC.clin.txt", package = "MesKit"), header = TRUE)
+ClinInfo <- read.table(system.file("extdata", "CRC_HZ.clin.txt", package = "MesKit"), header = TRUE)
 ClinInfo[1:5, ]
 ```  
   
@@ -135,7 +139,7 @@ By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tum
 **Example CCF file**
 
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
-ccfInfo <- read.table(system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit"), header = TRUE)
+ccfInfo <- read.table(system.file("extdata", "CRC_HZ.ccf.tsv", package = "MesKit"), header = TRUE)
 ccfInfo[1:5, ]
 ```
    
@@ -144,13 +148,13 @@ ccfInfo[1:5, ]
 
 The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 
-* `Patient_ID` - ID of a patient
+* `Patient_ID` - IDs of patients
 * `Tumor_Sample_Barcode` - tumor sample barcode of samples
 * `Chromosome` - chromosome name or ID
 * `Start_Position` - genomic start position of segments (1-indexed)
 * `End_Position` - genomic end position of segments (1-indexed)
 * `Segment_Mean/CopyNumber` - segment mean value or absolute integer copy number
-* `Tumor_Label` - the specific label of each tumor sample
+* `Tumor_Sample_Label` - the specific label of each tumor sample. **Optional**
 
 **Note:** Positions are in base pair units.
     
@@ -158,7 +162,7 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 **Example Segmentation file**
 
 ```{r echo=FALSE, paged.print=FALSE, rownames.print=FALSE}
-segInfo <- read.table(system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit"), header = TRUE)
+segInfo <- read.table(system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit"), header = TRUE)
 segInfo[1:5, ]
 ```  
  
@@ -203,9 +207,9 @@ library(MesKit)
 
   
 ```{r}
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
-clin.File <- system.file("extdata", "HCC_LDC.clin.txt", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
+clin.File <- system.file("extdata", "CRC_HZ.clin.txt", package = "MesKit")
 
 # Maf object with CCF information
 maf <- readMaf(mafFile = maf.File,
@@ -223,16 +227,16 @@ In order to explore the genomic alterations during cancer progression with multi
 
 ```{r message=FALSE, fig.align='left', fig.width=11, fig.height=6.5}
 # Driver genes of CRC collected from [IntOGen] (https://www.intogen.org/search) (v.2020.2)
-driverGene.file <- system.file("extdata/", "IntOGen-DriverGenes_HC.tsv", package = "MesKit")
+driverGene.file <- system.file("extdata/", "IntOGen-DriverGenes_COREAD.tsv", package = "MesKit")
 driverGene <- as.character(read.table(driverGene.file)$V1)
-mut.class <- classifyMut(maf, class =  "SP", patient.id = 'HCC8257')
+mut.class <- classifyMut(maf, class =  "SP", patient.id = 'V402')
 head(mut.class)
 ```
    
 `plotMutProfile` function can visualize the mutational profile of tumor samples. 
    
 ```{r message=FALSE, fig.align='left', fig.width=11, fig.height=6.5}
-plotMutProfile(maf, class =  "SP", geneList = driverGene)
+plotMutProfile(maf, class =  "SP", geneList = driverGene, use.tumorSampleLabel = TRUE)
 ```
  
 
@@ -243,19 +247,19 @@ The `plotCNA` function can characterize the CNA landscape across samples based o
 
 ```{r message=FALSE}
 # Read segment file
-segCN <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+segCN <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
 # Reading gistic output files
-all.lesions <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
-amp.genes <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-del.genes <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+all.lesions <- system.file("extdata", "COREAD_all_lesions.conf_99.txt", package = "MesKit")
+amp.genes <- system.file("extdata", "COREAD_amp_genes.conf_99.txt", package = "MesKit")
+del.genes <- system.file("extdata", "COREAD_del_genes.conf_99.txt", package = "MesKit")
 seg <- readSegment(segFile = segCN, gisticAllLesionsFile = all.lesions,
                    gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes)
-seg$HCC8257[1:5, ]
+seg$V402[1:5, ]
 ```
    
    
 ```{r, fig.width=10, fig.align='left', fig.height=5}
-plotCNA(seg, patient.id = c("HCC5647", "HCC8257", "HCC6690"))
+plotCNA(seg, patient.id = c("V402", "V750", "V824"), use.tumorSampleLabel = TRUE)
 ```  
 
    
@@ -270,8 +274,7 @@ The `mathScore` function estimates ITH per sample using mutant-allele tumor hete
 
 ```{r warning=FALSE, fig.width=8, fig.height=5}
 # calculate MATH score of each sample
-MATH.sample <- mathScore(maf)
-MATH.sample
+mathScore(maf, patient.id = 'V402')
 ```  
    
    
@@ -282,17 +285,12 @@ The `ccfAUC` function estimates the tumor heterogeneity via the area under the c
    
 
 ```{r fig.height=5, fig.width=6, message=FALSE}
-AUC <- ccfAUC(maf, patient.id = 'HCC8257')
+AUC <- ccfAUC(maf, patient.id = 'V402', use.tumorSampleLabel = TRUE)
 names(AUC)
 ``` 
-   
-   
-```{r fig.height=5, fig.width=6, message=FALSE}
-AUC$AUC.value
-```  
-   
+
   
-```{r fig.height=5, fig.width=5.5, message=FALSE, fig.align='left'}
+```{r fig.height=4, fig.width=4.5, message=FALSE, fig.align='left'}
 # show cumulative density plot of CCF
 AUC$CCF.density.plot
 ```   
@@ -303,37 +301,36 @@ AUC$CCF.density.plot
 `vafCluster` function clusters variant allele frequencies (VAFs) based on a Gaussian finite mixture model. This function produces a density distribution plot, depicting clusters of mutations with different VAFs. We consider the number of clusters as a simple indicator of ITH. In addition, this function can read segmentation file to adjust CNA and LOH.
     
     
-```{r message=FALSE, fig.height=5.5, fig.width=9.5}
-clusterVaf <- vafCluster(maf, patient.id = 'HCC8257')
-head(clusterVaf$cluster.data[, -1])
+```{r message=FALSE, fig.height=4.5, fig.width=8}
+clusterVaf <- vafCluster(maf, patient.id = 'V402', use.tumorSampleLabel = TRUE)
 clusterPlots <- clusterVaf$cluster.plot
-cowplot::plot_grid(plotlist = clusterPlots)
+cowplot::plot_grid(plotlist = clusterPlots[1:6])
 ```  
    
    
-#### 6.2 Between tumors
-
-
-##### 6.2.1 Fixation index
-
-Fixation Index (Fst) is a classical metric of population genetics, which can be used to measure the genetic divergence between regions [5](#refer) [6](#refer) [7](#refer). `calFst` function calculates the proportion of the total variance in allele frequency caused by frequency differences between populations.
+#### 6.2 Between regions/tumors
+To quantify the genetic divergence of ITH between regions or tumors, we introduced two classical metrics derived from population genetics, which were Wright’s fixation index (Fst) [5](#refer) [6](#refer) [7](#refer) and Nei’s genetic distance [8](#refer).
    
    
-```{r fig.align='left', fig.width=5.5, fig.height=5, fig.asp=1.0}
-calFst(maf, patient.id = 'HCC8257', plot = TRUE, number.cex = 10)
+##### 6.2.1 Fixation index 
+   
+   
+```{r fig.align='left', fig.width=5, fig.height=5, fig.asp=1.0}
+calFst(maf, patient.id = 'V402', plot = TRUE, number.cex = 10, 
+       use.tumorSampleLabel = TRUE)
 ```  
 
 
-##### 6.2.2 Nei’s genetic distance
+##### 6.2.2 Nei’s genetic distance 
    
-Nei’s genetic distance is used in population genetics to assess the similarity between populations, taking heterogeneity within populations into account. The function `calNeiDist` calculates Nei's distance of CCF among multi-region samples from the same patient for each sample-pair [8](#refer).   
    
-```{r fig.align='left', fig.width=5.5, fig.height=5, fig.asp=1.0}
-calNeiDist(maf, patient.id = 'HCC8257', number.cex = 10)
+```{r fig.align='left', fig.width=5, fig.height=5, fig.asp=1.0}
+calNeiDist(maf, patient.id = 'V402', use.tumorSampleLabel = TRUE, 
+           number.cex = 10)
 ```  
    
    
-### 7. Clonal origins inference 
+### 7. Metastatic routes inference
    
 Metastasis remains poorly understood despite its critical clinical significance, and the understanding of metastasis process offers supplementary information for clinical treatments.   
       
@@ -343,32 +340,36 @@ Metastasis remains poorly understood despite its critical clinical significance,
 Distinct patterns of monoclonal versus polyclonal seeding based on the cancer cell fraction (CCF) of somatic mutations between sample/tumor pairs. `compareCCF` function returns a result list of pairwise CCF of mutations,  which are identified across samples from a single patient. Recently, this method has been widely used to deduce the potential metastatic route between different paired tumor lesions [9](#refer) [10](#refer).  
    
    
-```{r fig.align='left', fig.width=5, fig.height=5, message=FALSE, warning=FALSE}
-ccf.list <- compareCCF(maf)
-ccf.pairwise <- ccf.list$HCC8257[["HCC8257_T3-HCC8257_T4"]]
+```{r fig.align='left', fig.width=4, fig.height=4.5, message=FALSE, warning=FALSE}
+ccf.list <- compareCCF(maf, pairByTumor = TRUE, min.ccf = 0.02,
+                       use.adjVAF = TRUE, use.indel = FALSE)
+V402_P_BM <- ccf.list$V402$`P-BM`
+
 # compare CCF using smoothScatter
-graphics::smoothScatter(matrix(c(ccf.pairwise[,3], ccf.pairwise[,4]),ncol = 2),
-              xlim = c(0,1), ylim = c(0,1),
-              colramp = colorRampPalette(c("white", RColorBrewer::brewer.pal(9,"BuPu"))),
-              xlab = "HCC8257_T3", ylab = "HCC8257_T4")
+graphics::smoothScatter(matrix(c(V402_P_BM[, 3], V402_P_BM[, 4]),ncol = 2),
+                xlim = c(0, 1), ylim = c(0, 1),
+                colramp = colorRampPalette(c("white", RColorBrewer::brewer.pal(9, "BuPu"))),
+                xlab = "P", ylab = "BM")
+  
 ## show driver genes
-gene.idx <- which(ccf.pairwise$Hugo_Symbol %in% driverGene) 
-points(ccf.pairwise[gene.idx, 3:4], cex=0.6, col=2, pch=2)
-text(ccf.pairwise[gene.idx, 3:4], cex=0.7, pos=1, ccf.pairwise$Hugo_Symbol[gene.idx])
-title('HCC8257', cex.main = 1.2)
+gene.idx <- which(V402_P_BM$Hugo_Symbol %in% driverGene) 
+points(V402_P_BM[gene.idx, 3:4], cex = 0.6, col = 2, pch = 2)
+text(V402_P_BM[gene.idx, 3:4], cex = 0.7, pos = 1,
+       V402_P_BM$Hugo_Symbol[gene.idx])
+title("V402 JSI = 0.341", cex.main = 1.5)
 ```  
    
    
 #### 7.2 Jaccard similarity index
    
-The Jaccard similarity index (JSI) can be used to calculate mutational similarity between regions, which is defined as the ratio of shared variants to all variants for sample pairs [11](#refer). Users can distinguish monoclonal versus polyclonal seeding in metastases (including lymph node metastases and distant metastases) via `compareJSI` function, and higher JSI values indicate the higher possibility of polyclonal seeding [12](#refer). 
+The Jaccard similarity index (JSI) can be used to calculate mutational similarity between regions, which is defined as the ratio of shared variants to all variants for sample pairs [11](#refer). Users can distinguish monoclonal versus polyclonal seeding in metastases (including lymph node metastases and distant metastases) via `calJSI` function, and higher JSI values indicate the higher possibility of polyclonal seeding [12](#refer). 
    
    
 ```{r fig.align='left', fig.width=7, fig.height=7, fig.asp=1.0}
-JSI.res <- compareJSI(maf, plot = FALSE, patient.id = 'HCC8257') 
+JSI.res <- calJSI(maf, patient.id = 'V402', pairByTumor = TRUE, min.ccf = 0.02, 
+                  use.adjVAF = TRUE, use.indel = FALSE, use.tumorSampleLabel = TRUE)
 names(JSI.res)
 ```
-  
   
 ```{r fig.align='left', fig.width=7, fig.height=7, fig.asp=1.0}
 # show the JSI result
@@ -383,9 +384,9 @@ The subclonal mutant allele frequencies of a tumor follow a simple power-law dis
    
    
 ```{r message=FALSE, warning=FALSE, fig.height=4.5, fig.width=4.5}
-neutralResult <- testNeutral(maf, min.mut.count = 10, patient.id = 'HCC8257')
+neutralResult <- testNeutral(maf, min.mut.count = 10, patient.id = 'V402', use.tumorSampleLabel = TRUE)
 neutralResult$neutrality.metrics
-neutralResult$model.fitting.plot$HCC8257_T3
+neutralResult$model.fitting.plot$P_1
 ```     
    
    
@@ -400,7 +401,7 @@ Based on the Maf object, `getPhyloTree` function reconstructs phylogenetic tree 
    
    
 ```{r}
-phyloTree <- getPhyloTree(maf, patient.id = "HCC8257", method = "NJ", min.vaf = 0.06)
+phyloTree <- getPhyloTree(maf, patient.id = "V402", method = "NJ", min.vaf = 0.06)
 ```   
    
    
@@ -411,10 +412,10 @@ Comparison between phylogenetic trees can reveal consensus patterns of tumor evo
    
    
 ```{r, message=FALSE, warning=FALSE, fig.height=4, fig.width=6}
-tree.NJ <- getPhyloTree(maf, patient.id = 'HCC8257', method = "NJ")
-tree.MP <- getPhyloTree(maf, patient.id = 'HCC8257', method = "MP")
+tree.NJ <- getPhyloTree(maf, patient.id = 'V402', method = "NJ")
+tree.MP <- getPhyloTree(maf, patient.id = 'V402', method = "MP")
 # compare phylogenetic trees constructed by two approaches
-compareTree(tree.NJ, tree.MP, plot = TRUE)
+compareTree(tree.NJ, tree.MP, plot = TRUE, use.tumorSampleLabel = TRUE)
 ```
    
    
@@ -429,18 +430,18 @@ The `phyloTree` object can be further used to conduct functional exploration. Be
 library(org.Hs.eg.db)
 library(clusterProfiler)
 # Pathway enrichment analysis
-HCC8257.branches <- getMutBranches(phyloTree)
-# pathway enrichment for public mutated genes in patient HCC8257
-HCC8257_Public <- HCC8257.branches[HCC8257.branches$Mutation_Type == "Public", ]
-geneIDs = suppressMessages(bitr(HCC8257_Public$Hugo_Symbol, fromType="SYMBOL", 
+V402.branches <- getMutBranches(phyloTree)
+# pathway enrichment for private mutated genes of the primary tumor in patient V402
+V402_Public <- V402.branches[V402.branches$Mutation_Type == "Private_P(NA)", ]
+geneIDs = suppressMessages(bitr(V402_Public$Hugo_Symbol, fromType="SYMBOL", 
                               toType=c("ENTREZID"), OrgDb="org.Hs.eg.db"))
-KEGG_HCC8257_Public  = enrichKEGG(
+KEGG_V402_Private_P  = enrichKEGG(
   gene = geneIDs$ENTREZID,
   organism = 'hsa',
   keyType = 'kegg',
   pvalueCutoff = 0.05,
 )
-dotplot(KEGG_HCC8257_Public)
+dotplot(KEGG_V402_Private_P)
 ```  
   
   
@@ -472,29 +473,29 @@ mutClass$mutTrunkBranch.plot
    
    
 ```{r, warning = FALSE, message=FALSE, fig.height=7, fig.width=10}
-trimatrix_HCC8257 <- triMatrix(phyloTree)
-fit_HCC8257 <- fitSignatures(trimatrix_HCC8257)
+trimatrix_V402 <- triMatrix(phyloTree, level = 5)
+fit_V402 <- fitSignatures(trimatrix_V402)
 ```   
 
    
 `plotMutSigProfile` function can be utilized to visualize 96 trinucleodide mutational profile or reconstructed mutational profile.  
    
-```{r, warning = FALSE, message=FALSE, fig.height=3, fig.width=10}
+```{r, warning = FALSE, message=FALSE, fig.height=2.5, fig.width=8.5}
 # Visualize the 96 trinucleodide mutational profile
-plotMutSigProfile(trimatrix_HCC8257)[[1]]
+plotMutSigProfile(trimatrix_V402)[[1]]
 ```
   
    
-```{r, fig.height=6, fig.width=10}
+```{r, fig.height=5.5, fig.width=8.5}
 # Compare the reconstructed mutational profile with the original mutational profile
-plotMutSigProfile(fit_HCC8257)[[1]]
+plotMutSigProfile(fit_V402)[[1]]
 ```  
 
 
-```{r, warning = FALSE, message=FALSE, fig.height=5, fig.width=8}
+```{r, warning = FALSE, message=FALSE, fig.height=4,5, fig.width=7.5}
 # Below plot shows cosine similarities between the mutational profile of each group and COSMIC signatures
 library(ComplexHeatmap)
-ComplexHeatmap::Heatmap(fit_HCC8257$HCC8257$cosine.similarity, name = "Cosine similarity")
+ComplexHeatmap::Heatmap(fit_V402$V402$cosine.similarity, name = "Cosine similarity")
 ```   
    
    
@@ -504,21 +505,25 @@ ComplexHeatmap::Heatmap(fit_HCC8257$HCC8257$cosine.similarity, name = "Cosine si
 Users can visualize phylogenetic trees with annotations through `plotPhyloTree` function. By specifying `branchCol` parameter, the branches can be either colored according to classification of mutations or putative known signatures. Argument  `show.bootstrap` is provided to show the support values of internal nodes. Additionally, via `mutHeatmap` function, users can get a better depiction of mutational patterns mutations in tumor phylogeny based on MRS. Either binary mutation heatmap (indicates the presence or absence of mutations) or CCF heatmap can be displayed by running `mutHeatmap` function.
 
 
-```{r, fig.align='left', fig.width=12, fig.height=5, message=FALSE, warning=FALSE}
+```{r, fig.align='left', fig.width=12, fig.height=6, message=FALSE, warning=FALSE}
 # A phylogenetic tree along with binary and CCF heatmap of mutations 
-phylotree_HCC8257 <- plotPhyloTree(phyloTree)
-heatmapbinary_HCC8257 <- mutHeatmap(maf, use.ccf = FALSE, 
-                                    patient.id = "HCC8257", min.vaf = 0.06)
-heatmapCCF_HCC8257 <- mutHeatmap(maf, use.ccf = TRUE, 
-                                 patient.id = "HCC8257", min.vaf = 0.06)
-cowplot::plot_grid(phylotree_HCC8257, heatmapbinary_HCC8257, 
-                   heatmapCCF_HCC8257, nrow = 1, rel_widths = c(1.3, 1, 1))
+phylotree_V402 <- plotPhyloTree(phyloTree, use.tumorSampleLabel = TRUE)
+binary_heatmap_V402 <- mutHeatmap(maf, min.ccf = 0.04, use.ccf = FALSE, patient.id = "V402", 
+                                    min.ccf = 0.04, use.tumorSampleLabel = TRUE)
+CCF_heatmap_V402 <- mutHeatmap(maf, use.ccf = TRUE, patient.id = "V402", 
+                                 min.ccf = 0.04, use.tumorSampleLabel = TRUE)
+cowplot::plot_grid(phylotree_V402, binary_heatmap_V402,
+                   CCF_heatmap_V402, nrow = 1, rel_widths = c(1.5, 1, 1))
 ```
     
     
 
+### 10. Shing APP   
+
+The guidance video for MesKit Shiny APP can be found at [http://meskit.renlab.org/video.html](http://meskit.renlab.org/video.html).
      
-### 10. References {#refer}
+     
+### 11. References {#refer}
 
 
 1. Mroz, Edmund A, and James W Rocco. MATH, a novel measure of intratumor genetic heterogeneity, is high in poor-outcome classes of head and neck squamous cell carcinoma. Oral oncology vol. 49,3 (2013): 211-5.
@@ -549,7 +554,7 @@ cowplot::plot_grid(phylotree_HCC8257, heatmapbinary_HCC8257,
   
   
   
-### 11. Session Info
+### 12. Session Info
 ```{r}
 sessionInfo()
 ```
