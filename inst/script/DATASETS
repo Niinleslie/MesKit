@@ -2,25 +2,25 @@
 
 ## ----------------------------------
 ## ------ MesKit input file ---------
-# MesKit input data of HCC cohort 
-# Lin, DC., et al. 2017. Genomic and Epigenomic Heterogeneity of Hepatocellular Carcinoma. Cancer Res 77(9): 2255-2265.
-Name: HCC_LDC.maf; HCC_LDC.ccf.tsv HCC_LDC.seg.txt
+# MesKit input data of CRC cohort 
+# Hu Z, Ding J, Ma Z, Sun R, Seoane JA, Scott Shaffer J, et al. Quantitative evidence for early metastatic seeding in colorectal cancer. Nat Genet 2019;51:1113-22.
+Name: CRC_HZ.maf; CRC_HZ.clin.txt; CRC_HZ.ccf.tsv; CRC_HZ.seg.txt
 
 
 ## ----------------------------------
 ## ------ Driver genes list ---------
 
-# HCC drivers genes defined based on IntOGen (v.2020.2)
+# CRC drivers genes defined based on IntOGen (v.2020.2)
 Source urls: https://www.intogen.org/download
-Name: IntOGen-DriverGenes_HC.tsv
+Name: IntOGen-DriverGenes_COREAD.tsv
 
 
 ## ----------------------------------
 ## ------ GISTIC2 results -----------
 
-# GISTIC2 results of Liver Hepatocellular Carcinoma
+# GISTIC2 results of TCGA CRC project
 Source urls: http://gdac.broadinstitute.org/runs/analyses__2016_01_28/reports/cancer/LIHC-TP/CopyNumber_Gistic2/nozzle.html
-Name: LIHC_all_lesions.conf_99.txt; LIHC_amp_genes.conf_99.txt; LIHC_del_genes.conf_99.txt
+Name: COREAD_all_lesions.conf_99.txt; COREAD_amp_genes.conf_99.txt; COREAD_del_genes.conf_99.txt
 
 
 
