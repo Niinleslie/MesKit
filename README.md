@@ -11,6 +11,12 @@ The source code and documents are freely available through Github (https://githu
 ## Installation
 
 ```R
+# install via Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("MesKit")
+
 #  install the latest version from GitHub
 if(!require(devtools)) install.packages("devtools")
 devtools::install_github("Niinleslie/MesKit")
@@ -20,7 +26,7 @@ devtools::install_github("Niinleslie/MesKit")
 The structured documentation of MesKit can be found at [http://meskit.renlab.org/](http://meskit.renlab.org/).   
 <div  align="left">   
 
-<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/MesKit_overview.png" height="500" width="600" alt = "MesKit Workflow"/>
+<img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/MesKit_workflow.png" height="500" width="600" alt = "MesKit Workflow"/>
 
 </div>
 
@@ -36,7 +42,7 @@ pkg.suggested <- c('shiny','shinyBS','shinydashboard', 'shinyWidgets', 'shinycss
 # Install the required packages
 checkPackages <- function(pkg){
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    stop("Package pkg needed for shiny app. Please install it.", call. = FALSE)
+    stop(paste0("Package ", pkg, " needed for shiny app. Please install it."), call. = FALSE)
   }
 }
 lapply(pkg.suggested, checkPackages)
@@ -77,5 +83,5 @@ For more useful tools/applications, please go to [renlab.org](http://www.renlab.
 
 ## Citation
 
-_MesKit: a tool kit for dissecting cancer evolution from multi-region derived tumor biopsies via somatic mutations(Submitted)_
+_MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (Submitted)_
 
