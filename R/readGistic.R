@@ -1,5 +1,5 @@
 # extract recurrent CNA genes from gistic file
-readGisticGene <- function(gisticGenesFile = NULL, Gistic.type = NULL){
+readGisticGene <- function(gisticGenesFile = NULL, Gistic_type = NULL){
   
   if(!is.null(gisticGenesFile)){
     gisticGenes <- data.table::fread(input = gisticGenesFile, stringsAsFactors = FALSE, header = TRUE)
@@ -24,7 +24,7 @@ readGisticGene <- function(gisticGenesFile = NULL, Gistic.type = NULL){
       dplyr::select("variable", "value") %>%
       tidyr::separate(col = "variable", into = c("Cytoband", "Wide_Peak_Boundaries"), 
                       sep = "_", remove = TRUE) %>%
-      dplyr::mutate(Gene=sub("\\|.+", "", .data$value), Gistic.type = Gistic.type) %>%
+      dplyr::mutate(Gene=sub("\\|.+", "", .data$value), Gistic_type = Gistic_type) %>%
       dplyr::select(-"value")
     
     return(gisticGenes)
@@ -48,7 +48,7 @@ readGisticAllLesions <- function(gisticAllLesionsFile = NULL, verbose = TRUE){
     dplyr::filter(!grepl("values", .data$PeakID)) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(WPB = strsplit(.data$WPB, split = "(", fixed =  TRUE)[[1]][1]) %>%
-    dplyr::mutate(Gistic.type = substr(.data$PeakID, start = 1, stop = 3), PeakID = NULL) %>% as.data.table()
+    dplyr::mutate(Gistic_type = substr(.data$PeakID, start = 1, stop = 3), PeakID = NULL) %>% as.data.table()
   
   return(gisticLesions)
 }

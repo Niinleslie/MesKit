@@ -30,7 +30,7 @@ drawVAFCombine <- function(subdata){
           # geom_rug(aes(y=0, colour=cluster), sides="b") + 
           scale_colour_manual(values=color_scale) + 
           ggtitle(paste0(patient,": ", id)) + 
-          labs(y = "Density")
+          labs(y = "Density", colour = "Cluster")
    
    return(p)
 }

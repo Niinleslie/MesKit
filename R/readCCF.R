@@ -37,27 +37,68 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
       }
       
       mafData_merge_ccf <-  mafData_merge_ccf %>%
-         dplyr::mutate(Clonal_Status = dplyr::case_when(.data$CCF_CI_High >= 1 ~ "Clonal",
-                                                        .data$CCF_CI_High < 1 ~ "Subclonal"))
+         dplyr::mutate("Tumor_Mut_ID" = paste(.data$Patient_ID,
+                                              .data$Tumor_ID,
+                                              .data$Chromosome,
+                                              .data$Start_Position,
+                                              .data$Reference_Allele,
+                                              .data$Tumor_Seq_Allele2,
+                                              sep = ":"))
       
+      sample_in_tumor_num <- mafData_merge_ccf %>% 
+         dplyr::group_by(.data$Patient_ID, .data$Tumor_ID) %>% 
+         dplyr::summarise(sample_in_tumor_num = dplyr::n_distinct(.data$Tumor_Sample_Barcode))
       
-      ## classify clonal status by tumor type
-      ## condition1:if any region CCFm < 0.5
-      mafData_merge_ccf <- mafData_merge_ccf %>%
-         dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2)%>%
-         dplyr::mutate(condition1 = dplyr::if_else(
-            any(.data$CCF< 0.5)  |length(.data$CCF) == 1,
-            "yes",
-            "no"
-         )) %>% 
-         dplyr::ungroup() %>% 
-         dplyr::mutate(Clonal_Status = dplyr::if_else(
-            .data$Clonal_Status ==  "Subclonal" & .data$condition1 == "yes",
-            "Subclonal",
-            "Clonal"
-         ))%>%
-         dplyr::select(-"CCF_CI_High", -"condition1")
+      mut_in_tumor_num <- mafData_merge_ccf %>%
+         dplyr::group_by(.data$Tumor_Mut_ID) %>%
+         dplyr::summarise(mut_in_tumor_num = length(.data$Tumor_Mut_ID))
 
+      any_ccf_lower_05 <- mafData_merge_ccf %>%
+         dplyr::group_by(.data$Tumor_Mut_ID) %>%
+         dplyr::summarise(judge_any_ccf_lower_05 = dplyr::if_else(any(.data$CCF < 0.5),"yes","no"))
+      
+      any_ccf_ci_lower_1 <- mafData_merge_ccf %>%
+         dplyr::group_by(.data$Tumor_Mut_ID) %>%
+         dplyr::summarise(judge_any_ccf_ci_lower_1 = dplyr::if_else(any(.data$CCF_CI_High< 1),"yes","no"))
+      
+      # print(any_ccf_ci_lower_1[any_ccf_ci_lower_1$judge_any_ccf_ci_lower_1 == "yes",])
+      # print(mafData_merge_ccf[mafData_merge_ccf$Tumor_Mut_ID == "V974:P:5:148745675:G:A",])
+      
+      mafData_merge_ccf <- mafData_merge_ccf %>%
+         dplyr::left_join(mut_in_tumor_num, by = "Tumor_Mut_ID") %>%
+         dplyr::left_join(any_ccf_lower_05, by = "Tumor_Mut_ID") %>% 
+         dplyr::left_join(any_ccf_ci_lower_1, by = "Tumor_Mut_ID") %>%
+         dplyr::left_join(sample_in_tumor_num, by = c("Patient_ID", "Tumor_ID"))
+      
+      ## classify clonal status within tumors
+      ## condition1: if any region CCFm < 0.5
+      mafData_merge_ccf <- mafData_merge_ccf %>%
+         dplyr::group_by(.data$Tumor_Mut_ID) %>% 
+         dplyr::mutate(
+            Clonal_Status = dplyr::case_when(
+               ## mutation occurs in a part of MRS-tumor samples 
+               # (.data$sample_in_tumor_num > 1 &
+               #     .data$mut_in_tumor_num != .data$sample_in_tumor_num) ~ "Subclonal",
+               (.data$sample_in_tumor_num > 1 &
+                   # .data$mut_in_tumor_num == .data$sample_in_tumor_num & 
+                   .data$Tumor_Average_CCF < 0.5 &
+                   .data$judge_any_ccf_ci_lower_1 == "yes" & 
+                   .data$judge_any_ccf_lower_05 == "yes") ~ "Subclonal",
+               (.data$sample_in_tumor_num == 1 &
+                   .data$CCF_CI_High < 1) ~ "Subclonal",
+               TRUE ~ "Clonal"
+            )
+         ) %>% 
+         dplyr::ungroup() %>% 
+         dplyr::select(-"CCF_CI_High",
+                       -"Tumor_Mut_ID",
+                       -"mut_in_tumor_num",
+                       -"sample_in_tumor_num",
+                       -"judge_any_ccf_lower_05",
+                       -"judge_any_ccf_ci_lower_1")
+      
+      # print(mafData_merge_ccf[mafData_merge_ccf$Clonal_Status == "Clonal",])
+ 
    }
    
    return(mafData_merge_ccf)

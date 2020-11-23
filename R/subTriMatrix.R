@@ -1,4 +1,9 @@
-subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
+subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
+  
+  level <- as.character(level)
+  level <- match.arg(level,
+                     choices = c(1, 2, 3, 4, 5),
+                     several.ok = FALSE)
   
   bases <- c("A","C","G","T")
   if(CT){
@@ -87,13 +92,13 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
     refBuild <- getPhyloTreeRef(phyloTree)
     ref.options = c('hg18', 'hg19', 'hg38')
     if(!refBuild %in% ref.options){
-      stop("Error:refBuild can only be either 'hg18', 'hg19' or 'hg38'")
+      stop("'refBuild' can only be one of 'hg18', 'hg19' or 'hg38'")
     }else {
       refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
     }
     mut_branches <- phyloTree@mut.branches
     if(nrow(mut_branches) == 0){
-      stop("Error: There are not enough mutations in ",patient)
+      stop("There are not enough mutations in ",patient)
     }
     
     origin_context <- Biostrings::getSeq(get(refBuild),
@@ -137,8 +142,43 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
         as.data.frame()
     }
     
-    if(withinTumor){
+    ## initialize
+    . <- NULL
+    
+    if(level == 1){
+      mut_branches <- tidyr::separate_rows(mut_branches, .data$Branch_ID, sep = "&")
+      
+      branch_data_list <- list(mut_branches)
+      names(branch_data_list) <- patient
+    }else if(level == 2){
+        mut_branches <- mut_branches %>% 
+          tidyr::separate_rows(.data$Tumor_ID, sep = "&")
+      branch_data_list <- split(mut_branches, mut_branches$Tumor_ID)
+      
+    }else if(level == 3){
+      
+      NA_mutaion_df <- mut_branches[grepl("\\(NA\\)", mut_branches$Branch_ID), ]
+      if(nrow(NA_mutaion_df) > 0){
+        NA_mutaion_df <- NA_mutaion_df %>% 
+          dplyr::mutate(Branch_ID = sub("\\(NA\\)","",.data$Branch_ID))
+      }
+      # NA_mutaion_df <- mut_branches[grepl("\\(NA\\)", mut_branches$Branch_ID), ] %>% 
+      #   dplyr::mutate(Branch_ID = sub("\\(NA\\)","",.data$Branch_ID))
+      # print( mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),])
+      
+      mutation_df <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),] %>% 
+        tidyr::separate_rows(.data$Branch_ID, sep = "&")
+      
+      mut_branches <- dplyr::bind_rows(mutation_df, NA_mutaion_df)%>% 
+        dplyr::mutate(Tumor_Sample_Barcode = .data$Branch_ID)
+      
+      branch_data_list <- split(mut_branches, mut_branches$Tumor_Sample_Barcode)
+    }else if(level == 4){
+      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
+      branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
+    }else if(level == 5){
       ## sort mutation type by Public Shared Private
+      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
       mutation_type <- unique(mut_branches$Mutation_Type)
       public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
       shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
@@ -146,9 +186,20 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
       mutation_type_level <- c(public, shared, private)
       mut_branches$Mutation_Type <- factor(mut_branches$Mutation_Type, levels = mutation_type_level)
       branch_data_list <- split(mut_branches, mut_branches$Mutation_Type)
-    }else{
-      branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
     }
+    
+    # if(withinTumor){
+    #   ## sort mutation type by Public Shared Private
+    #   mutation_type <- unique(mut_branches$Mutation_Type)
+    #   public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
+    #   shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
+    #   private <- sort(unique(mutation_type)[grep("Private", unique(mutation_type))])
+    #   mutation_type_level <- c(public, shared, private)
+    #   mut_branches$Mutation_Type <- factor(mut_branches$Mutation_Type, levels = mutation_type_level)
+    #   branch_data_list <- split(mut_branches, mut_branches$Mutation_Type)
+    # }else{
+    #   branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
+    # }
     
     tri_matrix_list <- lapply(
       branch_data_list,
@@ -169,7 +220,16 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, withinTumor = FALSE){
     tri_matrix <- dplyr::bind_rows(tri_matrix_list)
     row.names(tri_matrix) <- names(branch_data_list)
     
-    return(as.matrix(tri_matrix))  
+    tsb.label <- getPhyloTreeTsbLabel(phyloTree)
+    
+    if(nrow(tsb.label) == 0){
+      return(as.matrix(tri_matrix))  
+    }else{
+      return(list(
+        tri_matrix = as.matrix(tri_matrix),
+        tsb.label = tsb.label
+      ))  
+    }
   }
   
   result <- lapply(phyloTree_list, processTriMat)
