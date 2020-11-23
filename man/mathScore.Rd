@@ -9,7 +9,7 @@ mathScore(
   patient.id = NULL,
   withinTumor = FALSE,
   min.vaf = 0,
-  use.adjVAF = TRUE,
+  use.adjVAF = FALSE,
   use.tumorSampleLabel = FALSE,
   ...
 )
@@ -23,7 +23,7 @@ mathScore(
 
 \item{min.vaf}{Specify The minimum VAF to filter variants. Default 0.}
 
-\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default TRUE}
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). 
 Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
