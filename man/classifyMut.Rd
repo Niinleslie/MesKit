@@ -11,12 +11,12 @@ classifyMut(maf, patient.id = NULL, class = "SP", classByTumor = FALSE, ...)
 Classify SSNVs/Indels into Shared/P-shared/Private, Clonal/Subclonl
 or Shared-Clonal/P-shared-Clonal/Private-Clonal/Shared-Subclonal/P-shared-SubClonal/Private-SubClonal}
 
-\item{patient.id}{Select the specific patients. Default: NULL, all patients are included}
+\item{patient.id}{Select the specific patients. Default NULL, all patients are included}
 
-\item{class}{The class which would be represented, default is "SP" (Shared pattern: Public/Shared/Private),
+\item{class}{The class which would be represented. Default: "SP" (Shared pattern: Public/Shared/Private),
 other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
-\item{classByTumor}{FALSE(Default). Classify mutations based on "Tumor_ID".}
+\item{classByTumor}{Logical (Default: FALSE). Classify mutations based on "Tumor_ID".}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
@@ -27,8 +27,9 @@ A data.frame with classification of mutations for each patient
 classifyMut
 }
 \examples{
-maf.File <- system.file("extdata", "HCC_LDC.maf", package = "MesKit")
-ccf.File <- system.file("extdata", "HCC_LDC.ccf.tsv", package = "MesKit")
-maf <- readMaf(mafFile=maf.File, ccfFile = ccf.File, refBuild="hg19")
+maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 classifyMut(maf, class = "SP")
 }

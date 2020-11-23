@@ -5,10 +5,11 @@ plotTree <- function(phyloTree,
                      signaturesRef = "cosmic_v2",
                      min.mut.count = 15,
                      min.ratio = 1/20,
-                     common.col = "red"){
+                     common.col = "red",
+                     use.tumorSampleLabel = FALSE){
     
     if(min.ratio <= 0|min.ratio > 1){
-        stop("Error: min.ratio should be within (0,1]")
+        stop("min.ratio should be within (0,1]")
     }
     
     ## adjust length of branches by min.ratio
@@ -24,7 +25,8 @@ plotTree <- function(phyloTree,
                       branch.type = getBranchType(phyloTree),
                       ref.build = getPhyloTreeRef(phyloTree),
                       bootstrap.value = getBootstrapValue(phyloTree),
-                      method = getTreeMethod(phyloTree))
+                      method = getTreeMethod(phyloTree),
+                      tsb.label = getPhyloTreeTsbLabel(phyloTree))
     
     patient <- getPhyloTreePatient(phyloTree)
     if(is.null(treeData)){
@@ -107,12 +109,26 @@ plotTree <- function(phyloTree,
     
     ## get the max value of X axis 
     x_max <- max(abs(treeData$x2))
+    # print(treeData)
     p <- ggplot(data = treeData) + 
         ## balance the space on the left and right sides
         geom_segment(aes(x = 0, y = 0, xend = x_max, yend = 0),color = "white",size = 0.01)+
         geom_segment(aes(x = 0, y = 0, xend = -x_max, yend = 0),color = "white",size = 0.01)
     
     textAdjust <- mean(as.numeric(treeData$distance))
+    
+    if(use.tumorSampleLabel){
+       tsb.label <- getPhyloTreeTsbLabel(phyloTree)
+       if(nrow(tsb.label) == 0){
+         stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be FALSE.")
+       }
+       ctsb <- treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")]
+       treeData$sample[!treeData$sample %in% c("NORMAL", "internal node")] <- lapply(as.list(ctsb),
+                                                                                     function(x){
+                                                                                        tsb.label[which(tsb.label$Tumor_Sample_Barcode == x),]$Tumor_Sample_Label
+                                                                                        }) %>% 
+                                                                              unlist()
+    }
     
     if(!is.null(branchCol)){
         if(branchCol == "mutSig"){
@@ -239,11 +255,12 @@ plotTree <- function(phyloTree,
                                   segment.colour = "grey50", segment.size = 0.5, force = 5)
     }
     
-    if(compare){
-        tree.title <- patient
-    }else{
-        tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
-    }
+    tree.title <- patient
+    # if(compare){
+    #     tree.title <- patient
+    # }else{
+    #     tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
+    # }
     p <- p + 
         ggtitle(tree.title)+
         theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
@@ -397,7 +414,7 @@ getTreeData <- function(phyloTree = NULL,
    if(!is.null(branchCol) & !compare){
        ## add signature
       if(branchCol == "mutSig"){
-          tri_matrix <- triMatrix(phyloTree,withinTumor = FALSE)
+          tri_matrix <- triMatrix(phyloTree,level = "4")
           fit_out <- fitSignatures(tri_matrix,
                                    signaturesRef = signaturesRef,
                                    min.mut.count = min.mut.count)
