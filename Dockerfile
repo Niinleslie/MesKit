@@ -19,7 +19,7 @@ RUN apt-get install --assume-yes apt-utils &&\
     apt-get install -y gnupg2 
 
 ## Now install R and littler, and create a link for littler in /usr/local/bin
-ENV R_BASE_VERSION 4.0.2
+ENV R_BASE_VERSION 4.0.0
 
 RUN apt-get install -y --no-install-recommends \
         #gcc-9-base \
