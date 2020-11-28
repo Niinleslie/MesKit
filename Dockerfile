@@ -1,12 +1,12 @@
 FROM debian:testing
-#ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
-# Set the 
-RUN apt-get clean
-RUN apt-get update && \
+
+RUN apt-get autoclean && \
+    apt-get update && \
     apt-get -y upgrade && \
-    apt-get install -y locales && \
-    apt-get install -y libterm-readkey-perl
+    apt-get install -y --no-install-recommends locales libterm-readkey-perl 
+    #rm -rf /var/lib/apt/lists/*
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
@@ -14,21 +14,28 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 ENV LANG en_US.UTF-8 
 
-RUN apt-get install --assume-yes apt-utils &&\
+RUN apt-get update && \
+    apt-get install -y --assume-yes apt-utils &&\
     apt-get install -y software-properties-common &&\
     apt-get install -y gnupg2 
 
-## Now install R and littler, and create a link for littler in /usr/local/bin
-ENV R_BASE_VERSION 4.0.0
 
-RUN apt-get install -y --no-install-recommends \
-        #gcc-9-base \
-        libopenblas0-pthread \
-		littler \
-        r-cran-littler \
-		r-base=${R_BASE_VERSION}-* \
-		r-base-dev=${R_BASE_VERSION}-* \
-		r-recommended=${R_BASE_VERSION}-* \
+# RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/" > /etc/apt/sources.list.d/cran.list
+# RUN apt-key adv --keyserver keys.gnupg.net --recv-key 'E19F5F87128899B192B1A2C2AD5F960A256A04AF'
+# RUN echo "deb http://cloud.r-project.org/bin/linux/debian buster-cran40/" > /etc/apt/sources.list
+
+#ENV R_BASE_VERSION 4.0.2
+
+RUN apt update && apt-get update && \
+    apt-get install -y --no-install-recommends libopenblas0-pthread \
+	littler \
+    r-cran-littler \
+    r-base \
+    r-base-dev \
+    r-recommended \
+	# r-base=${R_BASE_VERSION}* \
+	# r-base-dev=${R_BASE_VERSION}* \
+	# r-recommended=${R_BASE_VERSION}* \
 	&& ln -s /usr/lib/R/site-library/littler/examples/build.r /usr/local/bin/build.r \
 	&& ln -s /usr/lib/R/site-library/littler/examples/check.r /usr/local/bin/check.r \
 	&& ln -s /usr/lib/R/site-library/littler/examples/install.r /usr/local/bin/install.r \
@@ -53,7 +60,8 @@ RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
     libssl-dev \
     libxml2 \
     libxml2-dev \
-    libpng-dev
+    libpng-dev \
+    libcairo2-dev
 
 ## Configure default locale, see https://github.com/rocker-org/rocker/issues/19
 #RUN apt-get clean && apt-get -y update && apt-get install -y locales && locale-gen en_US.UTF-8
@@ -69,6 +77,9 @@ RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.92
 
 # MesKit part:
 RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19'))" 
+# RUN R -e "BiocManager::install(version='devel')"
+# RUN R -e "BiocManager::install("MesKit")"
+RUN R -e "devtools::install_github('jokergoo/ComplexHeatmap')"
 RUN R -e "devtools::install_github('Niinleslie/MesKit', ref = 'master')"
 
 # shiny server application & configuration
