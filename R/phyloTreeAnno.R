@@ -6,7 +6,10 @@ plotTree <- function(phyloTree,
                      min.mut.count = 15,
                      min.ratio = 1/20,
                      common.col = "red",
-                     use.tumorSampleLabel = FALSE){
+                     use.tumorSampleLabel = FALSE,
+                     show.scale.bar = FALSE,
+                     scale.bar.x = NULL,
+                     scale.bar.y = NULL){
     
     if(min.ratio <= 0|min.ratio > 1){
         stop("min.ratio should be within (0,1]")
@@ -90,14 +93,7 @@ plotTree <- function(phyloTree,
           }
           return(boots)
         }) %>% unlist()
-        # 
-        # for(i in seq_len(nrow(bootsData))){      
-        #     if(i == nrow(bootsData)){
-        #         boots <- append(boots, boot_value[rootNode - LN])
-        #         next
-        #     }
-        #     boots <- append(boots, boot_value[bootsData$end_num[i] - LN])
-        # }
+        
         bootsData <- cbind(bootsData, boots = boots_list)
     }
     
@@ -261,6 +257,42 @@ plotTree <- function(phyloTree,
     # }else{
     #     tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
     # }
+    if(show.scale.bar){
+       mean_len <- ceiling(mean(treeData$distance)) 
+       if(!is.null(scale.bar.x)){
+          x_bar <- scale.bar.x
+       }else{
+          x_bar <- min(treeData$x2) + min(treeData$x2)/2
+       }
+       
+       if(!is.null(scale.bar.y)){
+          y_bar <- scale.bar.y
+       }else{
+          y_bar <- (max(treeData$y2) - min(treeData$y2))/2
+       }
+       
+       
+       df_bar <- data.frame(
+          x = x_bar,
+          xend = x_bar,
+          y = y_bar - mean_len/2,
+          yend = y_bar + mean_len/2
+      )
+       p <- p + 
+          geom_segment(
+             aes(x = x, y = y, xend = xend, yend = yend),
+             data = df_bar,
+             size = 0.6,
+             color = "black"
+          ) + 
+          geom_text(
+             aes(x = x, y = yend + mean_len/10),
+             data = df_bar,
+             label = as.character(mean_len),
+             size = 4,
+             color = "black"
+          )
+    }
     p <- p + 
         ggtitle(tree.title)+
         theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
