@@ -113,7 +113,7 @@ readMaf <- function(
             stringsAsFactors = FALSE
         ))
         ## check ccf_data
-        ccf_data <- validCCF(ccf_data)
+        ccf_data <- validCCF(ccf_data, maf_data)
         ## merge ccf_data to maf_data
         maf_data <- readCCF(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VAF)
     }

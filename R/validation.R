@@ -11,7 +11,7 @@ validMaf <- function(maf_data){
        stop(paste0("Missing ", info, " from mafFile"))
    }
    
-   
+   maf_data$Chromosome <- as.character(maf_data$Chromosome)
    maf_data$Tumor_Sample_Barcode <- as.character(maf_data$Tumor_Sample_Barcode)
    maf_data$Patient_ID <- as.character(maf_data$Patient_ID)
    maf_data$Tumor_ID <- as.character(maf_data$Tumor_ID)
@@ -34,7 +34,22 @@ validMaf <- function(maf_data){
 }
 
 
-validCCF <- function(ccf_data){
+validCCF <- function(ccf_data, maf_data){
+  
+    patients_in_maf <- sort(unique(maf_data$Patient_ID))
+    patients_in_ccf <- sort(unique(ccf_data$Patient_ID))  
+    if(!identical(patients_in_maf, patients_in_ccf)){
+      patient_setdiff <- setdiff(patients_in_maf, patients_in_ccf)
+      warning("Patient: ",paste0(paste(patient_setdiff, collapse = ", "), " are not in ccf data"))
+    }
+    
+    tsb_in_maf <- sort(unique(maf_data$Tumor_Sample_Barcode))
+    tsb_in_ccf <- sort(unique(ccf_data$Tumor_Sample_Barcode)) 
+    if(!identical(tsb_in_maf, tsb_in_ccf)){
+      tsb_setdiff <- setdiff(tsb_in_maf, tsb_in_ccf)
+      warning("Tumor sample barcodes: ",paste0(paste(tsb_setdiff, collapse = ", "), " are not in ccf data"))
+    }  
+    
     
     ccf_standardcol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
     if(!all(ccf_standardcol %in% colnames(ccf_data))){
