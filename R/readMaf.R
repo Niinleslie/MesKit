@@ -9,6 +9,7 @@
 #' @param ccf.conf.level The confidence level of CCF to identify clonal or subclonal. 
 #' Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default 0.95.
 #' @param refBuild Human reference genome version. Default 'hg19'. Optional: 'hg18' or 'hg38'.
+#' @param use.indel.ccf Whether use indel in ccfFile. Default FALSE.
 #'
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
@@ -30,7 +31,8 @@ readMaf <- function(
     adjusted.VAF = FALSE,
     nonSyn.vc = NULL,
     ccf.conf.level = 0.95,
-    refBuild = "hg19") {
+    refBuild = "hg19",
+    use.indel.ccf = FALSE) {
 
     refBuild <- match.arg(refBuild, choices =  c('hg18', 'hg19', 'hg38'), several.ok = FALSE)
     
@@ -113,9 +115,9 @@ readMaf <- function(
             stringsAsFactors = FALSE
         ))
         ## check ccf_data
-        ccf_data <- validCCF(ccf_data, maf_data)
+        ccf_data <- validCCF(ccf_data, maf_data, use.indel.ccf = use.indel.ccf)
         ## merge ccf_data to maf_data
-        maf_data <- readCCF(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VAF)
+        maf_data <- readCCF(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VAF, use.indel.ccf = use.indel.ccf)
     }
     
     ## calculate average adjust VAF
