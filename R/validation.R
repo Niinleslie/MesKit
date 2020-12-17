@@ -11,7 +11,7 @@ validMaf <- function(maf_data){
        stop(paste0("Missing ", info, " from mafFile"))
    }
    
-   
+   maf_data$Chromosome <- as.character(maf_data$Chromosome)
    maf_data$Tumor_Sample_Barcode <- as.character(maf_data$Tumor_Sample_Barcode)
    maf_data$Patient_ID <- as.character(maf_data$Patient_ID)
    maf_data$Tumor_ID <- as.character(maf_data$Tumor_ID)
@@ -34,13 +34,39 @@ validMaf <- function(maf_data){
 }
 
 
-validCCF <- function(ccf_data){
+validCCF <- function(ccf_data, maf_data, use.indel.ccf){
+  
+    patients_in_maf <- sort(unique(maf_data$Patient_ID))
+    patients_in_ccf <- sort(unique(ccf_data$Patient_ID))  
+    if(!identical(patients_in_maf, patients_in_ccf)){
+      patient_setdiff <- setdiff(patients_in_maf, patients_in_ccf)
+      warning("Patient: ",paste0(paste(patient_setdiff, collapse = ", "), " are not in ccf data"))
+    }
+    
+    tsb_in_maf <- sort(unique(maf_data$Tumor_Sample_Barcode))
+    tsb_in_ccf <- sort(unique(ccf_data$Tumor_Sample_Barcode)) 
+    if(!identical(tsb_in_maf, tsb_in_ccf)){
+      tsb_setdiff <- setdiff(tsb_in_maf, tsb_in_ccf)
+      warning("Tumor sample barcodes: ",paste0(paste(tsb_setdiff, collapse = ", "), " are not in ccf data"))
+    }  
+    
     
     ccf_standardcol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
     if(!all(ccf_standardcol %in% colnames(ccf_data))){
         missing_fileds_ccf <- ccf_standardcol[!ccf_standardcol %in% colnames(ccf_data)]
         info <- paste(missing_fileds_ccf, collapse = ",")
         stop(paste0("Missing ", info, " from ccfFile"))
+    }
+    
+    if(use.indel.ccf){
+      indel.ccf.col <- c("Reference_Allele", "Tumor_Seq_Allele2")
+      if(!all(indel.ccf.col %in% colnames(ccf_data))){
+        missing_fileds_ccf <- indel.ccf.col[!indel.ccf.col %in% colnames(ccf_data)]
+        info <- paste(missing_fileds_ccf, collapse = ",")
+        stop(paste0("Missing ", info, " from ccfFile when use.indel.ccf is TRUE"))
+      }
+    }else{
+      indel.ccf.col <- NULL
     }
     
     ccf_data$Patient_ID <- as.character(ccf_data$Patient_ID)
@@ -53,9 +79,9 @@ validCCF <- function(ccf_data){
     
     if("CCF_Std" %in% colnames(ccf_data)){
       ccf_data$CCF_Std <- as.numeric(ccf_data$CCF_Std)
-      ccf_data <- dplyr::select(ccf_data, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF", "CCF_Std")
+      ccf_data <- dplyr::select(ccf_data, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF", "CCF_Std", dplyr::all_of(indel.ccf.col))
     }else{
-      ccf_data <- dplyr::select(ccf_data, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
+      ccf_data <- dplyr::select(ccf_data, "Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF", dplyr::all_of(indel.ccf.col))
     }
     
     

@@ -11,7 +11,8 @@ readMaf(
   adjusted.VAF = FALSE,
   nonSyn.vc = NULL,
   ccf.conf.level = 0.95,
-  refBuild = "hg19"
+  refBuild = "hg19",
+  use.indel.ccf = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ readMaf(
 Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default 0.95.}
 
 \item{refBuild}{Human reference genome version. Default 'hg19'. Optional: 'hg18' or 'hg38'.}
+
+\item{use.indel.ccf}{Whether use indel in ccfFile. Default FALSE.}
 }
 \value{
 an object of Maf or MafList.

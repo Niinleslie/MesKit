@@ -133,7 +133,7 @@ ClinInfo[1:5, ]
   
 #### 2.3 CCF files  
   
-By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_Std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
+By default, there are six mandatory fields in input CCF file: `Patient_ID`, `Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_Std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
 
 
 **Example CCF file**
@@ -174,7 +174,6 @@ segInfo[1:5, ]
 if (!requireNamespace("BiocManager", quietly = TRUE)){
   install.packages("BiocManager")
 }   
-
 # The following initializes usage of Bioc devel
 BiocManager::install(version='devel')
 BiocManager::install("MesKit")
@@ -558,5 +557,3 @@ The guidance video for MesKit Shiny APP can be found at [http://meskit.renlab.or
 ```{r}
 sessionInfo()
 ```
-  
-  
