@@ -209,6 +209,7 @@ library(MesKit)
 maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
 ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 clin.File <- system.file("extdata", "CRC_HZ.clin.txt", package = "MesKit")
+
 # Maf object with CCF information
 maf <- readMaf(mafFile = maf.File,
                ccfFile = ccf.File,
@@ -342,6 +343,7 @@ Distinct patterns of monoclonal versus polyclonal seeding based on the cancer ce
 ccf.list <- compareCCF(maf, pairByTumor = TRUE, min.ccf = 0.02,
                        use.adjVAF = TRUE, use.indel = FALSE)
 V402_P_BM <- ccf.list$V402$`P-BM`
+
 # compare CCF using smoothScatter
 graphics::smoothScatter(matrix(c(V402_P_BM[, 3], V402_P_BM[, 4]),ncol = 2),
                 xlim = c(0, 1), ylim = c(0, 1),
