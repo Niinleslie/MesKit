@@ -54,7 +54,7 @@ validCCF <- function(ccf_data, maf_data, use.indel.ccf){
     ccf_standardcol <- c("Patient_ID", "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "CCF")
     if(!all(ccf_standardcol %in% colnames(ccf_data))){
         missing_fileds_ccf <- ccf_standardcol[!ccf_standardcol %in% colnames(ccf_data)]
-        info <- paste(missing_fileds_ccf, collapse = ",")
+        info <- paste(missing_fileds_ccf, collapse = ", ")
         stop(paste0("Missing ", info, " from ccfFile"))
     }
     
@@ -62,7 +62,7 @@ validCCF <- function(ccf_data, maf_data, use.indel.ccf){
       indel.ccf.col <- c("Reference_Allele", "Tumor_Seq_Allele2")
       if(!all(indel.ccf.col %in% colnames(ccf_data))){
         missing_fileds_ccf <- indel.ccf.col[!indel.ccf.col %in% colnames(ccf_data)]
-        info <- paste(missing_fileds_ccf, collapse = ",")
+        info <- paste(missing_fileds_ccf, collapse = ", ")
         stop(paste0("Missing ", info, " from ccfFile when use.indel.ccf is TRUE"))
       }
     }else{
@@ -94,7 +94,7 @@ validSeg <- function(seg){
                           "End_Position")
     if(!all(seg_standardcol %in% colnames(seg))){
         missing_fileds_seg <- seg_standardcol[!seg_standardcol %in% colnames(seg)]
-        info <- paste(missing_fileds_seg, collapse = ",")
+        info <- paste(missing_fileds_seg, collapse = ", ")
         stop(paste0("Missing ", info, " from segFile"))
     }
     seg$Chromosome = gsub(pattern = 'chr', replacement = '', x = seg$Chromosome, fixed = TRUE)

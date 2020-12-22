@@ -10,9 +10,9 @@ readMaf(
   ccfFile = NULL,
   adjusted.VAF = FALSE,
   nonSyn.vc = NULL,
+  use.indel.ccf = FALSE,
   ccf.conf.level = 0.95,
-  refBuild = "hg19",
-  use.indel.ccf = FALSE
+  refBuild = "hg19"
 )
 }
 \arguments{
@@ -26,12 +26,12 @@ readMaf(
 
 \item{nonSyn.vc}{List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"}
 
+\item{use.indel.ccf}{Whether include indels in ccfFile. Default FALSE.}
+
 \item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. 
 Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default 0.95.}
 
 \item{refBuild}{Human reference genome version. Default 'hg19'. Optional: 'hg18' or 'hg38'.}
-
-\item{use.indel.ccf}{Whether use indel in ccfFile. Default FALSE.}
 }
 \value{
 an object of Maf or MafList.
