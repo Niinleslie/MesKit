@@ -122,9 +122,13 @@ validClinicalData <- function(clin_data, maf_data){
   maf_tb <- unique(maf_data$Tumor_Sample_Barcode)
   clin_tb <- unique(clin_data$Tumor_Sample_Barcode)
   tb_setdiff <- setdiff(maf_tb, clin_tb)
+  
   if(length(tb_setdiff) > 0){
     stop(paste0("Information about Tumor_Sample_Barcode ", paste(tb_setdiff, collapse = ", "), " cannot be found in clinical data!"))
   }
+  
+  return(clin_data)
+  
 }
 
 
