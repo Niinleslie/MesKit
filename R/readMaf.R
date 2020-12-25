@@ -71,14 +71,14 @@ readMaf <- function(
         sep = '\t',
         stringsAsFactors = FALSE
     )
-    
-    validClinicalData(clin_data = clin_data ,maf_data = maf_data)
-    
-    
-    
         
     
     ## merge maf data and clinical data
+    maf_col <- colnames(maf_data)
+    clin_col <- colnames(clin_data)
+    is_col <- intersect(maf_col, clin_col)
+    is_col <- is_col[is_col!="Tumor_Sample_Barcode"]
+    maf_data <- dplyr::select(maf_data, -all_of(is_col))
     maf_data <- dplyr::left_join(
         maf_data,
         clin_data,
