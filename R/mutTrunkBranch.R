@@ -33,29 +33,13 @@ mutTrunkBranch <- function(phyloTree,
     
     processMTB <- function(phyloTree){
         patient <- getPhyloTreePatient(phyloTree)
-        
-        mut_branches <- getMutBranches(phyloTree)%>% 
-            dplyr::filter(!grepl("\\(NA\\)", .data$Branch_ID))
-        
+
         ## get trinucleotide matrix
         tsb.label <- getPhyloTreeTsbLabel(phyloTree)
         if(nrow(tsb.label) > 0){
             tri_matrix <- tri_matrix_list[[patient]]$tri_matrix
         }else{
             tri_matrix <- tri_matrix_list[[patient]]
-        }
-
-        ## define Trunk
-        branch_names <- unique(mut_branches$Branch_ID)
-        branch_sample_num <- lapply(branch_names,function(x){
-            s <- strsplit(x,"&")[[1]]
-            num <- length(s)
-        })
-        trunk_name <- branch_names[which.max(branch_sample_num)]
-        ## label the Trunk
-        if (length(trunk_name) == 0){
-            warning(paste0("Patient ", patient,": no trunk mutations were detected!"))
-            return(NA)
         }
         
         ## set groups
@@ -66,8 +50,8 @@ mutTrunkBranch <- function(phyloTree,
         }
         
         ## separate trunk and branch data
-        tri_matrix_trunk <- tri_matrix[trunk_name, ]
-        tri_matrix_branch <- tri_matrix[rownames(tri_matrix) != trunk_name, ]
+        tri_matrix_trunk <- tri_matrix["Trunk", ]
+        tri_matrix_branch <- tri_matrix["Branches", ]
         
         if(is(tri_matrix_branch, "matrix")){
             tri_matrix_branch <- colSums(tri_matrix_branch)
@@ -330,7 +314,7 @@ mutTrunkBranch <- function(phyloTree,
     ## preprocess input data
     phyloTree_input <- subPhyloTree(phyloTree, patient.id = patient.id)
     ## get trinucleotide matrix
-    tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_input, CT = CT, level = "4")
+    tri_matrix_list <- subTriMatrix(phyloTree_list = phyloTree_input, CT = CT, level = "6")
     
     result <- lapply(phyloTree_input, processMTB)
     result <- result[!is.na(result)]
