@@ -30,7 +30,7 @@ Name: COREAD_all_lesions.conf_99.txt; COREAD_amp_genes.conf_99.txt; COREAD_del_g
 # Published Signatures from Sanger COSMIC
 # Includes 30 signaures
 Source urls: http://cancer.sanger.ac.uk/cosmic/signatures
-Name: signatures.exome.cosmic.v3.may2019.rds
+Name: signatures.cosmic.rds
 
 # Published Signatures from Alexandrov et al 2013
 # A dataset containing the value for the 96-trinucleotide contexts of 100 
