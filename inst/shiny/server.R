@@ -33,7 +33,8 @@ shinyServer(function(input, output, session){
           maf <- readMaf(mafFile = input$mafFile$datapath,
                          clinicalFile =  input$clinFile$datapath,
                          ccfFile =  ccfFile,
-                         refBuild = input$ref)          
+                         refBuild = input$ref,
+                         use.indel.ccf =  input$ccfFile_use_indel_ccf)          
         }
         else{
           maf <-  readMaf(mafFile = input$mafFile$datapath,
@@ -2368,13 +2369,36 @@ shinyServer(function(input, output, session){
           }else{
               branchCol <- input$plotphylotree_branchcol
           }
+          
+          scale_bar_x <- NULL
+          scale_bar_y <- NULL
+          if(input$plotphylotree_show_scale_bar){
+            if(input$plotphylotree_scale_bar_x != ""){
+              scale_bar_x <- as.numeric(input$plotphylotree_scale_bar_x)  
+            }else{
+              scale_bar_x <- NULL
+            }
+            if(!is.null(input$plotphylotree_scale_bar_y != "")){
+              scale_bar_y <- as.numeric(input$plotphylotree_scale_bar_y)  
+            }else{
+              scale_bar_y <- NULL
+            }
+          }
+          
+          if(is.na(scale_bar_y)){
+            scale_bar_y <- NULL
+          }
+          
           plot.list <- plotPhyloTree(phyloTree,
                                      branchCol = branchCol,
                                      show.bootstrap = input$plotphylotree_showbootstrap,
                                      min.ratio = as.numeric(input$plotphylotree_minratio) ,
                                      signaturesRef = input$plotphylotree_signatureref,
                                      min.mut.count = as.numeric(input$plotphylotree_minmutcount),
-                                     use.tumorSampleLabel = input$plotphylotree_usetumorsamplelabel )
+                                     use.tumorSampleLabel = input$plotphylotree_usetumorsamplelabel,
+                                     show.scale.bar = input$plotphylotree_show_scale_bar,
+                                     scale.bar.x = scale_bar_x,
+                                     scale.bar.y = scale_bar_y)
           incProgress(amount=1)
           setProgress(message = paste("Plot phylotree done!", sep=""), detail = "") 
           

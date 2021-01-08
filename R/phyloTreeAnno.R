@@ -260,13 +260,13 @@ plotTree <- function(phyloTree,
     if(show.scale.bar){
        mean_len <- ceiling(mean(treeData$distance)) 
        if(!is.null(scale.bar.x)){
-          x_bar <- scale.bar.x
+          x_bar <- as.numeric(scale.bar.x)
        }else{
           x_bar <- min(treeData$x2) + min(treeData$x2)/2
        }
        
        if(!is.null(scale.bar.y)){
-          y_bar <- scale.bar.y
+          y_bar <- as.numeric(scale.bar.y)
        }else{
           y_bar <- (max(treeData$y2) - min(treeData$y2))/2
        }
