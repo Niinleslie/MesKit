@@ -120,7 +120,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
                               xmax = Inf,
                               ymin = min(branch_spectrum$Proportion),
                               ymax = max(branch_spectrum$Proportion)) +
-                    geom_bar(stat="identity") +
+                    geom_bar(stat="identity",color = "#252525",width = 1) +
                     # geom_hline(yintercept = 0)+
                     theme(
                         legend.position='none', 

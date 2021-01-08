@@ -12,7 +12,8 @@ triMatrix(phyloTree, patient.id = NULL, level = 2)
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included}
 
 \item{level}{Calculate the frequency of 96 trinucleotide mutatio on different levels. 
-1: patient-level, 2: tumor-level, 3: sample-level, 4: branch-level, 5: shared pattern (public/shared/private) of each tumor. Default 2.}
+1: patient-level, 2: tumor-level, 3: sample-level, 4: branch-level, 5: shared pattern (public/shared/private) of each tumor. 
+6: trunk/branch-level. Default 2.}
 }
 \value{
 The frequency of 96 trinucleotide mutation.

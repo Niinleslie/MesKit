@@ -11,6 +11,9 @@
 #' @param signaturesRef Signature reference,Users can upload their own reference. Default "cosmic_v2". Option:"exome_cosmic_v3","nature2013".
 #' @param min.mut.count The threshold for the variants in a branch. Default 15.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
+#' @param show.scale.bar Logical (Default: FALSE). Whether to show scale bar.This function adds a horizontal bar giving the scale of the branch lengths to a plot on the current graphical device.
+#' @param scale.bar.x The x location of scale bar.
+#' @param scale.bar.y The y location of scale bar.
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
 #' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
@@ -33,7 +36,10 @@ plotPhyloTree <- function(phyloTree,
                           min.ratio = 1/20,
                           signaturesRef = "cosmic_v2",
                           min.mut.count = 15,
-                          use.tumorSampleLabel = FALSE){
+                          use.tumorSampleLabel = FALSE,
+                          show.scale.bar = FALSE,
+                          scale.bar.x = NULL,
+                          scale.bar.y = NULL){
     
     processPlotTree <- function(phyloTree){
        patient <- getPhyloTreePatient(phyloTree)
@@ -42,7 +48,10 @@ plotPhyloTree <- function(phyloTree,
                      show.bootstrap = show.bootstrap,
                      signaturesRef = signaturesRef,
                      min.mut.count = min.mut.count,
-                     use.tumorSampleLabel = use.tumorSampleLabel)
+                     use.tumorSampleLabel = use.tumorSampleLabel,
+                     show.scale.bar = show.scale.bar,
+                     scale.bar.x = scale.bar.x,
+                     scale.bar.y = scale.bar.y)
        return(p)
     }
     
