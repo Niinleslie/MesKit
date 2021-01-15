@@ -92,8 +92,6 @@ vafCluster <-function(maf,
     subdata$cluster <- as.character(cluster_result$classification)
     
     ## define outfilter
-    print(id)
-    print(nrow(subdata))
     out_vaf <- boxplot.stats(subdata$VAF)$out
     subdata[subdata$VAF %in% out_vaf]$cluster <- "outlier"
     
