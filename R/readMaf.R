@@ -6,10 +6,10 @@
 #' @param ccfFile CCF file of somatic mutations. Default NULL.
 #' @param adjusted.VAF Whether adjusted VAF is included in mafFile. (Default FALSE).
 #' @param nonSyn.vc List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"
+#' @param use.indel.ccf Whether include indels in ccfFile. Default FALSE.
 #' @param ccf.conf.level The confidence level of CCF to identify clonal or subclonal. 
 #' Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default 0.95.
 #' @param refBuild Human reference genome version. Default 'hg19'. Optional: 'hg18' or 'hg38'.
-#' @param use.indel.ccf Whether use indel in ccfFile. Default FALSE.
 #'
 #' @examples
 #' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
@@ -30,9 +30,10 @@ readMaf <- function(
     ccfFile = NULL,
     adjusted.VAF = FALSE,
     nonSyn.vc = NULL,
+    use.indel.ccf = FALSE,
     ccf.conf.level = 0.95,
-    refBuild = "hg19",
-    use.indel.ccf = FALSE) {
+    refBuild = "hg19"
+    ) {
 
     refBuild <- match.arg(refBuild, choices =  c('hg18', 'hg19', 'hg38'), several.ok = FALSE)
     

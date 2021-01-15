@@ -133,7 +133,7 @@ ClinInfo[1:5, ]
   
 #### 2.3 CCF files  
   
-By default, there are six mandatory fields in input CCF file: `Patient_ID`, `Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_Std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
+By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_Std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
 
 
 **Example CCF file**
@@ -209,7 +209,6 @@ library(MesKit)
 maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
 ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 clin.File <- system.file("extdata", "CRC_HZ.clin.txt", package = "MesKit")
-
 # Maf object with CCF information
 maf <- readMaf(mafFile = maf.File,
                ccfFile = ccf.File,
@@ -343,7 +342,6 @@ Distinct patterns of monoclonal versus polyclonal seeding based on the cancer ce
 ccf.list <- compareCCF(maf, pairByTumor = TRUE, min.ccf = 0.02,
                        use.adjVAF = TRUE, use.indel = FALSE)
 V402_P_BM <- ccf.list$V402$`P-BM`
-
 # compare CCF using smoothScatter
 graphics::smoothScatter(matrix(c(V402_P_BM[, 3], V402_P_BM[, 4]),ncol = 2),
                 xlim = c(0, 1), ylim = c(0, 1),
@@ -507,8 +505,7 @@ Users can visualize phylogenetic trees with annotations through `plotPhyloTree` 
 ```{r, fig.align='left', fig.width=12, fig.height=6, message=FALSE, warning=FALSE}
 # A phylogenetic tree along with binary and CCF heatmap of mutations 
 phylotree_V402 <- plotPhyloTree(phyloTree, use.tumorSampleLabel = TRUE)
-binary_heatmap_V402 <- mutHeatmap(maf, min.ccf = 0.04, use.ccf = FALSE, patient.id = "V402", 
-                                    min.ccf = 0.04, use.tumorSampleLabel = TRUE)
+binary_heatmap_V402 <- mutHeatmap(maf, min.ccf = 0.04, use.ccf = FALSE, patient.id = "V402", use.tumorSampleLabel = TRUE)
 CCF_heatmap_V402 <- mutHeatmap(maf, use.ccf = TRUE, patient.id = "V402", 
                                  min.ccf = 0.04, use.tumorSampleLabel = TRUE)
 cowplot::plot_grid(phylotree_V402, binary_heatmap_V402,
@@ -517,7 +514,7 @@ cowplot::plot_grid(phylotree_V402, binary_heatmap_V402,
     
     
 
-### 10. Shing APP   
+### 10. Shiny APP with video tutorial   
 
 The guidance video for MesKit Shiny APP can be found at [http://meskit.renlab.org/video.html](http://meskit.renlab.org/video.html).
      
@@ -557,3 +554,5 @@ The guidance video for MesKit Shiny APP can be found at [http://meskit.renlab.or
 ```{r}
 sessionInfo()
 ```
+  
+  
