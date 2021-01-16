@@ -2415,12 +2415,6 @@ shinyServer(function(input, output, session){
               scale_bar_y <- NULL
             }
           }
-          print(scale_bar_y)
-          print(scale_bar_x)
-          # if(is.na(scale_bar_y)){
-          #   scale_bar_y <- NULL
-          # }
-          # 
           plot.list <- plotPhyloTree(phyloTree,
                                      branchCol = branchCol,
                                      show.bootstrap = input$plotphylotree_showbootstrap,
