@@ -780,7 +780,7 @@ bodyAL <- tabItem("AL",
                                     condition = "input.plotmutprofile_usegenelist == true",
                                     fileInput(inputId = 'plotmutprofile_genelist', 
                                               label = div(style = "font-size:1.5em; font-weight:600; ", 'Gene list file'),
-                                              placeholder = "Example: IntOGen-DriverGenes_HC.tsv",
+                                              placeholder = "Example: IntOGen-DriverGenes_COREAD.tsv",
                                               width = 400)
                                     ), 
                                   checkboxInput('plotmutprofile_classByTumor', label = div(style = "font-size:1.5em; font-weight:600; padding-left:15px", 'Class by tumor'),value = FALSE,width = 400),
