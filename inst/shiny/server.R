@@ -519,7 +519,14 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
-      
+      if(is(maf, "MafList")){
+        maf_column <- colnames(getMafData(maf[[1]]) ) 
+      }else{
+        maf_column <- colnames(getMafData(maf) ) 
+      }
+      validate(
+        need("CCF" %in% maf_column, "Please upload ccf data in 'Input Data'!")
+      )
       patientid <- input$ccfauc_patientid
       
       withProgress(min = 0, max = 1, value = 0, {
@@ -883,6 +890,14 @@ shinyServer(function(input, output, session){
       maf <- varsMaf$maf
       validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
+      )
+      if(is(maf, "MafList")){
+        maf_column <- colnames(getMafData(maf[[1]]) ) 
+      }else{
+        maf_column <- colnames(getMafData(maf) ) 
+      }
+      validate(
+        need("CCF" %in% maf_column, "Please upload ccf data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = "Processing: calculating Nei's distance")
@@ -1287,6 +1302,14 @@ shinyServer(function(input, output, session){
       maf <- varsMaf$maf
       validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
+      )
+      if(is(maf, "MafList")){
+        maf_column <- colnames(getMafData(maf[[1]]) ) 
+      }else{
+        maf_column <- colnames(getMafData(maf) ) 
+      }
+      validate(
+        need("CCF" %in% maf_column, "Please upload ccf data in 'Input Data'!")
       )
       withProgress(min = 0, max = 1, value = 0, {
           setProgress(message = 'Processing: calculating Jaccard similarity index')
@@ -2182,6 +2205,14 @@ shinyServer(function(input, output, session){
       validate(
           need(!(is.null(maf)), "Please upload data in 'Input Data'!")
       )
+      if(is(maf, "MafList")){
+        maf_column <- colnames(getMafData(maf[[1]]) ) 
+      }else{
+        maf_column <- colnames(getMafData(maf) ) 
+      }
+      validate(
+        need("CCF" %in% maf_column, "Please upload ccf data in 'Input Data'!")
+      )
       progress <- Progress$new(session, min=0, max=1)
       on.exit(progress$close())
       progress$set(message = 'Processing: comparing CCFs in paired samples')
@@ -2384,12 +2415,6 @@ shinyServer(function(input, output, session){
               scale_bar_y <- NULL
             }
           }
-          print(scale_bar_y)
-          print(scale_bar_x)
-          # if(is.na(scale_bar_y)){
-          #   scale_bar_y <- NULL
-          # }
-          # 
           plot.list <- plotPhyloTree(phyloTree,
                                      branchCol = branchCol,
                                      show.bootstrap = input$plotphylotree_showbootstrap,
