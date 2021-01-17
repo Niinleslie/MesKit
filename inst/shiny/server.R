@@ -1591,7 +1591,7 @@ shinyServer(function(input, output, session){
             if(!is.null(input$plotmutprofile_genelist$datapath)){
               genelist <- as.character(read.table(input$plotmutprofile_genelist$datapath)$V1)
             }else{
-              genelist_file <- system.file("extdata", "IntOGen-DriverGenes_HC.tsv", package = "MesKit")
+              genelist_file <- system.file("extdata", "IntOGen-DriverGenes_COREAD.tsv", package = "MesKit")
               genelist <- as.character(read.table(genelist_file)$V1)
             }
           }else{
