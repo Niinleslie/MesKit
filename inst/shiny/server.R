@@ -1785,7 +1785,7 @@ shinyServer(function(input, output, session){
           if(!is.null(input$plotcna_gisticAmpGenesFile$datapath)){
             gisticAmpGenesFile <- input$plotcna_gisticAmpGenesFile$datapath
           }else{
-            gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
+            gisticAmpGenesFile <- system.file("extdata", "COREAD_amp_genes.conf_99.txt", package = "MesKit")
           }
         }else{
           gisticAmpGenesFile <- NULL
@@ -1794,7 +1794,7 @@ shinyServer(function(input, output, session){
           if(!is.null(input$plotcna_gisticDelGenesFile$datapath)){
             gisticDelGenesFile <- input$plotcna_gisticDelGenesFile$datapath
           }else{
-            gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
+            gisticDelGenesFile <- system.file("extdata", "COREAD_del_genes.conf_99.txt", package = "MesKit")
           }
         }else{
           gisticDelGenesFile <- NULL
@@ -1803,7 +1803,7 @@ shinyServer(function(input, output, session){
           if(!is.null(input$plotcna_gisticAllLesionsFile$datapath)){
             gisticAllLesionsFile <- input$plotcna_gisticAllLesionsFile$datapath
           }else{
-            gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+            gisticAllLesionsFile <- system.file("extdata", "COREAD_all_lesions.conf_99.txt", package = "MesKit")
           }
         }else{
           gisticAllLesionsFile <- NULL
