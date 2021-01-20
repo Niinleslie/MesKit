@@ -1158,6 +1158,7 @@ shinyServer(function(input, output, session){
                            legend.title.size = as.numeric(input$mutheatmap_legendtitlesize),
                            gene.text.size = gene.text.size,
                            use.adjVAF = input$mutheatmap_useadjvaf,
+                           classByTumor = input$mutheatmap_classByTumor,
                            use.tumorSampleLabel = input$mutheatmap_usetumorsamplelabel)
           incProgress(amount = 1)
           setProgress(message = 'mutHeatmap done!')
