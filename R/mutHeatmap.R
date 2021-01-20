@@ -17,6 +17,7 @@
 #' @param gene.text.size Size of gene text. Default 9.
 #' @param sampleOrder A named list which contains the sample order used in plotting the heatmap. Default NULL.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
+#' @param classByTumorLogical (Default: FALSE). Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
@@ -45,6 +46,7 @@ mutHeatmap <- function(maf,
                        gene.text.size = 9,
                        sampleOrder = NULL,
                        use.tumorSampleLabel = FALSE,
+                       classByTumor = FALSE,
                        ...){
     
     maf_input <- subMaf(maf,
@@ -103,7 +105,7 @@ mutHeatmap <- function(maf,
         
         ## classify mutation
         maf_data <- maf_data %>% 
-            do.classify(class = "SP",classByTumor = TRUE) %>% 
+            do.classify(class = "SP",classByTumor = classByTumor) %>% 
             tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE)
         
         # mat <- binary.matrix

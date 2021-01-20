@@ -20,6 +20,7 @@ mutHeatmap(
   gene.text.size = 9,
   sampleOrder = NULL,
   use.tumorSampleLabel = FALSE,
+  classByTumor = FALSE,
   ...
 )
 }
@@ -56,6 +57,8 @@ Otherwise, print a cancer cell frequency (CCF) heatmap.}
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
+
+\item{classByTumorLogical}{(Default: FALSE). Classify mutations based on "Tumor_ID".}
 }
 \value{
 heatmap of somatic mutations
