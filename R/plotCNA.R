@@ -87,7 +87,7 @@ plotCNA <- function(seg,
     
     if(use.tumorSampleLabel){
         if(!"Tumor_Sample_Label" %in% colnames(seg)){
-            stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
+            stop("Tumor_Sample_Label was not found. Please check seg file or let use.tumorSampleLabel be 'FALSE'")
         }
         seg <- seg %>% 
             dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
@@ -126,6 +126,8 @@ plotCNA <- function(seg,
         }
         patient_num <- 1
         seg <- seg[seg$Patient_ID %in% patient.id, ]
+        seg$patient <- seg$Patient_ID
+        seg <- dplyr::select(seg, -"Patient_ID")
     }
     
     
@@ -292,7 +294,7 @@ plotCNA <- function(seg,
 
     }else{
         seg <- seg %>% 
-            dplyr::arrange(.data$Patient_ID,
+            dplyr::arrange(.data$patient,
                            .data$Tumor_Sample_Barcode,
                            .data$Chromosome,
                            .data$Start_Position) %>%
