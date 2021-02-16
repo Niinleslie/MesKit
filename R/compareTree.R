@@ -123,7 +123,8 @@ compareTree <- function(phyloTree1,
 	                  use.tumorSampleLabel = use.tumorSampleLabel)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
-	                                labels = c(getTreeMethod(phyloTree1),getTreeMethod(phyloTree2))
+	                                labels = c(paste0(getPhyloTreePatient(phyloTree1),":",getTreeMethod(phyloTree1)),
+	                                           paste0(getPhyloTreePatient(phyloTree2),":",getTreeMethod(phyloTree2)))
 	                                )
 	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(phyloTree1@method,phyloTree2@method))
 	    return(list(compare.dist = dist, compare.plot = ptree))

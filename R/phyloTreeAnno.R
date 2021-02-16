@@ -242,15 +242,15 @@ plotTree <- function(phyloTree,
                                   segment.size = 0.25, 
                                   force = 5)
     }
-    if(compare){
-      is.match <- NULL
-        p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2, label = is.match),
-                                  data = treeData[treeData$is.match != "NO",],
-                                  fontface = 'bold', 
-                                  size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                  segment.colour = "grey50", segment.size = 0.5, force = 5)
-    }
-    
+    # if(compare){
+    #   is.match <- NULL
+    #     p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2, label = is.match),
+    #                               data = treeData[treeData$is.match != "NO",],
+    #                               fontface = 'bold', 
+    #                               size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+    #                               segment.colour = "grey50", segment.size = 0.5, force = 5)
+    # }
+    # 
     tree.title <- patient
     # if(compare){
     #     tree.title <- patient
@@ -293,9 +293,12 @@ plotTree <- function(phyloTree,
              color = "black"
           )
     }
-    p <- p + 
-        ggtitle(tree.title)+
-        theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
+    if(!compare){
+       p <- p + 
+          ggtitle(tree.title)+
+          theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
+    }
+
     return(p)
 }
 
