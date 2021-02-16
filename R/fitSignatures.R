@@ -167,10 +167,12 @@ fitSignatures <- function(tri_matrix = NULL,
 
     rownames(con_matrix) <- rownames(origin_matrix)
     colnames(con_matrix) <- rownames(sigsRef)
-  
     
     rownames(recon_matrix) <- rownames(origin_matrix)
     colnames(recon_matrix) <- colnames(origin_matrix)
+    
+    # print(con_matrix)
+    # print(recon_matrix)
     
     ## calculate RSS of reconstructed matrix and origin matrix
     RSS <- vapply(seq_len(branch_num), function(i){
