@@ -108,24 +108,29 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
     origin_context <- as.character(origin_context)
     context <- ref64[origin_context]
     
-    mut_types <- paste(mut_branches$Reference_Allele, mut_branches$Tumor_Allele, sep = ">")
-    mut_types = gsub('G>T', 'C>A', mut_types)
-    mut_types = gsub('G>C', 'C>G', mut_types)
-    mut_types = gsub('G>A', 'C>T', mut_types)
-    mut_types = gsub('A>T', 'T>A', mut_types)
-    mut_types = gsub('A>G', 'T>C', mut_types)
-    mut_types = gsub('A>C', 'T>G', mut_types)
+    muts <- paste(mut_branches$Reference_Allele, mut_branches$Tumor_Allele, sep = ">")
+    
+    mut_types <- gsub('G>T', 'C>A', muts)
+    mut_types <- gsub('G>C', 'C>G', mut_types)
+    mut_types <- gsub('G>A', 'C>T', mut_types)
+    mut_types <- gsub('A>T', 'T>A', mut_types)
+    mut_types <- gsub('A>G', 'T>C', mut_types)
+    mut_types <- gsub('A>C', 'T>G', mut_types)
+    
+    idx <- which(muts != mut_types)
+    c <- origin_context[idx]
+    c <- IRanges::reverse(chartr("ATGC", "TACG", c))
+    origin_context[idx] <- c
     
     mut_branches$mut_type <- mut_types
     mut_branches$origin_context <- origin_context
-    mut_branches$context <- context
     
     if(!CT){
       mut_branches <- mut_branches %>% 
         dplyr::rowwise() %>% 
-        dplyr::mutate(context = paste0(strsplit(.data$context,"")[[1]][1],
+        dplyr::mutate(context = paste0(strsplit(.data$origin_context,"")[[1]][1],
                                        "[", .data$mut_type, "]",
-                                       strsplit(.data$context,"")[[1]][3])) %>% 
+                                       strsplit(.data$origin_context,"")[[1]][3])) %>% 
         as.data.frame()
     }else{
       CpG = c("ACG", "CCG", "TCG", "GCG")
@@ -241,6 +246,7 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
         return(as.data.frame(branch_matrix))
       }
     )
+    
     
     tri_matrix <- dplyr::bind_rows(tri_matrix_list)
     row.names(tri_matrix) <- names(branch_data_list)
