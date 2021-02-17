@@ -377,7 +377,7 @@ JSI.res$JSI.pair
    
 #### 7.3 Neutral evolution
    
-The subclonal mutant allele frequencies of a tumor follow a simple power-law distribution predicted by neutral growth [13](#refer). Users can evaluate whether a tumor follows neutral evolution or not under strong selection via the `testNeutral` function. Tumors with R2 >= `R2.threshold` (Default: 0.98) are considered to follow neutral evolution. Besides, this function can also generate the model fitting plot of each sample if the argument `plot` is set to`TRUE`.
+The subclonal mutant allele frequencies of a tumor follow a simple power-law distribution predicted by neutral growth [13](#refer). Users can evaluate whether a tumor follows neutral evolution or not under strong selection via the `testNeutral` function. Tumors with R2 >= `R2.threshold` (Default: 0.98) are considered to follow neutral evolution. Besides, this function can also generate the model fitting plot of each sample if the argument `plot` is set to`TRUE`. Please note that this analysis has been superseded by [*mobster*](https://github.com/caravagnalab/mobster).
    
    
 ```{r message=FALSE, warning=FALSE, fig.height=4.5, fig.width=4.5}
