@@ -190,7 +190,7 @@ plotMutSigProfile <- function(sig_input, patient.id = NULL, mode = NULL, use.tum
             
             ## diff proportion = reconstructed proportion - original proportion
             diff_spectrum <- origin_spectrum
-            diff_spectrum$Proportion <- recon_spectrum$Proportion - diff_spectrum$Proportion
+            diff_spectrum$Proportion <- diff_spectrum$Proportion - recon_spectrum$Proportion
             diff_spectrum$spectrum_type <- "Difference" 
             
             mut_spectrum <- dplyr::bind_rows(recon_spectrum, origin_spectrum, diff_spectrum) %>% 
