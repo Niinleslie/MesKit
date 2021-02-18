@@ -544,7 +544,7 @@ The guidance video for MesKit Shiny APP can be found at [http://meskit.renlab.or
 
 11. Makohon-Moore, A., Zhang, M., Reiter, J. et al. Limited heterogeneity of known driver gene mutations among the metastases of individual patients with pancreatic cancer. Nat Genet 49, 358–366 (2017). [https://doi.org/10.1038/ng.3764](https://doi.org/10.1038/ng.3764)
 
-12. Hu Z, Li Z, Ma Z & Curtis C. Pan-cancer analysis of clonality and the timing of systemic spread in paired primary tumors and metastases. bioRXiv (2019). [http://dx.doi.org/10.1101/825240](http://dx.doi.org/10.1101/825240)
+12. Hu, Z., Li, Z., Ma, Z. et al. Multi-cancer analysis of clonality and the timing of systemic spread in paired primary tumors and metastases. Nat Genet 52, 701–708 (2020). [https://doi.org/10.1038/s41588-020-0628-z](https://doi.org/10.1038/s41588-020-0628-z)
 
 13. Williams, M., Werner, B., Barnes, C. et al. Identification of neutral tumor evolution across cancer types. Nat Genet 48, 238–244 (2016). [https://doi.org/10.1038/ng.3489](https://doi.org/10.1038/ng.3489)
   
