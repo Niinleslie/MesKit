@@ -106,7 +106,6 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
                                          mut_branches$Start_Position-1,
                                          mut_branches$Start_Position+1) 
     origin_context <- as.character(origin_context)
-    context <- ref64[origin_context]
     
     muts <- paste(mut_branches$Reference_Allele, mut_branches$Tumor_Allele, sep = ">")
     
@@ -138,11 +137,11 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
         dplyr::rowwise() %>% 
         dplyr::mutate(context = dplyr::case_when(
           .data$mut_type == "C>T" & .data$origin_context %in% CpG ~  
-            paste0(strsplit(.data$context,"")[[1]][1],"[C>T at CpG]",strsplit(.data$context,"")[[1]][3]),
+            paste0(strsplit(.data$origin_context,"")[[1]][1],"[C>T at CpG]",strsplit(.data$origin_context,"")[[1]][3]),
           .data$mut_type == "C>T" & !.data$origin_context %in% CpG ~  
-            paste0(strsplit(.data$context,"")[[1]][1],"[C>T other]",strsplit(.data$context,"")[[1]][3]),
+            paste0(strsplit(.data$origin_context,"")[[1]][1],"[C>T other]",strsplit(.data$origin_context,"")[[1]][3]),
           .data$mut_type != "C>T" ~ 
-            paste0(strsplit(.data$context,"")[[1]][1],"[", .data$mut_type, "]",strsplit(.data$context,"")[[1]][3])
+            paste0(strsplit(.data$origin_context,"")[[1]][1],"[", .data$mut_type, "]",strsplit(.data$origin_context,"")[[1]][3])
         )) %>% 
         as.data.frame()
     }
