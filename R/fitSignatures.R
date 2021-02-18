@@ -200,11 +200,11 @@ fitSignatures <- function(tri_matrix = NULL,
         names(contribution) <- colnames(con_matrix)
       }
       
-      sig_cut <- names(contribution[contribution > signature.cutoff])
+      sig_cut <- names(contribution[contribution >= signature.cutoff])
       if(length(sig_cut) == 0){
         return(NA)
       }
-      sig_con <- as.numeric(contribution[contribution > signature.cutoff])  
+      sig_con <- as.numeric(contribution[contribution >= signature.cutoff])  
       # mut_sum <- sum(tri_matrix[i,])
       
       sub <- data.frame(Level_ID = branch_name, 

@@ -68,10 +68,10 @@ ccfAUC <- function(
             df_ccf <- data.frame(CCF = as.vector(sort(ccf)), 
                                  prop = seq_len(length(ccf))/length(ccf))
             auc <- suppressWarnings(stats::integrate(stats::approxfun(df_ccf$CCF,df_ccf$prop),
-                                                     # min(df_ccf$CCF),
-                                                     # max(df_ccf$CCF),
-                                                     0,
-                                                     1,
+                                                     min(df_ccf$CCF),
+                                                     max(df_ccf$CCF),
+                                                     # 0,
+                                                     # 1,
                                                      # subdivisions = length(df_ccf),
                                                      stop.on.error = FALSE)$value)
             if(withinTumor){
