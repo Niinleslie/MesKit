@@ -9,7 +9,7 @@
 #' @param associated Associated Vector of associated signatures. 
 #' If given, will narrow the signatures reference to only the ones listed. Default NULL.
 #' @param min.mut.count The threshold for the variants in a branch. Default 15.
-#' @param signature.cutoff Discard any signature contributions with a weight less than this amount. Default 0.1.
+#' @param signature.cutoff Discard any signature relative contributions with a weight less than this amount. Default 0.1.
 #' @return A list of data frames, each one contains treeMSOutput, 
 #' containing information about each set/branch's mutational signature.
 #' 
@@ -194,25 +194,29 @@ fitSignatures <- function(tri_matrix = NULL,
     signatures_etiology <- data.frame()
     signatures_etiology_list <- lapply(seq_len(branch_num), function(i){
       branch_name <- rownames(tri_matrix)[i]
-      contribution <- con_matrix[i,]
+      sig_con_absolute <- con_matrix[i,]
+      sig_con_relative <- sig_con_absolute/sum(sig_con_absolute)
       
-      if(length(contribution) == 1){
-        names(contribution) <- colnames(con_matrix)
+      if(length(sig_con_relative) == 1){
+        names(sig_con_relative) <- colnames(con_matrix)
       }
       
-      sig_cut <- names(contribution[contribution > signature.cutoff])
-      if(length(sig_cut) == 0){
+      idx <- which(sig_con_relative >= signature.cutoff)
+      sig_name <- names(sig_con_relative[idx])
+      if(length(sig_name) == 0){
         return(NA)
       }
-      sig_con <- as.numeric(contribution[contribution > signature.cutoff])  
+      sig_con_relative <- as.numeric(sig_con_relative[idx])
+      sig_con_absolute <- as.numeric(sig_con_absolute[idx]) 
       # mut_sum <- sum(tri_matrix[i,])
       
       sub <- data.frame(Level_ID = branch_name, 
-                        Signature = sig_cut,
+                        Signature = sig_name,
                         # Mutation_number = mut_sum,
-                        Contribution = sig_con)
+                        Contribution_absolute = sig_con_absolute,
+                        Contribution_relative = sig_con_relative)
       if(!is.null(df.etiology)){
-        aet <- etiology_ref[sig_cut]
+        aet <- etiology_ref[sig_name]
         sub$Etiology <- as.character(aet)  
       }
       return(sub)
@@ -222,7 +226,7 @@ fitSignatures <- function(tri_matrix = NULL,
     ## order data frame by contribution of each branch
     signatures_etiology <- dplyr::arrange(signatures_etiology,
                                            dplyr::desc(.data$Level_ID),
-                                           dplyr::desc(.data$Contribution)) 
+                                           dplyr::desc(.data$Contribution_relative)) 
     
     recon_df  <- as.data.frame(recon_matrix) 
     recon_df$Branch <- as.character(row.names(recon_df)) 
