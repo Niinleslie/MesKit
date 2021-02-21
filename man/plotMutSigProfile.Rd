@@ -8,6 +8,7 @@ plotMutSigProfile(
   sig_input,
   patient.id = NULL,
   mode = NULL,
+  contribution.type = "relative",
   use.tumorSampleLabel = FALSE
 )
 }
@@ -17,6 +18,8 @@ plotMutSigProfile(
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
 \item{mode}{Type of mutation spectrum. Default NULL. Options:'Original','Reconstructed' or 'Difference'}
+
+\item{contribution.type}{Type of Signature contribution. Default 'realative'. Options:'realative' or 'absolute'.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 }

@@ -26,7 +26,7 @@ If given, will narrow the signatures reference to only the ones listed. Default 
 
 \item{min.mut.count}{The threshold for the variants in a branch. Default 15.}
 
-\item{signature.cutoff}{Discard any signature contributions with a weight less than this amount. Default 0.1.}
+\item{signature.cutoff}{Discard any signature relative contributions with a weight less than this amount. Default 0.1.}
 }
 \value{
 A list of data frames, each one contains treeMSOutput, 
