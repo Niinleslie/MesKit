@@ -76,7 +76,7 @@ Intra-tumor heterogeneity (ITH) is now thought to be a key factor that results i
 
 In R console, enter `citation("MesKit")`.  
   
-_**MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (Submitted)**_
+_**MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (Under revise)**_
    
    
 ### 2. Prepare input Data  
@@ -133,7 +133,7 @@ ClinInfo[1:5, ]
   
 #### 2.3 CCF files  
   
-By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_Std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). `Chromosome` field of mafFile and ccfFile should be in the same format (both in number or both start with "chr"). Notably, if CCF files contain other variants apart from SNVs, `Reference_Allele` and `Tumor_Seq_Allele2` should also be provided in the input CCF files.
+By default, there are six mandatory fields in input CCF file: `Patient_ID`,	`Tumor_Sample_Barcode`, `Chromosome`, `Start_Position`, `CCF` and  `CCF_Std`/`CCF_CI_High` (required when identifying clonal/subclonal mutations). The `Chromosome` field of your MAF file and CCF file should be in the same format (both in number or both start with "chr"). Notably, `Reference_Allele` and `Tumor_Seq_Allele2` are also required if you want include contains INDELs in the CCF file.
 
 
 **Example CCF file**
@@ -169,13 +169,15 @@ segInfo[1:5, ]
 ### 3. Installation  
   
 #### Via Bioconductor
+Installing MesKit successfully requires version of Bioconductor is 3.12 or greater.
 
 ```{r, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)){
   install.packages("BiocManager")
 }   
-# The following initializes usage of Bioc devel
-BiocManager::install(version='devel')
+
+# The following initializes usage of Bioc 3.12
+BiocManager::install(version = "3.12")
 BiocManager::install("MesKit")
 ```
 
@@ -197,7 +199,7 @@ devtools::install_github("Niinleslie/MesKit")
 ### 4. Start with the Maf object  
    
    
-`readMaf` function creates Maf/MafList objects by reading MAF files, clinical files and cancer cell fraction (CCF) data (optional but recommended). Parameter `refBuild` is used to set reference genome version for Homo sapiens reference (`"hg18"`, `"hg19"` or `"hg38"`).
+`readMaf` function creates Maf/MafList objects by reading MAF files, clinical files and cancer cell fraction (CCF) data (optional but recommended). Parameter `refBuild` is used to set reference genome version for Homo sapiens reference (`"hg18"`, `"hg19"` or `"hg38"`). You should set `use.indel.ccf = TRUE` when your `ccfFile` contains INDELs apart from SNVs
    
    
 ```{r message=FALSE,warning=FALSE}
@@ -377,7 +379,7 @@ JSI.res$JSI.pair
    
 #### 7.3 Neutral evolution
    
-The subclonal mutant allele frequencies of a tumor follow a simple power-law distribution predicted by neutral growth [13](#refer). Users can evaluate whether a tumor follows neutral evolution or not under strong selection via the `testNeutral` function. Tumors with R2 >= `R2.threshold` (Default: 0.98) are considered to follow neutral evolution. Besides, this function can also generate the model fitting plot of each sample if the argument `plot` is set to`TRUE`. Please note that this analysis has been superseded by [*mobster*](https://github.com/caravagnalab/mobster).
+The subclonal mutant allele frequencies of a tumor follow a simple power-law distribution predicted by neutral growth [13](#refer). Users can evaluate whether a tumor follows neutral evolution or not under strong selection via the `testNeutral` function. Tumors with R^2^ >= `R2.threshold` (Default: 0.98) are considered to follow neutral evolution. Besides, this function can also generate the model fitting plot of each sample if the argument `plot` is set to`TRUE`. Please note that this analysis has been superseded by [*mobster*](https://github.com/caravagnalab/mobster) [14](#refer).
    
    
 ```{r message=FALSE, warning=FALSE, fig.height=4.5, fig.width=4.5}
@@ -429,7 +431,7 @@ library(clusterProfiler)
 # Pathway enrichment analysis
 V402.branches <- getMutBranches(phyloTree)
 # pathway enrichment for private mutated genes of the primary tumor in patient V402
-V402_Public <- V402.branches[V402.branches$Mutation_Type == "Private_P(NA)", ]
+V402_Public <- V402.branches[V402.branches$Mutation_Type == "Private_P", ]
 geneIDs = suppressMessages(bitr(V402_Public$Hugo_Symbol, fromType="SYMBOL", 
                               toType=c("ENTREZID"), OrgDb="org.Hs.eg.db"))
 KEGG_V402_Private_P  = enrichKEGG(
@@ -547,12 +549,12 @@ The guidance video for MesKit Shiny APP can be found at [http://meskit.renlab.or
 12. Hu, Z., Li, Z., Ma, Z. et al. Multi-cancer analysis of clonality and the timing of systemic spread in paired primary tumors and metastases. Nat Genet 52, 701–708 (2020). [https://doi.org/10.1038/s41588-020-0628-z](https://doi.org/10.1038/s41588-020-0628-z)
 
 13. Williams, M., Werner, B., Barnes, C. et al. Identification of neutral tumor evolution across cancer types. Nat Genet 48, 238–244 (2016). [https://doi.org/10.1038/ng.3489](https://doi.org/10.1038/ng.3489)
-  
+ 
+14. Caravagna, G., Heide, T., Williams, M.J. et al. Subclonal reconstruction of tumors by using machine learning and population genetics. Nat Genet 52, 898–907 (2020). [https://doi.org/10.1038/s41588-020-0675-5](https://doi.org/10.1038/s41588-020-0675-5)
   
   
 ### 12. Session Info
 ```{r}
 sessionInfo()
 ```
-  
-  
+
