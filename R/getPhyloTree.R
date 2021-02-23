@@ -110,8 +110,8 @@ getPhyloTree <- function(maf,
                       patient.id = patient.id,
                       min.vaf = min.vaf,
                       min.ccf = min.ccf,
-                      mafObj = TRUE, ...)
-  
+                      mafObj = TRUE,
+                      ...)
   
   phyloTree_patient_list <- lapply(maf_input, processGetPhyloTree)
   phyloTree_patient_list <- phyloTree_patient_list[!is.na(phyloTree_patient_list)]

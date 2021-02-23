@@ -88,8 +88,7 @@ readMaf <- function(
             )
         )
     
-    
-    ## check maf data
+    # check maf data
     maf_data <- validMaf(maf_data)
     
     ## calculate average VAF
@@ -162,8 +161,6 @@ readMaf <- function(
         return(maf_patient_list[[1]])
     }
 }
-
-
 
 
 

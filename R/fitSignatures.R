@@ -28,6 +28,7 @@
 #' fitSignatures(tri_matrix)
 #' @export  fitSignatures
 
+
 fitSignatures <- function(tri_matrix = NULL,
                           patient.id = NULL,
                           signaturesRef = "cosmic_v2",

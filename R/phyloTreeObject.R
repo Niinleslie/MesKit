@@ -129,6 +129,7 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    }
    
    mut.branches <- dplyr::bind_rows(mutBranchesOutput)%>% 
+      dplyr::filter(.data$mut_id != "no mutation") %>% 
       dplyr::mutate(Tree_Mut = TRUE)
    
    mut_left <- mutSigRef %>%
@@ -142,7 +143,6 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       dplyr::distinct(.data$Branch_ID, .keep_all = TRUE)
    
    mut.branches <-  mut.branches %>% 
-      dplyr::filter(.data$mut_id != "no mutation") %>% 
       dplyr::select(-"mut_id")
    
    
