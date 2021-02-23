@@ -180,7 +180,7 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
       mut.branches$Mutation_Type <- factor(mut.branches$Mutation_Type, levels = mutation_type_level)
       branch_data_list <- split(mut.branches, mut.branches$Mutation_Type)
     }else if(level == 6){
-      mut.branches <- mut.branches[!grepl("\\(NA\\)", mut.branches$Branch_ID),]
+      mut.branches <- mut.branches[mut.branches$Tree_Mut == TRUE,]
       ## define Trunk
       branch_names <- unique(mut.branches$Branch_ID)
       branch_sample_num <- lapply(branch_names,function(x){
