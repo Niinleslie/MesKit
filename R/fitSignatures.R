@@ -28,6 +28,7 @@
 #' fitSignatures(tri_matrix)
 #' @export  fitSignatures
 
+
 fitSignatures <- function(tri_matrix = NULL,
                           patient.id = NULL,
                           signaturesRef = "cosmic_v2",
@@ -113,8 +114,8 @@ fitSignatures <- function(tri_matrix = NULL,
     }
     
     ## convert mutation number to proportion
-    origin_matrix <- t(apply(tri_matrix,1,function(x)x/sum(x)))
-    
+    # origin_matrix <- t(apply(tri_matrix,1,function(x)x/sum(x)))
+    origin_matrix <- tri_matrix
     ## calculate cosine similarity
     branch_num <- nrow(origin_matrix)
     refsig_num <- nrow(sigsRef)
