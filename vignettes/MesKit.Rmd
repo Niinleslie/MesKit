@@ -199,7 +199,7 @@ devtools::install_github("Niinleslie/MesKit")
 ### 4. Start with the Maf object  
    
    
-`readMaf` function creates Maf/MafList objects by reading MAF files, clinical files and cancer cell fraction (CCF) data (optional but recommended). Parameter `refBuild` is used to set reference genome version for Homo sapiens reference (`"hg18"`, `"hg19"` or `"hg38"`). You should set `use.indel.ccf = TRUE` when your `ccfFile` contains INDELs apart from SNVs
+`readMaf` function creates Maf/MafList objects by reading MAF files, clinical files and cancer cell fraction (CCF) data (optional but recommended). Parameter `refBuild` is used to set reference genome version for Homo sapiens reference (`"hg18"`, `"hg19"` or `"hg38"`). You should set `use.indel.ccf = TRUE` when your `ccfFile` contains INDELs apart from SNVs.
    
    
 ```{r message=FALSE,warning=FALSE}
