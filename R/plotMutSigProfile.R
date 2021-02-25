@@ -176,8 +176,9 @@ plotMutSigProfile <- function(sig_input,
             total_cosine_similarity <- fit$total.cosine.similarity
             # tsb.label <- sig_input[[i]]$tsb.label
             
-            ## convert reconstructed matrix to data frame
-            recon_df  <- as.data.frame(fit$reconstructed.mat) 
+            ## convert reconstructed matrix to data frame 
+            reconstructed.mat <- apply(fit$reconstructed.mat, 1, function(x)x/sum(x)) %>% t() 
+            recon_df  <- as.data.frame(reconstructed.mat) 
             recon_df$Branch <- as.character(row.names(recon_df)) 
             rownames(recon_df) <- NULL
             recon_spectrum <- tidyr::pivot_longer(recon_df,
@@ -186,7 +187,9 @@ plotMutSigProfile <- function(sig_input,
                                                   values_to = "Proportion") %>%
                 dplyr::mutate(spectrum_type = "Reconstructed")
             ## convert origin matrix to data frame
-            origin_df  <- as.data.frame(fit$original.mat) 
+            original.mat <- apply(fit$original.mat, 1, function(x)x/sum(x)) %>% t() 
+            
+            origin_df  <- as.data.frame(original.mat) 
             origin_df$Branch <- as.character(row.names(origin_df)) 
             rownames(origin_df) <- NULL
             origin_spectrum <- tidyr::pivot_longer(origin_df,
@@ -259,9 +262,9 @@ plotMutSigProfile <- function(sig_input,
                 sig_names <- signatures_etiology[signatures_etiology$Level_ID == branch,]$Signature
                 
                 if(contribution.type == "relative"){
-                    sig_con <- signatures_etiology[signatures_etiology$Level_ID == branch,]$Contribution_absolute 
+                    sig_con <- signatures_etiology[signatures_etiology$Level_ID == branch,]$Contribution_relative 
                 }else{
-                    sig_con <- signatures_etiology[signatures_etiology$Level_ID == branch,]$Contribution_relative
+                    sig_con <- signatures_etiology[signatures_etiology$Level_ID == branch,]$Contribution_absolute
                 }
                 names(sig_con) <- sig_names
                 ## sort by contribution
