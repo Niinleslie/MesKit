@@ -96,18 +96,18 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
     }else {
       refBuild <- paste("BSgenome.Hsapiens.UCSC.", refBuild, sep = "")
     }
-    mut_branches <- phyloTree@mut.branches
-    if(nrow(mut_branches) == 0){
+    mut.branches <- phyloTree@mut.branches
+    if(nrow(mut.branches) == 0){
       stop("There are not enough mutations in ",patient)
     }
     
     origin_context <- Biostrings::getSeq(get(refBuild),
-                                         S4Vectors::Rle(paste("chr",mut_branches$Chromosome,sep = "")),
-                                         mut_branches$Start_Position-1,
-                                         mut_branches$Start_Position+1) 
+                                         S4Vectors::Rle(paste("chr",mut.branches$Chromosome,sep = "")),
+                                         mut.branches$Start_Position-1,
+                                         mut.branches$Start_Position+1) 
     origin_context <- as.character(origin_context)
     
-    muts <- paste(mut_branches$Reference_Allele, mut_branches$Tumor_Allele, sep = ">")
+    muts <- paste(mut.branches$Reference_Allele, mut.branches$Tumor_Allele, sep = ">")
     
     mut_types <- gsub('G>T', 'C>A', muts)
     mut_types <- gsub('G>C', 'C>G', mut_types)
@@ -121,11 +121,11 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
     c <- IRanges::reverse(chartr("ATGC", "TACG", c))
     origin_context[idx] <- c
     
-    mut_branches$mut_type <- mut_types
-    mut_branches$origin_context <- origin_context
+    mut.branches$mut_type <- mut_types
+    mut.branches$origin_context <- origin_context
     
     if(!CT){
-      mut_branches <- mut_branches %>% 
+      mut.branches <- mut.branches %>% 
         dplyr::rowwise() %>% 
         dplyr::mutate(context = paste0(strsplit(.data$origin_context,"")[[1]][1],
                                        "[", .data$mut_type, "]",
@@ -133,7 +133,7 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
         as.data.frame()
     }else{
       CpG = c("ACG", "CCG", "TCG", "GCG")
-      mut_branches <- mut_branches %>% 
+      mut.branches <- mut.branches %>% 
         dplyr::rowwise() %>% 
         dplyr::mutate(context = dplyr::case_when(
           .data$mut_type == "C>T" & .data$origin_context %in% CpG ~  
@@ -150,50 +150,39 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
     . <- NULL
     
     if(level == 1){
-      mut_branches <- tidyr::separate_rows(mut_branches, .data$Branch_ID, sep = "&")
+      mut.branches <- tidyr::separate_rows(mut.branches, .data$Branch_ID, sep = "&")
       
-      branch_data_list <- list(mut_branches)
+      branch_data_list <- list(mut.branches)
       names(branch_data_list) <- patient
     }else if(level == 2){
-        mut_branches <- mut_branches %>% 
+        mut.branches <- mut.branches %>% 
           tidyr::separate_rows(.data$Tumor_ID, sep = "&")
-      branch_data_list <- split(mut_branches, mut_branches$Tumor_ID)
+      branch_data_list <- split(mut.branches, mut.branches$Tumor_ID)
       
     }else if(level == 3){
-      
-      NA_mutaion_df <- mut_branches[grepl("\\(NA\\)", mut_branches$Branch_ID), ]
-      if(nrow(NA_mutaion_df) > 0){
-        NA_mutaion_df <- NA_mutaion_df %>% 
-          dplyr::mutate(Branch_ID = sub("\\(NA\\)","",.data$Branch_ID))
-      }
-      # NA_mutaion_df <- mut_branches[grepl("\\(NA\\)", mut_branches$Branch_ID), ] %>% 
-      #   dplyr::mutate(Branch_ID = sub("\\(NA\\)","",.data$Branch_ID))
-      # print( mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),])
-      
-      mutation_df <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),] %>% 
-        tidyr::separate_rows(.data$Branch_ID, sep = "&")
-      
-      mut_branches <- dplyr::bind_rows(mutation_df, NA_mutaion_df)%>% 
+      mut.branches <- tidyr::separate_rows(mut.branches, .data$Branch_ID, sep = "&") %>% 
         dplyr::mutate(Tumor_Sample_Barcode = .data$Branch_ID)
       
-      branch_data_list <- split(mut_branches, mut_branches$Tumor_Sample_Barcode)
+      branch_data_list <- split(mut.branches, mut.branches$Tumor_Sample_Barcode)
     }else if(level == 4){
-      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
-      branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
+      mut.branches <- mut.branches[mut.branches$Tree_Mut == TRUE,]
+      branch_data_list <- split(mut.branches, mut.branches$Branch_ID)
+      
     }else if(level == 5){
       ## sort mutation type by Public Shared Private
-      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
-      mutation_type <- unique(mut_branches$Mutation_Type)
+      mut.branches <- tidyr::separate_rows(mut.branches, .data$Branch_ID, sep = "&")
+      
+      mutation_type <- unique(mut.branches$Mutation_Type)
       public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
       shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
       private <- sort(unique(mutation_type)[grep("Private", unique(mutation_type))])
       mutation_type_level <- c(public, shared, private)
-      mut_branches$Mutation_Type <- factor(mut_branches$Mutation_Type, levels = mutation_type_level)
-      branch_data_list <- split(mut_branches, mut_branches$Mutation_Type)
+      mut.branches$Mutation_Type <- factor(mut.branches$Mutation_Type, levels = mutation_type_level)
+      branch_data_list <- split(mut.branches, mut.branches$Mutation_Type)
     }else if(level == 6){
-      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
+      mut.branches <- mut.branches[mut.branches$Tree_Mut == TRUE,]
       ## define Trunk
-      branch_names <- unique(mut_branches$Branch_ID)
+      branch_names <- unique(mut.branches$Branch_ID)
       branch_sample_num <- lapply(branch_names,function(x){
         s <- strsplit(x,"&")[[1]]
         num <- length(s)
@@ -206,30 +195,18 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
         return(NA)
       }
       
-      mut_branches <- dplyr::mutate(
-        mut_branches,
+      mut.branches <- dplyr::mutate(
+        mut.branches,
         "Branch_ID" = dplyr::if_else(
           .data$Branch_ID == trunk_name,
           "Trunk",
           "Branches"
         )
       )
-      mut_branches$Branch_ID <- factor(mut_branches$Branch_ID, levels = c("Trunk","Branches"))
-      branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
+      mut.branches$Branch_ID <- factor(mut.branches$Branch_ID, levels = c("Trunk","Branches"))
+      branch_data_list <- split(mut.branches, mut.branches$Branch_ID)
     }
-    
-    # if(withinTumor){
-    #   ## sort mutation type by Public Shared Private
-    #   mutation_type <- unique(mut_branches$Mutation_Type)
-    #   public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
-    #   shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
-    #   private <- sort(unique(mutation_type)[grep("Private", unique(mutation_type))])
-    #   mutation_type_level <- c(public, shared, private)
-    #   mut_branches$Mutation_Type <- factor(mut_branches$Mutation_Type, levels = mutation_type_level)
-    #   branch_data_list <- split(mut_branches, mut_branches$Mutation_Type)
-    # }else{
-    #   branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
-    # }
+
     tri_matrix_list <- lapply(
       branch_data_list,
       function(branch_data){
