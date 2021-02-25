@@ -185,7 +185,9 @@ fitSignatures <- function(tri_matrix = NULL,
     ## calculate RSS of reconstructed matrix and origin matrix
     RSS <- vapply(seq_len(branch_num), function(i){
       r <- recon_matrix[i,]
+      r <- r/sum(r)
       o <- origin_matrix[i,]
+      o <- o/sum(o)
       rss <- sum((r-o)^2) 
       return(rss)
     },FUN.VALUE = numeric(1))
