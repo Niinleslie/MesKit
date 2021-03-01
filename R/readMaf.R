@@ -12,9 +12,9 @@
 #' @param refBuild Human reference genome version. Default 'hg19'. Optional: 'hg18' or 'hg38'.
 #'
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File,clinicalFile = clin.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' @return an object of Maf or MafList.
@@ -125,7 +125,7 @@ readMaf <- function(
         maf_data <- maf_data %>%
             dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, 
                             .data$Start_Position, .data$Reference_Allele,.data$Tumor_Seq_Allele2) %>%
-            dplyr::mutate(Tumor_Average_VAF_adj = round(sum(.data$VAF_adj * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3))
+            dplyr::mutate(Tumor_Average_VAF = round(sum(.data$VAF_adj * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3))
     }
     
     maf_data <- maf_data %>% 

@@ -49,9 +49,9 @@ Evaluate whether a tumor follows neutral evolution or under strong selection dur
 The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 testNeutral(maf)
 }

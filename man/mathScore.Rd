@@ -37,9 +37,9 @@ A data.frame of MATH scores
 calculates MATH score of each tumor sample or based on Mutant-Allele Tumor Heterogeneity (MATH) approach.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 mathScore(maf)
 

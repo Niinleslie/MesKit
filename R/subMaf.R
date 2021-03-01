@@ -20,9 +20,9 @@
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
 #'
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' maf_data <- subMaf(maf)
 #' @return Maf object or Maf data.
@@ -38,7 +38,6 @@ subMaf <- function(maf,
                    min.vaf = 0,
                    max.vaf = 1,
                    min.average.vaf = 0,
-                   min.average.adj.vaf = 0,
                    min.ccf = 0,
                    min.ref.depth = 0,
                    min.alt.depth = 0,
@@ -87,7 +86,7 @@ subMaf <- function(maf,
          }
          else{
             maf_data$VAF <- maf_data$VAF_adj
-            maf_data$Tumor_Average_VAF <- maf_data$Tumor_Average_VAF_adj
+            # maf_data$Tumor_Average_VAF <- maf_data$Tumor_Average_VAF_adj
          }
       }
       
@@ -141,14 +140,14 @@ subMaf <- function(maf,
             maf_data <- maf_data[maf_data$Tumor_Average_VAF >= min.average.vaf]
          }
       }
-      
-      if("VAF_adj" %in% colnames(maf_data)){
-         if(!is.null(min.average.adj.vaf)){
-            if(min.average.adj.vaf > 0){
-               maf_data <- maf_data[maf_data$Tumor_Average_VAF_adj >= min.average.adj.vaf]
-            }
-         }
-      }
+      # 
+      # if("VAF_adj" %in% colnames(maf_data)){
+      #    if(!is.null(min.average.adj.vaf)){
+      #       if(min.average.adj.vaf > 0){
+      #          maf_data <- maf_data[maf_data$Tumor_Average_VAF_adj >= min.average.adj.vaf]
+      #       }
+      #    }
+      # }
       
       ## ccf filter
       if("CCF" %in% colnames(maf_data)){
