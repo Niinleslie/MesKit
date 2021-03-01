@@ -153,7 +153,7 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 * `Chromosome` - chromosome name or ID
 * `Start_Position` - genomic start position of segments (1-indexed)
 * `End_Position` - genomic end position of segments (1-indexed)
-* `Segment_Mean/CopyNumber` - segment mean value or absolute integer copy number
+* `SegmentMean/CopyNumber` - segment mean value or absolute integer copy number
 * `Tumor_Sample_Label` - the specific label of each tumor sample. **Optional**
 
 **Note:** Positions are in base pair units.
