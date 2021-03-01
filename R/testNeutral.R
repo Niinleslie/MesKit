@@ -19,9 +19,9 @@
 #' @return the neutrality metrics and model fitting plots
 #' 
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' testNeutral(maf)
 #' @importFrom stats approxfun integrate lm
@@ -68,8 +68,8 @@ testNeutral <- function(maf,
     
     processTestNeutralID <- function(id){
       if(withinTumor){
-        subdata <- subset(maf_data, maf_data$Tumor_ID == id & !is.na(maf_data$Tumor_Average_VAF_adj))
-        subdata$VAF_adj <- subdata$Tumor_Average_VAF_adj
+        subdata <- subset(maf_data, maf_data$Tumor_ID == id & !is.na(maf_data$Tumor_Average_VAF))
+        subdata$VAF_adj <- subdata$Tumor_Average_VAF
       }else{
         subdata <- subset(maf_data, maf_data$Tumor_Sample_Barcode == id & !is.na(maf_data$VAF_adj))
       }
