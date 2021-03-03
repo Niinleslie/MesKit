@@ -91,12 +91,9 @@ readMaf <- function(
     # check maf data
     maf_data <- validMaf(maf_data)
     
-    ## calculate average VAF
+    ## calculate Total_allele_depth
     maf_data <- maf_data %>% 
-        dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2) %>%
         dplyr::mutate(Total_allele_depth = .data$Ref_allele_depth + .data$Alt_allele_depth) %>% 
-        dplyr::mutate(Tumor_Average_VAF = round(sum(.data$VAF * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3)) %>% 
-        dplyr::ungroup() %>% 
         as.data.frame()
     
     if(adjusted.VAF){
@@ -125,7 +122,11 @@ readMaf <- function(
         maf_data <- maf_data %>%
             dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, 
                             .data$Start_Position, .data$Reference_Allele,.data$Tumor_Seq_Allele2) %>%
-            dplyr::mutate(Tumor_Average_VAF = round(sum(.data$VAF_adj * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3))
+            dplyr::mutate(Tumor_Average_VAF = round(
+                sum(.data$VAF_adj * .data$Total_allele_depth)/
+                    sum(.data$Total_allele_depth)
+                ,3))
+
     }
     
     maf_data <- maf_data %>% 
