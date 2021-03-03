@@ -82,7 +82,7 @@ mutHeatmap <- function(maf,
             if("CCF" %in% colnames(maf_data)){
                 mat <- getMutMatrix(maf_data, use.ccf = TRUE)
             }else{
-                stop("Heatmap requires CCF data when use.ccf is True")
+                stop("Heatmap requires CCF data when use.ccf is TRUE")
             }
             type <- "CCF"
             value.name <- "CCF"

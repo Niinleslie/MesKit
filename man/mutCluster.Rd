@@ -8,8 +8,8 @@
 mutCluster(
   maf,
   patient.id = NULL,
-  use.ccf = FALSE,
   segFile = NULL,
+  use.ccf = FALSE,
   withinTumor = FALSE,
   use.tumorSampleLabel = FALSE,
   ...
@@ -18,8 +18,8 @@ mutCluster(
 vafCluster(
   maf,
   patient.id = NULL,
-  use.ccf = FALSE,
   segFile = NULL,
+  use.ccf = FALSE,
   withinTumor = FALSE,
   use.tumorSampleLabel = FALSE,
   ...
@@ -30,9 +30,9 @@ vafCluster(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{use.ccf}{Cluster CCF. Default FALSE.}
-
 \item{segFile}{The segment file.}
+
+\item{use.ccf}{Cluster CCF. Default FALSE.}
 
 \item{withinTumor}{Cluster Tumor average CCF within tumors in each patients. (Default: FALSE).}
 
@@ -40,14 +40,13 @@ vafCluster(
 Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
-
-\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 }
 \value{
-clustering plots of vaf
+clustering plots of ccfs or vafs
 }
 \description{
-Generate variant allele frequency (VAF) frequency distribution curve.
+Cluster mutatinos by CCFs or VAFs (if segment file is provided, only mutations in copy-number
+neutral regions will be included. portions of the genome)
 }
 \examples{
 maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")

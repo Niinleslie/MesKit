@@ -42,7 +42,7 @@ calJSI <- function(
                           !is.na(CCF))
         if(! "CCF" %in% colnames(getMafData(m))){
             stop(paste0("Calculation of Jaccard similarity requires CCF data." ,
-                        "No CCF data was found when generate Maf/MafList object."))
+                        "No CCF data was found when generating Maf/MafList object."))
         }
         
         patient <- getMafPatient(m)

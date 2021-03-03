@@ -78,7 +78,7 @@ This software was mainly developed by:
 
 ## Copyright
 
-Copyright © 2014-2020. RenLab from SYSUCC. All Rights Reserved<br/>
+Copyright © 2014-2021. RenLab from SYSUCC. All Rights Reserved<br/>
 For more useful tools/applications, please go to [renlab.org](http://www.renlab.org)
 
 ## Citation
