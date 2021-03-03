@@ -1,12 +1,13 @@
 #--- filter mutations in CNV regions 
 
-copyNumberFilter <- function(maf, seg){
+copyNumberFilter <- function(maf_data, seg){
   ## combine data frame
   if(is(seg, "list")){
-    seg <- dplyr::bind_rows(seg) %>% as.data.table()
+    seg <- dplyr::bind_rows(seg) %>%
+      dplyr::filter(Patient_ID == unique(maf_data$Patient_ID)) %>% 
+      as.data.table()
   }
   seg <- seg[!seg$Chromosome %in% c("X","Y")]
-  maf_data <- getMafData(maf)
   maf_data$ID <-  dplyr::select(tidyr::unite(maf_data, "ID", 
                                           "Hugo_Symbol", "Chromosome", 
                                           "Start_Position", "End_Position",
@@ -15,7 +16,7 @@ copyNumberFilter <- function(maf, seg){
                                           sep=":"), "ID")
   seg$Chromosome <- as.character(seg$Chromosome)
   data.table::setkey(x = seg, "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "End_Position")
-  sampleNames <- unique(seg[, "Tumor_Sample_Barcode"])
+  sampleNames <- unique(seg$Tumor_Sample_Barcode)
   sampleDat <- maf_data[maf_data$Tumor_Sample_Barcode %in% sampleNames,]
   resID <- maf_data[!maf_data$ID %in% sampleDat$ID]$ID
   overlapsDat <- data.table::foverlaps(x = sampleDat, y = seg, 
@@ -54,11 +55,6 @@ copyNumberFilter <- function(maf, seg){
     dplyr::select(
       -"ID"
     )
-  maf <- Maf(
-    data = maf_data,
-    sample.info = getSampleInfo(maf),
-    nonSyn.vc = getNonSyn_vc(maf),
-    ref.build = getMafRef(maf)
-  )
-  return(maf)
+  
+  return(maf_data)
 }
