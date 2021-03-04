@@ -1,5 +1,5 @@
 
-drawVAFCombine <- function(subdata){
+drawVAFCombine <- function(subdata, xlab){
     
    id <- unique(subdata$ID)
    patient <- unique(subdata$Patient_ID)
@@ -15,7 +15,7 @@ drawVAFCombine <- function(subdata){
    VAF <- NULL
    cluster <- NULL
    ## generate  plot and specific titles for minifigures
-   p <- ggplot(subdata, aes(x = VAF)) + 
+   p <- ggplot(subdata, aes(x = V)) + 
          theme_bw() +
          theme(legend.position='right', 
                plot.title=element_text(size=13.5,hjust = 0,vjust = 0.5,face = "bold"),
@@ -30,15 +30,15 @@ drawVAFCombine <- function(subdata){
           # geom_rug(aes(y=0, colour=cluster), sides="b") + 
           scale_colour_manual(values=color_scale) + 
           ggtitle(paste0(patient,": ", id)) + 
-          labs(y = "Density", colour = "Cluster")
+          labs(y = "Density", colour = "Cluster",x = xlab)
    
    return(p)
 }
 
 
 ## Draw vlines for all plotOption
-drawVAFCombineVline <- function(subdata){   
-   
+drawVAFCombineVline <- function(subdata){
+
    ## initialize variable in ggplot for biocheck error
    VAF <- NULL
    cluster <- NULL
@@ -46,13 +46,13 @@ drawVAFCombineVline <- function(subdata){
    xend <- NULL
    y <- NULL
    yend <- NULL
-   
+
    ## A draft for density infomation(density_info) of ggplot
-   picv <- ggplot(subdata, aes(x=VAF)) + 
+   picv <- ggplot(subdata, aes(x=V)) +
         geom_line(size=1, colour="#00C0EB", stat="density")
    ## density information of the curve for a tsb
    densityInfo <- data.frame(layer_data(picv))
-   
+
    df_vline <- data.frame()
    cluster_list <- unique(subdata$cluster)
    ## Obtain vline Coordinate(x, xend, y, yend)
