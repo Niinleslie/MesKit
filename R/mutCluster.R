@@ -47,6 +47,7 @@ mutCluster <- function(maf,
       }
       maf_data$V <- maf_data$Tumor_Average_CCF
       maf_data$ID <- maf_data$Tumor_ID
+      xlab <- "VAF"
     }else{
       if(use.ccf){
         if(!"CCF" %in% colnames(getMafData(m))){
@@ -54,6 +55,7 @@ mutCluster <- function(maf,
                       "No CCF data was found when generate Maf/MafList object."))
         }
         maf_data$V <- maf_data$CCF
+        xlab <- "CCF"
       }else{
         if(!is.null(segFile)){
           seg <- readSegment(segFile = segFile)
@@ -63,6 +65,7 @@ mutCluster <- function(maf,
           message("No segment files specified.Assuming all mutations have a CN of 2.")
         }
         maf_data$V <- maf_data$VAF
+        xlab <- "VAF"
       }
       maf_data$ID <- maf_data$Tumor_Sample_Barcode
     }
@@ -70,7 +73,7 @@ mutCluster <- function(maf,
     id_list <- unique(maf_data$ID)
     
     
-    sample_result <- lapply(id_list, processVafcluster_sample, maf_data, patient)
+    sample_result <- lapply(id_list, processVafcluster_sample, maf_data, patient, xlab)
     na_idx <- which(!is.na(sample_result))
     sample_result <- sample_result[na_idx]
     
@@ -89,7 +92,7 @@ mutCluster <- function(maf,
     
   }
   
-  processVafcluster_sample <- function(id, maf_data, patient){
+  processVafcluster_sample <- function(id, maf_data, patient, xlab){
     subdata <- maf_data[maf_data$ID == id]
     ## data cleaning
     if (nrow(subdata) < 3) {
@@ -120,7 +123,7 @@ mutCluster <- function(maf,
       )) %>%
       as.data.frame()
     
-    p  <- drawVAFCombine(subdata)
+    p  <- drawVAFCombine(subdata, xlab)
     subdata <- dplyr::select(subdata, -"V", -"ID")
     return(list(p = p, subdata = subdata))
   }

@@ -1,5 +1,5 @@
 
-drawVAFCombine <- function(subdata){
+drawVAFCombine <- function(subdata, xlab){
     
    id <- unique(subdata$ID)
    patient <- unique(subdata$Patient_ID)
@@ -15,7 +15,7 @@ drawVAFCombine <- function(subdata){
    VAF <- NULL
    cluster <- NULL
    ## generate  plot and specific titles for minifigures
-   p <- ggplot(subdata, aes(x = VAF)) + 
+   p <- ggplot(subdata, aes(x = V)) + 
          theme_bw() +
          theme(legend.position='right', 
                plot.title=element_text(size=13.5,hjust = 0,vjust = 0.5,face = "bold"),
@@ -30,48 +30,48 @@ drawVAFCombine <- function(subdata){
           # geom_rug(aes(y=0, colour=cluster), sides="b") + 
           scale_colour_manual(values=color_scale) + 
           ggtitle(paste0(patient,": ", id)) + 
-          labs(y = "Density", colour = "Cluster")
+          labs(y = "Density", colour = "Cluster",x = xlab)
    
    return(p)
 }
 
 
 ## Draw vlines for all plotOption
-drawVAFCombineVline <- function(subdata){   
-   
-   ## initialize variable in ggplot for biocheck error
-   VAF <- NULL
-   cluster <- NULL
-   x <- NULL
-   xend <- NULL
-   y <- NULL
-   yend <- NULL
-   
-   ## A draft for density infomation(density_info) of ggplot
-   picv <- ggplot(subdata, aes(x=VAF)) + 
-        geom_line(size=1, colour="#00C0EB", stat="density")
-   ## density information of the curve for a tsb
-   densityInfo <- data.frame(layer_data(picv))
-   
-   df_vline <- data.frame()
-   cluster_list <- unique(subdata$cluster)
-   ## Obtain vline Coordinate(x, xend, y, yend)
-   for (cluster_name in cluster_list){
-      x_end <- max(subdata[which(
-         subdata$cluster == cluster_name), ]$VAF)
-      x_end_alter <- densityInfo$x[which.min(
-         abs(outer(densityInfo$x,x_end,FUN="-")))]
-      y <- 0
-      y_end <- densityInfo$y[which(
-         densityInfo$x == x_end_alter)]
-      sub <- data.frame(x = x_end_alter, xend = x_end_alter, y = y, yend = y_end)
-      df_vline <- rbind(df_vline, sub)
-   }
-   vline <- geom_segment(aes(x= x, xend= xend, y= y, yend= yend),
-                         data = df_vline,
-                        size=0.5, colour= "grey", linetype= "dashed")
-   return(vline)
-}
+# drawVAFCombineVline <- function(subdata){   
+#    
+#    ## initialize variable in ggplot for biocheck error
+#    VAF <- NULL
+#    cluster <- NULL
+#    x <- NULL
+#    xend <- NULL
+#    y <- NULL
+#    yend <- NULL
+#    
+#    ## A draft for density infomation(density_info) of ggplot
+#    picv <- ggplot(subdata, aes(x=VAF)) + 
+#         geom_line(size=1, colour="#00C0EB", stat="density")
+#    ## density information of the curve for a tsb
+#    densityInfo <- data.frame(layer_data(picv))
+#    
+#    df_vline <- data.frame()
+#    cluster_list <- unique(subdata$cluster)
+#    ## Obtain vline Coordinate(x, xend, y, yend)
+#    for (cluster_name in cluster_list){
+#       x_end <- max(subdata[which(
+#          subdata$cluster == cluster_name), ]$VAF)
+#       x_end_alter <- densityInfo$x[which.min(
+#          abs(outer(densityInfo$x,x_end,FUN="-")))]
+#       y <- 0
+#       y_end <- densityInfo$y[which(
+#          densityInfo$x == x_end_alter)]
+#       sub <- data.frame(x = x_end_alter, xend = x_end_alter, y = y, yend = y_end)
+#       df_vline <- rbind(df_vline, sub)
+#    }
+#    vline <- geom_segment(aes(x= x, xend= xend, y= y, yend= yend),
+#                          data = df_vline,
+#                         size=0.5, colour= "grey", linetype= "dashed")
+#    return(vline)
+# }
 
 # ## Functions for specific plotOption: "compare"
 # ## VAF painter for OFA
