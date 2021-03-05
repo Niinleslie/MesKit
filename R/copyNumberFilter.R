@@ -7,6 +7,12 @@ copyNumberFilter <- function(maf_data, seg){
       dplyr::filter(Patient_ID == unique(maf_data$Patient_ID)) %>% 
       as.data.table()
   }
+  
+  if("LOH" %in% colnames(seg)){
+    seg <- seg[seg$LOH == FALSE,]
+    # message("Remove segment with LOH" )
+  }
+  
   seg <- seg[!seg$Chromosome %in% c("X","Y")]
   maf_data$ID <-  dplyr::select(tidyr::unite(maf_data, "ID", 
                                           "Hugo_Symbol", "Chromosome", 
@@ -44,7 +50,7 @@ copyNumberFilter <- function(maf_data, seg){
     )
   # colnames(overlapsDat)[c(3:4, 7:8)] <-  c('Start_Position', 'End_Position', 'Segment_Start', 'Segment_End')
   if(nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]) > 0){
-    message(paste('Removed ', nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]), ' variants with no copy number data.', sep = ''))
+    message(paste('Removed ', nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]), ' variants with no copy number data or LOH.', sep = ''))
     # print(overlapsDat[is.na(overlapsDat$CopyNumber)])
     overlapsDat = overlapsDat[!is.na(overlapsDat$CopyNumber)]
   }
