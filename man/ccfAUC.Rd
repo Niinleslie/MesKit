@@ -21,9 +21,9 @@ ccfAUC(
 
 \item{min.ccf}{The minimum value of CCF. Default 0.}
 
-\item{withinTumor}{Calculate between-region heterogeneity within tumor. (Default: FALSE).}
+\item{withinTumor}{Calculate between-region heterogeneity within tumor. Default FALSE.}
 
-\item{plot.density}{Whether to show the density plot. (Default: TRUE).}
+\item{plot.density}{Whether to show the density plot. Default TRUE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 

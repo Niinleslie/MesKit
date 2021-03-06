@@ -22,7 +22,7 @@ readMaf(
 
 \item{ccfFile}{CCF file of somatic mutations. Default NULL.}
 
-\item{adjusted.VAF}{Whether adjusted VAF is included in mafFile. (Default FALSE).}
+\item{adjusted.VAF}{Whether adjusted VAF is included in mafFile. Default FALSE.}
 
 \item{nonSyn.vc}{List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"}
 

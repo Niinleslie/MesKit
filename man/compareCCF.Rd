@@ -18,9 +18,9 @@ compareCCF(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{min.ccf}{The minimum value of CCF. Default 0}
+\item{min.ccf}{The minimum value of CCF. Default 0.}
 
-\item{pairByTumor}{Pair by tumor types in each patients. (Default: FALSE).}
+\item{pairByTumor}{Pair by tumor types in each patients. Default FALSE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). 
 Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}

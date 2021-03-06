@@ -51,7 +51,7 @@ plotCNA(
 
 \item{showRownames}{Logical (Default: TRUE). Show sample names of rows.}
 
-\item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. (Default: TRUE).}
+\item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. Default TRUE.}
 
 \item{showCytoband}{Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.}
 

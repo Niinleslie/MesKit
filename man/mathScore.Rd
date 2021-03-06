@@ -19,11 +19,11 @@ mathScore(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{withinTumor}{Calculate between-region heterogeneity within tumor. (Default FALSE).}
+\item{withinTumor}{Calculate between-region heterogeneity within tumor. Default: FALSE.}
 
-\item{min.vaf}{Specify The minimum VAF to filter variants. Default 0.}
+\item{min.vaf}{Specify The minimum VAF to filter variants. Default: 0.}
 
-\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
+\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default: FALSE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). 
 Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}

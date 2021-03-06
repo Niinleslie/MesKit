@@ -23,9 +23,9 @@ calJSI(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{pairByTumor}{Compare JSI between different tumors. (Default: FALSE).}
+\item{pairByTumor}{Compare JSI between different tumors. Default FALSE.}
 
-\item{min.ccf}{The minimum value of CCF. Default 0}
+\item{min.ccf}{The minimum value of CCF. Default 0.}
 
 \item{plot}{Logical (Default: FALSE).}
 

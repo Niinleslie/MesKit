@@ -42,7 +42,7 @@ Otherwise, print a cancer cell frequency (CCF) heatmap.}
 
 \item{plot.geneList}{Logical (Default: FALSE). If TRUE, plot heatmap with genes on geneList when geneList is not NULL.}
 
-\item{show.geneList}{Show the names of gene on the geneList. (Default TRUE).}
+\item{show.geneList}{Show the names of gene on the geneList. Default TRUE.}
 
 \item{mut.threshold}{show.gene and show.geneList will be FALSE when patient have more mutations than threshold. Default 150.}
 
@@ -58,7 +58,7 @@ Otherwise, print a cancer cell frequency (CCF) heatmap.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 
-\item{classByTumorLogical}{(Default: FALSE). Classify mutations based on "Tumor_ID".}
+\item{classByTumorLogical}{Default: FALSE. Classify mutations based on "Tumor_ID".}
 }
 \value{
 heatmap of somatic mutations

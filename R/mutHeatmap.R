@@ -10,14 +10,14 @@
 #' Otherwise, print a cancer cell frequency (CCF) heatmap.
 #' @param geneList List of genes to restrict the analysis. Default NULL.
 #' @param plot.geneList Logical (Default: FALSE). If TRUE, plot heatmap with genes on geneList when geneList is not NULL.
-#' @param show.geneList Show the names of gene on the geneList. (Default TRUE).
+#' @param show.geneList Show the names of gene on the geneList. Default TRUE.
 #' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold. Default 150.
 #' @param sample.text.size Size of sample name.Default 9.
 #' @param legend.title.size Size of legend title.Default 10.
 #' @param gene.text.size Size of gene text. Default 9.
 #' @param sampleOrder A named list which contains the sample order used in plotting the heatmap. Default NULL.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
-#' @param classByTumorLogical (Default: FALSE). Classify mutations based on "Tumor_ID".
+#' @param classByTumorLogical Default: FALSE. Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
