@@ -47,7 +47,7 @@ mutCluster <- function(maf,
       }
       maf_data$V <- maf_data$Tumor_Average_CCF
       maf_data$ID <- maf_data$Tumor_ID
-      xlab <- "VAF"
+      xlab <- "CCF"
     }else{
       if(use.ccf){
         if(!"CCF" %in% colnames(getMafData(m))){
