@@ -55,6 +55,18 @@ readSegment <- function(segFile,
         stop("Neither copy number nor SegmentMean information was found in seg object.")  
     }
   }
+  
+  LOH_info <- data.frame()
+  if("LOH" %in% colnames(seg)){
+    LOH_info <- seg %>% 
+      dplyr::select("Patient_ID",
+                    "Tumor_Sample_Barcode",
+                    "Chromosome",
+                    "Start_Position",
+                    "End_Position",
+                    "LOH")
+  }
+  
   seg$CopyNumber <- as.numeric(seg$CopyNumber)
   
   seg$Width <- seg$End_Position - seg$Start_Position
@@ -206,6 +218,18 @@ readSegment <- function(segFile,
   
   if(!is.null(txdb)){
     seg <- cna2gene(seg, txdb = txdb, min.overlap.len = min.overlap.len, ...)
+  }
+  
+  if(nrow(LOH_info) > 0){
+    seg <- dplyr::left_join(
+      seg,
+      LOH_info,
+      by = c("Patient_ID",
+             "Tumor_Sample_Barcode",
+             "Chromosome",
+             "Start_Position",
+             "End_Position")
+    )
   }
   
   result <- split(seg, seg$Patient_ID)

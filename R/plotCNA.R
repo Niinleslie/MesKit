@@ -19,7 +19,7 @@
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' 
 #' @examples
-#' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+#' segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
 #' seg <- readSegment(segFile = segFile)
 #' plotCNA(seg)
 #' 

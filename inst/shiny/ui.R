@@ -697,7 +697,7 @@ bodyITH <- tabItem("ITH",
                              uiOutput("msdb")
                            ),
                            tabPanel(
-                             title = div(icon("image"), "VAF clustering", style = "font-size:1.5em; font-weight:600; "),
+                             title = div(icon("image"), "Mut clustering", style = "font-size:1.5em; font-weight:600; "),
                              value = "ith_vafcluster",
                              uiOutput("vafcluster.patientlist"),
                              uiOutput("vafcluster_table_ui"),
@@ -1856,7 +1856,7 @@ bodytree <- tabItem('tree',
                              box(
                                width = NULL,
                                div(strong("PhyloTree-based analysis"),style = "font-size:27px; font-weight:500;"),
-                               p("Systematic understanding of evolutionary relationship among regions plays a fundamental role in MRS study, where phylogenetic tree the a primary tool for describing these associations and interpreting ITH. MesKit is capable of constructing and comparing phylogenetic trees based on different methods, visualizing the rooted phylogenetic trees with annotation, as well as charactering mutational patterns based on phylogenetic trees.",
+                               p("Systematic understanding of evolutionary relationship among regions plays a fundamental role in MRS study, where phylogenetic tree is the primary tool for describing these associations and interpreting ITH. MesKit is capable of constructing and comparing phylogenetic trees based on different methods, visualizing the rooted phylogenetic trees with annotation, as well as charactering mutational patterns based on phylogenetic trees.",
                                  style = "font-size:20px; font-weight:500;line-height:40px;"),
                                tabBox(
                                  id = 'sgt',

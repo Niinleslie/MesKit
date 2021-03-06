@@ -1598,7 +1598,7 @@ shinyServer(function(input, output, session){
           }else{
             genelist <- NULL
           }
-          cc <- plotMutProfile(maf,
+          plotMutProfile(maf,
                                patient.id = patientid,
                                geneList = genelist,
                                classByTumor = input$plotmutprofile_classByTumor,
@@ -1610,7 +1610,6 @@ shinyServer(function(input, output, session){
           incProgress(amount = 1)
           setProgress(message = 'plotMutProfile done!')
       })
-      return(cc)
   })
   
   
@@ -1627,7 +1626,7 @@ shinyServer(function(input, output, session){
   
   output$plotmutprofile_plot <- renderPlot({
       if(!is.null(plotmutprofile())){
-          return(plotmutprofile())
+       plotmutprofile()
       }
   },  
   width = plotmutprofile_width,
@@ -1636,7 +1635,7 @@ shinyServer(function(input, output, session){
   
   
   output$plotmutprofile_download_button_ui <- renderUI({
-      if(!is.null(plotmutprofile())){
+      if(as.numeric(input$submit_plotmutprofile) > 0){
           fluidRow(
               column(
                   width = 2,
@@ -1668,7 +1667,7 @@ shinyServer(function(input, output, session){
           else if (input$Download_plotmutprofile_plot_check == "pdf"){
               pdf(file,width = input$plotmutprofile_width/100 , height = input$plotmutprofile_height/100)
           }
-          print(plotmutprofile())
+          plotmutprofile()
           dev.off()
       },
       contentType = paste('image/',input$Download_plotmutprofile_plot_check,sep="")
