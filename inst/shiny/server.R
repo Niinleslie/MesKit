@@ -1598,7 +1598,7 @@ shinyServer(function(input, output, session){
           }else{
             genelist <- NULL
           }
-          plotMutProfile(maf,
+          p <- plotMutProfile(maf,
                                patient.id = patientid,
                                geneList = genelist,
                                classByTumor = input$plotmutprofile_classByTumor,
@@ -1610,6 +1610,7 @@ shinyServer(function(input, output, session){
           incProgress(amount = 1)
           setProgress(message = 'plotMutProfile done!')
       })
+      return(p)
   })
   
   
@@ -1667,7 +1668,7 @@ shinyServer(function(input, output, session){
           else if (input$Download_plotmutprofile_plot_check == "pdf"){
               pdf(file,width = input$plotmutprofile_width/100 , height = input$plotmutprofile_height/100)
           }
-          plotmutprofile()
+          print(plotmutprofile())
           dev.off()
       },
       contentType = paste('image/',input$Download_plotmutprofile_plot_check,sep="")
