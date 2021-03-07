@@ -1,6 +1,6 @@
 #--- filter mutations in CNV regions 
 
-copyNumberFilter <- function(maf_data, seg){
+copyNumberFilter <- function(maf_data, seg, use.tumorSampleLabel = FALSE){
   ## combine data frame
   if(is(seg, "list")){
     seg <- dplyr::bind_rows(seg) %>%
@@ -8,39 +8,51 @@ copyNumberFilter <- function(maf_data, seg){
       as.data.table()
   }
   
-  if("LOH" %in% colnames(seg)){
-    seg <- seg[seg$LOH == FALSE,]
-    # message("Remove segment with LOH" )
+  # if("LOH" %in% colnames(seg)){
+  #   seg <- seg[seg$LOH == FALSE,]
+  #   # message("Remove segment with LOH" )
+  # }
+  
+  if(use.tumorSampleLabel){
+    seg$Tumor_Sample_Barcode <- seg$Tumor_Sample_Label
   }
   
   seg <- seg[!seg$Chromosome %in% c("X","Y")]
-  maf_data$ID <-  dplyr::select(tidyr::unite(maf_data, "ID", 
+  maf_data$mut_id <-  dplyr::select(tidyr::unite(maf_data, "mut_id", 
                                           "Hugo_Symbol", "Chromosome", 
                                           "Start_Position", "End_Position",
                                           "Reference_Allele", "Tumor_Seq_Allele2",
                                           "Tumor_Sample_Barcode", 
-                                          sep=":"), "ID")
+                                          sep=":"), "mut_id")
   seg$Chromosome <- as.character(seg$Chromosome)
   data.table::setkey(x = seg, "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "End_Position")
   sampleNames <- unique(seg$Tumor_Sample_Barcode)
   sampleDat <- maf_data[maf_data$Tumor_Sample_Barcode %in% sampleNames,]
-  resID <- maf_data[!maf_data$ID %in% sampleDat$ID]$ID
+  resID <- maf_data[!maf_data$mut_id %in% sampleDat$mut_id]$mut_id
   overlapsDat <- data.table::foverlaps(x = sampleDat, y = seg, 
                                        by.x = c('Tumor_Sample_Barcode','Chromosome',
                                                 'Start_Position', 'End_Position'))
+  
+  col_keep <- c(
+    "Hugo_Symbol", 
+    "Chromosome", 
+    "i.Start_Position",
+    "i.End_Position",
+    "Tumor_Sample_Barcode",
+    "VAF", 
+    "Start_Position",
+    "End_Position",
+    "CopyNumber", 
+    "Type", 
+    "mut_id"
+  )
+  if("LOH" %in% colnames(seg)){
+    col_keep <- c(col_keep, "LOH")
+  }
+  
   overlapsDat <-  overlapsDat %>% 
     dplyr::select(
-      "Hugo_Symbol", 
-      "Chromosome", 
-      "i.Start_Position",
-      "i.End_Position",
-      "Tumor_Sample_Barcode",
-      "VAF", 
-      "Start_Position",
-      "End_Position",
-      "CopyNumber", 
-      "Type", 
-      "ID"
+      all_of(col_keep)
     ) %>% 
     dplyr::rename(
       "Start_Position" = "i.Start_Position", 
@@ -48,18 +60,25 @@ copyNumberFilter <- function(maf_data, seg){
       "Segment_Start" = "Start_Position",
       "Segment_End"= "End_Position"
     )
-  # colnames(overlapsDat)[c(3:4, 7:8)] <-  c('Start_Position', 'End_Position', 'Segment_Start', 'Segment_End')
-  if(nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]) > 0){
-    message(paste('Removed ', nrow(overlapsDat[is.na(overlapsDat$CopyNumber)]), ' variants with no copy number data or LOH.', sep = ''))
-    # print(overlapsDat[is.na(overlapsDat$CopyNumber)])
-    overlapsDat = overlapsDat[!is.na(overlapsDat$CopyNumber)]
+  num_all <- nrow(overlapsDat)
+  
+  # remove mutations within copy-number altered regions 
+  overlapsDat <-  overlapsDat[c(overlapsDat$Type == "Neutral"|is.na(overlapsDat$Type)), ]
+  
+  if("LOH" %in% colnames(seg)){
+    mes <- 'within copy-number altered or LOH regions.'
+    # remove mutations within copy-number altered regions 
+    overlapsDat <- overlapsDat[overlapsDat$LOH == "FALSE"|is.na(overlapsDat$Type),]
+  }else{
+    mes <- 'within copy-number altered regions.'
   }
-  message(paste('Removed ', nrow(overlapsDat[overlapsDat$Type != "Neutral",]), ' variants in copy number altered regions.', sep = ''))
-  # print(overlapsDat[overlapsDat$Type != "Neutral",])
-  overlapsDat <-  overlapsDat[overlapsDat$Type == "Neutral",]
-  maf_data <- maf_data[maf_data$ID %in% c(overlapsDat$ID, resID)] %>% 
+  num_filt <- num_all - nrow(overlapsDat)
+  
+  message(paste('Removed ', num_filt,' ', mes, sep = ''))
+  
+  maf_data <- maf_data[maf_data$mut_id %in% c(overlapsDat$mut_id, resID)] %>% 
     dplyr::select(
-      -"ID"
+      -"mut_id"
     )
   
   return(maf_data)

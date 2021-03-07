@@ -58,7 +58,7 @@ readSegment <- function(segFile,
   
   LOH_info <- data.frame()
   if("LOH" %in% colnames(seg)){
-    LOH_info <- seg %>% 
+    LOH_info <- seg %>%
       dplyr::select("Patient_ID",
                     "Tumor_Sample_Barcode",
                     "Chromosome",
@@ -148,6 +148,7 @@ readSegment <- function(segFile,
       gisticCNVgenes$Chromosome <- gsub(pattern = 'chr', replacement = '', x = gisticCNVgenes$Chromosome, fixed = TRUE)
       gisticCNVgenes$Chromosome <- gsub(pattern = 'X', replacement = '23', x = gisticCNVgenes$Chromosome, fixed = TRUE)
       gisticCNVgenes$Chromosome <- gsub(pattern = 'Y', replacement = '24', x = gisticCNVgenes$Chromosome, fixed = TRUE)
+      
       gisticCNVgenes <- gisticCNVgenes %>% 
         dplyr::select(.data$Cytoband,
                       .data$Cytoband_pos, 
@@ -157,13 +158,13 @@ readSegment <- function(segFile,
                       .data$Start_Position, 
                       .data$End_Position) %>% 
         dplyr::distinct(.data$Cytoband, .keep_all = TRUE)
+      
       gisticCNVgenes$Chromosome <- as.numeric(gisticCNVgenes$Chromosome)
       gisticCNVgenes$Start_Position <- as.numeric(gisticCNVgenes$Start_Position)
       gisticCNVgenes$End_Position <- as.numeric(gisticCNVgenes$End_Position)
       data.table::setkey(x = gisticCNVgenes,"Chromosome", "Start_Position", "End_Position")
       mapDat <- data.table::foverlaps(gisticCNVgenes,seg, by.x = c("Chromosome","Start_Position","End_Position")) %>% 
                 na.omit()
-      
       if("Tumor_Sample_Label" %in% colnames(mapDat)){
         mapDat <- mapDat %>% 
           dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Tumor_Sample_Label", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>% 
@@ -174,7 +175,6 @@ readSegment <- function(segFile,
           dplyr::select("Patient_ID", "Tumor_Sample_Barcode", "Cytoband", "Cytoband_pos", "Chromosome", "Start_Position", "End_Position", "CopyNumber", "Type", "Gistic_type") %>% 
           dplyr::distinct()
       }
-      
       seg <- mapDat[(mapDat$Type %in% c("Loss", "Deletion") & mapDat$Gistic_type  == "Del")|(mapDat$Type %in% c("Gain", "Amplification") & mapDat$Gistic_type  == "AMP"),]
   }else if(nrow(gisticLesions) != 0){
     gisticLesions$Chromosome <-  unlist(lapply(gisticLesions$Wide_Peak_Boundaries,function(x)strsplit(x, ":")[[1]][1]))  
@@ -221,6 +221,8 @@ readSegment <- function(segFile,
   }
   
   if(nrow(LOH_info) > 0){
+    LOH_info$Chromosome <- as.character(LOH_info$Chromosome)
+    seg$Chromosome <- as.character(seg$Chromosome)
     seg <- dplyr::left_join(
       seg,
       LOH_info,

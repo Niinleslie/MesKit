@@ -40,6 +40,8 @@ mutCluster <- function(maf,
     }
     patient <- getMafPatient(m)
     
+    seg <- NULL
+    
     if(withinTumor){
       if(!"CCF" %in% colnames(getMafData(m))){
         stop(paste0("mutCluster requires CCF data when 'withinTumor'." ,
@@ -59,7 +61,7 @@ mutCluster <- function(maf,
       }else{
         if(!is.null(segFile)){
           seg <- readSegment(segFile = segFile)
-          maf_data <- copyNumberFilter(maf_data,seg)
+          # maf_data <- copyNumberFilter(maf_data,seg, use.tumorSampleLabel = use.tumorSampleLabel)
         }
         else{
           message("No segment files specified. Assuming all mutations have a CN of 2.")
@@ -73,7 +75,8 @@ mutCluster <- function(maf,
     id_list <- unique(maf_data$ID)
     
     
-    sample_result <- lapply(id_list, processVafcluster_sample, maf_data, patient, xlab)
+    sample_result <- lapply(id_list, processVafcluster_sample,
+                            maf_data, patient, xlab, seg = seg, use.tumorSampleLabel)
     na_idx <- which(!is.na(sample_result))
     sample_result <- sample_result[na_idx]
     
@@ -92,8 +95,15 @@ mutCluster <- function(maf,
     
   }
   
-  processVafcluster_sample <- function(id, maf_data, patient, xlab){
+  processVafcluster_sample <- function(id, maf_data, patient, xlab, seg, use.tumorSampleLabel){
+    
+    message(paste("Performing one-dimensional clustering for ", id," of ", patient, sep = ""))
+    
     subdata <- maf_data[maf_data$ID == id]
+    
+    if(!is.null(seg)){
+      subdata <- copyNumberFilter(subdata, seg, use.tumorSampleLabel = use.tumorSampleLabel)
+    }
     ## data cleaning
     if (nrow(subdata) < 3) {
       message(paste0("Mutation counts of Sample ", id, " are not enough for clustering!"))
@@ -101,7 +111,6 @@ mutCluster <- function(maf,
     }
     
     ## infer possible cluster from maf_data
-    message(paste("Processing ", id," of ", patient, sep = ""))
     cluster_result <- mclust::densityMclust(subdata$V, G=seq_len(6), verbose=FALSE)
     subdata$cluster <- as.character(cluster_result$classification)
     
