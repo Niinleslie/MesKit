@@ -6,7 +6,7 @@
 #' @param segFile The segment file.
 #' @param use.ccf Cluster CCF. Default FALSE.
 #' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE. 
-#' @param withinTumor Cluster Tumor average CCF within tumors in each patients. (Default: FALSE).
+#' @param withinTumor Cluster Tumor average CCF within tumors in each patients. Default FALSE.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). 
 #' Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
@@ -62,7 +62,7 @@ mutCluster <- function(maf,
           maf_data <- copyNumberFilter(maf_data,seg)
         }
         else{
-          message("No segment files specified.Assuming all mutations have a CN of 2.")
+          message("No segment files specified. Assuming all mutations have a CN of 2.")
         }
         maf_data$V <- maf_data$VAF
         xlab <- "VAF"
@@ -102,7 +102,7 @@ mutCluster <- function(maf,
     
     ## infer possible cluster from maf_data
     message(paste("Processing ", id," of ", patient, sep = ""))
-    cluster_result <- mclust::densityMclust(subdata$V, G=seq_len(7), verbose=FALSE)
+    cluster_result <- mclust::densityMclust(subdata$V, G=seq_len(6), verbose=FALSE)
     subdata$cluster <- as.character(cluster_result$classification)
     
     ## define outfilter

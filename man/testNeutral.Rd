@@ -23,7 +23,7 @@ testNeutral(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{withinTumor}{Test neutral within tumros in each patients. (Default: FALSE).}
+\item{withinTumor}{Test neutral within tumros in each patients. Default FALSE.}
 
 \item{min.total.depth}{The minimun total depth of coverage. Defalut 2}
 
@@ -35,9 +35,9 @@ testNeutral(
 
 \item{min.mut.count}{The minimun number of subclonal mutations used to fit model. Default 20}
 
-\item{plot}{Logical, whether to print model fitting plot of each sample. (Default: TRUE).}
+\item{plot}{Logical, whether to print model fitting plot of each sample. Default TRUE.}
 
-\item{use.tumorSampleLabel}{Let Tumor_Sample_Barcode replace Tumor_Sample_Label if Tumor Label is provided in clinical data. (Default FALSE).}
+\item{use.tumorSampleLabel}{Let Tumor_Sample_Barcode replace Tumor_Sample_Label if Tumor Label is provided in clinical data. Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }

@@ -34,7 +34,7 @@ readSegment(
 
 \item{min.overlap.len}{The minimum insertion size of segment and gene. Default 50.}
 
-\item{verbose}{Whether to display details in the console. (Default: TRUE).}
+\item{verbose}{Whether to display details in the console. Default TRUE.}
 
 \item{...}{... Other options passed to \code{\link{cna2gene}}.}
 }

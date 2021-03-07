@@ -53,9 +53,9 @@ other options: "CS" (Clonal status: Clonal/Subclonl) and "SPCS".}
 
 \item{patientsCol}{A list containing customized colors for distinct patients. Default NULL.}
 
-\item{removeEmptyCols}{Logical (Default: TRUE). Whether remove the samples without alterations. Only works when plot is TRUE.}
+\item{removeEmptyCols}{Logical (Default: TRUE). Whether remove the samples without alterations.}
 
-\item{removeEmptyRows}{Logical (Default: TRUE). Whether remove the genes without alterations. Only works when plot is TRUE.}
+\item{removeEmptyRows}{Logical (Default: TRUE). Whether remove the genes without alterations.}
 
 \item{showColnames}{Logical (Default: TRUE). Show sample names of columns.}
 

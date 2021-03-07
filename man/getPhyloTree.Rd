@@ -27,7 +27,7 @@ Choose one of "NJ"(Neibor-Joining), "MP"(maximum parsimony),
 
 \item{min.ccf}{The minimum value of CCF. Default 0}
 
-\item{bootstrap.rep.num}{Bootstrap iterations.Default 100.}
+\item{bootstrap.rep.num}{Bootstrap iterations. Default 100.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
