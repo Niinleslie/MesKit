@@ -301,7 +301,8 @@ AUC$CCF.density.plot
    
 ##### 6.1.3 Mutation clustering
    
-For a single region/tumor, `mutCluster` function clusters mutations in one dimension by variant allele frequencies (VAFs) or cellular cancer frequencies (CCFs) based on a Gaussian finite mixture model (using mclust). IF a segmentation file is available, `mutCluster` will only focus on mutations within copy-number neutral and LOH-free regions when clusering VAFs, as copy number aberrations will alter the fraction of reads bearing a mutation. This function can produce a density distribution plot of VAFs or CCFs, depicting different clusters of mutations. Users can consider the number of clusters as a simple indicator of ITH.
+For a single region/tumor, `mutCluster` function clusters mutations in one dimension by variant allele frequencies (VAFs) or cellular cancer frequencies (CCFs) based on a Gaussian finite mixture model (using mclust). IF a segmentation file is available, `mutCluster` will only focus on mutations within copy-number neutral and LOH-free regions when clusering VAFs, as copy number aberrations will alter the fraction of reads bearing mutations. This function can produce a density distribution plot of VAFs or CCFs, depicting different clusters of mutations. Users can consider the number of clusters as a simple indicator of ITH. Note that, "low VAF/CCF" populations might be a mixture of subclones mutations represent admixed polyphyletic lineages [14](#refer).
+
     
 ```{r message=FALSE, fig.height=4.5, fig.width=8}
 mut.cluster <- mutCluster(maf, patient.id = 'V402', 
