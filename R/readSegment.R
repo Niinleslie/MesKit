@@ -56,15 +56,16 @@ readSegment <- function(segFile,
     }
   }
   
-  LOH_info <- data.frame()
-  if("LOH" %in% colnames(seg)){
-    LOH_info <- seg %>%
+  Minor_Major_CN <- data.frame()
+  if("Minor_CN" %in% colnames(seg) & "Major_CN" %in% colnames(seg)){
+    Minor_Major_CN <- seg %>%
       dplyr::select("Patient_ID",
                     "Tumor_Sample_Barcode",
                     "Chromosome",
                     "Start_Position",
                     "End_Position",
-                    "LOH")
+                    "Minor_CN",
+                    "Major_CN")
   }
   
   seg$CopyNumber <- as.numeric(seg$CopyNumber)
@@ -220,12 +221,12 @@ readSegment <- function(segFile,
     seg <- cna2gene(seg, txdb = txdb, min.overlap.len = min.overlap.len, ...)
   }
   
-  if(nrow(LOH_info) > 0){
-    LOH_info$Chromosome <- as.character(LOH_info$Chromosome)
+  if(nrow(Minor_Major_CN) > 0){
+    Minor_Major_CN$Chromosome <- as.character(Minor_Major_CN$Chromosome)
     seg$Chromosome <- as.character(seg$Chromosome)
     seg <- dplyr::left_join(
       seg,
-      LOH_info,
+      Minor_Major_CN,
       by = c("Patient_ID",
              "Tumor_Sample_Barcode",
              "Chromosome",
