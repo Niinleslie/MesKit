@@ -105,7 +105,6 @@ plotTree <- function(phyloTree,
     y2 <- NULL
     x1 <- NULL
     y1 <- NULL
-    
     ## get the max value of X axis 
     x_max <- max(abs(treeData$x2))
     # print(treeData)
@@ -727,7 +726,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
          }else{
             n <- right[i]
          }
-         wr <- wrt*n/totalR
+         wr <- wrt*(n/totalR)
          adjacentWs[rightList[i]] <- wr
          if(i == 1){
             angler <- wr/2 + startr
@@ -760,11 +759,10 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
       for(i in seq_len(length(leftList))){
          if(leftList[i] <=  length(tree$tip.label)){
             n <- 1
-         }
-         else{
+         }else{
             n <- left[i]
          }
-         wl <- wlt*n/totalL
+         wl <- wlt*(n/totalL)
          adjacentWs[leftList[i]] <- wl
          if(i == 1){
             anglel <- startl - wl/2
@@ -780,8 +778,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
             }
             adjacentAngles[leftList[i]] <- anglel
             startl <- anglel
-         }
-         else{
+         }else{
             
             if(n == 1& horizon != pi/2){
                startl <- startl  + wl/2
