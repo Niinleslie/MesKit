@@ -85,23 +85,24 @@ compareTree <- function(phyloTree1,
 	    treedat1 <- getTreeData(phyloTree1, compare = compare)
 	    treedat2 <- getTreeData(phyloTree2, compare = compare)
 	    m12 <- match(treedat1[sample == "internal node",]$label, treedat2[sample == "internal node",]$label)
+	    # um12 <- which(is.na(m12))
 	    if(length(m12[!is.na(m12)]) > 0){
-	        cat(paste0("Both tree have ",length(m12[!is.na(m12)]), " same branches"))
-	        treedat1$is.match <- 'NO'
-	        treedat2$is.match <- 'NO'
-	        x <- 1
-	        for(i in seq_len(length(m12))){
-	            if(is.na(m12[i])){
-	                next
-	            }
-	            else{
-	                pos1 <- which(treedat1$end_num == treedat1[treedat1$sample == "internal node",]$end_num[i])
-	                pos2 <- which(treedat2$end_num == treedat2[treedat2$sample == "internal node",]$end_num[m12[i]])
-	                treedat1$is.match[pos1] <- paste0("com", x)
-	                treedat2$is.match[pos2] <- paste0("com", x)
-	                x <- x + 1
-	            }
+	      cat(paste0("Both tree have ",length(m12[!is.na(m12)]), " same branches"))
+	      treedat1$is.match <- 'NO'
+	      treedat2$is.match <- 'NO'
+	      x <- 1
+	      for(i in seq_len(length(m12))){
+	        if(is.na(m12[i])){
+	          next
 	        }
+	        else{
+	          pos1 <- which(treedat1$end_num == treedat1[treedat1$sample == "internal node",]$end_num[i])
+	          pos2 <- which(treedat2$end_num == treedat2[treedat2$sample == "internal node",]$end_num[m12[i]])
+	          treedat1$is.match[pos1] <- paste0("com", x)
+	          treedat2$is.match[pos2] <- paste0("com", x)
+	          x <- x + 1
+	        }
+	      }
 	    }else{
 	        cat("Both tree have not same branches")
 	        return(dist)
@@ -111,14 +112,16 @@ compareTree <- function(phyloTree1,
 	                   treeData = treedat1,
 	                   show.bootstrap = show.bootstrap,
 	                   min.ratio = min.ratio,
-	                   common.col = common.col,
+	                   uncommon.col = "red",
+	                   compare.tree.name = "tree2",
 	                   branchCol = NULL,
 	                   use.tumorSampleLabel = use.tumorSampleLabel)
 	    p2 <- plotTree(phyloTree2,
 	                   treeData = treedat2,
 	                   show.bootstrap = show.bootstrap,
 	                   min.ratio = min.ratio,
-	                   common.col = common.col,
+	                   compare.tree.name = "tree1",
+	                   uncommon.col = "blue",
 	                  branchCol = NULL,
 	                  use.tumorSampleLabel = use.tumorSampleLabel)
 	    ptree <- cowplot::plot_grid(p1,
