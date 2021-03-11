@@ -44,6 +44,7 @@ plotPhyloTree <- function(phyloTree,
     processPlotTree <- function(phyloTree){
        patient <- getPhyloTreePatient(phyloTree)
        p <- plotTree(phyloTree,
+                     min.ratio = min.ratio,
                      branchCol = branchCol,
                      show.bootstrap = show.bootstrap,
                      signaturesRef = signaturesRef,

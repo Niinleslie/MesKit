@@ -138,9 +138,32 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
    
    
    mut.branches <- dplyr::bind_rows(mut.branches, mut_left)
+   
    branch.type <- mut.branches %>% 
       dplyr::select("Branch_ID", "Mutation_Type") %>% 
       dplyr::distinct(.data$Branch_ID, .keep_all = TRUE)
+   
+   if(nrow(branch.id) != nrow(branch.type)){
+      branch_left <- branch.id[,1][!branch.id[,1] %in% branch.type$Branch_ID]
+      
+      tumor_id_count <- length(unique(maf_data$Tumor_ID))
+      
+      for(b in branch_left){
+         b_sample <- strsplit(b, "&")[[1]]
+         b_id <- unique(maf_data[maf_data$Tumor_Sample_Barcode %in% b_sample,]$Tumor_ID)
+         b_id <- rev(sort(b_id))
+         if(length(b_id) == 1){
+            b_type <- paste0("Private_", b_id)
+         }else if(length(b_id) > 1 & tumor_id_count == 1){
+            b_type <- paste0("Shared_", b_id)
+         }else{
+            b_type <- paste0("Shared_", paste(b_id, collapse = "_"))
+         }
+         sub <- data.frame(Branch_ID = b, Mutation_Type = b_type)
+         branch.type <- rbind(branch.type, sub)
+      }
+      # branch.type <- dplyr::arrange(branch.type, Mutation_Type)
+   }
    
    mut.branches <-  mut.branches %>% 
       dplyr::select(-"mut_id")

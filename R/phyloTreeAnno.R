@@ -5,7 +5,8 @@ plotTree <- function(phyloTree,
                      signaturesRef = "cosmic_v2",
                      min.mut.count = 15,
                      min.ratio = 1/20,
-                     common.col = "red",
+                     uncommon.col = "red",
+                     compare.tree.name = "",
                      use.tumorSampleLabel = FALSE,
                      show.scale.bar = FALSE,
                      scale.bar.x = NULL,
@@ -51,6 +52,7 @@ plotTree <- function(phyloTree,
     rootLabel <- "NORMAL"
     ## plot phylotree
     samplePointsSize <- 3
+    comparePointsSize <- 3.5
     sampleTextSize <- 3.5
     nodePointsSize <- 1.7
     segmentSize <- 1.5
@@ -64,6 +66,7 @@ plotTree <- function(phyloTree,
     samplesLength <- nrow(treeData[treeData$sample != "internal node",]) 
     if(samplesLength > 7){
         samplePointsSize <- 1.5 
+        comparePointsSize <- 2 
         sampleTextSize <- 3
         segmentSize <- 0.8
         nodePointsSize <- 0.8
@@ -102,7 +105,6 @@ plotTree <- function(phyloTree,
     y2 <- NULL
     x1 <- NULL
     y1 <- NULL
-    
     ## get the max value of X axis 
     x_max <- max(abs(treeData$x2))
     # print(treeData)
@@ -166,13 +168,13 @@ plotTree <- function(phyloTree,
         }
     }else{
         if(compare){
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
-                                  color = common.col,
-                                  data = treeData[treeData$is.match != "NO"],
-                                  size = segmentSize)
+            # p <- p + geom_point(aes(x = x1, y = y1),
+            #                       color = uncommon.col,
+            #                       data = treeData[treeData$is.match == "NO"],
+            #                       size = samplePointsSize)
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
                                   color = "black",
-                                  data = treeData[treeData$is.match == "NO"],size = segmentSize)
+                                  data = treeData ,size = segmentSize)
         }else{
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = "black",
                                   data = treeData, 
@@ -200,6 +202,7 @@ plotTree <- function(phyloTree,
                              nudge_x = textAdjust/10,
                              segment.color = "grey",
                              segment.size = 0.25,
+                             max.overlaps = 200,
                              data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
                                                 treeData$x2 >= 0, ],
                              size = sampleTextSize ,force = 10)
@@ -208,6 +211,7 @@ plotTree <- function(phyloTree,
                              nudge_x = -textAdjust/10,
                              segment.color = "grey",
                              segment.size = 0.25,
+                             max.overlaps = 200,
                              data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
                                                 treeData$x2 < 0, ],
                              size = sampleTextSize ,force = 10)
@@ -224,12 +228,32 @@ plotTree <- function(phyloTree,
     p <- p + geom_point(aes(x = x2, y = y2), 
                         data = treeData[treeData$sample != 'internal node',],
                         size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
+    
+    
+    
     Nd <- treeData[sample == rootLabel,]$distance
     if(length(Nd)!=0){
         if(Nd != 0){
             p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
                                 fill = 'white', shape = 21, stroke = nodeStrokeSize)
         }
+    }
+    if(compare & is.null(branchCol)){
+       unmatch_dat <- treeData[treeData$is.match == "NO"&treeData$sample == 'internal node',]
+       if(nrow(unmatch_dat) > 1){
+          unmatch_label <- paste0("Clades absent in ", compare.tree.name)
+       }else{
+          unmatch_label <- paste0("Clade absent in ", compare.tree.name)
+       }
+       
+       if(nrow(unmatch_dat) > 0){
+          p <- p + geom_point(aes(x = x1, y = y1, color = is.match),
+                              # color = uncommon.col,
+                              data = unmatch_dat,
+                              size = comparePointsSize) + 
+             scale_color_manual(label = unmatch_label,values = uncommon.col) + 
+             theme(legend.title = element_blank())
+       }
     }
     if(show.bootstrap){
         p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
@@ -241,6 +265,7 @@ plotTree <- function(phyloTree,
                                   label.padding = bootLabelPaddingSize,
                                   segment.colour = "grey50", 
                                   segment.size = 0.25, 
+                                  max.overlaps = 200,
                                   force = 5)
     }
     # if(compare){
@@ -701,7 +726,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
          }else{
             n <- right[i]
          }
-         wr <- wrt*n/totalR
+         wr <- wrt*(n/totalR)
          adjacentWs[rightList[i]] <- wr
          if(i == 1){
             angler <- wr/2 + startr
@@ -734,11 +759,10 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
       for(i in seq_len(length(leftList))){
          if(leftList[i] <=  length(tree$tip.label)){
             n <- 1
-         }
-         else{
+         }else{
             n <- left[i]
          }
-         wl <- wlt*n/totalL
+         wl <- wlt*(n/totalL)
          adjacentWs[leftList[i]] <- wl
          if(i == 1){
             anglel <- startl - wl/2
@@ -754,8 +778,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
             }
             adjacentAngles[leftList[i]] <- anglel
             startl <- anglel
-         }
-         else{
+         }else{
             
             if(n == 1& horizon != pi/2){
                startl <- startl  + wl/2
