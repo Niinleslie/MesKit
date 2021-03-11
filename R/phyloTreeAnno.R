@@ -241,14 +241,47 @@ plotTree <- function(phyloTree,
        unmatch_dat <- treeData[treeData$is.match == "NO"&treeData$sample == 'internal node',]
        if(nrow(unmatch_dat) > 1){
           unmatch_label <- paste0("Clades absent in ", compare.tree.name)
-       }else{
+       }else if(nrow(unmatch_dat) == 1){
           unmatch_label <- paste0("Clade absent in ", compare.tree.name)
        }
        
        if(nrow(unmatch_dat) > 0){
+          rootLabel <- "NORMAL"
+          numNORMAL <- which(tree$tip.label == rootLabel)
+          tree <- ape::root(tree, tree$tip.label[root_num])
+          treeEdge <- data.table::data.table(node = tree$edge[,1], endNum = tree$edge[,2])
+          rootRow <- which(treeEdge$endNum == numNORMAL)
+          rootNode <- treeEdge$node[rootRow]
+          
+          node_point_list <- c()
+          for(i in seq_len(nrow(unmatch_dat))){
+             point <- unmatch_dat$end_num[i]
+             for(i1 in seq_len(length(tree$tip.label))){
+                tip <- tree$tip.label[i1]
+                if(tip == rootLabel){
+                   next
+                }
+                start <- i1
+                tip_point_list <- c(i1)
+                while(TRUE){
+                   end <- as.numeric(treeEdge[treeEdge$endNum == start,]$node)
+                   tip_point_list <- c(tip_point_list, end)
+                   if(end == point){
+                      node_point_list <- unique(c(node_point_list, tip_point_list))
+                      node_point_list <- node_point_list[node_point_list!=point]
+                      break
+                   }
+                   if(end == rootNode){
+                      break
+                   }
+                   start <- end
+                }
+             }
+          }
+          
           p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
                                 color = uncommon.col,
-                                data = unmatch_dat,
+                                data = treeData[treeData$end_num %in% node_point_list,],
                                 size = segmentSize)
           p <- p + geom_point(aes(x = x2, y = y2, color = is.match),
                               # color = uncommon.col,
