@@ -15,6 +15,7 @@ drawVAFCombine <- function(subdata, xlab){
    VAF <- NULL
    cluster <- NULL
    ## generate  plot and specific titles for minifigures
+   scaleFUN <- function(x) sprintf("%.1f", x)
    p <- ggplot(subdata, aes(x = V)) + 
          theme_bw() +
          theme(legend.position='right', 
@@ -30,7 +31,8 @@ drawVAFCombine <- function(subdata, xlab){
           # geom_rug(aes(y=0, colour=cluster), sides="b") + 
           scale_colour_manual(values=color_scale) + 
           ggtitle(paste0(patient,": ", id)) + 
-          labs(y = "Density", colour = "Cluster",x = xlab)
+          labs(y = "Density", colour = "Cluster",x = xlab) +
+            scale_y_continuous(labels=scaleFUN)
    
    return(p)
 }

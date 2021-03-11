@@ -193,5 +193,5 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
       "Start_Position" = "i.Start_Position"
     )
   return(result)
-  # t <- anno_result[Patient_ID == "HCC5647"&Tumor_Sample_Barcode == "T1"]
+  # t <- anno_result[Patient_ID == "V402"&Tumor_Sample_Barcode == "T1"]
 }

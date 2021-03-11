@@ -99,7 +99,6 @@ plotTree <- function(phyloTree,
         
         bootsData <- cbind(bootsData, boots = boots_list)
     }
-    
     ## initialize
     x2 <- NULL
     y2 <- NULL
@@ -247,7 +246,11 @@ plotTree <- function(phyloTree,
        }
        
        if(nrow(unmatch_dat) > 0){
-          p <- p + geom_point(aes(x = x1, y = y1, color = is.match),
+          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
+                                color = uncommon.col,
+                                data = unmatch_dat,
+                                size = segmentSize)
+          p <- p + geom_point(aes(x = x2, y = y2, color = is.match),
                               # color = uncommon.col,
                               data = unmatch_dat,
                               size = comparePointsSize) + 

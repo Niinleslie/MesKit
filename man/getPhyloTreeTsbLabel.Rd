@@ -21,5 +21,5 @@ clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
 ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 phyloTree <- getPhyloTree(maf)
-getPhyloTreeTsbLabel(phyloTree$HCC5647)
+getPhyloTreeTsbLabel(phyloTree$V402)
 }
