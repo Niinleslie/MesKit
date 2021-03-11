@@ -8,7 +8,6 @@
 #' @param min.ratio Double, Default 1/20. If min.ratio is not NULL,
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
 #' @param show.bootstrap Logical (Default: FALSE). Whether to add bootstrap value on internal nodes.
-#' @param common.col Color of common branches.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
 #' 
 #' @return A vector containing the following tree distance methods by R package phangorn
@@ -24,8 +23,8 @@
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' 
 #' 
-#' phyloTree1 <- getPhyloTree(maf$HCC5647, method = "NJ")
-#' phyloTree2 <- getPhyloTree(maf$HCC5647, method = "MP")
+#' phyloTree1 <- getPhyloTree(maf$V402, method = "NJ")
+#' phyloTree2 <- getPhyloTree(maf$V402, method = "MP")
 #' compareTree(phyloTree1, phyloTree2)
 #' compareTree(phyloTree1, phyloTree2, plot = TRUE)
 #' @export compareTree
@@ -35,7 +34,6 @@ compareTree <- function(phyloTree1,
                         plot = FALSE,
                         min.ratio = 1/20,
                         show.bootstrap = FALSE,
-                        common.col = "red",
                         use.tumorSampleLabel = FALSE){
     
     if(min.ratio <= 0){
@@ -126,8 +124,8 @@ compareTree <- function(phyloTree1,
 	                  use.tumorSampleLabel = use.tumorSampleLabel)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
-	                                labels = c(paste0(getPhyloTreePatient(phyloTree1),":",getTreeMethod(phyloTree1)),
-	                                           paste0(getPhyloTreePatient(phyloTree2),":",getTreeMethod(phyloTree2)))
+	                                labels = c(paste0("tree1: ",getPhyloTreePatient(phyloTree1),"-",getTreeMethod(phyloTree1)),
+	                                           paste0("tree2: ",getPhyloTreePatient(phyloTree2),"-",getTreeMethod(phyloTree2)))
 	                                )
 	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(phyloTree1@method,phyloTree2@method))
 	    return(list(compare.dist = dist, compare.plot = ptree))

@@ -23,5 +23,5 @@ maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
 clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
 ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-getSampleInfo(maf$HCC5647)
+getSampleInfo(maf$V402)
 }
