@@ -220,23 +220,6 @@ plotTree <- function(phyloTree,
                        data = treeData[treeData$sample == rootLabel,], 
                        size = sampleTextSize)
     
-    p <- p + geom_point(aes(x = x2,y = y2),
-                        data = treeData[treeData$sample == 'internal node',],
-                        size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
-                        stroke = nodeStrokeSize)
-    p <- p + geom_point(aes(x = x2, y = y2), 
-                        data = treeData[treeData$sample != 'internal node',],
-                        size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
-    
-    
-    
-    Nd <- treeData[sample == rootLabel,]$distance
-    if(length(Nd)!=0){
-        if(Nd != 0){
-            p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
-                                fill = 'white', shape = 21, stroke = nodeStrokeSize)
-        }
-    }
     if(compare & is.null(branchCol)){
        unmatch_dat <- treeData[treeData$is.match == "NO"&treeData$sample == 'internal node',]
        if(nrow(unmatch_dat) > 1){
@@ -291,6 +274,25 @@ plotTree <- function(phyloTree,
              theme(legend.title = element_blank())
        }
     }
+    
+    p <- p + geom_point(aes(x = x2,y = y2),
+                        data = treeData[treeData$sample == 'internal node',],
+                        size = nodePointsSize, color = "#8c510a", fill = "white", shape = 21,
+                        stroke = nodeStrokeSize)
+    p <- p + geom_point(aes(x = x2, y = y2), 
+                        data = treeData[treeData$sample != 'internal node',],
+                        size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
+    
+    
+    
+    Nd <- treeData[sample == rootLabel,]$distance
+    if(length(Nd)!=0){
+       if(Nd != 0){
+          p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
+                              fill = 'white', shape = 21, stroke = nodeStrokeSize)
+       }
+    }
+    
     if(show.bootstrap){
         p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
                                   data = bootsData,
@@ -314,11 +316,7 @@ plotTree <- function(phyloTree,
     # }
     # 
     tree.title <- patient
-    # if(compare){
-    #     tree.title <- patient
-    # }else{
-    #     tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
-    # }
+
     if(show.scale.bar){
        mean_len <- ceiling(mean(treeData$distance)) 
        if(!is.null(scale.bar.x)){
