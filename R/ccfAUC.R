@@ -33,7 +33,13 @@ ccfAUC <- function(
    ...
 ){
 
-    
+  if(withinTumor){
+    id_col <- "Tumor_ID"
+    ccf_col <- "Tumor_Average_CCF"
+  }else{
+    id_col <- "Tumor_Sample_Barcode"
+    ccf_col <- "CCF"
+  }
     processAUC <- function(m, withinTumor, plot.density){
       
         # if(! "CCF" %in% colnames(maf_data)){
@@ -50,54 +56,62 @@ ccfAUC <- function(
           message("Warning: there was no mutation in ", patient, " after filtering.")
           return(NA)
         }
-
-        if(withinTumor){
-            ids <- unique(maf_data$Tumor_ID)
-        }else{
-            ids <- unique(maf_data$Tumor_Sample_Barcode)
-        }
-        
+        ids <- unique(maf_data[[id_col]])
+        # ids <- "T4"
         processAUCID <- function(id, maf_data, withinTumor){
-            if(withinTumor){
-                subdata <- subset(maf_data, maf_data$Tumor_ID == id)
-                ccf <- subdata$Tumor_Average_CCF
-            }else{
-                subdata <- subset(maf_data, maf_data$Tumor_Sample_Barcode == id)
-                ccf <- subdata$CCF
-            }
-            df_ccf <- data.frame(CCF = as.vector(sort(ccf)), 
-                                 prop = seq_len(length(ccf))/length(ccf))
-            auc <- suppressWarnings(stats::integrate(stats::approxfun(df_ccf$CCF,df_ccf$prop),
-                                                     min(df_ccf$CCF),
-                                                     max(df_ccf$CCF),
-                                                     # 0,
-                                                     # 1,
-                                                     # subdivisions = length(df_ccf),
-                                                     stop.on.error = FALSE)$value)
-            if(withinTumor){
-                a <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
-                c <-  subdata %>%         
-                  dplyr::arrange(.data$Tumor_Average_CCF) %>%
-                  dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
-                  dplyr::mutate(Tumor_ID = paste0(.data$Tumor_ID," (", round(auc,3), ")"))
-            }else{
-                a <- data.frame(Patient_ID = patient, Tumor_Sample_Barcode = id, AUC = auc)
-                c <-  subdata %>%         
-                  dplyr::arrange(.data$CCF) %>%
-                  dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata)) %>% 
-                  dplyr::mutate(Tumor_Sample_Barcode = paste0(.data$Tumor_Sample_Barcode," (",round(auc,3),")"))
-                
-            }
+            subdata <- subset(maf_data, maf_data[[id_col]]  == id)
             
-            return(list(a = a, c = c))
+            subdata <-  subdata %>%         
+              dplyr::arrange(.data[[ccf_col]]) %>%
+              dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata))
+            if(max(subdata[[ccf_col]]) < 1){
+              subdata <- rbind(subdata, subdata[nrow(subdata), ])
+              subdata[nrow(subdata), ][[ccf_col]] <- 1
+              subdata[nrow(subdata), ]$prop <- 1
+            }
+            if(min(subdata[[ccf_col]]) > 0){
+              min <- min(subdata[[ccf_col]])
+              # print(min)
+              add_num <- nrow(subdata) -1
+              point_list <- seq(0, min, by = (min-0)/add_num)
+              point_count <- length(point_list)
+              subdata <- rbind(subdata, subdata[1:point_count, ])
+              idx <- (nrow(subdata)- point_count+1):nrow(subdata)
+              subdata[idx, ][[ccf_col]] <- point_list
+              subdata[idx, ]$prop <- 0
+
+              # ## bind point (min,0)
+              # subdata <- rbind(subdata, subdata[nrow(subdata), ])
+              # subdata[nrow(subdata), ][[ccf_col]] <- min(subdata[[ccf_col]])
+              # subdata[nrow(subdata), ]$prop <- 0
+              # ## bind point (0,0)
+              # subdata <- rbind(subdata, subdata[nrow(subdata), ])
+              # subdata[nrow(subdata), ][[ccf_col]] <- 0
+              # subdata[nrow(subdata), ]$prop <- 0
+            }
+           
+            subdata <-  subdata %>%         
+              dplyr::arrange(.data[[ccf_col]], .data$prop)
+            # print(subdata[1:(add_num+3),])
+            auc <- suppressWarnings(stats::integrate(stats::approxfun(subdata$CCF,subdata$prop),
+                                                     min(subdata$CCF),
+                                                     max(subdata$CCF),
+                                                     stop.on.error = FALSE)$value)
+            
+            subdata[[id_col]] <- paste0(subdata[[id_col]]," (", round(auc,3), ")")
+            auc_result <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
+            colnames(auc_result) <- c("Patient_ID", id_col, "AUC")
+            
+            
+            return(list(auc_result = auc_result, subdata = subdata))
         }
         
         CCF.sort <- data.frame()        
         AUC.df <- data.frame()
         
         id_result <- lapply(ids, processAUCID, maf_data, withinTumor)
-        CCF.sort <- lapply(id_result, function(x)x$c) %>% dplyr::bind_rows()
-        AUC.df <- lapply(id_result, function(x)x$a) %>% dplyr::bind_rows()
+        CCF.sort <- lapply(id_result, function(x)x$subdata) %>% dplyr::bind_rows()
+        AUC.df <- lapply(id_result, function(x)x$auc_result) %>% dplyr::bind_rows()
         
         if(plot.density){
             ## initialize variable in ggplot for biocheck error
@@ -106,6 +120,9 @@ ccfAUC <- function(
             Tumor_ID <- NULL
             CCF <- NULL
             Tumor_Sample_Barcode <- NULL
+            
+            
+            
             
             if(withinTumor){
                 p <- ggplot2::ggplot(CCF.sort, 
@@ -132,7 +149,7 @@ ccfAUC <- function(
                     legend.text = element_text(size=11, colour = "black"),
                     panel.grid.major = element_line(linetype = 2, color = "grey")
                 )+
-                labs(x = "CCF", y = "Proportion", 
+                labs(x = "CCF", y = "Cumulative density", 
                      title = patient)
             
             CCF.density.plot <- p
