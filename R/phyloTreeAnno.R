@@ -248,7 +248,7 @@ plotTree <- function(phyloTree,
        if(nrow(unmatch_dat) > 0){
           rootLabel <- "NORMAL"
           numNORMAL <- which(tree$tip.label == rootLabel)
-          tree <- ape::root(tree, tree$tip.label[root_num])
+          tree <- ape::root(tree, tree$tip.label[numNORMAL])
           treeEdge <- data.table::data.table(node = tree$edge[,1], endNum = tree$edge[,2])
           rootRow <- which(treeEdge$endNum == numNORMAL)
           rootNode <- treeEdge$node[rootRow]
