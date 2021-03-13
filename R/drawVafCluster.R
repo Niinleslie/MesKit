@@ -27,7 +27,7 @@ drawVAFCombine <- function(subdata, xlab){
                axis.text=element_text(size=12, colour = "black"))+
           geom_line(size=1, colour="#00C0EB", stat="density") + 
           geom_point(aes(y=0, colour=cluster), alpha=0.5) + 
-          drawVAFCombineVline(subdata) + 
+          # drawVAFCombineVline(subdata) + 
           # geom_rug(aes(y=0, colour=cluster), sides="b") + 
           scale_colour_manual(values=color_scale) + 
           ggtitle(paste0(patient,": ", id)) + 

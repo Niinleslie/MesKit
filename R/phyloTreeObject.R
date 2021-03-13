@@ -128,24 +128,22 @@ treeMutationalBranches <- function(maf_data, branch.id, binary.matrix){
       mutBranchesOutput[[branchName]] <- branch.mut
    }
    
-   mut.branches <- dplyr::bind_rows(mutBranchesOutput)%>% 
+   tree_output <- dplyr::bind_rows(mutBranchesOutput)%>% 
       dplyr::filter(.data$mut_id != "no mutation") %>% 
       dplyr::mutate(Tree_Mut = TRUE)
    
    mut_left <- mutSigRef %>%
-      dplyr::filter(!.data$mut_id %in% mut.branches$mut_id) %>% 
+      dplyr::filter(!.data$mut_id %in% tree_output$mut_id) %>% 
       dplyr::mutate(Tree_Mut = FALSE)
    
+   mut.branches <- dplyr::bind_rows(tree_output, mut_left)
    
-   mut.branches <- dplyr::bind_rows(mut.branches, mut_left)
-   
-   branch.type <- mut.branches %>% 
+   branch.type <- tree_output %>% 
       dplyr::select("Branch_ID", "Mutation_Type") %>% 
       dplyr::distinct(.data$Branch_ID, .keep_all = TRUE)
    
    if(nrow(branch.id) != nrow(branch.type)){
       branch_left <- branch.id[,1][!branch.id[,1] %in% branch.type$Branch_ID]
-      
       tumor_id_count <- length(unique(maf_data$Tumor_ID))
       
       for(b in branch_left){

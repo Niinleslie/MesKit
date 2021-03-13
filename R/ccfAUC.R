@@ -61,24 +61,34 @@ ccfAUC <- function(
         processAUCID <- function(id, maf_data, withinTumor){
             subdata <- subset(maf_data, maf_data[[id_col]]  == id)
             
-            subdata <-  subdata %>%         
-              dplyr::arrange(.data[[ccf_col]]) %>%
-              dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata))
-            if(max(subdata[[ccf_col]]) < 1){
-              subdata <- rbind(subdata, subdata[nrow(subdata), ])
-              subdata[nrow(subdata), ][[ccf_col]] <- 1
-              subdata[nrow(subdata), ]$prop <- 1
+            # subdata <-  subdata %>%         
+            #   dplyr::arrange(.data[[ccf_col]]) %>%
+            #   dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata))
+            subdata <-  subdata %>%
+              dplyr::arrange(.data[[ccf_col]])
+            
+            ccf_pro_df <- subdata %>% 
+              dplyr::group_by(.data[[ccf_col]]) %>% 
+              dplyr::summarise(count = dplyr::n()) %>% 
+              dplyr::mutate(density = count/sum(count))
+            ccf_pro_df$prop <- cumsum(ccf_pro_df$density)
+            ccf_pro_df[[id_col]] <-  id 
+            
+            if(max(ccf_pro_df[[ccf_col]]) < 1){
+              ccf_pro_df <- rbind(ccf_pro_df, ccf_pro_df[nrow(ccf_pro_df), ])
+              ccf_pro_df[nrow(ccf_pro_df), ][[ccf_col]] <- 1
+              ccf_pro_df[nrow(ccf_pro_df), ]$prop <- 1
             }
-            if(min(subdata[[ccf_col]]) > 0){
-              min <- min(subdata[[ccf_col]])
+            if(min(ccf_pro_df[[ccf_col]]) > 0){
+              min <- min(ccf_pro_df[[ccf_col]])
               # print(min)
-              add_num <- nrow(subdata) -1
+              add_num <- 2
               point_list <- seq(0, min, by = (min-0)/add_num)
               point_count <- length(point_list)
-              subdata <- rbind(subdata, subdata[1:point_count, ])
-              idx <- (nrow(subdata)- point_count+1):nrow(subdata)
-              subdata[idx, ][[ccf_col]] <- point_list
-              subdata[idx, ]$prop <- 0
+              ccf_pro_df <- rbind(ccf_pro_df, ccf_pro_df[1:point_count, ])
+              idx <- (nrow(ccf_pro_df)- point_count+1):nrow(ccf_pro_df)
+              ccf_pro_df[idx, ][[ccf_col]] <- point_list
+              ccf_pro_df[idx, ]$prop <- 0
 
               # ## bind point (min,0)
               # subdata <- rbind(subdata, subdata[nrow(subdata), ])
@@ -89,28 +99,28 @@ ccfAUC <- function(
               # subdata[nrow(subdata), ][[ccf_col]] <- 0
               # subdata[nrow(subdata), ]$prop <- 0
             }
-           
-            subdata <-  subdata %>%         
+            ccf_pro_df <-  ccf_pro_df %>%
               dplyr::arrange(.data[[ccf_col]], .data$prop)
+            
             # print(subdata[1:(add_num+3),])
-            auc <- suppressWarnings(stats::integrate(stats::approxfun(subdata$CCF,subdata$prop),
-                                                     min(subdata$CCF),
-                                                     max(subdata$CCF),
+            auc <- suppressWarnings(stats::integrate(stats::approxfun(ccf_pro_df$CCF,ccf_pro_df$prop),
+                                                     min(ccf_pro_df$CCF),
+                                                     max(ccf_pro_df$CCF),
                                                      stop.on.error = FALSE)$value)
             
-            subdata[[id_col]] <- paste0(subdata[[id_col]]," (", round(auc,3), ")")
+            ccf_pro_df[[id_col]] <- paste0(ccf_pro_df[[id_col]]," (", round(auc,3), ")")
             auc_result <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
             colnames(auc_result) <- c("Patient_ID", id_col, "AUC")
             
             
-            return(list(auc_result = auc_result, subdata = subdata))
+            return(list(auc_result = auc_result, ccf_pro_df = ccf_pro_df))
         }
         
         CCF.sort <- data.frame()        
         AUC.df <- data.frame()
         
         id_result <- lapply(ids, processAUCID, maf_data, withinTumor)
-        CCF.sort <- lapply(id_result, function(x)x$subdata) %>% dplyr::bind_rows()
+        CCF.sort <- lapply(id_result, function(x)x$ccf_pro_df) %>% dplyr::bind_rows()
         AUC.df <- lapply(id_result, function(x)x$auc_result) %>% dplyr::bind_rows()
         
         if(plot.density){
@@ -121,8 +131,7 @@ ccfAUC <- function(
             CCF <- NULL
             Tumor_Sample_Barcode <- NULL
             
-            
-            
+            CCF.sort$CCF <- round(CCF.sort$CCF, digits = 2)
             
             if(withinTumor){
                 p <- ggplot2::ggplot(CCF.sort, 
