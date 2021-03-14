@@ -214,11 +214,6 @@ plotTree <- function(phyloTree,
                              data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
                                                 treeData$x2 < 0, ],
                              size = sampleTextSize ,force = 10)
-    ## label NORMAL
-    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
-                       label = rootLabel,
-                       data = treeData[treeData$sample == rootLabel,], 
-                       size = sampleTextSize)
     
     if(compare & is.null(branchCol)){
        unmatch_dat <- treeData[treeData$is.match == "NO"&treeData$sample == 'internal node',]
@@ -266,14 +261,14 @@ plotTree <- function(phyloTree,
                                 color = uncommon.col,
                                 data = treeData[treeData$end_num %in% node_point_list,],
                                 size = segmentSize)
-          p <- p + geom_point(aes(x = x2, y = y2, color = is.match),
-                              # color = uncommon.col,
-                              data = unmatch_dat,
-                              size = comparePointsSize) + 
-             scale_color_manual(label = unmatch_label,values = uncommon.col) + 
-             theme(legend.title = element_blank())
        }
     }
+    
+    ## label NORMAL
+    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+                       label = rootLabel,
+                       data = treeData[treeData$sample == rootLabel,], 
+                       size = sampleTextSize)
     
     p <- p + geom_point(aes(x = x2,y = y2),
                         data = treeData[treeData$sample == 'internal node',],
@@ -282,6 +277,21 @@ plotTree <- function(phyloTree,
     p <- p + geom_point(aes(x = x2, y = y2), 
                         data = treeData[treeData$sample != 'internal node',],
                         size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
+    
+    
+    
+    
+    if(compare & is.null(branchCol)){
+       
+       if(nrow(unmatch_dat) > 0){
+          p <- p + geom_point(aes(x = x2, y = y2, color = is.match),
+                              # color = uncommon.col,
+                              data = unmatch_dat,
+                              size = comparePointsSize) + 
+             scale_color_manual(label = unmatch_label,values = uncommon.col) + 
+             theme(legend.title = element_blank())
+       }
+    }
     
     
     
