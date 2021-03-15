@@ -196,24 +196,6 @@ plotTree <- function(phyloTree,
                    legend.position = 'right') + 
         scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
         coord_fixed(ratio= 1)
-    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                             nudge_y = textAdjust/10,
-                             nudge_x = textAdjust/10,
-                             segment.color = "grey",
-                             segment.size = 0.25,
-                             max.overlaps = 200,
-                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
-                                                treeData$x2 >= 0, ],
-                             size = sampleTextSize ,force = 10)
-    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                             nudge_y = textAdjust/10,
-                             nudge_x = -textAdjust/10,
-                             segment.color = "grey",
-                             segment.size = 0.25,
-                             max.overlaps = 200,
-                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
-                                                treeData$x2 < 0, ],
-                             size = sampleTextSize ,force = 10)
     
     if(compare & is.null(branchCol)){
        unmatch_dat <- treeData[treeData$is.match == "NO"&treeData$sample == 'internal node',]
@@ -264,11 +246,6 @@ plotTree <- function(phyloTree,
        }
     }
     
-    ## label NORMAL
-    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
-                       label = rootLabel,
-                       data = treeData[treeData$sample == rootLabel,], 
-                       size = sampleTextSize)
     
     p <- p + geom_point(aes(x = x2,y = y2),
                         data = treeData[treeData$sample == 'internal node',],
@@ -303,6 +280,7 @@ plotTree <- function(phyloTree,
        }
     }
     
+    
     if(show.bootstrap){
         p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
                                   data = bootsData,
@@ -316,6 +294,31 @@ plotTree <- function(phyloTree,
                                   max.overlaps = 200,
                                   force = 5)
     }
+    
+    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                             nudge_y = textAdjust/10,
+                             nudge_x = textAdjust/10,
+                             segment.color = "grey",
+                             segment.size = 0.25,
+                             max.overlaps = 200,
+                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
+                                                treeData$x2 >= 0, ],
+                             size = sampleTextSize ,force = 10)
+    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                             nudge_y = textAdjust/10,
+                             nudge_x = -textAdjust/10,
+                             segment.color = "grey",
+                             segment.size = 0.25,
+                             max.overlaps = 200,
+                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
+                                                treeData$x2 < 0, ],
+                             size = sampleTextSize ,force = 10)
+    
+    ## label NORMAL
+    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+                       label = rootLabel,
+                       data = treeData[treeData$sample == rootLabel,], 
+                       size = sampleTextSize)
     # if(compare){
     #   is.match <- NULL
     #     p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2, label = is.match),
