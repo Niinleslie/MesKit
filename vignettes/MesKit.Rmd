@@ -154,7 +154,8 @@ The segmentation file is a tab-delimited file with the following 6 or 7 columns:
 * `Start_Position` - genomic start position of segments (1-indexed)
 * `End_Position` - genomic end position of segments (1-indexed)
 * `SegmentMean/CopyNumber` - segment mean value or absolute integer copy number
-* `LOH` - the LOH (loss of heterozygosity) of segments (Logical) **Optional**
+* `Minor_CN` - copy number of minor allele **Optional**
+* `Major_CN` - copy number of major allele **Optional**
 * `Tumor_Sample_Label` - the specific label of each tumor sample. **Optional**
 
 

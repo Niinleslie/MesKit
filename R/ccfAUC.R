@@ -97,6 +97,7 @@ ccfAUC <- function(
     CCF.sort <- lapply(id_result, function(x)x$subdata) %>% dplyr::bind_rows()
     AUC.df <- lapply(id_result, function(x)x$auc_result) %>% dplyr::bind_rows()
     
+
     
     if(plot.density){
       ## initialize variable in ggplot for biocheck error
