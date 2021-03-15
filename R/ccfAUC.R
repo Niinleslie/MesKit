@@ -24,15 +24,15 @@
 #' @export ccfAUC
 
 ccfAUC <- function(
-   maf, 
-   patient.id = NULL, 
-   min.ccf = 0, 
-   withinTumor = FALSE,
-   plot.density = TRUE,
-   use.tumorSampleLabel = FALSE,
-   ...
+  maf, 
+  patient.id = NULL, 
+  min.ccf = 0, 
+  withinTumor = FALSE,
+  plot.density = TRUE,
+  use.tumorSampleLabel = FALSE,
+  ...
 ){
-
+  
   if(withinTumor){
     id_col <- "Tumor_ID"
     ccf_col <- "Tumor_Average_CCF"
@@ -40,186 +40,138 @@ ccfAUC <- function(
     id_col <- "Tumor_Sample_Barcode"
     ccf_col <- "CCF"
   }
-    processAUC <- function(m, withinTumor, plot.density){
+  processAUC <- function(m, withinTumor, plot.density){
+    
+    maf_data <- getMafData(m) %>% 
+      dplyr::filter(!is.na(CCF),
+                    !is.na(Tumor_Average_CCF))
+    
+    patient <- getMafPatient(m)
+    
+    if(nrow(maf_data) == 0){
+      message("Warning: there was no mutation in ", patient, " after filtering.")
+      return(NA)
+    }
+    ids <- unique(maf_data[[id_col]])
+    processAUCID <- function(id, maf_data, withinTumor){
+      subdata <- subset(maf_data, maf_data[[id_col]]  == id)
       
-        # if(! "CCF" %in% colnames(maf_data)){
-        #    stop(paste0("No CCF data was found when generate Maf/MafList object."))
-        # }
+      subdata <-  subdata %>%
+        dplyr::arrange(.data[[ccf_col]])
+      
+      fn <- stats::ecdf(subdata[[ccf_col]])
+      auc <- suppressWarnings(stats::integrate(fn,
+                                               0,
+                                               1,
+                                               stop.on.error = FALSE)$value)
+      
+      subdata[[id_col]] <- paste0(subdata[[id_col]]," (", round(auc,3), ")")
+      auc_result <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
+      colnames(auc_result) <- c("Patient_ID", id_col, "AUC")
+      
+      subdata$prop <- fn(subdata[[ccf_col]])
+      if(min(subdata[[ccf_col]]) > 0){
+        min_ccf <- min(subdata[[ccf_col]])
         
-        maf_data <- getMafData(m) %>% 
-          dplyr::filter(!is.na(CCF),
-                        !is.na(Tumor_Average_CCF))
+        subdata <- rbind(subdata, subdata[1,])
+        subdata[nrow(subdata),]$CCF <- 0
+        subdata[nrow(subdata),]$prop <- 0
         
-        patient <- getMafPatient(m)
-        
-        if(nrow(maf_data) == 0){
-          message("Warning: there was no mutation in ", patient, " after filtering.")
-          return(NA)
-        }
-        ids <- unique(maf_data[[id_col]])
-        # ids <- "T4"
-        processAUCID <- function(id, maf_data, withinTumor){
-            subdata <- subset(maf_data, maf_data[[id_col]]  == id)
-            
-            # subdata <-  subdata %>%         
-            #   dplyr::arrange(.data[[ccf_col]]) %>%
-            #   dplyr::mutate(prop = seq_len(nrow(subdata))/nrow(subdata))
-            subdata <-  subdata %>%
-              dplyr::arrange(.data[[ccf_col]])
-            
-            ccf_pro_df <- subdata %>% 
-              dplyr::group_by(.data[[ccf_col]]) %>% 
-              dplyr::summarise(count = dplyr::n()) %>% 
-              dplyr::mutate(density = count/sum(count))
-            ccf_pro_df$prop <- cumsum(ccf_pro_df$density)
-            ccf_pro_df[[id_col]] <-  id 
-            
-            if(max(ccf_pro_df[[ccf_col]]) < 1){
-              ccf_pro_df <- rbind(ccf_pro_df, ccf_pro_df[nrow(ccf_pro_df), ])
-              ccf_pro_df[nrow(ccf_pro_df), ][[ccf_col]] <- 1
-              ccf_pro_df[nrow(ccf_pro_df), ]$prop <- 1
-            }
-            if(min(ccf_pro_df[[ccf_col]]) > 0){
-              min <- min(ccf_pro_df[[ccf_col]])
-              # print(min)
-              add_num <- 2
-              point_list <- seq(0, min, by = (min-0)/add_num)
-              point_count <- length(point_list)
-              ccf_pro_df <- rbind(ccf_pro_df, ccf_pro_df[1:point_count, ])
-              idx <- (nrow(ccf_pro_df)- point_count+1):nrow(ccf_pro_df)
-              ccf_pro_df[idx, ][[ccf_col]] <- point_list
-              ccf_pro_df[idx, ]$prop <- 0
+        subdata <- rbind(subdata, subdata[1,])
+        subdata[nrow(subdata),]$CCF <- min_ccf
+        subdata[nrow(subdata),]$prop <- 0
+      }
+      if(max(subdata[[ccf_col]]) < 1){
+        subdata <- rbind(subdata, subdata[1,])
+        subdata[nrow(subdata),]$CCF <- 1
+        subdata[nrow(subdata),]$prop <- 1
+      }
+      subdata <-  subdata %>%
+        dplyr::arrange(.data[[ccf_col]], .data$prop)
+      
+      
+      return(list(auc_result = auc_result, subdata = subdata))
+    }
+    
+    id_result <- lapply(ids, processAUCID, maf_data, withinTumor)
+    CCF.sort <- lapply(id_result, function(x)x$subdata) %>% dplyr::bind_rows()
+    AUC.df <- lapply(id_result, function(x)x$auc_result) %>% dplyr::bind_rows()
+    
+    if(min(CCF.sort[[id_col]]) > 0){
+      CCF.sort <- rbind(CCF.sort)
+    }
+    
+    if(plot.density){
+      ## initialize variable in ggplot for biocheck error
+      Tumor_Average_CCF <- NULL
+      prop <- NULL
+      Tumor_ID <- NULL
+      CCF <- NULL
+      Tumor_Sample_Barcode <- NULL
 
-              # ## bind point (min,0)
-              # subdata <- rbind(subdata, subdata[nrow(subdata), ])
-              # subdata[nrow(subdata), ][[ccf_col]] <- min(subdata[[ccf_col]])
-              # subdata[nrow(subdata), ]$prop <- 0
-              # ## bind point (0,0)
-              # subdata <- rbind(subdata, subdata[nrow(subdata), ])
-              # subdata[nrow(subdata), ][[ccf_col]] <- 0
-              # subdata[nrow(subdata), ]$prop <- 0
-            }
-            ccf_pro_df <-  ccf_pro_df %>%
-              dplyr::arrange(.data[[ccf_col]], .data$prop)
-            
-            # print(subdata[1:(add_num+3),])
-            auc <- suppressWarnings(stats::integrate(stats::approxfun(ccf_pro_df$CCF,ccf_pro_df$prop),
-                                                     min(ccf_pro_df$CCF),
-                                                     max(ccf_pro_df$CCF),
-                                                     stop.on.error = FALSE)$value)
-            
-            ccf_pro_df[[id_col]] <- paste0(ccf_pro_df[[id_col]]," (", round(auc,3), ")")
-            auc_result <- data.frame(Patient_ID = patient, Tumor_ID = id, AUC = auc)
-            colnames(auc_result) <- c("Patient_ID", id_col, "AUC")
-            
-            
-            return(list(auc_result = auc_result, ccf_pro_df = ccf_pro_df))
-        }
-        
-        CCF.sort <- data.frame()        
-        AUC.df <- data.frame()
-        
-        id_result <- lapply(ids, processAUCID, maf_data, withinTumor)
-        CCF.sort <- lapply(id_result, function(x)x$ccf_pro_df) %>% dplyr::bind_rows()
-        AUC.df <- lapply(id_result, function(x)x$auc_result) %>% dplyr::bind_rows()
-        
-        if(plot.density){
-            ## initialize variable in ggplot for biocheck error
-            Tumor_Average_CCF <- NULL
-            prop <- NULL
-            Tumor_ID <- NULL
-            CCF <- NULL
-            Tumor_Sample_Barcode <- NULL
-            
-            CCF.sort$CCF <- round(CCF.sort$CCF, digits = 2)
-            
-            if(withinTumor){
-                p <- ggplot2::ggplot(CCF.sort, 
-                                     aes(x=Tumor_Average_CCF, y=prop, group=Tumor_ID, color=Tumor_ID))
-            }else{
-                p <- ggplot2::ggplot(CCF.sort, 
-                                     aes(x=CCF, y=prop, group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))
-            }
-            p <- p + 
-                #geom_smooth(na.rm = TRUE, se = FALSE, size = 1.2, formula = y ~ s(x, bs = "cs"), method = "gam") +
-                theme_bw() + 
-                geom_line(size=1.2) +
-                xlim(0, 1) + ylim(0, 1) +     
-                coord_fixed() +
-                theme(
-                    #legend.position='none', 
-                    legend.title = element_blank(),
-                    plot.title =  element_text(size=13.5, face = "bold"), 
-                    axis.title = element_text(size=13),
-                    panel.grid=element_blank(), 
-                    panel.border=element_blank(), 
-                    axis.line=element_line(size=0.7, colour = "black"),
-                    axis.text = element_text(size=11, colour = "black"),
-                    legend.text = element_text(size=11, colour = "black"),
-                    panel.grid.major = element_line(linetype = 2, color = "grey")
-                )+
-                labs(x = "CCF", y = "Cumulative density", 
-                     title = patient)
-            
-            CCF.density.plot <- p
-            return(list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot))
-        }else{
-            return(AUC.df)
-        }
-    }
-    
-    if(withinTumor){
-      clonalStatus <- "Subclonal"
+      
+      if(withinTumor){
+        p <- ggplot2::ggplot(CCF.sort, 
+                             aes(x=Tumor_Average_CCF, y = prop,  group=Tumor_ID, color=Tumor_ID))
+      }else{
+        p <- ggplot2::ggplot(CCF.sort, 
+                             aes(x=CCF, y = prop,  group=Tumor_Sample_Barcode, color=Tumor_Sample_Barcode))
+      }
+      p <- p + 
+        #geom_smooth(na.rm = TRUE, se = FALSE, size = 1.2, formula = y ~ s(x, bs = "cs"), method = "gam") +
+        theme_bw() + 
+        geom_line(size=1.2) +
+        # stat_ecdf(geom = "step", pad = T, size = 1.2) +
+        xlim(0, 1) + ylim(0, 1) +     
+        coord_fixed() +
+        theme(
+          #legend.position='none', 
+          legend.title = element_blank(),
+          plot.title =  element_text(size=13.5, face = "bold"), 
+          axis.title = element_text(size=13),
+          panel.grid=element_blank(), 
+          panel.border=element_blank(), 
+          axis.line=element_line(size=0.7, colour = "black"),
+          axis.text = element_text(size=11, colour = "black"),
+          legend.text = element_text(size=11, colour = "black"),
+          panel.grid.major = element_line(linetype = 2, color = "grey")
+        )+
+        labs(x = "CCF", y = "Cumulative density", 
+             title = patient)
+      
+      CCF.density.plot <- p
+      return(list(AUC.value = AUC.df, CCF.density.plot = CCF.density.plot))
     }else{
-      clonalStatus <- NULL
+      return(AUC.df)
     }
-
-    maf_input <- subMaf(maf,
-                        patient.id = patient.id,
-                        min.ccf = min.ccf,
-                        clonalStatus = clonalStatus,
-                        use.tumorSampleLabel = use.tumorSampleLabel,
-                        mafObj = TRUE,...)
-    
-    
-    result <- lapply(maf_input, processAUC, withinTumor, plot.density)
-    result <- result[!is.na(result)]   
-        
-    
-    if(length(result) > 1){
-        return(result)
-    }else if(length(result) == 0){
-        return(NA)
-    }else{
-        return(result[[1]])
-    }
+  }
+  
+  if(withinTumor){
+    clonalStatus <- "Subclonal"
+  }else{
+    clonalStatus <- NULL
+  }
+  
+  maf_input <- subMaf(maf,
+                      patient.id = patient.id,
+                      min.ccf = min.ccf,
+                      clonalStatus = clonalStatus,
+                      use.tumorSampleLabel = use.tumorSampleLabel,
+                      mafObj = TRUE,...)
+  
+  
+  result <- lapply(maf_input, processAUC, withinTumor, plot.density)
+  result <- result[!is.na(result)]   
+  
+  
+  if(length(result) > 1){
     return(result)
-   
+  }else if(length(result) == 0){
+    return(NA)
+  }else{
+    return(result[[1]])
+  }
+  return(result)
+  
 }
 
-
-# if(plot) {
-#   CCF.plot <- ggplot(AUC.df, aes(x=as.factor(Patient_ID), y=AUC, fill = Patient_ID)) + 
-#     geom_violin() + theme_bw() +     
-#     #ylim(0,1) + 
-#     theme(legend.title = element_blank(),
-#           legend.text = element_text(size = 12),
-#           panel.border = element_blank(), 
-#           panel.grid.major = element_line(linetype = 2, color = "grey"),
-#           panel.grid.minor = element_blank(),
-#           axis.line=element_line(color= "black", size= 1),
-#           axis.line.y = element_blank(),
-#           axis.line.x = element_blank(),
-#           axis.title = element_text(size = 12),
-#           axis.ticks.x = element_blank(),
-#           axis.text.x = element_text(size = 11, color = "black", angle = 90),
-#           axis.text.y = element_text(size = 11, color = "black")) +     
-#     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0), 
-#                        limits = c(0,1), 
-#                        expand = c(0,0)) +
-#     scale_x_discrete(limits = levels(AUC.df$Patient_ID)) +
-#     labs(y = "AUC of ccf", x = "") + annotate("segment", x = 0, xend = 0, y = 0, yend = 1, size = 0.5)        
-#   
-# }else{
-#   CCF.plot <- NULL
-# }
