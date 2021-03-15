@@ -281,19 +281,6 @@ plotTree <- function(phyloTree,
     }
     
     
-    if(show.bootstrap){
-        p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
-                                  data = bootsData,
-                                  # nudge_y = textAdjust/6,
-                                  # fontface = 'bold', 
-                                  size = bootLabelSize, 
-                                  box.padding = unit(bootPaddingSize, "lines"),
-                                  label.padding = bootLabelPaddingSize,
-                                  segment.colour = "grey50", 
-                                  segment.size = 0.25, 
-                                  max.overlaps = 200,
-                                  force = 5)
-    }
     
     p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
                              nudge_y = textAdjust/10,
@@ -319,6 +306,22 @@ plotTree <- function(phyloTree,
                        label = rootLabel,
                        data = treeData[treeData$sample == rootLabel,], 
                        size = sampleTextSize)
+
+    if(show.bootstrap){
+       p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
+                                 data = bootsData,
+                                 # nudge_y = textAdjust/6,
+                                 # fontface = 'bold', 
+                                 size = bootLabelSize, 
+                                 box.padding = unit(bootPaddingSize, "lines"),
+                                 label.padding = bootLabelPaddingSize,
+                                 segment.colour = "grey50", 
+                                 segment.size = 0.25, 
+                                 max.overlaps = 200,
+                                 force = 5)
+    }
+    
+
     # if(compare){
     #   is.match <- NULL
     #     p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2, label = is.match),
