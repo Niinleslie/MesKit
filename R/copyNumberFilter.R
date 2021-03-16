@@ -70,7 +70,7 @@ copyNumberFilter <- function(maf_data, seg, use.tumorSampleLabel = FALSE){
   overlapsDat <-  overlapsDat[c(overlapsDat$Type == "Neutral"|is.na(overlapsDat$Type)), ]
   
   if("Minor_CN" %in% colnames(seg)){
-    mes <- 'within copy-number altered or LOH regions.'
+    mes <- 'mutations within copy-number altered or LOH regions.'
     ## get LOH info
     overlapsDat <- dplyr::mutate(overlapsDat, 
                                  "LOH" = dplyr::if_else(
@@ -81,7 +81,7 @@ copyNumberFilter <- function(maf_data, seg, use.tumorSampleLabel = FALSE){
     # remove mutations within copy-number altered regions 
     overlapsDat <- overlapsDat[overlapsDat$LOH == "FALSE"|is.na(overlapsDat$Type),]
   }else{
-    mes <- 'within copy-number altered regions.'
+    mes <- 'mutations within copy-number altered regions.'
   }
   num_filt <- num_all - nrow(overlapsDat)
   

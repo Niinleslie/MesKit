@@ -2804,10 +2804,10 @@ shinyServer(function(input, output, session){
           else if (input$Download_treemutsig_plot_check == "pdf"){
               pdf(file,width = input$treemutsig_width/100 , height = input$treemutsig_height/100)
           }
-          if(class(treemutsig()) == "list"){
-              print(treemutsig()[[getpatient.treemutsig()]])
+          if(is(treemutsig()[[1]],"list")){
+              print(treemutsig()[[getpatient.treemutsig()]][[getsample.treemutsig()]])
           }else{
-              print(treemutsig())
+              print(treemutsig()[[getsample.treemutsig()]])
           }
           dev.off()
       },
