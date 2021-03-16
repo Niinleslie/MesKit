@@ -27,8 +27,12 @@ copyNumberFilter <- function(maf_data, seg, use.tumorSampleLabel = FALSE){
   seg$Chromosome <- as.character(seg$Chromosome)
   data.table::setkey(x = seg, "Tumor_Sample_Barcode", "Chromosome", "Start_Position", "End_Position")
   sampleNames <- unique(seg$Tumor_Sample_Barcode)
+  
+  
+  maf_data <- data.table::as.data.table(maf_data)
   sampleDat <- maf_data[maf_data$Tumor_Sample_Barcode %in% sampleNames,]
   resID <- maf_data[!maf_data$mut_id %in% sampleDat$mut_id]$mut_id
+  
   overlapsDat <- data.table::foverlaps(x = sampleDat, y = seg, 
                                        by.x = c('Tumor_Sample_Barcode','Chromosome',
                                                 'Start_Position', 'End_Position'))
@@ -81,7 +85,7 @@ copyNumberFilter <- function(maf_data, seg, use.tumorSampleLabel = FALSE){
   }
   num_filt <- num_all - nrow(overlapsDat)
   
-  message(paste('Removed ', num_filt,' ', mes, sep = ''))
+  message(paste('## Removed ', num_filt,' ', mes, sep = ''))
   
   maf_data <- maf_data[maf_data$mut_id %in% c(overlapsDat$mut_id, resID)] %>% 
     dplyr::select(

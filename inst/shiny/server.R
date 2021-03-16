@@ -323,14 +323,15 @@ shinyServer(function(input, output, session){
       )
       patientid <- input$vafcluster_patientid
       withProgress(min = 0, max = 1, value = 0,{
-          setProgress(message = 'Processing: perform vaf clustering')
-          vc <- vafCluster(maf, 
+          setProgress(message = 'Processing: perform mutation clustering')
+          vc <- mutCluster(maf, 
                            patient.id = patientid,
                            withinTumor = input$vafcluster_withintumor,
                            segFile = input$vafcluster_segfile,
-                           min.vaf = as.numeric(input$vafcluster_minvaf) ,
+                           # min.vaf = as.numeric(input$vafcluster_minvaf) ,
                            # max.vaf = as.numeric(input$vafcluster_maxvaf),
                            use.adjVAF = input$vafcluster_useadjvaf,
+                           use.ccf = input$vafcluster_useccf,
                            use.tumorSampleLabel = input$vafcluster_usetumorsamplelabel)        
           incProgress(amount = 1)
           setProgress(message = 'vafCluster done!')
@@ -2535,7 +2536,7 @@ shinyServer(function(input, output, session){
                                      bootstrap.rep.num = as.numeric(input$comparetree_getphylotree_bootstraprepnum) )
           
           ct <- compareTree(phylotree1, phylotree2,
-                            common.col = input$comparetree_commoncol,
+                            # common.col = input$comparetree_commoncol,
                             min.ratio = as.numeric(input$comparetree_minratio) ,
                             show.bootstrap = input$comparetree_showbootstrap,
                             plot = TRUE,

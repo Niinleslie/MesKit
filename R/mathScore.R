@@ -8,6 +8,7 @@
 #' @param withinTumor Calculate between-region heterogeneity within tumor. Default: FALSE.
 #' @param min.vaf Specify The minimum VAF to filter variants. Default: 0.
 #' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default: FALSE. 
+#' @param segFile The segment file.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). 
 #' Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
 #' @param ... Other options passed to \code{\link{subMaf}}
@@ -29,11 +30,25 @@ mathScore <- function(maf,
                       withinTumor = FALSE,
                       min.vaf = 0,
                       use.adjVAF = FALSE,
+                      segFile = NULL,
                       use.tumorSampleLabel = FALSE,
                       ...
                       ){
 
-    processMATH <- function(m, clonalStatus){
+    seg <- NULL
+    if(!is.null(segFile)){
+        seg <- readSegment(segFile)
+    }
+    processMATH <- function(m, seg){
+        
+        if(withinTumor){
+            id_col <- "Tumor_ID"
+            vaf_col <- "Tumor_Average_VAF"
+        }else{
+            id_col <- "Tumor_Sample_Barcode"
+            vaf_col <- "VAF"
+        }
+        
         patient <- getMafPatient(m)
         maf_data <- getMafData(m)
         if(nrow(maf_data) == 0){
@@ -41,40 +56,53 @@ mathScore <- function(maf,
             return(NA)
         }
         
+
         
         ## MATH Caculation
-        calMATH <- function(VAF){
+        calMATH <- function(subdata, seg, use.tumorSampleLabel){
+            
+            id <- unique(subdata[[id_col]])
+            patient <- unique(subdata$Patient_ID)
+            message(paste("## Calculating MATH score for ", id," of ", patient, sep = ""))
+            
+            if(!is.null(seg)){
+                subdata <- copyNumberFilter(subdata,
+                                            seg = seg, 
+                                            use.tumorSampleLabel = use.tumorSampleLabel)
+            }
+            
+            VAF <- subdata[[vaf_col]]
             VAF = VAF[!is.na(VAF)] 
             
             MAD <- 1.4826 * stats::median(abs(VAF - stats::median(VAF)))
             MATH <- 100 * MAD / stats::median(VAF)
-            return(round(MATH, digits=3))
+            MATH <- round(MATH, digits=3)
+            
+            MATH.df <- data.frame(Patient_ID = unique(subdata$Patient_ID),
+                                  id = id,
+                                  MATH_Score = MATH)
+            colnames(MATH.df) <- c("Patient_ID", id_col, "MATH_Score")
+            return(MATH.df)
         }
         
         if(withinTumor){
             if(! "CCF" %in% colnames(maf_data)){
                 stop(paste0("Calculation of MATH score requires CCF data when withinTumor is TRUE."))
             }
-            
-            MATH.df <- maf_data %>% 
-                dplyr::group_by(.data$Patient_ID, .data$Tumor_ID) %>%
-                dplyr::summarise(MATH_Score = calMATH(.data$Tumor_Average_VAF)) %>%
-                dplyr::ungroup() %>% 
-                as.data.frame()
         }
-        else{
-            MATH.df <- maf_data %>%
-                dplyr::group_by(.data$Patient_ID, .data$Tumor_Sample_Barcode) %>%
-                dplyr::summarise(MATH_Score = calMATH(.data$VAF)) %>%
-                dplyr::ungroup() %>% 
-                as.data.frame()
-        }
+        
+        
+        MATH.df <- maf_data %>% 
+            dplyr::group_by(.data$Patient_ID, .data[[id_col]]) %>%
+            dplyr::group_map(~calMATH(., seg = seg, use.tumorSampleLabel = use.tumorSampleLabel), .keep = TRUE) %>% 
+            dplyr::bind_rows()
+        
         return(MATH.df)
     }
     
     ## select subclonal mutation when withinTumor is TRUE
     if(withinTumor){
-        clonalStatus <- NULL
+        clonalStatus <- "Subclonal"
     }else{
         clonalStatus <- NULL
     }
@@ -87,8 +115,7 @@ mathScore <- function(maf,
                         use.tumorSampleLabel = use.tumorSampleLabel,
                         mafObj = TRUE, ...)
     
-    
-    MATH_list <- lapply(maf_input, processMATH, clonalStatus)
+    MATH_list <- lapply(maf_input, processMATH, seg = seg)
     result <- MATH_list[!is.na(MATH_list)]
     # result <- dplyr::bind_rows(MATH_list)
     

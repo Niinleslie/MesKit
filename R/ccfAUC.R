@@ -74,16 +74,16 @@ ccfAUC <- function(
         min_ccf <- min(subdata[[ccf_col]])
         
         subdata <- rbind(subdata, subdata[1,])
-        subdata[nrow(subdata),]$CCF <- 0
-        subdata[nrow(subdata),]$prop <- 0
+        subdata[nrow(subdata),][[ccf_col]] <- 0
+        subdata[nrow(subdata),]$prop<- 0
         
         subdata <- rbind(subdata, subdata[1,])
-        subdata[nrow(subdata),]$CCF <- min_ccf
+        subdata[nrow(subdata),][[ccf_col]] <- min_ccf
         subdata[nrow(subdata),]$prop <- 0
       }
       if(max(subdata[[ccf_col]]) < 1){
         subdata <- rbind(subdata, subdata[1,])
-        subdata[nrow(subdata),]$CCF <- 1
+        subdata[nrow(subdata),][[ccf_col]] <- 1
         subdata[nrow(subdata),]$prop <- 1
       }
       subdata <-  subdata %>%
