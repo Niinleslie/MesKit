@@ -64,7 +64,7 @@ mutCluster <- function(maf,
           # maf_data <- copyNumberFilter(maf_data,seg, use.tumorSampleLabel = use.tumorSampleLabel)
         }
         else{
-          message("No segment files specified. Assuming all mutations have a CN of 2.")
+          message("## No segment files specified. Assuming all mutations have a CN of 2.")
         }
         maf_data$V <- maf_data$VAF
         xlab <- "VAF"
@@ -97,7 +97,7 @@ mutCluster <- function(maf,
   
   processVafcluster_sample <- function(id, maf_data, patient, xlab, seg, use.tumorSampleLabel){
     
-    message(paste("Performing one-dimensional clustering for ", id," of ", patient, sep = ""))
+    message(paste("## Performing one-dimensional clustering for ", id," of ", patient, sep = ""))
     
     subdata <- maf_data[maf_data$ID == id]
     
@@ -106,7 +106,7 @@ mutCluster <- function(maf,
     }
     ## data cleaning
     if (nrow(subdata) < 3) {
-      message(paste0("Mutation counts of Sample ", id, " are not enough for clustering!"))
+      message(paste0("## Mutation counts of Sample ", id, " are not enough for clustering!"))
       return(NA)
     }
     
