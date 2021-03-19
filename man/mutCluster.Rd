@@ -36,7 +36,7 @@ Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 clustering plots of vaf
 }
 \description{
-Generate variant allele frequency (VAF) frequency distribution curve.
+Cluster mutations based on variant allele frequencies (VAFs) or cancer cell fractions (CCFs).
 }
 \examples{
 maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")

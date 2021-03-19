@@ -16,11 +16,11 @@ readMaf(
 )
 }
 \arguments{
-\item{mafFile}{Tab delimited MAF file (plain text or *.gz compressed). Required.}
+\item{mafFile}{A tab delimited MAF file (plain text or *.gz compressed). Required.}
 
-\item{clinicalFile}{Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.}
+\item{clinicalFile}{A clinical data file includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.}
 
-\item{ccfFile}{CCF file of somatic mutations. Default NULL.}
+\item{ccfFile}{A CCF file of somatic mutations. Default NULL.}
 
 \item{adjusted.VAF}{Whether adjusted VAF is included in mafFile. Default FALSE.}
 

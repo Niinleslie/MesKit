@@ -2395,7 +2395,7 @@ shinyServer(function(input, output, session){
                                     bootstrap.rep.num = as.numeric(input$plotphylotree_getphylotree_bootstraprepnum))
           
           incProgress(amount=1)
-          setProgress(message = 'Processing: plot phylogenetic tree')
+          setProgress(message = 'Processing: visualize phylogenetic tree')
           
           if(input$plotphylotree_branchcol == "NULL"){
               branchCol <- NULL
@@ -2673,7 +2673,7 @@ shinyServer(function(input, output, session){
           incProgress(amount=1)
           
           
-          setProgress(message = 'Processing: triMatrix')
+          setProgress(message = 'Processing: decomposing matrix of somatic SNVs')
           
           tm <- triMatrix(phyloTree,
                           # withinTumor = input$treemutsig_withintumor,
@@ -2686,7 +2686,7 @@ shinyServer(function(input, output, session){
                               signature.cutoff = as.numeric(input$treemutsig_signaturecutoff))
           incProgress(amount = 1)
           
-          setProgress(message = 'Processing: drawing mutation signature profile')
+          setProgress(message = 'Processing: reconstructing mutational profiles with known signatures')
           
           if(input$treemutsig_mode == 'NULL'){
               mode <- NULL

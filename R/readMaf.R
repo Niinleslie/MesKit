@@ -1,9 +1,9 @@
 #' readMaf
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
-#' @param mafFile Tab delimited MAF file (plain text or *.gz compressed). Required.
-#' @param clinicalFile Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.
-#' @param ccfFile CCF file of somatic mutations. Default NULL.
+#' @param mafFile A tab delimited MAF file (plain text or *.gz compressed). Required.
+#' @param clinicalFile A clinical data file includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.
+#' @param ccfFile A CCF file of somatic mutations. Default NULL.
 #' @param adjusted.VAF Whether adjusted VAF is included in mafFile. Default FALSE.
 #' @param nonSyn.vc List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"
 #' @param use.indel.ccf Whether include indels in ccfFile. Default FALSE.
