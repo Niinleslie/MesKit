@@ -237,7 +237,7 @@ fitSignatures <- function(tri_matrix = NULL,
                                             dplyr::desc(.data$Contribution_relative)) 
       
     }else{
-      message("Warning: None of relative contribution of signatures",
+      message("Warning: None of relative contribution of signature",
               " in ",patient, " is larger than signature.cutoff")
       signatures_etiology <- NULL
     }
