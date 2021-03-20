@@ -95,6 +95,8 @@ mutTrunkBranch <- function(phyloTree,
             t2 <-  sum(BT_spectrum[BT_spectrum$Group != group & BT_spectrum$BT == "Trunk", ]$mut_num) 
             if(all(!is.nan(b1)) & all(!is.nan(t1))){
                 m <- matrix(c(b1, t1, b2, t2),ncol = 2)
+                print(group)
+                print(m)
                 pValue <- stats::fisher.test(m,alternative = "two.sided")$p.value
             }
             else{

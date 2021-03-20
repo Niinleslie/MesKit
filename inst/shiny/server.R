@@ -97,10 +97,7 @@ shinyServer(function(input, output, session){
               their annotations. The following fields are highly recommended to be contained in
               the MAF files.",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
-            p(strong("Mandatory fields"),": Hugo_Symbol, Chromosome, Start_Position, End_Position,
-                        Variant_Classification, Variant_Type, Reference_Allele, 
-                        Tumor_Seq_Allele2, Ref_allele_depth, Alt_allele_depth, 
-                        VAF, Tumor_Sample_Barcode, Patient_ID, Tumor_ID",
+            p(strong("Mandatory fields"),": Hugo_Symbol, Chromosome, Start_Position, End_Position, Variant_Classification, Variant_Type, Reference_Allele, Tumor_Seq_Allele2, Ref_allele_depth, Alt_allele_depth, VAF, Tumor_Sample_Barcode",
               style = "font-size:16px; font-weight:500;line-height:30px;"),
             h3(strong("Example MAF file"))
           ),
