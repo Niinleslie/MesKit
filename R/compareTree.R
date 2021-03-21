@@ -102,7 +102,7 @@ compareTree <- function(phyloTree1,
 	        }
 	      }
 	    }else{
-	        cat("Both tree have not same branches")
+	        cat("No identical clades found in two trees \n")
 	        return(dist)
 	    }
 	    
