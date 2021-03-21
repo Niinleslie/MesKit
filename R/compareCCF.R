@@ -51,7 +51,7 @@ compareCCF <- function(maf,
     
     ## check if ccf data is provided
     if(! "CCF" %in% colnames(maf_data)){
-      stop(paste0("ccfDensity function requires CCF data.\n",
+      stop(paste0("compareCCF function requires CCF data.\n",
                   "No CCF data was found when generate Maf/MafList object."))
     }
     if(pairByTumor){
