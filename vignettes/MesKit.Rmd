@@ -178,13 +178,8 @@ segInfo[1:5, ]
 if (!requireNamespace("BiocManager", quietly = TRUE)){
   install.packages("BiocManager")
 }   
-<<<<<<< HEAD
-# The following initializes usage of Bioc devel
-BiocManager::install(version='devel')
-=======
 # The following initializes usage of Bioc 3.12
 BiocManager::install(version = "3.12")
->>>>>>> mnliu
 BiocManager::install("MesKit")
 ```
 
@@ -354,11 +349,7 @@ Distinct patterns of monoclonal versus polyclonal seeding based on the CCFs of s
 ccf.list <- compareCCF(maf, pairByTumor = TRUE, min.ccf = 0.02,
                        use.adjVAF = TRUE, use.indel = FALSE)
 V402_P_BM <- ccf.list$V402$`P-BM`
-<<<<<<< HEAD
-# compare CCF using smoothScatter
-=======
 # visualize via smoothScatter R package
->>>>>>> mnliu
 graphics::smoothScatter(matrix(c(V402_P_BM[, 3], V402_P_BM[, 4]),ncol = 2),
                 xlim = c(0, 1), ylim = c(0, 1),
                 colramp = colorRampPalette(c("white", RColorBrewer::brewer.pal(9, "BuPu"))),
@@ -476,11 +467,7 @@ names(mutClass)
 ```
    
    
-<<<<<<< HEAD
-```{r, warning = FALSE, message=FALSE, fig.height=3.8, fig.width=3.6}
-=======
 ```{r, warning = FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
->>>>>>> mnliu
 mutClass$mutTrunkBranch.res
 mutClass$mutTrunkBranch.plot
 ```
@@ -491,29 +478,15 @@ mutClass$mutTrunkBranch.plot
    
 ```{r, warning = FALSE, message=FALSE, fig.height=2.5, fig.width=8}
 trimatrix_V402 <- triMatrix(phyloTree, level = 5)
-<<<<<<< HEAD
-fit_V402 <- fitSignatures(trimatrix_V402)
-```   
-
-   
-`plotMutSigProfile` function can be utilized to visualize 96 trinucleodide mutational profile or reconstructed mutational profile.  
-   
-```{r, warning = FALSE, message=FALSE, fig.height=2, fig.width=7.5}
-=======
->>>>>>> mnliu
 # Visualize the 96 trinucleodide mutational profile
 plotMutSigProfile(trimatrix_V402)[[1]]
 
 ```   
 
    
-<<<<<<< HEAD
-```{r, fig.height=5, fig.width=7.5}
-=======
 ```{r, fig.height=5.2, fig.width=8}
 # reconstruct mutational profile of V402 using COSMIC V2 signatures
 fit_V402 <- fitSignatures(trimatrix_V402, signaturesRef = "cosmic_v2")
->>>>>>> mnliu
 # Compare the reconstructed mutational profile with the original mutational profile
 plotMutSigProfile(fit_V402)[[1]]
 ```  
