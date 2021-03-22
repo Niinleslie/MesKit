@@ -5,12 +5,8 @@ plotTree <- function(phyloTree,
                      signaturesRef = "cosmic_v2",
                      min.mut.count = 15,
                      min.ratio = 1/20,
-<<<<<<< HEAD
-                     common.col = "red",
-=======
                      uncommon.col = "red",
                      compare.tree.name = "",
->>>>>>> mnliu
                      use.tumorSampleLabel = FALSE,
                      show.scale.bar = FALSE,
                      scale.bar.x = NULL,
@@ -334,12 +330,9 @@ plotTree <- function(phyloTree,
     #                               size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
     #                               segment.colour = "grey50", segment.size = 0.5, force = 5)
     # }
-<<<<<<< HEAD
-=======
     # 
     tree.title <- patient
 
->>>>>>> mnliu
     if(show.scale.bar){
        mean_len <- ceiling(mean(treeData$distance)) 
        if(!is.null(scale.bar.x)){
@@ -376,18 +369,12 @@ plotTree <- function(phyloTree,
              color = "black"
           )
     }
-<<<<<<< HEAD
-    p <- p + 
-        ggtitle(tree.title)+
-        theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
-=======
     if(!compare){
        p <- p + 
           ggtitle(tree.title)+
           theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
     }
 
->>>>>>> mnliu
     return(p)
 }
 

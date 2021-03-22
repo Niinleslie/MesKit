@@ -137,44 +137,25 @@ fitSignatures <- function(tri_matrix = NULL,
     
     sigsRef_t <- t(as.matrix(sigsRef))
     ## contribution matrix
-<<<<<<< HEAD
-    con_matrix <- matrix(1, nrow = branch_num, ncol = refsig_num)
-=======
     con_matrix_absolute <- matrix(1, nrow = branch_num, ncol = refsig_num)
->>>>>>> mnliu
     
     ## reconstruted matrix
     recon_matrix <- matrix(1, nrow = branch_num, ncol = type_num)
     
     ## solve nonnegative least-squares constraints.
-<<<<<<< HEAD
-    # con_matrix <- apply(origin_matrix, 1, function(m){
-    #   lsq <- pracma::lsqnonneg(sigsRef_t, m)
-    #   return(lsq$x)
-    # }) %>% t()
-    con_matrix <- apply(origin_matrix, 1, function(m){
-=======
     # con_matrix_absolute <- apply(origin_matrix, 1, function(m){
     #   lsq <- pracma::lsqnonneg(sigsRef_t, m)
     #   return(lsq$x)
     # }) %>% t()
     con_matrix_absolute <- apply(origin_matrix, 1, function(m){
->>>>>>> mnliu
       lsq <- pracma::lsqnonneg(sigsRef_t, m)
       return(lsq$x)
     })
     
-<<<<<<< HEAD
-    if(is(con_matrix, "matrix")){
-      con_matrix <- t(con_matrix)
-    }else{
-      con_matrix <- matrix(data = con_matrix, nrow = length(con_matrix))
-=======
     if(is(con_matrix_absolute, "matrix")){
       con_matrix_absolute <- t(con_matrix_absolute)
     }else{
       con_matrix_absolute <- matrix(data = con_matrix_absolute, nrow = length(con_matrix_absolute))
->>>>>>> mnliu
     }
     
     
@@ -185,11 +166,6 @@ fitSignatures <- function(tri_matrix = NULL,
     }) %>% t()
     
 
-<<<<<<< HEAD
-    rownames(con_matrix) <- rownames(origin_matrix)
-    colnames(con_matrix) <- rownames(sigsRef)
-  
-=======
     rownames(con_matrix_absolute) <- rownames(origin_matrix)
     colnames(con_matrix_absolute) <- rownames(sigsRef)
     
@@ -199,7 +175,6 @@ fitSignatures <- function(tri_matrix = NULL,
       return(m)
     }) %>% t()
     
->>>>>>> mnliu
     
     rownames(recon_matrix) <- rownames(origin_matrix)
     colnames(recon_matrix) <- colnames(origin_matrix)
@@ -229,16 +204,6 @@ fitSignatures <- function(tri_matrix = NULL,
     signatures_etiology <- data.frame()
     signatures_etiology_list <- lapply(seq_len(branch_num), function(i){
       branch_name <- rownames(tri_matrix)[i]
-<<<<<<< HEAD
-      contribution <- con_matrix[i,]
-      
-      if(length(contribution) == 1){
-        names(contribution) <- colnames(con_matrix)
-      }
-      
-      sig_cut <- names(contribution[contribution > signature.cutoff])
-      if(length(sig_cut) == 0){
-=======
       sig_con_absolute <- con_matrix_absolute[i,]
       sig_con_relative <- con_matrix_relative[i,]
       
@@ -249,7 +214,6 @@ fitSignatures <- function(tri_matrix = NULL,
       idx <- which(sig_con_relative >= signature.cutoff)
       sig_name <- names(sig_con_relative[idx])
       if(length(sig_name) == 0){
->>>>>>> mnliu
         return(NA)
       }
       sig_con_relative <- as.numeric(sig_con_relative[idx])

@@ -115,15 +115,8 @@ mutCluster <- function(maf,
     subdata$cluster <- as.character(cluster_result$classification)
     
     ## define outfilter
-<<<<<<< HEAD:R/vafCluster.R
-    print(id)
-    print(nrow(subdata))
-    out_vaf <- boxplot.stats(subdata$VAF)$out
-    subdata[subdata$VAF %in% out_vaf]$cluster <- "outlier"
-=======
     out_vaf <- boxplot.stats(subdata$V)$out
     subdata[subdata$V %in% out_vaf]$cluster <- "outlier"
->>>>>>> mnliu:R/mutCluster.R
     
     ## rename cluster
     cluster_name_order <- c(

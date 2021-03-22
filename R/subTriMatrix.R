@@ -177,21 +177,12 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
       shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
       private <- sort(unique(mutation_type)[grep("Private", unique(mutation_type))])
       mutation_type_level <- c(public, shared, private)
-<<<<<<< HEAD
-      mut_branches$Mutation_Type <- factor(mut_branches$Mutation_Type, levels = mutation_type_level)
-      branch_data_list <- split(mut_branches, mut_branches$Mutation_Type)
-    }else if(level == 6){
-      mut_branches <- mut_branches[!grepl("\\(NA\\)", mut_branches$Branch_ID),]
-      ## define Trunk
-      branch_names <- unique(mut_branches$Branch_ID)
-=======
       mut.branches$Mutation_Type <- factor(mut.branches$Mutation_Type, levels = mutation_type_level)
       branch_data_list <- split(mut.branches, mut.branches$Mutation_Type)
     }else if(level == 6){
       mut.branches <- mut.branches[mut.branches$Tree_Mut == TRUE,]
       ## define Trunk
       branch_names <- unique(mut.branches$Branch_ID)
->>>>>>> mnliu
       branch_sample_num <- lapply(branch_names,function(x){
         s <- strsplit(x,"&")[[1]]
         num <- length(s)
@@ -204,42 +195,18 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
         return(NA)
       }
       
-<<<<<<< HEAD
-      mut_branches <- dplyr::mutate(
-        mut_branches,
-=======
       mut.branches <- dplyr::mutate(
         mut.branches,
->>>>>>> mnliu
         "Branch_ID" = dplyr::if_else(
           .data$Branch_ID == trunk_name,
           "Trunk",
           "Branches"
         )
       )
-<<<<<<< HEAD
-      mut_branches$Branch_ID <- factor(mut_branches$Branch_ID, levels = c("Trunk","Branches"))
-      branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
-    }
-    
-    # if(withinTumor){
-    #   ## sort mutation type by Public Shared Private
-    #   mutation_type <- unique(mut_branches$Mutation_Type)
-    #   public <- unique(mutation_type)[grep("Public", unique(mutation_type))] 
-    #   shared <- sort(unique(mutation_type)[grep("Shared", unique(mutation_type))]) 
-    #   private <- sort(unique(mutation_type)[grep("Private", unique(mutation_type))])
-    #   mutation_type_level <- c(public, shared, private)
-    #   mut_branches$Mutation_Type <- factor(mut_branches$Mutation_Type, levels = mutation_type_level)
-    #   branch_data_list <- split(mut_branches, mut_branches$Mutation_Type)
-    # }else{
-    #   branch_data_list <- split(mut_branches, mut_branches$Branch_ID)
-    # }
-=======
       mut.branches$Branch_ID <- factor(mut.branches$Branch_ID, levels = c("Trunk","Branches"))
       branch_data_list <- split(mut.branches, mut.branches$Branch_ID)
     }
 
->>>>>>> mnliu
     tri_matrix_list <- lapply(
       branch_data_list,
       function(branch_data){

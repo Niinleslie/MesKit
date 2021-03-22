@@ -2411,24 +2411,12 @@ shinyServer(function(input, output, session){
             }else{
               scale_bar_x <- NULL
             }
-<<<<<<< HEAD
-            if(!is.null(input$plotphylotree_scale_bar_y != "")){
-=======
             if(input$plotphylotree_scale_bar_y != ""){
->>>>>>> mnliu
               scale_bar_y <- as.numeric(input$plotphylotree_scale_bar_y)  
             }else{
               scale_bar_y <- NULL
             }
           }
-<<<<<<< HEAD
-          
-          if(is.na(scale_bar_y)){
-            scale_bar_y <- NULL
-          }
-          
-=======
->>>>>>> mnliu
           plot.list <- plotPhyloTree(phyloTree,
                                      branchCol = branchCol,
                                      show.bootstrap = input$plotphylotree_showbootstrap,
