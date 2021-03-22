@@ -98,7 +98,7 @@ fitSignatures <- function(tri_matrix = NULL,
     if(length(branch_remove) > 0){
       message("Warning: mutation number of ",
               paste(branch_remove, collapse = ", "),
-              " in ",patient, " is less than min.mut.count")
+              " of ",patient, " is not enough for signature extraction. See 'min.mut.count' parameter.")
       branch_left <- setdiff(rownames(tri_matrix),branch_remove)
       if(length(branch_left) == 0){
         return(NA)
