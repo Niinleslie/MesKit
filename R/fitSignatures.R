@@ -9,24 +9,25 @@
 #' @param associated Associated Vector of associated signatures. 
 #' If given, will narrow the signatures reference to only the ones listed. Default NULL.
 #' @param min.mut.count The threshold for the variants in a branch. Default 15.
-#' @param signature.cutoff Discard any signature contributions with a weight less than this amount. Default 0.1.
+#' @param signature.cutoff Discard any signature relative contributions with a weight less than this amount. Default 0.1.
 #' @return A list of data frames, each one contains treeMSOutput, 
 #' containing information about each set/branch's mutational signature.
 #' 
 #' @importFrom pracma lsqnonneg
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' 
 #' ## Load a reference genome.
 #' library(BSgenome.Hsapiens.UCSC.hg19)
 #' 
-#' phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
+#' phyloTree <- getPhyloTree(maf, patient.id = 'V402')
 #' tri_matrix <- triMatrix(phyloTree)
 #' fitSignatures(tri_matrix)
 #' @export  fitSignatures
+
 
 fitSignatures <- function(tri_matrix = NULL,
                           patient.id = NULL,
@@ -97,7 +98,7 @@ fitSignatures <- function(tri_matrix = NULL,
     if(length(branch_remove) > 0){
       message("Warning: mutation number of ",
               paste(branch_remove, collapse = ", "),
-              " in ",patient, " is less than min.mut.count")
+              " of ",patient, " is not enough for signature extraction. See 'min.mut.count' parameter.")
       branch_left <- setdiff(rownames(tri_matrix),branch_remove)
       if(length(branch_left) == 0){
         return(NA)
@@ -113,8 +114,8 @@ fitSignatures <- function(tri_matrix = NULL,
     }
     
     ## convert mutation number to proportion
-    origin_matrix <- t(apply(tri_matrix,1,function(x)x/sum(x)))
-    
+    # origin_matrix <- t(apply(tri_matrix,1,function(x)x/sum(x)))
+    origin_matrix <- tri_matrix
     ## calculate cosine similarity
     branch_num <- nrow(origin_matrix)
     refsig_num <- nrow(sigsRef)
@@ -136,25 +137,44 @@ fitSignatures <- function(tri_matrix = NULL,
     
     sigsRef_t <- t(as.matrix(sigsRef))
     ## contribution matrix
+<<<<<<< HEAD
     con_matrix <- matrix(1, nrow = branch_num, ncol = refsig_num)
+=======
+    con_matrix_absolute <- matrix(1, nrow = branch_num, ncol = refsig_num)
+>>>>>>> mnliu
     
     ## reconstruted matrix
     recon_matrix <- matrix(1, nrow = branch_num, ncol = type_num)
     
     ## solve nonnegative least-squares constraints.
+<<<<<<< HEAD
     # con_matrix <- apply(origin_matrix, 1, function(m){
     #   lsq <- pracma::lsqnonneg(sigsRef_t, m)
     #   return(lsq$x)
     # }) %>% t()
     con_matrix <- apply(origin_matrix, 1, function(m){
+=======
+    # con_matrix_absolute <- apply(origin_matrix, 1, function(m){
+    #   lsq <- pracma::lsqnonneg(sigsRef_t, m)
+    #   return(lsq$x)
+    # }) %>% t()
+    con_matrix_absolute <- apply(origin_matrix, 1, function(m){
+>>>>>>> mnliu
       lsq <- pracma::lsqnonneg(sigsRef_t, m)
       return(lsq$x)
     })
     
+<<<<<<< HEAD
     if(is(con_matrix, "matrix")){
       con_matrix <- t(con_matrix)
     }else{
       con_matrix <- matrix(data = con_matrix, nrow = length(con_matrix))
+=======
+    if(is(con_matrix_absolute, "matrix")){
+      con_matrix_absolute <- t(con_matrix_absolute)
+    }else{
+      con_matrix_absolute <- matrix(data = con_matrix_absolute, nrow = length(con_matrix_absolute))
+>>>>>>> mnliu
     }
     
     
@@ -165,17 +185,34 @@ fitSignatures <- function(tri_matrix = NULL,
     }) %>% t()
     
 
+<<<<<<< HEAD
     rownames(con_matrix) <- rownames(origin_matrix)
     colnames(con_matrix) <- rownames(sigsRef)
   
+=======
+    rownames(con_matrix_absolute) <- rownames(origin_matrix)
+    colnames(con_matrix_absolute) <- rownames(sigsRef)
+    
+    con_matrix_relative <- con_matrix_absolute
+    con_matrix_relative <- apply(con_matrix_relative, 1, function(m){
+      m <- m/sum(m)
+      return(m)
+    }) %>% t()
+    
+>>>>>>> mnliu
     
     rownames(recon_matrix) <- rownames(origin_matrix)
     colnames(recon_matrix) <- colnames(origin_matrix)
     
+    # print(con_matrix_absolute)
+    # print(recon_matrix)
+    
     ## calculate RSS of reconstructed matrix and origin matrix
     RSS <- vapply(seq_len(branch_num), function(i){
       r <- recon_matrix[i,]
+      r <- r/sum(r)
       o <- origin_matrix[i,]
+      o <- o/sum(o)
       rss <- sum((r-o)^2) 
       return(rss)
     },FUN.VALUE = numeric(1))
@@ -192,6 +229,7 @@ fitSignatures <- function(tri_matrix = NULL,
     signatures_etiology <- data.frame()
     signatures_etiology_list <- lapply(seq_len(branch_num), function(i){
       branch_name <- rownames(tri_matrix)[i]
+<<<<<<< HEAD
       contribution <- con_matrix[i,]
       
       if(length(contribution) == 1){
@@ -200,17 +238,31 @@ fitSignatures <- function(tri_matrix = NULL,
       
       sig_cut <- names(contribution[contribution > signature.cutoff])
       if(length(sig_cut) == 0){
+=======
+      sig_con_absolute <- con_matrix_absolute[i,]
+      sig_con_relative <- con_matrix_relative[i,]
+      
+      if(length(sig_con_relative) == 1){
+        names(sig_con_relative) <- colnames(con_matrix_absolute)
+      }
+      
+      idx <- which(sig_con_relative >= signature.cutoff)
+      sig_name <- names(sig_con_relative[idx])
+      if(length(sig_name) == 0){
+>>>>>>> mnliu
         return(NA)
       }
-      sig_con <- as.numeric(contribution[contribution > signature.cutoff])  
+      sig_con_relative <- as.numeric(sig_con_relative[idx])
+      sig_con_absolute <- as.numeric(sig_con_absolute[idx]) 
       # mut_sum <- sum(tri_matrix[i,])
       
       sub <- data.frame(Level_ID = branch_name, 
-                        Signature = sig_cut,
+                        Signature = sig_name,
                         # Mutation_number = mut_sum,
-                        Contribution = sig_con)
+                        Contribution_absolute = sig_con_absolute,
+                        Contribution_relative = sig_con_relative)
       if(!is.null(df.etiology)){
-        aet <- etiology_ref[sig_cut]
+        aet <- etiology_ref[sig_name]
         sub$Etiology <- as.character(aet)  
       }
       return(sub)
@@ -220,7 +272,7 @@ fitSignatures <- function(tri_matrix = NULL,
     ## order data frame by contribution of each branch
     signatures_etiology <- dplyr::arrange(signatures_etiology,
                                            dplyr::desc(.data$Level_ID),
-                                           dplyr::desc(.data$Contribution)) 
+                                           dplyr::desc(.data$Contribution_relative)) 
     
     recon_df  <- as.data.frame(recon_matrix) 
     recon_df$Branch <- as.character(row.names(recon_df)) 
@@ -255,6 +307,8 @@ fitSignatures <- function(tri_matrix = NULL,
         reconstructed.mat = recon_matrix,
         original.mat = origin_matrix,
         cosine.similarity = cos_sim_matrix,
+        contribution.absolute = con_matrix_absolute,
+        contribution.relative = con_matrix_relative,
         total.cosine.similarity = total_cosine_similarity,
         RSS = RSS, 
         signatures.etiology = signatures_etiology,

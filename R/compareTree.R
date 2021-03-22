@@ -8,7 +8,6 @@
 #' @param min.ratio Double, Default 1/20. If min.ratio is not NULL,
 #' all edge length which are smaller than min.ratio*the longest edge length will be reset as min.ratio*longest edge length. 
 #' @param show.bootstrap Logical (Default: FALSE). Whether to add bootstrap value on internal nodes.
-#' @param common.col Color of common branches.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
 #' 
 #' @return A vector containing the following tree distance methods by R package phangorn
@@ -18,14 +17,14 @@
 #' Weighted.path.difference	 difference in the path length, counted using branches lengths
 #' 
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' 
 #' 
-#' phyloTree1 <- getPhyloTree(maf$HCC5647, method = "NJ")
-#' phyloTree2 <- getPhyloTree(maf$HCC5647, method = "MP")
+#' phyloTree1 <- getPhyloTree(maf$V402, method = "NJ")
+#' phyloTree2 <- getPhyloTree(maf$V402, method = "MP")
 #' compareTree(phyloTree1, phyloTree2)
 #' compareTree(phyloTree1, phyloTree2, plot = TRUE)
 #' @export compareTree
@@ -35,7 +34,6 @@ compareTree <- function(phyloTree1,
                         plot = FALSE,
                         min.ratio = 1/20,
                         show.bootstrap = FALSE,
-                        common.col = "red",
                         use.tumorSampleLabel = FALSE){
     
     if(min.ratio <= 0){
@@ -85,25 +83,26 @@ compareTree <- function(phyloTree1,
 	    treedat1 <- getTreeData(phyloTree1, compare = compare)
 	    treedat2 <- getTreeData(phyloTree2, compare = compare)
 	    m12 <- match(treedat1[sample == "internal node",]$label, treedat2[sample == "internal node",]$label)
+	    # um12 <- which(is.na(m12))
 	    if(length(m12[!is.na(m12)]) > 0){
-	        cat(paste0("Both tree have ",length(m12[!is.na(m12)]), " same branches"))
-	        treedat1$is.match <- 'NO'
-	        treedat2$is.match <- 'NO'
-	        x <- 1
-	        for(i in seq_len(length(m12))){
-	            if(is.na(m12[i])){
-	                next
-	            }
-	            else{
-	                pos1 <- which(treedat1$end_num == treedat1[treedat1$sample == "internal node",]$end_num[i])
-	                pos2 <- which(treedat2$end_num == treedat2[treedat2$sample == "internal node",]$end_num[m12[i]])
-	                treedat1$is.match[pos1] <- paste0("com", x)
-	                treedat2$is.match[pos2] <- paste0("com", x)
-	                x <- x + 1
-	            }
+	      cat(paste0(length(m12[!is.na(m12)]), " clades are common between two trees. \n" ))
+	      treedat1$is.match <- 'NO'
+	      treedat2$is.match <- 'NO'
+	      x <- 1
+	      for(i in seq_len(length(m12))){
+	        if(is.na(m12[i])){
+	          next
 	        }
+	        else{
+	          pos1 <- which(treedat1$end_num == treedat1[treedat1$sample == "internal node",]$end_num[i])
+	          pos2 <- which(treedat2$end_num == treedat2[treedat2$sample == "internal node",]$end_num[m12[i]])
+	          treedat1$is.match[pos1] <- paste0("com", x)
+	          treedat2$is.match[pos2] <- paste0("com", x)
+	          x <- x + 1
+	        }
+	      }
 	    }else{
-	        cat("Both tree have not same branches")
+	        cat("No identical clades found in two trees\n")
 	        return(dist)
 	    }
 	    
@@ -111,19 +110,22 @@ compareTree <- function(phyloTree1,
 	                   treeData = treedat1,
 	                   show.bootstrap = show.bootstrap,
 	                   min.ratio = min.ratio,
-	                   common.col = common.col,
+	                   uncommon.col = "red",
+	                   compare.tree.name = "tree2",
 	                   branchCol = NULL,
 	                   use.tumorSampleLabel = use.tumorSampleLabel)
 	    p2 <- plotTree(phyloTree2,
 	                   treeData = treedat2,
 	                   show.bootstrap = show.bootstrap,
 	                   min.ratio = min.ratio,
-	                   common.col = common.col,
+	                   compare.tree.name = "tree1",
+	                   uncommon.col = "blue",
 	                  branchCol = NULL,
 	                  use.tumorSampleLabel = use.tumorSampleLabel)
 	    ptree <- cowplot::plot_grid(p1,
 	                                p2,
-	                                labels = c(getTreeMethod(phyloTree1),getTreeMethod(phyloTree2))
+	                                labels = c(paste0("tree1: ",getPhyloTreePatient(phyloTree1),"-",getTreeMethod(phyloTree1)),
+	                                           paste0("tree2: ",getPhyloTreePatient(phyloTree2),"-",getTreeMethod(phyloTree2)))
 	                                )
 	    # p <- ggpubr::ggarrange(p1, p2, nrow =1, common.legend = TRUE, legend="top",labels = c(phyloTree1@method,phyloTree2@method))
 	    return(list(compare.dist = dist, compare.plot = ptree))

@@ -8,6 +8,7 @@ plotMutSigProfile(
   sig_input,
   patient.id = NULL,
   mode = NULL,
+  contribution.type = "relative",
   use.tumorSampleLabel = FALSE
 )
 }
@@ -17,6 +18,8 @@ plotMutSigProfile(
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
 \item{mode}{Type of mutation spectrum. Default NULL. Options:'Original','Reconstructed' or 'Difference'}
+
+\item{contribution.type}{Type of Signature contribution. Default 'realative'. Options:'realative' or 'absolute'.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 }
@@ -28,11 +31,11 @@ plotMutSigProfile
 }
 \examples{
 ## input from fitSignatures
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
+phyloTree <- getPhyloTree(maf, patient.id = 'V402')
 
 ## Load a reference genome.
 library(BSgenome.Hsapiens.UCSC.hg19)

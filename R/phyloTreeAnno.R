@@ -5,7 +5,12 @@ plotTree <- function(phyloTree,
                      signaturesRef = "cosmic_v2",
                      min.mut.count = 15,
                      min.ratio = 1/20,
+<<<<<<< HEAD
                      common.col = "red",
+=======
+                     uncommon.col = "red",
+                     compare.tree.name = "",
+>>>>>>> mnliu
                      use.tumorSampleLabel = FALSE,
                      show.scale.bar = FALSE,
                      scale.bar.x = NULL,
@@ -51,6 +56,7 @@ plotTree <- function(phyloTree,
     rootLabel <- "NORMAL"
     ## plot phylotree
     samplePointsSize <- 3
+    comparePointsSize <- 3.5
     sampleTextSize <- 3.5
     nodePointsSize <- 1.7
     segmentSize <- 1.5
@@ -64,6 +70,7 @@ plotTree <- function(phyloTree,
     samplesLength <- nrow(treeData[treeData$sample != "internal node",]) 
     if(samplesLength > 7){
         samplePointsSize <- 1.5 
+        comparePointsSize <- 2 
         sampleTextSize <- 3
         segmentSize <- 0.8
         nodePointsSize <- 0.8
@@ -96,13 +103,11 @@ plotTree <- function(phyloTree,
         
         bootsData <- cbind(bootsData, boots = boots_list)
     }
-    
     ## initialize
     x2 <- NULL
     y2 <- NULL
     x1 <- NULL
     y1 <- NULL
-    
     ## get the max value of X axis 
     x_max <- max(abs(treeData$x2))
     # print(treeData)
@@ -166,13 +171,13 @@ plotTree <- function(phyloTree,
         }
     }else{
         if(compare){
-            p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
-                                  color = common.col,
-                                  data = treeData[treeData$is.match != "NO"],
-                                  size = segmentSize)
+            # p <- p + geom_point(aes(x = x1, y = y1),
+            #                       color = uncommon.col,
+            #                       data = treeData[treeData$is.match == "NO"],
+            #                       size = samplePointsSize)
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
                                   color = "black",
-                                  data = treeData[treeData$is.match == "NO"],size = segmentSize)
+                                  data = treeData ,size = segmentSize)
         }else{
             p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), color = "black",
                                   data = treeData, 
@@ -188,33 +193,63 @@ plotTree <- function(phyloTree,
                    axis.ticks.y = element_blank(),
                    axis.line = element_blank(),
                    panel.grid.major = element_blank(),
-                   panel.grid.minor = element_blank(), panel.background = element_blank(),
+                   panel.grid.minor = element_blank(),
+                   panel.background = element_blank(),
                    panel.border = element_blank(),
                    legend.text = element_text(size = legend.text.size),
                    legend.position = 'right') + 
         scale_x_discrete(expand = expansion(add = mean(treeData$distance)))+
         coord_fixed(ratio= 1)
-    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                             nudge_y = textAdjust/10,
-                             nudge_x = textAdjust/10,
-                             segment.color = "grey",
-                             segment.size = 0.25,
-                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
-                                                treeData$x2 >= 0, ],
-                             size = sampleTextSize ,force = 10)
-    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
-                             nudge_y = textAdjust/10,
-                             nudge_x = -textAdjust/10,
-                             segment.color = "grey",
-                             segment.size = 0.25,
-                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
-                                                treeData$x2 < 0, ],
-                             size = sampleTextSize ,force = 10)
-    ## label NORMAL
-    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
-                       label = rootLabel,
-                       data = treeData[treeData$sample == rootLabel,], 
-                       size = sampleTextSize)
+    
+    if(compare & is.null(branchCol)){
+       unmatch_dat <- treeData[treeData$is.match == "NO"&treeData$sample == 'internal node',]
+       if(nrow(unmatch_dat) > 1){
+          unmatch_label <- paste0("Clades absent in ", compare.tree.name)
+       }else if(nrow(unmatch_dat) == 1){
+          unmatch_label <- paste0("Clade absent in ", compare.tree.name)
+       }
+       
+       if(nrow(unmatch_dat) > 0){
+          rootLabel <- "NORMAL"
+          numNORMAL <- which(tree$tip.label == rootLabel)
+          tree <- ape::root(tree, tree$tip.label[numNORMAL])
+          treeEdge <- data.table::data.table(node = tree$edge[,1], endNum = tree$edge[,2])
+          rootRow <- which(treeEdge$endNum == numNORMAL)
+          rootNode <- treeEdge$node[rootRow]
+          
+          node_point_list <- c()
+          for(i in seq_len(nrow(unmatch_dat))){
+             point <- unmatch_dat$end_num[i]
+             for(i1 in seq_len(length(tree$tip.label))){
+                tip <- tree$tip.label[i1]
+                if(tip == rootLabel){
+                   next
+                }
+                start <- i1
+                tip_point_list <- c(i1)
+                while(TRUE){
+                   end <- as.numeric(treeEdge[treeEdge$endNum == start,]$node)
+                   tip_point_list <- c(tip_point_list, end)
+                   if(end == point){
+                      node_point_list <- unique(c(node_point_list, tip_point_list))
+                      node_point_list <- node_point_list[node_point_list!=point]
+                      break
+                   }
+                   if(end == rootNode){
+                      break
+                   }
+                   start <- end
+                }
+             }
+          }
+          
+          p <- p + geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
+                                color = uncommon.col,
+                                data = treeData[treeData$end_num %in% node_point_list,],
+                                size = segmentSize)
+       }
+    }
+    
     
     p <- p + geom_point(aes(x = x2,y = y2),
                         data = treeData[treeData$sample == 'internal node',],
@@ -223,40 +258,88 @@ plotTree <- function(phyloTree,
     p <- p + geom_point(aes(x = x2, y = y2), 
                         data = treeData[treeData$sample != 'internal node',],
                         size = samplePointsSize,color = "#67001F", fill = 'white', shape = 21, stroke = sampleStrokeSize)
-    Nd <- treeData[sample == rootLabel,]$distance
-    if(length(Nd)!=0){
-        if(Nd != 0){
-            p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
-                                fill = 'white', shape = 21, stroke = nodeStrokeSize)
-        }
-    }
-    if(show.bootstrap){
-        p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
-                                  data = bootsData,
-                                  # nudge_y = textAdjust/6,
-                                  # fontface = 'bold', 
-                                  size = bootLabelSize, 
-                                  box.padding = unit(bootPaddingSize, "lines"),
-                                  label.padding = bootLabelPaddingSize,
-                                  segment.colour = "grey50", 
-                                  segment.size = 0.25, 
-                                  force = 5)
-    }
-    if(compare){
-      is.match <- NULL
-        p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2, label = is.match),
-                                  data = treeData[treeData$is.match != "NO",],
-                                  fontface = 'bold', 
-                                  size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
-                                  segment.colour = "grey50", segment.size = 0.5, force = 5)
+    
+    
+    
+    
+    if(compare & is.null(branchCol)){
+       
+       if(nrow(unmatch_dat) > 0){
+          p <- p + geom_point(aes(x = x2, y = y2, color = is.match),
+                              # color = uncommon.col,
+                              data = unmatch_dat,
+                              size = comparePointsSize) + 
+             scale_color_manual(label = unmatch_label,values = uncommon.col) + 
+             theme(legend.title = element_blank())
+       }
     }
     
-    tree.title <- patient
+    
+    
+    Nd <- treeData[sample == rootLabel,]$distance
+    if(length(Nd)!=0){
+       if(Nd != 0){
+          p <- p + geom_point(aes(x =0 , y = 0), size = nodePointsSize, color = "#8c510a",
+                              fill = 'white', shape = 21, stroke = nodeStrokeSize)
+       }
+    }
+    
+    
+    
+    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                             nudge_y = textAdjust/10,
+                             nudge_x = textAdjust/10,
+                             segment.color = "grey",
+                             segment.size = 0.25,
+                             max.overlaps = 200,
+                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
+                                                treeData$x2 >= 0, ],
+                             size = sampleTextSize ,force = 10)
+    p <- p + geom_text_repel(aes(x = x2, y = y2, label = sample),
+                             nudge_y = textAdjust/10,
+                             nudge_x = -textAdjust/10,
+                             segment.color = "grey",
+                             segment.size = 0.25,
+                             max.overlaps = 200,
+                             data = treeData[(!treeData$sample %in% c("internal node",rootLabel)) &
+                                                treeData$x2 < 0, ],
+                             size = sampleTextSize ,force = 10)
+    
+    ## label NORMAL
+    p <- p + geom_text(aes(x = x2,y = y2-textAdjust/5),
+                       label = rootLabel,
+                       data = treeData[treeData$sample == rootLabel,], 
+                       size = sampleTextSize)
+
+    if(show.bootstrap){
+       p <- p + geom_label_repel(aes(x = x2, y = y2,label = boots),
+                                 data = bootsData,
+                                 # nudge_y = textAdjust/6,
+                                 # fontface = 'bold', 
+                                 size = bootLabelSize, 
+                                 box.padding = unit(bootPaddingSize, "lines"),
+                                 label.padding = bootLabelPaddingSize,
+                                 segment.colour = "grey50", 
+                                 segment.size = 0.25, 
+                                 max.overlaps = 200,
+                                 force = 5)
+    }
+    
+
     # if(compare){
-    #     tree.title <- patient
-    # }else{
-    #     tree.title <- paste(patient," (n=" ,nrow(getBinaryMatrix(phyloTree)) ,")",sep = "")
+    #   is.match <- NULL
+    #     p <- p + geom_label_repel(aes(x = x1 + (x2-x1)/2 , y = y1 + (y2 - y1)/2, label = is.match),
+    #                               data = treeData[treeData$is.match != "NO",],
+    #                               fontface = 'bold', 
+    #                               size = bootLabelSize, box.padding = unit(bootPaddingSize, "lines"), point.padding = unit(0.5, "lines"),
+    #                               segment.colour = "grey50", segment.size = 0.5, force = 5)
     # }
+<<<<<<< HEAD
+=======
+    # 
+    tree.title <- patient
+
+>>>>>>> mnliu
     if(show.scale.bar){
        mean_len <- ceiling(mean(treeData$distance)) 
        if(!is.null(scale.bar.x)){
@@ -293,9 +376,18 @@ plotTree <- function(phyloTree,
              color = "black"
           )
     }
+<<<<<<< HEAD
     p <- p + 
         ggtitle(tree.title)+
         theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
+=======
+    if(!compare){
+       p <- p + 
+          ggtitle(tree.title)+
+          theme(plot.title = element_text(face = "bold",colour = "black", hjust = 0.5,size = 13.5))
+    }
+
+>>>>>>> mnliu
     return(p)
 }
 
@@ -697,7 +789,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
          }else{
             n <- right[i]
          }
-         wr <- wrt*n/totalR
+         wr <- wrt*(n/totalR)
          adjacentWs[rightList[i]] <- wr
          if(i == 1){
             angler <- wr/2 + startr
@@ -730,11 +822,10 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
       for(i in seq_len(length(leftList))){
          if(leftList[i] <=  length(tree$tip.label)){
             n <- 1
-         }
-         else{
+         }else{
             n <- left[i]
          }
-         wl <- wlt*n/totalL
+         wl <- wlt*(n/totalL)
          adjacentWs[leftList[i]] <- wl
          if(i == 1){
             anglel <- startl - wl/2
@@ -750,8 +841,7 @@ getNodeAngle <- function(tree, treeEdge, mainTrunk,
             }
             adjacentAngles[leftList[i]] <- anglel
             startl <- anglel
-         }
-         else{
+         }else{
             
             if(n == 1& horizon != pi/2){
                startl <- startl  + wl/2

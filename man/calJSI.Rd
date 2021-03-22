@@ -23,9 +23,9 @@ calJSI(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{pairByTumor}{Compare JSI between different tumors. (Default: FALSE).}
+\item{pairByTumor}{Compare JSI between different tumors. Default FALSE.}
 
-\item{min.ccf}{The minimum value of CCF. Default 0}
+\item{min.ccf}{The minimum value of CCF. Default 0.}
 
 \item{plot}{Logical (Default: FALSE).}
 
@@ -48,9 +48,9 @@ Correlation matrix and heatmap via Jaccard similarity coefficient method
 The Jaccard similarity index (JSI) is applied to distinguish monoclonal versus polyclonal seeding in metastases.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 calJSI(maf)
 }

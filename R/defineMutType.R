@@ -193,7 +193,8 @@ do.classify <- function(
                       "Start_Position", "End_Position",
                       "Reference_Allele", "Tumor_Seq_Allele2", 
                       "Tumor_Sample_Barcode", "Mutation_Type",
-                      "unique_barcode_count", "Patient_ID"
+                      "unique_barcode_count", "Patient_ID",
+                      "Tumor_ID"
                       #type_barcode_ID,unique_tumor_count,total_barcode_count
         )
     

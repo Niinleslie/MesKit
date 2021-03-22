@@ -1,10 +1,10 @@
 #' readMaf
 #' @description Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 #'
-#' @param mafFile Tab delimited MAF file (plain text or *.gz compressed). Required.
-#' @param clinicalFile Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.
-#' @param ccfFile CCF file of somatic mutations. Default NULL.
-#' @param adjusted.VAF Whether adjusted VAF is included in mafFile. (Default FALSE).
+#' @param mafFile A tab delimited MAF file (plain text or *.gz compressed). Required.
+#' @param clinicalFile A clinical data file includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.
+#' @param ccfFile A CCF file of somatic mutations. Default NULL.
+#' @param adjusted.VAF Whether adjusted VAF is included in mafFile. Default FALSE.
 #' @param nonSyn.vc List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"
 #' @param use.indel.ccf Whether include indels in ccfFile. Default FALSE.
 #' @param ccf.conf.level The confidence level of CCF to identify clonal or subclonal. 
@@ -12,9 +12,9 @@
 #' @param refBuild Human reference genome version. Default 'hg19'. Optional: 'hg18' or 'hg38'.
 #'
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File,clinicalFile = clin.File, refBuild="hg19")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' @return an object of Maf or MafList.
@@ -88,16 +88,12 @@ readMaf <- function(
             )
         )
     
-    
-    ## check maf data
+    # check maf data
     maf_data <- validMaf(maf_data)
     
-    ## calculate average VAF
+    ## calculate Total_allele_depth
     maf_data <- maf_data %>% 
-        dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2) %>%
         dplyr::mutate(Total_allele_depth = .data$Ref_allele_depth + .data$Alt_allele_depth) %>% 
-        dplyr::mutate(Tumor_Average_VAF = round(sum(.data$VAF * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3)) %>% 
-        dplyr::ungroup() %>% 
         as.data.frame()
     
     if(adjusted.VAF){
@@ -126,7 +122,11 @@ readMaf <- function(
         maf_data <- maf_data %>%
             dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, 
                             .data$Start_Position, .data$Reference_Allele,.data$Tumor_Seq_Allele2) %>%
-            dplyr::mutate(Tumor_Average_VAF_adj = round(sum(.data$VAF_adj * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3))
+            dplyr::mutate(Tumor_Average_VAF = round(
+                sum(.data$VAF_adj * .data$Total_allele_depth)/
+                    sum(.data$Total_allele_depth)
+                ,3))
+
     }
     
     maf_data <- maf_data %>% 
@@ -162,8 +162,6 @@ readMaf <- function(
         return(maf_patient_list[[1]])
     }
 }
-
-
 
 
 

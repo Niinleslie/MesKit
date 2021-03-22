@@ -15,12 +15,12 @@
 #' @param scale.bar.x The x location of scale bar.
 #' @param scale.bar.y The y location of scale bar.
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' 
-#' phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
+#' phyloTree <- getPhyloTree(maf, patient.id = 'V402')
 #' plotPhyloTree(phyloTree)
 #
 #' @return return a list of phylotree graph .
@@ -44,6 +44,7 @@ plotPhyloTree <- function(phyloTree,
     processPlotTree <- function(phyloTree){
        patient <- getPhyloTreePatient(phyloTree)
        p <- plotTree(phyloTree,
+                     min.ratio = min.ratio,
                      branchCol = branchCol,
                      show.bootstrap = show.bootstrap,
                      signaturesRef = signaturesRef,
