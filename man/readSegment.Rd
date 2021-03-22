@@ -34,7 +34,7 @@ readSegment(
 
 \item{min.overlap.len}{The minimum insertion size of segment and gene. Default 50.}
 
-\item{verbose}{Whether to display details in the console. (Default: TRUE).}
+\item{verbose}{Whether to display details in the console. Default TRUE.}
 
 \item{...}{... Other options passed to \code{\link{cna2gene}}.}
 }
@@ -45,10 +45,10 @@ a list of segmentation data frame
 readSegment
 }
 \examples{
-segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
-gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
+gisticAmpGenesFile <- system.file("extdata", "COREAD_amp_genes.conf_99.txt", package = "MesKit")
+gisticDelGenesFile <- system.file("extdata", "COREAD_del_genes.conf_99.txt", package = "MesKit")
+gisticAllLesionsFile <- system.file("extdata", "COREAD_all_lesions.conf_99.txt", package = "MesKit")
 seg <- readSegment(segFile = segFile,
                    gisticAmpGenesFile = gisticAmpGenesFile,
                    gisticDelGenesFile = gisticDelGenesFile,

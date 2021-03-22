@@ -29,7 +29,7 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
    ## calculate tumor average ccf
    mafData_merge_ccf <- mafData_merge_ccf %>% 
        dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2) %>%
-       dplyr::mutate(Tumor_Average_CCF = round(sum(.data$CCF * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3)) %>% 
+       dplyr::mutate(Tumor_Average_CCF = round(sum(.data$CCF * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3)) %>%
        dplyr::ungroup() %>% 
        as.data.frame()
    
