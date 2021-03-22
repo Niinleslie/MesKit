@@ -85,7 +85,7 @@ compareTree <- function(phyloTree1,
 	    m12 <- match(treedat1[sample == "internal node",]$label, treedat2[sample == "internal node",]$label)
 	    # um12 <- which(is.na(m12))
 	    if(length(m12[!is.na(m12)]) > 0){
-	      cat(paste0("Both tree have ",length(m12[!is.na(m12)]), " same branches"))
+	      cat(paste0("Both tree have ",length(m12[!is.na(m12)]), " same branches \n"))
 	      treedat1$is.match <- 'NO'
 	      treedat2$is.match <- 'NO'
 	      x <- 1
