@@ -1,14 +1,27 @@
 ##--- combine CCF into maf object
-readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VAF,  min.average.adj.vaf) {
+readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VAF,  min.average.adj.vaf, use.indel.ccf) {
    
-   mafData_merge_ccf <-  
-      dplyr::left_join(maf_data, ccf_data, 
-                       by = c("Patient_ID",
-                              "Tumor_Sample_Barcode",
-                               "Chromosome",
-                               "Start_Position")) %>% 
-       # dplyr::mutate(CCF = dplyr::if_else(is.na(CCF), 0,CCF))%>%
-      dplyr::mutate(CCF = dplyr::if_else(.data$CCF > 1,1,.data$CCF))
+   if(use.indel.ccf){
+      mafData_merge_ccf <-  
+         dplyr::left_join(maf_data, ccf_data, 
+                          by = c("Patient_ID",
+                                 "Tumor_Sample_Barcode",
+                                 "Chromosome",
+                                 "Start_Position",
+                                 "Reference_Allele",
+                                 "Tumor_Seq_Allele2")) %>% 
+         # dplyr::mutate(CCF = dplyr::if_else(is.na(CCF), 0,CCF))%>%
+         dplyr::mutate(CCF = dplyr::if_else(.data$CCF > 1,1,.data$CCF))
+   }else{
+      mafData_merge_ccf <-  
+         dplyr::left_join(maf_data, ccf_data, 
+                          by = c("Patient_ID",
+                                 "Tumor_Sample_Barcode",
+                                 "Chromosome",
+                                 "Start_Position")) %>% 
+         # dplyr::mutate(CCF = dplyr::if_else(is.na(CCF), 0,CCF))%>%
+         dplyr::mutate(CCF = dplyr::if_else(.data$CCF > 1,1,.data$CCF))
+   }
    
    if(!adjusted.VAF){
       mafData_merge_ccf$VAF_adj <- mafData_merge_ccf$CCF/2
@@ -16,7 +29,7 @@ readCCF <- function(maf_data, ccf_data, ccf.conf.level, sample.info, adjusted.VA
    ## calculate tumor average ccf
    mafData_merge_ccf <- mafData_merge_ccf %>% 
        dplyr::group_by(.data$Patient_ID, .data$Tumor_ID, .data$Chromosome, .data$Start_Position, .data$Reference_Allele, .data$Tumor_Seq_Allele2) %>%
-       dplyr::mutate(Tumor_Average_CCF = round(sum(.data$CCF * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3)) %>% 
+       dplyr::mutate(Tumor_Average_CCF = round(sum(.data$CCF * .data$Total_allele_depth)/sum(.data$Total_allele_depth),3)) %>%
        dplyr::ungroup() %>% 
        as.data.frame()
    

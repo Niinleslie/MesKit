@@ -12,7 +12,8 @@ triMatrix(phyloTree, patient.id = NULL, level = 2)
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included}
 
 \item{level}{Calculate the frequency of 96 trinucleotide mutatio on different levels. 
-1: patient-level, 2: tumor-level, 3: sample-level, 4: branch-level, 5: shared pattern (public/shared/private) of each tumor. Default 2.}
+1: patient-level, 2: tumor-level, 3: sample-level, 4: branch-level, 5: shared pattern (public/shared/private) of each tumor. 
+6: trunk/branch-level. Default 2.}
 }
 \value{
 The frequency of 96 trinucleotide mutation.
@@ -21,14 +22,14 @@ The frequency of 96 trinucleotide mutation.
 Calculate the frequency of 96 trinucleotide mutation based on somatic SNVs.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 
 ## Load a reference genome.
 library(BSgenome.Hsapiens.UCSC.hg19)
 
-phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
+phyloTree <- getPhyloTree(maf, patient.id = 'V402')
 triMatrix(phyloTree)
 }

@@ -7,14 +7,14 @@
 #' "ML"(maximum likelihood), "FASTME.ols" or "FASTME.bal".  
 #' @param min.vaf The minimum value of vaf. Default 0.
 #' @param min.ccf The minimum value of CCF. Default 0
-#' @param bootstrap.rep.num Bootstrap iterations.Default 100.
+#' @param bootstrap.rep.num Bootstrap iterations. Default 100.
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' 
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' phyloTree <- getPhyloTree(maf)
 #' @return PhyloTree or phyloTreeList object
@@ -110,8 +110,8 @@ getPhyloTree <- function(maf,
                       patient.id = patient.id,
                       min.vaf = min.vaf,
                       min.ccf = min.ccf,
-                      mafObj = TRUE, ...)
-  
+                      mafObj = TRUE,
+                      ...)
   
   phyloTree_patient_list <- lapply(maf_input, processGetPhyloTree)
   phyloTree_patient_list <- phyloTree_patient_list[!is.na(phyloTree_patient_list)]

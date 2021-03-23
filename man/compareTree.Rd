@@ -10,7 +10,6 @@ compareTree(
   plot = FALSE,
   min.ratio = 1/20,
   show.bootstrap = FALSE,
-  common.col = "red",
   use.tumorSampleLabel = FALSE
 )
 }
@@ -26,8 +25,6 @@ all edge length which are smaller than min.ratio*the longest edge length will be
 
 \item{show.bootstrap}{Logical (Default: FALSE). Whether to add bootstrap value on internal nodes.}
 
-\item{common.col}{Color of common branches.}
-
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 }
 \value{
@@ -41,14 +38,14 @@ Weighted.path.difference	 difference in the path length, counted using branches 
 Compares two phylogenetic trees and returns a detailed report of several distance methods
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 
 
-phyloTree1 <- getPhyloTree(maf$HCC5647, method = "NJ")
-phyloTree2 <- getPhyloTree(maf$HCC5647, method = "MP")
+phyloTree1 <- getPhyloTree(maf$V402, method = "NJ")
+phyloTree2 <- getPhyloTree(maf$V402, method = "MP")
 compareTree(phyloTree1, phyloTree2)
 compareTree(phyloTree1, phyloTree2, plot = TRUE)
 }

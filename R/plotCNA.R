@@ -13,21 +13,21 @@
 #' @param sample.bar.height Bar height of each sample. Default 0.5.
 #' @param chrom.bar.height Bar height of each chromosome. Default 0.5.
 #' @param showRownames Logical (Default: TRUE). Show sample names of rows.
-#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. (Default: TRUE). 
+#' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. Default TRUE. 
 #' @param showCytoband Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.
 #' @param showGene Logical (Default: FALSE). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
 #' 
 #' @examples
-#' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+#' segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
 #' seg <- readSegment(segFile = segFile)
 #' plotCNA(seg)
 #' 
 #' ## showCytoband
-#' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
-#' gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-#' gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-#' gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+#' segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
+#' gisticAmpGenesFile <- system.file("extdata", "COREAD_amp_genes.conf_99.txt", package = "MesKit")
+#' gisticDelGenesFile <- system.file("extdata", "COREAD_del_genes.conf_99.txt", package = "MesKit")
+#' gisticAllLesionsFile <- system.file("extdata", "COREAD_all_lesions.conf_99.txt", package = "MesKit")
 #' seg <- readSegment(segFile = segFile,
 #'                    gisticAmpGenesFile = gisticAmpGenesFile,
 #'                     gisticDelGenesFile = gisticDelGenesFile,
@@ -87,7 +87,7 @@ plotCNA <- function(seg,
     
     if(use.tumorSampleLabel){
         if(!"Tumor_Sample_Label" %in% colnames(seg)){
-            stop("Tumor_Sample_Label was not found. Please check clinical data or let use.tumorSampleLabel be 'FALSE'")
+            stop("Tumor_Sample_Label was not found. Please check seg file or let use.tumorSampleLabel be 'FALSE'")
         }
         seg <- seg %>% 
             dplyr::mutate(Tumor_Sample_Barcode = .data$Tumor_Sample_Label)
@@ -126,6 +126,8 @@ plotCNA <- function(seg,
         }
         patient_num <- 1
         seg <- seg[seg$Patient_ID %in% patient.id, ]
+        seg$patient <- seg$Patient_ID
+        seg <- dplyr::select(seg, -"Patient_ID")
     }
     
     
@@ -292,7 +294,7 @@ plotCNA <- function(seg,
 
     }else{
         seg <- seg %>% 
-            dplyr::arrange(.data$Patient_ID,
+            dplyr::arrange(.data$patient,
                            .data$Tumor_Sample_Barcode,
                            .data$Chromosome,
                            .data$Start_Position) %>%
@@ -512,10 +514,11 @@ plotCNA <- function(seg,
                                          y = max(backgroundTable$ymax),
                                          label = Cytoband),
                                      size = annot.text.size,
+                                     max.overlaps = 200,
                                      angle = 90,
                                      nudge_y  = sample.bar.height*0.3*sample_num/8,
                                      direction = "x",
-                                     vjust = 0)
+                                     vjust = 1)
                                                                            
     }
     
@@ -538,13 +541,13 @@ plotCNA <- function(seg,
                       fill = "white") + 
             ggrepel::geom_text_repel(data = gene_table, 
                                      aes(x = gene_pos,
-                                         y = max(backgroundTable$ymax),
+                                         y = max(backgroundTable$ymax) + sample.bar.height*sample_num/5,
                                          label = Hugo_Symbol),
                                      size = annot.text.size,
                                      angle = 90,
-                                     nudge_y  = sample.bar.height*0.3*patient_num,
-                                     direction = "x",
-                                     vjust = 0)
+                                     # nudge_y  = sample.bar.height*0.3*patient_num,
+                                     direction = "both",
+                                     vjust = 1)
     }
     ## patient bar
     if("patient" %in% colnames(seg)&

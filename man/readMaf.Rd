@@ -10,20 +10,23 @@ readMaf(
   ccfFile = NULL,
   adjusted.VAF = FALSE,
   nonSyn.vc = NULL,
+  use.indel.ccf = FALSE,
   ccf.conf.level = 0.95,
   refBuild = "hg19"
 )
 }
 \arguments{
-\item{mafFile}{Tab delimited MAF file (plain text or *.gz compressed). Required.}
+\item{mafFile}{A tab delimited MAF file (plain text or *.gz compressed). Required.}
 
-\item{clinicalFile}{Clinical data includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.}
+\item{clinicalFile}{A clinical data file includes Tumor_Sample_Barcode, Tumor_ID, Patient_ID. Tumor_Sample_Label is optional. Default NULL.}
 
-\item{ccfFile}{CCF file of somatic mutations. Default NULL.}
+\item{ccfFile}{A CCF file of somatic mutations. Default NULL.}
 
-\item{adjusted.VAF}{Whether adjusted VAF is included in mafFile. (Default FALSE).}
+\item{adjusted.VAF}{Whether adjusted VAF is included in mafFile. Default FALSE.}
 
 \item{nonSyn.vc}{List of Variant classifications which are considered as non-silent. Default NULL, use Variant Classifications with "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation"}
+
+\item{use.indel.ccf}{Whether include indels in ccfFile. Default FALSE.}
 
 \item{ccf.conf.level}{The confidence level of CCF to identify clonal or subclonal. 
 Only works when "CCF_std" or "CCF_CI_high" is provided in ccfFile. Default 0.95.}
@@ -37,9 +40,9 @@ an object of Maf or MafList.
 Read tab delimited MAF (can be plain text or *.gz compressed) file along with sample information file.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File,clinicalFile = clin.File, refBuild="hg19")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 }
