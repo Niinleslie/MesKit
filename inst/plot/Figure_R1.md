@@ -1,2 +1,4 @@
-<img src="https://https://github.com/Niinleslie/MesKit/edit/paper/inst/plot/Figure_R1.png" height="450" width="450" alt = "Figure_R1"/>
+<img src="https://github.com/Niinleslie/MesKit/blob/paper/inst/plot/Figure_R1.png" height="450" width="450" alt = "Figure_R1"/>
 Figure R1. Density plots of merged CCF values in paired primary tumors and metastases of the CRC cohort. SciClone was employed to cluster merged VAFs (equivalent to CCF_merged/2) for each primary tumor/metastasis sample pair and mutations were indicated in different shapes according to the cluster they correspond to. Jaccard similarity index (JSI) and putative CRC driver genes are indicated on the plot. P, primary tumor; BM, brain metastasis; LN, lymph node metastasis; LU, lung metastasis.
+
+
