@@ -5,7 +5,6 @@
 #' @param patient.id Select the specific patients. Default NULL, all patients are included.
 #' @param segFile The segment file.
 #' @param use.ccf Cluster CCF. Default FALSE.
-#' @param use.adjVAF Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE. 
 #' @param withinTumor Cluster Tumor average CCF within tumors in each patients. Default FALSE.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). 
 #' Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
