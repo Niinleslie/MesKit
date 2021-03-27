@@ -19,7 +19,7 @@
 #' library(org.Hs.eg.db)
 #' cna2gene(seg, txdb = TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' @return seg object
-#' @export readSegment
+#' @export cna2gene
 
 cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
   

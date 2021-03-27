@@ -56,9 +56,9 @@ Otherwise, print a cancer cell frequency (CCF) heatmap.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 
-\item{...}{Other options passed to \code{\link{subMaf}}}
+\item{classByTumor}{Logical Default: FALSE. Classify mutations based on "Tumor_ID".}
 
-\item{classByTumorLogical}{Default: FALSE. Classify mutations based on "Tumor_ID".}
+\item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
 heatmap of somatic mutations
@@ -71,6 +71,6 @@ maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
 clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
 ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-mutHeatmap(maf, patient.id = 'HCC8257')
+mutHeatmap(maf)
 
 }
