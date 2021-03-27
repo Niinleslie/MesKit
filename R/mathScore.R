@@ -63,7 +63,7 @@ mathScore <- function(maf,
             
             id <- unique(subdata[[id_col]])
             patient <- unique(subdata$Patient_ID)
-            message(paste("## Calculating MATH score for ", id," of ", patient, sep = ""))
+            # message(paste("Calculating MATH score for ", id," of ", patient, sep = ""))
             
             if(!is.null(seg)){
                 subdata <- copyNumberFilter(subdata,

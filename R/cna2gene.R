@@ -19,12 +19,13 @@
 #' library(org.Hs.eg.db)
 #' cna2gene(seg, txdb = TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' @return seg object
+#' @export cna2gene
 
 cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
   
   ## combine data frame
   if(is(seg, "list")){
-    seg <- plyr::rbind.fill(seg) %>% as.data.table()
+    seg <- dplyr::bind_rows(seg) %>% as.data.table()
   }
   seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
   seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE)
