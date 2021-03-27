@@ -17,7 +17,7 @@
 #' @param gene.text.size Size of gene text. Default 9.
 #' @param sampleOrder A named list which contains the sample order used in plotting the heatmap. Default NULL.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
-#' @param classByTumorLogical Default: FALSE. Classify mutations based on "Tumor_ID".
+#' @param classByTumor Logical Default: FALSE. Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
@@ -25,7 +25,7 @@
 #' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
 #' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-#' mutHeatmap(maf, patient.id = 'HCC8257')
+#' mutHeatmap(maf)
 #' 
 #' @return heatmap of somatic mutations
 #' @importFrom grDevices colors
