@@ -83,5 +83,5 @@ For more useful tools/applications, please go to [renlab.org](http://www.renlab.
 
 ## Citation
 
-_MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (Under revision)_
+_MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (In production)_
 
