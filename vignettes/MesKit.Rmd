@@ -76,7 +76,7 @@ Intra-tumor heterogeneity (ITH) is now thought to be a key factor that results i
 
 In R console, enter `citation("MesKit")`.  
   
-_**MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (Under revision)**_
+_**MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (In production)**
    
    
 ### 2. Prepare input Data  

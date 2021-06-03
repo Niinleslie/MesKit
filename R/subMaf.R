@@ -10,7 +10,6 @@
 #' @param min.vaf The minimum VAF for filtering variants. Default 0.
 #' @param max.vaf The maximum VAF for filtering variants. Default 1.
 #' @param min.average.vaf The minimum tumor average VAF for filtering variants. Default 0.
-#' @param min.average.adj.vaf The minimum tumor average ajust VAF for filtering variants. Default 0.
 #' @param min.ccf The minimum CCF for filtering variants. Default NULL.
 #' @param min.ref.depth The minimum reference allele depth for filtering variants. Default 0.
 #' @param min.alt.depth The minimum alteratation allele depth for filtering variants. Default 0.

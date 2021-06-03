@@ -58,8 +58,6 @@ subMaf(
 \item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
-
-\item{min.average.adj.vaf}{The minimum tumor average ajust VAF for filtering variants. Default 0.}
 }
 \value{
 Maf object or Maf data.
