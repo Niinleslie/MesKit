@@ -51,7 +51,7 @@ plotCNA(
 
 \item{showRownames}{Logical (Default: TRUE). Show sample names of rows.}
 
-\item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. (Default: TRUE).}
+\item{removeEmptyChr}{Remove empty chromosomes that do not exist in all samples. Default TRUE.}
 
 \item{showCytoband}{Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.}
 
@@ -66,39 +66,19 @@ a heatmap plot of CNA profile
 plotCNA
 }
 \examples{
-segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
+segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
 seg <- readSegment(segFile = segFile)
 plotCNA(seg)
 
 ## showCytoband
-segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
-gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+gisticAmpGenesFile <- system.file("extdata", "COREAD_amp_genes.conf_99.txt", package = "MesKit")
+gisticDelGenesFile <- system.file("extdata", "COREAD_del_genes.conf_99.txt", package = "MesKit")
+gisticAllLesionsFile <- system.file("extdata", "COREAD_all_lesions.conf_99.txt", package = "MesKit")
 seg <- readSegment(segFile = segFile,
                    gisticAmpGenesFile = gisticAmpGenesFile,
                     gisticDelGenesFile = gisticDelGenesFile,
                    gisticAllLesionsFile = gisticAllLesionsFile)
 plotCNA(seg, showCytoband = TRUE)
 
-## showGene
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-library(org.Hs.eg.db)
-library(AnnotationDbi)
-txdb = TxDb.Hsapiens.UCSC.hg19.knownGene
-
-segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
-gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
-
-seg <- readSegment(segFile = segFile,
-                   gisticAmpGenesFile = gisticAmpGenesFile,
-                   gisticDelGenesFile = gisticDelGenesFile, 
-                   gisticAllLesionsFile = gisticAllLesionsFile,
-                   txdb = txdb)
-
-plotCNA(seg, showGene = TRUE)
-                   
 
 }

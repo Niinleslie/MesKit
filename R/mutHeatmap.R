@@ -10,21 +10,22 @@
 #' Otherwise, print a cancer cell frequency (CCF) heatmap.
 #' @param geneList List of genes to restrict the analysis. Default NULL.
 #' @param plot.geneList Logical (Default: FALSE). If TRUE, plot heatmap with genes on geneList when geneList is not NULL.
-#' @param show.geneList Show the names of gene on the geneList. (Default TRUE).
+#' @param show.geneList Show the names of gene on the geneList. Default TRUE.
 #' @param mut.threshold show.gene and show.geneList will be FALSE when patient have more mutations than threshold. Default 150.
 #' @param sample.text.size Size of sample name.Default 9.
 #' @param legend.title.size Size of legend title.Default 10.
 #' @param gene.text.size Size of gene text. Default 9.
 #' @param sampleOrder A named list which contains the sample order used in plotting the heatmap. Default NULL.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.
+#' @param classByTumor Logical Default: FALSE. Classify mutations based on "Tumor_ID".
 #' @param ... Other options passed to \code{\link{subMaf}}
 #' 
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-#' mutHeatmap(maf, patient.id = 'HCC8257')
+#' mutHeatmap(maf)
 #' 
 #' @return heatmap of somatic mutations
 #' @importFrom grDevices colors
@@ -45,6 +46,7 @@ mutHeatmap <- function(maf,
                        gene.text.size = 9,
                        sampleOrder = NULL,
                        use.tumorSampleLabel = FALSE,
+                       classByTumor = FALSE,
                        ...){
     
     maf_input <- subMaf(maf,
@@ -80,7 +82,7 @@ mutHeatmap <- function(maf,
             if("CCF" %in% colnames(maf_data)){
                 mat <- getMutMatrix(maf_data, use.ccf = TRUE)
             }else{
-                stop("Heatmap requires CCF data when use.ccf is True")
+                stop("Heatmap requires CCF data when use.ccf is TRUE")
             }
             type <- "CCF"
             value.name <- "CCF"
@@ -103,7 +105,7 @@ mutHeatmap <- function(maf,
         
         ## classify mutation
         maf_data <- maf_data %>% 
-            do.classify(class = "SP",classByTumor = TRUE) %>% 
+            do.classify(class = "SP",classByTumor = classByTumor) %>% 
             tidyr::unite("mutation_id", c("Hugo_Symbol", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2"), sep = ":", remove = FALSE)
         
         # mat <- binary.matrix

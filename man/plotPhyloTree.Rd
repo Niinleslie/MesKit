@@ -12,7 +12,10 @@ plotPhyloTree(
   min.ratio = 1/20,
   signaturesRef = "cosmic_v2",
   min.mut.count = 15,
-  use.tumorSampleLabel = FALSE
+  use.tumorSampleLabel = FALSE,
+  show.scale.bar = FALSE,
+  scale.bar.x = NULL,
+  scale.bar.y = NULL
 )
 }
 \arguments{
@@ -34,6 +37,12 @@ If not, the edge length will be reset as min.ratio*longest edge length.}
 \item{min.mut.count}{The threshold for the variants in a branch. Default 15.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
+
+\item{show.scale.bar}{Logical (Default: FALSE). Whether to show scale bar.This function adds a horizontal bar giving the scale of the branch lengths to a plot on the current graphical device.}
+
+\item{scale.bar.x}{The x location of scale bar.}
+
+\item{scale.bar.y}{The y location of scale bar.}
 }
 \value{
 return a list of phylotree graph .
@@ -42,11 +51,11 @@ return a list of phylotree graph .
 plotPhyloTree
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 
-phyloTree <- getPhyloTree(maf, patient.id = 'HCC8257')
+phyloTree <- getPhyloTree(maf, patient.id = 'V402')
 plotPhyloTree(phyloTree)
 }

@@ -18,9 +18,9 @@
 #' @return Nei's genetic distance matrix and heatmap of sample-pairs from the same patient
 #'
 #' @examples
-#' maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-#' clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-#' ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+#' maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+#' clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+#' ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 #' maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 #' calNeiDist(maf)
 #' @export calNeiDist
@@ -47,7 +47,7 @@ calNeiDist <- function(maf,
     
     if(!"CCF" %in% colnames(maf_data)){
       stop(paste0("Calculation of Nei's distance requires CCF data.",
-                  "No CCF data was found when generated Maf object with readMaf function"))
+                  "No CCF data was found when generating Maf object with readMaf function"))
     }
     Nei_input <- maf_data %>%
       tidyr::unite(

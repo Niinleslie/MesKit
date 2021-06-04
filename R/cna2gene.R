@@ -6,10 +6,10 @@
 #' @param geneList The list of genes used to limit the annotation.Default NULL. 
 #' 
 #' @examples
-#' segFile <- system.file("extdata", "HCC_LDC.seg.txt", package = "MesKit")
-#' gisticAmpGenesFile <- system.file("extdata", "LIHC_amp_genes.conf_99.txt", package = "MesKit")
-#' gisticDelGenesFile <- system.file("extdata", "LIHC_del_genes.conf_99.txt", package = "MesKit")
-#' gisticAllLesionsFile <- system.file("extdata", "LIHC_all_lesions.conf_99.txt", package = "MesKit")
+#' segFile <- system.file("extdata", "CRC_HZ.seg.txt", package = "MesKit")
+#' gisticAmpGenesFile <- system.file("extdata", "COREAD_amp_genes.conf_99.txt", package = "MesKit")
+#' gisticDelGenesFile <- system.file("extdata", "COREAD_del_genes.conf_99.txt", package = "MesKit")
+#' gisticAllLesionsFile <- system.file("extdata", "COREAD_all_lesions.conf_99.txt", package = "MesKit")
 #' seg <- readSegment(segFile = segFile,
 #'                    gisticAmpGenesFile = gisticAmpGenesFile,
 #'                     gisticDelGenesFile = gisticDelGenesFile, 
@@ -19,12 +19,13 @@
 #' library(org.Hs.eg.db)
 #' cna2gene(seg, txdb = TxDb.Hsapiens.UCSC.hg19.knownGene)
 #' @return seg object
+#' @export cna2gene
 
 cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
   
   ## combine data frame
   if(is(seg, "list")){
-    seg <- plyr::rbind.fill(seg) %>% as.data.table()
+    seg <- dplyr::bind_rows(seg) %>% as.data.table()
   }
   seg$Chromosome = gsub(pattern = 'X', replacement = '23', x = seg$Chromosome, fixed = TRUE)
   seg$Chromosome = gsub(pattern = 'Y', replacement = '24', x = seg$Chromosome, fixed = TRUE)
@@ -193,5 +194,5 @@ cna2gene <- function(seg, txdb, min.overlap.len = 50, geneList = NULL){
       "Start_Position" = "i.Start_Position"
     )
   return(result)
-  # t <- anno_result[Patient_ID == "HCC5647"&Tumor_Sample_Barcode == "T1"]
+  # t <- anno_result[Patient_ID == "V402"&Tumor_Sample_Barcode == "T1"]
 }

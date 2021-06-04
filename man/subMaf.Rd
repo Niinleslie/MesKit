@@ -15,7 +15,6 @@ subMaf(
   min.vaf = 0,
   max.vaf = 1,
   min.average.vaf = 0,
-  min.average.adj.vaf = 0,
   min.ccf = 0,
   min.ref.depth = 0,
   min.alt.depth = 0,
@@ -46,8 +45,6 @@ subMaf(
 
 \item{min.average.vaf}{The minimum tumor average VAF for filtering variants. Default 0.}
 
-\item{min.average.adj.vaf}{The minimum tumor average ajust VAF for filtering variants. Default 0.}
-
 \item{min.ccf}{The minimum CCF for filtering variants. Default NULL.}
 
 \item{min.ref.depth}{The minimum reference allele depth for filtering variants. Default 0.}
@@ -69,9 +66,9 @@ Maf object or Maf data.
 Subset Maf object
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 maf_data <- subMaf(maf)
 }

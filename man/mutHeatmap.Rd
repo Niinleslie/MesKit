@@ -20,6 +20,7 @@ mutHeatmap(
   gene.text.size = 9,
   sampleOrder = NULL,
   use.tumorSampleLabel = FALSE,
+  classByTumor = FALSE,
   ...
 )
 }
@@ -41,7 +42,7 @@ Otherwise, print a cancer cell frequency (CCF) heatmap.}
 
 \item{plot.geneList}{Logical (Default: FALSE). If TRUE, plot heatmap with genes on geneList when geneList is not NULL.}
 
-\item{show.geneList}{Show the names of gene on the geneList. (Default TRUE).}
+\item{show.geneList}{Show the names of gene on the geneList. Default TRUE.}
 
 \item{mut.threshold}{show.gene and show.geneList will be FALSE when patient have more mutations than threshold. Default 150.}
 
@@ -55,6 +56,8 @@ Otherwise, print a cancer cell frequency (CCF) heatmap.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 
+\item{classByTumor}{Logical Default: FALSE. Classify mutations based on "Tumor_ID".}
+
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
 \value{
@@ -64,10 +67,10 @@ heatmap of somatic mutations
 plot binary or CCF heatmap of somatic mutations.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
-mutHeatmap(maf, patient.id = 'HCC8257')
+mutHeatmap(maf)
 
 }

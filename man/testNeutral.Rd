@@ -23,7 +23,7 @@ testNeutral(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{withinTumor}{Test neutral within tumros in each patients. (Default: FALSE).}
+\item{withinTumor}{Test neutral within tumros in each patients. Default FALSE.}
 
 \item{min.total.depth}{The minimun total depth of coverage. Defalut 2}
 
@@ -35,9 +35,9 @@ testNeutral(
 
 \item{min.mut.count}{The minimun number of subclonal mutations used to fit model. Default 20}
 
-\item{plot}{Logical, whether to print model fitting plot of each sample. (Default: TRUE).}
+\item{plot}{Logical, whether to print model fitting plot of each sample. Default TRUE.}
 
-\item{use.tumorSampleLabel}{Let Tumor_Sample_Barcode replace Tumor_Sample_Label if Tumor Label is provided in clinical data. (Default FALSE).}
+\item{use.tumorSampleLabel}{Let Tumor_Sample_Barcode replace Tumor_Sample_Label if Tumor Label is provided in clinical data. Default FALSE.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
 }
@@ -49,9 +49,9 @@ Evaluate whether a tumor follows neutral evolution or under strong selection dur
 The subclonal mutant allele frequencies of a follow a simple power-law distribution predicted by neutral growth.
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 testNeutral(maf)
 }

@@ -18,9 +18,9 @@ compareCCF(
 
 \item{patient.id}{Select the specific patients. Default NULL, all patients are included.}
 
-\item{min.ccf}{The minimum value of CCF. Default 0}
+\item{min.ccf}{The minimum value of CCF. Default 0.}
 
-\item{pairByTumor}{Pair by tumor types in each patients. (Default: FALSE).}
+\item{pairByTumor}{Pair by tumor types in each patients. Default FALSE.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). 
 Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
@@ -35,9 +35,9 @@ Compare the CCF between samples/tumor pairs
 This function requires CCF for clustering
 }
 \examples{
-maf.File <- system.file("extdata/", "HCC_LDC.maf", package = "MesKit")
-clin.File <- system.file("extdata/", "HCC_LDC.clin.txt", package = "MesKit")
-ccf.File <- system.file("extdata/", "HCC_LDC.ccf.tsv", package = "MesKit")
+maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
+clin.File <- system.file("extdata/", "CRC_HZ.clin.txt", package = "MesKit")
+ccf.File <- system.file("extdata/", "CRC_HZ.ccf.tsv", package = "MesKit")
 maf <- readMaf(mafFile=maf.File, clinicalFile = clin.File, ccfFile=ccf.File, refBuild="hg19")
 compareCCF(maf)
 }
