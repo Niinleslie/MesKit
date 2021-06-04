@@ -79,7 +79,7 @@ RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.92
 # MesKit part:
 RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19'))" 
 RUN R -e "devtools::install_github('jokergoo/ComplexHeatmap')"
-RUN R -e "devtools::install_github('Niinleslie/MesKit')"
+RUN R -e "devtools::install_github('Niinleslie/MesKit', ref = "master")"
 COPY inst/shiny /srv/shiny-server/
 
 EXPOSE 3838
