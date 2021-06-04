@@ -17,7 +17,7 @@ In order to run MesKit with docker containers, you'll need docker installed.
 To get this MesKit image from Docker Hub,  you can execute the following command in shell :
 
 ```shell
-$ docker pull niinleslie/mesKit
+$ docker pull niinleslie/meskit
 ```
 
 After pulling MesKit image checked by `docker images`, you should run the `docker run` command below to initiate the docker container and make sure that the port is suitable for shiny-server's configuration: 
