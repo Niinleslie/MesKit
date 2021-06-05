@@ -81,11 +81,13 @@ RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BS
 RUN R -e "devtools::install_github('jokergoo/ComplexHeatmap')"
 RUN R -e "devtools::install_github('Niinleslie/MesKit', ref = 'master')"
 
+# Copy the app to the image
 COPY inst/shiny /srv/shiny-server/
 # Copy further configuration files into the Docker image
 COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
 
 EXPOSE 3838
 
-CMD ["/bin/bash"]
+CMD ["R", "-e", "MesKit::runMesKit()"]
+# CMD ["/bin/bash"]
 # CMD ["/usr/bin/shiny-server.sh"]
