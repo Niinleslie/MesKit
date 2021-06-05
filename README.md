@@ -83,9 +83,4 @@ For more useful tools/applications, please go to [renlab.org](http://www.renlab.
 
 ## Citation
 
-<<<<<<< HEAD
-_MesKit: A Tool Kit for Dissecting Cancer Evolution of Multi-region Tumor Biopsies through Somatic Alterations (Submitted)_
-
-=======
 _Mengni Liu, Jianyu Chen, Xin Wang, Chengwei Wang, Xiaolong Zhang, Yubin Xie, Zhixiang Zuo, Jian Ren, Qi Zhao, MesKit: a tool kit for dissecting cancer evolution of multi-region tumor biopsies through somatic alterations, GigaScience, Volume 10, Issue 5, May 2021, giab036, https://doi.org/10.1093/gigascience/giab036_
->>>>>>> master
