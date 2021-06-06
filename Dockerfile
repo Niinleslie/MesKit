@@ -75,7 +75,7 @@ RUN wget --no-verbose https://download3.rstudio.org/ubuntu-14.04/x86_64/VERSION 
     rm -f version.txt ss-latest.deb && \
     . /etc/environment && \
     R -e "install.packages(
-        c('shiny', 'rmarkdown', 'DT', 'devtools', 'BiocManager', 'shinydashboard',
+        c('DT', 'devtools', 'BiocManager', 'shiny', 'rmarkdown',  'shinydashboard',
         'shinyWidgets', 'shinyBS', 'shinycssloaders', 'shinyjs', 'rjson'), 
         repos='http://cran.rstudio.com/')" && \
     chown shiny:shiny /var/lib/shiny-server
