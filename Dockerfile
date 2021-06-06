@@ -67,14 +67,25 @@ RUN apt-get -y update && apt-get install -y -f --no-install-recommends \
 #RUN apt-get clean && apt-get -y update && apt-get install -y locales && locale-gen en_US.UTF-8
 #ENV LANG='en_US.UTF-8' LANGUAGE='en_US.UTF-8' LC_ALL='en_US.UTF-8'
 
-
 # Download and install shiny server
-RUN R -e "install.packages(c('DT', 'devtools', 'BiocManager'), repos='http://cran.rstudio.com/')"
-RUN R -e "install.packages(c('shiny', 'shinydashboard', 'shinyWidgets', 'shinyBS', 'shinycssloaders', 'shinyjs', 'rjson'), repos='http://cran.rstudio.com/')"
-RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.923-amd64.deb \
-    && gdebi -n shiny-server-1.5.9.923-amd64.deb \
-    && rm -f shiny-server-1.5.9.923-amd64.deb \
-    && chown shiny:shiny /var/lib/shiny-server
+RUN wget --no-verbose https://download3.rstudio.org/ubuntu-14.04/x86_64/VERSION -O "version.txt" && \
+    VERSION=$(cat version.txt)  && \
+    wget --no-verbose "https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-$VERSION-amd64.deb" -O ss-latest.deb && \
+    gdebi -n ss-latest.deb && \
+    rm -f version.txt ss-latest.deb && \
+    . /etc/environment && \
+    R -e "install.packages(
+        c('shiny', 'rmarkdown', 'DT', 'devtools', 'BiocManager', 'shinydashboard',
+        'shinyWidgets', 'shinyBS', 'shinycssloaders', 'shinyjs', 'rjson'), 
+        repos='http://cran.rstudio.com/')" && \
+    chown shiny:shiny /var/lib/shiny-server
+
+#RUN R -e "install.packages(c('DT', 'devtools', 'BiocManager'), repos='http://cran.rstudio.com/')"
+#RUN R -e "install.packages(c('shiny', 'shinydashboard', 'shinyWidgets', 'shinyBS', 'shinycssloaders', 'shinyjs', 'rjson'), repos='http://cran.rstudio.com/')"
+#RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.923-amd64.deb \
+#    && gdebi -n shiny-server-1.5.9.923-amd64.deb \
+#    && rm -f shiny-server-1.5.9.923-amd64.deb \
+#    && chown shiny:shiny /var/lib/shiny-server
 
 # MesKit part:
 RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19'))" 
@@ -89,6 +100,5 @@ COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
 
 EXPOSE 3838
 
-# CMD ["R", "-e", "MesKit::runMesKit()"]
 # CMD ["/bin/bash"]
 CMD ["/usr/bin/shiny-server.sh"]
