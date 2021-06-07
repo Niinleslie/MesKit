@@ -21,6 +21,7 @@ plotCNA(
   removeEmptyChr = TRUE,
   showCytoband = FALSE,
   showGene = FALSE,
+  removeEmptyRows = FALSE,
   use.tumorSampleLabel = FALSE
 )
 }
@@ -56,6 +57,8 @@ plotCNA(
 \item{showCytoband}{Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.}
 
 \item{showGene}{Logical (Default: FALSE). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.}
+
+\item{removeEmptyRows}{Logical (Default: TRUE). Whether remove samples without CNV.}
 
 \item{use.tumorSampleLabel}{Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.}
 }

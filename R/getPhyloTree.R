@@ -57,7 +57,7 @@ getPhyloTree <- function(maf,
       # root_num <- which(matTree$tip.label == "NORMAL")
       # matTree <- root(matTree, root_num)
       bootstrap.value <- ape::boot.phylo(matTree, mut_dat, function(e){nj(dist.gene(e))}, B = bootstrap.rep.num,quiet = TRUE, rooted = TRUE)/(bootstrap.rep.num)*100
-    }else if(method == "MP"){
+    }else if(method == "MP"){      
       matTree <- byMP(mut_dat)
       # root_num <- which(matTree$tip.label == "NORMAL")
       # matTree <- root(matTree, root_num)
