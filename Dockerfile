@@ -77,12 +77,6 @@ RUN wget --no-verbose https://download3.rstudio.org/ubuntu-14.04/x86_64/VERSION 
     R -e "install.packages(c('DT', 'devtools', 'BiocManager', 'shiny', 'rmarkdown', 'shinydashboard', 'shinyWidgets', 'shinyBS', 'shinycssloaders', 'shinyjs', 'rjson'), repos='http://cran.rstudio.com/')" && \
     chown shiny:shiny /var/lib/shiny-server
 
-#RUN R -e "install.packages(c('DT', 'devtools', 'BiocManager'), repos='http://cran.rstudio.com/')"
-#RUN R -e "install.packages(c('shiny', 'shinydashboard', 'shinyWidgets', 'shinyBS', 'shinycssloaders', 'shinyjs', 'rjson'), repos='http://cran.rstudio.com/')"
-#RUN wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.9.923-amd64.deb \
-#    && gdebi -n shiny-server-1.5.9.923-amd64.deb \
-#    && rm -f shiny-server-1.5.9.923-amd64.deb \
-#    && chown shiny:shiny /var/lib/shiny-server
 
 # MesKit part:
 RUN R -e "BiocManager::install(c('BSgenome', 'GenomeInfoDb', 'org.Hs.eg.db', 'BSgenome.Hsapiens.UCSC.hg19'))" 
@@ -91,6 +85,7 @@ RUN R -e "devtools::install_github('Niinleslie/MesKit', ref = 'master')"
 
 # Copy the app to the image
 COPY inst/shiny /srv/shiny-server/
+COPY shiny-server.sh /usr/bin/shiny-server.sh
 
 # Copy further configuration files into the Docker image
 COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
