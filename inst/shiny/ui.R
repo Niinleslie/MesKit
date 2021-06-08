@@ -31,7 +31,7 @@ bodyHome <- tabItem("home",
                         status = "info",
                         solidHeader = TRUE,
                         title = div(strong("Introduction"),style = "font-size:2em; font-weight:500;"),
-                        p("Cancer develops as a result of the accumulation of genetic aberrations, which promotes the generation of distinct subpopulations of tumor cells and shapes intra-tumor heterogeneity (ITH). ITH is involves in tumor growth, progression, invasion, and metastasis, presenting one of the most significant barriers to accurate diagnoses and effective treatments of cancers. Therefore, dissecting and interpreting ITH of tumor dynamics is one of the major tasks in cancer research. Here, we present MesKit, an R-based package, to provide commonly used analysis and visualization modules in MRS study.",
+                        p("Cancer develops as a result of the accumulation of genetic aberrations, which promotes the generation of distinct subpopulations of tumor cells and shapes intra-tumor heterogeneity (ITH). ITH is involves in tumor growth, progression, invasion, and metastasis, presenting one of the most significant barriers to accurate diagnoses and effective treatments of cancers. Therefore, dissecting and interpreting ITH of tumor dynamics is one of the major tasks in cancer research. Here, we present MesKit, an R/Bioconductor package that provides commonly used analysis and visualization modules for MRS studies.",
                           style = "font-size:18px; font-weight:500;line-height:40px;"),
                         br()
                       )
@@ -57,10 +57,10 @@ bodyHome <- tabItem("home",
                                   br(),
                                   br(),
                                   h3(strong("With this MesKit Shiny APP:")),
-                                  p("- Characterize mutational landscape",br(),
+                                  p("- Visualize mutational landscape",br(),
                                     "- Quantify heterogeneity within or between tumors from the same patient",br(),
                                     "- Infer metastatic routes",br(),
-                                    "- Perform mutational signature analysis on different levels",br(),
+                                    "- Perform mutational signature analysis at different levels ",br(),
                                     "- Construct and visualize phylogenetic trees",
                                     style = "font-size:18px; font-weight:500;line-height:50px;"),
                                   style = "text-align: left;float:left;padding-left:0px;margin:0px"
@@ -702,7 +702,7 @@ bodyITH <- tabItem("ITH",
                              uiOutput("msdb")
                            ),
                            tabPanel(
-                             title = div(icon("image"), "Mut clustering", style = "font-size:1.5em; font-weight:600; "),
+                             title = div(icon("image"), "Cluster mutations", style = "font-size:1.5em; font-weight:600; "),
                              value = "ith_vafcluster",
                              uiOutput("vafcluster.patientlist"),
                              uiOutput("vafcluster_table_ui"),
@@ -1878,7 +1878,7 @@ bodytree <- tabItem('tree',
                                      uiOutput("phylotree_downloadbutton_ui")
                                  ),
                                  tabPanel(
-                                     title = div(icon("tree"), "Compare tree", style = "font-size:1.5em; font-weight:600; "), 
+                                     title = div(icon("tree"), "Compare trees", style = "font-size:1.5em; font-weight:600; "), 
                                      value = 'S_comparetree',
                                      verbatimTextOutput("comparetree_dist"),
                                      br(),
@@ -1899,7 +1899,7 @@ bodytree <- tabItem('tree',
                                      # uiOutput('treemutsig_table_ui')
                                  ),
                                  tabPanel(
-                                     title = div(icon("image"), "MutTrunkBranch", style = "font-size:1.5em; font-weight:600; "),
+                                     title = div(icon("image"), "Trunk vs Branch", style = "font-size:1.5em; font-weight:600; "),
                                      value = 'S_muttrunkbranch',
                                      uiOutput("muttrunkbranch.patientlist"),
                                      br(),

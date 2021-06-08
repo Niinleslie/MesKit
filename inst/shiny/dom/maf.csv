@@ -1,7 +1,6 @@
-Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,Variant_Type,Reference_Allele,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,Tumor_Sample_Barcode,Patient_ID,Tumor_ID
-CFAP74,1,1880545,1880545,Intron,SNP,C,A,16,3,0.1578,T1,HCC5647,Primary
-CFAP74,1,1880550,1880550,Intron,SNP,T,C,18,3,0.1428,T1,HCC5647,Primary
-CFAP74,1,1887387,1887387,Intron,SNP,T,A,15,8,0.3478,T1,HCC5647,Primary
-PRKCZ,1,1991054,1991054,Intron,SNP,C,T,138,27,0.1636,T1,HCC5647,Primary
-NPHP4,1,5965283,5965283,Intron,SNP,T,A,26,12,0.3157,T1,HCC5647,Primary
-CHD5,1,6202450,6202450,Intron,SNP,T,A,143,25,0.1488,T1,HCC5647,Primary
+Hugo_Symbol,Chromosome,Start_Position,End_Position,Variant_Classification,Variant_Type,Reference_Allele,Tumor_Seq_Allele2,Ref_allele_depth,Alt_allele_depth,VAF,Tumor_Sample_Barcode
+KLHL17,1,899515,899515,Silent,SNP,C,T,85,1,0.012,V402_P_1
+AGRN,1,982996,982996,Missense_Mutation,SNP,G,A,97,1,0.01,V402_P_1
+PANK4,1,2452742,2452742,Nonsense_Mutation,SNP,C,A,80,5,0.059,V402_P_1
+CHD5,1,6203883,6203883,Missense_Mutation,SNP,G,C,20,5,0.2,V402_P_1
+MASP2,1,11106655,11106655,Missense_Mutation,SNP,C,T,21,1,0.045,V402_P_1

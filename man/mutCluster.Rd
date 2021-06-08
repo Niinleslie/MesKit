@@ -29,8 +29,6 @@ mutCluster(
 Rename the 'Tumor_Sample_Barcode' by 'Tumor_Sample_Label'.}
 
 \item{...}{Other options passed to \code{\link{subMaf}}}
-
-\item{use.adjVAF}{Use adjusted VAF in analysis when adjusted VAF or CCF is available. Default FALSE.}
 }
 \value{
 clustering plots of vaf
