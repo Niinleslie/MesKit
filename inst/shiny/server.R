@@ -1211,8 +1211,10 @@ shinyServer(function(input, output, session){
   output$mutheatmap_plot <- renderPlot({
       if(!is.null(mutheatmap())){
           if(!identical(c("gg","ggplot"),class(mutheatmap()))){
+              pdf(NULL)
               return(mutheatmap()[[getpatient.mutheatmap()]]) 
           }else{
+              pdf(NULL)
               return(mutheatmap())
           }
           
