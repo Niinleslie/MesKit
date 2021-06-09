@@ -1254,6 +1254,7 @@ shinyServer(function(input, output, session){
               png(file,width = input$mutheatmap_width , height = input$mutheatmap_height,res = 100)
           }
           else if (input$Download_mutheatmap_plot_check == "pdf"){
+              pdf(NULL)
               pdf(file,width = input$mutheatmap_width/100 , height = input$mutheatmap_height/100)
           }
           if(!identical(c("gg","ggplot"),class(mutheatmap()))){

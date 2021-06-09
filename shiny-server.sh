@@ -2,6 +2,7 @@
 
 # Make sure the directory for individual app logs exists
 mkdir -p /var/log/shiny-server
+# changing the owner and group of my shiny app folder to shiny:shiny
 chown shiny.shiny /var/log/shiny-server
 
 if [ "$APPLICATION_LOGS_TO_STDOUT" != "false" ];

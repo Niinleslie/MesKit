@@ -85,10 +85,9 @@ RUN R -e "devtools::install_github('Niinleslie/MesKit', ref = 'master')"
 
 # Copy the app to the image
 COPY inst/shiny /srv/shiny-server/
-COPY shiny-server.sh /usr/bin/shiny-server.sh
-
-# Copy further configuration files into the Docker image
+# Copy configuration files into the Docker image
 COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
+COPY shiny-server.sh /usr/bin/shiny-server.sh
 
 EXPOSE 3838
 
