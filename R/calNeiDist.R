@@ -40,14 +40,18 @@ calNeiDist <- function(maf,
   processNei <- function(maf_data){
     
     patient <- unique(maf_data$Patient_ID)
-    if(nrow(maf_data) == 0){
-      message("Warning: there was no mutation in ", patient, " after filtering.")
-      return(NA)
-    }
     
     if(!"CCF" %in% colnames(maf_data)){
       stop(paste0("Calculation of Nei's distance requires CCF data.",
                   "No CCF data was found when generating Maf object with readMaf function"))
+    }
+    
+    maf_data <- maf_data %>% 
+      dplyr::filter(!is.na(CCF))
+    
+    if(nrow(maf_data) == 0){
+      message("Warning: there was no mutation in ", patient, " after filtering.")
+      return(NA)
     }
     Nei_input <- maf_data %>%
       tidyr::unite(
@@ -66,8 +70,7 @@ calNeiDist <- function(maf,
         "Tumor_ID",
         "Tumor_Sample_Barcode",
         "CCF"
-      ) %>% 
-      dplyr::filter(!is.na(.data$CCF))
+      )
     
     if(withinTumor){
       tumor <- unique(Nei_input$Tumor_ID)
