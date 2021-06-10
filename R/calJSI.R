@@ -36,21 +36,22 @@ calJSI <- function(
     use.tumorSampleLabel = FALSE,
     ...) {
     
-    processJSI <- function(m){
-        maf_data <- getMafData(m) %>%
-            dplyr::filter(!is.na(.data$Clonal_Status),
-                          !is.na(CCF))
-        if(! "CCF" %in% colnames(getMafData(m))){
+    processJSI <- function(patient, maf_input){
+        maf <- maf_input[[patient]]
+        maf_data <- getMafData(maf)
+        if(! "CCF" %in% colnames(maf_data)){
             stop(paste0("Calculation of Jaccard similarity requires CCF data." ,
                         "No CCF data was found when generating Maf/MafList object."))
         }
         
-        patient <- getMafPatient(m)
+        maf_data <- maf_data %>%
+            dplyr::filter(!is.na(.data$Clonal_Status),
+                          !is.na(CCF))
+        
         if(nrow(maf_data) == 0){
             message("Warning: there was no mutation found in ", patient, " after filtering.")
             return(NA)
         }
-        
         
         if(pairByTumor){
             if(length(unique(maf_data$Tumor_ID))  < 2 ){
@@ -237,11 +238,14 @@ calJSI <- function(
                         use.tumorSampleLabel = use.tumorSampleLabel,
                         ...)
     
+    patient_list <- names(maf_input)
+    result <- lapply(patient_list, processJSI, maf_input)
+    patient_list <- patient_list[!is.na(result)]
+    result <- result[!is.na(result)]  
     
-    result <- lapply(maf_input, processJSI)
-    result <- result[!is.na(result)]
     
     if(length(result) > 1){
+        names(result) <- patient_list
         return(result)
     }else if(length(result) == 0){
         return(NA)

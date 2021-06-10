@@ -27,8 +27,18 @@ compareCCF <- function(maf,
                        ...){
 
   
-  processComCCF <- function(m, pairByTumor){
-    maf_data <- getMafData(m) %>% 
+  processComCCF <- function(patient, pairByTumor, maf_input){
+    
+    maf <- maf_input[[patient]]
+    
+    maf_data <- getMafData(maf)
+    ## check if ccf data is provided
+    if(! "CCF" %in% colnames(maf_data)){
+      stop(paste0("compareCCF function requires CCF data.\n",
+                  "No CCF data was found when generate Maf/MafList object."))
+    }
+    
+    maf_data <- maf_data %>% 
       tidyr::unite(
         "Mut_ID",
         c(
@@ -41,19 +51,12 @@ compareCCF <- function(maf,
         remove = FALSE
       ) %>%
       dplyr::filter(!is.na(.data$CCF))
-    
-    patient <- getMafPatient(m)
+  
     if(nrow(maf_data) == 0){
       message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
     }
     
-    
-    ## check if ccf data is provided
-    if(! "CCF" %in% colnames(maf_data)){
-      stop(paste0("ccfDensity function requires CCF data.\n",
-                  "No CCF data was found when generate Maf/MafList object."))
-    }
     if(pairByTumor){
       types <- unique(maf_data$Tumor_ID)
       if(length(types) < 2){
@@ -92,22 +95,22 @@ compareCCF <- function(maf,
                        sep = ":", remove = FALSE) %>% 
           dplyr::distinct(.data$Mut_ID2, .keep_all = TRUE) %>%
           dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>%
-          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF") %>%
+          tidyr::pivot_wider(names_from = "Tumor_ID", values_from = "CCF")
           # dplyr::select("Tumor_ID", "Hugo_Symbol", "Mut_ID", "CCF") %>%
           # tidyr::pivot_wider(names_from = "Tumor_ID", values_from = c("CCF", "Clonal_Status")) %>%
-          tidyr::drop_na()
-          
+          # tidyr::drop_na()
       }else{
         ccf.pair <- maf_data %>% 
           dplyr::filter(.data$Tumor_Sample_Barcode %in% c(S1, S2)) %>%
           dplyr::select("Tumor_Sample_Barcode", "Hugo_Symbol", "Mut_ID", "CCF") %>% 
-          tidyr::pivot_wider(names_from = "Tumor_Sample_Barcode", values_from = "CCF") %>% 
-          tidyr::drop_na()
+          tidyr::pivot_wider(names_from = "Tumor_Sample_Barcode", values_from = "CCF")
+          # tidyr::drop_na()
       }
       if(nrow(ccf.pair) == 0){
         message(paste0("Warning: no shared mutaions were detected between ",S1, " and ", S2) )
         return(NA)
       }
+      ccf.pair[is.na(ccf.pair)] <- 0
       return(as.data.frame(ccf.pair) )
     }
     
@@ -127,8 +130,11 @@ compareCCF <- function(maf,
                       mafObj = TRUE,
                       ...)
   
-  result <- lapply(maf_input, processComCCF, pairByTumor)
-  result <- result[!is.na(result)]
+  patient_list <- names(maf_input)
+  result <- lapply(patient_list, processComCCF, pairByTumor, maf_input)
+  patient_list <- patient_list[!is.na(result)]
+  result <- result[!is.na(result)]  
+  names(result) <- patient_list
   
   if(length(result) == 0){
     return(NA)

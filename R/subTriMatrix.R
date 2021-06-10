@@ -101,10 +101,18 @@ subTriMatrix <- function(phyloTree_list, CT = FALSE, level = 2){
       stop("There are not enough mutations in ",patient)
     }
     
-    origin_context <- Biostrings::getSeq(get(refBuild),
-                                         S4Vectors::Rle(paste("chr",mut.branches$Chromosome,sep = "")),
-                                         mut.branches$Start_Position-1,
-                                         mut.branches$Start_Position+1) 
+    if(grepl("chr",mut.branches$Chromosome[1])){
+      origin_context <- Biostrings::getSeq(get(refBuild),
+                                           S4Vectors::Rle(mut.branches$Chromosome),
+                                           mut.branches$Start_Position-1,
+                                           mut.branches$Start_Position+1)
+    }else{
+      origin_context <- Biostrings::getSeq(get(refBuild),
+                                           S4Vectors::Rle(paste("chr",mut.branches$Chromosome,sep = "")),
+                                           mut.branches$Start_Position-1,
+                                           mut.branches$Start_Position+1)
+    }
+    
     origin_context <- as.character(origin_context)
     
     muts <- paste(mut.branches$Reference_Allele, mut.branches$Tumor_Allele, sep = ">")

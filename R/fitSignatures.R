@@ -178,9 +178,7 @@ fitSignatures <- function(tri_matrix = NULL,
     
     rownames(recon_matrix) <- rownames(origin_matrix)
     colnames(recon_matrix) <- colnames(origin_matrix)
-    
-    # print(con_matrix_absolute)
-    # print(recon_matrix)
+
     
     ## calculate RSS of reconstructed matrix and origin matrix
     RSS <- vapply(seq_len(branch_num), function(i){
@@ -210,8 +208,7 @@ fitSignatures <- function(tri_matrix = NULL,
       if(length(sig_con_relative) == 1){
         names(sig_con_relative) <- colnames(con_matrix_absolute)
       }
-      
-      idx <- which(sig_con_relative >= signature.cutoff)
+      idx <- which(sig_con_relative > signature.cutoff)
       sig_name <- names(sig_con_relative[idx])
       if(length(sig_name) == 0){
         return(NA)
@@ -233,11 +230,18 @@ fitSignatures <- function(tri_matrix = NULL,
     })
     signatures_etiology_list <- signatures_etiology_list[!is.na(signatures_etiology_list)]
     signatures_etiology <- dplyr::bind_rows(signatures_etiology_list)
-    ## order data frame by contribution of each branch
-    signatures_etiology <- dplyr::arrange(signatures_etiology,
-                                           dplyr::desc(.data$Level_ID),
-                                           dplyr::desc(.data$Contribution_relative)) 
-    
+    if(nrow(signatures_etiology) != 0){
+      ## order data frame by contribution of each branch
+      signatures_etiology <- dplyr::arrange(signatures_etiology,
+                                            dplyr::desc(.data$Level_ID),
+                                            dplyr::desc(.data$Contribution_relative)) 
+      
+    }else{
+      message("Warning: None of relative contribution of signature",
+              " in ",patient, " is larger than signature.cutoff")
+      signatures_etiology <- NULL
+    }
+
     recon_df  <- as.data.frame(recon_matrix) 
     recon_df$Branch <- as.character(row.names(recon_df)) 
     rownames(recon_df) <- NULL
@@ -275,7 +279,7 @@ fitSignatures <- function(tri_matrix = NULL,
         contribution.relative = con_matrix_relative,
         total.cosine.similarity = total_cosine_similarity,
         RSS = RSS, 
-        signatures.etiology = signatures_etiology,
+        signatures.etiology = as.data.frame(signatures_etiology) ,
         tsb.label = tsb.label
       )
       return(f)

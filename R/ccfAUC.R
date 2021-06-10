@@ -40,18 +40,23 @@ ccfAUC <- function(
     id_col <- "Tumor_Sample_Barcode"
     ccf_col <- "CCF"
   }
-  processAUC <- function(m, withinTumor, plot.density){
+  processAUC <- function(patient, withinTumor, plot.density, maf_input){
+    maf <- maf_input[[patient]]
+    maf_data <- getMafData(maf)
+    if(! "CCF" %in% colnames(maf_data)){
+      stop(paste0("Calculation of CCF AUC requires CCF data." ,
+                  "No CCF data was found when generating Maf/MafList object."))
+    }
     
-    maf_data <- getMafData(m) %>% 
+    maf_data <- maf_data %>% 
       dplyr::filter(!is.na(CCF),
                     !is.na(Tumor_Average_CCF))
-    
-    patient <- getMafPatient(m)
     
     if(nrow(maf_data) == 0){
       message("Warning: there was no mutation in ", patient, " after filtering.")
       return(NA)
     }
+    
     ids <- unique(maf_data[[id_col]])
     processAUCID <- function(id, maf_data, withinTumor){
       subdata <- subset(maf_data, maf_data[[id_col]]  == id)
@@ -156,13 +161,14 @@ ccfAUC <- function(
                       clonalStatus = clonalStatus,
                       use.tumorSampleLabel = use.tumorSampleLabel,
                       mafObj = TRUE,...)
-  
-  
-  result <- lapply(maf_input, processAUC, withinTumor, plot.density)
+  patient_list <- names(maf_input)
+  result <- lapply(patient_list, processAUC, withinTumor, plot.density, maf_input)
+  patient_list <- patient_list[!is.na(result)]
   result <- result[!is.na(result)]   
   
   
   if(length(result) > 1){
+    names(result) <- patient_list
     return(result)
   }else if(length(result) == 0){
     return(NA)
