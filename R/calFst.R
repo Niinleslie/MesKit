@@ -88,7 +88,7 @@ calFst <- function(
         "Tumor_Sample_Barcode",
         "VAF",
         "totalDepth") %>% 
-      ## remove NA(it may be caused by NA of CCF)
+      ## remove NA(it may be caused by NA of VAF)
       dplyr::filter(!is.na(.data$VAF))
     
     ## check data

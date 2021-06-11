@@ -14,6 +14,7 @@
 #' @param chrom.bar.height Bar height of each chromosome. Default 0.5.
 #' @param showRownames Logical (Default: TRUE). Show sample names of rows.
 #' @param removeEmptyChr Remove empty chromosomes that do not exist in all samples. Default TRUE. 
+#' @param removeEmptyRows  Logical (Default: TRUE). Whether remove samples without CNV.
 #' @param showCytoband Logical (Default: FALSE). Show cytobands on the plot. Only when the seg object is created with GISTIC results, this parameter can be TRUE.
 #' @param showGene Logical (Default: FALSE). Show gene symbols on the plot. Only when the seg object is created with txdb, this parameter can be TRUE.
 #' @param use.tumorSampleLabel Logical (Default: FALSE). Rename the 'Tumor_Sample_Barcode' with 'Tumor_Sample_Label'.
@@ -57,12 +58,26 @@ plotCNA <- function(seg,
                     removeEmptyChr = TRUE,
                     showCytoband = FALSE,
                     showGene = FALSE,
+                    removeEmptyRows = FALSE,
                     use.tumorSampleLabel = FALSE
 ){
     
     ## combine data frame
     if(is(seg, "list")){
         seg <- dplyr::bind_rows(seg) %>% as.data.table()
+    }
+    
+    if(removeEmptyRows){
+        tsb_remove <- c()
+        for(tsb in unique(seg$Tumor_Sample_Barcode)){
+            if(all(seg[seg$Tumor_Sample_Barcode == tsb]$Type == "Neutral")){
+                tsb_remove <- c(tsb_remove, tsb)
+            }
+        }
+        if(length(tsb_remove) > 0){
+            message(paste0("Remove ", paste(tsb_remove, collapse = ",")," without CNV"))
+            seg <- seg[!seg$Tumor_Sample_Barcode %in% tsb_remove]
+        }
     }
     
     if(use.tumorSampleLabel){
@@ -110,6 +125,9 @@ plotCNA <- function(seg,
         seg <- dplyr::select(seg, -"Patient_ID")
     }
     
+    
+    
+
     
     
     # if(show.GISTIC.gene){
@@ -494,7 +512,7 @@ plotCNA <- function(seg,
                                          y = max(backgroundTable$ymax),
                                          label = Cytoband),
                                      size = annot.text.size,
-                                     max.overlaps = 200,
+                                     max.overlaps = 30000,
                                      angle = 90,
                                      nudge_y  = sample.bar.height*0.3*sample_num/8,
                                      direction = "x",
@@ -524,6 +542,7 @@ plotCNA <- function(seg,
                                          y = max(backgroundTable$ymax) + sample.bar.height*sample_num/5,
                                          label = Hugo_Symbol),
                                      size = annot.text.size,
+                                     max.overlaps = 30000,
                                      angle = 90,
                                      # nudge_y  = sample.bar.height*0.3*patient_num,
                                      direction = "both",
