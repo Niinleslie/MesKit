@@ -32,7 +32,6 @@ a result list of CCF comparing between samples/tumor pairs
 }
 \description{
 Compare the CCF between samples/tumor pairs
-This function requires CCF for clustering
 }
 \examples{
 maf.File <- system.file("extdata/", "CRC_HZ.maf", package = "MesKit")
