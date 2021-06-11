@@ -1,0 +1,20 @@
+citHeader("MesKit can be cited as:")
+
+citEntry(
+   entry="article",
+   title = "MesKit: a tool kit for dissecting cancer evolution of multi-region tumor biopsies through somatic alterations.",
+   author = personList(as.person("Mengni Liu"),
+                       as.person("Jianyu Chen"),
+                       as.person("Xin Wang"),
+                       as.person("Chengwei Wang"),
+                       as.person("Xiaolong Zhang"),
+                       as.person("Yubin Xie"),
+                       as.person("Zhixiang Zuo"),
+                       as.person("Jian Ren"),
+                       as.person(" Qi Zhao")
+                       ),
+   journal = "GigaScience",
+   year = 2021,
+   doi = "https://doi.org/10.1093/gigascience/giab036",
+   textVersion = "Mengni Liu, Jianyu Chen, Xin Wang, Chengwei Wang, Xiaolong Zhang, Yubin Xie, Zhixiang Zuo, Jian Ren, Qi Zhao, MesKit: a tool kit for dissecting cancer evolution of multi-region tumor biopsies through somatic alterations, GigaScience, Volume 10, Issue 5, May 2021, giab036, https://doi.org/10.1093/gigascience/giab03"
+)
