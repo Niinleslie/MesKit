@@ -1142,6 +1142,7 @@ shinyServer(function(input, output, session){
               show.geneList <- input$mutheatmap_showgenelist
               gene.text.size <- as.numeric(input$mutheatmap_genetextsize)
           }
+          pdf(NULL)
           hm <- mutHeatmap(maf,
                            patient.id = input$mutheatmap_patientid,
                            geneList = genelist,
