@@ -135,13 +135,8 @@ calFst <- function(
           sd = .data$vaf1*(1-.data$vaf2)+.data$vaf2*(1-.data$vaf1)
         )
       fst <- mean(pair_vaf$covariance)/mean(pair_vaf$sd)
-      # if(is.nan(fst)){
-      #   browser()
-      #   print(pair_vaf)
-      # }
       return(fst)
     }
-    
     fst.list <- lapply(pairs, processFstpair) %>% unlist()
     pairs_name <- lapply(pairs, function(x)paste0(x[1], "_", x[2])) %>% unlist()
     names(fst.list) <- pairs_name
@@ -152,23 +147,25 @@ calFst <- function(
       
       idx <- which(j == "0")
       j2 <- names(j[idx])
-      
       mat_row <- vapply(j2, function(g){
         name1 <- paste0(g, "_", row_name)
         name2 <- paste0(row_name, "_", g)
         
-        pos <- which(grepl(name1, names(fst.list)))
+        # pos <- which(grepl(name1, names(fst.list)))
+        pos <- which(names(fst.list) == name1)
         if(length(pos) == 0){
-          pos <- which(grepl(name2, names(fst.list)))
+          # pos <- which(grepl(name2, names(fst.list)))
+          pos <- which(names(fst.list) == name2)
         }
         fst <- fst.list[pos]
+        
+
         return(fst)
       }, FUN.VALUE = double(1))
       
       j[idx] <- mat_row
       return(j)
     }
-    
     dist_mat <- t(apply(dist_mat, 1, processFstMat))
     dist_mat <- dist_mat[,-ncol(dist_mat)] %>% apply(c(1,2),as.numeric)
     

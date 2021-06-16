@@ -133,9 +133,9 @@ calNeiDist <- function(maf,
         name1 <- paste0(g, "_", row_name)
         name2 <- paste0(row_name, "_", g)
         
-        pos <- which(grepl(name1, names(nei.list)))
+        pos <- which(names(nei.list) == name1)
         if(length(pos) == 0){
-          pos <- which(grepl(name2, names(nei.list)))
+          pos <- which(names(nei.list) == name2)
         }
         nei <- nei.list[pos]
         return(nei)
