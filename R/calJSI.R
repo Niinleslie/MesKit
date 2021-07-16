@@ -183,9 +183,9 @@ calJSI <- function(
                 name1 <- paste0(g, "_", row_name)
                 name2 <- paste0(row_name, "_", g)
                 
-                pos <- which(grepl(name1, names(jsi.list)))
+                pos <- which(names(jsi.list) == name1)
                 if(length(pos) == 0){
-                    pos <- which(grepl(name2, names(jsi.list)))
+                    pos <- which(names(jsi.list) == name2)
                 }
                 jsi <- jsi.list[pos]
                 return(jsi)

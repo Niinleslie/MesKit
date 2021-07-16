@@ -142,7 +142,9 @@ readMaf <- function(
             dplyr::select("Tumor_Sample_Barcode","Tumor_ID") %>%
             dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
         if(nrow(sample.info) < 2){
-            stop("A minimum of two tumor samples are required for each patient.")
+            n <- nrow(sample.info)
+            stop(paste0(patient," has only ",n," tumor samples.",
+                        "A minimum of two tumor samples are required for each patient."))
         }
         ## set Maf
         maf <- Maf(
