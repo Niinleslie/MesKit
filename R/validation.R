@@ -36,18 +36,43 @@ validMaf <- function(maf_data){
 
 validCCF <- function(ccf_data, maf_data, use.indel.ccf){
   
+    ccf_data$Patient_ID <- as.character(ccf_data$Patient_ID)
+    ccf_data$Tumor_Sample_Barcode <- as.character(ccf_data$Tumor_Sample_Barcode)
+    ccf_data$Chromosome <- as.character(ccf_data$Chromosome)
+    ccf_data$CCF <- as.numeric(ccf_data$CCF)
+    
     patients_in_maf <- sort(unique(maf_data$Patient_ID))
     patients_in_ccf <- sort(unique(ccf_data$Patient_ID))  
     if(!identical(patients_in_maf, patients_in_ccf)){
-      patient_setdiff <- setdiff(patients_in_maf, patients_in_ccf)
-      warning("Patient: ",paste0(paste(patient_setdiff, collapse = ", "), " are not in ccf data"))
+      
+      if(length(patients_in_maf) > length(patients_in_ccf)){
+        
+        patient_setdiff <- setdiff(patients_in_maf, patients_in_ccf)
+        warning("Patient: ",paste0(paste(patient_setdiff, collapse = ", "), " are not in ccf data"))
+        
+      }else{
+        patient_setdiff <- setdiff(patients_in_ccf, patients_in_maf)
+        warning("Patient: ",paste0(paste(patient_setdiff, collapse = ", "), " are not in maf data"))
+        
+      }
+      
     }
     
     tsb_in_maf <- sort(unique(maf_data$Tumor_Sample_Barcode))
     tsb_in_ccf <- sort(unique(ccf_data$Tumor_Sample_Barcode)) 
+    
     if(!identical(tsb_in_maf, tsb_in_ccf)){
-      tsb_setdiff <- setdiff(tsb_in_maf, tsb_in_ccf)
-      warning("Tumor sample barcodes: ",paste0(paste(tsb_setdiff, collapse = ", "), " are not in ccf data"))
+      
+      if(length(tsb_in_maf) > length(tsb_in_ccf)){
+        tsb_setdiff <- setdiff(tsb_in_maf, tsb_in_ccf)
+        warning("Tumor sample barcodes: ",paste0(paste(tsb_setdiff, collapse = ", "), " are not in ccf data"))
+        
+      }else{
+        tsb_setdiff <- setdiff(tsb_in_ccf, tsb_in_maf)
+        warning("Tumor sample barcodes: ",paste0(paste(tsb_setdiff, collapse = ", "), " are not in maf data"))
+        
+      }
+      
     }  
     
     
@@ -68,11 +93,6 @@ validCCF <- function(ccf_data, maf_data, use.indel.ccf){
     }else{
       indel.ccf.col <- NULL
     }
-    
-    ccf_data$Patient_ID <- as.character(ccf_data$Patient_ID)
-    ccf_data$Tumor_Sample_Barcode <- as.character(ccf_data$Tumor_Sample_Barcode)
-    ccf_data$Chromosome <- as.character(ccf_data$Chromosome)
-    ccf_data$CCF <- as.numeric(ccf_data$CCF)
     # if("CCF_Std" %in% colnames(ccf_data)){
     #     ccf_data$CCF_Std <- as.numeric(ccf_data$CCF_Std)
     # }
@@ -119,13 +139,21 @@ validClinicalData <- function(clin_data, maf_data){
   }
   
   
-  maf_tb <- unique(maf_data$Tumor_Sample_Barcode)
-  clin_tb <- unique(clin_data$Tumor_Sample_Barcode)
-  tb_setdiff <- setdiff(maf_tb, clin_tb)
-  
-  if(length(tb_setdiff) > 0){
-    stop(paste0("Information about Tumor_Sample_Barcode ", paste(tb_setdiff, collapse = ", "), " cannot be found in clinical data!"))
-  }
+  maf_tb <- sort(unique(maf_data$Tumor_Sample_Barcode))
+  clin_tb <- sort(unique(clin_data$Tumor_Sample_Barcode))
+
+  if(!identical(maf_tb, clin_tb)){
+    
+    if(length(maf_tb) > length(clin_tb)){
+      tb_setdiff <- setdiff(maf_tb, clin_tb)
+      stop(paste0("Information about Tumor_Sample_Barcode ", paste(tb_setdiff, collapse = ", "), " cannot be found in clinical data!"))
+    }else{
+      tb_setdiff <- setdiff(clin_tb, maf_tb)
+      stop(paste0("Information about Tumor_Sample_Barcode ", paste(tb_setdiff, collapse = ", "), " cannot be found in clinical data!"))
+      
+    }
+    
+  }  
   
   return(clin_data)
   

@@ -126,7 +126,6 @@ plotCNA <- function(seg,
     }
     
     
-    
 
     
     
@@ -218,7 +217,7 @@ plotCNA <- function(seg,
     seg$hmax <- 0
     h <- chrom.bar.height
     
-    if("patient" %in% colnames(seg)& length(unique(seg$patient)) > 1){
+    if("patient" %in% colnames(seg)){
         
         ## sort sampleid 
         seg <- seg %>% 
@@ -237,8 +236,7 @@ plotCNA <- function(seg,
                 stop(paste0(patient.setdiff,
                             " cannot be found in your data. Please check sampleOrder!"))
             }
-            
-            slist <- lapply(unique(seg$patient) ,function(p){
+            slist <- lapply(as.character(unique(seg$patient))  ,function(p){
                 o1 <- sampleOrder[[p]]
                 if(is.null(o1)){
                     return(sampleids[grepl(p, sampleids)])

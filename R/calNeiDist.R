@@ -40,7 +40,6 @@ calNeiDist <- function(maf,
   processNei <- function(maf_data){
     
     patient <- unique(maf_data$Patient_ID)
-    
     if(!"CCF" %in% colnames(maf_data)){
       stop(paste0("Calculation of Nei's distance requires CCF data.",
                   "No CCF data was found when generating Maf object with readMaf function"))
@@ -99,13 +98,16 @@ calNeiDist <- function(maf,
     colnames(dist_mat) <- c(samples, "name")
     
     processNeipair <- function(pair){
-      ccf.pair <- subset(Nei_input, Nei_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2])) %>%
-        dplyr::mutate(CCF = as.numeric(.data$CCF)) %>% 
-        as.data.frame( ) %>% 
+      ccf.pair <- subset(Nei_input, Nei_input$Tumor_Sample_Barcode %in% c(pair[1], pair[2]))
+      ccf.pair$CCF <- as.numeric(ccf.pair$CCF) 
+      ccf.pair <- as.data.frame(ccf.pair)
+      ccf.pair <- ccf.pair %>% 
         tidyr::pivot_wider(names_from = "Tumor_Sample_Barcode",
                            values_from = "CCF",
-                           values_fill = list("CCF" = 0)) %>%
-        dplyr::select(-"Mut_ID", -"Tumor_ID")
+                           values_fill =  0)
+      
+      ccf.pair <- ccf.pair %>% dplyr::select(-"Mut_ID", -"Tumor_ID")
+
       colnames(ccf.pair) <- c("ccf1", "ccf2")
       x <- ccf.pair$ccf1
       y <- ccf.pair$ccf2

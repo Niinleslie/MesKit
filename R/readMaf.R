@@ -136,6 +136,20 @@ readMaf <- function(
     
     data_list <- split(maf_data, maf_data$Patient_ID)
     maf_patient_list <- list()
+    tsb_num_list <- c()
+    for(data in data_list){
+        patient <- unique(data$Patient_ID)
+        sample.info <- data %>% 
+            dplyr::select("Tumor_Sample_Barcode","Tumor_ID") %>%
+            dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
+        tsb_num_list <- c(tsb_num_list, nrow(sample.info))
+    }
+    
+    if(all(tsb_num_list == 1)){
+        stop(paste0("All patients have only 1 tumor samples. ",
+                    "A minimum of two tumor samples are required for each patient.")) 
+    }
+    
     for(data in data_list){
         patient <- unique(data$Patient_ID)
         sample.info <- data %>% 
@@ -143,8 +157,8 @@ readMaf <- function(
             dplyr::distinct(.data$Tumor_Sample_Barcode, .keep_all = TRUE)
         if(nrow(sample.info) < 2){
             n <- nrow(sample.info)
-            stop(paste0(patient," has only ",n," tumor samples.",
-                        "A minimum of two tumor samples are required for each patient."))
+            warning(paste0("Only one tumor sample of ",patient, " was detected.",
+                        "For a single patient, a minimum of two tumor samples is required for multi-sample analysis."))
         }
         ## set Maf
         maf <- Maf(
