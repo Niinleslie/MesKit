@@ -1,7 +1,7 @@
 
 <img src="https://github.com/Niinleslie/MesKit/blob/mnliu/vignettes/logo.png" height="80" width="240" alt = "Github logo" /> 
 
-
+[![check in Biotreasury](https://img.shields.io/badge/Biotreasury-collected-brightgreen)](https://biotreasury.rjmart.cn/#/tool?id=23)
 # [M]()ulti-region [e]()xome [s]()equencing analysis tool [Kit]()
 
 Intra-tumor heterogeneity (ITH) is now thought to be a key factor contributing to the therapeutic failures and drug resistance, which have attracted increasing attention in the cancer research field. Here, we present an R package, MesKit, for characterizing cancer genomic ITH and inferring the history of tumor evolution via implementation of well-established computational and statistical methods. 
